@@ -77,6 +77,7 @@
   <script>
     const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'overview',selected:null,selectedDate:null,baseDate:null};
+    const ARCHIVED_FOCUS={'2026-09-19':['006','008','013','014','017','027']};
     const $=id=>document.getElementById(id);
     const safe=v=>{if(v===null||v===undefined||v==='')return '未确认';const s=String(v);return s==='PASS'?'未确认':s.replace(/PASS/g,'未确认')};
     const resultName={H:'主胜',D:'平',A:'客胜'},pickCode={'主胜':'H','平':'D','客胜':'A'};
@@ -110,7 +111,7 @@
       if(state.model==='risk')return [['HUR',row.risk?.hur],['DTR',row.risk?.dtr],['DLR',row.risk?.dlr]];
       if(state.model==='cold')return [['冷门风险','HUR '+safe(row.risk?.hur)],['关注第二方向',row.second]];
       if(state.model==='six')return [['FT首选',row.ftTop1],['Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['HUR',row.risk?.hur],['DTR',row.risk?.dtr],['DLR',row.risk?.dlr],['DQ',row.risk?.dq]];
-      if(state.model==='daily')return [['重心等级',row.focusTag||row.focus_tag||row.tier],['首选建议',row.ftTop1],['次选建议',row.second]];
+      if(state.model==='daily')return [['重心等级',ARCHIVED_FOCUS[row.date]?.includes(String(row.no).padStart(3,'0'))?'赛前重心':row.focusTag||row.focus_tag||row.tier],['首选建议',row.ftTop1],['次选建议',row.second]];
       return [['FT首选',row.ftTop1],['第二方向',row.second],['让球方向',row.handicap]];
     }
     function adviceText(row){
@@ -143,6 +144,8 @@
     function empty(title,text){const x=el('div','empty');x.append(el('b','',title),el('div','',text));return x}
     function notice(){return el('div','notice','全池展示正式赛前冻结的首选与次选，任一方向命中即计本场评测成功。影子表、赛后补算和未核验字段不会作为正式结论发布。')}
     function isFocus(row){
+      const archived=ARCHIVED_FOCUS[row.date],no=String(row.no??'').padStart(3,'0');
+      if(Array.isArray(archived))return row.pregameVerified===true&&archived.includes(no);
       const tags=[row.focusTag,row.focus_tag,row.recommendationLevel,row.recommendation_level,row.priorityTag,row.priority_tag,row.bestPlayLevel,row.best_play_level,row.bestPlay?.level,row.best_play?.level];
       const explicit=tags.some(v=>/^(重心|重点|核心|FOCUS|PRIORITY|BEST_PLAY|A\+|A\+单|A\+双)$/i.test(String(v??'').trim()));
       const marked=row.isFocus===true||row.is_focus===true||row.isKeyMatch===true||row.is_key_match===true||row.isBestPlay===true||row.is_best_play===true;
