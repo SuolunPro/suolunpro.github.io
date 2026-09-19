@@ -179,15 +179,15 @@
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
     function errorBox(e){const x=el('div','error');x.append(el('b','','正式接口暂不可用'),el('div','',safe(e?.message||e)+'。页面不会使用模拟数据代替。'));return x}
     function render(){closeDetail();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
-    async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
+    async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function buildDates(poolDate){
       const base=new Date((poolDate||new Date().toISOString().slice(0,10))+'T12:00:00+08:00'),days=['日','一','二','三','四','五','六'],box=$('dates');box.replaceChildren();
-      for(let i=-3;i<=3;i++){const d=new Date(base);d.setDate(d.getDate()+i);const iso=isoDate(d),isBase=iso===state.baseDate,isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));b.append(el('b','',isBase?'今天':'周'+days[d.getDay()]),el('span','',String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')));b.onclick=()=>selectDate(iso);box.append(b)}
+      for(let i=-6;i<=0;i++){const d=new Date(base);d.setDate(d.getDate()+i);const iso=isoDate(d),isBase=iso===state.baseDate,isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));b.append(el('b','',isBase?'今天':'周'+days[d.getDay()]),el('span','',String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')));b.onclick=()=>selectDate(iso);box.append(b)}
     }
     async function selectDate(date){
       if(date===state.selectedDate)return;
-      if(date<'2026-09-16'||date>state.baseDate){alert('该日期暂无可核验的正式赛前记录。');return}
+      if(date<isoDate(new Date(new Date(state.baseDate+'T12:00:00+08:00').getTime()-6*86400000))||date>state.baseDate){alert('该日期暂无可核验的正式赛前记录。');return}
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
       try{const d=await load('archive',date);state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
     }
