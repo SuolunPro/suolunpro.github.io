@@ -100,10 +100,10 @@
     function statusText(row,history){
       if(verified(row)&&state.model==='cold')return coldHit(row)?'抓冷成功':'冷门未中';
       if(verified(row))return evaluationHit(row)?'评测成功':'评测未中';
-      if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='cold')return '冷门监测';if(state.model==='six')return '六维入选';if(state.model==='daily')return '每日优选';
+      if(row.matchStatus==='POSTPONED')return '比赛延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='cold')return '冷门监测';if(state.model==='six')return '六维入选';if(state.model==='daily')return '每日优选';
       return '赛前冻结'
     }
-    function statusClass(row,history){if(verified(row)){const success=state.model==='cold'?coldHit(row):evaluationHit(row);return 'status '+(success?'verified':'fail')}return 'status'}
+    function statusClass(row,history){if(row.matchStatus==='POSTPONED')return 'status pass';if(verified(row)){const success=state.model==='cold'?coldHit(row):evaluationHit(row);return 'status '+(success?'verified':'fail')}return 'status'}
     function moduleData(row){
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球方向',row.handicap],['方向状态',row.handicapEligible===true?'已发布':row.handicapEligible===false?'未通过':'未确认']];
       if(state.model==='wdl')return [['FT首选',row.ftTop1],['Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['第二方向',row.second]];
@@ -129,7 +129,7 @@
       head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [row.home,row.away].forEach(name=>{const t=el('div','team');t.append(el('span','crest',initial(name)),el('span','team-name',safe(name)));teams.append(t)});
-      const settled=verified(row),score=el('div','score',settled?safe(resultName[row.result]||row.result):safe(row.officialHandicap));score.append(el('span','',settled?'正式赛果':'官方让球'));
+      const settled=verified(row),score=el('div','score',settled?safe(resultName[row.result]||row.result):safe(row.officialHandicap));score.append(el('span','',settled?'正式赛果':row.matchStatus==='POSTPONED'?'比赛延期':'官方让球'));
       fixture.append(teams,score);
       const analysis=el('div','analysis'),values=moduleData(row),triplet=el('div','triplet'+(values.length===2?' pair':values.length===6?' six-grid':''));
       values.forEach(([k,v],i)=>{const d=el('div','datum'+(i===0?' primary':''));d.append(el('span','',k),el('b','',safe(v)));triplet.append(d)});
@@ -191,7 +191,7 @@
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
       try{const d=await load('archive',date);state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
     }
-    function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦 '+safe(d.modelVersion);$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.count-settled);buildDates(state.baseDate||d.date)}
+    function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦 '+safe(d.modelVersion);$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];render()});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;render()});
