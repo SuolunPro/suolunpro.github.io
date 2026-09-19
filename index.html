@@ -33,9 +33,6 @@
         <button class="model active" data-model="overview">综合评测</button>
         <button class="model" data-model="handicap">让球评测</button>
         <button class="model" data-model="wdl">胜平负</button>
-        <button class="model" data-model="risk">风险分析</button>
-        <button class="model" data-model="cold">冷门监测</button>
-        <button class="model" data-model="six">六维定胆</button>
         <button class="model" data-model="daily">每日优选</button>
       </div>
       <div class="hero-copy">
@@ -96,42 +93,31 @@
       overview:['索伦综合评测','汇总正式赛前冻结记录，展示首选、次选与让球方向'],
       handicap:['索伦让球评测','根据公开让球线展示经正式批次核验的方向'],
       wdl:['索伦胜平负','展示正式FT首选、第二方向及已发布的Top1概率'],
-      risk:['索伦风险分析','展示可公开的风险指标与质量核验结论'],
-      cold:['索伦冷门监测','监测全池HUR红的正式赛前风险场，不伪造冷门分数'],
-      six:['索伦六维定胆','逐项展示FT、概率、HUR、DTR、DLR与DQ六项正式证据'],
       daily:['索伦每日优选','仅展示赛前正式标记的重心场次；完整全池请前往赛事页查看']
     };
     const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
     function fmtTime(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
     function fmtStamp(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
     function initial(name){const s=safe(name);return s==='未确认'?'?':s.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g,'').slice(0,1).toUpperCase()||'?'}
-    function coldHit(row){return verified(row)&&pickCode[row.second]===normalizeResult(row.result)&&pickCode[row.ftTop1]!==normalizeResult(row.result)}
     function evaluationHit(row){
       if(state.model==='handicap')return handicapHit(row);
       return verified(row)&&(pickCode[row.ftTop1]===normalizeResult(row.result)||pickCode[row.second]===normalizeResult(row.result))
     }
     function statusText(row,history){
-      if(verified(row)&&state.model==='cold')return coldHit(row)?'抓冷成功':'冷门未中';
       if(verified(row))return evaluationHit(row)?'评测成功':'评测未中';
-      if(row.matchStatus==='POSTPONED')return '比赛延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='cold')return '冷门监测';if(state.model==='six')return '六维入选';if(state.model==='daily')return '每日优选';
+      if(row.matchStatus==='POSTPONED')return '比赛延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='daily')return '每日优选';
       return '赛前冻结'
     }
-    function statusClass(row,history){if(row.matchStatus==='POSTPONED')return 'status pass';if(verified(row)){const success=state.model==='cold'?coldHit(row):evaluationHit(row);return 'status '+(success?'verified':'fail')}return 'status'}
+    function statusClass(row,history){if(row.matchStatus==='POSTPONED')return 'status pass';if(verified(row))return 'status '+(evaluationHit(row)?'verified':'fail');return 'status'}
     function moduleData(row){
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球方向',row.handicap],['方向状态',row.handicapEligible===true?'已发布':row.handicapEligible===false?'未通过':'未确认']];
       if(state.model==='wdl')return [['FT首选',row.ftTop1],['Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['第二方向',row.second]];
-      if(state.model==='risk')return [['HUR',row.risk?.hur],['DTR',row.risk?.dtr],['DLR',row.risk?.dlr]];
-      if(state.model==='cold')return [['冷门风险','HUR '+safe(row.risk?.hur)],['关注第二方向',row.second]];
-      if(state.model==='six')return [['FT首选',row.ftTop1],['Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['HUR',row.risk?.hur],['DTR',row.risk?.dtr],['DLR',row.risk?.dlr],['DQ',row.risk?.dq]];
       if(state.model==='daily')return [['重心等级',ARCHIVED_FOCUS[row.date]?.includes(String(row.no).padStart(3,'0'))?'赛前重心':row.focusTag||row.focus_tag||row.tier],['首选建议',row.ftTop1],['次选建议',row.second]];
       return [['FT首选',row.ftTop1],['第二方向',row.second],['让球方向',row.handicap]];
     }
     function adviceText(row){
       if(state.model==='handicap')return row.handicap==='未确认'||!row.handicap?'让球建议：未确认':'让球建议：'+row.handicap;
       if(state.model==='wdl')return '胜平负建议：'+safe(row.ftTop1)+' / '+safe(row.second);
-      if(state.model==='risk')return '风险结论：'+safe(row.risk?.dq||row.riskAnalysis);
-      if(state.model==='cold')return '冷门结论：'+safe(row.riskAnalysis);
-      if(state.model==='six')return '定胆建议：'+safe(row.ftTop1)+' / '+safe(row.second);
       if(state.model==='daily')return '优选建议：'+safe(row.ftTop1)+' / '+safe(row.second);
       return '测评建议：'+safe(row.ftTop1)+' / '+safe(row.second);
     }
@@ -167,11 +153,10 @@
     }
     function filterRows(rows){
       if(state.model==='daily')return rows.filter(isFocus);
-      if(state.model==='cold')return rows.filter(r=>r.risk?.hur==='红'&&r.second);
       return rows
     }
     function visibleRows(){if(!state.today)return [];return filterRows(state.today.rows||[])}
-    function currentTitle(){return {overview:'今日竞足',handicap:'让球评测',wdl:'胜平负',risk:'风险分析',cold:'冷门监测',six:'六维定胆',daily:'每日优选'}[state.model]||'今日竞足'}
+    function currentTitle(){return {overview:'今日竞足',handicap:'让球评测',wdl:'胜平负',daily:'每日优选'}[state.model]||'今日竞足'}
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));
       if(!rows.length){box.append(empty(state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='daily'?'当前接口未发布可核验的赛前重心标记，不会按赛果或赔率临时拼凑优选。完整比赛请切换赛事页。':'当前没有符合条件的正式竞足记录。'),notice());return}
@@ -195,8 +180,7 @@
       const c=$('detailCard');c.replaceChildren();
       c.append(el('span',statusClass(row,history),statusText(row,history)),el('h2','',safe(row.home)+' vs '+safe(row.away)),el('div','sub',[safe(row.no),safe(row.league),fmtTime(row.kickoff),'北京时间'].join(' · ')));
       const a=el('div','audit');[['FT首选',row.ftTop1],['第二方向',row.second],['评测口径','任一命中'],['当日版本',row.version],['官方让球',row.officialHandicap],['让球方向',row.handicap],['Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['冻结时间',fmtStamp(row.frozenAt)]].forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',safe(v)));a.append(x)});c.append(a);
-      const risk=el('div','riskbox');risk.append(el('h3','','风险分析'),el('p','','HUR '+safe(row.risk?.hur)+' · DTR '+safe(row.risk?.dtr)+' · DLR '+safe(row.risk?.dlr)+' · DQ '+safe(row.risk?.dq)),el('p','',safe(row.riskAnalysis)));
-      const hand=el('div','riskbox');hand.append(el('h3','','让球说明'),el('p','',safe(row.handicapAnalysis)));c.append(risk,hand);
+      const hand=el('div','riskbox');hand.append(el('h3','','让球说明'),el('p','',safe(row.handicapAnalysis)));c.append(hand);
       if(history)c.append(el('div','history-result',state.model==='handicap'?'让球赛果：'+safe(row.handicapResult)+' · '+(handicapHit(row)?'评测成功':'评测未中'):'赛果：'+safe(resultName[row.result]||row.result)+' · 首选 '+(pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中')+' · 次选 '+(pickCode[row.second]===normalizeResult(row.result)?'命中':'未中')+' · '+(evaluationHit(row)?'评测成功':'评测未中')));
       window.scrollTo({top:0,behavior:'smooth'})
     }
