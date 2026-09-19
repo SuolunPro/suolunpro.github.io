@@ -110,7 +110,7 @@
       if(state.model==='risk')return [['HUR',row.risk?.hur],['DTR',row.risk?.dtr],['DLR',row.risk?.dlr]];
       if(state.model==='cold')return [['冷门风险','HUR '+safe(row.risk?.hur)],['关注第二方向',row.second]];
       if(state.model==='six')return [['FT首选',row.ftTop1],['Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['HUR',row.risk?.hur],['DTR',row.risk?.dtr],['DLR',row.risk?.dlr],['DQ',row.risk?.dq]];
-      if(state.model==='daily')return [['首选建议',row.ftTop1],['次选建议',row.second],['评测口径','任一命中']];
+      if(state.model==='daily')return [['重心等级',row.focusTag||row.focus_tag||row.tier],['首选建议',row.ftTop1],['次选建议',row.second]];
       return [['FT首选',row.ftTop1],['第二方向',row.second],['让球方向',row.handicap]];
     }
     function adviceText(row){
@@ -146,7 +146,9 @@
       const tags=[row.focusTag,row.focus_tag,row.recommendationLevel,row.recommendation_level,row.priorityTag,row.priority_tag,row.bestPlayLevel,row.best_play_level,row.bestPlay?.level,row.best_play?.level];
       const explicit=tags.some(v=>/^(重心|重点|核心|FOCUS|PRIORITY|BEST_PLAY|A\+|A\+单|A\+双)$/i.test(String(v??'').trim()));
       const marked=row.isFocus===true||row.is_focus===true||row.isKeyMatch===true||row.is_key_match===true||row.isBestPlay===true||row.is_best_play===true;
-      return row.pregameVerified===true&&(explicit||marked);
+      const tier=String(row.tier??'').trim().toUpperCase(),mode=String(row.mode??'').trim().toUpperCase();
+      const frozenFormal=(mode==='SINGLE'||mode==='DOUBLE')&&tier!==''&&tier!=='PASS'&&row.pass!==true;
+      return row.pregameVerified===true&&(explicit||marked||frozenFormal);
     }
     function filterRows(rows){
       if(state.model==='daily')return rows.filter(isFocus);
