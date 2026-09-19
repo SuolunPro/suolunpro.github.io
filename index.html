@@ -89,6 +89,7 @@
     const normalizeResult=v=>({H:'H',D:'D',A:'A','3':'H','1':'D','0':'A','主胜':'H','平':'D','客胜':'A'}[String(v??'')]||null);
     const verified=row=>row.resultVerified===true&&normalizeResult(row.result)!==null;
     const handicapHit=row=>verified(row)&&row.handicapHit===true;
+    const ftHit=row=>verified(row)&&(pickCode[row.ftTop1]===normalizeResult(row.result)||pickCode[row.second]===normalizeResult(row.result));
     const modelCopy={
       overview:['索伦综合评测','汇总正式赛前冻结记录，展示首选、次选与让球方向'],
       handicap:['索伦让球评测','根据公开让球线展示经正式批次核验的方向'],
@@ -101,7 +102,8 @@
     function initial(name){const s=safe(name);return s==='未确认'?'?':s.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g,'').slice(0,1).toUpperCase()||'?'}
     function evaluationHit(row){
       if(state.model==='handicap')return handicapHit(row);
-      return verified(row)&&(pickCode[row.ftTop1]===normalizeResult(row.result)||pickCode[row.second]===normalizeResult(row.result))
+      if(state.model==='overview')return ftHit(row)||handicapHit(row);
+      return ftHit(row)
     }
     function statusText(row,history){
       if(verified(row))return evaluationHit(row)?'评测成功':'评测未中';
@@ -135,7 +137,7 @@
       const advice=el('div','advice',adviceText(row));advice.append(el('small','','首选或次选命中即评测成功'));
       analysis.append(triplet,advice);
       c.append(head,fixture,analysis);
-      if(history){const r=el('div','history-result');if(state.model==='handicap')r.append(document.createTextNode('让球 '+safe(row.handicap)+' · 赛果 '+safe(row.handicapResult)+' · 评测 '),el('b','',handicapHit(row)?'成功':'未中'));else r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'));c.append(r)}
+      if(history){const r=el('div','history-result');if(state.model==='handicap')r.append(document.createTextNode('让球 '+safe(row.handicap)+' · 赛果 '+safe(row.handicapResult)+' · 评测 '),el('b','',handicapHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
       c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
     }
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
@@ -181,7 +183,7 @@
       c.append(el('span',statusClass(row,history),statusText(row,history)),el('h2','',safe(row.home)+' vs '+safe(row.away)),el('div','sub',[safe(row.no),safe(row.league),fmtTime(row.kickoff),'北京时间'].join(' · ')));
       const a=el('div','audit');[['FT首选',row.ftTop1],['第二方向',row.second],['评测口径','任一命中'],['当日版本',row.version],['官方让球',row.officialHandicap],['让球方向',row.handicap],['Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['冻结时间',fmtStamp(row.frozenAt)]].forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',safe(v)));a.append(x)});c.append(a);
       const hand=el('div','riskbox');hand.append(el('h3','','让球说明'),el('p','',safe(row.handicapAnalysis)));c.append(hand);
-      if(history)c.append(el('div','history-result',state.model==='handicap'?'让球赛果：'+safe(row.handicapResult)+' · '+(handicapHit(row)?'评测成功':'评测未中'):'赛果：'+safe(resultName[row.result]||row.result)+' · 首选 '+(pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中')+' · 次选 '+(pickCode[row.second]===normalizeResult(row.result)?'命中':'未中')+' · '+(evaluationHit(row)?'评测成功':'评测未中')));
+      if(history){const summary=state.model==='handicap'?'让球赛果：'+safe(row.handicapResult)+' · '+(handicapHit(row)?'评测成功':'评测未中'):'赛果：'+safe(resultName[row.result]||row.result)+' · 首选 '+(pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中')+' · 次选 '+(pickCode[row.second]===normalizeResult(row.result)?'命中':'未中')+(state.model==='overview'?' · 让球 '+(handicapHit(row)?'命中':'未中'):'')+' · '+(evaluationHit(row)?'评测成功':'评测未中');c.append(el('div','history-result',summary))}
       window.scrollTo({top:0,behavior:'smooth'})
     }
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
