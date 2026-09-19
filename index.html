@@ -77,7 +77,15 @@
   <script>
     const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'overview',selected:null,selectedDate:null,baseDate:null};
-    const ARCHIVED_FOCUS={'2026-09-19':['006','008','013','014','017','027']};
+    const ARCHIVED_FOCUS={
+      '2026-09-13':['002','006','008','009','020','022','023'],
+      '2026-09-14':['003','008'],
+      '2026-09-15':['003','008','011','012'],
+      '2026-09-16':['016'],
+      '2026-09-17':['002','003','005','007','011'],
+      '2026-09-18':['001','012','014'],
+      '2026-09-19':['006','008','013','014','017','027']
+    };
     const $=id=>document.getElementById(id);
     const safe=v=>{if(v===null||v===undefined||v==='')return '未确认';const s=String(v);return s==='PASS'?'未确认':s.replace(/PASS/g,'未确认')};
     const resultName={H:'主胜',D:'平',A:'客胜'},pickCode={'主胜':'H','平':'D','客胜':'A'};
