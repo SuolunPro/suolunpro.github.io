@@ -89,7 +89,7 @@
       risk:['索伦风险分析','展示可公开的风险指标与质量核验结论'],
       cold:['索伦冷门监测','监测全池HUR红的正式赛前风险场，不伪造冷门分数'],
       six:['索伦六维定胆','逐项展示FT、概率、HUR、DTR、DLR与DQ六项正式证据'],
-      daily:['索伦每日优选','全池展示正式赛前首选与次选，任一方向命中即评测成功']
+      daily:['索伦每日优选','仅展示赛前正式标记的重心场次；完整全池请前往赛事页查看']
     };
     const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
     function fmtTime(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
@@ -142,7 +142,14 @@
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
     function empty(title,text){const x=el('div','empty');x.append(el('b','',title),el('div','',text));return x}
     function notice(){return el('div','notice','全池展示正式赛前冻结的首选与次选，任一方向命中即计本场评测成功。影子表、赛后补算和未核验字段不会作为正式结论发布。')}
+    function isFocus(row){
+      const tags=[row.focusTag,row.focus_tag,row.recommendationLevel,row.recommendation_level,row.priorityTag,row.priority_tag,row.bestPlayLevel,row.best_play_level,row.bestPlay?.level,row.best_play?.level];
+      const explicit=tags.some(v=>/^(重心|重点|核心|FOCUS|PRIORITY|BEST_PLAY|A\+|A\+单|A\+双)$/i.test(String(v??'').trim()));
+      const marked=row.isFocus===true||row.is_focus===true||row.isKeyMatch===true||row.is_key_match===true||row.isBestPlay===true||row.is_best_play===true;
+      return row.pregameVerified===true&&(explicit||marked);
+    }
     function filterRows(rows){
+      if(state.model==='daily')return rows.filter(isFocus);
       if(state.model==='cold')return rows.filter(r=>r.risk?.hur==='红'&&r.second);
       return rows
     }
@@ -150,10 +157,10 @@
     function currentTitle(){return {overview:'今日竞足',handicap:'让球评测',wdl:'胜平负',risk:'风险分析',cold:'冷门监测',six:'六维定胆',daily:'每日优选'}[state.model]||'今日竞足'}
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));
-      if(!rows.length){box.append(empty('暂无已发布赛事','当前没有符合条件的正式竞足记录。'),notice());return}
+      if(!rows.length){box.append(empty(state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='daily'?'当前接口未发布可核验的赛前重心标记，不会按赛果或赔率临时拼凑优选。完整比赛请切换赛事页。':'当前没有符合条件的正式竞足记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,history)));box.append(grid,notice())
     }
-    function renderHome(){const rows=visibleRows();renderCards(currentTitle(),rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
+    function renderHome(){const rows=visibleRows();renderCards(state.model==='daily'?'每日优选 · 重心场次':currentTitle(),rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
     function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
     async function renderHistory(){
       const box=$('content');box.replaceChildren(sectionHead('真实战绩','仅已核验赛果'));
