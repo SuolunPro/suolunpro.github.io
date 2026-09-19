@@ -80,6 +80,8 @@
     const $=id=>document.getElementById(id);
     const safe=v=>{if(v===null||v===undefined||v==='')return '未确认';const s=String(v);return s==='PASS'?'未确认':s.replace(/PASS/g,'未确认')};
     const resultName={H:'主胜',D:'平',A:'客胜'},pickCode={'主胜':'H','平':'D','客胜':'A'};
+    const normalizeResult=v=>({H:'H',D:'D',A:'A','3':'H','1':'D','0':'A','主胜':'H','平':'D','客胜':'A'}[String(v??'')]||null);
+    const verified=row=>row.resultVerified===true&&normalizeResult(row.result)!==null;
     const modelCopy={
       overview:['索伦综合评测','汇总正式赛前冻结记录，展示首选、次选与让球方向'],
       handicap:['索伦让球评测','根据公开让球线展示经正式批次核验的方向'],
@@ -93,15 +95,15 @@
     function fmtTime(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
     function fmtStamp(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
     function initial(name){const s=safe(name);return s==='未确认'?'?':s.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g,'').slice(0,1).toUpperCase()||'?'}
-    function coldHit(row){return row.resultVerified===true&&pickCode[row.second]===row.result&&pickCode[row.ftTop1]!==row.result}
-    function evaluationHit(row){return row.resultVerified===true&&(pickCode[row.ftTop1]===row.result||pickCode[row.second]===row.result)}
+    function coldHit(row){return verified(row)&&pickCode[row.second]===normalizeResult(row.result)&&pickCode[row.ftTop1]!==normalizeResult(row.result)}
+    function evaluationHit(row){return verified(row)&&(pickCode[row.ftTop1]===normalizeResult(row.result)||pickCode[row.second]===normalizeResult(row.result))}
     function statusText(row,history){
-      if(row.resultVerified===true&&state.model==='cold')return coldHit(row)?'抓冷成功':'冷门未中';
-      if(row.resultVerified===true)return evaluationHit(row)?'评测成功':'评测未中';
-      if(state.model==='cold')return '冷门监测';if(state.model==='six')return '六维入选';if(state.model==='daily')return '每日优选';
+      if(verified(row)&&state.model==='cold')return coldHit(row)?'抓冷成功':'冷门未中';
+      if(verified(row))return evaluationHit(row)?'评测成功':'评测未中';
+      if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='cold')return '冷门监测';if(state.model==='six')return '六维入选';if(state.model==='daily')return '每日优选';
       return '赛前冻结'
     }
-    function statusClass(row,history){if(row.resultVerified===true){const success=state.model==='cold'?coldHit(row):evaluationHit(row);return 'status '+(success?'verified':'fail')}return 'status'}
+    function statusClass(row,history){if(verified(row)){const success=state.model==='cold'?coldHit(row):evaluationHit(row);return 'status '+(success?'verified':'fail')}return 'status'}
     function moduleData(row){
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球方向',row.handicap],['方向状态',row.handicapEligible===true?'已发布':row.handicapEligible===false?'未通过':'未确认']];
       if(state.model==='wdl')return [['FT首选',row.ftTop1],['Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['第二方向',row.second]];
@@ -127,14 +129,14 @@
       head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [row.home,row.away].forEach(name=>{const t=el('div','team');t.append(el('span','crest',initial(name)),el('span','team-name',safe(name)));teams.append(t)});
-      const settled=row.resultVerified===true,score=el('div','score',settled?safe(resultName[row.result]||row.result):safe(row.officialHandicap));score.append(el('span','',settled?'正式赛果':'官方让球'));
+      const settled=verified(row),score=el('div','score',settled?safe(resultName[row.result]||row.result):safe(row.officialHandicap));score.append(el('span','',settled?'正式赛果':'官方让球'));
       fixture.append(teams,score);
       const analysis=el('div','analysis'),values=moduleData(row),triplet=el('div','triplet'+(values.length===2?' pair':values.length===6?' six-grid':''));
       values.forEach(([k,v],i)=>{const d=el('div','datum'+(i===0?' primary':''));d.append(el('span','',k),el('b','',safe(v)));triplet.append(d)});
       const advice=el('div','advice',adviceText(row));advice.append(el('small','','首选或次选命中即评测成功'));
       analysis.append(triplet,advice);
       c.append(head,fixture,analysis);
-      if(history){const r=el('div','history-result');r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===row.result?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===row.result?'命中':'未中'),document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'));c.append(r)}
+      if(history){const r=el('div','history-result');r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'));c.append(r)}
       c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
     }
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
@@ -171,13 +173,13 @@
       const a=el('div','audit');[['FT首选',row.ftTop1],['第二方向',row.second],['评测口径','任一命中'],['当日版本',row.version],['官方让球',row.officialHandicap],['让球方向',row.handicap],['Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['冻结时间',fmtStamp(row.frozenAt)]].forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',safe(v)));a.append(x)});c.append(a);
       const risk=el('div','riskbox');risk.append(el('h3','','风险分析'),el('p','','HUR '+safe(row.risk?.hur)+' · DTR '+safe(row.risk?.dtr)+' · DLR '+safe(row.risk?.dlr)+' · DQ '+safe(row.risk?.dq)),el('p','',safe(row.riskAnalysis)));
       const hand=el('div','riskbox');hand.append(el('h3','','让球说明'),el('p','',safe(row.handicapAnalysis)));c.append(risk,hand);
-      if(history)c.append(el('div','history-result','赛果：'+safe(resultName[row.result]||row.result)+' · 首选 '+(pickCode[row.ftTop1]===row.result?'命中':'未中')+' · 次选 '+(pickCode[row.second]===row.result?'命中':'未中')+' · '+(evaluationHit(row)?'评测成功':'评测未中')));
+      if(history)c.append(el('div','history-result','赛果：'+safe(resultName[row.result]||row.result)+' · 首选 '+(pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中')+' · 次选 '+(pickCode[row.second]===normalizeResult(row.result)?'命中':'未中')+' · '+(evaluationHit(row)?'评测成功':'评测未中')));
       window.scrollTo({top:0,behavior:'smooth'})
     }
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
     function errorBox(e){const x=el('div','error');x.append(el('b','','正式接口暂不可用'),el('div','',safe(e?.message||e)+'。页面不会使用模拟数据代替。'));return x}
     function render(){closeDetail();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
-    async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
+    async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function buildDates(poolDate){
       const base=new Date((poolDate||new Date().toISOString().slice(0,10))+'T12:00:00+08:00'),days=['日','一','二','三','四','五','六'],box=$('dates');box.replaceChildren();
@@ -187,14 +189,17 @@
       if(date===state.selectedDate)return;
       if(date<'2026-09-16'||date>state.baseDate){alert('该日期暂无可核验的正式赛前记录。');return}
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
-      try{const d=await load('archive',date);state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>r.resultVerified);state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
+      try{const d=await load('archive',date);state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
     }
-    function setHeader(d){const settled=d.rows.filter(r=>r.resultVerified).length;$('version').textContent='索伦 '+safe(d.modelVersion);$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.count-settled);buildDates(state.baseDate||d.date)}
+    function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦 '+safe(d.modelVersion);$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.count-settled);buildDates(state.baseDate||d.date)}
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];render()});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;render()});
     $('back').onclick=closeDetail;
-    load('archive').then(d=>{state.today=d;state.baseDate=d.date;state.selectedDate=d.date;const settled=d.rows.filter(r=>r.resultVerified);state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
+    load('archive').then(d=>{state.today=d;state.baseDate=d.date;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
+    // Refresh settled results when the page becomes visible; preserve the selected day and model.
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state.selectedDate)selectDateRefresh()});
+    async function selectDateRefresh(){try{const d=await load('archive',state.selectedDate);if(d.date!==state.selectedDate)return;state.today=d;const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);if(!state.selected)render()}catch(e){console.warn('赛果刷新失败',e)}}
   </script>
 </body>
 </html>
