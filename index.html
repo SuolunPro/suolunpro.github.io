@@ -20,6 +20,7 @@
     .empty,.error{background:#fff;border-radius:16px;padding:34px 18px;text-align:center;color:#999;font-size:12px;line-height:1.7}.empty b,.error b{display:block;color:#444;font-size:15px;margin-bottom:6px}.notice{margin-top:12px;background:#fff5dc;border:1px solid #f1dfaa;color:#896c26;border-radius:11px;padding:10px 12px;font-size:10px;line-height:1.7}
     .backbar{position:sticky;top:0;z-index:4;background:var(--red);padding:12px 14px;color:#fff;display:flex;align-items:center;gap:12px}.back{border:0;background:none;color:#fff;font-size:21px;padding:2px 7px}.backbar b{font-size:15px}.detail-body{padding:12px}.detail-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px #00000008}.detail-card h2{font-size:20px;margin:11px 0 5px}.sub{font-size:11px;color:#999}.audit{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.audit-item{border:1px solid #eee;background:#fafafa;border-radius:9px;padding:10px}.audit-item span{display:block;color:#999;font-size:9px;margin-bottom:4px}.audit-item b{font-size:12px;word-break:break-word}.riskbox{margin-top:12px;border-top:1px solid #eee;padding-top:12px}.riskbox h3{font-size:12px;margin:0 0 6px}.riskbox p{font-size:11px;line-height:1.7;color:#737373;margin:0 0 5px}
     .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#ffffffed;backdrop-filter:blur(15px);border-top:1px solid #ddd;padding:7px 0 max(8px,env(safe-area-inset-bottom));display:flex;justify-content:center}.bottom-inner{width:min(640px,100%);display:grid;grid-template-columns:repeat(4,1fr)}.nav{border:0;background:none;color:#999;font-size:9px;padding:3px}.nav i{display:block;font-style:normal;font-size:18px;margin-bottom:2px}.nav.active{color:var(--red);font-weight:700}.loading{display:inline-flex;gap:5px;align-items:center}.loading:after{content:"";width:10px;height:10px;border:2px solid #ddd;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(min-width:641px){.app{box-shadow:0 0 40px #0001}.hero{border-radius:0 0 18px 18px}}
+    .focus-label{display:inline-block;margin-left:7px;padding:2px 5px;border-radius:4px;background:#fff0f0;color:var(--red);font-size:9px;font-weight:700}.triplet.pair .datum{padding:11px 6px}.score{font-size:22px}.score span{font-size:9px}
     /* Compact mobile-first client layout */
     .hero{background:var(--red)}.hero:before,.hero:after{display:none}.brandbar{padding:10px 14px 7px}.models{padding:0 8px}.model{min-width:0;padding:10px 3px;font-size:12px}.hero-copy{display:none}.dates{padding:6px 0 7px;background:var(--red);border-top:1px solid #ffffff24}.day{font-size:10px}.day b{font-size:12px;margin-bottom:2px}
     .toolbar{padding:11px 13px 10px}.metrics{margin-top:9px}.metric{padding:7px}.content{padding:9px 12px 24px}.section-head{padding:2px 2px 9px}.cards{gap:10px}.card{padding:0 13px 12px}.card-head{height:37px}.fixture{padding:3px 0 10px}.team-list{gap:8px}.crest{width:32px;height:32px}.team-name{font-size:15px}.analysis{padding-top:9px}.triplet{border-radius:9px}.datum{padding:9px 4px}.datum span{font-size:10px}.datum b{font-size:13px}.datum.wdl-prob b{font-size:17px}.datum.wdl-pick{background:#fff}.datum.wdl-pick span:last-child{color:var(--red)}.datum.wdl-actual{background:#fafafa}.datum.hit b{color:var(--red)!important}.bottom{padding-top:5px}.nav{padding:2px}.nav i{font-size:17px}
@@ -118,14 +119,14 @@
     }
     function statusText(row,history){
       if(verified(row))return evaluationHit(row)?'评测成功':'评测失败';
-      if(row.matchStatus==='POSTPONED')return '比赛延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='daily')return '每日优选';
+      if(row.matchStatus==='POSTPONED')return '比赛延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='daily')return '等待赛果';
       return '赛前冻结'
     }
     function statusClass(row,history){if(row.matchStatus==='POSTPONED')return 'status pass';if(verified(row))return 'status '+(evaluationHit(row)?'verified':'fail');return 'status'}
     function moduleData(row){
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球首选',handicapChoice(row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapChoice(row.handicapSecond,row.handicapSecondProbability)]];
       if(state.model==='wdl')return [['主胜',ftProbability(row,'H')],['平局',ftProbability(row,'D')],['客胜',ftProbability(row,'A')]];
-      if(state.model==='daily')return [['重心等级',ARCHIVED_FOCUS[row.date]?.includes(String(row.no).padStart(3,'0'))?'赛前重心':row.focusTag||row.focus_tag||row.tier],['首选建议',row.ftTop1],['次选建议',row.second]];
+      if(state.model==='daily')return [['首选建议',row.ftTop1],['次选建议',row.second]];
       return [['FT首选',row.ftTop1],['第二方向',row.second],['让球方向',row.handicap]];
     }
     function adviceText(row){
@@ -138,10 +139,10 @@
       const c=el('article','card');c.tabIndex=0;c.setAttribute('role','button');
       const head=el('div','card-head');
       const id=el('div','match-id');id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-      head.append(id,el('span',statusClass(row,history),statusText(row,history)));
+      if(state.model==='daily')id.append(el('span','focus-label','赛前重心'));head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [row.home,row.away].forEach(name=>{const t=el('div','team');t.append(el('span','crest',initial(name)),el('span','team-name',safe(name)));teams.append(t)});
-      const settled=verified(row),outcome=safe(resultName[row.result]||row.result),score=el('div','score',settled?(hasScore(row)?scoreline(row):outcome):safe(row.officialHandicap));score.append(el('span','',settled?(hasScore(row)?outcome+' · 正式赛果':'正式赛果'):row.matchStatus==='POSTPONED'?'比赛延期':'官方让球'));
+      const settled=verified(row),outcome=safe(resultName[row.result]||row.result),score=el('div','score',settled?(hasScore(row)?scoreline(row):'比分待核验'):'VS');score.append(el('span','',settled?(hasScore(row)?outcome+' · 正式赛果':'比分待核验'):row.matchStatus==='POSTPONED'?'比赛延期':'官方让球 '+(row.officialHandicap==null?'待确认':String(row.officialHandicap))));
       fixture.append(teams,score);
       const analysis=el('div','analysis'),values=moduleData(row),triplet=el('div','triplet'+(values.length===2?' pair':values.length===6?' six-grid':''));
       values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));triplet.append(d);return}const hit=directionHit(row,k,v),d=el('div','datum'+(verified(row)?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));triplet.append(d)});
@@ -199,7 +200,8 @@
     }
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
     function errorBox(e){const x=el('div','error');x.append(el('b','','正式接口暂不可用'),el('div','',safe(e?.message||e)+'。页面不会使用模拟数据代替。'));return x}
-    function render(){closeDetail();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
+    function updateMetrics(){const rows=state.model==='daily'?visibleRows():(state.today?.rows||[]),verifiedRows=rows.filter(verified);$('totalCount').textContent=rows.length;$('pickCount').textContent=state.model==='daily'?verifiedRows.filter(evaluationHit).length:verifiedRows.length;$('passCount').textContent=state.model==='daily'?rows.length-verifiedRows.length:rows.length-verifiedRows.length;const labels=document.querySelectorAll('.metric span');if(state.model==='daily'){labels[0].textContent='重心场次';labels[1].textContent='评测成功';labels[2].textContent='等待赛果'}else{labels[0].textContent='全池场次';labels[1].textContent='赛果已核验';labels[2].textContent='等待赛果'}}
+    function render(){updateMetrics();closeDetail();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
     async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function buildDates(poolDate){
