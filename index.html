@@ -90,7 +90,7 @@
     const verified=row=>row.resultVerified===true&&normalizeResult(row.result)!==null;
     const handicapHit=row=>verified(row)&&row.handicapHit===true;
     const ftHit=row=>verified(row)&&(pickCode[row.ftTop1]===normalizeResult(row.result)||pickCode[row.second]===normalizeResult(row.result));
-    const probability=v=>{const n=Number(v);return Number.isFinite(n)?(Math.round(n*10)/10).toFixed(Number.isInteger(Math.round(n*10)/10)?0:1)+'%':'未确认'};
+    const probability=v=>{if(v===null||v===undefined||v==='')return '未确认';const n=Number(v);return Number.isFinite(n)?(Math.round(n*10)/10).toFixed(Number.isInteger(Math.round(n*10)/10)?0:1)+'%':'未确认'};
     const handicapChoice=(pick,prob)=>{const p=safe(pick);return p==='未确认'?p:p+' · '+probability(prob)};
     const modelCopy={
       overview:['索伦综合评测','汇总正式赛前冻结记录，展示首选、次选与让球方向'],
