@@ -50,10 +50,7 @@
         <div class="toolbar-top">
           <span class="count" id="poolCount">正在读取正式比赛</span>
           <div class="filters">
-            <button class="filter active" data-filter="all">全部</button>
-            <button class="filter" data-filter="jczq">竞足</button>
-            <button class="filter" data-filter="single">单场</button>
-            <button class="filter" data-filter="pool">传足</button>
+            <button class="filter active" data-filter="jczq">竞足</button>
           </div>
         </div>
         <div class="metrics">
@@ -79,7 +76,7 @@
   </nav>
   <script>
     const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
-    const state={today:null,history:null,tab:'home',filter:'all',model:'overview',selected:null,selectedDate:null,baseDate:null};
+    const state={today:null,history:null,tab:'home',filter:'jczq',model:'overview',selected:null,selectedDate:null,baseDate:null};
     const $=id=>document.getElementById(id);
     const safe=v=>{if(v===null||v===undefined||v==='')return '未确认';const s=String(v);return s==='PASS'?'未确认':s.replace(/PASS/g,'未确认')};
     const resultName={H:'主胜',D:'平',A:'客胜'},pickCode={'主胜':'H','平':'D','客胜':'A'};
@@ -144,7 +141,6 @@
     function empty(title,text){const x=el('div','empty');x.append(el('b','',title),el('div','',text));return x}
     function notice(){return el('div','notice','全池展示正式赛前冻结的首选与次选，任一方向命中即计本场评测成功。影子表、赛后补算和未核验字段不会作为正式结论发布。')}
     function filterRows(rows){
-      if(state.filter==='single'||state.filter==='pool')return [];
       if(state.model==='cold')return rows.filter(r=>r.risk?.hur==='红'&&r.second);
       return rows
     }
@@ -152,7 +148,7 @@
     function currentTitle(){return {overview:'今日竞足',handicap:'让球评测',wdl:'胜平负',risk:'风险分析',cold:'冷门监测',six:'六维定胆',daily:'每日优选'}[state.model]||'今日竞足'}
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));
-      if(!rows.length){const msg=state.filter==='single'||state.filter==='pool'?'该玩法尚未接入正式公开接口，页面不会用其他赛事代替。':'当前没有符合条件的正式记录。';box.append(empty('暂无已发布赛事',msg),notice());return}
+      if(!rows.length){box.append(empty('暂无已发布赛事','当前没有符合条件的正式竞足记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,history)));box.append(grid,notice())
     }
     function renderHome(){const rows=visibleRows();renderCards(currentTitle(),rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
