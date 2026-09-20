@@ -255,14 +255,26 @@
     function empty(title,text){const x=el('div','empty');x.append(el('b','',title),el('div','',text));return x}
     function notice(){return document.createDocumentFragment()}
     function isFocus(row){
-      const archived=ARCHIVED_FOCUS[row.date],no=String(row.no??'').padStart(3,'0');
-      if(Array.isArray(archived))return row.pregameVerified===true&&archived.includes(no);
+      if(row.pregameVerified!==true)return false;
+      const date=String(row.poolDate??row.pool_date??row.date??state.selectedDate??'').slice(0,10);
+      const no=String(row.no??row.matchNo??row.match_no??'').padStart(3,'0');
+      const archived=ARCHIVED_FOCUS[date];
       const tags=[row.focusTag,row.focus_tag,row.recommendationLevel,row.recommendation_level,row.priorityTag,row.priority_tag,row.bestPlayLevel,row.best_play_level,row.bestPlay?.level,row.best_play?.level];
-      const explicit=tags.some(v=>/^(重心|重点|核心|FOCUS|PRIORITY|BEST_PLAY|A\+|A\+单|A\+双)$/i.test(String(v??'').trim()));
+      const explicit=tags.some(v=>/^(重心|重点|核心|FOCUS|PRIORITY|BEST_PLAY|A\\+|A\\+单|A\\+双)$/i.test(String(v??'').trim()));
       const marked=row.isFocus===true||row.is_focus===true||row.isKeyMatch===true||row.is_key_match===true||row.isBestPlay===true||row.is_best_play===true;
-      const tier=String(row.tier??'').trim().toUpperCase(),mode=String(row.mode??'').trim().toUpperCase();
-      const frozenFormal=(mode==='SINGLE'||mode==='DOUBLE')&&tier!==''&&tier!=='PASS'&&row.pass!==true;
-      return row.pregameVerified===true&&(explicit||marked||frozenFormal);
+      const formallySelected=Array.isArray(archived)?archived.includes(no):(explicit||marked);
+      if(!formallySelected)return false;
+      // Historical HUR-red warnings are a different version. Where they oppose the
+      // exact FT first pick, do not display that pick as an unqualified daily focus.
+      const warning=HISTORICAL_HUR_RED.find(v=>v[0]===date&&v[1]===no);
+      const top=String(row.ftTop1??'').trim();
+      if(warning&&warning[5]==='红'&&warning[4]===top&&['主胜','客胜'].includes(top))return false;
+      const formalWarning=row.upsetWarning??row.upset_warning??row.coldWarning??row.cold_warning??row.riskWarning??row.risk_warning;
+      if(formalWarning&&typeof formalWarning==='object'){
+        const direction=String(formalWarning.direction??formalWarning.pick??formalWarning.warningDirection??'').trim();
+        if((top==='主胜'&&direction==='主队不胜')||(top==='客胜'&&direction==='客队不胜'))return false;
+      }
+      return true;
     }
     // Historical backfill: pre-kickoff HUR-red frozen signals only. No result fields are used to construct warnings.
     const HISTORICAL_HUR_RED=[["2026-09-14","009","圣旺红星","梅斯","平","红","绿","黄","3"],["2026-09-14","010","利兹联","纽卡斯尔","平","红","绿","黄","3"],["2026-09-14","011","比利亚雷","贝蒂斯","主胜","红","绿","黄","0"],["2026-09-15","001","拉查布里府","上海海港","客胜","红","绿","黄","0"],["2026-09-15","002","大田市民","京都","主胜","红","绿","黄","3"],["2026-09-15","007","巴列卡诺","西班牙人","平","红","绿","黄","3"],["2026-09-15","014","普拉腾斯","弗鲁米嫩","平","红","绿","黄","3"],["2026-09-16","001","中国U23","朝鲜U23","平","红","黄","黄","3"],["2026-09-16","002","全北现代","柏太阳神","客胜","红","绿","黄","3"],["2026-09-16","004","奥莫尼亚","塞尔塔","客胜","红","黄","绿","3"],["2026-09-16","005","拉科","塞维利亚","平","红","绿","黄","0"],["2026-09-16","007","AC米兰","本菲卡","平","红","绿","黄","0"],["2026-09-16","011","安德莱赫特","里昂","客胜","红","绿","黄","0"],["2026-09-16","012","考文垂","维拉","客胜","红","绿","黄","0"],["2026-09-16","014","莱万特","毕尔巴鄂","客胜","红","黄","黄",null],["2026-09-16","015","基多体大","帕梅拉斯","平","红","黄","绿","3"],["2026-09-16","017","科林蒂安","拉普大学","主胜","红","红","绿","0"],["2026-09-17","006","皇家社会","伯恩茅斯","客胜","红","绿","黄","0"],["2026-09-17","010","马拉加","比利亚雷","客胜","红","黄","黄","0"],["2026-09-18","005","兰斯","蒙彼利埃","主胜","红","黄","绿","1"],["2026-09-18","009","蒙扎","萨索洛","平","红","绿","黄","3"],["2026-09-18","010","摩纳哥","朗斯","主胜","红","绿","黄","3"],["2026-09-18","011","布伦特","切尔西","客胜","红","绿","黄","3"],["2026-09-19","001","长崎航海","大阪樱花","客胜","红","绿","黄","1"],["2026-09-19","002","藤枝MYFC","大宫松鼠","客胜","红","绿","黄","1"],["2026-09-19","004","横滨水手","水户蜀葵","主胜","红","黄","绿","3"],["2026-09-19","005","热刺","维拉","主胜","红","黄","绿","0"],["2026-09-19","006","斯托克城","谢菲联","主胜","红","黄","黄","3"],["2026-09-19","007","奥萨苏纳","巴列卡诺","主胜","红","绿","黄","1"],["2026-09-19","008","乌迪内斯","卡利亚里","主胜","红","黄","绿","0"],["2026-09-19","009","博洛尼亚","都灵","主胜","红","黄","绿","1"],["2026-09-19","010","瓦斯特拉斯","马尔默","客胜","红","绿","黄","3"],["2026-09-19","011","法兰克福","弗赖堡","主胜","红","绿","黄","1"],["2026-09-19","012","汉堡","科隆","客胜","红","绿","黄","3"],["2026-09-19","013","门兴","美因茨","客胜","红","绿","黄","0"],["2026-09-19","014","不来梅","奥格斯堡","主胜","红","绿","黄","3"],["2026-09-19","020","罗马","国际米兰","客胜","红","绿","黄","1"],["2026-09-19","022","斯图加特","多特蒙德","主胜","红","绿","黄","0"],["2026-09-19","025","威尼斯","拉齐奥","客胜","红","绿","绿","0"],["2026-09-19","026","昂热","特鲁瓦","主胜","红","黄","黄","3"],["2026-09-19","027","里昂","雷恩","主胜","红","绿","黄","3"],["2026-09-19","030","米拉索","博塔弗戈","主胜","红","黄","黄","3"],["2026-09-20","001","伊朗亚","中国亚","主胜","红","黄","绿","1"],["2026-09-20","002","町田泽维","柏太阳神","主胜","红","绿","黄","0"],["2026-09-20","003","大阪钢巴","神户胜利","客胜","红","黄","绿","0"],["2026-09-20","004","仁川联","大田市民","客胜","红","绿","黄","1"],["2026-09-20","006","佛罗伦萨","那不勒斯","客胜","红","绿","黄","1"],["2026-09-20","007","伍尔弗","西布罗姆","主胜","红","黄","绿","3"],["2026-09-20","008","赫塔费","马拉加","主胜","红","黄","绿","3"],["2026-09-20","009","特温特","埃因霍温","客胜","红","绿","黄","3"],["2026-09-20","011","伯恩茅斯","利物浦","客胜","红","绿","黄","0"],["2026-09-20","013","帕尔马","热那亚","客胜","红","黄","黄","3"],["2026-09-20","015","勒沃库森","莱红牛","主胜","红","绿","黄","3"],["2026-09-20","016","马竞","皇马","客胜","红","绿","黄","3"],["2026-09-20","017","米亚尔比","盖斯","客胜","红","绿","黄","0"],["2026-09-20","019","尼斯","里尔","客胜","红","绿","黄",null],["2026-09-20","020","富勒姆","曼联","客胜","红","绿","黄",null],["2026-09-20","021","沙尔克04","埃沃斯堡","主胜","红","绿","黄",null],["2026-09-20","024","拉科","贝蒂斯","客胜","红","绿","黄",null],["2026-09-20","028","巴伦西亚","皇家社会","客胜","红","绿","黄",null],["2026-09-20","029","波尔图","本菲卡","客胜","红","绿","黄",null],["2026-09-20","030","巴竞技","巴伊亚","主胜","红","绿","黄",null]];
