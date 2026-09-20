@@ -179,7 +179,7 @@
       analysis.append(triplet);
       if(state.model==='goals')c.append(head,fixture);else c.append(head,fixture,analysis);
       // Show Poisson goals on the match list itself, immediately after the FT 1X2 block.
-      if(state.model!=='handicap'){
+      if(state.model!=='handicap'&&state.model!=='daily'){
         const lambda=publishedGoalLambda(row);
         const goals=el('section','goals-inline');
         goals.append(el('div','goals-inline-title','泊松总进球 · Top4正式评测'));
