@@ -262,7 +262,7 @@
     function engineBanner(){const b=el('button','engine-banner');b.type='button';b.append(el('strong','','索伦引擎 · 多维量化分析体系'),el('small','','8层分析架构 · 多维量化评估 · 多模型融合决策'));const tags=el('div','engine-tags');['市场赔率','球队实力','独立概率','风险审计'].forEach(t=>tags.append(el('span','',t)));b.append(tags);b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};return b}
     function engineIntroduction(){const c=el('div','engine-intro');c.append(el('h2','','索伦引擎 · 多维量化分析体系'),el('p','','8层为分析体系的功能分类，不代表每一层均已在当前生产版本启用；实际预测以已发布的正式赛前冻结数据为准。'));ENGINE_LAYERS.forEach(([name,desc],i)=>{const x=el('div','engine-layer');x.append(el('b','',String(i+1).padStart(2,'0')+' · '+name),el('span','',desc));c.append(x)});return c}
     function renderCards(title,sub,rows,history=false){
-      const box=$('content');box.replaceChildren(sectionHead(title,sub));if(state.tab==='home'){box.append(engineBanner());const tip=el('div','engine-prekickoff-note');tip.append(el('strong','','大数据模型Ai测评胜平负'),el('p','','比赛开场前5小时，基本处于稳定，临场可能有极少变化。所显示的内容仅供娱乐参考。'));box.append(tip)}
+      const box=$('content');box.replaceChildren(sectionHead(title,sub));if(state.tab==='home'){box.append(engineBanner());const tip=el('div','engine-prekickoff-note');tip.append(el('p','','比赛开场前5小时，基本处于稳定，临场可能有极少变化。所显示的内容仅供娱乐参考。'));box.append(tip)}
       if(!rows.length){box.append(empty(state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='daily'?'当前接口未发布可核验的赛前重心标记，不会按赛果或赔率临时拼凑优选。完整比赛请切换综合评测。':'当前没有符合条件的正式竞足记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,history)));box.append(grid,notice())
     }
