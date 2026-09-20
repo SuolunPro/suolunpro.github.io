@@ -66,7 +66,7 @@
     .brand-motto{max-width:640px;margin:0 auto 4px;padding:0 18px;text-align:center;color:#8494aa;font-size:12px;line-height:1.8;letter-spacing:.035em}
     .motto-mobile{display:none}
     @media(max-width:600px){.motto-mobile{display:block}}
-    .overview-prob-panel{display:grid;gap:10px;margin-top:8px}.overview-prob-group{display:grid;gap:7px}.overview-prob-title{font-size:13px;font-weight:650;color:#666}.overview-prob-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.overview-prob-cell{border:1px solid #e8e8e8;border-radius:10px;background:#fafafa;padding:9px 3px;text-align:center;display:grid;gap:4px;min-width:0}.overview-prob-cell span{font-size:12px;color:#777}.overview-prob-cell b{font-size:17px;color:#333;overflow-wrap:anywhere}.overview-prob-selected{border-color:#d62c31;background:#fff8f8}.overview-prob-selected b{color:#d62c31}
+    .overview-prob-panel{display:grid;gap:10px;margin-top:8px} .analysis>.overview-prob-group{margin:6px 0 12px}.overview-prob-title{font-size:12px!important;font-weight:500!important;color:#888!important;margin-bottom:2px} .overview-prob-cell b{font-size:16px!important}.overview-prob-group{display:grid;gap:7px}.overview-prob-title{font-size:13px;font-weight:650;color:#666}.overview-prob-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.overview-prob-cell{border:1px solid #e8e8e8;border-radius:10px;background:#fafafa;padding:9px 3px;text-align:center;display:grid;gap:4px;min-width:0}.overview-prob-cell span{font-size:12px;color:#777}.overview-prob-cell b{font-size:17px;color:#333;overflow-wrap:anywhere}.overview-prob-selected{border-color:#d62c31;background:#fff8f8}.overview-prob-selected b{color:#d62c31}
   </style>
 </head>
 <body>
@@ -241,7 +241,7 @@
           const sum=values.reduce((acc,v)=>acc+(v??0),0);
           if(missing.length!==1||sum>100.000001)return values.map(v=>v===null?'未记录':probability(v));
           const remainder=Math.round((100-sum)*10)/10;
-          return values.map((v,i)=>i===missing[0]?probability(remainder)+'（推算）':probability(v));
+          return values.map((v,i)=>i===missing[0]?probability(remainder):probability(v));
         };
         const panel=el('section','overview-prob-panel');
         const addGroup=(title,labels,values,top,second)=>{
@@ -278,7 +278,11 @@
         // Do not infer a handicap outcome unless the official handicap is present.
         const handicapDisplay=row.officialHandicap==null?handicapValues.map(v=>v===null?'未记录':probability(v)):handicapKnown>=2?finishTriplet(handicapValues):handicapValues.map(v=>v===null?'未记录':probability(v));
         addGroup('让球概率 · 官方让球 '+(row.officialHandicap==null?'未确认':String(row.officialHandicap)),handicapLabels,handicapDisplay,row.handicapTop1??row.handicap,row.handicapSecond);
-        analysis.append(panel);
+        // Keep each probability row immediately below its corresponding prediction row.
+        const ftStrip=el('div','triplet pair'),handicapStrip=el('div','triplet');
+        Array.from(triplet.children).forEach((cell,i)=>(i<2?ftStrip:handicapStrip).append(cell));
+        const groups=Array.from(panel.children);
+        analysis.replaceChildren(ftStrip,groups[0],handicapStrip,groups[1]);
       }
       if(state.model==='goals')c.append(head,fixture);else c.append(head,fixture,analysis);
       // Show Poisson goals on the match list itself, immediately after the FT 1X2 block.
