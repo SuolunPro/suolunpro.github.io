@@ -314,14 +314,14 @@
         if(isSettled){settled++;if(hit)hits++}
         const head=el('div','');head.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;padding-right:0';
         const fixture=el('span','',v[0].slice(5)+' · '+v[1]+'场');fixture.style.cssText='font-size:13px;color:#777';
-        const status=el('span','',isSettled?(hit?'避冷成功':'预警未中'):'等待赛果');status.style.cssText='font-size:12px;font-weight:700;padding:7px 10px;border-radius:9px;background:'+(isSettled?(hit?'#d62c31':'#f0f0f0'):'#f7f0dc')+';color:'+(isSettled?(hit?'#fff':'#555'):'#85641e');head.append(fixture,status);
+        const status=el('span','',isSettled?(hit?'避冷成功':'预警未中'):(v[0]<'2026-09-21'?'赛果未入库':'等待赛果'));status.style.cssText='font-size:12px;font-weight:700;padding:7px 10px;border-radius:9px;background:'+(isSettled?(hit?'#d62c31':'#f0f0f0'):'#f7f0dc')+';color:'+(isSettled?(hit?'#fff':'#555'):'#85641e');head.append(fixture,status);
         const teams=el('div','');teams.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:17px;font-weight:800;margin:0 0 15px';
         const home=el('span','',v[2]),away=el('span','',v[3]),score=el('span','',isSettled?({'3':'主胜','1':'平局','0':'客胜'}[v[8]]):'VS');home.style.cssText='flex:1;min-width:0';away.style.cssText='flex:1;min-width:0;text-align:right';score.style.cssText='white-space:nowrap;font-size:15px;color:#666';teams.append(home,score,away);
         const panels=el('div','');panels.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:10px';
         const panel=(value,label)=>{const p=el('div','');p.style.cssText='background:#f7f8fa;border:1px solid #e0e0e0;border-radius:12px;padding:17px 7px;text-align:center';const big=el('div','',value);big.style.cssText='font-size:20px;font-weight:800;color:#c72c32;min-height:29px';const small=el('div','',label);small.style.cssText='font-size:12px;color:#777;margin-top:7px';p.append(big,small);return p};
         panels.append(panel('HUR红灯','赛前冷门风险'),panel(v[4]==='主胜'?'主队不胜':'客队不胜','避冷预警方向'));
         const details=el('div','');details.style.cssText='font-size:12px;line-height:1.7;color:#777;margin-top:12px';
-        details.append(el('div','','赛前原始首选：'+v[4]+' · 实际赛果：'+(isSettled?{'3':'主胜','1':'平局','0':'客胜'}[v[8]]:'待核验')),el('div','','风险依据：HUR红灯 · DTR '+v[6]+' · DLR '+v[7]));
+        details.append(el('div','','赛前原始首选：'+v[4]+' · 实际赛果：'+(isSettled?{'3':'主胜','1':'平局','0':'客胜'}[v[8]]:(v[0]<'2026-09-21'?'未入库，暂不评测':'待核验'))),el('div','','风险依据：HUR红灯 · DTR '+v[6]+' · DLR '+v[7]));
         const note=el('div','','历史重建：风险灯来自赛前冻结；预警方向由原始首选反向映射，并非当时独立发布的方向预测。');note.style.cssText='font-size:10px;line-height:1.5;color:#999;margin-top:9px';
         card.append(head,teams,panels,details,note);grid.append(card)
       });
