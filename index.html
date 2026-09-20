@@ -252,18 +252,20 @@
       const coverage=state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
-    function render(){closeDetail();if(state.selectedDate==='2026-09-20'){const labels=document.querySelectorAll('.metric span');$('poolCount').textContent='2026-09-20 · 未开赛';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';labels[0].textContent='重心场次';labels[1].textContent='评测成功';labels[2].textContent='等待赛果';if(state.tab==='profile'){renderProfile();return}const box=$('content');box.replaceChildren();if(state.tab==='home')box.append(engineBanner());box.append(empty('20号竞彩未开赛','该比赛日暂未发布可核验的正式赛前赛事数据，暂不展示比赛与预测。'));return}updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
+    function render(){closeDetail();updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
     async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal,headers:{Authorization:'Bearer '+authSession.access_token}});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
+    function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function buildDates(poolDate){
-      const days=['日','一','二','三','四','五','六'],box=$('dates');box.replaceChildren();
-      for(let day=13;day<=19;day++){const iso='2026-09-'+String(day).padStart(2,'0'),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
-        b.append(el('b','','周'+days[d.getDay()]),el('span','','09-'+String(day).padStart(2,'0')));b.onclick=()=>selectDate(iso);box.append(b)}
+      const days=['日','一','二','三','四','五','六'],box=$('dates'),latest=poolDate||state.baseDate||state.selectedDate;box.replaceChildren();
+      if(!latest)return;
+      for(let offset=-6;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
+        b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
     }
     async function selectDate(date){
       if(date===state.selectedDate)return;
-      if(date==='2026-09-20'){state.selectedDate=date;buildDates(state.baseDate);render();return}
-      if(date<'2026-09-13'||date>'2026-09-19'){alert('该日期暂无可核验的赛前记录。');return}
+      const earliest=state.baseDate?addDays(state.baseDate,-6):null;
+      if(!earliest||date<earliest||date>state.baseDate){alert('仅展示最新比赛日起最近7天的可核验记录。');return}
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
       try{const d=await load('archive',date);state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
     }
@@ -272,7 +274,7 @@
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;render()});
     $('back').onclick=closeDetail;
-    if(!authSession?.access_token){showLoginGate()}else load('archive').then(d=>{state.unopenedDate=null;state.futureDate=d.date==='2026-09-19'?'2026-09-20':null;state.today=d;state.baseDate=d.date;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
+    if(!authSession?.access_token){showLoginGate()}else load('archive').then(d=>{state.unopenedDate=null;state.futureDate=null;state.today=d;state.baseDate=d.date;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
     // Refresh settled results when the page becomes visible; preserve the selected day and model.
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state.selectedDate&&state.selectedDate!==state.unopenedDate&&state.selectedDate!==state.futureDate)selectDateRefresh()});
     async function selectDateRefresh(){try{const d=await load('archive',state.selectedDate);if(d.date!==state.selectedDate)return;state.today=d;const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);if(!state.selected)render()}catch(e){console.warn('赛果刷新失败',e)}}
