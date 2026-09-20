@@ -34,9 +34,36 @@
     .goals-inline-verdict{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px;padding:9px 11px;border-radius:8px;font-size:13px}.goals-inline-icon{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;font-size:14px;font-weight:800}.goals-inline-success{background:#eaf6f0;color:#278464}.goals-inline-success .goals-inline-icon{background:#34936e;color:white}.goals-inline-fail{background:#fff0f0;color:#c44848}.goals-inline-fail .goals-inline-icon{background:#c44848;color:white}.goals-inline-reference{background:#f4f4f4;color:#777}.goals-inline-reference .goals-inline-icon{background:#999;color:white}
     .site-disclaimer{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom));z-index:11;width:min(640px,100%);background:#ffa629;color:#fff;text-align:center;padding:7px 12px;font-size:11px;line-height:1.5;box-shadow:0 -1px 6px #00000012}
     .app{padding-bottom:135px}
+
+    /* Welcome screen: isolated from match cards and engine data. */
+    .welcome-screen{position:fixed;inset:0;z-index:1000;background:#080808;color:#fff;display:flex;justify-content:center;align-items:stretch}
+    .welcome-screen[hidden]{display:none!important}
+    .welcome-poster{position:relative;width:min(100%,640px);min-height:100%;background:radial-gradient(ellipse at 80% 18%,#7e130e 0%,transparent 30%),linear-gradient(155deg,#090a0c 25%,#250707 75%,#030303);overflow:hidden}
+    .welcome-poster:before{content:"";position:absolute;inset:0;background:url('assets/sauron-welcome.webp') center center/cover no-repeat;pointer-events:none}
+    .welcome-skip{position:absolute;right:6%;bottom:calc(12% + env(safe-area-inset-bottom));border:1px solid #ffffffb0;background:#111c;color:white;border-radius:40px;padding:12px 25px;min-height:48px;font-size:17px;cursor:pointer;z-index:1}
+    .welcome-fallback{position:absolute;top:12%;left:0;right:0;text-align:center;text-shadow:0 2px 12px #000;pointer-events:none}
+    .welcome-fallback strong{display:block;font-size:clamp(30px,8vw,54px);letter-spacing:.15em}.welcome-fallback small{display:block;letter-spacing:.3em;margin-top:8px}
+    .welcome-legal{position:absolute;bottom:calc(3% + env(safe-area-inset-bottom));left:6%;right:6%;text-align:center;font-size:11px;line-height:1.6;color:#ddd;text-shadow:0 1px 6px #000;pointer-events:none}
   </style>
 </head>
 <body>
+  <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="索伦引擎欢迎页">
+    <div class="welcome-poster">
+      <div class="welcome-fallback"><strong>索伦引擎</strong><small>SAURON ENGINE</small></div>
+      <button id="welcomeSkip" class="welcome-skip" type="button">跳过 ›</button>
+      <div class="welcome-legal">本站内容仅供数据研究与交流，不构成投注建议。<br>预测存在不确定性，请理性参考。</div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      var welcome=document.getElementById('welcomeScreen');
+      var skip=document.getElementById('welcomeSkip');
+      if(!welcome||!skip)return;
+      skip.addEventListener('click',function(){welcome.hidden=true;welcome.setAttribute('aria-hidden','true');});
+      // A failed poster load must never block access to match data.
+      window.addEventListener('keydown',function(e){if(e.key==='Escape'&&!welcome.hidden)skip.click();});
+    })();
+  </script>
   <div class="app">
     <header class="hero">
       <div class="brandbar">
