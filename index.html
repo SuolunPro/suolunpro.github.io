@@ -152,7 +152,7 @@
       overview:['索伦综合评测','汇总正式赛前冻结记录，展示首选、次选与让球方向'],
       handicap:['索伦让球评测','展示原始赛前预测与历史盲跑重建的首选、次选及概率'],
       wdl:['索伦胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
-      goals:['索伦泊松进球','全池直接展示赛前总进球 Top1—Top6 概率，Top4正式评测'],
+      goals:['索伦泊松进球','全池直接展示赛前总进球 Top1—Top6 概率，Top3正式评测'],
       daily:['索伦每日优选','仅展示赛前正式标记的重心场次；完整全池请切换综合评测查看']
     };
     const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
@@ -212,7 +212,7 @@
       if(state.model==='goals'){
         const lambda=publishedGoalLambda(row);
         const goals=el('section','goals-inline');
-        goals.append(el('div','goals-inline-title','泊松总进球 · Top4正式评测'));
+        goals.append(el('div','goals-inline-title','泊松总进球 · Top3正式评测'));
         if(lambda===null){
           goals.append(el('p','goals-note','赛前进球参数未确认'));
         }else{
@@ -230,11 +230,11 @@
           if(hasScore(row)){
             const actual=Number(row.resultHome)+Number(row.resultAway);
             const rank=ranked.slice(0,6).findIndex(item=>item.goals===actual);
-            const goalHit=rank>=0&&rank<4;
-            const verdict=el('div','goals-inline-verdict '+(goalHit?'goals-inline-success':rank>=4?'goals-inline-reference':'goals-inline-fail'));
-            verdict.append(el('span','goals-inline-icon',goalHit?'✓':rank>=4?'○':'×'),el('b','',goalHit?'评测成功':rank>=4?'参考命中':'评测未成功'),el('span','','实际总进球 '+actual+'球'+(rank>=4?' · 不计正式评测':'')));
+            const goalHit=rank>=0&&rank<3;
+            const verdict=el('div','goals-inline-verdict '+(goalHit?'goals-inline-success':rank>=3?'goals-inline-reference':'goals-inline-fail'));
+            verdict.append(el('span','goals-inline-icon',goalHit?'✓':rank>=3?'○':'×'),el('b','',goalHit?'评测成功':rank>=3?'参考命中':'评测未成功'),el('span','','实际总进球 '+actual+'球'+(rank>=3?' · 不计正式评测':'')));
             goals.append(verdict);
-          }else goals.append(el('p','goals-note','待评测 · Top5–Top6仅供参考'));
+          }else goals.append(el('p','goals-note','待评测 · Top4–Top6仅供参考'));
         }
         c.append(goals);
       }
@@ -297,7 +297,7 @@
       return home+away;
     }
     function goalPredictionPanel(row){
-      const panel=el('section','goals-panel');panel.append(el('h3','','泊松总进球 · Top4正式评测'));
+      const panel=el('section','goals-panel');panel.append(el('h3','','泊松总进球 · Top3正式评测'));
       const lambda=publishedGoalLambda(row);
       if(lambda===null){panel.append(el('p','goals-note','赛前总进球参数未确认，暂不展示预测或计入命中率。'));return panel}
       let p=Math.exp(-lambda);const ranks=[];
@@ -310,10 +310,10 @@
       });panel.append(grid);
       if(hasScore(row)){
         const actual=Number(row.resultHome)+Number(row.resultAway),rank=ranks.slice(0,6).findIndex(item=>item.goals===actual);
-        const verdict=rank>=0&&rank<4?'评测成功':rank>=4?'参考命中（不计正式评测）':'评测未成功';
+        const verdict=rank>=0&&rank<3?'评测成功':rank>=3?'参考命中（不计正式评测）':'评测未成功';
         panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · '+verdict));
       }else panel.append(el('div','goals-verdict','等待赛果 · 尚未评测'));
-      panel.append(el('p','goals-note','Top1—Top4任一命中计入总进球正式命中率；Top5、Top6仅供参考，不计入评测。总进球评测与胜平负、让球评测独立。'));
+      panel.append(el('p','goals-note','Top1—Top3任一命中计入总进球正式命中率；Top4、Top5、Top6仅供参考，不计入评测。总进球评测与胜平负、让球评测独立。'));
       return panel;
     }
     function openDetail(row,history){
