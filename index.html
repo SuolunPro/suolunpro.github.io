@@ -66,6 +66,7 @@
     .brand-motto{max-width:640px;margin:0 auto 4px;padding:0 18px;text-align:center;color:#8494aa;font-size:12px;line-height:1.8;letter-spacing:.035em}
     .motto-mobile{display:none}
     @media(max-width:600px){.motto-mobile{display:block}}
+    .overview-prob-panel{border-top:1px solid #e8e8e8;margin-top:12px;padding-top:12px;display:grid;gap:12px}.overview-prob-group{display:grid;gap:7px}.overview-prob-title{font-size:13px;font-weight:650;color:#666}.overview-prob-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.overview-prob-cell{border:1px solid #e8e8e8;border-radius:10px;background:#fafafa;padding:9px 3px;text-align:center;display:grid;gap:4px;min-width:0}.overview-prob-cell span{font-size:12px;color:#777}.overview-prob-cell b{font-size:17px;color:#333;overflow-wrap:anywhere}.overview-prob-selected{border-color:#d62c31;background:#fff8f8}.overview-prob-selected b{color:#d62c31}
   </style>
 </head>
 <body>
@@ -231,6 +232,38 @@
       const analysis=el('div','analysis'),values=state.model==='goals'?[]:moduleData(row),triplet=el('div','triplet'+(values.length===2?' pair':values.length===6?' six-grid':''));
       values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d);return}const hit=directionHit(row,k,v),d=el('div','datum'+(verified(row)?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d)});
       analysis.append(triplet);
+      if(state.model==='overview'){
+        const panel=el('section','overview-prob-panel');
+        const addGroup=(title,labels,values,picks)=>{
+          const group=el('div','overview-prob-group');
+          group.append(el('div','overview-prob-title',title));
+          const cells=el('div','overview-prob-cells');
+          labels.forEach((label,i)=>{
+            const selected=picks.includes(label);
+            const cell=el('div','overview-prob-cell'+(selected?' overview-prob-selected':''));
+            cell.append(el('span','',label),el('b','',values[i]));
+            cells.append(cell);
+          });
+          group.append(cells);panel.append(group);
+        };
+        // Display only recorded prematch 1X2 values; never derive historical probabilities from results or Top1 confidence.
+        const ftKeys=[['homeProbability','homePct','home_pct','ftHomeProbability','ft_home_probability'],['drawProbability','drawPct','draw_pct','ftDrawProbability','ft_draw_probability'],['awayProbability','awayPct','away_pct','ftAwayProbability','ft_away_probability']];
+        const recorded=keys=>{const value=keys.map(k=>row[k]).find(v=>v!==null&&v!==undefined&&v!=='');return value===undefined?'未记录':probability(value)};
+        addGroup('胜平负概率',['主胜','平局','客胜'],ftKeys.map(recorded),[row.ftTop1,row.second]);
+        const handicapValue=(label)=>{
+          const fields={'让胜':['handicapHomeProbability','handicapHomePct','handicap_home_probability','handicap_home_pct'],'让平':['handicapDrawProbability','handicapDrawPct','handicap_draw_probability','handicap_draw_pct'],'让负':['handicapAwayProbability','handicapAwayPct','handicap_away_probability','handicap_away_pct']}[label];
+          const direct=fields.map(k=>row[k]).find(v=>v!==null&&v!==undefined&&v!=='');
+          if(direct!==undefined)return probability(direct);
+          if(row.handicapTop1===label&&row.handicapProbability!=null)return probability(row.handicapProbability);
+          if(row.handicapSecond===label&&row.handicapSecondProbability!=null)return probability(row.handicapSecondProbability);
+          return '未记录';
+        };
+        const line=el('div','overview-prob-title','让球胜平负概率 · 官方让球 '+(row.officialHandicap==null?'未确认':String(row.officialHandicap)));
+        const hg=el('div','overview-prob-group');hg.append(line);
+        const hc=el('div','overview-prob-cells');
+        ['让胜','让平','让负'].forEach(label=>{const cell=el('div','overview-prob-cell'+(row.handicapTop1===label?' overview-prob-selected':''));cell.append(el('span','',label),el('b','',handicapValue(label)));hc.append(cell)});
+        hg.append(hc);panel.append(hg);analysis.append(panel);
+      }
       if(state.model==='goals')c.append(head,fixture);else c.append(head,fixture,analysis);
       // Show Poisson goals on the match list itself, immediately after the FT 1X2 block.
       if(state.model==='goals'){
