@@ -334,7 +334,7 @@
       const box=$('content');box.replaceChildren(sectionHead('真实战绩','仅已核验赛果'));
       if(!state.history){box.append(empty('正在读取战绩','只统计同时具备赛前冻结证据和赛果核验的记录。'));try{const h=await load('history',state.selectedDate);state.history=h;renderHistory()}catch(e){box.replaceChildren(errorBox(e))}return}
       const rows=filterRows(state.history.rows||[]);if(!rows.length){box.append(empty('暂无已核验战绩','当前模块没有同时满足赛前冻结与赛果核验的记录。'),notice());return}
-      const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,true)));const riskSample=el('section','risk-sample');riskSample.style.cssText='margin:12px 16px;padding:14px 15px;background:#fff;border:1px solid #eee;border-radius:12px';riskSample.append(el('div','','历史风险预警核验 · 豪竞3.5'),el('div','','62.3%'));riskSample.children[0].style.cssText='font-size:13px;font-weight:700;color:#444';riskSample.children[1].style.cssText='font-size:26px;font-weight:800;color:#c62930;margin:6px 0';riskSample.append(el('p','','2026年9月14—20日赛前HUR红灯样本：62场，其中53场赛果已核验，33场赛前首选失手，20场首选打出；另9场未计入。'));riskSample.append(el('p','','统计口径：红灯后首选失手计为风险提示命中，不代表准确预测平局或冷门方向。此为豪竞3.5历史样本，不是豪竞3.8实时预警命中率。'));riskSample.querySelectorAll('p').forEach(p=>p.style.cssText='font-size:11px;color:#777;line-height:1.7;margin:6px 0 0');box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),riskSample,grid,notice())
+      const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,true)));const statsNote=el('section','risk-sample');statsNote.style.cssText='margin:12px 16px;padding:14px 15px;background:#fff;border:1px solid #eee;border-radius:12px;font-size:12px;line-height:1.7;color:#555';statsNote.textContent='统计口径：本页仅展示已核验赛果的场次；顶部百分比按当前所选玩法、当前日期和有效评测场次计算。胜平负首选=首选命中数/有效场次；双选覆盖=首选或次选命中数/有效场次；让球=对应让球方向命中数/具备赛前让球预测及赛果的场次；综合评测=页面所列方向任一命中/有效场次；冷门避冷=原始首选未打出/已核验预警场次。各玩法分母不同，不可混作同一胜率；缺预测或缺赛果的场次不计入命中率，须另行列示。';box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),statsNote,grid,notice())
     }
     function renderProfile(){
       const d=state.today,box=$('content');
@@ -427,9 +427,9 @@
       $('pickCount').textContent=hits+'/'+evaluable.length;
       $('passCount').textContent=rows.length-settled.length;
       const labels=document.querySelectorAll('.metric span');
-      labels[0].textContent='当日命中率';
+      labels[0].textContent=({ft:'胜平负首选命中率',double:'双选覆盖率',handicap:'让球命中率',goals:'进球Top3覆盖率',combined:'综合评测成功率',daily:'重心场次命中率'})[state.model]||'当日评测命中率';
       labels[1].textContent='命中 / 有效评测';
-      labels[2].textContent='等待赛果';
+      labels[2].textContent='未核验赛果';
       const coverage=state.model==='goals'?' · 有进球预测且赛果已核验 '+evaluable.length+'场 · 未纳入 '+(rows.length-evaluable.length)+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
