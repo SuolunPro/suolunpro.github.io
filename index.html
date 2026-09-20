@@ -223,7 +223,7 @@
     }
     async function selectDate(date){
       if(date===state.selectedDate)return;
-      if(date===state.futureDate){state.selectedDate=date;buildDates(state.baseDate);$('poolCount').textContent=date+' · 未开赛';$('content').replaceChildren(empty('20号竞彩未开赛','该比赛日暂未发布可核验的正式赛前赛事数据，暂不展示比赛与预测。'));return}
+      if(date==='2026-09-20'){state.selectedDate=date;buildDates(state.baseDate);$('poolCount').textContent=date+' · 未开赛';$('content').replaceChildren(empty('20号竞彩未开赛','该比赛日暂未发布可核验的正式赛前赛事数据，暂不展示比赛与预测。'));return}
       if(date<'2026-09-14'||date>'2026-09-20'){alert('该日期暂无可核验的正式赛前记录。');return}
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
       try{const d=await load('archive',date);state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
