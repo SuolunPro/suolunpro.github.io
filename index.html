@@ -21,7 +21,7 @@
     .analysis{border-top:1px solid #ddd;padding-top:10px}.triplet{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #ddd;border-radius:5px;overflow:hidden}.triplet.pair{grid-template-columns:repeat(2,1fr)}.triplet.six-grid .datum:nth-child(3){border-right:0}.triplet.six-grid .datum:nth-child(-n+3){border-bottom:1px solid #ddd}.datum{padding:8px 5px;text-align:center;border-right:1px solid #ddd;min-width:0}.datum:last-child{border-right:0}.datum span{display:block;color:#777;font-size:9px;margin-bottom:4px}.datum b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.datum.primary b{color:var(--red)}.datum.wdl-pick span{font-weight:700}.datum.wdl-actual{background:#fafafa}.datum.wdl-prob b{font-size:17px}.datum.hit b{color:var(--red)!important}.datum.hit b:after{content:' ✓';font-weight:900}.datum.miss b{color:var(--ink)}.advice{font-size:13px;font-weight:800;color:var(--red);margin-top:10px;line-height:1.5}.advice small{color:#777;font-size:10px;font-weight:500;margin-left:5px}.history-result{margin-top:9px;padding-top:9px;border-top:1px solid #eee;font-size:11px;color:#777}.history-result b{color:var(--red)}.status.fail{background:#777}
     .empty,.error{background:#fff;border-radius:16px;padding:34px 18px;text-align:center;color:#999;font-size:12px;line-height:1.7}.empty b,.error b{display:block;color:#444;font-size:15px;margin-bottom:6px}.notice{margin-top:12px;background:#fff5dc;border:1px solid #f1dfaa;color:#896c26;border-radius:11px;padding:10px 12px;font-size:10px;line-height:1.7}
     .backbar{position:sticky;top:0;z-index:4;background:var(--red);padding:12px 14px;color:#fff;display:flex;align-items:center;gap:12px}.back{border:0;background:none;color:#fff;font-size:21px;padding:2px 7px}.backbar b{font-size:15px}.detail-body{padding:12px}.detail-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px #00000008}.detail-card h2{font-size:20px;margin:11px 0 5px}.sub{font-size:11px;color:#999}.audit{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.audit-item{border:1px solid #eee;background:#fafafa;border-radius:9px;padding:10px}.audit-item span{display:block;color:#999;font-size:9px;margin-bottom:4px}.audit-item b{font-size:12px;word-break:break-word}.riskbox{margin-top:12px;border-top:1px solid #eee;padding-top:12px}.riskbox h3{font-size:12px;margin:0 0 6px}.riskbox p{font-size:11px;line-height:1.7;color:#737373;margin:0 0 5px}
-    .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#ffffffed;backdrop-filter:blur(15px);border-top:1px solid #ddd;padding:7px 0 max(8px,env(safe-area-inset-bottom));display:flex;justify-content:center}.bottom-inner{width:min(640px,100%);display:grid;grid-template-columns:repeat(4,1fr)}.nav{border:0;background:none;color:#999;font-size:9px;padding:3px}.nav i{display:block;font-style:normal;font-size:18px;margin-bottom:2px}.nav.active{color:var(--red);font-weight:700}.loading{display:inline-flex;gap:5px;align-items:center}.loading:after{content:"";width:10px;height:10px;border:2px solid #ddd;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(min-width:641px){.app{box-shadow:0 0 40px #0001}.hero{border-radius:0 0 18px 18px}}
+    .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#ffffffed;backdrop-filter:blur(15px);border-top:1px solid #ddd;padding:7px 0 max(8px,env(safe-area-inset-bottom));display:flex;justify-content:center}.bottom-inner{width:min(640px,100%);display:grid;grid-template-columns:repeat(3,1fr)}.nav{border:0;background:none;color:#999;font-size:9px;padding:3px}.nav i{display:block;font-style:normal;font-size:18px;margin-bottom:2px}.nav.active{color:var(--red);font-weight:700}.loading{display:inline-flex;gap:5px;align-items:center}.loading:after{content:"";width:10px;height:10px;border:2px solid #ddd;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(min-width:641px){.app{box-shadow:0 0 40px #0001}.hero{border-radius:0 0 18px 18px}}
     .focus-label{display:inline-block;margin-left:7px;padding:2px 5px;border-radius:4px;background:#fff0f0;color:var(--red);font-size:9px;font-weight:700}.triplet.pair .datum{padding:11px 6px}.score{font-size:22px}.score span{font-size:9px}
     /* Compact mobile-first client layout */
     .hero{background:var(--red)}.hero:before,.hero:after{display:none}.brandbar{padding:10px 14px 7px}.models{padding:0 8px}.model{min-width:0;padding:10px 3px;font-size:12px}.hero-copy{display:none}.dates{padding:6px 0 7px;background:var(--red);border-top:1px solid #ffffff24}.day{font-size:10px}.day b{font-size:12px;margin-bottom:2px}
@@ -107,9 +107,8 @@
   <nav class="bottom">
     <div class="bottom-inner">
       <button class="nav active" data-tab="home"><i>⌂</i>首页</button>
-      <button class="nav" data-tab="matches"><i>▦</i>赛事</button>
       <button class="nav" data-tab="history"><i>✓</i>战绩</button>
-      <button class="nav" data-tab="profile"><i>◎</i>说明</button>
+      <button class="nav" data-tab="profile"><i>◎</i>我的</button>
     </div>
   </nav>
   <script>
@@ -150,7 +149,7 @@
       handicap:['索伦让球评测','展示原始赛前预测与历史盲跑重建的首选、次选及概率'],
       wdl:['索伦胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
       goals:['索伦泊松进球','全池直接展示赛前总进球 Top1—Top6 概率，Top4正式评测'],
-      daily:['索伦每日优选','仅展示赛前正式标记的重心场次；完整全池请前往赛事页查看']
+      daily:['索伦每日优选','仅展示赛前正式标记的重心场次；完整全池请切换综合评测查看']
     };
     const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
     function fmtTime(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
@@ -263,7 +262,7 @@
     function engineIntroduction(){const c=el('div','engine-intro');c.append(el('h2','','索伦引擎 · 多维量化分析体系'),el('p','','8层为分析体系的功能分类，不代表每一层均已在当前生产版本启用；实际预测以已发布的正式赛前冻结数据为准。'));ENGINE_LAYERS.forEach(([name,desc],i)=>{const x=el('div','engine-layer');x.append(el('b','',String(i+1).padStart(2,'0')+' · '+name),el('span','',desc));c.append(x)});return c}
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));if(state.tab==='home')box.append(engineBanner());
-      if(!rows.length){box.append(empty(state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='daily'?'当前接口未发布可核验的赛前重心标记，不会按赛果或赔率临时拼凑优选。完整比赛请切换赛事页。':'当前没有符合条件的正式竞足记录。'),notice());return}
+      if(!rows.length){box.append(empty(state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='daily'?'当前接口未发布可核验的赛前重心标记，不会按赛果或赔率临时拼凑优选。完整比赛请切换综合评测。':'当前没有符合条件的正式竞足记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,history)));box.append(grid,notice())
     }
     function renderHome(){const rows=visibleRows().filter(r=>state.model!=='daily'||isFocus(r));renderCards(state.model==='daily'?'每日优选 · 重心场次':currentTitle(),rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
@@ -275,10 +274,10 @@
       const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,true)));box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),grid,notice())
     }
     function renderProfile(){
-      const d=state.today,box=$('content'),card=el('div','detail-card'),hs=d?.handicapStats;box.replaceChildren(sectionHead('数据说明','客户公开版'));box.append(engineIntroduction());
+      const d=state.today,box=$('content'),card=el('div','detail-card'),hs=d?.handicapStats;box.replaceChildren(sectionHead('我的','账户与使用说明'));box.append(accountPanel(),engineIntroduction());
       card.append(el('h2','','索伦引擎 '+safe(d?.modelVersion)),el('div','sub','赛前冻结可追溯 · 原始预测与盲跑重建分开统计'));
       const rows=[['数据来源','正式公开接口'],['比赛日',safe(d?.date)],['赛前冻结',d?d.pregameVerifiedCount+'/'+d.count:'未确认'],['让球补齐',hs?hs.filled+'/'+hs.total:'未确认'],['原始赛前预测',hs?hs.original.total+'场 · 双选 '+(hs.original.coverageRate??'—')+'%':'未确认'],['历史盲跑重建',hs?hs.replay.total+'场 · 双选 '+(hs.replay.coverageRate??'—')+'%':'未确认'],['数据时间',fmtStamp(d?.dataTime)],['评测口径','让球首选或次选任一命中即双选覆盖成功'],['赛果纪律','预测先落库，赛果后结算；禁止倒灌']];
-      const a=el('div','audit');rows.forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',v));a.append(x)});card.append(a);box.append(card,accountPanel(),notice())
+      const a=el('div','audit');rows.forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',v));a.append(x)});card.append(a);box.append(card,notice())
     }
 
     // Only accept independently published, pre-kickoff goal inputs. Never infer them from final scores.
@@ -350,7 +349,7 @@
       const coverage=state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
-    function render(){closeDetail();updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
+    function render(){closeDetail();updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
     async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal,headers:{Authorization:'Bearer '+authSession.access_token}});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
