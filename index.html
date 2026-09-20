@@ -342,8 +342,15 @@
     function updateMetrics(){
       const rows=state.model==='daily'?visibleRows():(state.today?.rows||[]);
       const settled=rows.filter(verified);
-      const evaluable=state.model==='handicap'?settled.filter(handicapEvaluable):settled;
-      const hits=evaluable.filter(evaluationHit).length;
+      // Poisson statistics include only settled matches with a valid frozen pre-kickoff goal prediction and verified score.
+      const evaluable=state.model==='goals'?settled.filter(row=>publishedGoalLambda(row)!==null&&hasScore(row)):state.model==='handicap'?settled.filter(handicapEvaluable):settled;
+      const hits=state.model==='goals'?evaluable.filter(row=>{
+        const lambda=publishedGoalLambda(row),actual=Number(row.resultHome)+Number(row.resultAway);
+        let p=Math.exp(-lambda);const ranked=[];
+        for(let k=0;k<=15;k++){if(k>0)p*=lambda/k;ranked.push({goals:k,p})}
+        ranked.sort((a,b)=>b.p-a.p||a.goals-b.goals);
+        return ranked.slice(0,3).some(item=>item.goals===actual);
+      }).length:evaluable.filter(evaluationHit).length;
       const rate=evaluable.length?Number((100*hits/evaluable.length).toFixed(1))+'%':'—';
       $('totalCount').textContent=rate;
       $('pickCount').textContent=hits+'/'+evaluable.length;
@@ -352,7 +359,7 @@
       labels[0].textContent='当日命中率';
       labels[1].textContent='命中 / 有效评测';
       labels[2].textContent='等待赛果';
-      const coverage=state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
+      const coverage=state.model==='goals'?' · 有进球预测且赛果已核验 '+evaluable.length+'场 · 未纳入 '+(rows.length-evaluable.length)+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
     function render(){closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile';if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
