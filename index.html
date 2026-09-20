@@ -44,7 +44,7 @@
       <div class="hero-copy">
         <h1 id="modelTitle">索伦综合评测</h1>
         <p id="modelDesc">汇总正式赛前冻结记录，展示首选、次选与让球方向</p>
-        <div class="warn">数据仅来自正式赛前冻结批次；未发布字段显示“未确认”。内容仅供赛事研究参考。</div>
+        <div class="warn">原始赛前预测与历史盲跑重建分开标注；盲跑仅使用冻结时点数据，预测失败也如实展示。内容仅供赛事研究参考。</div>
       </div>
       <div class="dates" id="dates"></div>
     </header>
@@ -112,7 +112,7 @@
     const handicapChoice=(pick,prob)=>{const p=safe(pick);return p==='未确认'?p:p+' · '+probability(prob)};
     const modelCopy={
       overview:['索伦综合评测','汇总正式赛前冻结记录，展示首选、次选与让球方向'],
-      handicap:['索伦让球评测','根据公开让球线展示首选、次选及对应概率'],
+      handicap:['索伦让球评测','展示原始赛前预测与历史盲跑重建的首选、次选及概率'],
       wdl:['索伦胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
       daily:['索伦每日优选','仅展示赛前正式标记的重心场次；完整全池请前往赛事页查看']
     };
@@ -160,7 +160,7 @@
       const c=el('article','card');c.tabIndex=0;c.setAttribute('role','button');
       const head=el('div','card-head');
       const id=el('div','match-id');id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-      if(state.model==='daily')id.append(el('span','focus-label','赛前重心'));head.append(id,el('span',statusClass(row,history),statusText(row,history)));
+      if(state.model==='daily')id.append(el('span','focus-label','赛前重心'));if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',row.handicapSourceLabel));head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [row.home,row.away].forEach(name=>{const t=el('div','team');t.append(el('span','crest',initial(name)),el('span','team-name',safe(name)));teams.append(t)});
       const settled=verified(row),outcome=safe(resultName[row.result]||row.result),score=el('div','score',settled?(hasScore(row)?scoreline(row):'比分待核验'):'VS');score.append(el('span','',settled?(hasScore(row)?outcome+' · 正式赛果':'比分待核验'):row.matchStatus==='POSTPONED'?'比赛延期':'官方让球 '+(row.officialHandicap==null?'待确认':String(row.officialHandicap))));
@@ -169,12 +169,12 @@
       values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));triplet.append(d);return}const hit=directionHit(row,k,v),d=el('div','datum'+(verified(row)?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));triplet.append(d)});
       analysis.append(triplet);
       c.append(head,fixture,analysis);
-      if(history){const r=el('div','history-result');r.append(document.createTextNode('比分 '),el('b','',scoreline(row)),document.createTextNode(' · '));if(state.model==='handicap')r.append(document.createTextNode('首选 '+safe(row.handicapTop1??row.handicap)+' · 次选 '+safe(row.handicapSecond)+' · 赛果 '+safe(effectiveHandicapResult(row))+' · 评测 '),el('b','',!handicapEvaluable(row)?'未发布有效赛前让球预测':evaluationHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
+      if(history){const r=el('div','history-result');r.append(document.createTextNode('比分 '),el('b','',scoreline(row)),document.createTextNode(' · '));if(state.model==='handicap')r.append(document.createTextNode('来源 '+safe(row.handicapSourceLabel)+' · 首选 '+safe(row.handicapTop1??row.handicap)+' · 次选 '+safe(row.handicapSecond)+' · 赛果 '+safe(effectiveHandicapResult(row))+' · 评测 '),el('b','',!handicapEvaluable(row)?'未发布有效赛前让球预测':evaluationHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
       c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
     }
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
     function empty(title,text){const x=el('div','empty');x.append(el('b','',title),el('div','',text));return x}
-    function notice(){return el('div','notice','全池展示正式赛前冻结的首选与次选，任一方向命中即计本场评测成功。影子表、赛后补算和未核验字段不会作为正式结论发布。')}
+    function notice(){return el('div','notice','让球首选与次选均来自赛前冻结数据；原始预测与历史盲跑重建分别标注，任一方向命中即计双选覆盖成功。赛果仅在预测落库后用于事后评测。')}
     function isFocus(row){
       const archived=ARCHIVED_FOCUS[row.date],no=String(row.no??'').padStart(3,'0');
       if(Array.isArray(archived))return row.pregameVerified===true&&archived.includes(no);
@@ -209,15 +209,16 @@
       const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,true)));box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),grid,notice())
     }
     function renderProfile(){
-      const d=state.today,box=$('content'),card=el('div','detail-card');box.replaceChildren(sectionHead('数据说明','客户公开版'));box.append(engineIntroduction());
-      card.append(el('h2','','索伦引擎 '+safe(d?.modelVersion)),el('div','sub','正式赛前冻结 · 缺失数据不补猜'));
-      const a=el('div','audit');[['数据来源','正式公开接口'],['比赛日',safe(d?.date)],['赛前冻结',d?d.pregameVerifiedCount+'/'+d.count:'未确认'],['数据时间',fmtStamp(d?.dataTime)],['评测口径','综合评测三个方向任一命中；各玩法独立统计'],['赛果纪律','不使用赛果倒灌']].forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',v));a.append(x)});card.append(a);box.append(card,accountPanel(),notice())
+      const d=state.today,box=$('content'),card=el('div','detail-card'),hs=d?.handicapStats;box.replaceChildren(sectionHead('数据说明','客户公开版'));box.append(engineIntroduction());
+      card.append(el('h2','','索伦引擎 '+safe(d?.modelVersion)),el('div','sub','赛前冻结可追溯 · 原始预测与盲跑重建分开统计'));
+      const rows=[['数据来源','正式公开接口'],['比赛日',safe(d?.date)],['赛前冻结',d?d.pregameVerifiedCount+'/'+d.count:'未确认'],['让球补齐',hs?hs.filled+'/'+hs.total:'未确认'],['原始赛前预测',hs?hs.original.total+'场 · 双选 '+(hs.original.coverageRate??'—')+'%':'未确认'],['历史盲跑重建',hs?hs.replay.total+'场 · 双选 '+(hs.replay.coverageRate??'—')+'%':'未确认'],['数据时间',fmtStamp(d?.dataTime)],['评测口径','让球首选或次选任一命中即双选覆盖成功'],['赛果纪律','预测先落库，赛果后结算；禁止倒灌']];
+      const a=el('div','audit');rows.forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',v));a.append(x)});card.append(a);box.append(card,accountPanel(),notice())
     }
     function openDetail(row,history){
       state.selected=row;$('main').classList.add('hide');$('detail').classList.add('show');
       const c=$('detailCard');c.replaceChildren();
       c.append(el('span',statusClass(row,history),statusText(row,history)),el('h2','',safe(row.home)+' vs '+safe(row.away)),el('div','sub',[safe(row.no),safe(row.league),fmtTime(row.kickoff),'北京时间'].join(' · ')));
-      const detailRows=[['全场比分',scoreline(row)],['正式赛果',verified(row)?resultName[row.result]||row.result:'未确认'],['FT首选',row.ftTop1],['第二方向',row.second],['评测口径','综合评测三个方向任一命中'],['当日版本',row.version],['官方让球',row.officialHandicap],['让球首选',row.handicapTop1??row.handicap],['让球首选概率',probability(row.handicapProbability)],['让球次选',row.handicapSecond],['让球次选概率',probability(row.handicapSecondProbability)],['概率来源',row.handicapProbabilitySource],['FT Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['冻结时间',fmtStamp(row.frozenAt)]];
+      const detailRows=[['全场比分',scoreline(row)],['正式赛果',verified(row)?resultName[row.result]||row.result:'未确认'],['FT首选',row.ftTop1],['第二方向',row.second],['评测口径','综合评测三个方向任一命中'],['当日版本',row.version],['官方让球',row.officialHandicap],['让球首选',row.handicapTop1??row.handicap],['让球首选概率',probability(row.handicapProbability)],['让球次选',row.handicapSecond],['让球次选概率',probability(row.handicapSecondProbability)],['概率来源',row.handicapProbabilitySource],['预测来源',row.handicapSourceLabel],['来源版本',row.handicapSourceVersion],['来源修订',row.handicapSourceRevision],['让球冻结时间',fmtStamp(row.handicapFrozenAt)],['重建版本',row.handicapReconstructionVersion],['首选评测',row.handicapTop1Hit==null?'等待赛果':row.handicapTop1Hit?'命中':'未中'],['双选覆盖评测',row.handicapCoverageHit==null?'等待赛果':row.handicapCoverageHit?'命中':'未中'],['FT Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['冻结时间',fmtStamp(row.frozenAt)]];
       const a=el('details','riskbox');a.append(el('summary','','完整赛前记录与数据来源（点击展开）'));const audit=el('div','audit');detailRows.forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',safe(v)));audit.append(x)});a.append(audit);c.append(a);
       const comparison=el('details','riskbox');comparison.append(el('summary','','市场 / 独立模型 / 最终概率对比（点击展开）'));
       const probabilityGroups=[
@@ -248,7 +249,7 @@
       labels[0].textContent='当日命中率';
       labels[1].textContent='命中 / 有效评测';
       labels[2].textContent='等待赛果';
-      const coverage=state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场（赛前PASS/缺预测不计入）':'';
+      const coverage=state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
     function render(){closeDetail();if(state.selectedDate==='2026-09-20'){const labels=document.querySelectorAll('.metric span');$('poolCount').textContent='2026-09-20 · 未开赛';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';labels[0].textContent='重心场次';labels[1].textContent='评测成功';labels[2].textContent='等待赛果';if(state.tab==='profile'){renderProfile();return}const box=$('content');box.replaceChildren();if(state.tab==='home')box.append(engineBanner());box.append(empty('20号竞彩未开赛','该比赛日暂未发布可核验的正式赛前赛事数据，暂不展示比赛与预测。'));return}updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
@@ -256,13 +257,13 @@
     function isoDate(d){return d.toISOString().slice(0,10)}
     function buildDates(poolDate){
       const days=['日','一','二','三','四','五','六'],box=$('dates');box.replaceChildren();
-      for(let day=14;day<=20;day++){const iso='2026-09-'+String(day).padStart(2,'0'),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
-        b.append(el('b','',day===20?'未开赛':day===19?'已开售':'周'+days[d.getDay()]),el('span','','09-'+String(day).padStart(2,'0')));b.onclick=()=>selectDate(iso);box.append(b)}
+      for(let day=13;day<=19;day++){const iso='2026-09-'+String(day).padStart(2,'0'),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
+        b.append(el('b','','周'+days[d.getDay()]),el('span','','09-'+String(day).padStart(2,'0')));b.onclick=()=>selectDate(iso);box.append(b)}
     }
     async function selectDate(date){
       if(date===state.selectedDate)return;
       if(date==='2026-09-20'){state.selectedDate=date;buildDates(state.baseDate);render();return}
-      if(date<'2026-09-14'||date>'2026-09-20'){alert('该日期暂无可核验的正式赛前记录。');return}
+      if(date<'2026-09-13'||date>'2026-09-19'){alert('该日期暂无可核验的赛前记录。');return}
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
       try{const d=await load('archive',date);state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
     }
