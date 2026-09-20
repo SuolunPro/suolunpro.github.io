@@ -222,8 +222,8 @@
           goals.append(el('p','goals-note','预计总进球 λ：'+lambda.toFixed(2)));
           const grid=el('div','goals-grid');
           ranked.slice(0,6).forEach((item,i)=>{
-            const cell=el('div','goal-cell'+(i>=4?' reference':''));
-            cell.append(el('small','',i<4?'正式 Top'+(i+1):'参考 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));
+            const cell=el('div','goal-cell'+(i>=3?' reference':''));
+            cell.append(el('small','',i<3?'正式 Top'+(i+1):'参考 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));
             grid.append(cell);
           });
           goals.append(grid);
@@ -305,8 +305,8 @@
       ranks.sort((a,b)=>b.p-a.p||a.goals-b.goals);
       panel.append(el('p','sub','预计总进球 λ：'+lambda.toFixed(2)+' · 按泊松概率排序'));
       const grid=el('div','goals-grid');ranks.slice(0,6).forEach((item,i)=>{
-        const cell=el('div','goal-cell'+(i>=4?' reference':''));
-        cell.append(el('small','',i<4?'正式 Top'+(i+1):'参考 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));grid.append(cell)
+        const cell=el('div','goal-cell'+(i>=3?' reference':''));
+        cell.append(el('small','',i<3?'正式 Top'+(i+1):'参考 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));grid.append(cell)
       });panel.append(grid);
       if(hasScore(row)){
         const actual=Number(row.resultHome)+Number(row.resultAway),rank=ranks.slice(0,6).findIndex(item=>item.goals===actual);
