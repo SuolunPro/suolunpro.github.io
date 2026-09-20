@@ -308,9 +308,23 @@
       const box=$('content');box.replaceChildren(sectionHead('冷门预警 · 历史冻结记录',rows.length+'场 · 豪竞3.5赛前HUR红灯历史重建'));
       if(!rows.length){box.append(empty('当日暂无历史红灯预警','当前日期没有符合条件的冻结记录。'));return}
       const grid=el('div','cards');let settled=0,hits=0;
-      rows.forEach(v=>{const card=el('article','card');card.style.cssText='padding:16px;margin:10px 0';const direction=v[4]==='主胜'?'主队不胜':'客队不胜';card.append(el('b','',v[1]+' · '+v[2]+' VS '+v[3]),el('h3','',direction),el('p','','赛前原始首选：'+v[4]),el('p','','预警依据：HUR热门风险红灯；DTR平局风险'+v[6]+'；DLR直接输球风险'+v[7]+'。'));
-        if(['3','1','0'].includes(v[8])){settled++;const original=v[4]==='主胜'?'3':'0',hit=original!==v[8];if(hit)hits++;const actual={'3':'主胜','1':'平局','0':'客胜'}[v[8]];card.append(el('p','','实际赛果：'+actual+'（'+v[8]+'）'),el('strong','',hit?'预警成功 · 原始首选未打出':'预警失败 · 原始首选打出'))}else card.append(el('p','','实际赛果：待核验'));
-        card.append(el('p','','历史重建：风险灯来自赛前冻结；方向由原始首选反向映射，并非当时独立发布的方向预测。'));grid.append(card)});
+      rows.forEach(v=>{
+        const card=el('article','card');card.style.cssText='position:relative;overflow:hidden;padding:16px;margin:12px 0;border-radius:18px;background:#fff';
+        const original=v[4]==='主胜'?'3':'0',isSettled=['3','1','0'].includes(v[8]),hit=isSettled&&original!==v[8];
+        if(isSettled){settled++;if(hit)hits++}
+        const head=el('div','');head.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;padding-right:0';
+        const fixture=el('span','',v[0].slice(5)+' · '+v[1]+'场');fixture.style.cssText='font-size:13px;color:#777';
+        const status=el('span','',isSettled?(hit?'避冷成功':'预警未中'):'等待赛果');status.style.cssText='font-size:12px;font-weight:700;padding:7px 10px;border-radius:9px;background:'+(isSettled?(hit?'#d62c31':'#f0f0f0'):'#f7f0dc')+';color:'+(isSettled?(hit?'#fff':'#555'):'#85641e');head.append(fixture,status);
+        const teams=el('div','');teams.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:17px;font-weight:800;margin:0 0 15px';
+        const home=el('span','',v[2]),away=el('span','',v[3]),score=el('span','',isSettled?({'3':'主胜','1':'平局','0':'客胜'}[v[8]]):'VS');home.style.cssText='flex:1;min-width:0';away.style.cssText='flex:1;min-width:0;text-align:right';score.style.cssText='white-space:nowrap;font-size:15px;color:#666';teams.append(home,score,away);
+        const panels=el('div','');panels.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:10px';
+        const panel=(value,label)=>{const p=el('div','');p.style.cssText='background:#f7f8fa;border:1px solid #e0e0e0;border-radius:12px;padding:17px 7px;text-align:center';const big=el('div','',value);big.style.cssText='font-size:20px;font-weight:800;color:#c72c32;min-height:29px';const small=el('div','',label);small.style.cssText='font-size:12px;color:#777;margin-top:7px';p.append(big,small);return p};
+        panels.append(panel('HUR红灯','赛前冷门风险'),panel(v[4]==='主胜'?'主队不胜':'客队不胜','避冷预警方向'));
+        const details=el('div','');details.style.cssText='font-size:12px;line-height:1.7;color:#777;margin-top:12px';
+        details.append(el('div','','赛前原始首选：'+v[4]+' · 实际赛果：'+(isSettled?{'3':'主胜','1':'平局','0':'客胜'}[v[8]]:'待核验')),el('div','','风险依据：HUR红灯 · DTR '+v[6]+' · DLR '+v[7]));
+        const note=el('div','','历史重建：风险灯来自赛前冻结；预警方向由原始首选反向映射，并非当时独立发布的方向预测。');note.style.cssText='font-size:10px;line-height:1.5;color:#999;margin-top:9px';
+        card.append(head,teams,panels,details,note);grid.append(card)
+      });
       const rate=settled?(100*hits/settled).toFixed(1)+'%':'—';const summary=el('section','risk-sample');summary.style.cssText='margin:12px 0;padding:15px;background:#fff;border:1px solid #eee;border-radius:12px';summary.append(el('b','','当日避冷成功率'),el('div','',rate),el('p','','预警成功 '+hits+' / 已核验 '+settled+' 场 · 待核验 '+(rows.length-settled)+' 场'));summary.children[1].style.cssText='font-size:28px;font-weight:800;color:#c62930;margin:8px 0';summary.append(el('small','','统计口径：赛前原始首选未打出即避冷成功；仅已核验赛果计入分母。历史重建不等同于当时正式发布的独立预警。'));box.append(summary,grid,notice());
     }
     function renderHome(){if(state.model==='upset'){renderHistoricalWarnings();return}const rows=visibleRows().filter(r=>state.model!=='daily'||isFocus(r));renderCards(state.model==='daily'?'每日优选 · 重心场次':currentTitle(),rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
