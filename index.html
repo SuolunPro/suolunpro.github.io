@@ -274,10 +274,20 @@
       const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,true)));box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),grid,notice())
     }
     function renderProfile(){
-      const d=state.today,box=$('content'),card=el('div','detail-card'),hs=d?.handicapStats;box.replaceChildren(sectionHead('我的','账户与使用说明'));box.append(accountPanel(),engineIntroduction());
-      card.append(el('h2','','索伦引擎 '+safe(d?.modelVersion)),el('div','sub','赛前冻结可追溯 · 原始预测与盲跑重建分开统计'));
-      const rows=[['数据来源','正式公开接口'],['比赛日',safe(d?.date)],['赛前冻结',d?d.pregameVerifiedCount+'/'+d.count:'未确认'],['让球补齐',hs?hs.filled+'/'+hs.total:'未确认'],['原始赛前预测',hs?hs.original.total+'场 · 双选 '+(hs.original.coverageRate??'—')+'%':'未确认'],['历史盲跑重建',hs?hs.replay.total+'场 · 双选 '+(hs.replay.coverageRate??'—')+'%':'未确认'],['数据时间',fmtStamp(d?.dataTime)],['评测口径','让球首选或次选任一命中即双选覆盖成功'],['赛果纪律','预测先落库，赛果后结算；禁止倒灌']];
-      const a=el('div','audit');rows.forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',v));a.append(x)});card.append(a);box.append(card,notice())
+      const d=state.today,box=$('content');
+      box.replaceChildren(sectionHead('我的','账户与设置'));
+      box.append(accountPanel());
+      const guide=el('div','detail-card');
+      const heading=el('h2','','使用说明');
+      const brief=el('p','sub','首选、次选与概率均为赛前分析结果；预测存在不确定性。');
+      const toggle=el('button','secondary','查看评测规则');
+      const details=el('div','audit');details.hidden=true;
+      [['首选与次选','同一场比赛的两个独立展示方向；具体玩法以对应栏目为准。'],['双选评测','首选或次选任一命中，记为双选覆盖成功。'],['历史战绩','仅统计已核验赛果；赛前原始预测与历史盲跑重建分开标注。']].forEach(([name,value])=>{const item=el('div','audit-item');item.append(el('span','',name),el('b','',value));details.append(item)});
+      toggle.onclick=()=>{details.hidden=!details.hidden;toggle.textContent=details.hidden?'查看评测规则':'收起评测规则'};
+      guide.append(heading,brief,toggle,details);
+      const about=el('div','detail-card');
+      about.append(el('h2','','关于索伦'),el('p','sub','索伦引擎 '+safe(d?.modelVersion)),el('p','sub','数据更新：'+fmtStamp(d?.dataTime)));
+      box.append(guide,about,notice());
     }
 
     // Only accept independently published, pre-kickoff goal inputs. Never infer them from final scores.
