@@ -185,7 +185,7 @@
     function moduleData(row){
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球首选',handicapChoice(row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapChoice(row.handicapSecond,row.handicapSecondProbability)]];
       if(state.model==='wdl')return [['主胜',ftProbability(row,'H')],['平局',ftProbability(row,'D')],['客胜',ftProbability(row,'A')]];
-      if(state.model==='daily')return [['首选建议',row.ftTop1],['次选建议',row.second]];
+      if(state.model==='daily'){const pct=pick=>{const code=normalizeResult(pick);return code?ftProbability(row,code):'—'};return [['胜平负首选',safe(row.ftTop1)+' · '+pct(row.ftTop1)],['胜平负次选',safe(row.second)+' · '+pct(row.second)]];}
       return [['FT首选',row.ftTop1],['第二方向',row.second],['让球方向',row.handicap]];
     }
     function adviceText(row){
