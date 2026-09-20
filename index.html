@@ -242,7 +242,7 @@
     }
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
     function empty(title,text){const x=el('div','empty');x.append(el('b','',title),el('div','',text));return x}
-    function notice(){return el('div','notice','让球首选与次选均来自赛前冻结数据；原始预测与历史盲跑重建分别标注，任一方向命中即计双选覆盖成功。赛果仅在预测落库后用于事后评测。')}
+    function notice(){return document.createDocumentFragment()}
     function isFocus(row){
       const archived=ARCHIVED_FOCUS[row.date],no=String(row.no??'').padStart(3,'0');
       if(Array.isArray(archived))return row.pregameVerified===true&&archived.includes(no);
