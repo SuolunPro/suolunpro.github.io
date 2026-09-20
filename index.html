@@ -311,7 +311,7 @@
       rows.forEach(v=>{const card=el('article','card');card.style.cssText='padding:16px;margin:10px 0';const direction=v[4]==='主胜'?'主队不胜':'客队不胜';card.append(el('b','',v[1]+' · '+v[2]+' VS '+v[3]),el('h3','',direction),el('p','','赛前原始首选：'+v[4]),el('p','','预警依据：HUR热门风险红灯；DTR平局风险'+v[6]+'；DLR直接输球风险'+v[7]+'。'));
         if(['3','1','0'].includes(v[8])){settled++;const original=v[4]==='主胜'?'3':'0',hit=original!==v[8];if(hit)hits++;card.append(el('strong','',hit?'预警成功 · 原始首选未打出':'预警失败 · 原始首选打出'))}else card.append(el('small','','赛果未核验，暂不评测'));
         card.append(el('p','','历史重建：风险灯来自赛前冻结；方向由原始首选反向映射，并非当时独立发布的方向预测。'));grid.append(card)});
-      box.append(el('p','', '已核验 '+settled+'场 · 预警成功 '+hits+'场 · 待核验 '+(rows.length-settled)+'场'),grid,notice());
+      const rate=settled?(100*hits/settled).toFixed(1)+'%':'—';const summary=el('section','risk-sample');summary.style.cssText='margin:12px 0;padding:15px;background:#fff;border:1px solid #eee;border-radius:12px';summary.append(el('b','','当日避冷成功率'),el('div','',rate),el('p','','预警成功 '+hits+' / 已核验 '+settled+' 场 · 待核验 '+(rows.length-settled)+' 场'));summary.children[1].style.cssText='font-size:28px;font-weight:800;color:#c62930;margin:8px 0';summary.append(el('small','','统计口径：赛前原始首选未打出即避冷成功；仅已核验赛果计入分母。历史重建不等同于当时正式发布的独立预警。'));box.append(summary,grid,notice());
     }
     function renderHome(){if(state.model==='upset'){renderHistoricalWarnings();return}const rows=visibleRows().filter(r=>state.model!=='daily'||isFocus(r));renderCards(state.model==='daily'?'每日优选 · 重心场次':currentTitle(),rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
     function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
