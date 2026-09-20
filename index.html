@@ -240,14 +240,16 @@
       const settled=rows.filter(verified);
       const evaluable=state.model==='handicap'?settled.filter(handicapEvaluable):settled;
       const hits=evaluable.filter(evaluationHit).length;
-      const rate=evaluable.length?(100*hits/evaluable.length).toFixed(1).replace(/\\.0$/,'')+'%':'—';
+      const rate=evaluable.length?Number((100*hits/evaluable.length).toFixed(1))+'%':'—';
       $('totalCount').textContent=rate;
       $('pickCount').textContent=hits+'/'+evaluable.length;
       $('passCount').textContent=rows.length-settled.length;
       const labels=document.querySelectorAll('.metric span');
       labels[0].textContent='当日命中率';
-      labels[1].textContent='命中 / 已结算';
+      labels[1].textContent='命中 / 有效评测';
       labels[2].textContent='等待赛果';
+      const coverage=state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场（赛前PASS/缺预测不计入）':'';
+      $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
     function render(){closeDetail();if(state.selectedDate==='2026-09-20'){const labels=document.querySelectorAll('.metric span');$('poolCount').textContent='2026-09-20 · 未开赛';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';labels[0].textContent='重心场次';labels[1].textContent='评测成功';labels[2].textContent='等待赛果';if(state.tab==='profile'){renderProfile();return}const box=$('content');box.replaceChildren();if(state.tab==='home')box.append(engineBanner());box.append(empty('20号竞彩未开赛','该比赛日暂未发布可核验的正式赛前赛事数据，暂不展示比赛与预测。'));return}updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
     async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal,headers:{Authorization:'Bearer '+authSession.access_token}});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
