@@ -219,7 +219,7 @@
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
     function errorBox(e){const x=el('div','error');x.append(el('b','','正式接口暂不可用'),el('div','',safe(e?.message||e)+'。页面不会使用模拟数据代替。'));return x}
     function updateMetrics(){const rows=state.model==='daily'?visibleRows():(state.today?.rows||[]),verifiedRows=rows.filter(verified);$('totalCount').textContent=rows.length;$('pickCount').textContent=state.model==='daily'?verifiedRows.filter(evaluationHit).length:verifiedRows.length;$('passCount').textContent=state.model==='daily'?rows.length-verifiedRows.length:rows.length-verifiedRows.length;const labels=document.querySelectorAll('.metric span');if(state.model==='daily'){labels[0].textContent='重心场次';labels[1].textContent='评测成功';labels[2].textContent='等待赛果'}else{labels[0].textContent='全池场次';labels[1].textContent='赛果已核验';labels[2].textContent='等待赛果'}}
-    function render(){updateMetrics();closeDetail();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
+    function render(){closeDetail();if(state.selectedDate==='2026-09-20'){const labels=document.querySelectorAll('.metric span');$('poolCount').textContent='2026-09-20 · 未开赛';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';labels[0].textContent='重心场次';labels[1].textContent='评测成功';labels[2].textContent='等待赛果';if(state.tab==='profile'){renderProfile();return}const box=$('content');box.replaceChildren();if(state.tab==='home')box.append(engineBanner());box.append(empty('20号竞彩未开赛','该比赛日暂未发布可核验的正式赛前赛事数据，暂不展示比赛与预测。'));return}updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='matches')renderMatches();else if(state.tab==='history')renderHistory();else renderProfile()}
     async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function buildDates(poolDate){
@@ -229,7 +229,7 @@
     }
     async function selectDate(date){
       if(date===state.selectedDate)return;
-      if(date==='2026-09-20'){state.selectedDate=date;buildDates(state.baseDate);$('poolCount').textContent=date+' · 未开赛';$('content').replaceChildren(empty('20号竞彩未开赛','该比赛日暂未发布可核验的正式赛前赛事数据，暂不展示比赛与预测。'));return}
+      if(date==='2026-09-20'){state.selectedDate=date;buildDates(state.baseDate);render();return}
       if(date<'2026-09-14'||date>'2026-09-20'){alert('该日期暂无可核验的正式赛前记录。');return}
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
       try{const d=await load('archive',date);state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
