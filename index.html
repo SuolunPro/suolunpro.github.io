@@ -32,6 +32,8 @@
     .goals-panel{margin-top:15px;padding-top:13px;border-top:1px solid #eee}.goals-panel h3{margin:0 0 5px;font-size:15px}.goals-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}.goal-cell{border-radius:9px;background:#fff1f1;border:1px solid #f3d2d4;padding:9px 3px;text-align:center}.goal-cell.reference{background:#f7f7f7;border-color:#eee}.goal-cell small{display:block;color:#777;font-size:10px}.goal-cell b{display:block;margin:5px 0;font-size:17px;color:#c92731}.goal-cell.reference b{color:#777}.goals-verdict{margin-top:10px;font-size:12px;font-weight:700}.goals-note{font-size:10px;color:#888;line-height:1.6;margin-top:8px}
   .goals-inline{border-top:1px solid #eee;margin-top:12px;padding-top:12px}.goals-inline-title{font-weight:700;margin-bottom:8px}.goals-inline .goals-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.goals-inline .goal-cell{min-width:0;padding:8px 3px;text-align:center}.goals-inline .goal-cell b{font-size:17px}.goals-inline .goal-cell small{font-size:11px}.goals-inline .goals-note{margin:7px 0;font-size:12px;color:#777}
     .goals-inline-verdict{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px;padding:9px 11px;border-radius:8px;font-size:13px}.goals-inline-icon{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;font-size:14px;font-weight:800}.goals-inline-success{background:#eaf6f0;color:#278464}.goals-inline-success .goals-inline-icon{background:#34936e;color:white}.goals-inline-fail{background:#fff0f0;color:#c44848}.goals-inline-fail .goals-inline-icon{background:#c44848;color:white}.goals-inline-reference{background:#f4f4f4;color:#777}.goals-inline-reference .goals-inline-icon{background:#999;color:white}
+    .site-disclaimer{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom));z-index:11;width:min(640px,100%);background:#ffa629;color:#fff;text-align:center;padding:7px 12px;font-size:11px;line-height:1.5;box-shadow:0 -1px 6px #00000012}
+    .app{padding-bottom:135px}
   </style>
 </head>
 <body>
@@ -74,7 +76,8 @@
       <div class="detail-body"><div class="detail-card" id="detailCard"></div></div>
     </section>
   </div>
-  <div class="site-counter">索伦引擎 © 2026 · 展示计数 <b id="visitCount">—</b></div>\n  <nav class="bottom">
+  <div class="site-counter">索伦引擎 © 2026 · 展示计数 <b id="visitCount">—</b></div>\n  <div class="site-disclaimer" role="note">*本网站分析仅供数据研究与学术交流，不构成任何投注或购彩建议。预测结果存在不确定性，请理性看待。</div>
+  <nav class="bottom">
     <div class="bottom-inner">
       <button class="nav active" data-tab="home"><i>⌂</i>首页</button>
       <button class="nav" data-tab="matches"><i>▦</i>赛事</button>
