@@ -139,7 +139,7 @@
       return ftHit(row)
     }
     function statusText(row,history){
-      if(verified(row)){if(state.model==='handicap'&&!handicapEvaluable(row))return '不可评测';return evaluationHit(row)?'评测成功':'评测失败';}
+      if(verified(row)){if(state.model==='handicap'&&!handicapEvaluable(row))return [row.handicapTop1,row.handicapSecond,row.handicap].some(v=>String(v??'').trim().toUpperCase()==='PASS')?'赛前让球PASS':'赛前让球预测未记录';return evaluationHit(row)?'评测成功':'评测失败';}
       if(row.matchStatus==='POSTPONED')return '比赛延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='daily')return '等待赛果';
       return '赛前冻结'
     }
@@ -169,7 +169,7 @@
       values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));triplet.append(d);return}const hit=directionHit(row,k,v),d=el('div','datum'+(verified(row)?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));triplet.append(d)});
       analysis.append(triplet);
       c.append(head,fixture,analysis);
-      if(history){const r=el('div','history-result');r.append(document.createTextNode('比分 '),el('b','',scoreline(row)),document.createTextNode(' · '));if(state.model==='handicap')r.append(document.createTextNode('首选 '+safe(row.handicapTop1??row.handicap)+' · 次选 '+safe(row.handicapSecond)+' · 赛果 '+safe(effectiveHandicapResult(row))+' · 评测 '),el('b','',!handicapEvaluable(row)?'不可评测':evaluationHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
+      if(history){const r=el('div','history-result');r.append(document.createTextNode('比分 '),el('b','',scoreline(row)),document.createTextNode(' · '));if(state.model==='handicap')r.append(document.createTextNode('首选 '+safe(row.handicapTop1??row.handicap)+' · 次选 '+safe(row.handicapSecond)+' · 赛果 '+safe(effectiveHandicapResult(row))+' · 评测 '),el('b','',!handicapEvaluable(row)?'未发布有效赛前让球预测':evaluationHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
       c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
     }
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
@@ -230,7 +230,7 @@
       probabilityGroups.forEach(([label,fields])=>{const item=el('div','audit-item');item.append(el('span','',label),el('b','',fields.map(key=>probability(row[key])).join(' / ')));comparisonTable.append(item)});
       comparison.append(comparisonTable,el('p','sub','仅展示已公开的赛前冻结概率；缺失项显示未确认，不使用市场概率代替独立模型概率。'));c.append(comparison);
       const hand=el('div','riskbox');hand.append(el('h3','','让球说明'),el('p','',safe(row.handicapAnalysis)));c.append(hand);
-      if(history){const summary=state.model==='handicap'?'比分：'+scoreline(row)+' · 让球首选：'+safe(row.handicapTop1??row.handicap)+' · 次选：'+safe(row.handicapSecond)+' · 让球赛果：'+safe(row.handicapResult)+' · '+( !handicapEvaluable(row)?'不可评测':evaluationHit(row)?'评测成功':'评测未中'):'比分：'+scoreline(row)+' · 赛果：'+safe(resultName[row.result]||row.result)+' · 首选 '+(pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中')+' · 次选 '+(pickCode[row.second]===normalizeResult(row.result)?'命中':'未中')+(state.model==='overview'?' · 让球 '+(handicapHit(row)?'命中':'未中'):'')+' · '+(evaluationHit(row)?'评测成功':'评测未中');c.append(el('div','history-result',summary))}
+      if(history){const summary=state.model==='handicap'?'比分：'+scoreline(row)+' · 让球首选：'+safe(row.handicapTop1??row.handicap)+' · 次选：'+safe(row.handicapSecond)+' · 让球赛果：'+safe(row.handicapResult)+' · '+( !handicapEvaluable(row)?'未发布有效赛前让球预测':evaluationHit(row)?'评测成功':'评测未中'):'比分：'+scoreline(row)+' · 赛果：'+safe(resultName[row.result]||row.result)+' · 首选 '+(pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中')+' · 次选 '+(pickCode[row.second]===normalizeResult(row.result)?'命中':'未中')+(state.model==='overview'?' · 让球 '+(handicapHit(row)?'命中':'未中'):'')+' · '+(evaluationHit(row)?'评测成功':'评测未中');c.append(el('div','history-result',summary))}
       window.scrollTo({top:0,behavior:'smooth'})
     }
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
