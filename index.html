@@ -275,9 +275,20 @@
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;render()});
     $('back').onclick=closeDetail;
     if(!authSession?.access_token){showLoginGate()}else load('archive').then(d=>{state.unopenedDate=null;state.futureDate=null;state.today=d;state.baseDate=d.date;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
-    // Refresh settled results when the page becomes visible; preserve the selected day and model.
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state.selectedDate&&state.selectedDate!==state.unopenedDate&&state.selectedDate!==state.futureDate)selectDateRefresh()});
-    async function selectDateRefresh(){try{const d=await load('archive',state.selectedDate);if(d.date!==state.selectedDate)return;state.today=d;const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);if(!state.selected)render()}catch(e){console.warn('赛果刷新失败',e)}}
+    // Keep following the newest published match day without disrupting manual history browsing.
+    let syncInFlight=false;
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshPublishedData()});
+    setInterval(()=>{if(!document.hidden)refreshPublishedData()},300000);
+    async function refreshPublishedData(){
+      if(syncInFlight||!state.selectedDate||state.selectedDate===state.unopenedDate||state.selectedDate===state.futureDate)return;
+      syncInFlight=true;
+      try{
+        const followingLatest=state.selectedDate===state.baseDate;
+        const d=await load('archive',followingLatest?undefined:state.selectedDate);
+        if(followingLatest){state.baseDate=d.date;state.selectedDate=d.date}else if(d.date!==state.selectedDate)return;
+        state.today=d;const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);if(!state.selected)render();
+      }catch(e){console.warn('正式数据刷新失败',e)}finally{syncInFlight=false}
+    }
   </script>
 </body>
 </html>
