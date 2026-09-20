@@ -104,7 +104,7 @@
     const scoreline=row=>hasScore(row)?Number(row.resultHome)+' : '+Number(row.resultAway):'未确认';
     const handicapHit=row=>verified(row)&&row.handicapHit===true;
     const ftChoiceHit=(row,v)=>verified(row)&&normalizeResult(v)!==null&&normalizeResult(v)===normalizeResult(row.result);
-    const handicapChoiceHit=(row,v)=>verified(row)&&row.handicapResult!=null&&String(v??'').split(' · ')[0].trim()===String(row.handicapResult).trim();
+    const handicapChoiceHit=(row,v)=>verified(row)&&effectiveHandicapResult(row)!==null&&String(v??'').split(' · ')[0].trim()===effectiveHandicapResult(row);
     const directionHit=(row,key,value)=>{if(!verified(row))return false;if(key==='FT首选'||key==='第二方向'||key==='首选建议'||key==='次选建议')return ftChoiceHit(row,value);if(key==='让球方向'||key==='让球首选'||key==='让球次选')return handicapChoiceHit(row,value);return false};
     const ftHit=row=>verified(row)&&(pickCode[row.ftTop1]===normalizeResult(row.result)||pickCode[row.second]===normalizeResult(row.result));
     const probability=v=>{if(v===null||v===undefined||v==='')return '未确认';const n=Number(v);return Number.isFinite(n)?(Math.round(n*10)/10).toFixed(Number.isInteger(Math.round(n*10)/10)?0:1)+'%':'未确认'};
@@ -120,8 +120,19 @@
     function fmtTime(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
     function fmtStamp(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
     function initial(name){const s=safe(name);return s==='未确认'?'?':s.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g,'').slice(0,1).toUpperCase()||'?'}
-    const validHandicapPick=v=>['让胜','让平','让负'].includes(String(v??'').trim());
-    const handicapEvaluable=row=>row.officialHandicap!=null&&row.handicapResult!=null&&[row.handicapTop1,row.handicapSecond,row.handicap].some(validHandicapPick);
+    const validHandicapPick=v=>['让胜','让平','让负'].includes(String(v??'').split(' · ')[0].trim());
+    // A verified 90-minute score and the official handicap suffice to derive the handicap result.
+    // Never derive the official handicap itself or fabricate a missing pre-match pick.
+    const effectiveHandicapResult=row=>{
+      if(['让胜','让平','让负'].includes(String(row.handicapResult??'').trim()))return String(row.handicapResult).trim();
+      if(row.officialHandicap===null||row.officialHandicap===undefined||row.officialHandicap==='')return null;
+      if(!hasScore(row))return null;
+      const handicap=Number(row.officialHandicap);
+      if(!Number.isFinite(handicap))return null;
+      const margin=Number(row.resultHome)+handicap-Number(row.resultAway);
+      return margin>0?'让胜':margin<0?'让负':'让平';
+    };
+    const handicapEvaluable=row=>verified(row)&&effectiveHandicapResult(row)!==null&&[row.handicapTop1,row.handicapSecond,row.handicap].some(validHandicapPick);
     function evaluationHit(row){
       if(state.model==='handicap')return handicapHit(row)||handicapChoiceHit(row,row.handicapTop1??row.handicap)||handicapChoiceHit(row,row.handicapSecond);
       if(state.model==='overview')return ftHit(row)||handicapHit(row)||handicapChoiceHit(row,row.handicapTop1??row.handicap)||handicapChoiceHit(row,row.handicapSecond);
@@ -158,7 +169,7 @@
       values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));triplet.append(d);return}const hit=directionHit(row,k,v),d=el('div','datum'+(verified(row)?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));triplet.append(d)});
       analysis.append(triplet);
       c.append(head,fixture,analysis);
-      if(history){const r=el('div','history-result');r.append(document.createTextNode('比分 '),el('b','',scoreline(row)),document.createTextNode(' · '));if(state.model==='handicap')r.append(document.createTextNode('首选 '+safe(row.handicapTop1??row.handicap)+' · 次选 '+safe(row.handicapSecond)+' · 赛果 '+safe(row.handicapResult)+' · 评测 '),el('b','',!handicapEvaluable(row)?'不可评测':evaluationHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
+      if(history){const r=el('div','history-result');r.append(document.createTextNode('比分 '),el('b','',scoreline(row)),document.createTextNode(' · '));if(state.model==='handicap')r.append(document.createTextNode('首选 '+safe(row.handicapTop1??row.handicap)+' · 次选 '+safe(row.handicapSecond)+' · 赛果 '+safe(effectiveHandicapResult(row))+' · 评测 '),el('b','',!handicapEvaluable(row)?'不可评测':evaluationHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
       c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
     }
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
