@@ -280,17 +280,9 @@
       const d=state.today,box=$('content');
       box.replaceChildren(sectionHead('我的','账户与设置'));
       box.append(accountPanel());
-      const guide=el('div','detail-card');
-      const heading=el('h2','','使用说明');
-      const brief=el('p','sub','首选、次选与概率均为赛前分析结果；预测存在不确定性。');
-      const toggle=el('button','secondary','查看评测规则');
-      const details=el('div','audit');details.hidden=true;
-      [['首选与次选','同一场比赛的两个独立展示方向；具体玩法以对应栏目为准。'],['双选评测','首选或次选任一命中，记为双选覆盖成功。'],['历史战绩','仅统计已核验赛果；赛前原始预测与历史盲跑重建分开标注。'],['赛前提示','比赛开场前5小时，基本处于稳定，临场可能有极少变化。所显示的内容仅供娱乐参考。']].forEach(([name,value])=>{const item=el('div','audit-item');item.append(el('span','',name),el('b','',value));details.append(item)});
-      toggle.onclick=()=>{details.hidden=!details.hidden;toggle.textContent=details.hidden?'查看评测规则':'收起评测规则'};
-      guide.append(heading,brief,toggle,details);
       const about=el('div','detail-card');
       about.append(el('h2','','关于索伦'),el('p','sub','索伦引擎 '+safe(d?.modelVersion)),el('p','sub','数据更新：'+fmtStamp(d?.dataTime)));
-      box.append(guide,about,notice());
+      box.append(about);
     }
 
     // Only accept independently published, pre-kickoff goal inputs. Never infer them from final scores.
