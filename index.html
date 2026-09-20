@@ -46,6 +46,7 @@
     .welcome-legal{position:absolute;bottom:calc(3% + env(safe-area-inset-bottom));left:6%;right:6%;text-align:center;font-size:11px;line-height:1.6;color:#ddd;text-shadow:0 1px 6px #000;pointer-events:none}
   .engine-prekickoff-note{background:linear-gradient(125deg,#bb1f29,#d02b31);color:#fff;border-radius:12px;padding:13px 15px;margin:-3px 0 14px;line-height:1.65}.engine-prekickoff-note strong{display:block;font-size:14px;font-weight:600}.engine-prekickoff-note p{margin:7px 0 0;color:#ffe279;font-size:13px;line-height:1.75}
   .engine-banner-note{display:block;margin-top:10px;padding-top:9px;border-top:1px solid #f2e8e8;color:#8d7474;font-size:11px;line-height:1.6;font-weight:400}
+  .cards .card{cursor:default}
   </style>
 </head>
 <body>
@@ -194,7 +195,7 @@
       return '测评建议：'+safe(row.ftTop1)+' / '+safe(row.second);
     }
     function matchCard(row,history=false){
-      const c=el('article','card');c.tabIndex=0;c.setAttribute('role','button');
+      const c=el('article','card');
       const head=el('div','card-head');
       const id=el('div','match-id');id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
       if(state.model==='daily')id.append(el('span','focus-label','赛前重心'));if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',row.handicapSourceLabel));head.append(id,el('span',statusClass(row,history),statusText(row,history)));
@@ -237,7 +238,7 @@
         c.append(goals);
       }
       if(history&&state.model!=='goals'){const r=el('div','history-result');r.append(document.createTextNode('比分 '),el('b','',scoreline(row)),document.createTextNode(' · '));if(state.model==='handicap')r.append(document.createTextNode('来源 '+safe(row.handicapSourceLabel)+' · 首选 '+safe(row.handicapTop1??row.handicap)+' · 次选 '+safe(row.handicapSecond)+' · 赛果 '+safe(effectiveHandicapResult(row))+' · 评测 '),el('b','',!handicapEvaluable(row)?'未发布有效赛前让球预测':evaluationHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
-      c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
+      return c
     }
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
     function empty(title,text){const x=el('div','empty');x.append(el('b','',title),el('div','',text));return x}
