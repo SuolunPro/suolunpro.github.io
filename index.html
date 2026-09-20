@@ -275,7 +275,7 @@
       const box=$('content');box.replaceChildren(sectionHead('真实战绩','仅已核验赛果'));
       if(!state.history){box.append(empty('正在读取战绩','只统计同时具备赛前冻结证据和赛果核验的记录。'));try{const h=await load('history',state.selectedDate);state.history=h;renderHistory()}catch(e){box.replaceChildren(errorBox(e))}return}
       const rows=filterRows(state.history.rows||[]);if(!rows.length){box.append(empty('暂无已核验战绩','当前模块没有同时满足赛前冻结与赛果核验的记录。'),notice());return}
-      const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,true)));box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),grid,notice())
+      const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,true)));const riskSample=el('section','risk-sample');riskSample.style.cssText='margin:12px 16px;padding:14px 15px;background:#fff;border:1px solid #eee;border-radius:12px';riskSample.append(el('div','','历史风险预警核验 · 豪竞3.5'),el('div','','62.3%'));riskSample.children[0].style.cssText='font-size:13px;font-weight:700;color:#444';riskSample.children[1].style.cssText='font-size:26px;font-weight:800;color:#c62930;margin:6px 0';riskSample.append(el('p','','2026年9月14—20日赛前HUR红灯样本：62场，其中53场赛果已核验，33场赛前首选失手，20场首选打出；另9场未计入。'));riskSample.append(el('p','','统计口径：红灯后首选失手计为风险提示命中，不代表准确预测平局或冷门方向。此为豪竞3.5历史样本，不是豪竞3.8实时预警命中率。'));riskSample.querySelectorAll('p').forEach(p=>p.style.cssText='font-size:11px;color:#777;line-height:1.7;margin:6px 0 0');box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),riskSample,grid,notice())
     }
     function renderProfile(){
       const d=state.today,box=$('content');
