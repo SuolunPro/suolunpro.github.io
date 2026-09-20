@@ -177,7 +177,7 @@
       wdl:['索伦胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
       goals:['索伦泊松进球','全池直接展示赛前总进球 Top1—Top6 概率，Top3正式评测'],
       daily:['索伦每日优选','仅展示赛前正式标记的重心场次；完整全池请切换综合评测查看'],
-      upset:['索伦冷门预警','仅展示已通过独立证据确认方向的正式赛前预警']
+      upset:['索伦冷门预警','显示主队不败或客队不败的正式赛前预警']
     };
     const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
     function fmtTime(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
@@ -287,18 +287,32 @@
       const basis=Array.isArray(raw.riskBasis)?raw.riskBasis:Array.isArray(raw.risk_basis)?raw.risk_basis:[];
       const directionBasis=Array.isArray(raw.directionBasis)?raw.directionBasis:Array.isArray(raw.direction_basis)?raw.direction_basis:[];
       const alternativePick=raw.alternativePick??raw.alternative_pick??null;
-      let direction=String(raw.warningDirection??raw.warning_direction??'').trim();
-      if(direction==='平局不稳'&&alternativePick==='主胜')direction='主队不败';
+      const originalPick=raw.originalTop1??raw.original_top1??row.ftTop1;
+      const originalCode=normalizeResult(originalPick);
+      const nonHurEvidence=basis.filter(item=>!/\\bHUR\\b|热门风险灯|红灯/i.test(String(item)));
+      let direction=String(raw.warningDirection??raw.warning_direction??'').trim(),derivedFromOriginal=false;
+      // Public copy uses only the clearer “unbeaten” wording.
+      if(direction==='主队不胜')direction='客队不败';
+      else if(direction==='客队不胜')direction='主队不败';
+      else if(direction==='平局不稳'&&alternativePick==='主胜')direction='主队不败';
       else if(direction==='平局不稳'&&alternativePick==='客胜')direction='客队不败';
-      if(!['主队不胜','客队不胜','主队不败','客队不败'].includes(direction))return null;
+      // When the warning is formally published but lacks display wording, protect against
+      // the frozen original Top1. A HUR-only red light is never enough for this fallback.
+      if(!['主队不败','客队不败'].includes(direction)&&nonHurEvidence.length){
+        if(originalCode==='H'){direction='客队不败';derivedFromOriginal=true}
+        else if(originalCode==='A'){direction='主队不败';derivedFromOriginal=true}
+        else if(alternativePick==='主胜'){direction='主队不败';derivedFromOriginal=true}
+        else if(alternativePick==='客胜'){direction='客队不败';derivedFromOriginal=true}
+      }
+      if(!['主队不败','客队不败'].includes(direction))return null;
       return {
         level,
         score:Number.isFinite(Number(raw.riskScore??raw.risk_score))?Number(raw.riskScore??raw.risk_score):null,
         direction,
         alternativePick,
         reason:basis.length?basis.join('；'):'赛前风险证据已达到发布门槛',
-        directionReason:directionBasis.join('；'),
-        originalPick:raw.originalTop1??raw.original_top1??row.ftTop1,
+        directionReason:directionBasis.join('；')||(derivedFromOriginal?'已发布冷门风险针对赛前原始首选，采用不败保护方向':''),
+        originalPick,
         modelVersion:raw.modelVersion??raw.model_version??'HJ38-UPSET-v1.0.0',
         sourceModelVersion:raw.sourceModelVersion??raw.source_model_version??row.version??'未确认',
         sourceRevision:raw.sourceRevision??raw.source_revision??row.revision??'未确认',
@@ -351,7 +365,7 @@
     function updateNotice(){if(state.tab!=='home'||!['daily','overview'].includes(state.model))return null;const p=el('div','');p.style.cssText='margin:10px 16px;padding:10px 12px;background:#fff8ec;border:1px solid #f1d9b0;border-radius:10px;color:#795726;font-size:12px;line-height:1.65';p.textContent='数据更新提示：当天比赛预计中午12:00左右更新。初盘阶段赔率及盘口波动可能较大，建议结合后续数据谨慎参考；临近赛前5小时市场数据通常更具参考价值，但仍可能出现明显变化。请以页面最新更新时间及赛前分析为准。';return p}
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));const updateTip=updateNotice();if(updateTip)box.append(updateTip);
-      if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前冷门预警':state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='upset'?'本日无通过独立证据确认方向的赛前冷门预警；不把HUR风险灯反推成具体方向。':'当前没有符合条件的正式竞足记录。'),notice());return}
+      if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前冷门预警':state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='upset'?'本日暂无具备独立赛前证据的冷门预警；单独HUR风险灯不生成方向。':'当前没有符合条件的正式竞足记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
     function renderHome(){const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('冷门预警',all.length+'场 · 索伦引擎正式赛前预警',all);return}if(state.model==='overview'){renderCards('全池评测',all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('今日重心',focus.length+'场 · 仅展示有赛前重心标记的比赛'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无已确认重心场次','不以普通比赛临时凑数。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
