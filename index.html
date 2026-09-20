@@ -265,30 +265,37 @@
       return row.pregameVerified===true&&(explicit||marked||frozenFormal);
     }
     // Historical backfill: pre-kickoff HUR-red frozen signals only. No result fields are used to construct warnings.
-    const HISTORICAL_HUR_RED=[["2026-09-14","009","圣旺红星","梅斯","平","红","绿","黄","3"],["2026-09-14","010","利兹联","纽卡斯尔","平","红","绿","黄","3"],["2026-09-14","011","比利亚雷","贝蒂斯","主胜","红","绿","黄","0"],["2026-09-15","001","拉查布里府","上海海港","客胜","红","绿","黄","0"],["2026-09-15","002","大田市民","京都","主胜","红","绿","黄","3"],["2026-09-15","007","巴列卡诺","西班牙人","平","红","绿","黄","3"],["2026-09-15","014","普拉腾斯","弗鲁米嫩","平","红","绿","黄","3"],["2026-09-16","001","中国U23","朝鲜U23","平","红","黄","黄","3"],["2026-09-16","002","全北现代","柏太阳神","客胜","红","绿","黄","3"],["2026-09-16","004","奥莫尼亚","塞尔塔","客胜","红","黄","绿","3"],["2026-09-16","005","拉科","塞维利亚","平","红","绿","黄","0"],["2026-09-16","007","AC米兰","本菲卡","平","红","绿","黄","0"],["2026-09-16","011","安德莱赫特","里昂","客胜","红","绿","黄","0"],["2026-09-16","012","考文垂","维拉","客胜","红","绿","黄","0"],["2026-09-16","014","莱万特","毕尔巴鄂","客胜","红","黄","黄",null],["2026-09-16","015","基多体大","帕梅拉斯","平","红","黄","绿","3"],["2026-09-16","017","科林蒂安","拉普大学","主胜","红","红","绿","0"],["2026-09-17","006","皇家社会","伯恩茅斯","客胜","红","绿","黄","0"],["2026-09-17","010","马拉加","比利亚雷","客胜","红","黄","黄","0"],["2026-09-18","005","兰斯","蒙彼利埃","主胜","红","黄","绿","1"],["2026-09-18","009","蒙扎","萨索洛","平","红","绿","黄","3"],["2026-09-18","010","摩纳哥","朗斯","主胜","红","绿","黄","3"],["2026-09-18","011","布伦特","切尔西","客胜","红","绿","黄","3"],["2026-09-19","001","长崎航海","大阪樱花","客胜","红","绿","黄","1"],["2026-09-19","002","藤枝MYFC","大宫松鼠","客胜","红","绿","黄","1"],["2026-09-19","004","横滨水手","水户蜀葵","主胜","红","黄","绿","3"],["2026-09-19","005","热刺","维拉","主胜","红","黄","绿","0"],["2026-09-19","006","斯托克城","谢菲联","主胜","红","黄","黄","3"],["2026-09-19","007","奥萨苏纳","巴列卡诺","主胜","红","绿","黄","1"],["2026-09-19","008","乌迪内斯","卡利亚里","主胜","红","黄","绿","0"],["2026-09-19","009","博洛尼亚","都灵","主胜","红","黄","绿","1"],["2026-09-19","010","瓦斯特拉斯","马尔默","客胜","红","绿","黄","3"],["2026-09-19","011","法兰克福","弗赖堡","主胜","红","绿","黄","1"],["2026-09-19","012","汉堡","科隆","客胜","红","绿","黄","3"],["2026-09-19","013","门兴","美因茨","客胜","红","绿","黄","0"],["2026-09-19","014","不来梅","奥格斯堡","主胜","红","绿","黄","3"],["2026-09-19","020","罗马","国际米兰","客胜","红","绿","黄","1"],["2026-09-19","022","斯图加特","多特蒙德","主胜","红","绿","黄","0"],["2026-09-19","025","威尼斯","拉齐奥","客胜","红","绿","绿","0"],["2026-09-19","026","昂热","特鲁瓦","主胜","红","黄","黄","3"],["2026-09-19","027","里昂","雷恩","主胜","红","绿","黄","3"],["2026-09-19","030","米拉索","博塔弗戈","主胜","红","黄","黄","3"],["2026-09-20","001","伊朗亚","中国亚","主胜","红","黄","绿","1"],["2026-09-20","002","町田泽维","柏太阳神","主胜","红","绿","黄","0"],["2026-09-20","003","大阪钢巴","神户胜利","客胜","红","黄","绿","0"],["2026-09-20","004","仁川联","大田市民","客胜","红","绿","黄","1"],["2026-09-20","006","佛罗伦萨","那不勒斯","客胜","红","绿","黄","1"],["2026-09-20","007","伍尔弗","西布罗姆","主胜","红","黄","绿","3"],["2026-09-20","008","赫塔费","马拉加","主胜","红","黄","绿","3"],["2026-09-20","009","特温特","埃因霍温","客胜","红","绿","黄","3"],["2026-09-20","011","伯恩茅斯","利物浦","客胜","红","绿","黄","0"],["2026-09-20","013","帕尔马","热那亚","客胜","红","黄","黄","3"],["2026-09-20","015","勒沃库森","莱红牛","主胜","红","绿","黄","3"],["2026-09-20","016","马竞","皇马","客胜","红","绿","黄","3"],["2026-09-20","017","米亚尔比","盖斯","客胜","红","绿","黄","0"],["2026-09-20","019","尼斯","里尔","客胜","红","绿","黄",null],["2026-09-20","020","富勒姆","曼联","客胜","红","绿","黄",null],["2026-09-20","021","沙尔克04","埃沃斯堡","主胜","红","绿","黄",null],["2026-09-20","024","拉科","贝蒂斯","客胜","红","绿","黄",null],["2026-09-20","028","巴伦西亚","皇家社会","客胜","红","绿","黄",null],["2026-09-20","029","波尔图","本菲卡","客胜","红","绿","黄",null],["2026-09-20","030","巴竞技","巴伊亚","主胜","红","绿","黄",null]];
-    const HISTORICAL_WARNING_MAP=new Map(HISTORICAL_HUR_RED.map(v=>[v[0]+'|'+v[1],v]));
     function upsetInfo(row){
-      const raw=row.upsetWarning??row.upset_warning??row.coldWarning??row.cold_warning??row.riskWarning??row.risk_warning;
-      if(raw&&typeof raw==='object'){
-        const direction=String(raw.direction??raw.pick??raw.warningDirection??'').trim();
-        const reason=String(raw.reason??raw.explanation??raw.description??'').trim();
-        if(row.pregameVerified===true&&['主队不败','客队不败','主队不胜','客队不胜'].includes(direction)&&reason)return {direction,reason,originalPick:raw.originalTop1??raw.original_top1??row.ftTop1,source:'赛前正式预警'};
-      }
-      const date=String(state.selectedDate??row.poolDate??row.pool_date??row.date??'').slice(0,10),no=String(row.no??row.matchNo??row.match_no??'').padStart(3,'0');
-      const v=HISTORICAL_WARNING_MAP.get(date+'|'+no);
-      if(!v)return null;
-      const home=String(row.homeTeam??row.home??'').trim(),away=String(row.awayTeam??row.away??'').trim();
-      if(home&&away&&home!==v[2]&&away!==v[3])return null;
-      const original=String(v[4]);
-      if(original!=='主胜'&&original!=='客胜')return null;
-      const direction=original==='主胜'?'主队不胜':'客队不胜';
-      const flags=['HUR热门风险红灯',v[6]==='红'?'DTR平局风险红灯':v[6]==='黄'?'DTR平局风险黄灯':null,v[7]==='红'?'DLR直接输球风险红灯':v[7]==='黄'?'DLR直接输球风险黄灯':null].filter(Boolean);
-      return {direction,reason:flags.join('；')+'。赛前原始首选为'+original+'，提示该方向存在失手风险。',originalPick:original,source:'豪竞3.5赛前红灯历史重建（方向由首选反向映射，并非当时独立发布的方向预测）'};
+      const raw=row.upsetWarning??row.upset_warning;
+      if(!raw||typeof raw!=='object'||row.pregameVerified!==true||raw.publish!==true)return null;
+      const level=String(raw.riskLevel??raw.risk_level??'未确认');
+      if(!['中','高'].includes(level))return null;
+      const basis=Array.isArray(raw.riskBasis)?raw.riskBasis:Array.isArray(raw.risk_basis)?raw.risk_basis:[];
+      const directionBasis=Array.isArray(raw.directionBasis)?raw.directionBasis:Array.isArray(raw.direction_basis)?raw.direction_basis:[];
+      return {
+        level,
+        score:Number.isFinite(Number(raw.riskScore??raw.risk_score))?Number(raw.riskScore??raw.risk_score):null,
+        direction:String(raw.warningDirection??raw.warning_direction??'').trim()||'方向未确认',
+        alternativePick:raw.alternativePick??raw.alternative_pick??null,
+        reason:basis.length?basis.join('；'):'赛前风险证据已达到发布门槛',
+        directionReason:directionBasis.join('；'),
+        originalPick:raw.originalTop1??raw.original_top1??row.ftTop1,
+        modelVersion:raw.modelVersion??raw.model_version??'HJ38-UPSET-v1.0.0',
+        prematchAt:raw.prematchAt??raw.prematch_at??row.frozenAt,
+        source:'豪竞3.8正式实时冷门预警'
+      };
     }
     function upsetCard(row){
       const info=upsetInfo(row),card=el('article','match-card');card.style.cssText='margin:10px 16px;padding:15px;background:#fff;border:1px solid #eee;border-radius:12px';
       card.append(el('div','',''+safe(row.no)+' · '+safe(row.homeTeam??row.home)+' VS '+safe(row.awayTeam??row.away)));
-      const direction=el('div','',info.direction);direction.style.cssText='font-size:20px;font-weight:800;color:#c62930;margin:9px 0';card.append(direction,el('p','','预警说明：'+info.reason),el('p','','赛前原始首选：'+safe(info.originalPick)),el('p','',info.source));
+      const tag=el('span','',info.level+'风险'+(info.score!==null?' · '+info.score+'分':''));tag.style.cssText='display:inline-block;margin-top:10px;padding:4px 8px;border-radius:999px;background:'+(info.level==='高'?'#fff0f0':'#fff7e8')+';color:'+(info.level==='高'?'#c62930':'#9a6700')+';font-size:11px;font-weight:800';
+      const direction=el('div','',info.direction);direction.style.cssText='font-size:20px;font-weight:800;color:'+(info.direction==='方向未确认'?'#777':'#c62930')+';margin:9px 0';
+      card.append(tag,direction);
+      if(info.alternativePick)card.append(el('p','','证据倾向：'+safe(info.alternativePick)));
+      card.append(el('p','','风险依据：'+info.reason));
+      if(info.directionReason)card.append(el('p','','方向依据：'+info.directionReason));
+      else card.append(el('p','','方向依据：独立证据域不足，不强行反推具体方向'));
+      card.append(el('p','','赛前原始首选：'+safe(info.originalPick)),el('p','',info.source+' · '+safe(info.modelVersion)+' · '+fmtStamp(info.prematchAt)));
       if(verified(row)){
         const original=normalizeResult(info.originalPick),actual=normalizeResult(row.result);
         card.append(el('strong','',original&&actual&&original!=='未确认'&&actual!=='未确认'?(original!==actual?'预警成功 · 原始首选未打出':'预警失败 · 原始首选打出'):'评测未确认'));
@@ -312,34 +319,9 @@
       if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前冷门预警':state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='upset'?'当前公开接口未提供明确的赛前预警方向及说明，暂不将风险灯自动冒充为具体预警。':'当前没有符合条件的正式竞足记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
-    function renderHistoricalWarnings(){
-      const rows=HISTORICAL_HUR_RED.filter(v=>v[0]===state.selectedDate&&['主胜','客胜'].includes(v[4]));
-      const box=$('content');box.replaceChildren(sectionHead('冷门预警 · 历史冻结记录',rows.length+'场 · 豪竞3.5赛前HUR红灯历史重建'));
-      if(!rows.length){box.append(empty('当日暂无历史红灯预警','当前日期没有符合条件的冻结记录。'));return}
-      const grid=el('div','cards');let settled=0,hits=0;
-      rows.forEach(v=>{
-        const card=el('article','card');card.style.cssText='position:relative;overflow:hidden;padding:16px;margin:12px 0;border-radius:18px;background:#fff';
-        const original=v[4]==='主胜'?'3':'0',isSettled=['3','1','0'].includes(v[8]),hit=isSettled&&original!==v[8];
-        if(isSettled){settled++;if(hit)hits++}
-        const head=el('div','');head.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;padding-right:0';
-        const fixture=el('span','',v[0].slice(5)+' · '+v[1]+'场');fixture.style.cssText='font-size:13px;color:#777';
-        const status=el('span','',isSettled?(hit?'避冷成功':'预警未中'):(v[0]<'2026-09-21'?'赛果未入库':'等待赛果'));status.style.cssText='font-size:12px;font-weight:700;padding:7px 10px;border-radius:9px;background:'+(isSettled?(hit?'#d62c31':'#f0f0f0'):'#f7f0dc')+';color:'+(isSettled?(hit?'#fff':'#555'):'#85641e');head.append(fixture,status);
-        const teams=el('div','');teams.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:17px;font-weight:800;margin:0 0 15px';
-        const home=el('span','',v[2]),away=el('span','',v[3]),score=el('span','',isSettled?({'3':'主胜','1':'平局','0':'客胜'}[v[8]]):'VS');home.style.cssText='flex:1;min-width:0';away.style.cssText='flex:1;min-width:0;text-align:right';score.style.cssText='white-space:nowrap;font-size:15px;color:#666';teams.append(home,score,away);
-        const panels=el('div','');panels.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:10px';
-        const panel=(value,label)=>{const p=el('div','');p.style.cssText='background:#f7f8fa;border:1px solid #e0e0e0;border-radius:12px;padding:17px 7px;text-align:center';const big=el('div','',value);big.style.cssText='font-size:20px;font-weight:800;color:#c72c32;min-height:29px';const small=el('div','',label);small.style.cssText='font-size:12px;color:#777;margin-top:7px';p.append(big,small);return p};
-        const lampPoints=x=>x==='红'?2:x==='黄'?1:0;const signalScore=4+lampPoints(v[6])+lampPoints(v[7]);const signalLevel=signalScore>=7?'高风险信号':signalScore>=5?'较高风险信号':'需关注';panels.append(panel(signalScore+' / 8','赛前风险信号分 · '+signalLevel),panel(v[4]==='主胜'?'主队不胜':'客队不胜','避冷预警方向'));
-        const details=el('div','');details.style.cssText='font-size:12px;line-height:1.7;color:#777;margin-top:12px';
-        details.append(el('div','','赛前原始首选：'+v[4]+' · 实际赛果：'+(isSettled?{'3':'主胜','1':'平局','0':'客胜'}[v[8]]:(v[0]<'2026-09-21'?'未入库，暂不评测':'待核验'))),el('div','','风险依据：HUR红灯 · DTR '+v[6]+' · DLR '+v[7]));
-        const note=el('div','','影子评分：HUR红灯固定4分，DTR及DLR各红灯2分、黄灯1分、绿灯0分，合计0～8分（本页红灯样本为4～8分）。仅反映赛前风险灯强度，非冷门发生概率，尚未验证各分档的未来命中率。历史重建：预警方向由原始首选反向映射，并非当时独立发布的方向预测。');note.style.cssText='font-size:10px;line-height:1.5;color:#999;margin-top:9px';
-        card.append(head,teams,panels,details,note);grid.append(card)
-      });
-      const rate=settled?(100*hits/settled).toFixed(1)+'%':'—';const summary=el('section','risk-sample');summary.style.cssText='margin:12px 0;padding:15px;background:#fff;border:1px solid #eee;border-radius:12px';summary.append(el('b','','当日避冷成功率'),el('div','',rate),el('p','','预警成功 '+hits+' / 已核验 '+settled+' 场 · 待核验 '+(rows.length-settled)+' 场'));summary.children[1].style.cssText='font-size:28px;font-weight:800;color:#c62930;margin:8px 0';summary.append(el('small','','统计口径：赛前原始首选未打出即避冷成功；仅已核验赛果计入分母。历史重建不等同于当时正式发布的独立预警。'));box.append(summary,grid,notice());
-    }
-    function renderHome(){if(state.model==='upset'){renderHistoricalWarnings();return}const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='overview'){renderCards('全池评测',all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('今日重心',focus.length+'场 · 仅展示有赛前重心标记的比赛'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无已确认重心场次','不以普通比赛临时凑数。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
+    function renderHome(){const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('冷门预警',all.length+'场 · 豪竞3.8正式赛前预警',all);return}if(state.model==='overview'){renderCards('全池评测',all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('今日重心',focus.length+'场 · 仅展示有赛前重心标记的比赛'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无已确认重心场次','不以普通比赛临时凑数。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
     function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
     async function renderHistory(){
-      if(state.model==='upset'){renderHistoricalWarnings();return}
       const box=$('content');box.replaceChildren(sectionHead('真实战绩','仅已核验赛果'));
       if(!state.history){box.append(empty('正在读取战绩','只统计同时具备赛前冻结证据和赛果核验的记录。'));try{const h=await load('history',state.selectedDate);state.history=h;renderHistory()}catch(e){box.replaceChildren(errorBox(e))}return}
       const rows=filterRows(state.history.rows||[]);if(!rows.length){box.append(empty('暂无已核验战绩','当前模块没有同时满足赛前冻结与赛果核验的记录。'),notice());return}
@@ -410,15 +392,14 @@
     function errorBox(e){const x=el('div','error');x.append(el('b','','正式接口暂不可用'),el('div','',safe(e?.message||e)+'。页面不会使用模拟数据代替。'));return x}
     function updateMetrics(){
       if(state.model==='upset'){
-        const rows=HISTORICAL_HUR_RED.filter(v=>v[0]===state.selectedDate&&['主胜','客胜'].includes(v[4]));
-        const settled=rows.filter(v=>['3','1','0'].includes(v[8]));
-        const hits=settled.filter(v=>(v[4]==='主胜'?'3':'0')!==v[8]).length;
+        const rows=visibleRows(),settled=rows.filter(verified);
+        const hits=settled.filter(row=>normalizeResult(upsetInfo(row)?.originalPick)!==normalizeResult(row.result)).length;
         $('totalCount').textContent=settled.length?(100*hits/settled.length).toFixed(1)+'%':'—';
         $('pickCount').textContent=hits+'/'+settled.length;
         $('passCount').textContent=rows.length-settled.length;
         const labels=document.querySelectorAll('.metric span');
         labels[0].textContent='避冷成功率';labels[1].textContent='避冷成功 / 已核验';labels[2].textContent='待核验';
-        $('poolCount').textContent=state.selectedDate+' · 冷门预警 '+rows.length+'场（历史重建）';
+        $('poolCount').textContent=state.selectedDate+' · 正式冷门预警 '+rows.length+'场';
         return;
       }
       const rows=state.model==='daily'?visibleRows():(state.today?.rows||[]);
