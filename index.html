@@ -260,7 +260,7 @@
     function currentTitle(){return {overview:'今日竞足',handicap:'让球评测',wdl:'胜平负',goals:'泊松进球',daily:'每日优选'}[state.model]||'今日竞足'}
 
     const ENGINE_LAYERS=[['市场赔率分析','欧赔、亚盘、水位及体彩SP'],['球队实力评估','Elo、近期状态与主客场表现'],['赛事基本面分析','阵容、赛程、战意及轮换'],['独立概率模型','进球分布与独立胜平负概率'],['专业预测校准','专业预测源的辅助复核'],['专项风险识别','平局、冷门、让球及热门陷阱审计'],['多模型融合决策','市场与独立模型概率对照及方向仲裁'],['数据质量与结果验证','数据时效、赛前冻结及赛果核验']];
-    function engineBanner(){const b=el('button','engine-banner');b.type='button';b.append(el('strong','','索伦引擎 · 多维量化分析体系'),el('small','','8层分析架构 · 多维量化评估 · 多模型融合决策'));const tags=el('div','engine-tags');['市场赔率','球队实力','独立概率','风险审计'].forEach(t=>tags.append(el('span','',t)));b.append(tags);b.append(el('span','engine-banner-note','比赛开场前5小时，基本处于稳定，临场可能有极少变化。所显示的内容仅供娱乐参考。'));b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};return b}
+    function engineBanner(){const b=el('button','engine-banner');b.type='button';b.append(el('strong','','索伦引擎 · 多维量化分析体系'),el('small','','8层分析架构 · 多维量化评估 · 多模型融合决策'));const tags=el('div','engine-tags');['市场赔率','球队实力','独立概率','风险审计'].forEach(t=>tags.append(el('span','',t)));b.append(tags);b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};return b}
     function engineIntroduction(){const c=el('div','engine-intro');c.append(el('h2','','索伦引擎 · 多维量化分析体系'),el('p','','8层为分析体系的功能分类，不代表每一层均已在当前生产版本启用；实际预测以已发布的正式赛前冻结数据为准。'));ENGINE_LAYERS.forEach(([name,desc],i)=>{const x=el('div','engine-layer');x.append(el('b','',String(i+1).padStart(2,'0')+' · '+name),el('span','',desc));c.append(x)});return c}
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));if(state.tab==='home')box.append(engineBanner());
@@ -284,7 +284,7 @@
       const brief=el('p','sub','首选、次选与概率均为赛前分析结果；预测存在不确定性。');
       const toggle=el('button','secondary','查看评测规则');
       const details=el('div','audit');details.hidden=true;
-      [['首选与次选','同一场比赛的两个独立展示方向；具体玩法以对应栏目为准。'],['双选评测','首选或次选任一命中，记为双选覆盖成功。'],['历史战绩','仅统计已核验赛果；赛前原始预测与历史盲跑重建分开标注。']].forEach(([name,value])=>{const item=el('div','audit-item');item.append(el('span','',name),el('b','',value));details.append(item)});
+      [['首选与次选','同一场比赛的两个独立展示方向；具体玩法以对应栏目为准。'],['双选评测','首选或次选任一命中，记为双选覆盖成功。'],['历史战绩','仅统计已核验赛果；赛前原始预测与历史盲跑重建分开标注。'],['赛前提示','比赛开场前5小时，基本处于稳定，临场可能有极少变化。所显示的内容仅供娱乐参考。']].forEach(([name,value])=>{const item=el('div','audit-item');item.append(el('span','',name),el('b','',value));details.append(item)});
       toggle.onclick=()=>{details.hidden=!details.hidden;toggle.textContent=details.hidden?'查看评测规则':'收起评测规则'};
       guide.append(heading,brief,toggle,details);
       const about=el('div','detail-card');
