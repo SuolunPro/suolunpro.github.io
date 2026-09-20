@@ -385,6 +385,18 @@
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
     function errorBox(e){const x=el('div','error');x.append(el('b','','正式接口暂不可用'),el('div','',safe(e?.message||e)+'。页面不会使用模拟数据代替。'));return x}
     function updateMetrics(){
+      if(state.model==='upset'){
+        const rows=HISTORICAL_HUR_RED.filter(v=>v[0]===state.selectedDate&&['主胜','客胜'].includes(v[4]));
+        const settled=rows.filter(v=>['3','1','0'].includes(v[8]));
+        const hits=settled.filter(v=>(v[4]==='主胜'?'3':'0')!==v[8]).length;
+        $('totalCount').textContent=settled.length?(100*hits/settled.length).toFixed(1)+'%':'—';
+        $('pickCount').textContent=hits+'/'+settled.length;
+        $('passCount').textContent=rows.length-settled.length;
+        const labels=document.querySelectorAll('.metric span');
+        labels[0].textContent='避冷成功率';labels[1].textContent='避冷成功 / 已核验';labels[2].textContent='待核验';
+        $('poolCount').textContent=state.selectedDate+' · 冷门预警 '+rows.length+'场（历史重建）';
+        return;
+      }
       const rows=state.model==='daily'?visibleRows():(state.today?.rows||[]);
       const settled=rows.filter(verified);
       // Poisson statistics include only settled matches with a valid frozen pre-kickoff goal prediction and verified score.
