@@ -255,7 +255,7 @@
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球首选',handicapChoice(row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapChoice(row.handicapSecond,row.handicapSecondProbability)]];
       if(state.model==='wdl')return [['主胜',ftProbability(row,'H')],['平局',ftProbability(row,'D')],['客胜',ftProbability(row,'A')]];
       if(state.model==='daily'){const pct=pick=>{const code=normalizeResult(pick);return code?ftProbability(row,code):'—'};return [['胜平负首选',safe(row.ftTop1)+' · '+pct(row.ftTop1)],['胜平负次选',safe(row.second)+' · '+pct(row.second)]];}
-      return [['FT首选',row.ftTop1],['第二方向',row.second],['让球方向',row.handicap]];
+      return [['胜平负首选',row.ftTop1],['胜平负次选',row.second],['让球方向',row.handicap]];
     }
     function adviceText(row){
       if(state.model==='handicap'){const first=safe(row.handicapTop1??row.handicap),second=safe(row.handicapSecond);return first==='未确认'?'让球建议：未确认':'让球建议：'+first+(second==='未确认'?'':' / '+second)}
@@ -275,26 +275,6 @@
       const analysis=el('div','analysis'),values=state.model==='goals'?[]:moduleData(row),triplet=el('div','triplet'+(values.length===2?' pair':values.length===6?' six-grid':''));
       values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d);return}const hit=directionHit(row,k,v),d=el('div','datum'+(verified(row)?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d)});
       analysis.append(triplet);
-      if(state.model==='overview'){
-        const panel=el('section','overview-ft-only');
-        const heading=el('div','overview-ft-heading');
-        heading.append(el('strong','','胜平负双选'));
-        const actual=normalizeResult(row.result);
-        const top=normalizeResult(row.ftTop1),second=normalizeResult(row.second);
-        const topHit=verified(row)&&top!==null&&actual===top;
-        const secondHit=verified(row)&&second!==null&&second!==top&&actual===second;
-        if(verified(row))heading.append(el('span','overview-ft-status'+(topHit||secondHit?' is-hit':''),topHit?'首选命中':secondHit?'次选命中':'双选未中'));
-        panel.append(heading);
-        const picks=el('div','overview-ft-picks');
-        [['首选',row.ftTop1,top,topHit],['次选',row.second,second,secondHit]].forEach(([role,pick,code,hit])=>{
-          const cell=el('div','overview-ft-pick'+(hit?' is-hit':''));
-          cell.append(el('span','overview-ft-role',role),el('strong','overview-ft-name',code?({H:'主胜',D:'平局',A:'客胜'}[code]):'未确认'),el('span','overview-ft-pct',code?ftProbability(row,code):'—'));
-          if(verified(row)&&code)cell.append(el('span','overview-ft-result',hit?'✓ 命中':'未中'));
-          picks.append(cell);
-        });
-        panel.append(picks);
-        analysis.replaceChildren(panel);
-      }
       if(state.model==='goals')c.append(head,fixture);else c.append(head,fixture,analysis);
       // Show Poisson goals on the match list itself, immediately after the FT 1X2 block.
       if(state.model==='goals'){
