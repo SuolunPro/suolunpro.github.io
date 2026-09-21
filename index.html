@@ -225,7 +225,7 @@
       handicap:['索伦全场让球','展示原始赛前预测与历史盲跑重建的首选、次选及概率'],
       wdl:['索伦胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
       goals:['索伦泊松进球','全池直接展示赛前总进球 Top1—Top6 概率，Top3正式评测'],
-      score:['索伦比分矩阵','赛前冻结4个比分；任一命中即评测成功，真实赔率存在时显示命中倍数'],
+      score:['索伦比分矩阵','赛前冻结4个比分及模型概率；任一命中即评测成功'],
       daily:['索伦每日优选','仅展示赛前正式标记的重心场次；完整全池请切换综合评测查看'],
       upset:['索伦冷门预警','显示主队不败或客队不败的正式赛前预警']
     };
@@ -273,14 +273,22 @@
     }
     function scoreTop4Panel(row){
       const panel=el('section','score-top4'),info=scoreInfo(row);
-      const title=el('div','score-top4-title');title.append(el('span','','比分Top4正式评测'),el('small','',info?'赛前冻结 '+fmtStamp(info.frozenAt):'等待赛前参数'));panel.append(title);
-      if(!info){panel.append(el('p','score-top4-note','赛前比分参数未确认，不发布预测，也不计入命中率。'));return panel}
+      const title=el('div','score-top4-title');
+      const historical=info?.sourceKind==='HISTORICAL_BLIND_REPLAY';
+      title.append(el('span','',historical?'比分Top4 · 历史盲跑重建':'比分Top4'),el('small','',info?'赛前冻结 '+fmtStamp(info.frozenAt):'等待赛前参数'));panel.append(title);
+      if(!info){panel.append(el('p','score-top4-note','暂无比分预测 · 赛前参数未确认，不计入命中率。'));return panel}
       const grid=el('div','score-top4-grid');
-      info.picks.forEach((pick,i)=>{const isHit=info.settlementStatus==='SUCCESS'&&String(pick.score)===String(info.hitScore),cell=el('div','score-pick'+(String(pick.role).includes('CHALLENGER')?' challenger':'')+(isHit?' hit':''));const odds=pick.odds!=null&&Number(pick.odds)>1?Number(pick.odds).toFixed(2).replace(/\.00$/,'')+'倍':'赔率未记录';cell.append(el('small','',i===3?'挑战比分':'Top'+(i+1)),el('b','',String(pick.score).replace('-',':')),el('small','',odds));grid.append(cell)});panel.append(grid);
+      info.picks.forEach((pick,i)=>{
+        const isHit=info.settlementStatus==='SUCCESS'&&String(pick.score)===String(info.hitScore);
+        const cell=el('div','score-pick'+(String(pick.role).includes('CHALLENGER')?' challenger':'')+(isHit?' hit':''));
+        const p=Number(pick.baseProbability);
+        const prob=pick.baseProbability!==null&&pick.baseProbability!==undefined&&Number.isFinite(p)&&p>=0&&p<=1?(p*100).toFixed(1)+'%':'概率未确认';
+        cell.append(el('small','',i===3?'挑战比分':'Top'+(i+1)),el('b','',String(pick.score).replace('-',':')),el('small','',prob));grid.append(cell)
+      });panel.append(grid);
       let verdict='等待赛果 · 尚未评测',cls='pending';
-      if(info.settlementStatus==='SUCCESS'){cls='success';verdict=info.hitOdds!=null?'评测成功 · 命中 '+Number(info.hitOdds).toFixed(2).replace(/\.00$/,'')+'倍':'评测成功 · 赔率未记录'}
+      if(info.settlementStatus==='SUCCESS'){cls='success';verdict='评测成功 · Top4命中'}
       else if(info.settlementStatus==='FAILURE'){cls='fail';verdict='评测失败 · 4个比分均未命中'}
-      panel.append(el('div','score-top4-verdict '+cls,verdict),el('p','score-top4-note','Top1—Top3为基础比分，第4项为贝叶斯方向挑战比分；四项任一命中即成功。倍数只采用赛前冻结的真实正确比分赔率。'));
+      panel.append(el('div','score-top4-verdict '+cls,verdict),el('p','score-top4-note','展示各比分的模型预测概率，非实际赔率；四项任一命中即评测成功。'));
       return panel
     }
     function scoreCard(row,history=false){
