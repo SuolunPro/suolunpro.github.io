@@ -286,7 +286,7 @@
         cell.append(el('small','',i===3?'挑战比分':'Top'+(i+1)),el('b','',String(pick.score).replace('-',':')),el('small','',prob));grid.append(cell)
       });panel.append(grid);
       let verdict='等待赛果 · 尚未评测',cls='pending';
-      if(info.settlementStatus==='SUCCESS'){cls='success';verdict='评测成功 · Top4命中'}
+      if(info.settlementStatus==='SUCCESS'){cls='success';verdict='评测成功'}
       else if(info.settlementStatus==='FAILURE'){cls='fail';verdict='评测失败 · 4个比分均未命中'}
       panel.append(el('div','score-top4-verdict '+cls,verdict),el('p','score-top4-note','展示各比分的模型预测概率，非实际赔率；四项任一命中即评测成功。'));
       return panel
