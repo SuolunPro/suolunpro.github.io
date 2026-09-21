@@ -13,35 +13,8 @@
     button{font:inherit}.hero{color:white;background:linear-gradient(140deg,#e33237,#c91922);position:relative;overflow:hidden}.hero:before,.hero:after{content:"";position:absolute;inset:auto;width:260px;height:260px;border:46px solid #fff;opacity:.045;transform:rotate(45deg)}.hero:before{left:-160px;top:-80px}.hero:after{right:-150px;bottom:-130px}
     .brandbar{position:relative;z-index:1;padding:14px 18px 10px;display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:9px}.logo{width:40px;height:40px;border-radius:11px;object-fit:cover;display:block;border:1px solid #ff6a3288;background:#050505;box-shadow:0 4px 16px #4b000080,0 0 10px #ff4a2266}.brand strong{display:block;font-size:17px;letter-spacing:.5px}.brand small{display:block;font-size:9px;opacity:.72;margin-top:1px}.version{font-size:11px;padding:6px 9px;border:1px solid #ffffff65;border-radius:999px;background:#9d111d40}
     .models{position:relative;z-index:1;display:flex;padding:5px 12px 0;overflow:auto;scrollbar-width:none}.models::-webkit-scrollbar{display:none}.model{flex:1;min-width:80px;border:0;background:none;color:#ffffffad;padding:9px 7px 11px;font-size:13px;white-space:nowrap;border-bottom:3px solid transparent}.model.active{color:#fff;font-weight:800;border-bottom-color:#ffd03d}
-    .model[data-model="daily"]{color:#d7ffe9}
-    .model[data-model="overview"],.model[data-model="handicap"]{color:#d8edff}
-    .model[data-model="score"]{color:#f0dfff}
-    .model[data-model="goals"]{color:#fff}
-    .model[data-model="upset"]{color:#ffe4ac}
-    .model.active{color:#fff;text-shadow:0 0 1px currentColor}
-    .model[data-model="daily"].active{border-bottom-color:#91efbd}
-    .model[data-model="overview"].active,.model[data-model="handicap"].active{border-bottom-color:#a8d9ff}
-    .model[data-model="score"].active{border-bottom-color:#d6b3ff}
-    .model[data-model="goals"].active{border-bottom-color:#fff}
-    .model[data-model="upset"].active{border-bottom-color:#ffe09a}
     .hero-copy{position:relative;z-index:1;text-align:center;padding:18px 22px 17px;background:#ae111a20;border-top:1px solid #ffffff14}.hero-copy h1{font-size:20px;margin:0 0 7px}.hero-copy p{margin:0;font-size:12px;line-height:1.7;color:#fff}.hero-copy .warn{margin-top:10px;color:#ffd833;font-size:12px;line-height:1.65;text-align:left}
     .dates{position:relative;z-index:1;display:grid;grid-template-columns:repeat(7,1fr);background:#cb272d;border-top:1px solid #ffffff16;padding:8px 0 10px}.day{border:0;background:none;color:#ffffff9c;text-align:center;padding:2px 0;font-size:11px}.day b{display:block;font-size:13px;font-weight:500;margin-bottom:3px}.day.active{color:#fff}.day.active b{font-weight:900}.day.active span{font-weight:800}
-    /* Warm-white layout; retain original brand/logo and avatar assets. */
-    body{background:#f5f6f8}.app{background:#f5f6f8}
-    .hero{color:#282828;background:#faf8f3}
-    .hero:before,.hero:after{display:none}
-    .brandbar{background:#faf8f3}
-    .brand strong{color:#282828}.brand small{color:#8a7d68}
-    .version{color:#a52a35;background:#fff5db;border:1px solid #ead9ae}
-    .models{background:#faf8f3;border-top:1px solid #eee8dc}
-    .model,.model[data-model="daily"],.model[data-model="overview"],.model[data-model="handicap"],.model[data-model="score"],.model[data-model="goals"],.model[data-model="upset"]{color:#555}
-    .model.active,.model[data-model="daily"].active,.model[data-model="overview"].active,.model[data-model="handicap"].active,.model[data-model="score"].active,.model[data-model="goals"].active,.model[data-model="upset"].active{color:#b92b35;border-bottom-color:#b92b35;text-shadow:none}
-    .hero-copy{background:#faf8f3;border-top:1px solid #eee8dc}
-    .hero-copy h1{color:#282828}.hero-copy p{color:#666}.hero-copy .warn{color:#866b45}
-    .dates{background:#fff5db;border-top:1px solid #eee2c4}
-    .day{color:#8d816d}.day.active,.day.active b,.day.active span{color:#a52a35}
-    .content{background:#f5f6f8}
-    .site-disclaimer{background:#f5f6f8!important;color:#777!important;border-top:1px solid #e8e8e8}
     .main.hide,.detail{display:none}.detail.show{display:block}.toolbar{padding:14px 16px 10px;background:#fff}.toolbar-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.count{font-size:13px;color:#aaa}.filters{display:flex;gap:8px}.filter{border:1px solid #3b3b3b;background:white;color:#333;border-radius:6px;padding:7px 11px;font-size:13px}.filter.active{background:var(--red);border-color:var(--red);color:white}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:12px;background:#eee;border-radius:9px;overflow:hidden}.metric{background:#fafafa;padding:9px;text-align:center}.metric b{display:block;font-size:16px;color:#333}.metric span{font-size:9px;color:#9b9b9b}.content{padding:11px 12px 28px}.section-head{display:flex;justify-content:space-between;align-items:end;padding:4px 2px 10px}.section-head h2{font-size:16px;margin:0}.section-head span{font-size:10px;color:#999}
     .cards{display:grid;gap:12px}.card{background:#fff;border-radius:16px;padding:0 14px 13px;box-shadow:0 2px 12px #00000008;overflow:hidden;cursor:pointer}.card:active{transform:scale(.996)}.card-head{height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px}.match-id{font-size:11px;color:#555;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.league{font-weight:700;margin-right:5px}.status{align-self:flex-start;background:var(--red);color:#fff;padding:8px 10px 7px;border-radius:0 0 0 13px;font-size:10px;white-space:nowrap}.status.pass{background:#777}.status.verified{background:var(--green)}
     .fixture{display:grid;grid-template-columns:1fr 72px;gap:9px;align-items:center;padding:5px 0 13px}.team-list{display:grid;gap:11px}.team{display:flex;align-items:center;gap:10px;min-width:0}.crest{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;color:white;background:linear-gradient(145deg,#e44a4f,#aa141b);font-size:12px;font-weight:900;box-shadow:inset 0 0 0 3px #ffffffc9,0 1px 3px #0002;flex:0 0 auto}.team:nth-child(2) .crest{background:linear-gradient(145deg,#3a75c4,#1c3e7d)}.team-name{font-size:16px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.score{text-align:right;color:var(--red);font-size:23px;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}.score span{display:block;color:#888;font-size:9px;font-weight:600;margin-top:3px;white-space:nowrap}
@@ -61,7 +34,7 @@
     .upset-evidence{margin:0 15px 15px;border-top:1px solid #eee;padding-top:10px;color:#666}.upset-evidence summary{cursor:pointer;color:#666;font-size:12px;font-weight:700;list-style:none}.upset-evidence summary::-webkit-details-marker{display:none}.upset-evidence summary:after{content:"＋";float:right;color:#999}.upset-evidence[open] summary:after{content:"－"}.upset-evidence p{margin:7px 0 0;font-size:11px;line-height:1.65;color:#737373;word-break:break-word}
     @media(max-width:390px){.upset-top{gap:7px;padding-left:11px;padding-right:82px;font-size:11px}.upset-league{font-size:13px}.upset-state{min-width:76px;padding:10px 8px;font-size:12px}.upset-fixture{padding-left:11px;padding-right:11px}.upset-crest{width:36px;height:36px}.upset-team-name{font-size:13px}.upset-main{padding-left:11px;padding-right:11px}.upset-panel{min-height:96px}.upset-value{font-size:26px}.upset-value.direction{font-size:20px}}
     .empty,.error{background:#fff;border-radius:16px;padding:34px 18px;text-align:center;color:#999;font-size:12px;line-height:1.7}.empty b,.error b{display:block;color:#444;font-size:15px;margin-bottom:6px}.notice{margin-top:12px;background:#fff5dc;border:1px solid #f1dfaa;color:#896c26;border-radius:11px;padding:10px 12px;font-size:10px;line-height:1.7}
-    .backbar{position:sticky;top:0;z-index:4;background:var(--red);padding:12px 14px;color:#fff;display:flex;align-items:center;gap:12px}.back{border:0;background:none;color:#fff;font-size:21px;padding:2px 7px}.backbar b{font-size:15px}.detail-body{padding:12px}.detail-overview{margin-top:14px}.detail-overview-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}.detail-overview-heading span{color:#777;font-size:11px}.detail-module{margin-top:12px;padding:12px;border:1px solid #e8e8e8;border-radius:12px;background:#fff}.detail-module h3{margin:0 0 10px;font-size:14px}.detail-module-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.detail-module-item{border-radius:8px;background:#f7f7f7;padding:9px;min-width:0}.detail-module-item span{display:block;color:#777;font-size:11px}.detail-module-item b{display:block;margin-top:4px;font-size:13px;overflow-wrap:anywhere}.detail-module .sub{margin-top:9px;line-height:1.6}.detail-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px #00000008}.detail-card h2{font-size:20px;margin:11px 0 5px}.sub{font-size:11px;color:#999}.audit{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.audit-item{border:1px solid #eee;background:#fafafa;border-radius:9px;padding:10px}.audit-item span{display:block;color:#999;font-size:9px;margin-bottom:4px}.audit-item b{font-size:12px;word-break:break-word}.riskbox{margin-top:12px;border-top:1px solid #eee;padding-top:12px}.riskbox h3{font-size:12px;margin:0 0 6px}.riskbox p{font-size:11px;line-height:1.7;color:#737373;margin:0 0 5px}
+    .backbar{position:sticky;top:0;z-index:4;background:var(--red);padding:12px 14px;color:#fff;display:flex;align-items:center;gap:12px}.back{border:0;background:none;color:#fff;font-size:21px;padding:2px 7px}.backbar b{font-size:15px}.detail-body{padding:12px}.detail-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px #00000008}.detail-card h2{font-size:20px;margin:11px 0 5px}.sub{font-size:11px;color:#999}.audit{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.audit-item{border:1px solid #eee;background:#fafafa;border-radius:9px;padding:10px}.audit-item span{display:block;color:#999;font-size:9px;margin-bottom:4px}.audit-item b{font-size:12px;word-break:break-word}.riskbox{margin-top:12px;border-top:1px solid #eee;padding-top:12px}.riskbox h3{font-size:12px;margin:0 0 6px}.riskbox p{font-size:11px;line-height:1.7;color:#737373;margin:0 0 5px}
     .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#ffffffed;backdrop-filter:blur(15px);border-top:1px solid #ddd;padding:7px 0 max(8px,env(safe-area-inset-bottom));display:flex;justify-content:center}.bottom-inner{width:min(640px,100%);display:grid;grid-template-columns:repeat(2,1fr)}.nav{border:0;background:none;color:#999;font-size:9px;padding:3px}.nav i{display:block;font-style:normal;font-size:18px;margin-bottom:2px}.nav.active{color:var(--red);font-weight:700}.loading{display:inline-flex;gap:5px;align-items:center}.loading:after{content:"";width:10px;height:10px;border:2px solid #ddd;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(min-width:641px){.app{box-shadow:0 0 40px #0001}.hero{border-radius:0 0 18px 18px}}
     .focus-label{display:inline-block;margin-left:7px;padding:2px 5px;border-radius:4px;background:#fff0f0;color:var(--red);font-size:9px;font-weight:700}.triplet.pair .datum{padding:11px 6px}.score{font-size:22px}.score span{font-size:9px}
     /* Compact mobile-first client layout */
@@ -138,15 +111,6 @@
     .overview-ft-name{font-size:20px;line-height:1.25;color:#20242b}
     .overview-ft-pct{font-size:13px;color:#666f7e}
     .overview-ft-result{font-size:11px;color:#14845f;font-weight:650}
-      /* Mobile contrast fix: override the legacy red date-strip rule. */
-    @media(max-width:640px){
-      .hero{background:#faf8f3}
-      .dates{background:#fff5db;border-top:1px solid #ead9ae}
-      .dates .day{color:#625947;font-weight:600}
-      .dates .day b{color:#625947;font-weight:700}
-      .dates .day.active{background:#fff0c6;color:#a52a35}
-      .dates .day.active b,.dates .day.active span{color:#a52a35;font-weight:900}
-    }
   </style>
 </head>
 <body>
@@ -178,9 +142,9 @@
         <button class="model" data-model="overview">全场胜平负</button>
         
         <button class="model" data-model="handicap">全场让球</button>
-        <button class="model" data-model="score">比分Top4</button>
-        <button class="model" data-model="goals">泊松进球</button>
         <button class="model" data-model="upset">冷门预警</button>
+        <button class="model" data-model="goals">泊松进球</button>
+        <button class="model" data-model="score">比分Top4</button>
       </div>
       <div class="hero-copy">
         <h1 id="modelTitle">每日优选</h1>
@@ -538,21 +502,6 @@
       state.selected=row;$('main').classList.add('hide');$('detail').classList.add('show');
       const c=$('detailCard');c.replaceChildren();
       c.append(el('span',statusClass(row,history),statusText(row,history)),el('h2','',safe(row.home)+' vs '+safe(row.away)),el('div','sub',[safe(row.no),safe(row.league),fmtTime(row.kickoff),'北京时间'].join(' · ')));
-      const summary=el('section','detail-overview');
-      const intro=el('div','detail-overview-heading');intro.append(el('b','','单场预测总览'),el('span','',verified(row)?'90分钟正式赛果 '+scoreline(row):'赛前分析 · 等待赛果'));summary.append(intro);
-      const addSection=(title,items,note)=>{
-        const section=el('section','detail-module'),h=el('h3','',title),grid=el('div','detail-module-grid');section.append(h);
-        items.forEach(([label,value])=>{const item=el('div','detail-module-item');item.append(el('span','',label),el('b','',safe(value)));grid.append(item)});section.append(grid);
-        if(note)section.append(el('p','sub',note));summary.append(section);
-      };
-      const ftFirst=normalizeResult(row.ftTop1),ftSecond=normalizeResult(row.second);
-      addSection('全场胜平负',[['首选',safe(row.ftTop1)+' · '+(ftFirst?ftProbability(row,ftFirst):'概率未确认')],['次选',safe(row.second)+' · '+(ftSecond?ftProbability(row,ftSecond):'概率未确认')],['主胜',ftProbability(row,'H')],['平局',ftProbability(row,'D')],['客胜',ftProbability(row,'A')]],'仅展示已有赛前概率，未确认的方向不补造。');
-      addSection('全场让球',[['官方让球',row.officialHandicap==null?'未确认':String(row.officialHandicap)],['首选',safe(row.handicapTop1??row.handicap)+' · '+probability(row.handicapProbability)],['次选',safe(row.handicapSecond)+' · '+probability(row.handicapSecondProbability)]],safe(row.handicapSourceLabel));
-      c.append(summary,scoreTop4Panel(row),goalPredictionPanel(row));
-      const upset=upsetInfo(row);
-      const upsetSection=el('section','detail-module');upsetSection.append(el('h3','','冷门预警'));
-      upsetSection.append(el('p','sub',upset?safe(upset.direction??upset.warningDirection??upset.label??'请查看原始预警记录'):'当前无已确认的赛前冷门预警'));
-      c.append(upsetSection);
       const detailRows=[['全场比分',scoreline(row)],['正式赛果',verified(row)?resultName[row.result]||row.result:'未确认'],['FT首选',row.ftTop1],['第二方向',row.second],['评测口径','综合评测仅胜平负首选或次选任一命中；让球单独评测'],['当日版本',row.version],['官方让球',row.officialHandicap],['让球首选',row.handicapTop1??row.handicap],['让球首选概率',probability(row.handicapProbability)],['让球次选',row.handicapSecond],['让球次选概率',probability(row.handicapSecondProbability)],['概率来源',row.handicapProbabilitySource],['预测来源',row.handicapSourceLabel],['来源版本',row.handicapSourceVersion],['来源修订',row.handicapSourceRevision],['让球冻结时间',fmtStamp(row.handicapFrozenAt)],['重建版本',row.handicapReconstructionVersion],['首选评测',row.handicapTop1Hit==null?'等待赛果':row.handicapTop1Hit?'命中':'未中'],['双选覆盖评测',row.handicapCoverageHit==null?'等待赛果':row.handicapCoverageHit?'命中':'未中'],['FT Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['冻结时间',fmtStamp(row.frozenAt)]];
       const a=el('details','riskbox');a.append(el('summary','','完整赛前记录与数据来源（点击展开）'));const audit=el('div','audit');detailRows.forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',safe(v)));audit.append(x)});a.append(audit);c.append(a);
       const comparison=el('details','riskbox');comparison.append(el('summary','','市场 / 独立模型 / 最终概率对比（点击展开）'));
@@ -565,6 +514,8 @@
       const header=el('div','audit-item');header.append(el('span','','概率来源'),el('b','','主胜 / 平局 / 客胜'));comparisonTable.append(header);
       probabilityGroups.forEach(([label,fields])=>{const item=el('div','audit-item');item.append(el('span','',label),el('b','',fields.map(key=>probability(row[key])).join(' / ')));comparisonTable.append(item)});
       comparison.append(comparisonTable,el('p','sub','仅展示已公开的赛前冻结概率；缺失项显示未确认，不使用市场概率代替独立模型概率。'));c.append(comparison);
+      if(state.model==='goals')c.append(goalPredictionPanel(row));
+      if(state.model==='score')c.append(scoreTop4Panel(row));
       const hand=el('div','riskbox');hand.append(el('h3','','让球说明'),el('p','',safe(row.handicapAnalysis)));c.append(hand);
       if(history){const summary=state.model==='handicap'?'比分：'+scoreline(row)+' · 让球首选：'+safe(row.handicapTop1??row.handicap)+' · 次选：'+safe(row.handicapSecond)+' · 让球赛果：'+safe(row.handicapResult)+' · '+( !handicapEvaluable(row)?'未发布有效赛前让球预测':evaluationHit(row)?'评测成功':'评测未中'):'比分：'+scoreline(row)+' · 赛果：'+safe(resultName[row.result]||row.result)+' · 首选 '+(pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中')+' · 次选 '+(pickCode[row.second]===normalizeResult(row.result)?'命中':'未中')+(state.model==='overview'?' · 让球 '+(handicapHit(row)?'命中':'未中'):'')+' · '+(evaluationHit(row)?'评测成功':'评测未中');c.append(el('div','history-result',summary))}
       window.scrollTo({top:0,behavior:'smooth'})
@@ -640,7 +591,7 @@
       try{const d=await load('archive',date);state.unopenedDate=null;state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
     }
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦 '+safe(d.modelVersion);$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
-    document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');b.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});state.model=b.dataset.model;[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];render()});
+    document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];render()});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;render()});
     $('back').onclick=closeDetail;
