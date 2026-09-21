@@ -138,8 +138,8 @@
       </div>
       <div class="models" id="models">
         <button class="model active" data-model="daily">每日优选</button>
-        <button class="model" data-model="overview">全池评测</button>
-        <button class="model" data-model="wdl">胜平负锦囊</button>
+        <button class="model" data-model="overview">全池胜平负评测</button>
+        
         <button class="model" data-model="handicap">让球评测</button>
         <button class="model" data-model="upset">冷门预警</button>
         <button class="model" data-model="goals">泊松进球</button>
@@ -412,7 +412,7 @@
       if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前冷门预警':state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='upset'?'本日暂无具备独立赛前证据的冷门预警；单独HUR风险灯不生成方向。':'当前没有符合条件的正式竞足记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
-    function renderHome(){const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('冷门预警',all.length+'场 · 索伦引擎正式赛前预警',all);return}if(state.model==='overview'){renderCards('全池评测',all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('今日重心',focus.length+'场 · 仅展示有赛前重心标记的比赛'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无已确认重心场次','不以普通比赛临时凑数。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
+    function renderHome(){const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('冷门预警',all.length+'场 · 索伦引擎正式赛前预警',all);return}if(state.model==='overview'){renderCards('全池胜平负评测',all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('今日重心',focus.length+'场 · 仅展示有赛前重心标记的比赛'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无已确认重心场次','不以普通比赛临时凑数。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
     function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
     async function renderHistory(){
       const box=$('content');box.replaceChildren(sectionHead('真实战绩','仅已核验赛果'));
