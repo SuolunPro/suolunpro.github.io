@@ -97,6 +97,19 @@
     .overview-pick-result.is-hit{color:#159568;font-weight:800}
     .overview-pick-hit{border-color:#8bd4b1;background:#effbf4!important}
     .overview-prob-other{font-size:11px;color:#858b96;line-height:1.5;overflow-wrap:anywhere}
+    /* Full-pool: FT double selection only. Handicap remains on its dedicated tab. */
+    .overview-ft-only{display:grid;gap:10px;margin-top:7px}
+    .overview-ft-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px;color:#292d35}
+    .overview-ft-status{font-size:11px;color:#9c5050;background:#fff0f0;padding:4px 8px;border-radius:20px;white-space:nowrap}
+    .overview-ft-status.is-hit{color:#14845f;background:#eaf8f0}
+    .overview-ft-picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+    .overview-ft-pick{position:relative;display:grid;gap:5px;min-width:0;padding:12px;border:1px solid #e7e9ee;border-radius:11px;background:#f8f9fb}
+    .overview-ft-pick:first-child{background:#fff8f6;border-color:#f2d9d5}
+    .overview-ft-pick.is-hit{background:#eef9f2;border-color:#8dd3aa}
+    .overview-ft-role{font-size:11px;color:#7a808b}
+    .overview-ft-name{font-size:20px;line-height:1.25;color:#20242b}
+    .overview-ft-pct{font-size:13px;color:#666f7e}
+    .overview-ft-result{font-size:11px;color:#14845f;font-weight:650}
   </style>
 </head>
 <body>
@@ -263,66 +276,24 @@
       values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d);return}const hit=directionHit(row,k,v),d=el('div','datum'+(verified(row)?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d)});
       analysis.append(triplet);
       if(state.model==='overview'){
-        // Only a coherent, prematch three-way distribution may be completed to 100%.
-        const pctNumber=value=>{if(value===null||value===undefined||value==='')return null;const n=Number(value);return Number.isFinite(n)&&n>=0&&n<=100?n:null};
-        const readPct=keys=>{const value=keys.map(k=>row[k]).find(v=>v!==null&&v!==undefined&&v!=='');return pctNumber(value)};
-        const finishTriplet=values=>{
-          const missing=values.map((v,i)=>v===null?i:-1).filter(i=>i>=0);
-          const sum=values.reduce((acc,v)=>acc+(v??0),0);
-          if(missing.length!==1||sum>100.000001)return values.map(v=>v===null?'未记录':probability(v));
-          const remainder=Math.round((100-sum)*10)/10;
-          return values.map((v,i)=>i===missing[0]?probability(remainder):probability(v));
-        };
-        const panel=el('section','overview-prob-panel');
-        const addGroup=(title,labels,values,top,second,isHandicap=false)=>{
-          const group=el('section','overview-prob-group');
-          const actual=isHandicap?effectiveHandicapResult(row):normalizeResult(row.result);
-          const actualLabel=isHandicap?actual:({H:'主胜',D:'平局',A:'客胜'}[actual]||null);
-          const validTop=labels.includes(top),validSecond=labels.includes(second)&&second!==top;
-          const topHit=verified(row)&&validTop&&actualLabel===top;
-          const secondHit=verified(row)&&validSecond&&actualLabel===second;
-          const heading=el('div','overview-prob-heading');
-          heading.append(el('strong','overview-prob-title',title));
-          if(verified(row)){
-            const state=validTop||validSecond?(topHit?'首选命中':secondHit?'次选命中':'双选未中'):'未评测';
-            heading.append(el('span','overview-prob-status'+(topHit||secondHit?' is-hit':''),state));
-          }
-          group.append(heading);
-          const picks=el('div','overview-picks');
-          [['首选',top,validTop,topHit],['次选',second,validSecond,secondHit]].forEach(([role,pick,valid,hit])=>{
-            const item=el('div','overview-pick'+(hit?' overview-pick-hit':''));
-            item.append(el('span','overview-pick-role',role),el('strong','overview-pick-name',valid?pick:'未确认'),el('span','overview-pick-pct',valid?values[labels.indexOf(pick)]:'—'));
-            if(verified(row)&&valid)item.append(el('span','overview-pick-result'+(hit?' is-hit':''),hit?'✓':'×'));
-            picks.append(item);
-          });
-          group.append(picks);
-          group.append(el('div','overview-prob-other',labels.map((label,i)=>label+' '+values[i]).join('　·　')));
-          panel.append(group);
-        };
-        const ftFields=[['homeProbability','homePct','home_pct','ftHomeProbability','ft_home_probability'],['drawProbability','drawPct','draw_pct','ftDrawProbability','ft_draw_probability'],['awayProbability','awayPct','away_pct','ftAwayProbability','ft_away_probability']];
-        const ftCodes=['H','D','A'];
-        const ftValues=ftFields.map((keys,i)=>{const direct=readPct(keys);return direct!==null?direct:normalizeResult(row.ftTop1)===ftCodes[i]?pctNumber(row.confidence):null});
-        // The confidence fallback is displayed as an individual estimate, not used to infer a missing third probability.
-        const ftDirect=ftFields.map(readPct);
-        const ftDisplay=ftDirect.filter(v=>v!==null).length>=2?finishTriplet(ftDirect):ftValues.map(v=>v===null?'未记录':probability(v));
-        addGroup('胜平负概率',['主胜','平局','客胜'],ftDisplay,row.ftTop1,row.second);
-        const handicapFields={
-          '让胜':['handicapHomeProbability','handicapHomePct','handicap_home_probability','handicap_home_pct'],
-          '让平':['handicapDrawProbability','handicapDrawPct','handicap_draw_probability','handicap_draw_pct'],
-          '让负':['handicapAwayProbability','handicapAwayPct','handicap_away_probability','handicap_away_pct']
-        };
-        const handicapLabels=['让胜','让平','让负'];
-        const handicapValues=handicapLabels.map(label=>{
-          const direct=readPct(handicapFields[label]);if(direct!==null)return direct;
-          if(row.handicapTop1===label)return pctNumber(row.handicapProbability);
-          if(row.handicapSecond===label)return pctNumber(row.handicapSecondProbability);
-          return null;
+        const panel=el('section','overview-ft-only');
+        const heading=el('div','overview-ft-heading');
+        heading.append(el('strong','','胜平负双选'));
+        const actual=normalizeResult(row.result);
+        const top=normalizeResult(row.ftTop1),second=normalizeResult(row.second);
+        const topHit=verified(row)&&top!==null&&actual===top;
+        const secondHit=verified(row)&&second!==null&&second!==top&&actual===second;
+        if(verified(row))heading.append(el('span','overview-ft-status'+(topHit||secondHit?' is-hit':''),topHit?'首选命中':secondHit?'次选命中':'双选未中'));
+        panel.append(heading);
+        const picks=el('div','overview-ft-picks');
+        [['首选',row.ftTop1,top,topHit],['次选',row.second,second,secondHit]].forEach(([role,pick,code,hit])=>{
+          const cell=el('div','overview-ft-pick'+(hit?' is-hit':''));
+          cell.append(el('span','overview-ft-role',role),el('strong','overview-ft-name',code?({H:'主胜',D:'平局',A:'客胜'}[code]):'未确认'),el('span','overview-ft-pct',code?ftProbability(row,code):'—'));
+          if(verified(row)&&code)cell.append(el('span','overview-ft-result',hit?'✓ 命中':'未中'));
+          picks.append(cell);
         });
-        const handicapKnown=handicapValues.filter(v=>v!==null).length;
-        // Do not infer a handicap outcome unless the official handicap is present.
-        const handicapDisplay=row.officialHandicap==null?handicapValues.map(v=>v===null?'未记录':probability(v)):handicapKnown>=2?finishTriplet(handicapValues):handicapValues.map(v=>v===null?'未记录':probability(v));
-        addGroup('让球胜平负 · 官方让球 '+(row.officialHandicap==null?'未确认':String(row.officialHandicap)),handicapLabels,handicapDisplay,row.handicapTop1??row.handicap,row.handicapSecond,true);
-        analysis.replaceChildren(...panel.children);
+        panel.append(picks);
+        analysis.replaceChildren(panel);
       }
       if(state.model==='goals')c.append(head,fixture);else c.append(head,fixture,analysis);
       // Show Poisson goals on the match list itself, immediately after the FT 1X2 block.
