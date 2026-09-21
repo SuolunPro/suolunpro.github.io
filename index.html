@@ -138,6 +138,15 @@
     .overview-ft-name{font-size:20px;line-height:1.25;color:#20242b}
     .overview-ft-pct{font-size:13px;color:#666f7e}
     .overview-ft-result{font-size:11px;color:#14845f;font-weight:650}
+      /* Mobile contrast fix: override the legacy red date-strip rule. */
+    @media(max-width:640px){
+      .hero{background:#faf8f3}
+      .dates{background:#fff5db;border-top:1px solid #ead9ae}
+      .dates .day{color:#625947;font-weight:600}
+      .dates .day b{color:#625947;font-weight:700}
+      .dates .day.active{background:#fff0c6;color:#a52a35}
+      .dates .day.active b,.dates .day.active span{color:#a52a35;font-weight:900}
+    }
   </style>
 </head>
 <body>
