@@ -7,6 +7,35 @@ const db = createClient(
   { auth: { persistSession: false, autoRefreshToken: false } },
 );
 const handicapName: Record<string,string> = { HWIN: "让胜", HDRAW: "让平", HLOSS: "让负" };
+const TEAM_LOGO_PUBLIC_BASE = Deno.env.get("SUPABASE_URL") + "/storage/v1/object/public/team-logos/";
+
+async function loadTeamLogoMap(){
+  const [{data:aliases,error:aliasError},{data:logos,error:logoError}]=await Promise.all([
+    db.from("soren_team_alias_fotmob").select("jc_team,fotmob_team_id"),
+    db.from("soren_team_logo_cache").select("fotmob_team_id,object_path").eq("cache_status","cached").not("object_path","is",null),
+  ]);
+  if(aliasError)throw aliasError;
+  if(logoError)throw logoError;
+  const byId=new Map((logos??[]).map((x:Record<string,unknown>)=>[
+    Number(x.fotmob_team_id),
+    TEAM_LOGO_PUBLIC_BASE+String(x.object_path),
+  ]));
+  return new Map((aliases??[]).map((x:Record<string,unknown>)=>[
+    String(x.jc_team),
+    byId.get(Number(x.fotmob_team_id))??null,
+  ]).filter((x:[string,string|null])=>x[1]));
+}
+
+function attachTeamLogos(row:Record<string,unknown>,logos:Map<string,string>){
+  const home=String(row.home??row.homeTeam??row.home_team??"");
+  const away=String(row.away??row.awayTeam??row.away_team??"");
+  return {
+    ...row,
+    homeLogo:logos.get(home)??null,
+    awayLogo:logos.get(away)??null,
+    logoSource:"supabase-cache",
+  };
+}
 
 async function loadVerifiedResults(date:string){
   const out=new Map<string,Record<string,unknown>>();
@@ -69,6 +98,23 @@ function applyHandicapBackfill(row: Record<string,unknown>, backfill: Map<string
       : "原始PASS/空值；使用赛前冻结概率盲排首选与次选，未读取赛果",
   };
 }
+
+async function loadHistoricalScoreTop4(date:string){
+ const {data,error}=await db.from("soren_score_top4_hj38_replay_v1").select("match_id,pool_date,match_no,scores,source_frozen_at,kickoff_at,provenance").eq("pool_date",date);
+ if(error)throw error;
+ return new Map((data??[]).map((v:Record<string,unknown>)=>[String(v.match_no??"").padStart(3,"0"),v]));
+}
+function attachHistoricalScoreTop4(row:Record<string,unknown>,scores:Map<string,Record<string,unknown>>){
+ const item=scores.get(String(row.no??"").padStart(3,"0"));
+ if(!item||row.scoreTop4)return row;
+ const picks=item.scores as Array<Record<string,unknown>>;
+ const frozen=Date.parse(String(item.source_frozen_at)),kickoff=Date.parse(String(row.kickoff)),sourceKickoff=Date.parse(String(item.kickoff_at));
+ if(!Array.isArray(picks)||picks.length!==4||!Number.isFinite(frozen)||!Number.isFinite(kickoff)||frozen>=kickoff||Math.abs(sourceKickoff-kickoff)>60000)return row;
+ const actual=row.resultVerified===true&&Number.isFinite(Number(row.resultHome))&&Number.isFinite(Number(row.resultAway))?String(row.resultHome)+"-"+String(row.resultAway):null;
+ const hit=actual!==null&&picks.some(p=>String(p.score)===actual);
+ return {...row,scoreTop4:{pregameVerified:true,frozenAt:item.source_frozen_at,picks,sourceKind:"HISTORICAL_BLIND_REPLAY",sourceLabel:"历史盲跑重建 · 豪竞3.8比分规则",settlementStatus:actual===null?"PENDING":hit?"SUCCESS":"FAILURE",hitScore:hit?actual:null}};
+}
+
 async function loadGoalPredictions(date: string) {
   const {data,error}=await db.from("soren_prematch_goals_v1").select("pool_date,match_no,home_team,away_team,kickoff_at,frozen_at,lambda_home,lambda_away").eq("pool_date",date);
   if(error)throw error;
@@ -188,6 +234,34 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "GET") return reply({ ok: false, error: "METHOD_NOT_ALLOWED" }, 405);
   const requestUrl = new URL(req.url);
+  if (requestUrl.searchParams.get("health") === "team-logos") {
+    try {
+      const logos=await loadTeamLogoMap();
+      const [{data:cache,error:cacheError},{data:matches,error:matchError}]=await Promise.all([
+        db.from("soren_team_logo_cache").select("fotmob_team_id,cache_status,object_path,byte_size,fetched_at"),
+        db.from("soren_matches").select("pool_date,match_no,home_team,away_team").order("pool_date",{ascending:false}).order("match_no",{ascending:true}).limit(100),
+      ]);
+      if(cacheError)throw cacheError;if(matchError)throw matchError;
+      const sample=(matches??[]).slice(0,12).map((m:Record<string,unknown>)=>({
+        date:m.pool_date,no:m.match_no,home:m.home_team,away:m.away_team,
+        homeLogo:logos.get(String(m.home_team))??null,
+        awayLogo:logos.get(String(m.away_team))??null,
+      }));
+      return reply({
+        ok:true,health:"team-logos",
+        mappedNames:logos.size,
+        cacheRows:(cache??[]).length,
+        cached:(cache??[]).filter((x:Record<string,unknown>)=>x.cache_status==="cached"&&x.object_path).length,
+        bytes:(cache??[]).reduce((sum:number,x:Record<string,unknown>)=>sum+Number(x.byte_size??0),0),
+        sampleComplete:sample.filter((x)=>x.homeLogo&&x.awayLogo).length,
+        sample,
+        updatedAt:(cache??[]).map((x:Record<string,unknown>)=>String(x.fetched_at??"")).sort().at(-1)??null,
+      });
+    } catch(error) {
+      console.error(error);
+      return reply({ok:false,error:"TEAM_LOGO_HEALTH_ERROR"},500);
+    }
+  }
   if (requestUrl.searchParams.get("sync_upset") === "1") {
     try {
       const replayDate=requestUrl.searchParams.get("date");
@@ -266,8 +340,10 @@ Deno.serve(async (req: Request) => {
       });
       const handicapBackfill = await loadHandicapBackfill(date);
       const goalPredictions=await loadGoalPredictions(date);
+      const historicalScores=await loadHistoricalScoreTop4(date);
       const upsetWarnings=await loadUpsetWarningMap(date);
-      const full = originalFull.map((r: Record<string,unknown>) => attachUpsetWarning(attachGoalPrediction(applyHandicapBackfill(r,handicapBackfill),goalPredictions),upsetWarnings));
+      const teamLogos=await loadTeamLogoMap();
+      const full = originalFull.map((r: Record<string,unknown>) => attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachGoalPrediction(applyHandicapBackfill(r,handicapBackfill),goalPredictions),upsetWarnings),historicalScores),teamLogos));
       const rows = view === "history" ? full.filter((r) => r.resultVerified) : full;
       const handicapStats = buildHandicapStats(rows);
       const version = date === "2026-09-13" ? "3.2" : "3.3";
@@ -322,8 +398,10 @@ Deno.serve(async (req: Request) => {
     const dynamicDate = String(data.date ?? date ?? "");
     const handicapBackfill = await loadHandicapBackfill(dynamicDate);
     const goalPredictions=await loadGoalPredictions(dynamicDate);
+    const historicalScores=await loadHistoricalScoreTop4(dynamicDate);
     const upsetWarnings=await loadUpsetWarningMap(dynamicDate);
-    const rows = sourceRows.map((row: Record<string,unknown>) => attachUpsetWarning(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),upsetWarnings));
+    const teamLogos=await loadTeamLogoMap();
+    const rows = sourceRows.map((row: Record<string,unknown>) => attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),upsetWarnings),historicalScores),teamLogos));
     const handicapStats = buildHandicapStats(rows);
     const warningSync=await syncUpsetWarnings(rows,data);
     return reply({
