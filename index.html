@@ -255,7 +255,7 @@
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球首选',handicapChoice(row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapChoice(row.handicapSecond,row.handicapSecondProbability)]];
       if(state.model==='wdl')return [['主胜',ftProbability(row,'H')],['平局',ftProbability(row,'D')],['客胜',ftProbability(row,'A')]];
       if(state.model==='daily'){const pct=pick=>{const code=normalizeResult(pick);return code?ftProbability(row,code):'—'};return [['胜平负首选',safe(row.ftTop1)+' · '+pct(row.ftTop1)],['胜平负次选',safe(row.second)+' · '+pct(row.second)]];}
-      return [['胜平负首选',row.ftTop1],['胜平负次选',row.second]];
+      return [['胜平负首选',safe(row.ftTop1)+' · '+(normalizeResult(row.ftTop1)?ftProbability(row,normalizeResult(row.ftTop1)):'—')],['胜平负次选',safe(row.second)+' · '+(normalizeResult(row.second)?ftProbability(row,normalizeResult(row.second)):'—')]];
     }
     function adviceText(row){
       if(state.model==='handicap'){const first=safe(row.handicapTop1??row.handicap),second=safe(row.handicapSecond);return first==='未确认'?'让球建议：未确认':'让球建议：'+first+(second==='未确认'?'':' / '+second)}
