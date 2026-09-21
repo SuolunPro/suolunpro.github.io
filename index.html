@@ -412,9 +412,10 @@
       if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前冷门预警':state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='upset'?'本日暂无具备独立赛前证据的冷门预警；单独HUR风险灯不生成方向。':'当前没有符合条件的正式竞足记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
-    function renderHome(){const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('冷门预警',all.length+'场 · 索伦引擎正式赛前预警',all);return}if(state.model==='overview'){renderCards('全场胜平负',all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('今日重心',focus.length+'场 · 仅展示有赛前重心标记的比赛'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无已确认重心场次','不以普通比赛临时凑数。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
+    function renderHome(){if(state.unopenedDate){$('content').replaceChildren(empty('今日竞彩未开售','比赛数据发布后将自动更新。'));return}const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('冷门预警',all.length+'场 · 索伦引擎正式赛前预警',all);return}if(state.model==='overview'){renderCards('全场胜平负',all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('今日重心',focus.length+'场 · 仅展示有赛前重心标记的比赛'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无已确认重心场次','不以普通比赛临时凑数。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
     function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
     async function renderHistory(){
+      if(state.unopenedDate){$('content').replaceChildren(empty('今日竞彩未开售','可选择此前日期查看赛果。'));return}
       const box=$('content');box.replaceChildren(sectionHead('真实战绩','仅已核验赛果'));
       if(!state.history){box.append(empty('正在读取战绩','只统计同时具备赛前冻结证据和赛果核验的记录。'));try{const h=await load('history',state.selectedDate);state.history=h;renderHistory()}catch(e){box.replaceChildren(errorBox(e))}return}
       const rows=filterRows(state.history.rows||[]);if(!rows.length){box.append(empty('暂无已核验战绩','当前模块没有同时满足赛前冻结与赛果核验的记录。'),notice());return}
@@ -521,36 +522,43 @@
     async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal,headers:{Authorization:'Bearer '+authSession.access_token}});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
-    function buildDates(poolDate){
-      const days=['日','一','二','三','四','五','六'],box=$('dates'),latest=poolDate||state.baseDate||state.selectedDate;box.replaceChildren();
-      if(!latest)return;
+    function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
+    function displayLatestDate(){const today=beijingToday();return !state.baseDate||today>state.baseDate?today:state.baseDate}
+    function showUnopened(date){
+      state.selectedDate=date;state.unopenedDate=date;state.futureDate=null;state.today={date,count:0,rows:[],modelVersion:state.today?.modelVersion||'3.8'};state.history={rows:[],count:0};
+      $('poolCount').textContent=date+' · 未开售';$('totalCount').textContent='0';$('pickCount').textContent='0';$('passCount').textContent='0';
+      buildDates();render();
+    }
+    function buildDates(){
+      const days=['日','一','二','三','四','五','六'],box=$('dates'),latest=displayLatestDate();box.replaceChildren();
       for(let offset=-6;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
         b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
     }
     async function selectDate(date){
       if(date===state.selectedDate)return;
-      const earliest=state.baseDate?addDays(state.baseDate,-6):null;
-      if(!earliest||date<earliest||date>state.baseDate){alert('仅展示最新比赛日起最近7天的可核验记录。');return}
+      const earliest=addDays(displayLatestDate(),-6);
+      if(date<earliest||date>displayLatestDate()){alert('仅展示最近7天的记录。');return}
+      if(state.baseDate&&date>state.baseDate){showUnopened(date);return}
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
-      try{const d=await load('archive',date);state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
+      try{const d=await load('archive',date);state.unopenedDate=null;state.today=d;state.selectedDate=date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}catch(e){$('content').replaceChildren(errorBox(e))}
     }
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦 '+safe(d.modelVersion);$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];render()});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;render()});
     $('back').onclick=closeDetail;
-    if(!authSession?.access_token){showLoginGate()}else load('archive').then(d=>{state.unopenedDate=null;state.futureDate=null;state.today=d;state.baseDate=d.date;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
+    if(!authSession?.access_token){showLoginGate()}else load('archive').then(d=>{state.unopenedDate=null;state.futureDate=null;state.today=d;state.baseDate=d.date;state.selectedDate=displayLatestDate();if(state.selectedDate>d.date){showUnopened(state.selectedDate);return}const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
     // Keep following the newest published match day without disrupting manual history browsing.
     let syncInFlight=false;
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshPublishedData()});
     setInterval(()=>{if(!document.hidden)refreshPublishedData()},300000);
     async function refreshPublishedData(){
-      if(syncInFlight||!state.selectedDate||state.selectedDate===state.unopenedDate||state.selectedDate===state.futureDate)return;
+      if(syncInFlight||!state.selectedDate||state.selectedDate===state.futureDate)return;
       syncInFlight=true;
       try{
-        const followingLatest=state.selectedDate===state.baseDate;
+        const followingLatest=state.selectedDate===state.baseDate||state.selectedDate===state.unopenedDate;
         const d=await load('archive',followingLatest?undefined:state.selectedDate);
-        if(followingLatest){state.baseDate=d.date;state.selectedDate=d.date}else if(d.date!==state.selectedDate)return;
+        if(followingLatest){state.baseDate=d.date;state.selectedDate=displayLatestDate();if(state.selectedDate>d.date){showUnopened(state.selectedDate);return}state.unopenedDate=null}else if(d.date!==state.selectedDate)return;
         state.today=d;const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);if(!state.selected)render();
       }catch(e){console.warn('正式数据刷新失败',e)}finally{syncInFlight=false}
     }
