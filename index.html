@@ -47,8 +47,8 @@
   .goals-inline{border-top:1px solid #eee;margin-top:12px;padding-top:12px}.goals-inline-title{font-weight:700;margin-bottom:8px}.goals-inline .goals-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.goals-inline .goal-cell{min-width:0;padding:8px 3px;text-align:center}.goals-inline .goal-cell b{font-size:17px}.goals-inline .goal-cell small{font-size:11px}.goals-inline .goals-note{margin:7px 0;font-size:12px;color:#777}
     .goals-inline-verdict{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px;padding:9px 11px;border-radius:8px;font-size:13px}.goals-inline-icon{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;font-size:14px;font-weight:800}.goals-inline-success{background:#eaf6f0;color:#278464}.goals-inline-success .goals-inline-icon{background:#34936e;color:white}.goals-inline-fail{background:#fff0f0;color:#c44848}.goals-inline-fail .goals-inline-icon{background:#c44848;color:white}.goals-inline-reference{background:#f4f4f4;color:#777}.goals-inline-reference .goals-inline-icon{background:#999;color:white}
     .score-top4{border-top:1px solid #eee;margin-top:12px;padding-top:12px}.score-top4-title{display:flex;justify-content:space-between;gap:8px;align-items:center;font-weight:700;margin-bottom:8px}.score-top4-title small{color:#888;font-weight:400}.score-top4-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.score-pick{border:1px solid #f0d1d3;background:#fff4f4;border-radius:9px;padding:9px 3px;text-align:center;min-width:0}.score-pick.challenger{border-style:dashed;background:#fff9ed}.score-pick.hit{border-color:#2f936f;background:#eaf6f0}.score-pick small{display:block;color:#777;font-size:10px}.score-pick b{display:block;color:#c92731;font-size:18px;margin:4px 0}.score-pick.hit b{color:#278464}.score-top4-verdict{margin-top:11px;padding:9px 11px;border-radius:8px;font-size:13px;font-weight:700}.score-top4-verdict.pending{background:#f5f5f5;color:#777}.score-top4-verdict.success{background:#eaf6f0;color:#278464}.score-top4-verdict.fail{background:#fff0f0;color:#c44848}.score-top4-note{font-size:10px;color:#888;line-height:1.55;margin:8px 0 0}
-    .site-disclaimer{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom));z-index:11;width:min(640px,100%);background:#ffa629;color:#fff;text-align:center;padding:7px 12px;font-size:11px;line-height:1.5;box-shadow:0 -1px 6px #00000012}
-    .app{padding-bottom:135px}
+    .site-disclaimer{margin:16px 14px 0;padding:17px 16px;background:#fff;border:1px solid #e8e8e8;border-radius:14px;color:#666;font-size:12px;line-height:1.8;box-shadow:0 2px 10px #00000005}.site-disclaimer h2{margin:0 0 10px;text-align:center;color:#333;font-size:15px}.site-disclaimer h2 span{color:#c69a43;margin-right:6px}.site-disclaimer p{margin:0 0 9px}.site-disclaimer p:last-child{margin-bottom:0}
+    .app{padding-bottom:82px}
 
     /* Welcome screen: isolated from match cards and engine data. */
     .welcome-screen{position:fixed;inset:0;z-index:1000;background:#080808;color:#fff;display:flex;justify-content:center;align-items:stretch}
@@ -172,11 +172,12 @@
       <div class="detail-body"><div class="detail-card" id="detailCard"></div></div>
     </section>
     <footer class="site-footer">
+      <section class="site-disclaimer" role="note" aria-label="重要声明"><h2><span>▲</span>重要声明</h2><p>本平台内容基于历史赛事数据、市场信息及足球分析模型生成，仅供足球赛事研究与交流参考，不构成任何投注建议或收益承诺。</p><p>足球比赛存在诸多不确定因素，模型预测结果不代表实际赛果。请理性看待分析数据，遵守所在地法律法规，独立判断并自行承担相关风险。</p></section>
       <div class="brand-motto" aria-label="索伦引擎品牌宣言">索伦引擎，数据先行；<br class="motto-mobile">看清风险，判断更明。</div>
       <div class="site-counter">索伦引擎 © 2026 · 展示计数 <b id="visitCount">—</b></div>
     </footer>
   </div>
-  <div class="site-disclaimer" role="note">*本网站分析仅供数据研究与学术交流，不构成任何投注或购彩建议。预测结果存在不确定性，请理性看待。</div>
+  
   <nav class="bottom">
     <div class="bottom-inner">
       <button class="nav active" data-tab="home"><i>⌂</i>首页</button>
