@@ -79,6 +79,22 @@
     .overview-prob-selected{border-color:#d62c31;background:#fffafa}
     .overview-prob-selected .overview-prob-direction,.overview-prob-selected .overview-prob-value{color:#bd2b30}
     .overview-prob-check{position:absolute;right:6px;bottom:4px;font-size:14px;color:#159d78;font-weight:700}
+    /* Compact customer-facing overview: two clear market cards, each with Top1 and Top2. */
+    .overview-prob-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+    .analysis>.overview-prob-group{border:1px solid #e8e8e8;border-radius:12px;padding:10px 8px;margin:0!important;display:flex;flex-direction:column;gap:8px;min-width:0;background:#fff}
+    .analysis>.overview-prob-group+.overview-prob-group{padding-top:10px;border-top:1px solid #e8e8e8}
+    .overview-prob-title{font-size:12px!important;color:#555!important;font-weight:700!important;line-height:1.45}
+    .overview-picks{display:grid;gap:6px}
+    .overview-pick{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 5px;align-items:center;border-radius:7px;padding:6px;background:#f7f8fa;min-width:0}
+    .overview-pick:first-child{background:#fff5f5}
+    .overview-pick-role{font-size:11px;color:#777}
+    .overview-pick-name{font-size:15px;color:#262626;min-width:0}
+    .overview-pick-pct{grid-column:1 / -1;font-size:12px;color:#777}
+    .overview-pick-result{grid-column:1 / -1;font-size:11px;color:#999}
+    .overview-pick-result.is-hit{color:#14845f;font-weight:700}
+    .overview-pick-hit{outline:1px solid #a6dec9;background:#f1fbf6!important}
+    .overview-prob-other{font-size:11px;color:#888;line-height:1.5;overflow-wrap:anywhere}
+    @media(max-width:360px){.overview-prob-panel{gap:6px}.analysis>.overview-prob-group{padding:8px 6px}.overview-pick-name{font-size:14px}}
   </style>
 </head>
 <body>
@@ -259,17 +275,22 @@
         const addGroup=(title,labels,values,top,second,isHandicap=false)=>{
           const group=el('div','overview-prob-group');
           group.append(el('div','overview-prob-title',title));
-          const cells=el('div','overview-prob-cells');
-          labels.forEach((label,i)=>{
-            const isTop=top===label,isSecond=second===label;
-            const actual=isHandicap?effectiveHandicapResult(row):normalizeResult(row.result);
-            const hit=verified(row)&&(isHandicap?actual===label:actual===['H','D','A'][i])&&(isTop||isSecond);
-            const cell=el('div','overview-prob-cell'+(isTop?' overview-prob-selected':'')+(hit?' overview-prob-hit':''));
-            cell.append(el('span','overview-prob-role',isTop?'首选':isSecond?'次选':'　'),el('strong','overview-prob-direction',label),el('b','overview-prob-value',values[i]));
-            if(hit)cell.append(el('span','overview-prob-check','✓'));
-            cells.append(cell);
+          const actual=isHandicap?effectiveHandicapResult(row):normalizeResult(row.result);
+          const actualLabel=isHandicap?actual:({H:'主胜',D:'平局',A:'客胜'}[actual]||null);
+          const picks=el('div','overview-picks');
+          [['首选',top],['次选',second]].forEach(([role,pick])=>{
+            const index=labels.indexOf(pick);
+            const valid=index>=0;
+            const hit=verified(row)&&valid&&actualLabel===pick;
+            const item=el('div','overview-pick'+(hit?' overview-pick-hit':''));
+            item.append(el('span','overview-pick-role',role),el('strong','overview-pick-name',valid?pick:'未确认'),el('span','overview-pick-pct',valid?values[index]:'—'));
+            if(verified(row)&&valid)item.append(el('span','overview-pick-result'+(hit?' is-hit':''),hit?'✓ 命中':'未中'));
+            picks.append(item);
           });
-          group.append(cells);panel.append(group);
+          group.append(picks);
+          const other=labels.filter(label=>label!==top&&label!==second).map(label=>label+' '+values[labels.indexOf(label)]);
+          if(other.length)group.append(el('div','overview-prob-other','其他概率：'+other.join(' · ')));
+          panel.append(group);
         };
         const ftFields=[['homeProbability','homePct','home_pct','ftHomeProbability','ft_home_probability'],['drawProbability','drawPct','draw_pct','ftDrawProbability','ft_draw_probability'],['awayProbability','awayPct','away_pct','ftAwayProbability','ft_away_probability']];
         const ftCodes=['H','D','A'];
