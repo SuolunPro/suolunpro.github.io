@@ -140,7 +140,7 @@
         <button class="model active" data-model="daily">每日优选</button>
         <button class="model" data-model="overview">全池胜平负评测</button>
         
-        <button class="model" data-model="handicap">让球评测</button>
+        <button class="model" data-model="handicap">全池让球评测</button>
         <button class="model" data-model="upset">冷门预警</button>
         <button class="model" data-model="goals">泊松进球</button>
       </div>
@@ -217,7 +217,7 @@
     const handicapChoice=(pick,prob)=>{const p=safe(pick);return p==='未确认'?p:p+' · '+probability(prob)};
     const modelCopy={
       overview:['索伦综合评测','汇总正式赛前冻结记录，展示首选、次选与让球方向'],
-      handicap:['索伦让球评测','展示原始赛前预测与历史盲跑重建的首选、次选及概率'],
+      handicap:['索伦全池让球评测','展示原始赛前预测与历史盲跑重建的首选、次选及概率'],
       wdl:['索伦胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
       goals:['索伦泊松进球','全池直接展示赛前总进球 Top1—Top6 概率，Top3正式评测'],
       daily:['索伦每日优选','仅展示赛前正式标记的重心场次；完整全池请切换综合评测查看'],
@@ -401,7 +401,7 @@
       return rows
     }
     function visibleRows(){if(!state.today)return [];return filterRows(state.today.rows||[])}
-    function currentTitle(){return {overview:'今日竞足',handicap:'让球评测',wdl:'胜平负',goals:'泊松进球',daily:'每日优选',upset:'冷门预警'}[state.model]||'今日竞足'}
+    function currentTitle(){return {overview:'今日竞足',handicap:'全池让球评测',wdl:'胜平负',goals:'泊松进球',daily:'每日优选',upset:'冷门预警'}[state.model]||'今日竞足'}
 
     const ENGINE_LAYERS=[['市场赔率分析','欧赔、亚盘、水位及体彩SP'],['球队实力评估','Elo、近期状态与主客场表现'],['赛事基本面分析','阵容、赛程、战意及轮换'],['独立概率模型','进球分布与独立胜平负概率'],['专业预测校准','专业预测源的辅助复核'],['专项风险识别','平局、冷门、让球及热门陷阱审计'],['多模型融合决策','市场与独立模型概率对照及方向仲裁'],['数据质量与结果验证','数据时效、赛前冻结及赛果核验']];
     function engineBanner(){const b=el('button','engine-banner');b.type='button';b.append(el('strong','','索伦引擎 · 多维量化分析体系'),el('small','','8层分析架构 · 多维量化评估 · 多模型融合决策'));const tags=el('div','engine-tags');['市场赔率','球队实力','独立概率','风险审计'].forEach(t=>tags.append(el('span','',t)));b.append(tags);b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};return b}
@@ -457,7 +457,7 @@
         const verdict=rank>=0&&rank<3?'评测成功':rank>=3?'参考命中（不计正式评测）':'评测未成功';
         panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · '+verdict));
       }else panel.append(el('div','goals-verdict','等待赛果 · 尚未评测'));
-      panel.append(el('p','goals-note','Top1—Top3任一命中计入总进球正式命中率；Top4、Top5、Top6仅供参考，不计入评测。总进球评测与胜平负、让球评测独立。'));
+      panel.append(el('p','goals-note','Top1—Top3任一命中计入总进球正式命中率；Top4、Top5、Top6仅供参考，不计入评测。总进球评测与胜平负、全池让球评测独立。'));
       return panel;
     }
     function openDetail(row,history){
