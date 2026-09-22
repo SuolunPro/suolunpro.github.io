@@ -316,7 +316,7 @@
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
       const settled=verified(row),score=el('div','score',settled&&hasScore(row)?scoreline(row):'VS');score.append(el('span','',settled&&hasScore(row)?'90分钟正式赛果':'赛前比分预测'));fixture.append(teams,score);
-      c.append(head,fixture,scoreTop4Panel(row));return c
+      c.append(head,fixture,scoreTop4Panel(row));c.setAttribute('role','button');c.tabIndex=0;c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
     }
     function matchCard(row,history=false){
       if(state.model==='score')return scoreCard(row,history);
@@ -363,6 +363,7 @@
         c.append(goals);
       }
       if(history&&state.model!=='goals'){const r=el('div','history-result');r.append(document.createTextNode('比分 '),el('b','',scoreline(row)),document.createTextNode(' · '));if(state.model==='handicap')r.append(document.createTextNode('来源 '+safe(row.handicapSourceLabel)+' · 首选 '+safe(row.handicapTop1??row.handicap)+' · 次选 '+safe(row.handicapSecond)+' · 赛果 '+safe(effectiveHandicapResult(row))+' · 评测 '),el('b','',!handicapEvaluable(row)?'未发布有效赛前让球预测':evaluationHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
+      c.setAttribute('role','button');c.tabIndex=0;c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};
       return c
     }
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
@@ -449,7 +450,7 @@
       else evidence.append(el('p','','方向依据：独立证据域不足，不强行反推具体方向'));
       if(info.alternativePick)evidence.append(el('p','','证据倾向：'+safe(info.alternativePick)));
       evidence.append(el('p','','预警模型：'+safe(info.modelVersion)+' ｜ 源预测：'+safe(info.sourceModelVersion)),el('p','','赛前冻结：'+fmtStamp(info.prematchAt)));
-      card.append(top,state,fixture,main,evidence);return card;
+      card.append(top,state,fixture,main,evidence);card.setAttribute('role','button');card.tabIndex=0;card.onclick=e=>{if(e.target.closest('details'))return;openDetail(row,false)};card.onkeydown=e=>{if(e.key==='Enter'&&e.target===card)openDetail(row,false)};return card;
     }
     function filterRows(rows){
       if(state.model==='daily')return rows.filter(isFocus);
