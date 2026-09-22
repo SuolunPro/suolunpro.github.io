@@ -140,6 +140,8 @@
     .report-line{padding:8px 0}
     @media(max-width:380px){.report-fixture{grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr)}.report-team .crest{width:46px;height:46px}.report-section{padding:13px}.report-cell{padding:10px 3px}.report-cell strong{font-size:15px}}
 
+  
+    .report-venue{font-weight:700;font-size:14px;color:#203a31;margin-bottom:10px;overflow-wrap:anywhere}.report-weather-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.report-weather-cell{background:#f2f6f3;border-radius:9px;padding:9px 4px;min-width:0;text-align:center}.report-weather-cell small{font-size:10px;color:#718075;display:block;margin-bottom:5px}.report-weather-cell strong{font-size:14px;color:#203a31;white-space:nowrap}@media(max-width:360px){.report-weather-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   </style>
 </head>
 <body>
@@ -586,6 +588,34 @@
         }
         if(riskText)reportLine(intel,'豪竞赛前风险',riskText);
         slot.append(intel);
+      }
+      const environment=report.environment;
+      if(environment?.venueName){
+        const env=reportSection('球场与开球时段天气');
+        const city=reportHas(environment.venueCity)?' · '+environment.venueCity:'';
+        env.append(el('div','report-venue',environment.venueName+city));
+        const fields=[
+          ['气温',environment.temperatureC,'°C'],
+          ['湿度',environment.humidityPct,'%'],
+          ['降雨概率',environment.precipitationProbabilityPct,'%'],
+          ['风速',environment.windKmh,' km/h']
+        ];
+        const cards=el('div','report-weather-grid');let count=0;
+        fields.forEach(([name,value,unit])=>{
+          if(value===null||value===undefined||!Number.isFinite(Number(value)))return;
+          const item=el('div','report-weather-cell');
+          item.append(el('small','',String(name)),el('strong','',Number(value).toFixed(name==='气温'||name==='风速'?1:0)+unit));
+          cards.append(item);count++;
+        });
+        if(count)env.append(cards);
+        const metadata=[];
+        if(environment.pitchSurface==='grass')metadata.push('草地');
+        else if(environment.pitchSurface==='artificial')metadata.push('人工草皮');
+        if(environment.forecastTime)metadata.push('预报对应 '+fmtStamp(environment.forecastTime));
+        if(environment.fetchedAt)metadata.push('赛前采集 '+fmtStamp(environment.fetchedAt));
+        if(metadata.length)env.append(el('p','report-sub',metadata.join(' · ')));
+        env.append(el('p','report-sub','赛前天气预报，不是比赛实际天气；历史天气数据来源：Open-Meteo（CC BY 4.0），场地来自历史比赛元数据。'));
+        slot.append(env);
       }
       const hasOdds=!!(last||first||(report.market?.asian??[]).some(x=>x.current||x.initial));
       const hasKelly=report.modelOddsIndex?.values?.length===3;
