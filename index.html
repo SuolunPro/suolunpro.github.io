@@ -529,9 +529,9 @@
     }
     function appendProfessionalReport(slot,report){
       const europe=report.market?.european;
-      const market=reportSection('07 · 机构赔率与盘口变化');
+      const market=reportSection('04 · 机构赔率与盘口变化');
       if(europe?.current){
-        reportOddsGrid(market,'威廉希尔 · 初赔 / 最新赛前欧赔（主胜、平局、客胜）',europe.initial?[europe.initial.home,europe.initial.draw,europe.initial.away]:null);
+        reportOddsGrid(market,'威廉希尔 · 初赔（主胜、平局、客胜）',europe.initial?[europe.initial.home,europe.initial.draw,europe.initial.away]:null);
         reportOddsGrid(market,'威廉希尔 · 最新赛前欧赔',[europe.current.home,europe.current.draw,europe.current.away]);
         reportLine(market,'赔率采集时间',fmtStamp(europe.current.capturedAt));
         if(europe.fairProbability)reportOddsGrid(market,'欧赔归一化隐含概率（非豪竞预测）',europe.fairProbability.map(v=>v+'%'));
@@ -546,7 +546,7 @@
         });
       }else market.append(el('p','report-empty','本场机构亚盘赛前快照未确认。'));
       market.append(el('p','report-sub','机构来源以实际快照为准；没有澳门快照时不冒充澳门盘口。'));slot.append(market);
-      const k=reportSection('08 · 凯利与模型信心');
+      const k=reportSection('05 · 凯利与模型信心');
       if(report.kelly?.percent){reportOddsGrid(k,'模型理论凯利比例（非机构公布凯利指数）',report.kelly.percent.map(v=>v+'%'));
         k.append(el('p','report-sub','计算口径：max(0,(模型概率×十进制赔率−1)/(赔率−1))。以冻结模型概率和标注时间的欧赔计算；仅为数学分析指标，不代表投注建议。'));
       }else k.append(el('p','report-empty','缺少赛前冻结模型概率或对应欧赔，无法计算理论凯利比例。'));
@@ -556,7 +556,7 @@
       if(report.model?.reason)reportLine(k,'正式判断依据',report.model.reason);
       if(report.model?.riskAnalysis)reportLine(k,'风险复核',report.model.riskAnalysis);
       k.append(el('p','report-sub','机构公布凯利指数与市场热度尚无经核实的数据来源，不显示自造指标。'));slot.append(k);
-      const independent=reportSection('09 · 独立实力与赛前情报');
+      const independent=reportSection('06 · 独立实力与赛前情报');
       const elo=report.feature?.elo,ai=report.feature?.kickoffAi;
       if(elo&&elo.home!==null&&elo.away!==null){
         reportLine(independent,'主队 Elo',Number(elo.home).toFixed(1));reportLine(independent,'客队 Elo',Number(elo.away).toFixed(1));
@@ -601,9 +601,9 @@
       const probs=reportSection('02 · 胜平负概率对比');reportProbability(probs,'豪竞最终概率',['homeProbability','drawProbability','awayProbability'],row);const market=['marketHomeProbability','marketDrawProbability','marketAwayProbability'];if(market.some(k=>row[k]!=null))reportProbability(probs,'市场隐含概率',market,row);const independent=['independentHomeProbability','independentDrawProbability','independentAwayProbability'];if(independent.some(k=>row[k]!=null))reportProbability(probs,'独立模型概率',independent,row);probs.append(el('p','report-sub','仅展示接口已提供的赛前概率，缺失项不推算或补造。'));c.append(probs);
       const risk=reportSection('03 · 盘口与风险');reportLine(risk,'官方让球',row.officialHandicap);reportLine(risk,'让球首选概率',probability(row.handicapProbability));reportLine(risk,'让球次选概率',probability(row.handicapSecondProbability));reportLine(risk,'让球分析',row.handicapAnalysis);risk.append(el('p','report-sub','赔率走势、平局雷达与伤停情报须由对应赛前快照核验后接入，不以预测方向代替原始数据。'));c.append(risk);
       const professionalSlot=el('div','');c.append(professionalSlot);
-      const score=reportSection('04 · 泊松比分与总进球');score.append(scoreTop4Panel(row),goalPredictionPanel(row));c.append(score);
-      const injuries=reportSection('05 · 核心伤停与阵容');injuries.append(el('p','report-empty','当前客户接口未提供已核验的逐场球员伤停名单，暂不展示球员姓名及伤停原因。'));c.append(injuries);
-      const review=reportSection('06 · 综合分析与赛果评测');reportLine(review,'赛前首选',row.ftTop1);reportLine(review,'赛前第二方向',row.second);reportLine(review,'赛果',verified(row)?resultName[row.result]||row.result:'等待核验');reportLine(review,'综合评测',verified(row)?evaluationHit(row)?'评测成功':'评测未中':'等待赛果');review.append(el('p','report-sub','赛前预测与赛后结算分别展示，历史重建预测以其原有来源标识为准。'));c.append(review);
+      const score=reportSection('07 · 泊松比分与总进球');score.append(scoreTop4Panel(row),goalPredictionPanel(row));c.append(score);
+      const injuries=reportSection('08 · 核心伤停与阵容');injuries.append(el('p','report-empty','当前客户接口未提供已核验的逐场球员伤停名单，暂不展示球员姓名及伤停原因。'));c.append(injuries);
+      const review=reportSection('09 · 综合分析与赛果评测');reportLine(review,'赛前首选',row.ftTop1);reportLine(review,'赛前第二方向',row.second);reportLine(review,'赛果',verified(row)?resultName[row.result]||row.result:'等待核验');reportLine(review,'综合评测',verified(row)?evaluationHit(row)?'评测成功':'评测未中':'等待赛果');review.append(el('p','report-sub','赛前预测与赛后结算分别展示，历史重建预测以其原有来源标识为准。'));c.append(review);
       const audit=el('details','report-section');audit.append(el('summary','','完整赛前记录与来源'));[['模型版本',row.version],['冻结时间',fmtStamp(row.frozenAt)],['让球预测来源',row.handicapSourceLabel],['让球冻结时间',fmtStamp(row.handicapFrozenAt)],['数据质量',row.dq]].forEach(([k,v])=>reportLine(audit,k,v));c.append(audit);
       c.append(el('div','report-disclaimer','重要声明：本页面基于历史赛事数据、市场信息及模型分析，仅供足球赛事研究与交流参考，不构成投注建议或收益承诺。预测结果存在不确定性。'));
       loadProfessionalDetail(row,professionalSlot);
