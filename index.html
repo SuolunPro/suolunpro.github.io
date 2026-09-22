@@ -566,6 +566,52 @@
       panel.append(el('p','goals-note',goalsShadow?'此模型使用球队赛前近6场历史进球、失球，不是严格xG正式预测；所有方向仅供参考，不进入正式命中率。':'Top1—Top3任一命中计入总进球正式命中率；Top4、Top5、Top6仅供参考，不计入评测。总进球评测与胜平负、全场让球独立。'));
       return panel;
     }
+    function teamFormH2hPanel(row){
+      const info=row.teamFormH2h;
+      if(!info||info.verified!==true||!info.capturedAt)return null;
+      const frozen=Date.parse(info.capturedAt),kickoff=Date.parse(row.kickoff);
+      if(!Number.isFinite(frozen)||!Number.isFinite(kickoff)||frozen>=kickoff)return null;
+      const section=reportSection('近期战绩与历史交锋');
+      const dateHint=dt=>fmtTime(dt).split(' ')[0];
+      const pct=(n,v)=>n>0&&Number.isFinite(Number(v))?Number(v).toFixed(1)+'%':'未确认';
+      const sides=[[row.home,info.home],[row.away,info.away]];
+      for(const [team,form] of sides){
+        if(!form||!Number.isInteger(form.n)||form.n<0||form.n>6||!Array.isArray(form.matches))continue;
+        section.append(el('p','report-sub',String(team)+' · '+(form.n===6?'最近6场':'最近'+form.n+'场可核验战绩（最多6场）')));
+        if(form.n===0){
+          section.append(el('p','report-sub','暂缺可核验的赛前比赛记录，不计算胜率。'));
+          continue;
+        }
+        reportLine(section,'胜 / 平 / 负',String(form.wins)+'胜 '+String(form.draws)+'平 '+String(form.losses)+'负');
+        reportLine(section,'历史样本胜率',pct(form.n,form.winPct));
+        const more=reportDisclosure('查看'+String(team)+'逐场比分（'+form.n+'场）');
+        for(const item of form.matches){
+          if(!item||!item.kickoffAt)continue;
+          const score=String(item.goalsFor)+'—'+String(item.goalsAgainst);
+          reportLine(more,dateHint(item.kickoffAt)+' · '+String(item.outcome||'未确认'),
+            String(item.venue||'')+' 对 '+String(item.opponent||'未确认')+' · '+score);
+        }
+        section.append(more);
+      }
+      const h=info.h2h;
+      section.append(el('p','report-sub','双方直接交锋 · '+(h&&h.n>0?'最近'+h.n+'次（最多6次）':'数据源尚无可核验的赛前交锋记录')));
+      if(h&&Number.isInteger(h.n)&&h.n>0&&h.n<=6&&Array.isArray(h.matches)){
+        reportLine(section,'交锋胜 / 平 / 负（本场主队视角）',
+          String(h.homeWins)+'胜 '+String(h.draws)+'平 '+String(h.awayWins)+'负');
+        reportLine(section,String(row.home)+'交锋胜率',pct(h.n,h.homeWinPct));
+        reportLine(section,'交锋平局率',pct(h.n,h.drawPct));
+        reportLine(section,String(row.away)+'交锋胜率',pct(h.n,h.awayWinPct));
+        const more=reportDisclosure('展开最近'+h.n+'次交锋比分');
+        for(const item of h.matches){
+          if(!item||!item.kickoffAt)continue;
+          reportLine(more,dateHint(item.kickoffAt),
+            String(item.homeName||'主队')+' '+String(item.homeScore)+'—'+String(item.awayScore)+' '+String(item.awayName||'客队'));
+        }
+        section.append(more);
+      }else section.append(el('p','report-sub','可能是两队未交手，或数据源覆盖不足；不能据此断定没有历史交锋。'));
+      section.append(el('p','report-sub','来源：FotMob · 资料冻结于'+fmtStamp(info.capturedAt)+'。近6场战绩、历史交锋均仅为真实赛前样本统计，不代表本场胜平负预测概率。'));
+      return section;
+    }
     function teamSchedulePanel(row){
       const info=row.teamSchedule;
       if(!info||info.verified!==true||!info.capturedAt)return null;
@@ -931,6 +977,7 @@
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
       c.append(summary);
       const teamSchedule=teamSchedulePanel(row);if(teamSchedule)c.append(teamSchedule);
+      const teamFormH2h=teamFormH2hPanel(row);if(teamFormH2h)c.append(teamFormH2h);
 
       const professionalSlot=el('div','report-professional');c.append(professionalSlot);
       if(scoreInfo(row)||publishedGoalLambda(row)!==null){
