@@ -114,7 +114,9 @@
   
     /* Professional match report: scoped to detail view, homepage untouched */
     .detail .detail-body{padding:0 0 28px}.detail .detail-card{padding:0;background:#f4f6f5;box-shadow:none;border-radius:0}.report-hero{background:linear-gradient(145deg,#101e1b,#213b32);color:#fff;padding:22px 16px 25px;text-align:center}.report-meta{font-size:12px;color:#c4d6cf;line-height:1.8}.report-fixture{display:grid;grid-template-columns:minmax(0,1fr) 82px minmax(0,1fr);align-items:center;gap:6px;margin:20px 0 10px}.report-team{display:grid;justify-items:center;gap:8px;min-width:0;font-weight:800;font-size:15px;overflow-wrap:anywhere}.report-team .crest{width:57px;height:57px}.report-score{font-size:25px;font-weight:900;font-variant-numeric:tabular-nums}.report-status{font-size:11px;color:#c4d6cf;margin-top:5px}.report-section{margin:12px 12px 0;padding:16px;background:#fff;border-radius:14px;box-shadow:0 2px 12px #00000008}.report-section h3{font-size:16px;margin:0 0 12px;color:#1d302a}.report-sub{color:#748079;font-size:11px;line-height:1.65;margin:8px 0}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.report-cell{background:#f2f6f3;border-radius:10px;text-align:center;padding:12px 5px;min-width:0}.report-cell small{display:block;color:#728077;font-size:11px;margin-bottom:6px}.report-cell strong{display:block;color:#203a31;font-size:18px;overflow-wrap:anywhere}.report-line{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #edf0ed;padding:11px 0;font-size:13px;line-height:1.5}.report-line span{color:#748079}.report-line b{text-align:right;overflow-wrap:anywhere}.report-section .riskbox{margin-top:12px}.report-empty{font-size:12px;color:#79847e;line-height:1.7}.report-disclaimer{margin:14px 12px;padding:14px;border-radius:12px;background:#e8eeea;color:#59685e;font-size:11px;line-height:1.8}
-</style>
+
+    .report-story{padding:12px 0;border-top:1px solid #e9eeea}.report-story-link{color:#176f57;text-decoration:none;font-size:14px;font-weight:700;line-height:1.6;overflow-wrap:anywhere;display:block}.report-story-link:after{content:' ↗';font-weight:400}.report-story .report-sub{margin:4px 0}
+  </style>
 </head>
 <body>
   <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="索伦引擎欢迎页">
@@ -528,8 +530,40 @@
       });section.append(el('p','report-sub',label),grid)
     }
     function appendProfessionalReport(slot,report){
+      const intel=reportSection('04 · 赛事情报 · 赛前数据与媒体来源');
+      const stories=Array.isArray(report.intelligence?.articles)?report.intelligence.articles:[];
+      if(stories.length){
+        stories.forEach(item=>{
+          const url=String(item.url||'');
+          let allowed=false;
+          try{const u=new URL(url);allowed=u.protocol==='https:'&&u.hostname==='sports.sina.com.cn'&&u.pathname.startsWith('/l/')}catch{}
+          if(!allowed)return;
+          const box=el('div','report-story');
+          const title=el('a','report-story-link',String(item.title||'').replace(/^\[小炮APP\]竞彩情报：/,''));
+          title.href=url;title.target='_blank';title.rel='noopener noreferrer';
+          box.append(title,el('p','report-sub','来源：新浪彩票 · 发表于 '+fmtStamp(item.publishedAt)+' · 点击阅读原文'));
+          box.append(el('p','report-sub','本场主客队已匹配；媒体报道内容尚未独立核实。'));
+          if(Array.isArray(item.sections)&&item.sections.some(x=>String(x).includes('伤停')))
+            box.append(el('p','report-sub','原文涉及伤停或缺阵，具体球员及出场状态请以赛前官方名单为准。'));
+          intel.append(box);
+        });
+      }else intel.append(el('p','report-empty','暂未采集到与本场主客队严格匹配、且发表于开球前的媒体报道。'));
+      const oddsBefore=report.market?.european?.initial,oddsNow=report.market?.european?.current;
+      if(oddsBefore&&oddsNow){
+        const directions=[['主胜','home'],['平局','draw'],['客胜','away']];
+        let total=0;
+        directions.forEach(([name,key])=>{
+          const a=Number(oddsBefore[key]),b=Number(oddsNow[key]);
+          if(!Number.isFinite(a)||!Number.isFinite(b)||a<=1||b<=1||Math.abs(a-b)<0.015||total>=3)return;
+          reportLine(intel,'赛前赔率变化 · '+name,a.toFixed(2)+' → '+b.toFixed(2)+'（'+(b<a?'下调':'上调')+'）');total++;
+        });
+        if(total)intel.append(el('p','report-sub','数据情报来自威廉希尔已缓存的赛前欧赔；赔率变化不代表确定赛果。'));
+      }
+      if(report.model?.riskAnalysis)reportLine(intel,'豪竞赛前风险记录',report.model.riskAnalysis);
+      slot.append(intel);
+
       const europe=report.market?.european;
-      const market=reportSection('04 · 机构赔率与盘口变化');
+      const market=reportSection('05 · 机构赔率与盘口变化');
       if(europe?.current){
         reportOddsGrid(market,'威廉希尔 · 初赔（主胜、平局、客胜）',europe.initial?[europe.initial.home,europe.initial.draw,europe.initial.away]:null);
         reportOddsGrid(market,'威廉希尔 · 最新赛前欧赔',[europe.current.home,europe.current.draw,europe.current.away]);
@@ -546,7 +580,7 @@
         });
       }else market.append(el('p','report-empty','本场机构亚盘赛前快照未确认。'));
       market.append(el('p','report-sub','机构来源以实际快照为准；没有澳门快照时不冒充澳门盘口。'));slot.append(market);
-      const k=reportSection('05 · 凯利参考值与模型信心');
+      const k=reportSection('06 · 凯利参考值与模型信心');
       if(report.modelOddsIndex?.values?.length===3){
         reportOddsGrid(k,'豪竞参考凯利值 · 主胜 / 平局 / 客胜',report.modelOddsIndex.values.map(v=>Number(v).toFixed(4)));
         k.append(el('p','report-sub','参考口径：豪竞赛前冻结概率 × 威廉希尔所示赛前欧赔；不同于需要多家公司赔率平均概率的机构凯利指数。'));
@@ -563,7 +597,7 @@
       if(report.model?.reason)reportLine(k,'正式判断依据',report.model.reason);
       if(report.model?.riskAnalysis)reportLine(k,'风险复核',report.model.riskAnalysis);
       k.append(el('p','report-sub','机构凯利指数需同一时间多家公司欧赔计算市场平均概率；当前只有威廉希尔主欧赔链，不把豪竞参考值冒充机构公布指数。市场热度亦未确认。'));slot.append(k);
-      const independent=reportSection('06 · 独立实力与赛前情报');
+      const independent=reportSection('07 · 独立实力与赛前情报');
       const elo=report.feature?.elo,ai=report.feature?.kickoffAi;
       if(elo&&elo.home!==null&&elo.away!==null){
         reportLine(independent,'主队 Elo',Number(elo.home).toFixed(1));reportLine(independent,'客队 Elo',Number(elo.away).toFixed(1));
@@ -608,9 +642,9 @@
       const probs=reportSection('02 · 胜平负概率对比');reportProbability(probs,'豪竞最终概率',['homeProbability','drawProbability','awayProbability'],row);const market=['marketHomeProbability','marketDrawProbability','marketAwayProbability'];if(market.some(k=>row[k]!=null))reportProbability(probs,'市场隐含概率',market,row);const independent=['independentHomeProbability','independentDrawProbability','independentAwayProbability'];if(independent.some(k=>row[k]!=null))reportProbability(probs,'独立模型概率',independent,row);probs.append(el('p','report-sub','仅展示接口已提供的赛前概率，缺失项不推算或补造。'));c.append(probs);
       const risk=reportSection('03 · 盘口与风险');reportLine(risk,'官方让球',row.officialHandicap);reportLine(risk,'让球首选概率',probability(row.handicapProbability));reportLine(risk,'让球次选概率',probability(row.handicapSecondProbability));reportLine(risk,'让球分析',row.handicapAnalysis);risk.append(el('p','report-sub','赔率走势、平局雷达与伤停情报须由对应赛前快照核验后接入，不以预测方向代替原始数据。'));c.append(risk);
       const professionalSlot=el('div','');c.append(professionalSlot);
-      const score=reportSection('07 · 泊松比分与总进球');score.append(scoreTop4Panel(row),goalPredictionPanel(row));c.append(score);
-      const injuries=reportSection('08 · 核心伤停与阵容');injuries.append(el('p','report-empty','当前客户接口未提供已核验的逐场球员伤停名单，暂不展示球员姓名及伤停原因。'));c.append(injuries);
-      const review=reportSection('09 · 综合分析与赛果评测');reportLine(review,'赛前首选',row.ftTop1);reportLine(review,'赛前第二方向',row.second);reportLine(review,'赛果',verified(row)?resultName[row.result]||row.result:'等待核验');reportLine(review,'综合评测',verified(row)?evaluationHit(row)?'评测成功':'评测未中':'等待赛果');review.append(el('p','report-sub','赛前预测与赛后结算分别展示，历史重建预测以其原有来源标识为准。'));c.append(review);
+      const score=reportSection('08 · 泊松比分与总进球');score.append(scoreTop4Panel(row),goalPredictionPanel(row));c.append(score);
+      const injuries=reportSection('09 · 核心伤停与阵容');injuries.append(el('p','report-empty','当前客户接口未提供已核验的逐场球员伤停名单，暂不展示球员姓名及伤停原因。'));c.append(injuries);
+      const review=reportSection('10 · 综合分析与赛果评测');reportLine(review,'赛前首选',row.ftTop1);reportLine(review,'赛前第二方向',row.second);reportLine(review,'赛果',verified(row)?resultName[row.result]||row.result:'等待核验');reportLine(review,'综合评测',verified(row)?evaluationHit(row)?'评测成功':'评测未中':'等待赛果');review.append(el('p','report-sub','赛前预测与赛后结算分别展示，历史重建预测以其原有来源标识为准。'));c.append(review);
       const audit=el('details','report-section');audit.append(el('summary','','完整赛前记录与来源'));[['模型版本',row.version],['冻结时间',fmtStamp(row.frozenAt)],['让球预测来源',row.handicapSourceLabel],['让球冻结时间',fmtStamp(row.handicapFrozenAt)],['数据质量',row.dq]].forEach(([k,v])=>reportLine(audit,k,v));c.append(audit);
       c.append(el('div','report-disclaimer','重要声明：本页面基于历史赛事数据、市场信息及模型分析，仅供足球赛事研究与交流参考，不构成投注建议或收益承诺。预测结果存在不确定性。'));
       loadProfessionalDetail(row,professionalSlot);
