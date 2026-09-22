@@ -1016,9 +1016,9 @@
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦引擎';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];requestAnimationFrame(()=>{if(state.model===b.dataset.model)render()})});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
-    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;render()});
+    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}render()});
     $('back').onclick=closeDetail;
-    if(!authSession?.access_token){showLoginGate()}else load('archive').then(d=>{state.unopenedDate=null;state.futureDate=null;state.today=d;rememberDay(d);state.baseDate=d.date;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
+    if(!authSession?.access_token){showLoginGate()}else load('archive').then(async latest=>{state.baseDate=latest.date;rememberDay(latest);const today=beijingToday();let d=latest;if(today!==latest.date){d=await load('archive',today);if(d.date!==today||!Array.isArray(d.rows)||!d.rows.length){showUnopened(today);return}}state.unopenedDate=null;state.futureDate=null;state.today=d;rememberDay(d);state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
     // Keep following the newest published match day without disrupting manual history browsing.
     let syncInFlight=false;
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshPublishedData()});
@@ -1027,7 +1027,7 @@
       if(syncInFlight||!state.selectedDate||state.selectedDate===state.futureDate)return;
       syncInFlight=true;
       try{
-        const followingLatest=state.selectedDate===state.baseDate||state.selectedDate===state.unopenedDate;
+        const followingLatest=state.selectedDate===state.baseDate&&state.selectedDate!==beijingToday();
         const d=await load('archive',followingLatest?undefined:state.selectedDate);
         if(followingLatest){state.baseDate=d.date;if(state.unopenedDate&&state.unopenedDate>d.date){buildDates();return}state.selectedDate=d.date;state.unopenedDate=null}else if(d.date!==state.selectedDate)return;
         state.today=d;rememberDay(d);const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);if(!state.selected)render();
