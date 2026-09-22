@@ -582,9 +582,9 @@
         if(secondary.length)pill.append(el('small','',secondary.join(' · ')));
         anchor.append(pill);
       }
-      const venue=el('div','report-venue-line','球场 · '+String(environment.venueName));
+      const venue=el('div','report-venue-line',(environment.venueRecoveredAfterKickoff?'球场（赛后核对） · ':'球场 · ')+String(environment.venueName));
       if(environment.venueCity)venue.append(el('span','',' · '+String(environment.venueCity)));
-      venue.title='球场来自 FotMob；开球时段天气来自 Open-Meteo 赛前预报，并非实测天气。';
+      venue.title=environment.venueRecoveredAfterKickoff?'球场资料来自赛后匹配的 FotMob 比赛记录；没有可核验的赛前天气，不显示气温和湿度。':'球场资料来自 FotMob；若有天气数值，来源为 Open-Meteo 赛前预报，并非比赛实测值。';
       hero.append(venue);
     }
     function appendProfessionalReport(slot,report){
