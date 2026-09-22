@@ -564,6 +564,123 @@
       const details=el('details','report-section report-more'),summary=el('summary','',title);
       details.append(summary);return details;
     }
+    // Verified match venues: customer-facing Chinese display names only; retain FotMob originals for audit.
+    const venueChineseNames={
+      "Allianz Stadium": "都灵安联体育场",
+      "BayArena": "拜耳竞技场",
+      "Estadio Abanca-Riazor": "里亚索球场",
+      "Johan Cruijff ArenA": "约翰·克鲁伊夫竞技场",
+      "Riyadh Air Metropolitano": "大都会球场",
+      "Stadio Giuseppe Meazza": "朱塞佩·梅阿查球场",
+      "The Brick Community Stadium": "布里克社区球场",
+      "Allianz Arena": "慕尼黑安联球场",
+      "Allianz Riviera": "安联里维埃拉球场",
+      "Anfield": "安菲尔德球场",
+      "Anyang Stadium": "安养体育场",
+      "Åråsen Stadion": "阿罗森球场",
+      "Ashton Gate Stadium": "阿什顿门球场",
+      "bet365 Stadium": "bet365球场",
+      "Bluenergy Stadium": "蓝色能源球场",
+      "CEPAC Vélodrome": "马赛韦洛德罗姆球场",
+      "Coventry Building Society Arena": "考文垂建筑协会竞技场",
+      "Craven Cottage": "克拉文农场球场",
+      "Daejeon World Cup Stadium": "大田世界杯体育场",
+      "De Grolsch Veste": "赫罗尔斯城堡球场",
+      "Deutsche Bank Park": "德意志银行公园球场",
+      "Elland Road": "埃兰路球场",
+      "Estadio Abanca-Balaídos": "巴莱多斯球场",
+      "Estadio Benito Villamarín": "贝尼托·比利亚马林球场",
+      "Estadio Ciudad de Vicente López": "比森特·洛佩斯城市球场",
+      "Estadio Coliseum": "科利塞姆球场",
+      "Estadio de la Cerámica": "陶瓷球场",
+      "Estadio de Mendizorroza": "门迪索罗萨球场",
+      "Estadio de Mestalla": "梅斯塔利亚球场",
+      "Estadio de San Mamés": "圣马梅斯球场",
+      "Estádio Do Dragão": "巨龙球场",
+      "Estadio El Sadar": "埃尔萨达尔球场",
+      "Estadio Jornalista Mário Filho (Maracanã)": "马拉卡纳球场",
+      "Estádio José Alvalade": "若泽·阿尔瓦拉德球场",
+      "Estádio José Maria de Campos Maia": "若泽·玛丽亚·德坎波斯·马亚球场",
+      "Estadio La Rosaleda": "玫瑰园球场",
+      "Estadio Manuel Martínez Valero": "曼努埃尔·马丁内斯·巴莱罗球场",
+      "Estádio Mário Celso Petraglia": "马里奥·塞尔索·佩特拉利亚球场",
+      "Estadio Municipal de Anoeta": "阿诺埃塔球场",
+      "Estádio Olímpico Nilton Santos": "尼尔顿·桑托斯奥林匹克体育场",
+      "Estadio Ontime Butarque": "布塔尔克球场",
+      "Estadio Ramón Sánchez Pizjuán": "拉蒙·桑切斯·皮斯胡安球场",
+      "Estadio Rodrigo Paz Delgado": "罗德里戈·帕斯·德尔加多球场",
+      "Etihad Stadium": "伊蒂哈德球场",
+      "Euroborg": "欧罗堡球场",
+      "Groupama Stadium": "奥林匹克里昂公园球场",
+      "Gtech Community Stadium": "Gtech社区球场",
+      "Hazza Bin Zayed Stadium": "哈扎·本·扎耶德球场",
+      "Hill Dickinson Stadium": "希尔·迪金森球场",
+      "Hitachi Energy Arena": "日立能源竞技场",
+      "Home Deluxe Arena": "家居豪华竞技场",
+      "ista-Borussia-Park": "普鲁士公园球场",
+      "Jeonju World Cup Stadium": "全州世界杯体育场",
+      "Lotto Park": "乐透公园球场",
+      "Lumen Field": "流明球场",
+      "Lyse Arena": "莱瑟竞技场",
+      "Machida Gion Stadium": "町田祇园体育场",
+      "Markku.fi Areena": "马尔库竞技场",
+      "Meadow Lane": "梅多巷球场",
+      "MHPArena": "MHP竞技场",
+      "Molineux Stadium": "莫利纽球场",
+      "Neo GSP": "新GSP球场",
+      "Neo Química Arena": "新化学竞技场",
+      "Nissan Stadium": "日产体育场",
+      "Nordmøre stadion": "北默勒球场",
+      "Panasonic Stadium Suita": "吹田松下体育场",
+      "Pankritio Stadio": "泛克里特体育场",
+      "PEACE STADIUM Connected by SoftBank": "长崎和平体育场",
+      "Portman Road": "波特曼路球场",
+      "RCDE Stadium": "RCDE球场",
+      "Riverside Stadium": "河畔球场",
+      "Sarpsborg Stadion": "萨普斯堡球场",
+      "Selhurst Park": "塞尔赫斯特公园球场",
+      "Spotify Camp Nou": "诺坎普球场",
+      "St. James' Park": "圣詹姆斯公园球场",
+      "Stade Auguste-Delaune": "奥古斯特·德洛纳球场",
+      "Stade Jean Bouin": "让·布安球场",
+      "Stade Louis-II": "路易二世球场",
+      "Stade Raymond Kopa": "雷蒙·科帕球场",
+      "Stadio Artemio Franchi": "阿尔特米奥·弗兰基球场",
+      "Stadio Benito Stirpe": "贝尼托·斯蒂尔佩球场",
+      "Stadio Ennio Tardini": "恩尼奥·塔尔迪尼球场",
+      "Stadio Olimpico": "罗马奥林匹克球场",
+      "Stadio Pier Luigi Penzo": "皮埃尔·路易吉·彭佐球场",
+      "Stadio Renato Dall'Ara": "雷纳托·达拉拉球场",
+      "Stadion De Vliert": "德弗利尔特球场",
+      "Stadion Graz-Liebenau": "格拉茨利本瑙球场",
+      "Stadium MK": "米尔顿凯恩斯球场",
+      "Stadium of Light": "光明球场",
+      "Stadium Sultan Ibrahim Larkin": "苏丹易卜拉欣体育场",
+      "Strandvallen": "斯特兰德瓦伦球场",
+      "Sungui Arena Park": "崇义竞技场",
+      "The City Ground": "城市球场",
+      "Tottenham Hotspur Stadium": "托特纳姆热刺球场",
+      "Tüpraş Stadyumu": "图普拉什球场",
+      "U-Power Stadium": "U-Power球场",
+      "VELTINS-Arena": "费尔廷斯竞技场",
+      "Vitality Stadium": "活力球场",
+      "Volksparkstadion": "人民公园球场",
+      "Volkswagen Arena": "大众汽车竞技场",
+      "Weserstadion": "威悉球场",
+      "Workers' Stadium": "北京工人体育场",
+      "Yankee Stadium": "洋基体育场"
+};
+    function localizedVenueName(original){
+      const name=String(original??'').trim();
+      return Object.prototype.hasOwnProperty.call(venueChineseNames,name)?venueChineseNames[name]:name;
+    }
+    function chinesePitchSurface(raw){
+      const normalized=String(raw??'').trim().toLowerCase();
+      if(['grass','natural grass','natural turf'].includes(normalized))return '天然草地';
+      if(['artificial','artificial turf','artificial grass','synthetic grass','synthetic turf'].includes(normalized))return '人工草地';
+      if(['hybrid','hybrid grass','hybrid turf'].includes(normalized))return '混合草皮';
+      return null;
+    }
     function renderHeroWeather(environment){
       const hero=$('detailCard')?.querySelector('.report-hero');
       const anchor=hero?.querySelector('.report-weather-anchor');
@@ -582,9 +699,12 @@
         if(secondary.length)pill.append(el('small','',secondary.join(' · ')));
         anchor.append(pill);
       }
-      const venue=el('div','report-venue-line',(environment.venueRecoveredAfterKickoff?'球场（赛后核对） · ':'球场 · ')+String(environment.venueName));
+      const surface=chinesePitchSurface(environment.pitchSurface);
+      const displayed=localizedVenueName(environment.venueName);
+      const venue=el('div','report-venue-line',(environment.venueRecoveredAfterKickoff?'球场（赛后核对） · ':'球场 · ')+displayed);
+      if(surface)venue.append(el('span','report-surface-badge',' · '+surface));
       if(environment.venueCity)venue.append(el('span','',' · '+String(environment.venueCity)));
-      venue.title=environment.venueRecoveredAfterKickoff?'球场资料来自赛后匹配的 FotMob 比赛记录；没有可核验的赛前天气，不显示气温和湿度。':'球场资料来自 FotMob；若有天气数值，来源为 Open-Meteo 赛前预报，并非比赛实测值。';
+      venue.title='球场原名：'+String(environment.venueName)+'。'+(environment.venueRecoveredAfterKickoff?'球场资料来自赛后匹配的 FotMob 比赛记录；没有可核验的赛前天气。':'球场资料来自 FotMob；若有天气数值，来源为 Open-Meteo 赛前预报。');
       hero.append(venue);
     }
     function appendProfessionalReport(slot,report){
