@@ -881,13 +881,17 @@
       const summary=reportSection('本场速览');
       const choices=el('div','report-key-picks');
       const first=el('div','report-main-pick');
-      first.append(el('small','','胜平负首选'),el('strong','',reportHas(row.ftTop1)?String(row.ftTop1):'赛前方向待核验'));
+      const ftPass=row.pass===true||row.mode==='PASS'||row.tier==='PASS';
+      first.append(el('small','',ftPass?'胜平负参考方向':'胜平负首选'),el('strong','',reportHas(row.ftTop1)?String(row.ftTop1):ftPass?'暂不推荐':'赛前分析更新中'));
       choices.append(first);
-      if(reportHas(row.second)){const second=el('div','report-alt-pick');second.append(el('small','','第二方向'),el('strong','',String(row.second)));choices.append(second)}
+      if(reportHas(row.second)){const second=el('div','report-alt-pick');second.append(el('small','',ftPass?'第二参考方向':'第二方向'),el('strong','',String(row.second)));choices.append(second)}
       summary.append(choices);
+      if(ftPass)summary.append(el('p','report-sub','本场未通过正式推荐条件；上述胜平负方向仅为赛前概率排序参考。'));
       const hasOfficial=row.officialHandicap!==null&&row.officialHandicap!==undefined&&row.officialHandicap!=='';
       const handicap=[reportHas(row.handicapTop1)?row.handicapTop1:reportHas(row.handicap)?row.handicap:null,reportHas(row.handicapSecond)?row.handicapSecond:null].filter(Boolean);
-      if(hasOfficial||handicap.length)reportLine(summary,'官方让球 / 让球方向',(hasOfficial?String(row.officialHandicap):'—')+' / '+(handicap.length?handicap.join('、'):'未发布'));
+      const handicapMarketOnly=row.handicapQualityEligible===false;
+      if(hasOfficial||handicap.length)reportLine(summary,handicapMarketOnly?'官方让球 / 市场参考':'官方让球 / 让球方向',(hasOfficial?String(row.officialHandicap):'—')+' / '+(handicap.length?handicap.join('、'):'未发布'));
+      if(handicapMarketOnly&&handicap.length)summary.append(el('p','report-sub','让球方向来自市场概率排序，未通过正式模型让球质量审核，不属于正式推荐。'));
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
       if([row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
         reportProbability(summary,'索伦引擎赛前概率',['homeProbability','drawProbability','awayProbability'],row);
