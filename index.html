@@ -198,7 +198,7 @@
           <div class="metric"><b id="passCount">—</b><span>等待赛果</span></div>
         </div>
       </section>
-      <section class="content" id="content"><div class="empty"><b>正在连接正式数据</b><span class="loading">核验索伦3.8赛前冻结记录</span></div></section>
+      <section class="content" id="content"><div class="empty"><b>正在连接正式数据</b><span class="loading">核验索伦引擎赛前冻结记录</span></div></section>
     </main>
     <section class="detail" id="detail">
       <div class="backbar"><button class="back" id="back" aria-label="返回">‹</button><b>比赛详情</b></div>
@@ -479,7 +479,7 @@
       if(info.directionReason)evidence.append(el('p','','方向依据：'+info.directionReason));
       else evidence.append(el('p','','方向依据：独立证据域不足，不强行反推具体方向'));
       if(info.alternativePick)evidence.append(el('p','','证据倾向：'+safe(info.alternativePick)));
-      evidence.append(el('p','','预警模型：'+safe(info.modelVersion)+' ｜ 源预测：'+safe(info.sourceModelVersion)),el('p','','赛前冻结：'+fmtStamp(info.prematchAt)));
+      evidence.append(el('p','','索伦引擎赛前预警'),el('p','','赛前冻结：'+fmtStamp(info.prematchAt)));
       card.append(top,state,fixture,main,evidence);card.setAttribute('role','button');card.tabIndex=0;card.onclick=e=>{if(e.target.closest('details'))return;openDetail(row,false)};card.onkeydown=e=>{if(e.key==='Enter'&&e.target===card)openDetail(row,false)};return card;
     }
     function filterRows(rows){
@@ -499,8 +499,8 @@
       if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前冷门预警':state.model==='daily'?'暂无正式重心场次':'暂无已发布赛事',state.model==='upset'?'本日暂无具备独立赛前证据的冷门预警；单独HUR风险灯不生成方向。':'当前没有符合条件的正式竞足记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
-    function renderHome(){if(state.unopenedDate){const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(empty('赛事数据待更新','正在等待该日期比赛与预测同步。'));return}const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('冷门预警',all.length+'场 · 索伦引擎正式赛前预警',all);return}if(state.model==='overview'){renderCards('全场胜平负',all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦 '+safe(state.today?.modelVersion),all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('今日重心',focus.length+'场 · 仅展示有赛前重心标记的比赛'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无已确认重心场次','不以普通比赛临时凑数。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
-    function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 索伦 '+safe(state.today?.modelVersion),rows)}
+    function renderHome(){if(state.unopenedDate){const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(empty('赛事数据待更新','正在等待该日期比赛与预测同步。'));return}const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('冷门预警',all.length+'场 · 索伦引擎正式赛前预警',all);return}if(state.model==='overview'){renderCards('全场胜平负',all.length+'场 · 索伦引擎',all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦引擎',all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('今日重心',focus.length+'场 · 仅展示有赛前重心标记的比赛'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无已确认重心场次','不以普通比赛临时凑数。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
+    function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 索伦引擎',rows)}
     async function renderHistory(){
       if(state.unopenedDate){$('content').replaceChildren(empty('赛事数据待更新','可选择此前日期查看赛果。'));return}
       const box=$('content');box.replaceChildren(sectionHead('真实战绩','仅已核验赛果'));
@@ -513,7 +513,7 @@
       box.replaceChildren(sectionHead('我的','账户与设置'));
       box.append(accountPanel());
       const about=el('div','detail-card');
-      about.append(el('h2','','关于索伦'),el('p','sub','索伦引擎 '+safe(d?.modelVersion)),el('p','sub','数据更新：'+fmtStamp(d?.dataTime)));
+      about.append(el('h2','','关于索伦'),el('p','sub','索伦引擎'),el('p','sub','数据更新：'+fmtStamp(d?.dataTime)));
       box.append(about);
       box.append(engineIntroduction());
     }
@@ -611,7 +611,7 @@
           });
           changed.append(el('p','report-sub','威廉希尔 · 赔率采集于 '+fmtStamp(last.capturedAt)+'；变化不等于赛果判断'));intel.append(changed);
         }
-        if(riskText)reportLine(intel,'豪竞赛前风险',riskText);
+        if(riskText)reportLine(intel,'索伦引擎赛前风险',riskText);
         slot.append(intel);
       }
       renderHeroWeather(report.environment);
@@ -651,7 +651,7 @@
         }
         if(hasKelly){
           const k=reportSection('模型凯利参考');
-          reportOddsGrid(k,'豪竞参考凯利值 · 主胜 / 平局 / 客胜',report.modelOddsIndex.values.map(v=>Number(v).toFixed(4)));
+          reportOddsGrid(k,'索伦引擎参考凯利值 · 主胜 / 平局 / 客胜',report.modelOddsIndex.values.map(v=>Number(v).toFixed(4)));
           k.append(el('p','report-sub','赛前冻结模型概率 × 威廉希尔赛前欧赔。此数值不是机构公布的凯利指数，也不是收益承诺。'));
           reportLine(k,'模型冻结时间',fmtStamp(report.modelOddsIndex.probabilityAt));
           reportLine(k,'赔率采集时间',fmtStamp(report.modelOddsIndex.oddsAt));
@@ -710,7 +710,7 @@
       home.append(teamNode(row.home,row.homeLogo));away.append(teamNode(row.away,row.awayLogo));
       const center=el('div','');
       center.append(el('div','report-score',hasScore(row)?scoreline(row):'VS'),el('div','report-status',statusText(row,history)));
-      fixture.append(home,center,away);hero.append(fixture,el('div','report-meta','索伦引擎 · 豪竞 '+safe(row.version||state.today?.modelVersion)));c.append(hero);
+      fixture.append(home,center,away);hero.append(fixture,el('div','report-meta','索伦引擎'));c.append(hero);
 
       const summary=reportSection('本场速览');
       const choices=el('div','report-key-picks');
@@ -724,7 +724,7 @@
       if(hasOfficial||handicap.length)reportLine(summary,'官方让球 / 让球方向',(hasOfficial?String(row.officialHandicap):'—')+' / '+(handicap.length?handicap.join('、'):'未发布'));
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
       if([row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
-        reportProbability(summary,'豪竞赛前概率',['homeProbability','drawProbability','awayProbability'],row);
+        reportProbability(summary,'索伦引擎赛前概率',['homeProbability','drawProbability','awayProbability'],row);
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
       c.append(summary);
 
@@ -743,7 +743,7 @@
         review.append(el('p','report-sub','评测仅在赛前预测落库、赛果核验后进行。'));c.append(review);
       }
       const audit=reportDisclosure('预测来源与数据说明');
-      if(reportHas(row.version))reportLine(audit,'模型版本',row.version);
+      
       if(reportHas(row.frozenAt))reportLine(audit,'模型冻结',fmtStamp(row.frozenAt));
       if(reportHas(row.dq))reportLine(audit,'数据质量',row.dq);
       if(reportHas(row.handicapSourceLabel))reportLine(audit,'让球数据来源',row.handicapSourceLabel);
@@ -837,7 +837,7 @@
         rememberDay(d);applyDay(d)
       }catch(e){if(requestId!==dateRequestId)return;if(state.baseDate&&date>state.baseDate){showUnopened(date);return}$('content').replaceChildren(errorBox(e))}
     }
-    function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦 '+safe(d.modelVersion);$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
+    function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦引擎';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];requestAnimationFrame(()=>{if(state.model===b.dataset.model)render()})});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;render()});
