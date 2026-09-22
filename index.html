@@ -175,6 +175,7 @@
     .report-more>.score-top4,.report-more>.goals-panel{margin:0 14px 13px}
     .report-professional:empty{display:none}
     @media(max-width:380px){.report-key-picks{gap:7px}.report-main-pick,.report-alt-pick{padding:10px}}
+    .auth-remember{display:flex;align-items:center;gap:8px;font-size:12px;color:#64746a;margin:12px 0;line-height:1.5}.auth-remember input{width:16px;height:16px;flex:0 0 16px;accent-color:#2b7150}.auth-retry{max-width:420px;margin:10vh auto;padding:25px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -250,13 +251,113 @@
     </div>
   </nav>
   <script>
-    const AUTH_BASE='https://ttydbcejxqxdkcfoizkj.supabase.co';const AUTH_KEY='sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa';let authSession=null;
-    async function authRequest(path,body){const res=await fetch(AUTH_BASE+'/auth/v1/'+path,{method:'POST',headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(body)});const json=await res.json();if(!res.ok)throw Error(json.msg||json.error_description||json.message||'请求失败');return json}
-    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(el('div','sub','已登录：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>{authSession=null;sessionStorage.removeItem('soren_auth');location.reload()};wrap.append(out);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';wrap.append(email,pass);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value});if(data.access_token&&data.user){authSession={user:data.user,access_token:data.access_token};sessionStorage.setItem('soren_auth',JSON.stringify(authSession));renderProfile()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
+    const AUTH_BASE='https://ttydbcejxqxdkcfoizkj.supabase.co';const AUTH_KEY='sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa';
+    const AUTH_STORE='soren_auth_v2',LEGACY_AUTH_STORE='soren_auth';
+    let authSession=null,authPersistence='session',authRefreshPending=null;
+    const storageRead=(store,key)=>{try{return store.getItem(key)}catch{return null}};
+    const storageWrite=(store,key,value)=>{try{store.setItem(key,value);return true}catch{return false}};
+    const storageDelete=(store,key)=>{try{store.removeItem(key)}catch{}};
+    function clearAuthSession(){
+      authSession=null;authRefreshPending=null;
+      storageDelete(localStorage,AUTH_STORE);storageDelete(sessionStorage,AUTH_STORE);
+      storageDelete(sessionStorage,LEGACY_AUTH_STORE);
+    }
+    function storedAuth(){
+      for(const [store,mode,key] of [[localStorage,'local',AUTH_STORE],[sessionStorage,'session',AUTH_STORE],[sessionStorage,'session',LEGACY_AUTH_STORE]]){
+        try{const saved=JSON.parse(storageRead(store,key)||'null');if(saved?.access_token&&saved?.user){authPersistence=mode;return saved}}catch{}
+      }
+      return null;
+    }
+    function saveAuthSession(data,remember=authPersistence==='local'){
+      if(!data?.access_token||!data?.user)throw Error('登录信息不完整，请重新登录');
+      const previous=authSession;
+      const expires=Number(data.expires_at);
+      const ttl=Number(data.expires_in);
+      authSession={user:data.user,access_token:data.access_token,
+        refresh_token:data.refresh_token||previous?.refresh_token||null,
+        expires_at:Number.isFinite(expires)&&expires>0?expires*1000:
+          Number.isFinite(ttl)&&ttl>0?Date.now()+ttl*1000:Date.now()+45*60000};
+      const serialized=JSON.stringify(authSession);
+      storageDelete(localStorage,AUTH_STORE);storageDelete(sessionStorage,AUTH_STORE);
+      storageDelete(sessionStorage,LEGACY_AUTH_STORE);
+      authPersistence=remember?'local':'session';
+      let stored=storageWrite(remember?localStorage:sessionStorage,AUTH_STORE,serialized);
+      if(!stored&&remember){authPersistence='session';stored=storageWrite(sessionStorage,AUTH_STORE,serialized)}
+      return stored&&authPersistence==='local';
+    }
+    async function authRequest(path,body){
+      const res=await fetch(AUTH_BASE+'/auth/v1/'+path,{method:'POST',
+        headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(body),cache:'no-store'});
+      const json=await res.json();
+      if(!res.ok){const err=Error(json.msg||json.error_description||json.message||'请求失败');err.status=res.status;throw err}
+      return json;
+    }
+    async function refreshAuthSession(force=false){
+      if(authRefreshPending)return authRefreshPending;
+      authRefreshPending=(async()=>{
+        const current=authSession;
+        if(!current?.access_token)throw Error('LOGIN_REQUIRED');
+        if(!force&&current.expires_at&&current.expires_at>Date.now()+120000)return current.access_token;
+        if(!current.refresh_token){clearAuthSession();throw Error('LOGIN_REQUIRED')}
+        try{
+          const updated=await authRequest('token?grant_type=refresh_token',{refresh_token:current.refresh_token});
+          if(!updated.access_token||!updated.refresh_token||!updated.user)throw Error('SESSION_REFRESH_INCOMPLETE');
+          saveAuthSession(updated,authPersistence==='local');return authSession.access_token;
+        }catch(error){
+          // Another tab might have rotated the token; reuse its stored session before asking for a password.
+          const parallel=storedAuth();
+          if(parallel?.access_token&&parallel.refresh_token&&parallel.refresh_token!==current.refresh_token){
+            authSession=parallel;return refreshAuthSession(force);
+          }
+          if([400,401,403].includes(error.status)||error.message==='SESSION_REFRESH_INCOMPLETE')clearAuthSession();
+          throw error;
+        }
+      })();
+      try{return await authRefreshPending}finally{authRefreshPending=null}
+    }
+    async function verifiedAuthToken(){
+      if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
+      await refreshAuthSession();
+      const check=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store'});
+      if(check.status===401){
+        await refreshAuthSession(true);
+        const retry=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store'});
+        if(retry.status===401){clearAuthSession();throw Error('LOGIN_REQUIRED')}
+        if(!retry.ok)throw Error('登录状态核验暂时失败（HTTP '+retry.status+'）');
+        const user=await retry.json();
+        if(!user?.id||user.id!==authSession.user?.id){clearAuthSession();throw Error('LOGIN_REQUIRED')}
+        authSession.user=user;saveAuthSession(authSession,authPersistence==='local');
+        return authSession.access_token;
+      }
+      if(!check.ok)throw Error('登录状态核验暂时失败（HTTP '+check.status+'）');
+      const user=await check.json();
+      if(!user?.id||user.id!==authSession.user?.id){clearAuthSession();throw Error('LOGIN_REQUIRED')}
+      authSession.user=user;return authSession.access_token;
+    }
+    async function authorizedApiFetch(url,options={}){
+      if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
+      await refreshAuthSession();
+      const request=()=>fetch(url,{...options,headers:{...(options.headers||{}),Authorization:'Bearer '+authSession.access_token}});
+      let response=await request();
+      if(response.status===401&&authSession?.refresh_token){
+        await refreshAuthSession(true);response=await request();
+      }
+      if(response.status===401){clearAuthSession();showLoginGate('登录已过期，请重新登录');throw Error('LOGIN_REQUIRED')}
+      return response;
+    }
+    async function logoutAuth(){
+      const old=authSession;clearAuthSession();
+      if(old?.access_token){try{await fetch(AUTH_BASE+'/auth/v1/logout?scope=local',{
+        method:'POST',headers:{apikey:AUTH_KEY,Authorization:'Bearer '+old.access_token},
+        signal:AbortSignal.timeout(5000),cache:'no-store'});}catch{}}
+      location.reload();
+    }
+
+    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(el('div','sub','已登录：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();wrap.append(out);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
     async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id})});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
-    try{const saved=JSON.parse(sessionStorage.getItem('soren_auth')||'null');if(saved?.access_token&&saved?.user)authSession=saved}catch(e){}initVisits();
+    authSession=storedAuth();initVisits();
     const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
-    function showLoginGate(){document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';let gate=document.getElementById('loginGate');if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:10vh auto;padding:25px';document.body.append(gate)}gate.replaceChildren();const h=document.createElement('h2');h.textContent='索伦引擎 · 会员登录';const note=document.createElement('p');note.textContent='使用邮箱和密码注册或登录，无需填写验证码';gate.append(h,note);const email=document.createElement('input'),pass=document.createElement('input'),msg=document.createElement('p');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';gate.append(email,pass,msg);const saveSession=data=>{authSession={user:data.user,access_token:data.access_token};sessionStorage.setItem('soren_auth',JSON.stringify(authSession));location.reload()};for(const mode of ['登录','注册']){const btn=document.createElement('button');btn.textContent=mode;btn.onclick=async()=>{if(!email.value.trim()||!pass.value){msg.textContent='请填写邮箱和密码';return}if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}btn.disabled=true;msg.textContent='处理中…';try{const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value});if(data.access_token&&data.user)saveSession(data);else msg.textContent='当前服务器仍要求邮箱确认，注册尚未完成。请管理员在 Supabase 关闭 Confirm email 后重试。'}catch(e){msg.textContent=e.message}finally{btn.disabled=false}};gate.append(btn)}const recover=document.createElement('button');recover.textContent='忘记密码';recover.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='已请求发送密码重置邮件'}catch(e){msg.textContent=e.message}};gate.append(recover)}
+    function showLoginGate(message=''){document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';let gate=document.getElementById('loginGate');if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:10vh auto;padding:25px';document.body.append(gate)}gate.replaceChildren();const h=document.createElement('h2');h.textContent='索伦引擎 · 会员登录';const note=document.createElement('p');note.textContent='使用邮箱和密码注册或登录，无需填写验证码';gate.append(h,note);const email=document.createElement('input'),pass=document.createElement('input'),msg=document.createElement('p');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=document.createElement('label'),remember=document.createElement('input');rememberLabel.className='auth-remember';remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,document.createTextNode('在此设备保持登录（共用设备请取消）'));gate.append(email,pass,rememberLabel,msg);if(message)msg.textContent=message;const saveSession=data=>{const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器无法保存登录状态，下次可能需要重新登录';location.reload()};for(const mode of ['登录','注册']){const btn=document.createElement('button');btn.textContent=mode;btn.onclick=async()=>{if(!email.value.trim()||!pass.value){msg.textContent='请填写邮箱和密码';return}if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}btn.disabled=true;msg.textContent='处理中…';try{const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value});if(data.access_token&&data.user)saveSession(data);else msg.textContent='当前服务器仍要求邮箱确认，注册尚未完成。请管理员在 Supabase 关闭 Confirm email 后重试。'}catch(e){msg.textContent=e.message}finally{btn.disabled=false}};gate.append(btn)}const recover=document.createElement('button');recover.textContent='忘记密码';recover.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='已请求发送密码重置邮件'}catch(e){msg.textContent=e.message}};gate.append(recover)}
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null};
     const ARCHIVED_FOCUS={
       '2026-09-13':['002','006','008','009','020','022','023'],
@@ -922,28 +1023,27 @@
     const professionalReportCache=new Map();
     async function loadProfessionalDetail(row,slot,context){
       const key=String(row.date||state.selectedDate)+'|'+String(row.no).padStart(3,'0');
-      const token=authSession?.access_token;
       const cached=professionalReportCache.get(key);
       const useReport=report=>{
         if(state.selected!==row)return;
         slot.replaceChildren();
         appendProfessionalReport(slot,report,context);
       };
-      if(cached&&cached.token===token&&Date.now()-cached.at<4*60*1000){
+      if(cached&&cached.token===authSession?.access_token&&Date.now()-cached.at<4*60*1000){
         useReport(cached.report);return;
       }
       slot.replaceChildren(el('p','report-loading','正在读取本场赛前资料…'));
       try{
         const params=new URLSearchParams({view:'report',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
         const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);let response;
-        try{response=await fetch(API+'?'+params.toString(),{cache:'no-store',signal:ctrl.signal,headers:{Authorization:'Bearer '+token}})}
+        try{response=await authorizedApiFetch(API+'?'+params.toString(),{cache:'no-store',signal:ctrl.signal})}
         finally{clearTimeout(timer)}
         if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();
         if(!data.ok||!data.report||data.report.home!==row.home||data.report.away!==row.away)throw Error('场次或来源不匹配');
-        if(state.selected!==row||authSession?.access_token!==token)return;
+        if(state.selected!==row||!authSession?.access_token)return;
         professionalReportCache.delete(key);
-        professionalReportCache.set(key,{token,at:Date.now(),report:data.report});
+        professionalReportCache.set(key,{token:authSession.access_token,at:Date.now(),report:data.report});
         while(professionalReportCache.size>12)professionalReportCache.delete(professionalReportCache.keys().next().value);
         useReport(data.report);
       }catch(err){
@@ -1065,7 +1165,7 @@
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
     function render(){closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile';if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
-    async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await fetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal,headers:{Authorization:'Bearer '+authSession.access_token}});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
+    async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
@@ -1106,11 +1206,30 @@
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}render()});
     $('back').onclick=closeDetail;
-    if(!authSession?.access_token){showLoginGate()}else load('archive').then(async latest=>{state.baseDate=latest.date;rememberDay(latest);const today=beijingToday();let d=latest;if(today!==latest.date){d=await load('archive',today);if(d.date!==today||!Array.isArray(d.rows)||!d.rows.length){showUnopened(today);return}}state.unopenedDate=null;state.futureDate=null;state.today=d;rememberDay(d);state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
+    function showAuthRetry(error){
+      document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';
+      const gate=document.getElementById('loginGate')||document.createElement('div');
+      gate.id='loginGate';gate.className='account-panel auth-retry';
+      gate.replaceChildren(el('h2','','索伦引擎'),el('p','',error||'正在核验登录状态，请检查网络后重试'));
+      const retry=el('button','','重新连接');retry.onclick=()=>location.reload();gate.append(retry);
+      if(!gate.isConnected)document.body.append(gate);
+    }
+    async function beginAuthenticatedApp(){
+      if(!authSession?.access_token){showLoginGate();return}
+      showAuthRetry('正在恢复登录状态…');
+      try{await verifiedAuthToken()}catch(error){
+        if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('请登录以继续使用索伦引擎');return}
+        showAuthRetry('网络暂不可用，登录信息已保留，请稍后重新连接');return;
+      }
+      const gate=document.getElementById('loginGate');if(gate)gate.remove();
+      document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
+      load('archive').then(async latest=>{state.baseDate=latest.date;rememberDay(latest);const today=beijingToday();let d=latest;if(today!==latest.date){d=await load('archive',today);if(d.date!==today||!Array.isArray(d.rows)||!d.rows.length){showUnopened(today);return}}state.unopenedDate=null;state.futureDate=null;state.today=d;rememberDay(d);state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';$('content').replaceChildren(errorBox(e));buildDates()});
+    }
+    beginAuthenticatedApp();
     // Keep following the newest published match day without disrupting manual history browsing.
     let syncInFlight=false;
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshPublishedData()});
-    setInterval(()=>{if(!document.hidden)refreshPublishedData()},300000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&authSession?.access_token){refreshAuthSession().then(()=>refreshPublishedData()).catch(e=>console.warn('会话续期暂不可用',e))}});
+    setInterval(()=>{if(!document.hidden&&authSession?.access_token){refreshAuthSession().then(()=>refreshPublishedData()).catch(e=>console.warn('会话续期暂不可用',e))}},300000);
     async function refreshPublishedData(){
       if(syncInFlight||!state.selectedDate||state.selectedDate===state.futureDate)return;
       syncInFlight=true;
