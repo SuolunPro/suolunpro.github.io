@@ -895,7 +895,8 @@
       if(!hero||!anchor)return;
       anchor.replaceChildren();
       hero.querySelector('.report-venue-line')?.remove();
-      if(!environment?.venueName)return;
+      // Missing cache entries must be visible as missing, not silently erase this section.
+      const hasVenue=typeof environment?.venueName==='string'&&environment.venueName.trim().length>1;
       const num=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
       const temp=num(environment.temperatureC),humidity=num(environment.humidityPct);
       const rain=num(environment.precipitationProbabilityPct),wind=num(environment.windKmh);
@@ -906,7 +907,12 @@
         const secondary=[rain!==null?'降雨 '+rain.toFixed(0)+'%':null,wind!==null?'风 '+wind.toFixed(1)+'km/h':null].filter(Boolean);
         if(secondary.length)pill.append(el('small','',secondary.join(' · ')));
         anchor.append(pill);
+      }else{
+        const pill=el('div','report-weather-pill report-weather-pending');
+        pill.append(el('small','','开球时段天气'),el('strong','','暂无已核验预报'));
+        anchor.append(pill);
       }
+      if(!hasVenue){hero.append(el('div','report-venue-line','球场 · 暂无已核验资料'));return;}
       const surface=chinesePitchSurface(environment.pitchSurface);
       const displayed=localizedVenueName(environment.venueName);
       const venue=el('div','report-venue-line','球场 · '+displayed);
@@ -1117,6 +1123,7 @@
       audit.append(el('p','report-sub','赛前预测、后续盘口和媒体消息采集时间可能不同；未确认数据不填造。'));
       c.append(audit);
       c.append(el('div','report-disclaimer','仅供足球赛事数据研究参考，不构成投注建议或收益承诺。'));
+      renderHeroWeather(null);
       loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot});
       window.scrollTo({top:0,behavior:'instant'});
     }
