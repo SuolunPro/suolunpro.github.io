@@ -964,7 +964,7 @@
         if(riskText&&!context?.summary)reportLine(intel,'索伦引擎赛前风险',riskText);
         slot.append(intel);
       }
-      renderHeroWeather(report.environment);
+      renderHeroWeather(report.environment??context?.fallbackEnvironment??null);
       const hasOdds=!!(last||first||(report.market?.asian??[]).some(x=>x.current||x.initial));
       const hasKelly=report.modelOddsIndex?.values?.length===3;
       const elo=report.feature?.elo,ai=report.feature?.kickoffAi;
@@ -1123,8 +1123,8 @@
       audit.append(el('p','report-sub','赛前预测、后续盘口和媒体消息采集时间可能不同；未确认数据不填造。'));
       c.append(audit);
       c.append(el('div','report-disclaimer','仅供足球赛事数据研究参考，不构成投注建议或收益承诺。'));
-      renderHeroWeather(null);
-      loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot});
+      renderHeroWeather(row.environment??null);
+      loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot,fallbackEnvironment:row.environment??null});
       window.scrollTo({top:0,behavior:'instant'});
     }
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
