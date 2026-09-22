@@ -111,7 +111,10 @@
     .overview-ft-name{font-size:20px;line-height:1.25;color:#20242b}
     .overview-ft-pct{font-size:13px;color:#666f7e}
     .overview-ft-result{font-size:11px;color:#14845f;font-weight:650}
-  </style>
+  
+    /* Professional match report: scoped to detail view, homepage untouched */
+    .detail .detail-body{padding:0 0 28px}.detail .detail-card{padding:0;background:#f4f6f5;box-shadow:none;border-radius:0}.report-hero{background:linear-gradient(145deg,#101e1b,#213b32);color:#fff;padding:22px 16px 25px;text-align:center}.report-meta{font-size:12px;color:#c4d6cf;line-height:1.8}.report-fixture{display:grid;grid-template-columns:minmax(0,1fr) 82px minmax(0,1fr);align-items:center;gap:6px;margin:20px 0 10px}.report-team{display:grid;justify-items:center;gap:8px;min-width:0;font-weight:800;font-size:15px;overflow-wrap:anywhere}.report-team .crest{width:57px;height:57px}.report-score{font-size:25px;font-weight:900;font-variant-numeric:tabular-nums}.report-status{font-size:11px;color:#c4d6cf;margin-top:5px}.report-section{margin:12px 12px 0;padding:16px;background:#fff;border-radius:14px;box-shadow:0 2px 12px #00000008}.report-section h3{font-size:16px;margin:0 0 12px;color:#1d302a}.report-sub{color:#748079;font-size:11px;line-height:1.65;margin:8px 0}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.report-cell{background:#f2f6f3;border-radius:10px;text-align:center;padding:12px 5px;min-width:0}.report-cell small{display:block;color:#728077;font-size:11px;margin-bottom:6px}.report-cell strong{display:block;color:#203a31;font-size:18px;overflow-wrap:anywhere}.report-line{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #edf0ed;padding:11px 0;font-size:13px;line-height:1.5}.report-line span{color:#748079}.report-line b{text-align:right;overflow-wrap:anywhere}.report-section .riskbox{margin-top:12px}.report-empty{font-size:12px;color:#79847e;line-height:1.7}.report-disclaimer{margin:14px 12px;padding:14px;border-radius:12px;background:#e8eeea;color:#59685e;font-size:11px;line-height:1.8}
+</style>
 </head>
 <body>
   <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="索伦引擎欢迎页">
@@ -514,30 +517,27 @@
       panel.append(el('p','goals-note','Top1—Top3任一命中计入总进球正式命中率；Top4、Top5、Top6仅供参考，不计入评测。总进球评测与胜平负、全场让球独立。'));
       return panel;
     }
+    function reportSection(title){const section=el('section','report-section');section.append(el('h3','',title));return section}
+    function reportLine(parent,label,value){const line=el('div','report-line');line.append(el('span','',label),el('b','',safe(value)));parent.append(line)}
+    function reportProbability(parent,label,fields,row){const wrap=el('div','report-grid');fields.forEach((field,i)=>{const cell=el('div','report-cell');cell.append(el('small','',['主胜','平局','客胜'][i]),el('strong','',probability(row[field])));wrap.append(cell)});parent.append(el('p','report-sub',label),wrap)}
     function openDetail(row,history){
       state.selected=row;$('main').classList.add('hide');$('detail').classList.add('show');
       const c=$('detailCard');c.replaceChildren();
-      const detailTeams=el('div','team-list');
-      detailTeams.style.cssText='margin:12px 0;gap:10px';
-      detailTeams.append(teamNode(row.home,row.homeLogo),teamNode(row.away,row.awayLogo));
-      c.append(el('span',statusClass(row,history),statusText(row,history)),detailTeams,el('div','sub',[safe(row.no),safe(row.league),fmtTime(row.kickoff),'北京时间'].join(' · ')));
-      const detailRows=[['全场比分',scoreline(row)],['正式赛果',verified(row)?resultName[row.result]||row.result:'未确认'],['FT首选',row.ftTop1],['第二方向',row.second],['评测口径','综合评测仅胜平负首选或次选任一命中；让球单独评测'],['当日版本',row.version],['官方让球',row.officialHandicap],['让球首选',row.handicapTop1??row.handicap],['让球首选概率',probability(row.handicapProbability)],['让球次选',row.handicapSecond],['让球次选概率',probability(row.handicapSecondProbability)],['概率来源',row.handicapProbabilitySource],['预测来源',row.handicapSourceLabel],['来源版本',row.handicapSourceVersion],['来源修订',row.handicapSourceRevision],['让球冻结时间',fmtStamp(row.handicapFrozenAt)],['重建版本',row.handicapReconstructionVersion],['首选评测',row.handicapTop1Hit==null?'等待赛果':row.handicapTop1Hit?'命中':'未中'],['双选覆盖评测',row.handicapCoverageHit==null?'等待赛果':row.handicapCoverageHit?'命中':'未中'],['FT Top1概率',row.confidence==null?'未确认':row.confidence+'%'],['冻结时间',fmtStamp(row.frozenAt)]];
-      const a=el('details','riskbox');a.append(el('summary','','完整赛前记录与数据来源（点击展开）'));const audit=el('div','audit');detailRows.forEach(([k,v])=>{const x=el('div','audit-item');x.append(el('span','',k),el('b','',safe(v)));audit.append(x)});a.append(audit);c.append(a);
-      const comparison=el('details','riskbox');comparison.append(el('summary','','市场 / 独立模型 / 最终概率对比（点击展开）'));
-      const probabilityGroups=[
-        ['市场概率',['marketHomeProbability','marketDrawProbability','marketAwayProbability']],
-        ['独立模型',['independentHomeProbability','independentDrawProbability','independentAwayProbability']],
-        ['最终概率',['homeProbability','drawProbability','awayProbability']]
-      ];
-      const comparisonTable=el('div','audit');
-      const header=el('div','audit-item');header.append(el('span','','概率来源'),el('b','','主胜 / 平局 / 客胜'));comparisonTable.append(header);
-      probabilityGroups.forEach(([label,fields])=>{const item=el('div','audit-item');item.append(el('span','',label),el('b','',fields.map(key=>probability(row[key])).join(' / ')));comparisonTable.append(item)});
-      comparison.append(comparisonTable,el('p','sub','仅展示已公开的赛前冻结概率；缺失项显示未确认，不使用市场概率代替独立模型概率。'));c.append(comparison);
-      if(state.model==='goals')c.append(goalPredictionPanel(row));
-      if(state.model==='score')c.append(scoreTop4Panel(row));
-      const hand=el('div','riskbox');hand.append(el('h3','','让球说明'),el('p','',safe(row.handicapAnalysis)));c.append(hand);
-      if(history){const summary=state.model==='handicap'?'比分：'+scoreline(row)+' · 让球首选：'+safe(row.handicapTop1??row.handicap)+' · 次选：'+safe(row.handicapSecond)+' · 让球赛果：'+safe(row.handicapResult)+' · '+( !handicapEvaluable(row)?'未发布有效赛前让球预测':evaluationHit(row)?'评测成功':'评测未中'):'比分：'+scoreline(row)+' · 赛果：'+safe(resultName[row.result]||row.result)+' · 首选 '+(pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中')+' · 次选 '+(pickCode[row.second]===normalizeResult(row.result)?'命中':'未中')+(state.model==='overview'?' · 让球 '+(handicapHit(row)?'命中':'未中'):'')+' · '+(evaluationHit(row)?'评测成功':'评测未中');c.append(el('div','history-result',summary))}
-      window.scrollTo({top:0,behavior:'smooth'})
+      const hero=el('header','report-hero');hero.append(el('div','report-meta',[safe(row.league),safe(row.no),fmtTime(row.kickoff),'北京时间'].join(' · ')));
+      const fixture=el('div','report-fixture');
+      const home=el('div','report-team'),away=el('div','report-team');
+      home.append(teamNode(row.home,row.homeLogo));away.append(teamNode(row.away,row.awayLogo));
+      const center=el('div','');center.append(el('div','report-score',hasScore(row)?scoreline(row):'VS'),el('div','report-status',statusText(row,history)));
+      fixture.append(home,center,away);hero.append(fixture,el('div','report-meta','索伦引擎 · 豪竞 '+safe(row.version||state.today?.modelVersion)));c.append(hero);
+      const core=reportSection('01 · 核心研判');reportLine(core,'胜平负首选',row.ftTop1);reportLine(core,'第二方向',row.second);reportLine(core,'官方让球',row.officialHandicap);reportLine(core,'让球首选 / 次选',safe(row.handicapTop1??row.handicap)+' / '+safe(row.handicapSecond));reportLine(core,'赛前冻结时间',fmtStamp(row.frozenAt));c.append(core);
+      const probs=reportSection('02 · 胜平负概率对比');reportProbability(probs,'豪竞最终概率',['homeProbability','drawProbability','awayProbability'],row);const market=['marketHomeProbability','marketDrawProbability','marketAwayProbability'];if(market.some(k=>row[k]!=null))reportProbability(probs,'市场隐含概率',market,row);const independent=['independentHomeProbability','independentDrawProbability','independentAwayProbability'];if(independent.some(k=>row[k]!=null))reportProbability(probs,'独立模型概率',independent,row);probs.append(el('p','report-sub','仅展示接口已提供的赛前概率，缺失项不推算或补造。'));c.append(probs);
+      const risk=reportSection('03 · 盘口与风险');reportLine(risk,'官方让球',row.officialHandicap);reportLine(risk,'让球首选概率',probability(row.handicapProbability));reportLine(risk,'让球次选概率',probability(row.handicapSecondProbability));reportLine(risk,'让球分析',row.handicapAnalysis);risk.append(el('p','report-sub','赔率走势、平局雷达与伤停情报须由对应赛前快照核验后接入，不以预测方向代替原始数据。'));c.append(risk);
+      const score=reportSection('04 · 泊松比分与总进球');score.append(scoreTop4Panel(row),goalPredictionPanel(row));c.append(score);
+      const injuries=reportSection('05 · 核心伤停与阵容');injuries.append(el('p','report-empty','当前客户接口未提供已核验的逐场球员伤停名单，暂不展示球员姓名及伤停原因。'));c.append(injuries);
+      const review=reportSection('06 · 综合分析与赛果评测');reportLine(review,'赛前首选',row.ftTop1);reportLine(review,'赛前第二方向',row.second);reportLine(review,'赛果',verified(row)?resultName[row.result]||row.result:'等待核验');reportLine(review,'综合评测',verified(row)?evaluationHit(row)?'评测成功':'评测未中':'等待赛果');review.append(el('p','report-sub','赛前预测与赛后结算分别展示，历史重建预测以其原有来源标识为准。'));c.append(review);
+      const audit=el('details','report-section');audit.append(el('summary','','完整赛前记录与来源'));[['模型版本',row.version],['冻结时间',fmtStamp(row.frozenAt)],['让球预测来源',row.handicapSourceLabel],['让球冻结时间',fmtStamp(row.handicapFrozenAt)],['数据质量',row.dq]].forEach(([k,v])=>reportLine(audit,k,v));c.append(audit);
+      c.append(el('div','report-disclaimer','重要声明：本页面基于历史赛事数据、市场信息及模型分析，仅供足球赛事研究与交流参考，不构成投注建议或收益承诺。预测结果存在不确定性。'));
+      window.scrollTo({top:0,behavior:'instant'});
     }
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
     function errorBox(e){const x=el('div','error');x.append(el('b','','正式接口暂不可用'),el('div','',safe(e?.message||e)+'。页面不会使用模拟数据代替。'));return x}
