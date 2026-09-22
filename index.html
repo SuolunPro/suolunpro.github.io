@@ -566,6 +566,34 @@
       panel.append(el('p','goals-note',goalsShadow?'此模型使用球队赛前近6场历史进球、失球，不是严格xG正式预测；所有方向仅供参考，不进入正式命中率。':'Top1—Top3任一命中计入总进球正式命中率；Top4、Top5、Top6仅供参考，不计入评测。总进球评测与胜平负、全场让球独立。'));
       return panel;
     }
+    function teamSchedulePanel(row){
+      const info=row.teamSchedule;
+      if(!info||info.verified!==true||!info.capturedAt)return null;
+      const panel=reportSection('近期赛程与休息时间');
+      const captured=Date.parse(info.capturedAt),kick=Date.parse(row.kickoff);
+      if(!Number.isFinite(captured)||!Number.isFinite(kick)||captured>=kick)return null;
+      const age=Date.now()-captured;
+      if(kick>Date.now()&&age>24*3600000){
+        panel.append(el('p','report-sub','赛程正在更新，最新安排尚未重新核验。'));
+        return panel;
+      }
+      const sides=[[row.home,info.home],[row.away,info.away]];
+      for(const [team,plan] of sides){
+        if(!plan||plan.next7Verified!==true)continue;
+        panel.append(el('p','report-sub',String(team)+' · 近期赛程'));
+        const previous=plan.lastMatch;
+        reportLine(panel,'上一场',previous?(fmtTime(previous.kickoffAt)+' · '+String(previous.venue||'')+'对 '+String(previous.opponent||'未确认')):'近期赛程未确认');
+        if(previous&&Number.isFinite(Number(plan.restDays)))reportLine(panel,'本场赛前休息',Number(plan.restDays).toFixed(1)+'天（按开球间隔）');
+        reportLine(panel,'本场后7天赛程',Number.isInteger(plan.next7Count)?plan.next7Count+'场':'未确认');
+        const next=plan.nextMatch;
+        if(next&&next.kickoffAt)reportLine(panel,'下一场',fmtTime(next.kickoffAt)+' · '+String(next.venue||'')+'对 '+String(next.opponent||'未确认')+(next.competition?' · '+String(next.competition):''));
+        else panel.append(el('p','report-sub','未来7天暂无已核实赛程；实际安排可能调整。'));
+        const nextFew=Array.isArray(plan.next7)?plan.next7.slice(1,3):[];
+        for(const upcoming of nextFew)if(upcoming?.kickoffAt)reportLine(panel,'后续赛程',fmtTime(upcoming.kickoffAt)+' · 对 '+String(upcoming.opponent||'未确认'));
+      }
+      panel.append(el('p','report-sub','数据来源：FotMob · 更新于 '+fmtStamp(info.capturedAt)+'。赛程可能变动；休息天数仅按开球时间计算，不等于实际恢复情况。'));
+      return panel;
+    }
     function reportSection(title){const section=el('section','report-section');section.append(el('h3','',title));return section}
     function reportLine(parent,label,value){const line=el('div','report-line');line.append(el('span','',label),el('b','',safe(value)));parent.append(line)}
     function reportProbability(parent,label,fields,row){const wrap=el('div','report-grid');fields.forEach((field,i)=>{const cell=el('div','report-cell');cell.append(el('small','',['主胜','平局','客胜'][i]),el('strong','',probability(row[field])));wrap.append(cell)});parent.append(el('p','report-sub',label),wrap)}
@@ -902,6 +930,7 @@
         reportProbability(summary,'索伦引擎赛前概率',['homeProbability','drawProbability','awayProbability'],row);
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
       c.append(summary);
+      const teamSchedule=teamSchedulePanel(row);if(teamSchedule)c.append(teamSchedule);
 
       const professionalSlot=el('div','report-professional');c.append(professionalSlot);
       if(scoreInfo(row)||publishedGoalLambda(row)!==null){
