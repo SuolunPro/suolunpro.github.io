@@ -142,6 +142,8 @@
 
   
     .report-venue{font-weight:700;font-size:14px;color:#203a31;margin-bottom:10px;overflow-wrap:anywhere}.report-weather-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.report-weather-cell{background:#f2f6f3;border-radius:9px;padding:9px 4px;min-width:0;text-align:center}.report-weather-cell small{font-size:10px;color:#718075;display:block;margin-bottom:5px}.report-weather-cell strong{font-size:14px;color:#203a31;white-space:nowrap}@media(max-width:360px){.report-weather-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  
+    .report-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;min-height:32px}.report-meta-left{flex:1;min-width:0;text-align:left}.report-weather-anchor:empty{display:none}.report-weather-pill{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:6px 9px;max-width:164px;text-align:right;color:#fff}.report-weather-pill small{display:block;color:#c6e0d5;font-size:10px;line-height:1.5}.report-weather-pill strong{display:block;font-size:12px;line-height:1.5;white-space:normal;overflow-wrap:anywhere}.report-venue-line{margin:6px 0 0;font-size:11px;color:#c6d8d0;line-height:1.5;overflow-wrap:anywhere}
   </style>
 </head>
 <body>
@@ -562,6 +564,29 @@
       const details=el('details','report-section report-more'),summary=el('summary','',title);
       details.append(summary);return details;
     }
+    function renderHeroWeather(environment){
+      const hero=$('detailCard')?.querySelector('.report-hero');
+      const anchor=hero?.querySelector('.report-weather-anchor');
+      if(!hero||!anchor)return;
+      anchor.replaceChildren();
+      hero.querySelector('.report-venue-line')?.remove();
+      if(!environment?.venueName)return;
+      const num=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
+      const temp=num(environment.temperatureC),humidity=num(environment.humidityPct);
+      const rain=num(environment.precipitationProbabilityPct),wind=num(environment.windKmh);
+      if(temp!==null||humidity!==null){
+        const pill=el('div','report-weather-pill');
+        pill.append(el('small','','开球时段预报'));
+        pill.append(el('strong','',[temp!==null?temp.toFixed(1)+'°C':null,humidity!==null?'湿度 '+humidity.toFixed(0)+'%':null].filter(Boolean).join(' · ')));
+        const secondary=[rain!==null?'降雨 '+rain.toFixed(0)+'%':null,wind!==null?'风 '+wind.toFixed(1)+'km/h':null].filter(Boolean);
+        if(secondary.length)pill.append(el('small','',secondary.join(' · ')));
+        anchor.append(pill);
+      }
+      const venue=el('div','report-venue-line','球场 · '+String(environment.venueName));
+      if(environment.venueCity)venue.append(el('span','',' · '+String(environment.venueCity)));
+      venue.title='球场来自 FotMob；开球时段天气来自 Open-Meteo 赛前预报，并非实测天气。';
+      hero.append(venue);
+    }
     function appendProfessionalReport(slot,report){
       const stories=Array.isArray(report.intelligence?.articles)?report.intelligence.articles.filter(x=>{
         try{const u=new URL(String(x.url||''));return u.protocol==='https:'&&u.hostname==='sports.sina.com.cn'&&u.pathname.startsWith('/l/')}
@@ -589,34 +614,7 @@
         if(riskText)reportLine(intel,'豪竞赛前风险',riskText);
         slot.append(intel);
       }
-      const environment=report.environment;
-      if(environment?.venueName){
-        const env=reportSection('球场与开球时段天气');
-        const city=reportHas(environment.venueCity)?' · '+environment.venueCity:'';
-        env.append(el('div','report-venue',environment.venueName+city));
-        const fields=[
-          ['气温',environment.temperatureC,'°C'],
-          ['湿度',environment.humidityPct,'%'],
-          ['降雨概率',environment.precipitationProbabilityPct,'%'],
-          ['风速',environment.windKmh,' km/h']
-        ];
-        const cards=el('div','report-weather-grid');let count=0;
-        fields.forEach(([name,value,unit])=>{
-          if(value===null||value===undefined||!Number.isFinite(Number(value)))return;
-          const item=el('div','report-weather-cell');
-          item.append(el('small','',String(name)),el('strong','',Number(value).toFixed(name==='气温'||name==='风速'?1:0)+unit));
-          cards.append(item);count++;
-        });
-        if(count)env.append(cards);
-        const metadata=[];
-        if(environment.pitchSurface==='grass')metadata.push('草地');
-        else if(environment.pitchSurface==='artificial')metadata.push('人工草皮');
-        if(environment.forecastTime)metadata.push('预报对应 '+fmtStamp(environment.forecastTime));
-        if(environment.fetchedAt)metadata.push('赛前采集 '+fmtStamp(environment.fetchedAt));
-        if(metadata.length)env.append(el('p','report-sub',metadata.join(' · ')));
-        env.append(el('p','report-sub','赛前天气预报，不是比赛实际天气；历史天气数据来源：Open-Meteo（CC BY 4.0），场地来自历史比赛元数据。'));
-        slot.append(env);
-      }
+      renderHeroWeather(report.environment);
       const hasOdds=!!(last||first||(report.market?.asian??[]).some(x=>x.current||x.initial));
       const hasKelly=report.modelOddsIndex?.values?.length===3;
       const elo=report.feature?.elo,ai=report.feature?.kickoffAi;
@@ -705,7 +703,9 @@
       state.selected=row;$('main').classList.add('hide');$('detail').classList.add('show');
       const c=$('detailCard');c.replaceChildren();
       const hero=el('header','report-hero');
-      hero.append(el('div','report-meta',[safe(row.league),safe(row.no),fmtTime(row.kickoff),'北京时间'].join(' · ')));
+      const heroTop=el('div','report-hero-top');
+      heroTop.append(el('div','report-meta report-meta-left',[safe(row.league),safe(row.no),fmtTime(row.kickoff),'北京时间'].join(' · ')),el('div','report-weather-anchor'));
+      hero.append(heroTop);
       const fixture=el('div','report-fixture'),home=el('div','report-team'),away=el('div','report-team');
       home.append(teamNode(row.home,row.homeLogo));away.append(teamNode(row.away,row.awayLogo));
       const center=el('div','');
