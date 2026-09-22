@@ -701,7 +701,7 @@
       }
       const surface=chinesePitchSurface(environment.pitchSurface);
       const displayed=localizedVenueName(environment.venueName);
-      const venue=el('div','report-venue-line',(environment.venueRecoveredAfterKickoff?'球场（赛后核对） · ':'球场 · ')+displayed);
+      const venue=el('div','report-venue-line','球场 · '+displayed);
       if(surface)venue.append(el('span','report-surface-badge',' · '+surface));
       if(environment.venueCity)venue.append(el('span','',' · '+String(environment.venueCity)));
       venue.title='球场原名：'+String(environment.venueName)+'。'+(environment.venueRecoveredAfterKickoff?'球场资料来自赛后匹配的 FotMob 比赛记录；没有可核验的赛前天气。':'球场资料来自 FotMob；若有天气数值，来源为 Open-Meteo 赛前预报。');
