@@ -898,8 +898,8 @@
       // Missing cache entries must be visible as missing, not silently erase this section.
       const hasVenue=typeof environment?.venueName==='string'&&environment.venueName.trim().length>1;
       const num=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
-      const temp=num(environment.temperatureC),humidity=num(environment.humidityPct);
-      const rain=num(environment.precipitationProbabilityPct),wind=num(environment.windKmh);
+      const temp=num(environment?.temperatureC),humidity=num(environment?.humidityPct);
+      const rain=num(environment?.precipitationProbabilityPct),wind=num(environment?.windKmh);
       if(temp!==null||humidity!==null){
         const pill=el('div','report-weather-pill');
         pill.append(el('small','','开球时段预报'));
