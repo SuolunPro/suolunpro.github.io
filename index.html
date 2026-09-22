@@ -546,16 +546,23 @@
         });
       }else market.append(el('p','report-empty','本场机构亚盘赛前快照未确认。'));
       market.append(el('p','report-sub','机构来源以实际快照为准；没有澳门快照时不冒充澳门盘口。'));slot.append(market);
-      const k=reportSection('05 · 凯利与模型信心');
-      if(report.kelly?.percent){reportOddsGrid(k,'模型理论凯利比例（非机构公布凯利指数）',report.kelly.percent.map(v=>v+'%'));
-        k.append(el('p','report-sub','计算口径：max(0,(模型概率×十进制赔率−1)/(赔率−1))。以冻结模型概率和标注时间的欧赔计算；仅为数学分析指标，不代表投注建议。'));
-      }else k.append(el('p','report-empty','缺少赛前冻结模型概率或对应欧赔，无法计算理论凯利比例。'));
+      const k=reportSection('05 · 凯利参考值与模型信心');
+      if(report.modelOddsIndex?.values?.length===3){
+        reportOddsGrid(k,'豪竞参考凯利值 · 主胜 / 平局 / 客胜',report.modelOddsIndex.values.map(v=>Number(v).toFixed(4)));
+        k.append(el('p','report-sub','参考口径：豪竞赛前冻结概率 × 威廉希尔所示赛前欧赔；不同于需要多家公司赔率平均概率的机构凯利指数。'));
+        reportLine(k,'模型概率冻结时间',fmtStamp(report.modelOddsIndex.probabilityAt));
+        reportLine(k,'威廉欧赔采集时间',fmtStamp(report.modelOddsIndex.oddsAt));
+      }else{
+        k.append(el('p','report-empty','本场缺少匹配的豪竞赛前冻结概率或威廉欧赔，无法计算凯利参考值。'));
+      }
+      if(report.kelly?.percent?.length===3)
+        reportLine(k,'另：理论凯利资金比例',report.kelly.percent.map(v=>Number(v).toFixed(1)+'%').join(' / '));
       reportLine(k,'豪竞首选信心',probability(report.model?.confidence));
       reportLine(k,'赛前质量',report.model?.dq);
       reportLine(k,'原预测冻结时间',fmtStamp(report.model?.frozenAt));
       if(report.model?.reason)reportLine(k,'正式判断依据',report.model.reason);
       if(report.model?.riskAnalysis)reportLine(k,'风险复核',report.model.riskAnalysis);
-      k.append(el('p','report-sub','机构公布凯利指数与市场热度尚无经核实的数据来源，不显示自造指标。'));slot.append(k);
+      k.append(el('p','report-sub','机构凯利指数需同一时间多家公司欧赔计算市场平均概率；当前只有威廉希尔主欧赔链，不把豪竞参考值冒充机构公布指数。市场热度亦未确认。'));slot.append(k);
       const independent=reportSection('06 · 独立实力与赛前情报');
       const elo=report.feature?.elo,ai=report.feature?.kickoffAi;
       if(elo&&elo.home!==null&&elo.away!==null){
