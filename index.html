@@ -275,8 +275,8 @@
       const ttl=Number(data.expires_in);
       authSession={user:data.user,access_token:data.access_token,
         refresh_token:data.refresh_token||previous?.refresh_token||null,
-        expires_at:Number.isFinite(expires)&&expires>0?expires*1000:
-          Number.isFinite(ttl)&&ttl>0?Date.now()+ttl*1000:Date.now()+45*60000};
+        expires_at:Number.isFinite(ttl)&&ttl>0?Date.now()+ttl*1000:
+          Number.isFinite(expires)&&expires>0?(expires>1e12?expires:expires*1000):Date.now()+45*60000};
       const serialized=JSON.stringify(authSession);
       storageDelete(localStorage,AUTH_STORE);storageDelete(sessionStorage,AUTH_STORE);
       storageDelete(sessionStorage,LEGACY_AUTH_STORE);
@@ -298,7 +298,10 @@
         const current=authSession;
         if(!current?.access_token)throw Error('LOGIN_REQUIRED');
         if(!force&&current.expires_at&&current.expires_at>Date.now()+120000)return current.access_token;
-        if(!current.refresh_token){clearAuthSession();throw Error('LOGIN_REQUIRED')}
+        if(!current.refresh_token){
+          if(!force&&(!current.expires_at||current.expires_at>Date.now()+60000))return current.access_token;
+          clearAuthSession();throw Error('LOGIN_REQUIRED');
+        }
         try{
           const updated=await authRequest('token?grant_type=refresh_token',{refresh_token:current.refresh_token});
           if(!updated.access_token||!updated.refresh_token||!updated.user)throw Error('SESSION_REFRESH_INCOMPLETE');
@@ -307,7 +310,9 @@
           // Another tab might have rotated the token; reuse its stored session before asking for a password.
           const parallel=storedAuth();
           if(parallel?.access_token&&parallel.refresh_token&&parallel.refresh_token!==current.refresh_token){
-            authSession=parallel;return refreshAuthSession(force);
+            authSession=parallel;
+            if(!parallel.expires_at||parallel.expires_at>Date.now()+30000)return parallel.access_token;
+            throw Error('SESSION_REFRESH_RETRY');
           }
           if([400,401,403].includes(error.status)||error.message==='SESSION_REFRESH_INCOMPLETE')clearAuthSession();
           throw error;
