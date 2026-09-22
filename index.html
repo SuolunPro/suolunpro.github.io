@@ -359,7 +359,7 @@
     }
 
     function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(el('div','sub','已登录：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();wrap.append(out);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
-    async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id})});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
+    async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id}),signal:AbortSignal.timeout(6000)});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
     authSession=storedAuth();initVisits();
     const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
     function showLoginGate(message=''){document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';let gate=document.getElementById('loginGate');if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:10vh auto;padding:25px';document.body.append(gate)}gate.replaceChildren();const h=document.createElement('h2');h.textContent='索伦引擎 · 会员登录';const note=document.createElement('p');note.textContent='使用邮箱和密码注册或登录，无需填写验证码';gate.append(h,note);const email=document.createElement('input'),pass=document.createElement('input'),msg=document.createElement('p');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=document.createElement('label'),remember=document.createElement('input');rememberLabel.className='auth-remember';remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,document.createTextNode('在此设备保持登录（共用设备请取消）'));gate.append(email,pass,rememberLabel,msg);if(message)msg.textContent=message;const saveSession=data=>{const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器无法保存登录状态，下次可能需要重新登录';location.reload()};for(const mode of ['登录','注册']){const btn=document.createElement('button');btn.textContent=mode;btn.onclick=async()=>{if(!email.value.trim()||!pass.value){msg.textContent='请填写邮箱和密码';return}if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}btn.disabled=true;msg.textContent='处理中…';try{const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value});if(data.access_token&&data.user)saveSession(data);else msg.textContent='当前服务器仍要求邮箱确认，注册尚未完成。请管理员在 Supabase 关闭 Confirm email 后重试。'}catch(e){msg.textContent=e.message}finally{btn.disabled=false}};gate.append(btn)}const recover=document.createElement('button');recover.textContent='忘记密码';recover.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='已请求发送密码重置邮件'}catch(e){msg.textContent=e.message}};gate.append(recover)}
@@ -401,8 +401,10 @@
       upset:['索伦冷门预警','显示主队不败或客队不败的正式赛前预警']
     };
     const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
-    function fmtTime(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
-    function fmtStamp(v){if(!v)return '未确认';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(v))}catch{return '未确认'}}
+    const matchTimeFormatter=new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
+    const matchStampFormatter=new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    function fmtTime(v){if(!v)return '未确认';try{return matchTimeFormatter.format(new Date(v))}catch{return '未确认'}}
+    function fmtStamp(v){if(!v)return '未确认';try{return matchStampFormatter.format(new Date(v))}catch{return '未确认'}}
     function initial(name){const s=safe(name);return s==='未确认'?'?':s.replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g,'').slice(0,1).toUpperCase()||'?'}
     function crestNode(name,logo){
       const crest=el('span','crest',logo?'':initial(name));
@@ -1186,7 +1188,9 @@
         b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
     }
     // Keep a short-lived in-memory copy of already opened days; never alter the source data.
-    const dayCache=new Map();let dateRequestId=0;
+    const dayCache=new Map(),dayRequests=new Map();let dateRequestId=0;
+    // Deduplicate simultaneous reads of the same day; keep source data only in memory.
+    function readDay(date){const key=date||'latest';if(dayRequests.has(key))return dayRequests.get(key);const request=load('archive',date).finally(()=>{if(dayRequests.get(key)===request)dayRequests.delete(key)});dayRequests.set(key,request);return request}
     function rememberDay(d){if(d&&d.date&&Array.isArray(d.rows)){dayCache.delete(d.date);dayCache.set(d.date,{data:d,at:Date.now()});while(dayCache.size>7)dayCache.delete(dayCache.keys().next().value)}}
     function cachedDay(date){const entry=dayCache.get(date);return entry&&Date.now()-entry.at<120000?entry.data:null}
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
@@ -1200,7 +1204,7 @@
       state.selectedDate=date;buildDates();
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
       try{
-        const d=await load('archive',date);
+        const d=await readDay(date);
         if(requestId!==dateRequestId)return;
         if(state.baseDate&&date>state.baseDate&&(!d||d.date!==date||!Array.isArray(d.rows)||!d.rows.length)){showUnopened(date);return}
         rememberDay(d);applyDay(d)
@@ -1228,7 +1232,7 @@
       }
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
-      const today=beijingToday();load('archive',today).then(d=>{state.baseDate=d.date||today;rememberDay(d);if(d.date!==today||!d.rows.length){showUnopened(today);return}applyDay(d)}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
+      const today=beijingToday();readDay(today).then(d=>{state.baseDate=d.date||today;rememberDay(d);if(d.date!==today||!d.rows.length){showUnopened(today);return}applyDay(d)}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
     }
     beginAuthenticatedApp();
     // Keep following the newest published match day without disrupting manual history browsing.
@@ -1239,10 +1243,17 @@
       if(syncInFlight||!state.selectedDate||state.selectedDate===state.futureDate)return;
       syncInFlight=true;
       try{
-        const followingLatest=state.selectedDate===state.baseDate&&state.selectedDate!==beijingToday();
-        const d=await load('archive',followingLatest?undefined:state.selectedDate);
-        if(followingLatest){state.baseDate=d.date;if(state.unopenedDate&&state.unopenedDate>d.date){buildDates();return}state.selectedDate=d.date;state.unopenedDate=null}else if(d.date!==state.selectedDate)return;
-        state.today=d;rememberDay(d);const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);if(!state.selected)render();
+        const previousDate=state.selectedDate;
+        const followingLatest=previousDate===state.baseDate&&previousDate!==beijingToday();
+        const d=await readDay(followingLatest?undefined:previousDate);
+        // A manual date change while refreshing must win over an older response.
+        if(state.selectedDate!==previousDate)return;
+        if(followingLatest){state.baseDate=d.date;if(state.unopenedDate&&state.unopenedDate>d.date){buildDates();return}state.selectedDate=d.date;state.unopenedDate=null}else if(d.date!==previousDate)return;
+        rememberDay(d);
+        // The API issues a new updatedAt per request even when the match records are unchanged.
+        // Do not rebuild dozens of cards or reset the customer's scroll position for identical data.
+        if(state.today?.date===d.date&&JSON.stringify(state.today.rows)===JSON.stringify(d.rows))return;
+        state.today=d;const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);if(!state.selected)render();
       }catch(e){console.warn('正式数据刷新失败',e)}finally{syncInFlight=false}
     }
   </script>
