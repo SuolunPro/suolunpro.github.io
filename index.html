@@ -116,6 +116,30 @@
     .detail .detail-body{padding:0 0 28px}.detail .detail-card{padding:0;background:#f4f6f5;box-shadow:none;border-radius:0}.report-hero{background:linear-gradient(145deg,#101e1b,#213b32);color:#fff;padding:22px 16px 25px;text-align:center}.report-meta{font-size:12px;color:#c4d6cf;line-height:1.8}.report-fixture{display:grid;grid-template-columns:minmax(0,1fr) 82px minmax(0,1fr);align-items:center;gap:6px;margin:20px 0 10px}.report-team{display:grid;justify-items:center;gap:8px;min-width:0;font-weight:800;font-size:15px;overflow-wrap:anywhere}.report-team .crest{width:57px;height:57px}.report-score{font-size:25px;font-weight:900;font-variant-numeric:tabular-nums}.report-status{font-size:11px;color:#c4d6cf;margin-top:5px}.report-section{margin:12px 12px 0;padding:16px;background:#fff;border-radius:14px;box-shadow:0 2px 12px #00000008}.report-section h3{font-size:16px;margin:0 0 12px;color:#1d302a}.report-sub{color:#748079;font-size:11px;line-height:1.65;margin:8px 0}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.report-cell{background:#f2f6f3;border-radius:10px;text-align:center;padding:12px 5px;min-width:0}.report-cell small{display:block;color:#728077;font-size:11px;margin-bottom:6px}.report-cell strong{display:block;color:#203a31;font-size:18px;overflow-wrap:anywhere}.report-line{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #edf0ed;padding:11px 0;font-size:13px;line-height:1.5}.report-line span{color:#748079}.report-line b{text-align:right;overflow-wrap:anywhere}.report-section .riskbox{margin-top:12px}.report-empty{font-size:12px;color:#79847e;line-height:1.7}.report-disclaimer{margin:14px 12px;padding:14px;border-radius:12px;background:#e8eeea;color:#59685e;font-size:11px;line-height:1.8}
 
     .report-story{padding:12px 0;border-top:1px solid #e9eeea}.report-story-link{color:#176f57;text-decoration:none;font-size:14px;font-weight:700;line-height:1.6;overflow-wrap:anywhere;display:block}.report-story-link:after{content:' ↗';font-weight:400}.report-story .report-sub{margin:4px 0}
+  
+    .report-section{margin:12px 12px 0;padding:15px 16px}
+    .report-section h3{margin:0 0 12px;font-size:16px}
+    .report-key-picks{display:flex;gap:10px;margin-bottom:10px}
+    .report-main-pick,.report-alt-pick{min-width:0;flex:1;background:#eaf2ed;border-radius:11px;padding:12px}
+    .report-main-pick{flex:1.3}
+    .report-main-pick small,.report-alt-pick small{display:block;color:#718075;font-size:11px;margin-bottom:5px}
+    .report-main-pick strong{font-size:20px;color:#1f644a}
+    .report-alt-pick strong{font-size:17px;color:#2d4236}
+    .report-main-pick strong,.report-alt-pick strong{display:block;overflow-wrap:anywhere}
+    .report-more{padding:0;overflow:hidden}
+    .report-more>summary{cursor:pointer;padding:15px 16px;font-size:13px;font-weight:750;color:#2c5a44;list-style:revert}
+    .report-more>summary::marker{color:#397e60}
+    .report-more>.report-section{margin:0;padding:12px 15px;border-top:1px solid #e9efeb;border-radius:0;box-shadow:none}
+    .report-coverage{margin:10px 12px 0;padding:12px 14px;border-radius:11px;background:#eef2ef;color:#607367;font-size:11px;line-height:1.65}
+    .report-coverage b{font-size:12px;color:#476452}
+    .report-coverage p{margin:5px 0 0}
+    .report-loading{margin:10px 12px;color:#607367;font-size:12px}
+    .report-story{padding:9px 0}
+    .report-story+.report-story{border-top:1px solid #edf1ed}
+    .report-sub{font-size:11px}
+    .report-line{padding:8px 0}
+    @media(max-width:380px){.report-fixture{grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr)}.report-team .crest{width:46px;height:46px}.report-section{padding:13px}.report-cell{padding:10px 3px}.report-cell strong{font-size:15px}}
+
   </style>
 </head>
 <body>
@@ -529,124 +553,174 @@
         const cell=el('div','report-cell'),value=values?.[i];cell.append(el('small','',name),el('strong','',value===null||value===undefined?'未确认':String(value)));grid.append(cell)
       });section.append(el('p','report-sub',label),grid)
     }
-    function appendProfessionalReport(slot,report){
-      const intel=reportSection('04 · 赛事情报 · 赛前数据与媒体来源');
-      const stories=Array.isArray(report.intelligence?.articles)?report.intelligence.articles:[];
-      if(stories.length){
-        stories.forEach(item=>{
-          const url=String(item.url||'');
-          let allowed=false;
-          try{const u=new URL(url);allowed=u.protocol==='https:'&&u.hostname==='sports.sina.com.cn'&&u.pathname.startsWith('/l/')}catch{}
-          if(!allowed)return;
-          const box=el('div','report-story');
-          const title=el('a','report-story-link',String(item.title||'').replace(/^\[小炮APP\]竞彩情报：/,''));
-          title.href=url;title.target='_blank';title.rel='noopener noreferrer';
-          box.append(title,el('p','report-sub','来源：新浪彩票 · 发表于 '+fmtStamp(item.publishedAt)+' · 点击阅读原文'));
-          box.append(el('p','report-sub','本场主客队已匹配；媒体报道内容尚未独立核实。'));
-          if(Array.isArray(item.sections)&&item.sections.some(x=>String(x).includes('伤停')))
-            box.append(el('p','report-sub','原文涉及伤停或缺阵，具体球员及出场状态请以赛前官方名单为准。'));
-          intel.append(box);
-        });
-      }else intel.append(el('p','report-empty','暂未采集到与本场主客队严格匹配、且发表于开球前的媒体报道。'));
-      const oddsBefore=report.market?.european?.initial,oddsNow=report.market?.european?.current;
-      if(oddsBefore&&oddsNow){
-        const directions=[['主胜','home'],['平局','draw'],['客胜','away']];
-        let total=0;
-        directions.forEach(([name,key])=>{
-          const a=Number(oddsBefore[key]),b=Number(oddsNow[key]);
-          if(!Number.isFinite(a)||!Number.isFinite(b)||a<=1||b<=1||Math.abs(a-b)<0.015||total>=3)return;
-          reportLine(intel,'赛前赔率变化 · '+name,a.toFixed(2)+' → '+b.toFixed(2)+'（'+(b<a?'下调':'上调')+'）');total++;
-        });
-        if(total)intel.append(el('p','report-sub','数据情报来自威廉希尔已缓存的赛前欧赔；赔率变化不代表确定赛果。'));
-      }
-      if(report.model?.riskAnalysis)reportLine(intel,'豪竞赛前风险记录',report.model.riskAnalysis);
-      slot.append(intel);
 
-      const europe=report.market?.european;
-      const market=reportSection('05 · 机构赔率与盘口变化');
-      if(europe?.current){
-        reportOddsGrid(market,'威廉希尔 · 初赔（主胜、平局、客胜）',europe.initial?[europe.initial.home,europe.initial.draw,europe.initial.away]:null);
-        reportOddsGrid(market,'威廉希尔 · 最新赛前欧赔',[europe.current.home,europe.current.draw,europe.current.away]);
-        reportLine(market,'赔率采集时间',fmtStamp(europe.current.capturedAt));
-        if(europe.fairProbability)reportOddsGrid(market,'欧赔归一化隐含概率（非豪竞预测）',europe.fairProbability.map(v=>v+'%'));
-      }else market.append(el('p','report-empty','本场威廉希尔赛前欧赔未确认。'));
-      const asian=report.market?.asian??[];
-      if(asian.length){
-        asian.forEach(item=>{
-          const fmtLine=x=>{if(!x)return '未确认';const line=x.lineText??x.line;return (line===null||line===undefined?'盘口未确认':String(line))+' · 主水 '+safe(x.homeWater)+' / 客水 '+safe(x.awayWater)};
-          market.append(el('p','report-sub',item.institution+' · 同机构亚盘'));
-          reportLine(market,'初盘',fmtLine(item.initial));reportLine(market,'最新赛前盘口',fmtLine(item.current));
-          if(item.current)reportLine(market,'采集时间',fmtStamp(item.current.capturedAt));
+    const reportHas=v=>v!==null&&v!==undefined&&String(v).trim()!==''&&String(v)!=='未确认'&&String(v)!=='PASS';
+    const reportTriplet=a=>Array.isArray(a)&&a.length===3&&a.every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v))&&Number(v)>=0&&Number(v)<=100);
+    function reportDisclosure(title){
+      const details=el('details','report-section report-more'),summary=el('summary','',title);
+      details.append(summary);return details;
+    }
+    function appendProfessionalReport(slot,report){
+      const stories=Array.isArray(report.intelligence?.articles)?report.intelligence.articles.filter(x=>{
+        try{const u=new URL(String(x.url||''));return u.protocol==='https:'&&u.hostname==='sports.sina.com.cn'&&u.pathname.startsWith('/l/')}
+        catch{return false}
+      }):[];
+      const market=report.market?.european??null,first=market?.initial,last=market?.current;
+      const meaningfulChange=first&&last?['home','draw','away'].some(k=>Number.isFinite(Number(first[k]))&&Number.isFinite(Number(last[k]))&&Number(first[k])>1&&Number(last[k])>1&&Math.abs(Number(first[k])-Number(last[k]))>=0.015):false;
+      const riskText=reportHas(report.model?.riskAnalysis)&&!String(report.model.riskAnalysis).includes('已通过正式赛前质量核验')?String(report.model.riskAnalysis):null;
+      if(stories.length||meaningfulChange||riskText){
+        const intel=reportSection('赛事情报与关注点');
+        stories.forEach(item=>{
+          const article=el('div','report-story'),title=el('a','report-story-link',String(item.title||'赛前报道').replace(/^\[小炮APP\]竞彩情报：/,''));
+          title.href=item.url;title.target='_blank';title.rel='noopener noreferrer';
+          article.append(title,el('p','report-sub','新浪彩票 · '+fmtStamp(item.publishedAt)+' · 媒体观点，点击阅读原文'));intel.append(article);
         });
-      }else market.append(el('p','report-empty','本场机构亚盘赛前快照未确认。'));
-      market.append(el('p','report-sub','机构来源以实际快照为准；没有澳门快照时不冒充澳门盘口。'));slot.append(market);
-      const k=reportSection('06 · 凯利参考值与模型信心');
-      if(report.modelOddsIndex?.values?.length===3){
-        reportOddsGrid(k,'豪竞参考凯利值 · 主胜 / 平局 / 客胜',report.modelOddsIndex.values.map(v=>Number(v).toFixed(4)));
-        k.append(el('p','report-sub','参考口径：豪竞赛前冻结概率 × 威廉希尔所示赛前欧赔；不同于需要多家公司赔率平均概率的机构凯利指数。'));
-        reportLine(k,'模型概率冻结时间',fmtStamp(report.modelOddsIndex.probabilityAt));
-        reportLine(k,'威廉欧赔采集时间',fmtStamp(report.modelOddsIndex.oddsAt));
-      }else{
-        k.append(el('p','report-empty','本场缺少匹配的豪竞赛前冻结概率或威廉欧赔，无法计算凯利参考值。'));
+        if(meaningfulChange){
+          const changed=el('div','report-story');
+          changed.append(el('b','','赛前市场变化'));
+          [['主胜','home'],['平局','draw'],['客胜','away']].forEach(([label,key])=>{
+            const a=Number(first[key]),b=Number(last[key]);
+            if(a>1&&b>1&&Math.abs(a-b)>=0.015)reportLine(changed,label,a.toFixed(2)+' → '+b.toFixed(2));
+          });
+          changed.append(el('p','report-sub','威廉希尔 · 赔率采集于 '+fmtStamp(last.capturedAt)+'；变化不等于赛果判断'));intel.append(changed);
+        }
+        if(riskText)reportLine(intel,'豪竞赛前风险',riskText);
+        slot.append(intel);
       }
-      if(report.kelly?.percent?.length===3)
-        reportLine(k,'另：理论凯利资金比例',report.kelly.percent.map(v=>Number(v).toFixed(1)+'%').join(' / '));
-      reportLine(k,'豪竞首选信心',probability(report.model?.confidence));
-      reportLine(k,'赛前质量',report.model?.dq);
-      reportLine(k,'原预测冻结时间',fmtStamp(report.model?.frozenAt));
-      if(report.model?.reason)reportLine(k,'正式判断依据',report.model.reason);
-      if(report.model?.riskAnalysis)reportLine(k,'风险复核',report.model.riskAnalysis);
-      k.append(el('p','report-sub','机构凯利指数需同一时间多家公司欧赔计算市场平均概率；当前只有威廉希尔主欧赔链，不把豪竞参考值冒充机构公布指数。市场热度亦未确认。'));slot.append(k);
-      const independent=reportSection('07 · 独立实力与赛前情报');
+      const hasOdds=!!(last||first||(report.market?.asian??[]).some(x=>x.current||x.initial));
+      const hasKelly=report.modelOddsIndex?.values?.length===3;
       const elo=report.feature?.elo,ai=report.feature?.kickoffAi;
-      if(elo&&elo.home!==null&&elo.away!==null){
-        reportLine(independent,'主队 Elo',Number(elo.home).toFixed(1));reportLine(independent,'客队 Elo',Number(elo.away).toFixed(1));
-        reportLine(independent,'实力差（主－客）',elo.diff==null?'未确认':Number(elo.diff).toFixed(1));
-        reportLine(independent,'数据标记',elo.shadow?'独立影子研究值':'独立实力锚点');
-        reportLine(independent,'采集时间',fmtStamp(elo.at));
-      }else independent.append(el('p','report-empty','本场赛前 Elo 未确认。'));
-      if(ai&&[ai.home,ai.draw,ai.away].every(v=>v!==null)){
-        reportOddsGrid(independent,'Kickoff.ai 赛前概率',[ai.home,ai.draw,ai.away].map(v=>probability(v)));
-        reportLine(independent,'独立预测采集时间',fmtStamp(ai.at));
-      }else independent.append(el('p','report-empty','本场 Kickoff.ai 概率未确认。'));
-      independent.append(el('p','report-sub','球员级伤停尚未在索伦客户库逐场核验，不展示无法核实的名单。'));slot.append(independent);
-      slot.append(el('p','report-disclaimer',safe(report.capturedLimit)));
+      const hasElo=!!(elo&&elo.home!==null&&elo.away!==null&&Number.isFinite(Number(elo.home))&&Number.isFinite(Number(elo.away)));
+      const hasAi=!!(ai&&reportTriplet([ai.home,ai.draw,ai.away]));
+      const hasDetail=hasOdds||hasKelly||hasElo||hasAi;
+      if(hasDetail){
+        const detail=reportDisclosure('展开查看专业数据 · 赔率 / 凯利 / 独立模型');
+        if(hasOdds){
+          const odds=reportSection('机构赔率与盘口');
+          if(first&&[first.home,first.draw,first.away].every(v=>Number.isFinite(Number(v))&&Number(v)>1))
+            reportOddsGrid(odds,'威廉希尔初赔',[first.home,first.draw,first.away]);
+          if(last&&[last.home,last.draw,last.away].every(v=>Number.isFinite(Number(v))&&Number(v)>1)){
+            reportOddsGrid(odds,'威廉希尔最新赛前欧赔',[last.home,last.draw,last.away]);
+            reportLine(odds,'赔率采集时间',fmtStamp(last.capturedAt));
+          }
+          (report.market?.asian??[]).forEach(item=>{
+            const quote=item.current??item.initial;
+            if(!quote)return;
+            const name=String(item.institution||'机构');
+            const format=x=>{
+              if(!x)return null;
+              const value=x.lineText??x.line;
+              const water=[];
+              if(x.homeWater!==null&&x.homeWater!==undefined)water.push('主水'+x.homeWater);
+              if(x.awayWater!==null&&x.awayWater!==undefined)water.push('客水'+x.awayWater);
+              return [value===null||value===undefined?'盘口待核验':String(value),...water].join(' · ');
+            };
+            const initial=format(item.initial),current=format(item.current);
+            if(initial)reportLine(odds,name+'初盘',initial);
+            if(current)reportLine(odds,name+'赛前盘口',current);
+          });
+          detail.append(odds);
+        }
+        if(hasKelly){
+          const k=reportSection('模型凯利参考');
+          reportOddsGrid(k,'豪竞参考凯利值 · 主胜 / 平局 / 客胜',report.modelOddsIndex.values.map(v=>Number(v).toFixed(4)));
+          k.append(el('p','report-sub','赛前冻结模型概率 × 威廉希尔赛前欧赔。此数值不是机构公布的凯利指数，也不是收益承诺。'));
+          reportLine(k,'模型冻结时间',fmtStamp(report.modelOddsIndex.probabilityAt));
+          reportLine(k,'赔率采集时间',fmtStamp(report.modelOddsIndex.oddsAt));
+          detail.append(k);
+        }
+        if(hasElo||hasAi){
+          const independent=reportSection('独立数据');
+          if(hasElo){
+            reportLine(independent,'Elo 实力值',Number(elo.home).toFixed(1)+' / '+Number(elo.away).toFixed(1));
+            if(elo.diff!==null&&elo.diff!==undefined&&Number.isFinite(Number(elo.diff)))
+              reportLine(independent,'主客实力差',Number(elo.diff).toFixed(1));
+            if(elo.shadow)independent.append(el('p','report-sub','Elo 为影子研究数据。'));
+          }
+          if(hasAi)reportOddsGrid(independent,'Kickoff.ai 赛前概率',[ai.home,ai.draw,ai.away].map(v=>probability(v)));
+          detail.append(independent);
+        }
+        slot.append(detail);
+      }
+      const coverage=el('div','report-coverage');
+      const missing=[];
+      if(!stories.length)missing.push('球队媒体情报');
+      if(report.injuries?.status!=='VERIFIED')missing.push('逐人核验伤停');
+      if(!hasOdds)missing.push('机构盘口');
+      if(!hasKelly)missing.push('凯利参考值');
+      if(!hasElo&&!hasAi)missing.push('独立实力/预测');
+      coverage.append(el('b','','数据覆盖说明'),
+        el('p','',missing.length?'本场暂缺已核验的'+missing.join('、')+'；未使用推测数据填充。':'已展示本场可核验的赛前数据；媒体报道不等于官方确认。'));
+      if(last?.capturedAt)coverage.append(el('p','','市场最近采集：'+fmtStamp(last.capturedAt)+' · 原预测与后续赔率并非同一时点'));
+      slot.append(coverage);
     }
     async function loadProfessionalDetail(row,slot){
-      slot.replaceChildren(el('p','report-disclaimer','正在读取已缓存的赛前专业报告…'));
+      slot.replaceChildren(el('p','report-loading','正在加载赛前数据…'));
       try{
         const params=new URLSearchParams({view:'report',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
         const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);let response;
         try{response=await fetch(API+'?'+params.toString(),{cache:'no-store',signal:ctrl.signal,headers:{Authorization:'Bearer '+authSession.access_token}})}
         finally{clearTimeout(timer)}
-        if(!response.ok)throw Error('专业数据接口 HTTP '+response.status);
+        if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();
-        if(!data.ok||!data.report||data.report.home!==row.home||data.report.away!==row.away)throw Error('赛前场次未匹配或数据缺失');
+        if(!data.ok||!data.report||data.report.home!==row.home||data.report.away!==row.away)throw Error('场次或来源不匹配');
         if(state.selected!==row)return;
         slot.replaceChildren();appendProfessionalReport(slot,data.report);
       }catch(err){
         if(state.selected!==row)return;
-        slot.replaceChildren(el('p','report-disclaimer','专业数据尚未确认：'+safe(err?.message||err)+'。原始预测和赛果保持不变。'));
+        slot.replaceChildren(el('div','report-coverage','扩展资料暂时无法读取（'+safe(err?.message||err)+'）；赛前预测与已核验赛果照常展示。'));
       }
     }
     function openDetail(row,history){
       state.selected=row;$('main').classList.add('hide');$('detail').classList.add('show');
       const c=$('detailCard');c.replaceChildren();
-      const hero=el('header','report-hero');hero.append(el('div','report-meta',[safe(row.league),safe(row.no),fmtTime(row.kickoff),'北京时间'].join(' · ')));
-      const fixture=el('div','report-fixture');
-      const home=el('div','report-team'),away=el('div','report-team');
+      const hero=el('header','report-hero');
+      hero.append(el('div','report-meta',[safe(row.league),safe(row.no),fmtTime(row.kickoff),'北京时间'].join(' · ')));
+      const fixture=el('div','report-fixture'),home=el('div','report-team'),away=el('div','report-team');
       home.append(teamNode(row.home,row.homeLogo));away.append(teamNode(row.away,row.awayLogo));
-      const center=el('div','');center.append(el('div','report-score',hasScore(row)?scoreline(row):'VS'),el('div','report-status',statusText(row,history)));
+      const center=el('div','');
+      center.append(el('div','report-score',hasScore(row)?scoreline(row):'VS'),el('div','report-status',statusText(row,history)));
       fixture.append(home,center,away);hero.append(fixture,el('div','report-meta','索伦引擎 · 豪竞 '+safe(row.version||state.today?.modelVersion)));c.append(hero);
-      const core=reportSection('01 · 核心研判');reportLine(core,'胜平负首选',row.ftTop1);reportLine(core,'第二方向',row.second);reportLine(core,'官方让球',row.officialHandicap);reportLine(core,'让球首选 / 次选',safe(row.handicapTop1??row.handicap)+' / '+safe(row.handicapSecond));reportLine(core,'赛前冻结时间',fmtStamp(row.frozenAt));c.append(core);
-      const probs=reportSection('02 · 胜平负概率对比');reportProbability(probs,'豪竞最终概率',['homeProbability','drawProbability','awayProbability'],row);const market=['marketHomeProbability','marketDrawProbability','marketAwayProbability'];if(market.some(k=>row[k]!=null))reportProbability(probs,'市场隐含概率',market,row);const independent=['independentHomeProbability','independentDrawProbability','independentAwayProbability'];if(independent.some(k=>row[k]!=null))reportProbability(probs,'独立模型概率',independent,row);probs.append(el('p','report-sub','仅展示接口已提供的赛前概率，缺失项不推算或补造。'));c.append(probs);
-      const risk=reportSection('03 · 盘口与风险');reportLine(risk,'官方让球',row.officialHandicap);reportLine(risk,'让球首选概率',probability(row.handicapProbability));reportLine(risk,'让球次选概率',probability(row.handicapSecondProbability));reportLine(risk,'让球分析',row.handicapAnalysis);risk.append(el('p','report-sub','赔率走势、平局雷达与伤停情报须由对应赛前快照核验后接入，不以预测方向代替原始数据。'));c.append(risk);
-      const professionalSlot=el('div','');c.append(professionalSlot);
-      const score=reportSection('08 · 泊松比分与总进球');score.append(scoreTop4Panel(row),goalPredictionPanel(row));c.append(score);
-      const injuries=reportSection('09 · 核心伤停与阵容');injuries.append(el('p','report-empty','当前客户接口未提供已核验的逐场球员伤停名单，暂不展示球员姓名及伤停原因。'));c.append(injuries);
-      const review=reportSection('10 · 综合分析与赛果评测');reportLine(review,'赛前首选',row.ftTop1);reportLine(review,'赛前第二方向',row.second);reportLine(review,'赛果',verified(row)?resultName[row.result]||row.result:'等待核验');reportLine(review,'综合评测',verified(row)?evaluationHit(row)?'评测成功':'评测未中':'等待赛果');review.append(el('p','report-sub','赛前预测与赛后结算分别展示，历史重建预测以其原有来源标识为准。'));c.append(review);
-      const audit=el('details','report-section');audit.append(el('summary','','完整赛前记录与来源'));[['模型版本',row.version],['冻结时间',fmtStamp(row.frozenAt)],['让球预测来源',row.handicapSourceLabel],['让球冻结时间',fmtStamp(row.handicapFrozenAt)],['数据质量',row.dq]].forEach(([k,v])=>reportLine(audit,k,v));c.append(audit);
-      c.append(el('div','report-disclaimer','重要声明：本页面基于历史赛事数据、市场信息及模型分析，仅供足球赛事研究与交流参考，不构成投注建议或收益承诺。预测结果存在不确定性。'));
+
+      const summary=reportSection('本场速览');
+      const choices=el('div','report-key-picks');
+      const first=el('div','report-main-pick');
+      first.append(el('small','','胜平负首选'),el('strong','',reportHas(row.ftTop1)?String(row.ftTop1):'赛前方向待核验'));
+      choices.append(first);
+      if(reportHas(row.second)){const second=el('div','report-alt-pick');second.append(el('small','','第二方向'),el('strong','',String(row.second)));choices.append(second)}
+      summary.append(choices);
+      const hasOfficial=row.officialHandicap!==null&&row.officialHandicap!==undefined&&row.officialHandicap!=='';
+      const handicap=[reportHas(row.handicapTop1)?row.handicapTop1:reportHas(row.handicap)?row.handicap:null,reportHas(row.handicapSecond)?row.handicapSecond:null].filter(Boolean);
+      if(hasOfficial||handicap.length)reportLine(summary,'官方让球 / 让球方向',(hasOfficial?String(row.officialHandicap):'—')+' / '+(handicap.length?handicap.join('、'):'未发布'));
+      const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
+      if([row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
+        reportProbability(summary,'豪竞赛前概率',['homeProbability','drawProbability','awayProbability'],row);
+      if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
+      c.append(summary);
+
+      if(scoreInfo(row)||publishedGoalLambda(row)!==null){
+        const score=reportSection('进球与比分');
+        if(scoreInfo(row))score.append(scoreTop4Panel(row));
+        if(publishedGoalLambda(row)!==null)score.append(goalPredictionPanel(row));
+        c.append(score);
+      }
+      const professionalSlot=el('div','report-professional');c.append(professionalSlot);
+      if(verified(row)){
+        const review=reportSection('赛后评测');
+        reportLine(review,'90分钟赛果',resultName[row.result]||row.result);
+        if(hasScore(row))reportLine(review,'比分',scoreline(row));
+        reportLine(review,'综合评测',evaluationHit(row)?'评测成功':'评测未中');
+        review.append(el('p','report-sub','评测仅在赛前预测落库、赛果核验后进行。'));c.append(review);
+      }
+      const audit=reportDisclosure('预测来源与数据说明');
+      if(reportHas(row.version))reportLine(audit,'模型版本',row.version);
+      if(reportHas(row.frozenAt))reportLine(audit,'模型冻结',fmtStamp(row.frozenAt));
+      if(reportHas(row.dq))reportLine(audit,'数据质量',row.dq);
+      if(reportHas(row.handicapSourceLabel))reportLine(audit,'让球数据来源',row.handicapSourceLabel);
+      if(reportHas(row.handicapFrozenAt))reportLine(audit,'让球冻结时间',fmtStamp(row.handicapFrozenAt));
+      audit.append(el('p','report-sub','赛前预测、后续盘口和媒体消息采集时间可能不同；未确认数据不填造。'));
+      c.append(audit);
+      c.append(el('div','report-disclaimer','仅供足球赛事数据研究参考，不构成投注建议或收益承诺。'));
       loadProfessionalDetail(row,professionalSlot);
       window.scrollTo({top:0,behavior:'instant'});
     }
