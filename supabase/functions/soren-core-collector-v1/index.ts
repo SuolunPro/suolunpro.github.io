@@ -146,9 +146,25 @@ async function syncHJ38(explicit:string|null){
     const cv=Number(row.confidence),confidence=Number.isFinite(cv)?Math.max(0,Math.min(1,cv>1?cv/100:cv)):null;
     const tags=[row.tier,row.risk?.hur&&('HUR-'+row.risk.hur),row.risk?.dtr&&('DTR-'+row.risk.dtr),row.risk?.dlr&&('DLR-'+row.risk.dlr)].filter(Boolean).map(String);
     const pred={run_id:run.id,match_id:match.id,ft_top1:ftCode(row.ftTop1),ft_second:ftCode(row.second),selection_mode:safeMode,selection_codes:safeCodes,handicap_pick:hpCode(row.handicap),confidence,dq:row.risk?.dq||null,trigger_tags:tags,primary_reason:row.riskAnalysis||row.handicapAnalysis||null,source_snapshot:{...row,sync_source:'mother_public_hj38',sync_at:now},frozen_at:row.frozenAt,ft_class:row.tier||null,recommendation_market:'FT_1X2',recommendation_class:row.tier||null,recommendation_codes:safeCodes,recommendation_action:safeMode};
+    // Never create a fresh formal customer prediction after the recognized cutoff.
+    const deadline=await sb.from('soren_matches').select('cutoff_at,kickoff_at').eq('id',match.id).single();
+    if(deadline.error)throw deadline.error;
+    const stop=Date.parse(String(deadline.data?.cutoff_at??deadline.data?.kickoff_at??''));
+    if(explicit>='2026-09-23'&&Number.isFinite(stop)&&Date.now()>=stop){
+      missing.push({no,reason:'SALE_LOCK_ALREADY_CLOSED'});continue;
+    }
     const {error:pe}=await sb.from('soren_predictions').upsert(pred,{onConflict:'run_id,match_id'});if(pe)throw pe;synced++;
   }
-  return{date:explicit,source_count:data.rows.length,pool_count:poolResult.pool.length,match_count:(matches||[]).length,predictions_synced:synced,missing,model_version:data.modelVersion,revision:data.revision,source_data_time:data.dataTime||null,run_id:run.id};
+  // Scheduled mother->customer sync also captures the last genuine pre-sale publication
+  // even when no customer has the website open. The RPC is idempotent and fail-closed.
+  let saleFreezeCount=0;
+  for(let i=0;i<data.rows.length;i+=80){
+    const {data:locks,error:lockError}=await sb.rpc('soren_capture_sale_snapshots_v1',{
+      p_date:explicit,p_rows:data.rows.slice(i,i+80)});
+    if(lockError)throw lockError;
+    saleFreezeCount+=(Array.isArray(locks)?locks:[]).filter((x:any)=>x?.snapshot).length;
+  }
+  return{date:explicit,source_count:data.rows.length,pool_count:poolResult.pool.length,match_count:(matches||[]).length,predictions_synced:synced,sale_freeze_snapshots:saleFreezeCount,missing,model_version:data.modelVersion,revision:data.revision,source_data_time:data.dataTime||null,run_id:run.id};
 }
 
 Deno.serve(async(req)=>{try{const u=new URL(req.url);let body:any={};try{if(req.method!=='GET')body=await req.json()}catch{}const mode=String(u.searchParams.get('mode')||body?.mode||'status'),date=u.searchParams.get('date')||body?.date||null;if(mode==='pool')return Response.json({ok:true,mode,result:await syncPool(date)});if(mode==='hj38_sync')return Response.json({ok:true,mode,result:await syncHJ38(date)});if(mode==='results')return Response.json({ok:true,mode,result:await syncResults(Number(body?.lookback_days||u.searchParams.get('lookback_days')||14))});if(mode==='markets')return Response.json({ok:true,mode,result:await syncMarkets(date)});if(mode==='elo')return Response.json({ok:true,mode,result:await syncElo(date)});if(mode==='pro')return Response.json({ok:true,mode,result:await syncPro(date)});return Response.json({ok:true,service:'soren-core-collector-v1',modes:['pool','markets','elo','pro','hj38_sync','results'],at:new Date().toISOString()})}catch(e:any){return Response.json({ok:false,error:String(e?.message||e),at:new Date().toISOString()},{status:500})}});
