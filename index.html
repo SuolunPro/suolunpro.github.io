@@ -439,7 +439,7 @@
         const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(mode==='注册'?{data:{invite_code:inviteCode}}:{})});if(data.access_token&&data.user)saveSession(data);else msg.textContent='注册申请已提交。若未收到邮件，请核对邮箱或点击下方「重新发送邮箱验证邮件」。';}catch(e){msg.textContent=e.message}finally{btn.disabled=false}};gate.append(btn)}const recover=document.createElement('button');recover.textContent='忘记密码';recover.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='已请求发送密码重置邮件'}catch(e){msg.textContent=e.message}};gate.append(recover);
       const resend=document.createElement('button');resend.textContent='重新发送邮箱验证邮件';
       resend.onclick=async()=>{
-        const address=email.value.trim();if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(address)){msg.textContent='请先填写注册时使用的邮箱';return}
+        const address=email.value.trim();if(!/^[^@ ]+@[^@ ]+[.][^@ ]+$/.test(address)){msg.textContent='请先填写注册时使用的邮箱';return}
         resend.disabled=true;msg.textContent='正在申请重发…';
         try{await authRequest('resend',{type:'signup',email:address});
           msg.textContent='已提交重发请求。请检查收件箱与垃圾邮件；是否实际送达取决于邮箱验证及发信配置。';
