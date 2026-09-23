@@ -617,8 +617,8 @@
       const score=isVerified?(row.resultScore??(row.resultHome!==null&&row.resultHome!==undefined&&row.resultAway!==null&&row.resultAway!==undefined?row.resultHome+':'+row.resultAway:'完赛')):'VS';
       fixture.append(team(home,row.homeLogo??row.home_logo??row.homeTeamLogo,'home'),el('div','upset-score',String(score).replace('-',':')),team(away,row.awayLogo??row.away_logo??row.awayTeamLogo,'away'));
       const main=el('div','upset-main'),indexPanel=el('div','upset-panel'),directionPanel=el('div','upset-panel');
-      indexPanel.append(el('div','upset-value',info.score===null?'—':Number(info.score).toFixed(1)),el('div','upset-label','赛事风险指数'));
-      directionPanel.append(el('div','upset-value direction',info.direction),el('div','upset-label','赛前风险提示'));
+      indexPanel.append(el('div','upset-value',info.score===null?'—':Number(info.score).toFixed(1)),el('div','upset-label','数据分值'));
+      directionPanel.append(el('div','upset-value direction',info.direction),el('div','upset-label','数据迹象'));
       main.append(indexPanel,directionPanel);
       const evidence=el('details','upset-evidence'),summary=el('summary','','查看分析依据');
       evidence.append(summary,el('p','','风险等级：'+info.level+' ｜ 赛前原始首选：'+safe(info.originalPick)),el('p','','风险依据：'+info.reason));
