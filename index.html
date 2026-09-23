@@ -624,7 +624,7 @@
       const inviteCard=el('div','member-card');
       inviteCard.append(el('h3','','邀请好友 · 会员奖励'));
       const count=Number(memberInfo.invitedCount||0),total=el('p','member-muted');
-      total.append(el('span','','已邀请 '),el('span','member-count',String(count)),el('span','',' 人 · 有效邀请'));
+      total.append(el('span','','有效邀请 '),el('span','member-count',String(count)),el('span','',' 人 · 待审核 '+String(Number(memberInfo.pendingInvites||0))+' 人'));
       inviteCard.append(total);
       const milestones=[[1,'3天'],[5,'15天'],[10,'1个月'],[20,'2个月']];
       const stages=el('div','member-stage');
@@ -646,13 +646,13 @@
       // Keep the invitation input visible without opening the optional activity rules.
       const bindCard=el('div','member-card invite-bind-card');
       const bindTitle=el('h3','','填写好友邀请码');
-      const bindHint=el('p','member-muted','新注册用户可在这里绑定好友邀请码，领取符合条件的公测邀请权益。');
+      const bindHint=el('p','member-muted','新用户可绑定好友邀请码；只有审核通过的真实独立用户才计入有效邀请并发放奖励。');
       const code=el('input');code.placeholder='请输入好友邀请码（10位）';code.autocomplete='off';code.maxLength=10;code.value=savedInvite();code.setAttribute('aria-label','好友邀请码');
-      const submit=el('button','','确认绑定邀请码'),msg=el('p','member-muted','仅注册24小时内、完成邮箱验证且尚未绑定邀请人的新用户可填写。');
-      submit.onclick=async()=>{submit.disabled=true;msg.textContent='正在核验…';try{await redeemInvite(code.value.trim().toUpperCase());msg.textContent='邀请码绑定成功';panel.replaceWith(memberPanel());if(memberInfo?.active)beginAuthenticatedApp()}catch(e){msg.textContent=e.message}finally{submit.disabled=false}};
+      const submit=el('button','','确认绑定邀请码'),msg=el('p','member-muted','仅注册24小时内、尚未绑定邀请人的新用户可填写。绑定不代表奖励已生效。');
+      submit.onclick=async()=>{submit.disabled=true;msg.textContent='正在核验…';try{await redeemInvite(code.value.trim().toUpperCase());msg.textContent='邀请码已绑定，奖励待审核';panel.replaceWith(memberPanel());if(memberInfo?.active)beginAuthenticatedApp()}catch(e){msg.textContent=e.message}finally{submit.disabled=false}};
       bindCard.append(bindTitle,bindHint,code,submit,msg);
       const rules=el('details','member-more'),summary=el('summary','','查看活动规则');
-      rules.append(summary,el('p','member-muted','活动时间：9月23日—10月1日（北京时间）。新用户完成邮箱验证赠1天；累计有效邀请满1/5/10/20人，对应累计获得3天/15天/30天/60天邀请会员权益，按档位补足差额，最高2个月（1个月按30天计）。'));
+      rules.append(summary,el('p','member-muted','活动时间：9月23日—10月1日（北京时间）。活动期内新用户注册可领取1天公测体验；好友填写邀请码后先进入待审核，审核确认真实独立的新用户后才计有效邀请并发奖。累计有效邀请满1/5/10/20人，对应累计获得3天/15天/30天/60天，按档位补足差额，最高2个月。异常邀请不计奖励。邮箱未验证不代表已证明邮箱归属；密码找回仍需可用的收信邮箱。'));
       inviteCard.append(rules);
       panel.append(bindCard,inviteCard);return panel;
     }
@@ -723,7 +723,7 @@
           }catch(e){msg.textContent=e.message}finally{resetCaptcha();btn.disabled=false}
         };gate.append(btn);
       }
-      const recover=document.createElement('button');recover.textContent='忘记密码';
+      const recover=document.createElement('button');recover.textContent='忘记密码（需邮件）';
       recover.onclick=async()=>{
         if(!email.value.trim()){msg.textContent='请先填写邮箱';return}
         let token;try{token=takeToken()}catch(e){msg.textContent=e.message;return}
