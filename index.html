@@ -1313,10 +1313,13 @@
         if(trend)slot.append(trend);
       }
       const hasOdds=!!(last||first||(report.market?.asian??[]).some(x=>x.current||x.initial));
+      const hasModelOddsProduct=Array.isArray(report.modelOddsIndex?.values)&&report.modelOddsIndex.values.length===3&&
+        report.modelOddsIndex.values.every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v))&&Number(v)>=0);
+
       const elo=report.feature?.elo,ai=report.feature?.kickoffAi;
       const hasElo=!!(elo&&elo.home!==null&&elo.away!==null&&Number.isFinite(Number(elo.home))&&Number.isFinite(Number(elo.away)));
       const hasAi=!!(ai&&reportTriplet([ai.home,ai.draw,ai.away]));
-      const hasDetail=hasOdds||hasElo||hasAi;
+      const hasDetail=hasOdds||hasModelOddsProduct||hasElo||hasAi;
       if(hasDetail){
         const detail=reportDisclosure('更多参考数据 · 赔率与球队实力');
         if(hasOdds){
@@ -1345,13 +1348,26 @@
           });
           detail.append(odds);
         }
+        if(hasModelOddsProduct){
+          const k=reportSection('模型赔率参考值');
+          k.append(el('p','report-sub','看法：把每个方向的赛前模型概率，与该方向对应的威廉希尔欧赔相乘，得到下面的测算值。'));
+          reportOddsGrid(k,'模型概率 × 对应欧赔',[...report.modelOddsIndex.values].map(v=>Number(v).toFixed(4)));
+          k.append(el('p','report-sub','怎么读：1.0000 是“概率 × 赔率 = 1”的数学基准。低于1表示乘积低于基准，高于1表示乘积高于基准；数值越大，仅代表这一乘积越大。'));
+          k.append(el('p','report-sub','注意：这不是胜率、赔率本身或机构凯利指数，也不能据此认定哪种赛果更可能发生、预测一定准确或存在实际收益。'));
+          if(report.modelOddsIndex.probabilityAt)reportLine(k,'模型概率冻结于',fmtStamp(report.modelOddsIndex.probabilityAt));
+          if(report.modelOddsIndex.oddsAt)reportLine(k,'赔率采集于',fmtStamp(report.modelOddsIndex.oddsAt));
+          k.append(el('p','report-sub','两个时间可能不同：后续赔率变化仅用于数据对照，不代表模型原始赛前预测使用了后续赔率。'));
+          detail.append(k);
+        }
         if(hasElo||hasAi){
           const independent=reportSection('球队实力与独立概率');
           if(hasElo){
             const homeElo=Number(elo.home),awayElo=Number(elo.away),eloGap=homeElo-awayElo;
-            reportLine(independent,'双方历史实力参考','主队 '+homeElo.toFixed(1)+' 分 · 客队 '+awayElo.toFixed(1)+' 分');
-            reportLine(independent,'实力分数差',Math.abs(eloGap).toFixed(1)+' 分（'+(eloGap>0?'主队较高':eloGap<0?'客队较高':'双方相同')+'）');
-            independent.append(el('p','report-sub','Elo 用于比较双方长期表现，分数高低不等于本场胜率。'+(elo.shadow?' 此项仍在研究核验中。':'')));
+            reportLine(independent,'Elo 历史实力评分','主队 '+homeElo.toFixed(1)+' 分 · 客队 '+awayElo.toFixed(1)+' 分');
+            reportLine(independent,'双方评分差',Math.abs(eloGap).toFixed(1)+' 分（'+(eloGap>0?'主队较高':eloGap<0?'客队较高':'双方相同')+'）');
+            independent.append(el('p','report-sub','怎么读：Elo 是根据球队历史比赛表现计算的实力参考分，同一评分体系下分数较高，表示历史实力评价相对较高；分差越大，代表该评分体系给出的历史实力差距越大。'));
+            independent.append(el('p','report-sub','例如主队1559.7分、客队1510.1分，相差49.6分，仅表示主队历史实力评分高49.6分，并不表示主队有49.6%的胜率优势或本场一定取胜。'));
+            independent.append(el('p','report-sub','Elo 不是本场胜平负概率；阵容、伤停、赛程及盘口变化仍需单独查看。'+(elo.shadow?' 此项属于影子研究数据，仍需进一步验证。':'')));
           }
           if(hasAi)reportOddsGrid(independent,'Kickoff.ai 赛前概率',[ai.home,ai.draw,ai.away].map(v=>probability(v)));
           detail.append(independent);
