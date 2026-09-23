@@ -185,6 +185,35 @@
   .member-panel button{background:#cb2b31;color:white;border:0;padding:9px 12px;border-radius:8px;margin:5px 6px 5px 0;font-size:13px}
   .member-panel button:disabled{opacity:.55}
 
+  /* 我的｜会员中心：将常用会员信息前置，分析架构按需展开 */
+  .profile-page .account-panel{padding:0;margin:8px 0 14px;background:transparent}
+  .profile-page .account-panel>h2{display:none}
+  .profile-page .account-panel>.sub{display:none}
+  .profile-page .account-panel .member-panel{margin:0;border:0;padding:0;background:transparent}
+  .profile-page .member-card{background:#fff;border-radius:14px;padding:15px;margin-bottom:11px;border:1px solid #eeeeef;box-shadow:0 2px 10px #00000005}
+  .profile-page .member-card h3{margin:0 0 10px;font-size:16px;color:#25272c}
+  .profile-page .member-card .member-muted{color:#81858e;font-size:12px;line-height:1.6}
+  .profile-page .member-state{background:linear-gradient(115deg,#202229,#383039);border:0;color:#fff}
+  .profile-page .member-state h3{color:#f4d59b}
+  .profile-page .member-state .member-muted{color:#dad3d0}
+  .profile-page .member-deadline{font-size:17px;font-weight:750;color:#fff;line-height:1.5;margin:5px 0}
+  .profile-page .member-stage{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0 3px}
+  .profile-page .member-stage span{display:block;text-align:center;background:#f7f7f8;border-radius:9px;padding:9px 2px;border:1px solid #ececf0}
+  .profile-page .member-stage span.done{background:#fff4eb;border-color:#e5caa5}
+  .profile-page .member-stage b{display:block;font-size:13px;color:#30323a}
+  .profile-page .member-stage small{display:block;font-size:10px;color:#777d89;margin-top:2px}
+  .profile-page .member-count{font-weight:750;font-size:21px;color:#bd2a31}
+  .profile-page .member-code{font-size:22px;letter-spacing:2px}
+  .profile-page .member-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .profile-page .account-panel .member-actions button{margin:0;padding:11px 4px;min-height:42px}
+  .profile-page .member-more{border-top:1px solid #eee;margin-top:12px;padding-top:10px}
+  .profile-page .member-more>summary,.profile-page .profile-more>summary{cursor:pointer;color:#777e89;font-size:12px;line-height:1.8}
+  .profile-page .member-more p{margin:8px 0}
+  .profile-page .profile-more{margin:9px 0 16px;border-radius:13px;background:#fff;border:1px solid #eee;padding:12px 14px}
+  .profile-page .profile-more .engine-intro{margin-top:11px;padding:0}
+  .profile-page .profile-more .engine-intro h2{font-size:14px}
+  .profile-page .member-account{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 3px;color:#878a91;font-size:11px;overflow-wrap:anywhere}
+  .profile-page .account-panel .member-account button{margin:0;padding:6px 10px;font-size:11px;background:#eeeeef;color:#555}
   /* 公测欢迎公告：仅叠加卡片，不更换原有品牌背景和页面数据。 */
   .welcome-screen.beta-active .welcome-fallback,.welcome-screen.beta-active .welcome-skip,.welcome-screen.beta-active .welcome-legal{display:none}
   .beta-notice[hidden]{display:none!important}
@@ -432,7 +461,7 @@
       location.reload();
     }
 
-    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(el('div','sub','已登录：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();wrap.append(out);wrap.append(memberPanel());return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(type==='注册'?{data:{invite_code:savedInvite()}}:{})});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回索伦引擎。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
+    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(memberPanel());const settings=el('div','member-account');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(type==='注册'?{data:{invite_code:savedInvite()}}:{})});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回索伦引擎。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
     async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id}),signal:AbortSignal.timeout(6000)});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
     authSession=storedAuth();initVisits();
     async function recoverEmailConfirmationRedirect(){
@@ -468,23 +497,44 @@
       return memberInfo;
     }
     function memberPanel(){
-      const panel=el('section','member-panel');panel.append(el('h3','','公测会员 · 邀请好友'));
-      if(!memberInfo){panel.append(el('p','','正在核验会员状态…'));return panel}
+      const panel=el('section','member-panel');
+      if(!memberInfo){const card=el('div','member-card');card.append(el('h3','','会员状态'),el('p','member-muted','正在核验会员状态…'));panel.append(card);return panel}
       const expires=memberInfo.memberUntil?new Date(memberInfo.memberUntil).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):null;
-      panel.append(el('p','',memberInfo.active?(memberInfo.legacyGrace?'今日公测体验中 · 明日起按会员有效期开放':'会员有效期至：'+(expires||'未确认')):'当前未开通会员，当天比赛推荐暂不可查看'));
-      panel.append(el('p','','公测期：9月23日—10月1日（北京时间）。新用户完成邮箱验证赠1天；累计有效邀请满1/5/10/20人，对应累计3天/15天/30天/60天邀请会员权益，最高2个月（1个月按30天计），按档位补足差额、不重复叠加。'));
-      panel.append(el('p','','我的邀请码：'),el('div','member-code',String(memberInfo.inviteCode||'未生成')));
-      panel.append(el('p','','有效邀请：'+Number(memberInfo.invitedCount||0)+' 人'));
+      const stateCard=el('div','member-card member-state');
+      stateCard.append(el('h3','','我的会员'));
+      const label=memberInfo.legacyGrace?'今日公测体验中':memberInfo.active?'会员有效':'会员已到期';
+      stateCard.append(el('div','member-deadline',label));
+      stateCard.append(el('div','member-muted',expires?'有效期至：'+expires+'（北京时间）':memberInfo.legacyGrace?'免费体验截至9月24日00:00（北京时间）':'9月24日起，当天比赛所有推荐仅向有效会员开放。'));
+      panel.append(stateCard);
+      const inviteCard=el('div','member-card');
+      inviteCard.append(el('h3','','邀请好友 · 会员奖励'));
+      const count=Number(memberInfo.invitedCount||0),total=el('p','member-muted');
+      total.append(el('span','','已邀请 '),el('span','member-count',String(count)),el('span','',' 人 · 有效邀请'));
+      inviteCard.append(total);
+      const milestones=[[1,'3天'],[5,'15天'],[10,'1个月'],[20,'2个月']];
+      const stages=el('div','member-stage');
+      milestones.forEach(([threshold,award])=>{
+        const tile=el('span',count>=threshold?'done':'');
+        tile.append(el('b','',String(threshold)+'人'),el('small','',award));stages.append(tile);
+      });
+      inviteCard.append(stages);
+      const next=milestones.find(([n])=>count<n);
+      inviteCard.append(el('p','member-muted',next?'距离下一档还需 '+(next[0]-count)+' 名有效邀请。':'已达到本次活动邀请奖励上限。'));
+      inviteCard.append(el('p','member-muted','我的专属邀请码：'));
+      inviteCard.append(el('div','member-code',String(memberInfo.inviteCode||'未生成')));
       if(memberInfo.inviteCode){
-        const link='https://suolunpro.github.io/?ref='+memberInfo.inviteCode;
-        const b=el('button','','复制邀请链接');b.onclick=async()=>{try{await navigator.clipboard.writeText(link);b.textContent='已复制邀请链接'}catch{prompt('长按复制邀请链接',link)}};
-        const share=el('button','','分享给好友');share.onclick=async()=>{if(navigator.share){try{await navigator.share({title:'索伦引擎 · 公测邀请',text:'索伦引擎赛事数据公测，注册时填写邀请码 '+memberInfo.inviteCode,url:link})}catch{}}else b.click()};
-        panel.append(b,share);
+        const link='https://suolunpro.github.io/?ref='+memberInfo.inviteCode,actions=el('div','member-actions');
+        const copy=el('button','','复制邀请链接');copy.onclick=async()=>{try{await navigator.clipboard.writeText(link);copy.textContent='已复制邀请链接'}catch{prompt('长按复制邀请链接',link)}};
+        const share=el('button','','分享给好友');share.onclick=async()=>{if(navigator.share){try{await navigator.share({title:'索伦引擎 · 公测邀请',text:'索伦引擎赛事数据公测，注册时填写邀请码 '+memberInfo.inviteCode,url:link})}catch{}}else copy.click()};
+        actions.append(copy,share);inviteCard.append(actions);
       }
+      const rules=el('details','member-more'),summary=el('summary','','查看活动规则与绑定邀请码');
+      rules.append(summary,el('p','member-muted','活动时间：9月23日—10月1日（北京时间）。新用户完成邮箱验证赠1天；累计有效邀请满1/5/10/20人，对应累计获得3天/15天/30天/60天邀请会员权益，按档位补足差额，最高2个月（1个月按30天计）。'));
       const code=el('input');code.placeholder='新注册用户填写好友邀请码';code.autocomplete='off';code.maxLength=10;code.value=savedInvite();
-      const submit=el('button','','确认绑定邀请码'),msg=el('p','sub','仅注册24小时内、完成邮箱验证且尚未绑定邀请人的新会员可填写。');
+      const submit=el('button','','确认绑定邀请码'),msg=el('p','member-muted','仅注册24小时内、完成邮箱验证且尚未绑定邀请人的新用户可填写。');
       submit.onclick=async()=>{submit.disabled=true;msg.textContent='正在核验…';try{await redeemInvite(code.value.trim().toUpperCase());msg.textContent='邀请码绑定成功';panel.replaceWith(memberPanel());if(memberInfo?.active)beginAuthenticatedApp()}catch(e){msg.textContent=e.message}finally{submit.disabled=false}};
-      panel.append(code,submit,msg);return panel;
+      rules.append(code,submit,msg);inviteCard.append(rules);
+      panel.append(inviteCard);return panel;
     }
     function renderMemberRequired(){
       const box=$('content');box.replaceChildren(sectionHead('会员专属数据','当天比赛推荐'));
@@ -804,12 +854,13 @@
     }
     function renderProfile(){
       const d=state.today,box=$('content');
-      box.replaceChildren(sectionHead('我的','账户与设置'));
-      box.append(accountPanel());
-      const about=el('div','detail-card');
-      about.append(el('h2','','关于索伦'),el('p','sub','索伦引擎'),el('p','sub','数据更新：'+fmtStamp(d?.dataTime)));
-      box.append(about);
-      box.append(engineIntroduction());
+      box.replaceChildren(sectionHead('我的','会员中心'));
+      const page=el('div','profile-page');page.append(accountPanel());
+      const about=el('details','profile-more');
+      about.append(el('summary','','关于索伦 · 数据来源与分析体系'));
+      about.append(el('p','sub','数据更新：'+fmtStamp(d?.dataTime)));
+      about.append(engineIntroduction());
+      page.append(about);box.append(page);
     }
 
     // Only accept independently published, pre-kickoff goal inputs. Never infer them from final scores.
