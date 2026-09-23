@@ -184,12 +184,59 @@
   .member-panel input{display:block;width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:7px;font-size:14px}
   .member-panel button{background:#cb2b31;color:white;border:0;padding:9px 12px;border-radius:8px;margin:5px 6px 5px 0;font-size:13px}
   .member-panel button:disabled{opacity:.55}
+
+  /* 公测欢迎公告：仅叠加卡片，不更换原有品牌背景和页面数据。 */
+  .welcome-screen.beta-active .welcome-fallback,.welcome-screen.beta-active .welcome-skip,.welcome-screen.beta-active .welcome-legal{display:none}
+  .beta-notice[hidden]{display:none!important}
+  .beta-notice{position:absolute;z-index:3;left:12px;right:12px;top:max(12px,env(safe-area-inset-top));bottom:max(12px,env(safe-area-inset-bottom));max-width:474px;margin:auto;overflow-y:auto;overscroll-behavior:contain;color:#f8f8f8;background:rgba(13,16,21,.95);border:1px solid #4a3e2e;border-radius:20px;padding:18px 16px 15px;box-shadow:0 8px 44px #000b;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .beta-tag{display:inline-block;padding:4px 10px;border-radius:30px;border:1px solid #77623c;color:#f4d18e;background:#3a3023;font-size:11px;font-weight:700}
+  .beta-name{margin:10px 0 3px;font-size:24px;line-height:1.2;font-weight:850;letter-spacing:1px}
+  .beta-en{font-size:10px;letter-spacing:2px;color:#9e9fa4}
+  .beta-sub{margin:9px 0 5px;color:#efd295;font-size:14px;font-weight:750}
+  .beta-time{font-size:11px;color:#b8b8bf;margin:0 0 11px}
+  .beta-welcome{padding:10px 12px;border:1px solid #414650;background:#222730;border-radius:11px;margin-bottom:10px}
+  .beta-welcome b{display:block;color:#f6d48e;font-size:12px}
+  .beta-welcome strong{display:block;font-size:15px;margin-top:2px}
+  .beta-note{font-size:11px;color:#c7c8ce;line-height:1.6;margin:8px 0}
+  .beta-reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0 12px}
+  .beta-reward{border:1px solid #3f444c;background:#222730;border-radius:11px;padding:9px 8px}
+  .beta-reward small{display:block;color:#bcbec5;font-size:11px}
+  .beta-reward b{display:block;font-size:18px;margin-top:3px}
+  .beta-reward.top{border-color:#a9854d;background:#332d23}.beta-reward.top b,.beta-reward.top small{color:#f1d08d}
+  .beta-access{padding:10px 12px;background:#312b22;border:1px solid #6b5838;border-radius:11px;margin:10px 0}
+  .beta-access strong{display:block;color:#f6d48e;font-size:12px;margin-bottom:4px}
+  .beta-access p{margin:0;color:#fff;font-size:12px;line-height:1.65}
+  .beta-rules{font-size:10px;line-height:1.65;color:#b8bac1;margin:10px 0 12px}
+  .beta-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .beta-actions button{border:0;cursor:pointer;min-height:43px;border-radius:10px;font-size:12px;font-weight:750;padding:9px 6px}
+  #betaEnter{background:#c72b32;color:#fff}#betaInvite{background:#333947;border:1px solid #9d865b;color:#f6d48e}
+  .beta-disclaimer{font-size:10px;line-height:1.5;color:#9e9fa7;text-align:center;margin:10px 0 0}
+  @media(max-width:360px){.beta-notice{padding:12px}.beta-name{font-size:21px}.beta-reward b{font-size:16px}.beta-actions button{font-size:11px}}
 </style>
 </head>
 <body>
   <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="索伦引擎欢迎页">
     <div class="welcome-poster">
       <div class="welcome-fallback"><strong>索伦引擎</strong><small>SAURON ENGINE</small></div>
+      <section class="beta-notice" id="betaNotice" aria-label="索伦引擎公测会员公告" hidden>
+        <span class="beta-tag">公测会员公告</span>
+        <div class="beta-name">索伦引擎</div>
+        <div class="beta-en">SAURON ENGINE</div>
+        <div class="beta-sub">公测开启 · 邀请好友解锁会员权益</div>
+        <p class="beta-time">活动时间：2026年9月23日—10月1日（北京时间）</p>
+        <div class="beta-welcome"><b>新用户专享</b><strong>完成邮箱验证，赠送1天会员</strong></div>
+        <p class="beta-note">邀请好友通过专属邀请码注册并完成邮箱验证，累计有效邀请达到对应人数，即可解锁会员权益：</p>
+        <div class="beta-reward-grid">
+          <div class="beta-reward"><small>有效邀请满 1 人</small><b>3天会员</b></div>
+          <div class="beta-reward"><small>有效邀请满 5 人</small><b>15天会员</b></div>
+          <div class="beta-reward"><small>有效邀请满 10 人</small><b>1个月会员</b></div>
+          <div class="beta-reward top"><small>有效邀请满 20 人 · 奖励上限</small><b>2个月会员</b></div>
+        </div>
+        <div class="beta-access"><strong>会员访问说明</strong><p>9月23日已注册用户可正常查看当天内容。自9月24日起，当天比赛所有推荐仅向有效会员开放。</p></div>
+        <p class="beta-rules">每位新用户仅能绑定一名邀请人；邮箱验证完成后方计为有效邀请。会员邀请奖励按最高档累计计算，满20人共获60天邀请奖励（1个月按30天计），不会重复叠加各档天数；新用户1天体验另计。活动截止后不再新增邀请奖励。</p>
+        <div class="beta-actions"><button id="betaEnter" type="button">立即进入索伦引擎</button><button id="betaInvite" type="button">查看我的邀请码</button></div>
+        <p class="beta-disclaimer">赛事数据仅供研究与交流，不构成投注建议。</p>
+      </section>
       <button id="welcomeSkip" class="welcome-skip" type="button">跳过 ›</button>
       <div class="welcome-legal">本站内容仅供数据研究与交流，不构成投注建议。<br>预测存在不确定性，请理性参考。</div>
     </div>
@@ -200,6 +247,16 @@
       var skip=document.getElementById('welcomeSkip');
       if(!welcome||!skip)return;
       skip.addEventListener('click',function(){welcome.hidden=true;welcome.setAttribute('aria-hidden','true');});
+      var notice=document.getElementById('betaNotice');
+      var day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\\//g,'-');
+      if(notice && day>='2026-09-23' && day<='2026-10-01'){notice.hidden=false;welcome.classList.add('beta-active');}
+      var enter=document.getElementById('betaEnter'),invite=document.getElementById('betaInvite');
+      if(enter)enter.addEventListener('click',function(){skip.click()});
+      if(invite)invite.addEventListener('click',function(){
+        try{sessionStorage.setItem('soren_welcome_invite_v1','1')}catch(e){}
+        skip.click();
+        if(typeof window.sorenGoInvite==='function')window.sorenGoInvite();
+      });
       // A failed poster load must never block access to match data.
       window.addEventListener('keydown',function(e){if(e.key==='Escape'&&!welcome.hidden)skip.click();});
     })();
@@ -415,7 +472,7 @@
       if(!memberInfo){panel.append(el('p','','正在核验会员状态…'));return panel}
       const expires=memberInfo.memberUntil?new Date(memberInfo.memberUntil).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):null;
       panel.append(el('p','',memberInfo.active?(memberInfo.legacyGrace?'今日公测体验中 · 明日起按会员有效期开放':'会员有效期至：'+(expires||'未确认')):'当前未开通会员，当天比赛推荐暂不可查看'));
-      panel.append(el('p','','公测期：9月23日—10月1日（北京时间）。新用户完成邮箱验证赠1天；累计邀请1/3/8名有效新用户，分别额外获得3天、15天、1个月会员，奖励可叠加。'));
+      panel.append(el('p','','公测期：9月23日—10月1日（北京时间）。新用户完成邮箱验证赠1天；累计有效邀请满1/5/10/20人，对应累计3天/15天/30天/60天邀请会员权益，最高2个月（1个月按30天计），按档位补足差额、不重复叠加。'));
       panel.append(el('p','','我的邀请码：'),el('div','member-code',String(memberInfo.inviteCode||'未生成')));
       panel.append(el('p','','有效邀请：'+Number(memberInfo.invitedCount||0)+' 人'));
       if(memberInfo.inviteCode){
@@ -449,6 +506,12 @@
       gate.append(resend);
     }
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null};
+    window.sorenGoInvite=()=>{
+      if(!authSession?.access_token){showLoginGate('登录后可查看专属邀请码');return}
+      state.tab='profile';
+      document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));
+      render();
+    };
     const ARCHIVED_FOCUS={
       '2026-09-13':['002','006','008','009','020','022','023'],
       '2026-09-14':['003','008'],
@@ -1324,6 +1387,7 @@
       }
       try{await membershipFetch()}catch(error){showAuthRetry('会员状态暂不可核验，请稍后重新连接');return}
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
+      try{if(sessionStorage.getItem('soren_welcome_invite_v1')==='1'){sessionStorage.removeItem('soren_welcome_invite_v1');state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'))}}catch(e){}
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
       if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='索伦引擎';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
