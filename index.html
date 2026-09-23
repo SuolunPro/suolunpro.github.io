@@ -656,13 +656,13 @@
       // Keep the invitation input visible without opening the optional activity rules.
       const bindCard=el('div','member-card invite-bind-card');
       const bindTitle=el('h3','','填写好友邀请码');
-      const bindHint=el('p','member-muted','新用户可绑定好友邀请码；只有审核通过的真实独立用户才计入有效邀请并发放奖励。');
+      const bindHint=el('p','member-muted','新用户可绑定好友邀请码。邀请人第1—9位未触发集中异常的邀请由系统自动通过；第10位起须管理员结合 AI 辅助意见复核。');
       const code=el('input');code.placeholder='请输入好友邀请码（10位）';code.autocomplete='off';code.maxLength=10;code.value=savedInvite();code.setAttribute('aria-label','好友邀请码');
-      const submit=el('button','','确认绑定邀请码'),msg=el('p','member-muted','仅注册24小时内、尚未绑定邀请人的新用户可填写。绑定不代表奖励已生效。');
-      submit.onclick=async()=>{submit.disabled=true;msg.textContent='正在核验…';try{await redeemInvite(code.value.trim().toUpperCase());msg.textContent='邀请码已绑定，奖励待审核';panel.replaceWith(memberPanel());if(memberInfo?.active)beginAuthenticatedApp()}catch(e){msg.textContent=e.message}finally{submit.disabled=false}};
+      const submit=el('button','','确认绑定邀请码'),msg=el('p','member-muted','仅注册24小时内、尚未绑定邀请人的新用户可填写。异常邀请会保留待审核，邀请码绑定不保证获得奖励。');
+      submit.onclick=async()=>{submit.disabled=true;msg.textContent='正在核验…';try{await redeemInvite(code.value.trim().toUpperCase());msg.textContent=memberInfo?.inviteReviewStatus==='approved'?'邀请码绑定成功，已计入有效邀请':'邀请码已绑定，需审核后才计入有效邀请';panel.replaceWith(memberPanel());if(memberInfo?.active)beginAuthenticatedApp()}catch(e){msg.textContent=e.message}finally{submit.disabled=false}};
       bindCard.append(bindTitle,bindHint,code,submit,msg);
       const rules=el('details','member-more'),summary=el('summary','','查看活动规则');
-      rules.append(summary,el('p','member-muted','活动时间：9月23日—10月1日（北京时间）。活动期内新用户注册可领取1天公测体验；好友填写邀请码后先进入待审核，审核确认真实独立的新用户后才计有效邀请并发奖。累计有效邀请满1/5/10/20人，对应累计获得3天/15天/30天/60天，按档位补足差额，最高2个月。异常邀请不计奖励。邮箱未验证不代表已证明邮箱归属；密码找回仍需可用的收信邮箱。'));
+      rules.append(summary,el('p','member-muted','活动时间：9月23日—10月1日（北京时间）。活动期内新用户注册可领取1天公测体验；好友填写邀请码后，邀请人第1—9位未触发集中异常的邀请由系统自动通过；第10位及以上须管理员结合 AI 辅助意见人工审核；异常邀请即使未满10位也会暂缓计数并提交复核。累计有效邀请满1/5/10/20人，对应累计获得3天/15天/30天/60天，按档位补足差额，最高2个月。异常邀请不计奖励。邮箱未验证不代表已证明邮箱归属；密码找回仍需可用的收信邮箱。'));
       inviteCard.append(rules);
       panel.append(bindCard,inviteCard);return panel;
     }
