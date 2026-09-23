@@ -241,7 +241,28 @@
   #betaEnter{background:#c72b32;color:#fff}#betaInvite{background:#333947;border:1px solid #9d865b;color:#f6d48e}
   .beta-disclaimer{font-size:10px;line-height:1.5;color:#9e9fa7;text-align:center;margin:10px 0 0}
   @media(max-width:360px){.beta-notice{padding:12px}.beta-name{font-size:21px}.beta-reward b{font-size:16px}.beta-actions button{font-size:11px}}
-</style>
+
+    /* Compact detail-only additions; never create home-list requests or charts. */
+    .report-insight-compact{display:grid;gap:8px}
+    .report-insight-line{background:#f8f8f8;border:1px solid #eeeeee;border-radius:10px;padding:9px 10px;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+    .report-insight-line a{color:#a62b30;font-weight:650;text-decoration:none}
+    .report-insight-line small{display:block;color:#8b8b8b;margin-top:4px;font-size:10px}
+    .report-attack-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .report-attack-team{min-width:0;border:1px solid #eeeeee;border-radius:11px;padding:10px;background:#fafafa}
+    .report-attack-team strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .report-attack-team small{font-size:10px;color:#888}
+    .report-attack-row{display:flex;justify-content:space-between;gap:4px;font-size:11px;padding:6px 0;border-bottom:1px solid #ececec}
+    .report-attack-row:last-child{border-bottom:0}
+    .report-attack-row b{font-variant-numeric:tabular-nums}
+    .report-trend-toggle{display:block;width:100%;border:1px solid #e2d5d5;background:#fff;color:#96272c;border-radius:10px;padding:10px;font-size:12px;font-weight:650;text-align:center}
+    .report-trend-toggle:disabled{opacity:.65}
+    .report-trend-body{margin-top:10px;min-width:0}
+    .report-trend-chart{background:#fafafa;border:1px solid #ececec;border-radius:10px;padding:10px;overflow:hidden}
+    .report-trend-chart svg{width:100%;height:auto;display:block;max-height:175px}
+    .report-trend-key{display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:6px;font-size:10px;color:#666}
+    .report-trend-key span{display:inline-flex;align-items:center;gap:4px}
+    .report-trend-key i{display:inline-block;width:12px;height:3px;border-radius:2px}
+  </style>
 </head>
 <body>
   <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="索伦引擎欢迎页">
@@ -1121,6 +1142,131 @@
       venue.title='球场原名：'+String(environment.venueName)+'。'+(environment.venueRecoveredAfterKickoff?'球场资料来自赛后匹配的 FotMob 比赛记录；没有可核验的赛前天气。':'球场资料来自 FotMob；若有天气数值，来源为 Open-Meteo 赛前预报。');
       hero.append(venue);
     }
+
+    // Uses the already validated day-list snapshot. No new API call on detail open.
+    function renderAttackDefensePanel(row){
+      const kickoff=Date.parse(String(row.kickoff||'')),snapshot=row.teamFormH2h;
+      if(snapshot?.verified!==true||!Number.isFinite(kickoff)||
+        !Number.isFinite(Date.parse(String(snapshot.capturedAt||'')))||
+        Date.parse(String(snapshot.capturedAt))>=kickoff)return null;
+      const summarize=form=>{
+        if(!Array.isArray(form?.matches))return null;
+        const games=form.matches.filter(g=>{
+          const at=Date.parse(String(g?.kickoffAt||''));
+          return Number.isFinite(at)&&at<kickoff&&
+            Number.isInteger(g.goalsFor)&&g.goalsFor>=0&&
+            Number.isInteger(g.goalsAgainst)&&g.goalsAgainst>=0;
+        }).slice(0,6);
+        if(games.length<2)return null;
+        const n=games.length;
+        return {n,for:games.reduce((a,g)=>a+g.goalsFor,0)/n,
+          against:games.reduce((a,g)=>a+g.goalsAgainst,0)/n,
+          clean:games.filter(g=>g.goalsAgainst===0).length};
+      };
+      const entries=[[row.home,summarize(snapshot.home)],[row.away,summarize(snapshot.away)]];
+      if(!entries.some(x=>x[1]))return null;
+      const panel=reportSection('近期攻防对比');
+      panel.classList.add('report-attack');
+      const grid=el('div','report-attack-grid');
+      for(const [name,stats] of entries){
+        const card=el('div','report-attack-team');
+        card.append(el('strong','',String(name)),el('small','',stats?'赛前最近'+stats.n+'场':'赛前样本不足'));
+        const add=(label,value)=>{const line=el('div','report-attack-row');line.append(el('span','',label),el('b','',value));card.append(line)};
+        add('场均进球',stats?stats.for.toFixed(1):'—');
+        add('场均失球',stats?stats.against.toFixed(1):'—');
+        add('零封场次',stats?stats.clean+'/'+stats.n:'—');
+        grid.append(card);
+      }
+      panel.append(grid,el('p','report-sub','仅统计本场开球前已核验的历史90分钟比分；不同球队可用场次可能不同。射门、射正缺少本场可比的完整赛前样本，暂不填造。'));
+      return panel;
+    }
+    // The authenticated market history endpoint is called only after an explicit tap.
+    const oddsTrendCache=new Map();
+    function renderOddsTrendChart(holder,trend){
+      holder.replaceChildren();
+      const points=Array.isArray(trend?.points)?trend.points.filter(p=>
+        Number.isFinite(Date.parse(String(p.at||'')))&&
+        ['home','draw','away'].every(k=>Number.isFinite(Number(p[k]))&&Number(p[k])>1&&Number(p[k])<=100)): [];
+      if(points.length<2){
+        holder.append(el('p','report-sub','本场已核验的赔率时间点不足，暂时无法绘制走势图。'));
+        return;
+      }
+      const wrap=el('div','report-trend-chart'),legend=el('div','report-trend-key');
+      const series=[['home','主胜','#bd3038'],['draw','平局','#b88a28'],['away','客胜','#257eac']];
+      for(const [key,label,color] of series){
+        const node=el('span',''),dot=el('i','');
+        dot.style.backgroundColor=color;node.append(dot,document.createTextNode(label));legend.append(node);
+      }
+      wrap.append(legend);
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox','0 0 320 134');
+      svg.setAttribute('role','img');svg.setAttribute('aria-label','威廉希尔已核验主胜、平局及客胜赔率变化趋势');
+      const nums=points.flatMap(p=>series.map(([key])=>Number(p[key])));
+      const low=Math.min(...nums),high=Math.max(...nums),padding=Math.max(.05,(high-low)*.09);
+      const bottom=low-padding,top=high+padding, x=i=>27+i*280/(points.length-1);
+      const y=n=>111-(n-bottom)*89/(top-bottom);
+      const svgEl=(name,props)=>{
+        const node=document.createElementNS('http://www.w3.org/2000/svg',name);
+        for(const [k,v] of Object.entries(props))node.setAttribute(k,String(v));
+        return node;
+      };
+      for(let i=0;i<3;i++){
+        const yy=16+i*46;svg.append(svgEl('line',{x1:27,y1:yy,x2:309,y2:yy,stroke:'#e9e9e9','stroke-width':1}));
+      }
+      for(const [key,label,color] of series){
+        const path=points.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(Number(p[key])).toFixed(1)).join(' ');
+        svg.append(svgEl('path',{d:path,fill:'none',stroke:color,'stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round'}));
+        const end=points[points.length-1];svg.append(svgEl('circle',{cx:x(points.length-1),cy:y(Number(end[key])),r:2.4,fill:color}));
+      }
+      const label=(s,attrs)=>{const t=svgEl('text',attrs);t.textContent=s;svg.append(t)};
+      label(points[0].phase==='初赔'?'初赔':'较早',{x:27,y:129,fill:'#888','font-size':9});
+      label('最新赛前',{x:309,y:129,fill:'#888','text-anchor':'end','font-size':9});
+      wrap.append(svg);
+      const latest=points[points.length-1];
+      wrap.append(el('p','report-sub','最后记录：'+
+        '主胜 '+Number(latest.home).toFixed(2)+' · 平 '+Number(latest.draw).toFixed(2)+
+        ' · 客胜 '+Number(latest.away).toFixed(2)+'（'+fmtStamp(latest.at)+'）'));
+      wrap.append(el('p','report-sub','按采集先后等距抽样展示；横向间距不代表实际时长。赔率变化不等于赛果判断。'));
+      holder.append(wrap);
+    }
+    function lazyOddsTrendPanel(context){
+      const row=context?.row;
+      if(!row)return null;
+      const panel=reportSection('赔率与盘口变化');
+      panel.append(el('p','report-sub','本场威廉希尔赔率走势。默认不请求历史数据，点击后才读取。'));
+      const button=el('button','report-trend-toggle','展开赔率走势');
+      button.type='button';
+      const body=el('div','report-trend-body');body.hidden=true;
+      panel.append(button,body);
+      button.onclick=async()=>{
+        if(!body.hidden){body.hidden=true;button.textContent='展开赔率走势';return}
+        body.hidden=false;button.textContent='收起赔率走势';
+        if(body.dataset.ready==='1')return;
+        const key=String(row.date||state.selectedDate)+'|'+String(row.no).padStart(3,'0');
+        const old=oddsTrendCache.get(key);
+        if(old&&old.token===authSession?.access_token&&Date.now()-old.at<5*60*1000){
+          renderOddsTrendChart(body,old.trend);body.dataset.ready='1';return;
+        }
+        body.replaceChildren(el('p','report-sub','正在按需读取本场已核验市场快照…'));
+        button.disabled=true;
+        try{
+          const params=new URLSearchParams({view:'market-trend',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
+          const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);let response;
+          try{response=await authorizedApiFetch(API+'?'+params.toString(),{cache:'no-store',signal:ctrl.signal})}
+          finally{clearTimeout(timer)}
+          if(!response.ok)throw Error('HTTP '+response.status);
+          const data=await response.json();
+          if(!data.ok||!data.trend||data.trend.home!==row.home||data.trend.away!==row.away)throw Error('场次或数据未通过核验');
+          if(state.selected!==row||!body.isConnected||!authSession?.access_token)return;
+          oddsTrendCache.delete(key);oddsTrendCache.set(key,{token:authSession.access_token,at:Date.now(),trend:data.trend});
+          while(oddsTrendCache.size>12)oddsTrendCache.delete(oddsTrendCache.keys().next().value);
+          renderOddsTrendChart(body,data.trend);body.dataset.ready='1';
+        }catch(error){
+          if(state.selected===row&&body.isConnected)body.replaceChildren(el('p','report-sub','本场赔率走势暂不可用；不影响现有赛前分析及赔率展示。'));
+        }finally{button.disabled=false}
+      };
+      return panel;
+    }
     function appendProfessionalReport(slot,report,context){
       const stories=Array.isArray(report.intelligence?.articles)?report.intelligence.articles.filter(x=>{
         try{const u=new URL(String(x.url||''));return u.protocol==='https:'&&u.hostname==='sports.sina.com.cn'&&u.pathname.startsWith('/l/')}
@@ -1146,11 +1292,15 @@
         }
       }
       if(stories.length||meaningfulChange||riskText){
-        const intel=reportSection('赛事情报与关注点');
+        const intel=reportSection('赛前情报');
         stories.forEach(item=>{
           const article=el('div','report-story'),title=el('a','report-story-link',String(item.title||'赛前报道').replace(/^\[小炮APP\]竞彩情报：/,''));
           title.href=item.url;title.target='_blank';title.rel='noopener noreferrer';
-          article.append(title,el('p','report-sub','新浪彩票 · '+fmtStamp(item.publishedAt)+' · 媒体观点，点击阅读原文'));intel.append(article);
+          const verifiedNotes=(Array.isArray(item.sections)?item.sections:[]).filter(x=>typeof x==='string'&&x.length>10&&x.length<65&&!/^(主队|客队)(有利|不利)$/.test(x)&&!/伤停|缺阵|需核实/.test(x)).slice(0,2);
+          article.classList.add('report-insight-line');
+          article.append(title);
+          for(const note of verifiedNotes)article.append(el('p','report-sub',note));
+          article.append(el('small','','新浪赛前报道 · '+fmtStamp(item.publishedAt)+' · 媒体观点，点击标题查看原文'));intel.append(article);
         });
         if(meaningfulChange){
           const changed=el('div','report-story');
@@ -1165,6 +1315,10 @@
         slot.append(intel);
       }
       renderHeroWeather(report.environment??context?.fallbackEnvironment??null);
+      if(first||last){
+        const trend=lazyOddsTrendPanel(context);
+        if(trend)slot.append(trend);
+      }
       const hasOdds=!!(last||first||(report.market?.asian??[]).some(x=>x.current||x.initial));
       const hasKelly=report.modelOddsIndex?.values?.length===3;
       const elo=report.feature?.elo,ai=report.feature?.kickoffAi;
@@ -1298,6 +1452,7 @@
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
       c.append(summary);
       const teamOverview=teamOverviewPanel(row);if(teamOverview)c.append(teamOverview);
+      const attackDefense=renderAttackDefensePanel(row);if(attackDefense)c.append(attackDefense);
 
       const professionalSlot=el('div','report-professional');c.append(professionalSlot);
       if(scoreInfo(row)||publishedGoalLambda(row)!==null){
@@ -1324,7 +1479,7 @@
       c.append(audit);
       c.append(el('div','report-disclaimer','仅供足球赛事数据研究参考，不构成投注建议或收益承诺。'));
       renderHeroWeather(row.environment??null);
-      loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot,fallbackEnvironment:row.environment??null});
+      loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot,row,fallbackEnvironment:row.environment??null});
       window.scrollTo({top:0,behavior:'instant'});
     }
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
