@@ -45,6 +45,12 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string):Promis
       output.saleCutoffAt=freeze?.cutoffAt??null;
       return settlePublishedScoreTop4(output);
     }
+    // Show an unpublished placeholder while the fixture is still upcoming; do not
+    // lock an empty/pending prediction or remove tomorrow's match from the day list.
+    if(Number.isFinite(Date.parse(String(row.kickoff??""))) &&
+       Date.now()<Date.parse(String(row.kickoff)) &&
+       !row.ftTop1 && freeze?.status==="CUTOFF_UNVERIFIED_NO_EARLY_SNAPSHOT")
+      return {...row,saleFreezeStatus:"PENDING_VALID_PUBLICATION",saleCutoffAt:null};
     // A legacy match whose kickoff preceded this feature cannot be certified retroactively.
     if(date==="2026-09-23"&&Number.isFinite(Date.parse(String(row.kickoff??"")))
        &&Date.now()>=Date.parse(String(row.kickoff)))
@@ -711,7 +717,7 @@ Deno.serve(async (req: Request) => {
     };
     const databaseResults=await loadVerifiedResults(String(data.date ?? date ?? ""));
     const sourceRows = data.rows.filter((row: Record<string, unknown>) =>
-      row?.version === data.modelVersion && row?.pregameVerified === true && row?.frozenAt
+      row?.version === data.modelVersion && row?.no && row?.kickoff
     ).map((row: Record<string, unknown>) => {
       const day = String(row.date ?? data.date ?? "");
       const no = String(row.no ?? "").padStart(3, "0");
