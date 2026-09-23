@@ -613,7 +613,7 @@
       const r=await authorizedApiFetch(API+'?action=invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({inviteCode:code}),cache:'no-store'});
       const j=await r.json();
       if(j.membership)memberInfo=j.membership;
-      if(!r.ok||!j.ok)throw Error(({INVALID_CODE:'邀请码不存在',SELF_INVITE_FORBIDDEN:'不可填写自己的邀请码',ALREADY_BOUND:'已绑定邀请人',INVALID_INVITER:'邀请人尚未验证邮箱',INVALID_INVITE_CODE:'邀请码格式不正确'}[j.error])||'邀请码暂不可使用：仅限公测期间新注册且完成邮箱验证的账户');
+      if(!r.ok||!j.ok)throw Error(({INVALID_CODE:'邀请码不存在',SELF_INVITE_FORBIDDEN:'不可填写自己的邀请码',ALREADY_BOUND:'已绑定邀请人',INVALID_INVITER:'邀请人账号不可用',INVALID_INVITE_CODE:'邀请码格式不正确'}[j.error])||'邀请码暂不可使用：仅限公测期间注册24小时内且尚未绑定邀请人的账户');
       return memberInfo;
     }
     function memberPanel(){
@@ -626,6 +626,11 @@
       stateCard.append(el('div','member-deadline',label));
       stateCard.append(el('div','member-muted',expires?'有效期至：'+expires+'（北京时间）':memberInfo.legacyGrace?'免费体验截至9月24日00:00（北京时间）':'9月24日起，当天比赛所有推荐仅向有效会员开放。'));
       panel.append(stateCard);
+      if(memberInfo.isAdmin===true){
+        const adminReview=el('button','','邀请审核后台');
+        adminReview.onclick=()=>{location.href='./review.html'};
+        stateCard.append(adminReview);
+      }
       const inviteCard=el('div','member-card');
       inviteCard.append(el('h3','','邀请好友 · 会员奖励'));
       const count=Number(memberInfo.invitedCount||0),total=el('p','member-muted');
