@@ -270,6 +270,92 @@
     .report-detail-upset-evidence{margin-top:9px;border-top:1px solid #f0e4d5;padding-top:8px}
     .report-detail-upset-evidence summary{font-size:12px;font-weight:650;color:#8c5b23;cursor:pointer}
     .report-detail-upset-evidence p{margin:7px 0 0;line-height:1.6;overflow-wrap:anywhere}
+
+    /* 2026-09-23: detail-only typography & information hierarchy refresh */
+    .detail{font-size:14px;color:#23302b;-webkit-font-smoothing:antialiased}
+    .detail .detail-card{background:#f5f6f6}
+    .detail .backbar{min-height:48px}
+    .detail .report-hero{padding:17px 16px 18px;background:linear-gradient(145deg,#152820,#243a30)}
+    .detail .report-hero-top{min-height:28px;align-items:center}
+    .detail .report-meta{font-size:11px;line-height:1.5;letter-spacing:.08px}
+    .detail .report-fixture{grid-template-columns:minmax(0,1fr) 65px minmax(0,1fr);gap:8px;margin:15px 0 8px}
+    .detail .report-team{gap:7px;font-size:14px;font-weight:720;line-height:1.3}
+    .detail .report-team .crest{width:48px;height:48px}
+    .detail .report-score{font-size:24px}
+    .detail .report-status{font-size:11px}
+    .detail .report-venue-line{font-size:11px;margin-top:8px}
+    .detail .report-section{margin:10px 12px 0;padding:14px 15px;border-radius:13px;box-shadow:0 1px 6px #1b33230b}
+    .detail .report-section h3{font-size:15px;line-height:1.45;font-weight:760;color:#25382f;margin:0 0 11px}
+    .detail .report-sub{font-size:12px;line-height:1.65;color:#697a70;margin:8px 0;overflow-wrap:anywhere}
+    .detail .report-core-summary{margin-top:12px;border-top:3px solid #2b7454}
+    .detail .report-key-picks{gap:8px;margin-bottom:10px}
+    .detail .report-main-pick,.detail .report-alt-pick{background:#f2f6f3;border:1px solid #e9efea;padding:11px 12px;border-radius:10px}
+    .detail .report-main-pick{background:#e7f2eb;border-color:#d5e6da}
+    .detail .report-main-pick small,.detail .report-alt-pick small{font-size:11px;margin-bottom:5px}
+    .detail .report-main-pick strong{font-size:21px;color:#19573b}
+    .detail .report-alt-pick strong{font-size:17px;color:#334f3e}
+    .detail .report-grid{gap:7px}
+    .detail .report-cell{background:#f4f7f5;border-radius:9px;padding:11px 5px}
+    .detail .report-cell small{font-size:11px;line-height:1.35;margin-bottom:5px}
+    .detail .report-cell strong{font-size:17px;font-variant-numeric:tabular-nums;line-height:1.35}
+    .detail .report-line{align-items:flex-start;gap:10px;padding:9px 0;line-height:1.55;font-size:12px}
+    .detail .report-line span{flex:0 0 38%;min-width:0;font-size:12px;line-height:1.55}
+    .detail .report-line b{flex:1;min-width:0;font-weight:650;line-height:1.55;text-align:right;font-variant-numeric:tabular-nums}
+    .detail .report-detail-upset{background:#fffdf9;border-color:#f0e7d7}
+    .detail .report-detail-upset h3{color:#72521f}
+    .detail .report-detail-upset-empty{padding:11px 14px;box-shadow:none}
+    .detail .report-detail-upset-empty h3{font-size:13px;margin:0 0 4px}
+    .detail .report-detail-upset-empty .report-sub{font-size:12px;margin:2px 0;color:#8c806b}
+    .detail .report-detail-upset-status{margin:2px 0 9px}
+    .detail .report-detail-upset-status b{font-size:13px}
+    .detail .report-detail-upset-evidence{margin-top:7px}
+    .detail .team-overview{padding:14px 15px}
+    .detail .team-overview-grid{gap:8px}
+    .detail .team-overview-team{padding:11px 10px;background:#f7f9f7}
+    .detail .team-overview-name{font-size:13px}
+    .detail .team-overview-metric{font-size:13px;line-height:1.45;margin-top:5px}
+    .detail .team-overview-muted,.detail .team-overview-rest{font-size:11.5px;line-height:1.5}
+    .detail .team-overview-h2h{margin-top:10px;padding-top:9px}
+    .detail .team-overview-h2h-name,.detail .team-overview-h2h-values{font-size:12px;line-height:1.55}
+    .detail .team-overview>.report-attack{margin:12px 0 0;padding:13px 0 0;border-top:1px solid #e6ece8;border-radius:0;box-shadow:none;background:transparent}
+    .detail .report-attack-grid{gap:8px}
+    .detail .report-attack-team{background:#f8faf9;padding:11px 10px}
+    .detail .report-attack-team strong{font-size:13px}
+    .detail .report-attack-team small{font-size:11px}
+    .detail .report-attack-row{font-size:12px;line-height:1.4}
+    .detail .report-attack>.report-sub{margin:9px 0 0;font-size:11px}
+    .detail .report-more{padding:0;border:1px solid #e7ebe8;box-shadow:0 1px 5px #1b332308;overflow:hidden}
+    .detail .report-more>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 15px;min-height:47px;font-size:13px;line-height:1.4;font-weight:700;color:#2c6045}
+    .detail .report-more>summary::-webkit-details-marker{display:none}
+    .detail .report-more>summary::after{content:'⌄';font-size:17px;color:#6d907c;line-height:1}
+    .detail .report-more[open]>summary::after{content:'⌃'}
+    .detail .report-more>.report-section{margin:0;padding:13px 15px;border-top:1px solid #edf0ed;box-shadow:none;border-radius:0}
+    .detail .report-more>.report-section h3{font-size:14px;margin-bottom:9px}
+    .detail .report-more>.report-more{margin:0;padding:0;border:0;border-top:1px solid #edf0ed;border-radius:0;box-shadow:none}
+    .detail .report-more>.report-more>summary{padding:12px 15px}
+    .detail .report-inline-help{margin-top:9px;padding-top:7px;border-top:1px solid #edf0ed}
+    .detail .report-inline-help summary{cursor:pointer;color:#357256;font-size:12px;font-weight:650;line-height:1.5}
+    .detail .report-inline-help .report-sub{margin:7px 0 0;font-size:11.5px}
+    .detail .report-trend-toggle{border-color:#dce9e0;color:#27664b;background:#f7faf8;font-size:12px}
+    .detail .report-attention{font-size:12px;line-height:1.6;padding:9px 11px}
+    .detail .report-story-link{font-size:13px;line-height:1.5}
+    .detail .report-insight-line{padding:10px 11px}
+    .detail .report-loading{margin:9px 15px;font-size:12px}
+    .detail .report-disclaimer{margin:12px 12px 0;padding:12px;border-radius:11px;font-size:11px;line-height:1.6;text-align:center}
+    @media(max-width:380px){
+      .detail .report-hero{padding:15px 12px 16px}
+      .detail .report-fixture{grid-template-columns:minmax(0,1fr) 55px minmax(0,1fr)}
+      .detail .report-team{font-size:12.5px}
+      .detail .report-team .crest{width:42px;height:42px}
+      .detail .report-section{margin-left:9px;margin-right:9px;padding:12px}
+      .detail .report-more{padding:0}
+      .detail .report-more>.report-section{padding:12px}
+      .detail .report-cell{padding:9px 2px}
+      .detail .report-cell strong{font-size:15px}
+      .detail .report-main-pick strong{font-size:19px}
+      .detail .report-line{gap:7px}
+      .detail .report-line span{flex-basis:36%}
+    }
   </style>
 </head>
 <body>
@@ -1293,7 +1379,7 @@
         }
       }
       if(stories.length||meaningfulChange||(riskText&&!context?.summary)){
-        const intel=reportSection('赛前情报');
+        const intel=reportSection('赛前情报与市场变化');
         stories.forEach(item=>{
           const article=el('div','report-story'),title=el('a','report-story-link',String(item.title||'赛前报道').replace(/^\[小炮APP\]竞彩情报：/,''));
           title.href=item.url;title.target='_blank';title.rel='noopener noreferrer';
@@ -1316,10 +1402,6 @@
         slot.append(intel);
       }
       renderHeroWeather(report.environment??context?.fallbackEnvironment??null);
-      if(first||last){
-        const trend=lazyOddsTrendPanel(context);
-        if(trend)slot.append(trend);
-      }
       const hasOdds=!!(last||first||(report.market?.asian??[]).some(x=>x.current||x.initial));
       const hasModelOddsProduct=Array.isArray(report.modelOddsIndex?.values)&&report.modelOddsIndex.values.length===3&&
         report.modelOddsIndex.values.every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v))&&Number(v)>=0);
@@ -1329,7 +1411,7 @@
       const hasAi=!!(ai&&reportTriplet([ai.home,ai.draw,ai.away]));
       const hasDetail=hasOdds||hasModelOddsProduct||hasElo||hasAi;
       if(hasDetail){
-        const detail=reportDisclosure('更多参考数据 · 赔率与球队实力');
+        const detail=reportDisclosure('专业数据 · 赔率、走势与实力');
         if(hasOdds){
           const odds=reportSection('机构赔率与盘口');
           if(first&&[first.home,first.draw,first.away].every(v=>Number.isFinite(Number(v))&&Number(v)>1))
@@ -1355,6 +1437,10 @@
             if(current)reportLine(odds,name+'赛前盘口',current);
           });
           detail.append(odds);
+          if(first||last){
+            const trend=lazyOddsTrendPanel(context);
+            if(trend)detail.append(trend);
+          }
         }
         if(hasModelOddsProduct){
           const k=reportSection('模型与赔率对照');
@@ -1388,9 +1474,10 @@
             const homeElo=Number(elo.home),awayElo=Number(elo.away),eloGap=homeElo-awayElo;
             reportLine(independent,'Elo 历史实力评分','主队 '+homeElo.toFixed(1)+' 分 · 客队 '+awayElo.toFixed(1)+' 分');
             reportLine(independent,'双方评分差',Math.abs(eloGap).toFixed(1)+' 分（'+(eloGap>0?'主队较高':eloGap<0?'客队较高':'双方相同')+'）');
-            independent.append(el('p','report-sub','怎么读：Elo 是根据球队历史比赛表现计算的实力参考分，同一评分体系下分数较高，表示历史实力评价相对较高；分差越大，代表该评分体系给出的历史实力差距越大。'));
-            independent.append(el('p','report-sub','例如主队1559.7分、客队1510.1分，相差49.6分，仅表示主队历史实力评分高49.6分，并不表示主队有49.6%的胜率优势或本场一定取胜。'));
-            independent.append(el('p','report-sub','Elo 不是本场胜平负概率；阵容、伤停、赛程及盘口变化仍需单独查看。'+(elo.shadow?' 此项属于影子研究数据，仍需进一步验证。':'')));
+            independent.append(el('p','report-sub',eloGap>0?'本场历史实力评分：主队较高 '+Math.abs(eloGap).toFixed(1)+' 分。':eloGap<0?'本场历史实力评分：客队较高 '+Math.abs(eloGap).toFixed(1)+' 分。':'双方历史实力评分相同。'));
+            const eloHelp=el('details','report-inline-help');
+            eloHelp.append(el('summary','','Elo 分数怎么看？'),el('p','report-sub','在同一评分体系下，分数较高表示历史实力评价相对较高，分差越大表示评分差距越大。它不是本场胜率或比分预测，阵容、赛程等信息仍需单独核对。'+(elo.shadow?' 本项仍属于影子研究数据。':'')));
+            independent.append(eloHelp);
           }
           if(hasAi)reportOddsGrid(independent,'Kickoff.ai 赛前概率',[ai.home,ai.draw,ai.away].map(v=>probability(v)));
           detail.append(independent);
@@ -1458,14 +1545,15 @@
       const sourceClean=raw?.resultFieldsUsed!==true&&raw?.result_fields_used!==true&&
         raw?.hurDirectionUsed!==true&&raw?.hur_direction_used!==true;
       if(!eligible||!timeValid||!sameOriginal||!sourceClean){
-        panel.append(el('p','report-sub','本场暂无与当前赛前预测匹配、可核验的风险预警记录。数据缺失不代表比赛没有风险。'));
+        panel.classList.add('report-detail-upset-empty');
+        panel.append(el('p','report-sub','本场暂无可核验的赛前冷门预警；不代表比赛没有风险。'));
         return panel;
       }
       const level=String(raw.riskLevel??raw.risk_level??'未确认');
       if(!['中','高'].includes(level)||raw.publish!==true){
-        const note=level==='低'?'本场现有赛前记录未达到中高等级预警条件。':'本场尚未发布已核验的中高等级预警。';
+        panel.classList.add('report-detail-upset-empty');
+        const note=level==='低'?'本场未达到中高等级预警条件；不代表没有风险。':'本场尚未发布已核验的中高等级预警。';
         panel.append(el('p','report-sub',note));
-        panel.append(el('p','report-sub','赛前记录时间：'+fmtStamp(freezeAt)+'。未发布预警不代表比赛结果确定。'));
         return panel;
       }
       const score=raw.riskScore??raw.risk_score;
@@ -1488,7 +1576,9 @@
         for(const reason of verifiedReasons)details.append(el('p','report-sub',String(reason)));
         panel.append(details);
       }else panel.append(el('p','report-sub','本场未取得可公开核验的分项依据，暂不补写原因。'));
-      panel.append(el('p','report-sub','预警记录时间：'+fmtStamp(freezeAt)+'。此处展示赛前历史记录，不根据赛果补录或改写。'));
+      const warningAudit=el('details','report-inline-help');
+      warningAudit.append(el('summary','','记录时间与数据说明'),el('p','report-sub','预警记录于 '+fmtStamp(freezeAt)+'；仅展示赛前冻结内容，不根据赛果补写。'));
+      panel.append(warningAudit);
       return panel;
     }
     function openDetail(row,history){
@@ -1504,7 +1594,8 @@
       center.append(el('div','report-score',hasScore(row)?scoreline(row):'VS'),el('div','report-status',statusText(row,history)));
       fixture.append(home,center,away);hero.append(fixture,el('div','report-meta','索伦引擎'));c.append(hero);
 
-      const summary=reportSection('本场速览');
+      const summary=reportSection('赛前核心数据');
+      summary.classList.add('report-core-summary');
       const choices=el('div','report-key-picks');
       const first=el('div','report-main-pick');
       const ftPass=row.pass===true||row.mode==='PASS'||row.tier==='PASS';
@@ -1524,16 +1615,17 @@
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
       c.append(summary);
       c.append(detailUpsetWarningPanel(row));
-      const teamOverview=teamOverviewPanel(row);if(teamOverview)c.append(teamOverview);
-      const attackDefense=renderAttackDefensePanel(row);if(attackDefense)c.append(attackDefense);
-
-      const professionalSlot=el('div','report-professional');c.append(professionalSlot);
       if(scoreInfo(row)||publishedGoalLambda(row)!==null){
         const score=reportDisclosure('展开比分与进球 · Top4 / 总进球');
         if(scoreInfo(row))score.append(scoreTop4Panel(row));
         if(publishedGoalLambda(row)!==null)score.append(goalPredictionPanel(row));
         c.append(score);
       }
+      const teamOverview=teamOverviewPanel(row);
+      const attackDefense=renderAttackDefensePanel(row);
+      if(teamOverview&&attackDefense){teamOverview.append(attackDefense);c.append(teamOverview);}
+      else {if(teamOverview)c.append(teamOverview);if(attackDefense)c.append(attackDefense);}
+      const professionalSlot=el('div','report-professional');c.append(professionalSlot);
       const advancedSlot=el('div','report-professional');c.append(advancedSlot);
       if(verified(row)){
         const review=reportSection('赛后数据对照');
@@ -1550,7 +1642,7 @@
       if(reportHas(row.handicapFrozenAt))reportLine(audit,'让球冻结时间',fmtStamp(row.handicapFrozenAt));
       audit.append(el('p','report-sub','赛前预测、后续盘口和媒体消息采集时间可能不同；未确认数据不填造。'));
       c.append(audit);
-      c.append(el('div','report-disclaimer','仅供足球赛事数据研究参考，不构成投注建议或收益承诺。'));
+      c.append(el('div','report-disclaimer','赛事数据仅供研究参考，不构成投注建议或收益承诺。'));
       renderHeroWeather(row.environment??null);
       loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot,row,fallbackEnvironment:row.environment??null});
       window.scrollTo({top:0,behavior:'instant'});
