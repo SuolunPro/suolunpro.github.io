@@ -302,7 +302,7 @@
     async function authRequest(path,body){
       // Supabase Auth uses redirect_to to route email confirmations back to this website.
       const redirectUrl=location.origin+location.pathname;
-      const authPath=/^(signup|recover)$/.test(path)?path+'?redirect_to='+encodeURIComponent(redirectUrl):path;
+      const authPath=/^(signup|recover|resend)$/.test(path)?path+'?redirect_to='+encodeURIComponent(redirectUrl):path;
       const res=await fetch(AUTH_BASE+'/auth/v1/'+authPath,{method:'POST',
         headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(10000)});
       const json=await res.json();
@@ -384,7 +384,7 @@
       if(hash.has('error')){
         const code=hash.get('error_code')||hash.get('error')||'UNKNOWN';
         history.replaceState(null,'',location.pathname+location.search);
-        return code==='otp_expired'?'邮箱验证链接已过期或被使用，请重新注册或联系管理员。':'邮箱验证未完成（'+code+'），请重新打开最新邮件中的链接。';
+        return code==='otp_expired'?'邮箱验证链接已过期或已使用，请在登录页填写注册邮箱，点击「重新发送邮箱验证邮件」。':'邮箱验证未完成（'+code+'），请在登录页申请重新发送验证邮件。';
       }
       const token=hash.get('access_token'),refresh=hash.get('refresh_token');
       if(!token||!refresh)return null;
@@ -436,7 +436,18 @@
     }
     function showLoginGate(message=''){document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';let gate=document.getElementById('loginGate');if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:10vh auto;padding:25px';document.body.append(gate)}gate.replaceChildren();const h=document.createElement('h2');h.textContent='索伦引擎 · 会员登录';const note=document.createElement('p');note.textContent='使用邮箱和密码注册或登录；注册时可填写好友邀请码。邮箱验证通过后可领取公测会员。';gate.append(h,note);const email=document.createElement('input'),pass=document.createElement('input'),msg=document.createElement('p');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=document.createElement('label'),remember=document.createElement('input');rememberLabel.className='auth-remember';remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,document.createTextNode('在此设备保持登录（共用设备请取消）'));const invite=document.createElement('input');invite.placeholder='好友邀请码（注册时填写，选填）';invite.maxLength=10;invite.autocomplete='off';invite.value=savedInvite();gate.append(email,pass,invite,rememberLabel,msg);if(message)msg.textContent=message;const saveSession=data=>{const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器无法保存登录状态，下次可能需要重新登录';location.reload()};for(const mode of ['登录','注册']){const btn=document.createElement('button');btn.textContent=mode;btn.onclick=async()=>{if(!email.value.trim()||!pass.value){msg.textContent='请填写邮箱和密码';return}if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}btn.disabled=true;msg.textContent='处理中…';try{const inviteCode=invite.value.trim().toUpperCase();if(mode==='注册'&&inviteCode&&!/^[A-F0-9]{10}$/.test(inviteCode)){msg.textContent='请输入10位有效邀请码，或留空';return}
         if(mode==='注册'&&inviteCode)try{localStorage.setItem(INVITE_KEY,inviteCode)}catch{}
-        const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(mode==='注册'?{data:{invite_code:inviteCode}}:{})});if(data.access_token&&data.user)saveSession(data);else msg.textContent='注册申请已提交，请查收邮箱验证邮件，点击最新链接后返回索伦引擎登录。'}catch(e){msg.textContent=e.message}finally{btn.disabled=false}};gate.append(btn)}const recover=document.createElement('button');recover.textContent='忘记密码';recover.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='已请求发送密码重置邮件'}catch(e){msg.textContent=e.message}};gate.append(recover)}
+        const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(mode==='注册'?{data:{invite_code:inviteCode}}:{})});if(data.access_token&&data.user)saveSession(data);else msg.textContent='注册申请已提交。若未收到邮件，请核对邮箱或点击下方「重新发送邮箱验证邮件」。';}catch(e){msg.textContent=e.message}finally{btn.disabled=false}};gate.append(btn)}const recover=document.createElement('button');recover.textContent='忘记密码';recover.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='已请求发送密码重置邮件'}catch(e){msg.textContent=e.message}};gate.append(recover);
+      const resend=document.createElement('button');resend.textContent='重新发送邮箱验证邮件';
+      resend.onclick=async()=>{
+        const address=email.value.trim();if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(address)){msg.textContent='请先填写注册时使用的邮箱';return}
+        resend.disabled=true;msg.textContent='正在申请重发…';
+        try{await authRequest('resend',{type:'signup',email:address});
+          msg.textContent='已提交重发请求。请检查收件箱与垃圾邮件；是否实际送达取决于邮箱验证及发信配置。';
+          setTimeout(()=>{resend.disabled=false},60000);
+        }catch(e){msg.textContent='重发暂未成功：'+e.message;resend.disabled=false}
+      };
+      gate.append(resend);
+    }
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null};
     const ARCHIVED_FOCUS={
       '2026-09-13':['002','006','008','009','020','022','023'],
