@@ -1,4 +1,21 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>索伦引擎 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}a{color:#b72129}</style></head><body><div class="wrap"><h1>索伦引擎 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><div id="captcha" style="margin:10px 0;min-height:66px"></div><p class="muted">请完成 Cloudflare 安全验证；也可从索伦客户端登录后返回本页。</p><button id="signIn" disabled>登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden><div class="grid"><div class="stat">注册会员总数<b id="total">—</b></div><div class="stat">今日新增会员<b id="today">—</b></div><div class="stat">系统标记邮箱已确认<b id="verified">—</b></div><div class="stat">实际记录访次<b id="visits">—</b></div></div><p class="muted">展示访问计数：<span id="display">—</span>。统计基于数据库记录，今日按北京时间计算。关闭邮箱验证后，「已确认」可能是系统自动标记，不等于用户实际收到过验证邮件。</p><button id="refresh">刷新</button><button id="logout">退出</button></section><p><a href="./review.html">前往邀请审核后台</a>　·　<a href="./">返回索伦客户端</a></p></div><script>"use strict";
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>索伦引擎 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}.stat.primary{grid-column:1/-1;background:#172031;color:#fff;padding:20px}.stat.primary b{font-size:44px;color:#fff}.stat.primary small{font-size:12px;color:#c5d1e1;display:block;margin-top:4px}.section-title{font-size:16px;margin:18px 0 10px}.daily-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.daily-item{text-align:center;background:#f5f7f9;border-radius:8px;padding:8px 2px;font-size:12px}.daily-item strong{display:block;font-size:17px;margin-top:5px}.daily-item small{font-size:10px;color:#687386}.stat-caption{font-size:11px;line-height:1.6;color:#666;margin:10px 0 0}.statusline{font-size:12px;color:#687386;margin:10px 0}@media(max-width:390px){.daily-list{gap:3px}.daily-item{font-size:10px;padding:7px 1px}.daily-item strong{font-size:15px}}a{color:#b72129}</style></head><body><div class="wrap"><h1>索伦引擎 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><div id="captcha" style="margin:10px 0;min-height:66px"></div><p class="muted">请完成 Cloudflare 安全验证；也可从索伦客户端登录后返回本页。</p><button id="signIn" disabled>登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden>
+<h2>注册人数概览</h2>
+<div class="grid">
+<div class="stat primary">累计注册账号<b id="total">—</b><small>Supabase 真实账号数 · 非访问次数</small></div>
+<div class="stat">今日新注册<b id="today">—</b></div>
+<div class="stat">昨日新注册<b id="yesterday">—</b></div>
+<div class="stat">近7天注册<b id="week">—</b></div>
+<div class="stat">近30天注册<b id="month">—</b></div>
+</div>
+<p class="stat-caption">统计的是已创建的账号，包含管理员及未独立验证邮箱的账号；不代表去重后的真实用户人数。今日、昨日按北京时间计算；近7天、近30天为滚动时间范围。</p>
+<h3 class="section-title">最近7天 · 每日注册</h3>
+<div id="daily" class="daily-list" aria-label="最近7天每日注册账号数"></div>
+<h3 class="section-title">其他统计</h3>
+<div class="grid"><div class="stat">系统标记邮箱已确认<b id="verified">—</b></div><div class="stat">实际记录访次<b id="visits">—</b></div></div>
+<p class="muted">展示访问计数：<span id="display">—</span>。邮箱确认可能由系统自动标记，不能证明用户确实收到了验证邮件。</p>
+<p class="statusline" id="updated">等待更新…</p>
+<button id="refresh">刷新统计</button><button id="logout">退出</button>
+</section><p><a href="./review.html">前往邀请审核后台</a>　·　<a href="./">返回索伦客户端</a></p></div><script>"use strict";
 const base="https://ttydbcejxqxdkcfoizkj.supabase.co";
 const key="sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa";
 const siteKey="0x4AAAAAAFBKndRZlD2qH4Km";
@@ -28,6 +45,20 @@ async function refresh(){
  const d=await r.json();
  $("total").textContent=Number(d.members_total).toLocaleString();
  $("today").textContent=Number(d.members_today).toLocaleString();
+ $("yesterday").textContent=Number(d.members_yesterday??0).toLocaleString();
+ $("week").textContent=Number(d.members_7d??0).toLocaleString();
+ $("month").textContent=Number(d.members_30d??0).toLocaleString();
+ const daily=$("daily");daily.replaceChildren();
+ if(Array.isArray(d.registration_daily_7d)){
+   d.registration_daily_7d.forEach(row=>{
+     const item=document.createElement("div");item.className="daily-item";
+     const name=document.createElement("small");name.textContent=String(row.date||"").slice(5).replace("-","/");
+     const value=document.createElement("strong");value.textContent=Number(row.count||0).toLocaleString();
+     item.append(name,value);daily.append(item);
+   });
+ }
+ $("updated").textContent="数据更新于："+(d.stats_updated_at?
+   new Date(d.stats_updated_at).toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false})+"（北京时间）":"当前");
  $("verified").textContent=Number(d.email_verified).toLocaleString();
  $("visits").textContent=Number(d.visits_recorded).toLocaleString();
  $("display").textContent=Number(d.visits_display).toLocaleString();
