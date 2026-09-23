@@ -1033,38 +1033,19 @@
 
     function engineBanner(){const b=el('button','engine-banner');b.type='button';b.append(el('strong','','索伦引擎 · 多维量化分析体系'),el('small','','8层分析架构 · 多维量化评估 · 多模型融合决策'));const tags=el('div','engine-tags');['市场赔率','球队实力','独立概率','风险审计'].forEach(t=>tags.append(el('span','',t)));b.append(tags);b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};return b}
     function updateNotice(){if(state.tab!=='home'||!['daily','overview'].includes(state.model))return null;const p=el('div','');p.style.cssText='margin:10px 16px;padding:10px 12px;background:#fff8ec;border:1px solid #f1d9b0;border-radius:10px;color:#795726;font-size:12px;line-height:1.65';p.textContent='数据更新提示：当天比赛预计中午12:00左右更新。初盘阶段赔率及盘口波动可能较大，建议结合后续数据谨慎参考；临近赛前5小时市场数据通常更具参考价值，但仍可能出现明显变化。请以页面最新更新时间及赛前分析为准。';return p}
-    // Paint the first visible cards immediately; spread the remaining cards over
-    // animation frames so tapping dates / modules never blocks on a full-pool redraw.
-    // Every row is still rendered and all original card/detail functions are retained.
-    let cardRenderEpoch=0;
-    function renderCardChunks(grid,rows,createCard){
-      const epoch=cardRenderEpoch;
-      let index=0;
-      function chunk(){
-        if(epoch!==cardRenderEpoch||!grid.isConnected)return;
-        const fragment=document.createDocumentFragment();
-        const until=Math.min(index+6,rows.length);
-        for(;index<until;index++)fragment.append(createCard(rows[index]));
-        grid.append(fragment);
-        if(index<rows.length)requestAnimationFrame(chunk);
-      }
-      chunk();
-    }
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));const updateTip=updateNotice();if(updateTip)box.append(updateTip);
       if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前风险记录':state.model==='daily'?'暂无重点观察场次':'暂无已发布赛事',state.model==='upset'?'本日暂无满足证据条件的赛事风险记录；单独HUR风险灯不生成方向。':'当前没有符合筛选条件的赛事记录。'),notice());return}
-      const model=state.model;
-      const grid=el('div','cards');box.append(grid,notice());
-      renderCardChunks(grid,rows,r=>model==='upset'?upsetCard(r):matchCard(r,history));
+      const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
-    function renderHome(){if(state.unopenedDate){const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(empty('赛事数据待更新','正在等待该日期比赛与预测同步。'));return}const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('风险观察',all.length+'场 · 索伦引擎赛前风险记录',all);return}if(state.model==='overview'){renderCards('全场胜平负',all.length+'场 · 索伦引擎',all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦引擎',all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('重点赛事',focus.length+'场 · 仅展示已标记的赛前重点观察场次'));if(focus.length){const g=el('div','cards');box.append(g);renderCardChunks(g,focus,row=>matchCard(row,false))}else box.append(empty('今日暂无重点观察场次','当前没有符合筛选条件的场次。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
+    function renderHome(){if(state.unopenedDate){const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(empty('赛事数据待更新','正在等待该日期比赛与预测同步。'));return}const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('风险观察',all.length+'场 · 索伦引擎赛前风险记录',all);return}if(state.model==='overview'){renderCards('全场胜平负',all.length+'场 · 索伦引擎',all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦引擎',all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('重点赛事',focus.length+'场 · 仅展示已标记的赛前重点观察场次'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无重点观察场次','当前没有符合筛选条件的场次。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
     function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 索伦引擎',rows)}
     async function renderHistory(){
       if(state.unopenedDate){$('content').replaceChildren(empty('赛事数据待更新','可选择此前日期查看赛果。'));return}
       const box=$('content');box.replaceChildren(sectionHead('真实战绩','仅已核验赛果'));
       if(!state.history){box.append(empty('正在读取战绩','只统计同时具备赛前冻结证据和赛果核验的记录。'));try{const h=await load('history',state.selectedDate);state.history=h;renderHistory()}catch(e){box.replaceChildren(errorBox(e))}return}
       const rows=filterRows(state.history.rows||[]);if(!rows.length){box.append(empty('暂无已核验战绩','当前模块没有同时满足赛前冻结与赛果核验的记录。'),notice());return}
-      const grid=el('div','cards');const statsNote=el('section','risk-sample');statsNote.style.cssText='margin:12px 16px;padding:14px 15px;background:#fff;border:1px solid #eee;border-radius:12px;font-size:12px;line-height:1.7;color:#555';statsNote.textContent='统计口径：本页仅展示已核验赛果的场次；顶部百分比按当前所选玩法、当前日期和有效评测场次计算。胜平负首选=首选命中数/有效场次；双选覆盖=首选或次选命中数/有效场次；让球=对应让球方向命中数/具备赛前让球预测及赛果的场次；综合评测=页面所列方向任一命中/有效场次；冷门避冷=原始首选未打出/已核验预警场次。各玩法分母不同，不可混作同一胜率；缺预测或缺赛果的场次不计入命中率，须另行列示。';box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),statsNote,grid,notice());renderCardChunks(grid,rows,r=>matchCard(r,true))
+      const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,true)));const statsNote=el('section','risk-sample');statsNote.style.cssText='margin:12px 16px;padding:14px 15px;background:#fff;border:1px solid #eee;border-radius:12px;font-size:12px;line-height:1.7;color:#555';statsNote.textContent='统计口径：本页仅展示已核验赛果的场次；顶部百分比按当前所选玩法、当前日期和有效评测场次计算。胜平负首选=首选命中数/有效场次；双选覆盖=首选或次选命中数/有效场次；让球=对应让球方向命中数/具备赛前让球预测及赛果的场次；综合评测=页面所列方向任一命中/有效场次；冷门避冷=原始首选未打出/已核验预警场次。各玩法分母不同，不可混作同一胜率；缺预测或缺赛果的场次不计入命中率，须另行列示。';box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),statsNote,grid,notice())
     }
     function renderProfile(){
       const box=$('content');
@@ -1799,7 +1780,7 @@
       const coverage=state.model==='goals'?' · 严格xG正式 '+rows.filter(isFormalGoalPrediction).length+'场 · 历史进球参考 '+rows.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda(row)!==null).length+'场 · 有效正式评测 '+evaluable.length+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
-    function render(){cardRenderEpoch++;closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile'||(memberInfo?.active===false&&state.tab!=='profile');if(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday())){renderMemberRequired();return}if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
+    function render(){closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile'||(memberInfo?.active===false&&state.tab!=='profile');if(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday())){renderMemberRequired();return}if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
     async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
@@ -1839,25 +1820,9 @@
       }catch(e){if(requestId!==dateRequestId)return;if(state.baseDate&&date>state.baseDate){showUnopened(date);return}$('content').replaceChildren(errorBox(e))}
     }
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦引擎';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
-    let modelRenderFrame=0;
-    document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{
-      if(state.model===b.dataset.model&&state.tab==='home')return;
-      document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');state.model=b.dataset.model;state.tab='home';
-      document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));
-      [$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];
-      if(modelRenderFrame)cancelAnimationFrame(modelRenderFrame);
-      modelRenderFrame=requestAnimationFrame(()=>{modelRenderFrame=0;if(state.model===b.dataset.model&&state.tab==='home')render()});
-    });
+    document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;state.tab='home';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];requestAnimationFrame(()=>{if(state.model===b.dataset.model&&state.tab==='home')render()})});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
-    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{
-      if(state.tab===b.dataset.tab)return;
-      if(modelRenderFrame){cancelAnimationFrame(modelRenderFrame);modelRenderFrame=0}
-      document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');state.tab=b.dataset.tab;
-      if(state.tab==='home'&&state.selectedDate!==beijingToday()){cardRenderEpoch++;selectDate(beijingToday());return}
-      render()
-    });
+    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}render()});
     $('back').onclick=closeDetail;
     function showAuthRetry(error){
       document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';
