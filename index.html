@@ -1282,16 +1282,9 @@
           const note=el('p','report-attention');
           note.append(el('b','','赛前关注 · '),document.createTextNode(plainRisk));
           summary.append(note);
-        }else if(stories.length){
-          const story=stories[0],headline=String(story.title||'').replace(/^\[小炮APP\]竞彩情报：/,'').trim();
-          if(headline&&headline.length<=70){
-            const note=el('p','report-attention');
-            note.append(el('b','','媒体关注 · '),document.createTextNode(headline),el('span','','（新浪赛前报道）'));
-            summary.append(note);
-          }
         }
       }
-      if(stories.length||meaningfulChange||riskText){
+      if(stories.length||meaningfulChange||(riskText&&!context?.summary)){
         const intel=reportSection('赛前情报');
         stories.forEach(item=>{
           const article=el('div','report-story'),title=el('a','report-story-link',String(item.title||'赛前报道').replace(/^\[小炮APP\]竞彩情报：/,''));
