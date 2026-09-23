@@ -504,8 +504,13 @@
       // Supabase Auth uses redirect_to to route email confirmations back to this website.
       const redirectUrl=location.origin+location.pathname;
       const authPath=/^(signup|recover|resend)$/.test(path)?path+'?redirect_to='+encodeURIComponent(redirectUrl):path;
+      // GoTrue reads CAPTCHA from gotrue_meta_security, not a top-level captcha_token.
+      // Normalize centrally so signup, password login, recovery and resend all work.
+      const payload=body&&typeof body==='object'&&typeof body.captcha_token==='string'
+        ? {...body,gotrue_meta_security:{...(body.gotrue_meta_security||{}),captcha_token:body.captcha_token}}:body;
+      if(payload!==body)delete payload.captcha_token;
       const res=await fetch(AUTH_BASE+'/auth/v1/'+authPath,{method:'POST',
-        headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(10000)});
+        headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(payload),cache:'no-store',signal:AbortSignal.timeout(10000)});
       const json=await res.json();
       if(!res.ok){const err=Error(json.msg||json.error_description||json.message||'请求失败');err.status=res.status;throw err}
       return json;
