@@ -7,6 +7,57 @@ const db = createClient(
   { auth: { persistSession: false, autoRefreshToken: false } },
 );
 const handicapName: Record<string,string> = { HWIN: "让胜", HDRAW: "让平", HLOSS: "让负" };
+
+/* A per-match customer-side freeze, independent of later mother-model refreshes.
+   Without verified official cutoff, lock the first valid published snapshot early.
+   Results and independent team/logo metadata remain live; prediction fields do not. */
+async function applySaleFreeze(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]> {
+  if(date<"2026-09-23")return rows; // historic data predating deployment: do not relabel as sale-verified.
+  const {data,error}=await db.rpc("soren_capture_sale_snapshots_v1",{p_date:date,p_rows:rows});
+  if(error||!Array.isArray(data))throw new Error("SALE_FREEZE_UNAVAILABLE:"+String(error?.message??"INVALID_RESPONSE"));
+  const byNo=new Map(data.map((x:Record<string,unknown>)=>[String(x.no??""),x]));
+  const pick=(v:unknown)=>({"主胜":"H","平":"D","客胜":"A","3":"H","1":"D","0":"A","H":"H","D":"D","A":"A"}[String(v??"")]??null);
+  return rows.map(row=>{
+    const freeze=byNo.get(String(row.no??"").padStart(3,"0"));
+    const saved=freeze?.snapshot;
+    if(saved&&typeof saved==="object"&&!Array.isArray(saved)){
+      const original=saved as Record<string,unknown>;
+      // Only results, actual match status and presentation assets may change after locking.
+      const output:Record<string,unknown>={...original};
+      const mutable=["resultVerified","result","resultHome","resultAway","resultScore",
+        "resultSource","resultVerifiedAt","matchStatus","resultStatus","resultAt",
+        "handicapResult","homeLogo","awayLogo","logoSource","venueName",
+        "venueCity","pitchSurface"];
+      for(const key of mutable)if(Object.prototype.hasOwnProperty.call(row,key))output[key]=row[key];
+      const hasResult=output.resultVerified===true;
+      if(hasResult){
+        const actual=pick(output.result);
+        const first=pick(original.ftTop1),second=pick(original.second);
+        output.top1Hit=actual!==null&&first===actual;
+        output.coverageHit=actual!==null&&(first===actual||second===actual);
+        const hp=String(original.handicapTop1??original.handicap??"");
+        output.handicapHit=["让胜","让平","让负"].includes(String(output.handicapResult??""))
+          ?hp===String(output.handicapResult):null;
+      }else{output.top1Hit=null;output.coverageHit=null;output.handicapHit=null;}
+      output.saleFreezeStatus=freeze?.status??"UNKNOWN";
+      output.saleFreezeCapturedAt=freeze?.capturedAt??null;
+      output.saleFreezeLockedAt=freeze?.lockedAt??null;
+      output.saleCutoffAt=freeze?.cutoffAt??null;
+      return settlePublishedScoreTop4(output);
+    }
+    // A legacy match whose kickoff preceded this feature cannot be certified retroactively.
+    if(date==="2026-09-23"&&Number.isFinite(Date.parse(String(row.kickoff??"")))
+       &&Date.now()>=Date.parse(String(row.kickoff)))
+      return {...row,saleFreezeStatus:"LEGACY_SALE_CUTOFF_UNVERIFIED",saleCutoffAt:null};
+    // Missing pre-cutoff evidence: fail closed rather than display a post-sale new prediction.
+    return {...row,pregameVerified:false,ftTop1:null,second:null,handicap:null,
+      handicapTop1:null,handicapSecond:null,scoreTop4:null,goalPrediction:null,
+      upsetWarning:null,confidence:null,probabilities:null,homePct:null,drawPct:null,
+      awayPct:null,saleFreezeStatus:String(freeze?.status??"UNVERIFIED"),
+      saleCutoffAt:freeze?.cutoffAt??null};
+  });
+}
+
 const TEAM_LOGO_PUBLIC_BASE = Deno.env.get("SUPABASE_URL") + "/storage/v1/object/public/team-logos/";
 
 async function loadTeamLogoMap(){
@@ -35,6 +86,52 @@ function attachTeamLogos(row:Record<string,unknown>,logos:Map<string,string>){
     awayLogo:logos.get(away)??null,
     logoSource:"supabase-cache",
   };
+}
+
+/* Read verified environment snapshots with the day list, avoiding an extra
+   report-network wait before displaying the weather and stadium header. */
+async function loadDayEnvironment(date:string){
+ const out=new Map<string,Record<string,unknown>>();
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return out;
+ try{
+  const {data,error}=await db.from("soren_environment_cache_v1")
+   .select("match_no,home_team,away_team,kickoff_at,venue_name,venue_city,pitch_surface,temperature_c,humidity_pct,precipitation_probability_pct,wind_speed_kmh,forecast_time,forecast_fetched_at,quality,prematch_verified,created_at")
+   .eq("pool_date",date).order("created_at",{ascending:false}).limit(200);
+  if(error)throw error;
+  for(const v of data??[]){
+   const no=String(v.match_no??"").padStart(3,"0");
+   if(!v.venue_name||!["EXACT_STADIUM_FORECAST","VERIFIED_STADIUM_PREMATCH","VERIFIED_STADIUM_POSTMATCH"].includes(String(v.quality)))continue;
+   const key=no+"|"+String(v.home_team)+"|"+String(v.away_team);
+   const kickoff=Date.parse(String(v.kickoff_at??""));
+   if(!Number.isFinite(kickoff))continue;
+   const prev=out.get(key);
+   const hasWeather=v.quality==="EXACT_STADIUM_FORECAST"&&v.prematch_verified===true&&
+     Number.isFinite(Date.parse(String(v.forecast_fetched_at??"")))&&
+     Date.parse(String(v.forecast_fetched_at))<kickoff&&
+     v.temperature_c!==null&&v.humidity_pct!==null&&
+     Number.isFinite(Number(v.temperature_c))&&Number.isFinite(Number(v.humidity_pct));
+   if(prev?.historicalForecast===true&&!hasWeather)continue;
+   if(prev&&!(hasWeather&&prev.historicalForecast!==true))continue;
+   out.set(key,{venueName:v.venue_name,venueCity:v.venue_city,pitchSurface:v.pitch_surface,
+    kickoffAt:v.kickoff_at,temperatureC:hasWeather?v.temperature_c:null,
+    humidityPct:hasWeather?v.humidity_pct:null,
+    precipitationProbabilityPct:hasWeather?v.precipitation_probability_pct:null,
+    windKmh:hasWeather?v.wind_speed_kmh:null,
+    historicalForecast:hasWeather,venueRecoveredAfterKickoff:v.quality==="VERIFIED_STADIUM_POSTMATCH"});
+  }
+ }catch(error){console.error("DAY_ENVIRONMENT_READ_UNAVAILABLE",error)}
+ return out;
+}
+function attachDayEnvironment(row:Record<string,unknown>,snapshots:Map<string,Record<string,unknown>>){
+ const home=String(row.home??row.homeTeam??row.home_team??"");
+ const away=String(row.away??row.awayTeam??row.away_team??"");
+ const key=String(row.no??row.match_no??"").padStart(3,"0")+"|"+home+"|"+away;
+ const env=snapshots.get(key);
+ const kickoff=Date.parse(String(row.kickoff??row.kickoff_at??""));
+ if(!env||!Number.isFinite(kickoff)||!Number.isFinite(Date.parse(String(env.kickoffAt)))||
+    Math.abs(kickoff-Date.parse(String(env.kickoffAt)))>300000)return row;
+ const {kickoffAt,...environment}=env;
+ return {...row,environment};
 }
 
 async function loadVerifiedResults(date:string){
@@ -115,6 +212,24 @@ function attachHistoricalScoreTop4(row:Record<string,unknown>,scores:Map<string,
  return {...row,scoreTop4:{pregameVerified:true,frozenAt:item.source_frozen_at,picks,sourceKind:"HISTORICAL_BLIND_REPLAY",sourceLabel:"历史盲跑重建 · 豪竞3.8比分规则",settlementStatus:actual===null?"PENDING":hit?"SUCCESS":"FAILURE",hitScore:hit?actual:null}};
 }
 
+/* Score predictions are immutable; settle only a response copy against verified 90-minute results.
+   Upstream snapshots can retain PENDING after customer result synchronization. */
+function settlePublishedScoreTop4(row:Record<string,unknown>){
+ const original=row.scoreTop4 as Record<string,unknown>|null|undefined;
+ if(!original||original.pregameVerified!==true||!Array.isArray(original.picks)||original.picks.length!==4||row.resultVerified!==true)return row;
+ const frozen=Date.parse(String(original.frozenAt??"")),kickoff=Date.parse(String(row.kickoff??""));
+ if(!Number.isFinite(frozen)||!Number.isFinite(kickoff)||frozen>=kickoff)return row;
+ if(row.resultHome===null||row.resultHome===undefined||row.resultAway===null||row.resultAway===undefined)return row;
+ const home=Number(row.resultHome),away=Number(row.resultAway);
+ if(!Number.isInteger(home)||!Number.isInteger(away)||home<0||away<0)return row;
+ const actual=home+"-"+away;
+ const hit=(original.picks as Record<string,unknown>[]).some(p=>String(p.score)===actual);
+ const updated={...original,settlementStatus:hit?"SUCCESS":"FAILURE",hitScore:hit?actual:null,
+   resultHome:home,resultAway:away,resultSource:row.resultSource??null,
+   settledAt:row.resultVerifiedAt??original.settledAt??null};
+ return {...row,scoreTop4:updated};
+}
+
 async function loadGoalPredictions(date: string) {
   const {data,error}=await db.from("soren_prematch_goals_v1").select("pool_date,match_no,home_team,away_team,kickoff_at,frozen_at,lambda_home,lambda_away").eq("pool_date",date);
   if(error)throw error;
@@ -127,6 +242,73 @@ function attachGoalPrediction(row:Record<string,unknown>,goals:Map<string,Record
   const home=Number(g.lambda_home),away=Number(g.lambda_away);
   if(!Number.isFinite(frozen)||!Number.isFinite(kickoff)||!Number.isFinite(sourceKickoff)||frozen>=kickoff||Math.abs(kickoff-sourceKickoff)>60000||!Number.isFinite(home)||!Number.isFinite(away)||home<=0||away<=0||home+away>15)return row;
   return {...row,goalPrediction:{pregameVerified:true,frozenAt:g.frozen_at,lambdaHome:home,lambdaAway:away,source:"豪竞赛前冻结泊松参数"}};
+}
+async function loadGoalFormReferences(date: string) {
+  const {data,error}=await db.from("soren_prematch_goals_form_shadow_v1")
+    .select("pool_date,match_no,home_team,away_team,kickoff_at,frozen_at,lambda_home,lambda_away,home_hist_n,away_hist_n,method")
+    .eq("pool_date",date);
+  if(error)throw error;
+  return new Map((data??[]).map((g:Record<string,unknown>)=>[String(g.match_no??"").padStart(3,"0"),g]));
+}
+function attachGoalFormReference(row:Record<string,unknown>,goals:Map<string,Record<string,unknown>>){
+  if((row.goalPrediction as Record<string,unknown>|undefined)?.pregameVerified===true)return row;
+  const g=goals.get(String(row.no??"").padStart(3,"0"));
+  if(!g||String(g.home_team)!==String(row.home)||String(g.away_team)!==String(row.away)
+     ||g.method!=="FORM_LAST6_GOALS_POISSON_SHADOW_V1")return row;
+  const freeze=Date.parse(String(g.frozen_at)),kickoff=Date.parse(String(row.kickoff)),originalKickoff=Date.parse(String(g.kickoff_at));
+  const home=Number(g.lambda_home),away=Number(g.lambda_away);
+  if(!Number.isFinite(freeze)||!Number.isFinite(kickoff)||!Number.isFinite(originalKickoff)
+     ||freeze>=kickoff||Math.abs(kickoff-originalKickoff)>60000
+     ||Number(g.home_hist_n)<6||Number(g.away_hist_n)<6
+     ||!Number.isFinite(home)||!Number.isFinite(away)||home<0.2||away<0.2||home>3.8||away>3.8)return row;
+  return {...row,goalPrediction:{pregameVerified:true,frozenAt:g.frozen_at,lambdaHome:home,lambdaAway:away,
+     sourceKind:"FORM_LAST6_GOALS_POISSON_SHADOW_V1",formalEligible:false,source:"近6场历史得失球泊松参考（非严格xG）",
+     sampleHome:Number(g.home_hist_n),sampleAway:Number(g.away_hist_n)}};
+}
+async function loadTeamScheduleSnapshots(date:string){
+ const {data,error}=await db.from("soren_team_schedule_snapshot_v1")
+  .select("pool_date,match_no,home_team,away_team,kickoff_at,fotmob_match_id,home_team_id,away_team_id,home_schedule,away_schedule,captured_at,fetched_at,source_quality")
+  .eq("pool_date",date);
+ if(error)throw error;
+ return new Map((data??[]).map((s:Record<string,unknown>)=>[String(s.match_no??"").padStart(3,"0"),s]));
+}
+function attachTeamSchedule(row:Record<string,unknown>,snapshots:Map<string,Record<string,unknown>>){
+ const s=snapshots.get(String(row.no??"").padStart(3,"0"));
+ if(!s||String(s.home_team)!==String(row.home)||String(s.away_team)!==String(row.away))return row;
+ const kick=Date.parse(String(row.kickoff)),sourceKick=Date.parse(String(s.kickoff_at)),frozen=Date.parse(String(s.captured_at));
+ if(!Number.isFinite(kick)||!Number.isFinite(sourceKick)||!Number.isFinite(frozen)||frozen>=kick
+ ||Math.abs(kick-sourceKick)>60000||s.source_quality!=="two_team_fixture_orientation_time_verified"
+ ||!s.home_schedule||!s.away_schedule)return row;
+ const home=s.home_schedule as Record<string,unknown>,away=s.away_schedule as Record<string,unknown>;
+ if(home.next7Verified!==true||away.next7Verified!==true)return row;
+ return {...row,teamSchedule:{verified:true,capturedAt:s.captured_at,home,away,source:"FotMob双方赛程核验",sourceQuality:s.source_quality}};
+}
+async function loadTeamFormH2hSnapshots(date:string){
+ const {data,error}=await db.from("soren_team_form_h2h_snapshot_v1")
+  .select("pool_date,match_no,home_team,away_team,kickoff_at,home_form,away_form,h2h,captured_at,fetched_at,source_quality")
+  .eq("pool_date",date);
+ if(error)throw error;
+ return new Map((data??[]).map((s:Record<string,unknown>)=>[String(s.match_no??"").padStart(3,"0"),s]));
+}
+function attachTeamFormH2h(row:Record<string,unknown>,forms:Map<string,Record<string,unknown>>){
+ const s=forms.get(String(row.no??"").padStart(3,"0"));
+ if(!s||String(s.home_team)!==String(row.home)||String(s.away_team)!==String(row.away)
+  ||s.source_quality!=="two_team_and_fixture_verified")return row;
+ const kick=Date.parse(String(row.kickoff)),sourceKick=Date.parse(String(s.kickoff_at));
+ const frozen=Date.parse(String(s.captured_at)),fetched=Date.parse(String(s.fetched_at));
+ if(!Number.isFinite(kick)||!Number.isFinite(sourceKick)||!Number.isFinite(frozen)||!Number.isFinite(fetched)
+  ||frozen>=kick||fetched>=kick||Math.abs(kick-sourceKick)>60000)return row;
+ const home=s.home_form as Record<string,unknown>,away=s.away_form as Record<string,unknown>,h2h=s.h2h as Record<string,unknown>;
+ const valid=(g:Record<string,unknown>,keys:string[])=>{
+  const n=Number(g?.n);
+  return Number.isInteger(n)&&n>=0&&n<=6&&Array.isArray(g?.matches)&&(g.matches as unknown[]).length===n
+   &&keys.every(k=>Number.isInteger(Number(g[k]))&&Number(g[k])>=0)
+   &&keys.reduce((sum,k)=>sum+Number(g[k]),0)===n;
+ };
+ if(!valid(home,["wins","draws","losses"])||!valid(away,["wins","draws","losses"])
+  ||!valid(h2h,["homeWins","draws","awayWins"]))return row;
+ return {...row,teamFormH2h:{verified:true,capturedAt:s.captured_at,home,away,h2h,
+  source:"FotMob赛前球队历史比赛与直接交锋",definition:"最近6场独立球队战绩与直接交锋分别统计；非本场预测概率"}};
 }
 function buildHandicapStats(rows: Record<string,unknown>[]) {
   const settled = rows.filter((r) => r.handicapTop1Hit !== null && r.handicapTop1Hit !== undefined);
@@ -230,6 +412,148 @@ function upsetStatsFor(rows:Record<string,unknown>[]){
   return {modelVersion:"HJ38-UPSET-v1.0.0",published:published.length,high:published.filter(r=>(r.upsetWarning as Record<string,unknown>)?.riskLevel==="高").length,medium:published.filter(r=>(r.upsetWarning as Record<string,unknown>)?.riskLevel==="中").length,directionPublished:published.filter(r=>!!(r.upsetWarning as Record<string,unknown>)?.warningDirection).length,resultFieldsUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.resultFieldsUsed===true),hurDirectionUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.hurDirectionUsed===true)};
 }
 
+
+/* Read-only, authenticated, on-demand match report. All inputs are cached
+   in Soren customer DB; this route never invokes an external football API. */
+async function professionalReport(date:string,no:string){
+  const {data:match,error:matchError}=await db.from("soren_matches")
+    .select("id,pool_date,match_no,home_team,away_team,kickoff_at,official_handicap")
+    .eq("pool_date",date).eq("match_no",no).maybeSingle();
+  if(matchError)throw matchError;
+  if(!match)return null;
+  const kickoff=String(match.kickoff_at??"");
+  const id=Number(match.id);
+  const {data:environmentRows,error:environmentError}=await db.from("soren_environment_cache_v1")
+    .select("home_team,away_team,kickoff_at,venue_name,venue_city,pitch_surface,temperature_c,humidity_pct,precipitation_probability_pct,wind_speed_kmh,forecast_time,forecast_fetched_at,venue_source,weather_source,quality,prematch_verified,created_at")
+    .eq("match_id",id).order("created_at",{ascending:false}).limit(12);
+  if(environmentError)throw environmentError;
+  const verifiedVenues=(environmentRows??[]).filter(v=>
+    String(v.home_team)===String(match.home_team)&&String(v.away_team)===String(match.away_team)&&
+    Number.isFinite(Date.parse(String(v.kickoff_at)))&&
+    Math.abs(Date.parse(String(v.kickoff_at))-Date.parse(kickoff))<300000&&
+    typeof v.venue_name==="string"&&v.venue_name.trim().length>1&&
+    ["EXACT_STADIUM_FORECAST","VERIFIED_STADIUM_PREMATCH","VERIFIED_STADIUM_POSTMATCH"].includes(String(v.quality)));
+  const forecastUsable=(v:Record<string,unknown>)=>
+    v.quality==="EXACT_STADIUM_FORECAST"&&v.prematch_verified===true&&
+    Number.isFinite(Date.parse(String(v.forecast_fetched_at)))&&
+    Date.parse(String(v.forecast_fetched_at))<Date.parse(kickoff)&&
+    Number.isFinite(Number(v.temperature_c))&&Number.isFinite(Number(v.humidity_pct));
+  const environmentRow=verifiedVenues.find(v=>forecastUsable(v))??verifiedVenues[0]??null;
+  const forecastAvailable=environmentRow?forecastUsable(environmentRow):false;
+  const environment=environmentRow?{
+    venueName:environmentRow.venue_name,venueCity:environmentRow.venue_city,
+    pitchSurface:environmentRow.pitch_surface,
+    temperatureC:forecastAvailable?environmentRow.temperature_c:null,
+    humidityPct:forecastAvailable?environmentRow.humidity_pct:null,
+    precipitationProbabilityPct:forecastAvailable?environmentRow.precipitation_probability_pct:null,
+    windKmh:forecastAvailable?environmentRow.wind_speed_kmh:null,
+    forecastTime:forecastAvailable?environmentRow.forecast_time:null,
+    fetchedAt:forecastAvailable?environmentRow.forecast_fetched_at:environmentRow.created_at,
+    venueSource:environmentRow.venue_source,weatherSource:forecastAvailable?environmentRow.weather_source:null,
+    historicalForecast:forecastAvailable,
+    venueRecoveredAfterKickoff:environmentRow.quality==="VERIFIED_STADIUM_POSTMATCH",
+    note:forecastAvailable?"赛前采集的开球时段天气预报，非赛后实际天气；不可据此推断模型正式预测输入":
+      "仅核对该场比赛的球场；未取得可核验赛前天气，不得推断当时气温、湿度和降雨"
+  }:null;
+  // Verified pair and collection time belong to the target match, never inferred from final scores.
+  const {data:newsRows,error:newsError}=await db.from("soren_intelligence_reports_v1")
+    .select("home_team,away_team,source_code,source_url,headline,published_at,fetched_at,quality,highlights")
+    .eq("match_id",id)
+    .lt("published_at",kickoff).lt("fetched_at",kickoff)
+    .order("published_at",{ascending:false}).limit(6);
+  if(newsError)throw newsError;
+  const articles=(newsRows??[]).filter(v=>String(v.home_team)===String(match.home_team)
+    &&String(v.away_team)===String(match.away_team)
+    &&v.quality==="attributed_prematch_article_pair_verified"
+    &&/^https:\/\/sports\.sina\.com\.cn\/l\//.test(String(v.source_url||"")))
+    .map(v=>({source:"新浪小炮赛前情报（媒体观点，未独立核验）",
+      title:v.headline,url:v.source_url,publishedAt:v.published_at,fetchedAt:v.fetched_at,
+      sections:Array.isArray(v.highlights)?v.highlights:[]}));
+  const [{data:market,error:marketError},{data:predictions,error:predError},{data:features,error:featureError}]=await Promise.all([
+    db.from("soren_market_snapshots")
+      .select("source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,home_water,away_water,data_quality,payload,captured_at")
+      .eq("match_id",id)
+      .in("source_code",["zucaijia_william","zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31"])
+      .lte("captured_at",kickoff).order("captured_at",{ascending:false}).limit(1000),
+    db.from("soren_predictions").select("confidence,primary_reason,dq,frozen_at,source_snapshot")
+      .eq("match_id",id).lte("frozen_at",kickoff).order("frozen_at",{ascending:false}).limit(1),
+    db.from("soren_feature_snapshots")
+      .select("source_code,feature_type,data_quality,payload,captured_at")
+      .eq("match_id",id).in("feature_type",["ELO","PRO_PREDICTION"])
+      .lte("captured_at",kickoff).order("captured_at",{ascending:false}).limit(100),
+  ]);
+  if(marketError)throw marketError;
+  if(predError)throw predError;
+  if(featureError)throw featureError;
+  const selected=new Map<string,Record<string,unknown>>();
+  for(const row of market??[]){
+    if(!["verified","verified_mirror"].includes(String(row.data_quality)))continue;
+    if(String(row.market_type)!=="FT_1X2"&&String(row.market_type)!=="ASIAN_HANDICAP")continue;
+    const key=String(row.source_code)+"|"+String(row.snapshot_type);
+    if(!selected.has(key))selected.set(key,row);
+  }
+  const numeric=(x:unknown)=>x===null||x===undefined||x===""?null:Number.isFinite(Number(x))?Number(x):null;
+  const compact=(row:Record<string,unknown>|undefined)=> {
+    if(!row)return null;
+    const payload=(row.payload&&typeof row.payload==="object"?row.payload:{}) as Record<string,unknown>;
+    return {source:String(row.source_code),type:String(row.market_type),
+      capturedAt:row.captured_at,home:numeric(row.home_value),draw:numeric(row.draw_value),
+      away:numeric(row.away_value),line:numeric(row.line),lineText:payload.original_line??null,
+      homeWater:numeric(row.home_water),awayWater:numeric(row.away_water)};
+  };
+  const bookmaker=compact(selected.get("zucaijia_william|current"));
+  const initial=compact(selected.get("zucaijia_william|initial"));
+  const companies:Record<string,string>={"zucaijia_asia4:1":"Bet365","zucaijia_asia4:11":"皇冠","zucaijia_asia4:18":"12bet","zucaijia_asia4:31":"威廉希尔"};
+  const asian=Object.entries(companies).map(([key,name])=>({
+    institution:name,initial:compact(selected.get(key+"|initial")),current:compact(selected.get(key+"|current"))
+  })).filter(c=>c.initial||c.current);
+  const prediction=predictions?.[0]??null;
+  const snap=(prediction?.source_snapshot&&typeof prediction.source_snapshot==="object"?prediction.source_snapshot:{}) as Record<string,unknown>;
+  const strictlyFrozen=prediction&&Date.parse(String(prediction.frozen_at))<Date.parse(kickoff)&&
+    String(snap.home??"")===String(match.home_team)&&String(snap.away??"")===String(match.away_team);
+  const pct=(v:unknown)=>{const n=numeric(v);if(n===null||n<0)return null;return n<=1?n*100:n<=100?n:null;};
+  const probability=strictlyFrozen?[pct(snap.homeProbability),pct(snap.drawProbability),pct(snap.awayProbability)]:[null,null,null];
+  const odds=[bookmaker?.home,bookmaker?.draw,bookmaker?.away];
+  const implied=odds.every(x=>typeof x==="number"&&x>1)?odds.map(x=>1/(x as number)):null;
+  const denominator=implied?.reduce((a,b)=>a+b,0)??0;
+  const fair=denominator>0?implied!.map(x=>Math.round(x/denominator*1000)/10):null;
+  // This is a theoretical model-based Kelly fraction, NOT a bookmaker's published Kelly index.
+  const kelly=odds.every(x=>typeof x==="number"&&x>1)&&probability.every(x=>x!==null)?
+    odds.map((o,i)=>Math.round(10000*Math.max(0,((probability[i] as number)/100*(o as number)-1)/((o as number)-1)))/100):null;
+  // Distinct from the institution/market-average Kelly index. Benchmark is the
+  // ORIGINAL frozen model probabilities, not a verified multi-bookmaker consensus.
+  const modelOddsIndex=odds.every(x=>typeof x==="number"&&x>1)&&
+    probability.every(x=>x!==null)&&
+    Math.abs(probability.reduce((a,b)=>a+Number(b),0)-100)<=1?
+    odds.map((o,i)=>Math.round((o as number)*(probability[i] as number)/100*10000)/10000):null;
+  const featureSet=new Map<string,Record<string,unknown>>();
+  for(const f of features??[]){
+    const key=String(f.source_code);
+    if(!featureSet.has(key)&&!String(f.data_quality).includes("unverified"))featureSet.set(key,f);
+  }
+  const elo=featureSet.get("fotmob_elo_v2_shadow")??featureSet.get("fotmob_elo")??featureSet.get("elo");
+  const kickoffAi=featureSet.get("kickoff_ai");
+  const eloPayload=(elo?.payload&&typeof elo.payload==="object"?elo.payload:{}) as Record<string,unknown>;
+  const aiPayload=(kickoffAi?.payload&&typeof kickoffAi.payload==="object"?kickoffAi.payload:{}) as Record<string,unknown>;
+  return {matchId:id,date,no,kickoff,home:match.home_team,away:match.away_team,
+    environment,
+    intelligence:{articles,status:articles.length?"VERIFIED_PAIR_MEDIA":"NO_VERIFIED_MEDIA",note:"媒体稿件仅展示原文标题、赛前时间和核验场次；伤停名单尚未独立确认"},
+    source:"索伦客户库赛前缓存",market:{european:{institution:"威廉希尔",initial,current:bookmaker,fairProbability:fair},asian},
+    model:{top1:strictlyFrozen?snap.ftTop1??null:null,second:strictlyFrozen?snap.second??null:null,
+      confidence:strictlyFrozen?pct(prediction.confidence):null,probability,probabilitySource:strictlyFrozen?snap.ftProbabilitySource??null:null,
+      reason:strictlyFrozen?prediction.primary_reason??null:null,riskAnalysis:strictlyFrozen?snap.riskAnalysis??null:null,
+      handicapAnalysis:strictlyFrozen?snap.handicapAnalysis??null:null,dq:strictlyFrozen?prediction.dq??null:null,
+      frozenAt:strictlyFrozen?prediction.frozen_at:null,sourceKind:strictlyFrozen?"ORIGINAL_PREMATCH":null},
+    modelOddsIndex:modelOddsIndex===null?null:{values:modelOddsIndex,formula:"frozen_model_probability × william_decimal_odds",label:"豪竞模型赔率参照值（非机构公布凯利指数）",probabilitySource:"原始赛前冻结豪竞最终概率",
+      oddsSource:"威廉希尔赛前欧赔",probabilityAt:prediction?.frozen_at??null,oddsAt:bookmaker?.capturedAt??null},
+    kelly:kelly===null?null:{percent:kelly,formula:"max(0,(p×odds−1)/(odds−1))",label:"理论凯利资金比例（非机构凯利指数）",
+      probabilityAt:prediction?.frozen_at??null,oddsAt:bookmaker?.capturedAt??null},
+    feature:{elo:elo?{home:numeric(eloPayload.elo_home),away:numeric(eloPayload.elo_away),diff:numeric(eloPayload.elo_diff),at:elo.captured_at,shadow:String(elo.source_code).includes("shadow")}:null,
+      kickoffAi:kickoffAi?{home:pct(aiPayload.p_home),draw:pct(aiPayload.p_draw),away:pct(aiPayload.p_away),at:kickoffAi.captured_at}:null},
+    injuries:{status:"UNAVAILABLE",note:"客户库尚未有本场已核验的赛前球员伤停名单"},
+    capturedLimit:"仅使用开球前已采集的缓存；盘口采集时间可能晚于原预测冻结时间，不能视作原预测输入"};
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "GET") return reply({ ok: false, error: "METHOD_NOT_ALLOWED" }, 405);
@@ -324,6 +648,18 @@ Deno.serve(async (req: Request) => {
     if (!auth.ok) return reply({ok:false,error:"LOGIN_REQUIRED"},401);
     const user = await auth.json();
     if (!user?.id) return reply({ok:false,error:"LOGIN_REQUIRED"},401);
+    if(requestUrl.searchParams.get("view")==="report"){
+      const date=requestUrl.searchParams.get("date")??"";
+      const no=requestUrl.searchParams.get("no")??"";
+      if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(date)||!/^[0-9]{3}$/.test(no))
+        return reply({ok:false,error:"INVALID_REPORT_ID"},400);
+      try{
+        const report=await professionalReport(date,no);
+        if(!report)return reply({ok:false,error:"REPORT_MATCH_NOT_FOUND"},404);
+        return reply({ok:true,report,updatedAt:new Date().toISOString()});
+      }catch(error){console.error("REPORT_ERROR",error);return reply({ok:false,error:"REPORT_UNAVAILABLE"},502);}
+    }
+
     const url = requestUrl;
     const view = url.searchParams.get("view") ?? "today";
     const date = url.searchParams.get("date");
@@ -338,12 +674,13 @@ Deno.serve(async (req: Request) => {
         if (!match || String(r.home)!==match.home || String(r.away)!==match.away || r.resultVerified!==true || String(r.result)!==outcomeCode(match.h,match.a)) return r;
         const line=Number(r.officialHandicap); const handicapResult=Number.isInteger(line)?outcomeCode(match.h+line,match.a):null; const first=["让胜","让平","让负"].includes(String(r.handicap))?String(r.handicap):null; return {...r,resultHome:match.h,resultAway:match.a,resultScore:match.h+"-"+match.a,handicapResult:handicapResult?({H:"让胜",D:"让平",A:"让负"}[handicapResult]):null,handicapHit:first!==null&&first===({H:"让胜",D:"让平",A:"让负"}[handicapResult])};
       });
-      const handicapBackfill = await loadHandicapBackfill(date);
-      const goalPredictions=await loadGoalPredictions(date);
-      const historicalScores=await loadHistoricalScoreTop4(date);
-      const upsetWarnings=await loadUpsetWarningMap(date);
-      const teamLogos=await loadTeamLogoMap();
-      const full = originalFull.map((r: Record<string,unknown>) => attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachGoalPrediction(applyHandicapBackfill(r,handicapBackfill),goalPredictions),upsetWarnings),historicalScores),teamLogos));
+      // Independent, read-only enrichments must not block each other.
+      const [handicapBackfill,goalPredictions,goalFormReferences,teamSchedules,teamFormH2h,historicalScores,upsetWarnings,teamLogos,dayEnvironment]=await Promise.all([
+        loadHandicapBackfill(date),loadGoalPredictions(date),loadGoalFormReferences(date),
+        loadTeamScheduleSnapshots(date),loadTeamFormH2hSnapshots(date),loadHistoricalScoreTop4(date),
+        loadUpsetWarningMap(date),loadTeamLogoMap(),loadDayEnvironment(date),
+      ]);
+      const full = originalFull.map((r: Record<string,unknown>) => settlePublishedScoreTop4(attachDayEnvironment(attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachTeamFormH2h(attachTeamSchedule(attachGoalFormReference(attachGoalPrediction(applyHandicapBackfill(r,handicapBackfill),goalPredictions),goalFormReferences),teamSchedules),teamFormH2h),upsetWarnings),historicalScores),teamLogos),dayEnvironment)));
       const rows = view === "history" ? full.filter((r) => r.resultVerified) : full;
       const handicapStats = buildHandicapStats(rows);
       const version = date === "2026-09-13" ? "3.2" : "3.3";
@@ -396,12 +733,12 @@ Deno.serve(async (req: Request) => {
       return { ...row, resultVerified: true, result: verified.result, resultScore: verified.score, resultSource: verified.source, top1Hit: pick(row.ftTop1) === verified.result, coverageHit: pick(row.ftTop1) === verified.result || pick(row.second) === verified.result };
     });
     const dynamicDate = String(data.date ?? date ?? "");
-    const handicapBackfill = await loadHandicapBackfill(dynamicDate);
-    const goalPredictions=await loadGoalPredictions(dynamicDate);
-    const historicalScores=await loadHistoricalScoreTop4(dynamicDate);
-    const upsetWarnings=await loadUpsetWarningMap(dynamicDate);
-    const teamLogos=await loadTeamLogoMap();
-    const rows = sourceRows.map((row: Record<string,unknown>) => attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),upsetWarnings),historicalScores),teamLogos));
+    const [handicapBackfill,goalPredictions,goalFormReferences,teamSchedules,teamFormH2h,historicalScores,upsetWarnings,teamLogos,dayEnvironment]=await Promise.all([
+      loadHandicapBackfill(dynamicDate),loadGoalPredictions(dynamicDate),loadGoalFormReferences(dynamicDate),
+      loadTeamScheduleSnapshots(dynamicDate),loadTeamFormH2hSnapshots(dynamicDate),loadHistoricalScoreTop4(dynamicDate),
+      loadUpsetWarningMap(dynamicDate),loadTeamLogoMap(),loadDayEnvironment(dynamicDate),
+    ]);
+    const rows = await applySaleFreeze(sourceRows.map((row: Record<string,unknown>) => settlePublishedScoreTop4(attachDayEnvironment(attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachTeamFormH2h(attachTeamSchedule(attachGoalFormReference(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),goalFormReferences),teamSchedules),teamFormH2h),upsetWarnings),historicalScores),teamLogos),dayEnvironment))),dynamicDate);
     const handicapStats = buildHandicapStats(rows);
     const warningSync=await syncUpsetWarnings(rows,data);
     return reply({
