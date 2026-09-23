@@ -262,6 +262,14 @@
     .report-trend-key{display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:6px;font-size:10px;color:#666}
     .report-trend-key span{display:inline-flex;align-items:center;gap:4px}
     .report-trend-key i{display:inline-block;width:12px;height:3px;border-radius:2px}
+  
+    .report-detail-upset{border:1px solid #ecd5b6;background:#fffdf9}
+    .report-detail-upset-status{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:8px 0 10px;font-size:13px}
+    .report-detail-upset-status b{color:#9a5b15}
+    .report-detail-upset-status span{font-size:11px;color:#8e774f;background:#f9f0df;border-radius:7px;padding:4px 7px}
+    .report-detail-upset-evidence{margin-top:9px;border-top:1px solid #f0e4d5;padding-top:8px}
+    .report-detail-upset-evidence summary{font-size:12px;font-weight:650;color:#8c5b23;cursor:pointer}
+    .report-detail-upset-evidence p{margin:7px 0 0;line-height:1.6;overflow-wrap:anywhere}
   </style>
 </head>
 <body>
@@ -1434,6 +1442,55 @@
         if(context?.audit)context.audit.append(el('p','report-sub','扩展资料暂时无法读取：'+safe(err?.message||err)));
       }
     }
+    // Show only the warning tied to this match's verified pre-kickoff record.
+    // Never infer a directional warning from the original Top1 or from final results.
+    function detailUpsetWarningPanel(row){
+      const panel=reportSection('冷门预警 · 赛前数据迹象');
+      panel.classList.add('report-detail-upset');
+      const raw=row.upsetWarning??row.upset_warning;
+      const eligible=raw&&typeof raw==='object'&&row.pregameVerified===true;
+      const kickoff=Date.parse(String(row.kickoff??''));
+      const freezeAt=eligible?(raw.prematchAt??raw.prematch_at??null):null;
+      const freeze=Date.parse(String(freezeAt??''));
+      const original=raw?.originalTop1??raw?.original_top1??null;
+      const sameOriginal=original&&row.ftTop1&&normalizeResult(original)===normalizeResult(row.ftTop1);
+      const timeValid=Number.isFinite(kickoff)&&Number.isFinite(freeze)&&freeze<kickoff;
+      const sourceClean=raw?.resultFieldsUsed!==true&&raw?.result_fields_used!==true&&
+        raw?.hurDirectionUsed!==true&&raw?.hur_direction_used!==true;
+      if(!eligible||!timeValid||!sameOriginal||!sourceClean){
+        panel.append(el('p','report-sub','本场暂无与当前赛前预测匹配、可核验的风险预警记录。数据缺失不代表比赛没有风险。'));
+        return panel;
+      }
+      const level=String(raw.riskLevel??raw.risk_level??'未确认');
+      if(!['中','高'].includes(level)||raw.publish!==true){
+        const note=level==='低'?'本场现有赛前记录未达到中高等级预警条件。':'本场尚未发布已核验的中高等级预警。';
+        panel.append(el('p','report-sub',note));
+        panel.append(el('p','report-sub','赛前记录时间：'+fmtStamp(freezeAt)+'。未发布预警不代表比赛结果确定。'));
+        return panel;
+      }
+      const score=raw.riskScore??raw.risk_score;
+      const numericScore=score!==null&&score!==undefined&&score!==''&&Number.isFinite(Number(score))?Number(score):null;
+      const risk=el('div','report-detail-upset-status');
+      risk.append(el('b','','赛前关注级别：'+level));
+      if(numericScore!==null)risk.append(el('span','','数据分值 '+numericScore.toFixed(1)));
+      panel.append(risk);
+      reportLine(panel,'预警针对的原始首选',String(original));
+      const rawDirection=String(raw.warningDirection??raw.warning_direction??'').trim();
+      const actualDirection=({'主队不胜':'客队不败','客队不胜':'主队不败'}[rawDirection]??rawDirection);
+      if(['主队不败','客队不败'].includes(actualDirection))
+        reportLine(panel,'预警方向',actualDirection);
+      else reportLine(panel,'预警方向','尚未确认，不反推具体方向');
+      const reasons=Array.isArray(raw.riskBasis)?raw.riskBasis:Array.isArray(raw.risk_basis)?raw.risk_basis:[];
+      const verifiedReasons=reasons.filter(x=>typeof x==='string'&&x.trim()).slice(0,6);
+      if(verifiedReasons.length){
+        const details=el('details','report-detail-upset-evidence');
+        details.append(el('summary','','查看赛前预警依据'));
+        for(const reason of verifiedReasons)details.append(el('p','report-sub',String(reason)));
+        panel.append(details);
+      }else panel.append(el('p','report-sub','本场未取得可公开核验的分项依据，暂不补写原因。'));
+      panel.append(el('p','report-sub','预警记录时间：'+fmtStamp(freezeAt)+'。此处展示赛前历史记录，不根据赛果补录或改写。'));
+      return panel;
+    }
     function openDetail(row,history){
       state.selected=row;$('main').classList.add('hide');$('detail').classList.add('show');
       const c=$('detailCard');c.replaceChildren();
@@ -1466,6 +1523,7 @@
         reportProbability(summary,'索伦引擎赛前概率',['homeProbability','drawProbability','awayProbability'],row);
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
       c.append(summary);
+      c.append(detailUpsetWarningPanel(row));
       const teamOverview=teamOverviewPanel(row);if(teamOverview)c.append(teamOverview);
       const attackDefense=renderAttackDefensePanel(row);if(attackDefense)c.append(attackDefense);
 
