@@ -1349,14 +1349,29 @@
           detail.append(odds);
         }
         if(hasModelOddsProduct){
-          const k=reportSection('模型赔率参考值');
-          k.append(el('p','report-sub','看法：把每个方向的赛前模型概率，与该方向对应的威廉希尔欧赔相乘，得到下面的测算值。'));
-          reportOddsGrid(k,'模型概率 × 对应欧赔',[...report.modelOddsIndex.values].map(v=>Number(v).toFixed(4)));
-          k.append(el('p','report-sub','怎么读：1.0000 是“概率 × 赔率 = 1”的数学基准。低于1表示乘积低于基准，高于1表示乘积高于基准；数值越大，仅代表这一乘积越大。'));
-          k.append(el('p','report-sub','注意：这不是胜率、赔率本身或机构凯利指数，也不能据此认定哪种赛果更可能发生、预测一定准确或存在实际收益。'));
-          if(report.modelOddsIndex.probabilityAt)reportLine(k,'模型概率冻结于',fmtStamp(report.modelOddsIndex.probabilityAt));
-          if(report.modelOddsIndex.oddsAt)reportLine(k,'赔率采集于',fmtStamp(report.modelOddsIndex.oddsAt));
-          k.append(el('p','report-sub','两个时间可能不同：后续赔率变化仅用于数据对照，不代表模型原始赛前预测使用了后续赔率。'));
+          const k=reportSection('模型与赔率对照');
+          const values=report.modelOddsIndex.values.map(Number);
+          const names=['主胜','平局','客胜'],higher=values.map((v,i)=>v>1.00005?names[i]:null).filter(Boolean);
+          const max=Math.max(...values),leaders=values.map((v,i)=>Math.abs(v-max)<0.00005?names[i]:null).filter(Boolean);
+          const headline=values.every(v=>v<0.99995)
+            ?'本场三方向均低于参考线：本项未发现高于基准的方向。'
+            :higher.length
+              ?'本场'+higher.join('、')+'高于参考线：仅表示这些方向的模型概率与赔率乘积较高。'
+              :'本场各方向均未明显高于参考线：本项没有给出突出的方向。';
+          const summary=el('p','report-sub',headline);
+          summary.style.cssText='font-size:13px;line-height:1.6;color:#333;font-weight:650;margin:4px 0 9px';
+          k.append(summary);
+          k.append(el('p','report-sub',leaders.length===1?'三项中'+leaders[0]+'数值最高，但不等于该方向最容易发生；请以本场胜平负概率及其他赛前资料为准。':'本项不是胜平负概率排序，不单凭这些数值选定赛果方向。'));
+          reportOddsGrid(k,'模型概率 × 对应欧赔',[...values].map(v=>v.toFixed(4)));
+          const explanation=el('details','report-more');
+          explanation.style.marginTop='9px';
+          explanation.append(el('summary','','这些数值是什么意思？'),
+            el('p','report-sub','计算方式：赛前模型概率（用小数表示）× 对应威廉希尔欧赔。1.0000 是数学对照线；高于它，仅表示这个乘积大于1；低于它，仅表示乘积小于1。'),
+            el('p','report-sub','这不是胜率、机构凯利指数或确定的收益判断；乘积大小不能单独预测胜平负。'),
+            el('p','report-sub','模型概率与赔率的记录时间可能不同，后续赔率仅用于市场对照，不是原始赛前预测输入。'));
+          if(report.modelOddsIndex.probabilityAt)reportLine(explanation,'模型概率冻结于',fmtStamp(report.modelOddsIndex.probabilityAt));
+          if(report.modelOddsIndex.oddsAt)reportLine(explanation,'赔率采集于',fmtStamp(report.modelOddsIndex.oddsAt));
+          k.append(explanation);
           detail.append(k);
         }
         if(hasElo||hasAi){
