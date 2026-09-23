@@ -17,14 +17,14 @@ header{background:#171e2a;color:#fff;border-radius:16px;padding:20px;margin-bott
 @media(max-width:390px){.meta{grid-template-columns:1fr}.layout{padding-top:10px}}
 </style></head>
 <body><div class="layout">
-<header><a href="./">← 返回索伦引擎</a><h1>邀请审核后台</h1><div class="sub">仅授权管理员可访问 · 风险迹象只用于人工复核，不等同于作弊证明</div></header>
+<header><a href="./">← 返回索伦引擎</a><h1>邀请审核后台</h1><div class="sub">1—9位基础条件通过后自动计入；第10位起需管理员结合 AI 辅助意见复核。风险迹象不等于作弊证明</div></header>
 <div id="message" role="status" aria-live="polite"></div>
 <section class="panel"><h2>邀请审核概况</h2>
 <div id="stats" class="stats"><div class="stat">—<small>待审核</small></div><div class="stat">—<small>已通过</small></div><div class="stat">—<small>已拒绝</small></div></div>
 <div class="tabs"><label for="status">查看</label>
 <select id="status"><option value="pending">待审核</option><option value="approved">已通过</option><option value="rejected">已拒绝</option></select>
 <button id="reload" class="secondary">刷新</button></div>
-<p class="muted">每次最多显示最近100条。集中注册、邀请人账号较新等仅提示复核；不因相同网络、验证码结果或活跃时间单独认定刷号。</p></section>
+<p class="muted">每次最多显示最近100条。第1—9位未触发基础异常规则的邀请自动通过；第10位及以上，或较少邀请中触发集中注册迹象的记录，将待人工复核。你可复制脱敏摘要发给 ChatGPT 共同分析，最终由管理员决定。</p></section>
 <div id="records"></div></div>
 <script>
 "use strict";
@@ -58,6 +58,7 @@ function renderItem(r){
   head.append(text("strong","邀请码 "+String(r.inviteCode||"—")),text("span",({pending:"待审核",approved:"已通过",rejected:"已拒绝"}[r.reviewStatus]||r.reviewStatus),r.reviewStatus==="approved"?"tag ok":r.reviewStatus==="rejected"?"tag rejected":"tag"));card.append(head);
   const m=text("div","","meta");
   meta(m,"受邀账号",String(r.invitedEmailHint||"—"));
+  meta(m,"该邀请人在本次活动的第几位",r.inviteOrdinal??"待确认");
   meta(m,"绑定时间（北京时间）",time(r.boundAt));
   meta(m,"账号注册",time(r.invitedCreatedAt));
   meta(m,"最近登录",time(r.invitedLastSignInAt));
@@ -65,19 +66,48 @@ function renderItem(r){
   meta(m,"同邀请人关联二十四小时绑定数",r.invites24h??0);
   card.append(m);
   const signals=Array.isArray(r.riskSignals)?r.riskSignals:[];
-  const flags=text("div",signals.length?signals.join("；"):"未触发预设集中注册迹象；仍需独立核验是否为真实用户",signals.length?"flags":"flags clean");card.append(flags);
+  const requiresJointReview=Number(r.inviteOrdinal)>=10;
+  const reviewIntro=requiresJointReview
+    ?"第10位及以上：须由管理员结合 ChatGPT 的辅助分析复核；模型意见仅作参考，不自动审批。"
+    :(r.reviewStatus==="pending"?"低于10位但触发异常迹象，需要人工复核。":"1—9位的自动通过或历史确认记录。");
+  card.append(text("p",reviewIntro,"muted"));
+  const flags=text("div",signals.length?signals.join("；"):"未触发预设集中注册迹象。缺少独立身份核验时仍有小号风险。",signals.length?"flags":"flags clean");card.append(flags);
   if(r.reviewStatus!=="pending"){
     card.append(text("p","审核时间："+time(r.reviewedAt),"muted"));
     if(r.reviewNote)card.append(text("p","审核说明："+String(r.reviewNote),"muted"));
   }else{
+    if(requiresJointReview){
+      const copy=text("button","复制脱敏摘要 · 和 ChatGPT 复核","secondary");
+      copy.addEventListener("click",async()=>{
+        const summary=[
+          "请辅助复核索伦引擎邀请奖励是否需要补充核验。以下仅为统计迹象，不能据此认定小号或真实身份。",
+          "这是该邀请人第"+String(r.inviteOrdinal)+"位邀请。",
+          "受邀账号注册时间："+time(r.invitedCreatedAt)+"；绑定时间："+time(r.boundAt)+"；最近登录："+time(r.invitedLastSignInAt),
+          "十分钟内同邀请人其他绑定数："+String(r.otherInvites10m??0)+"；二十四小时关联绑定数："+String(r.invites24h??0),
+          "风险迹象："+(signals.length?signals.join("；"):"未触发已设置的集中注册阈值"),
+          "请列出应向管理员核实的独立证据、可能的误判及风险；不要代替管理员批准或拒绝。"
+        ].join("\n");
+        try{await navigator.clipboard.writeText(summary);msg.textContent="脱敏复核摘要已复制，可以粘贴给 ChatGPT。"}
+        catch{msg.textContent="复制失败，请使用系统浏览器重试。"}
+      });
+      card.append(copy,text("p","请将复制内容发给 ChatGPT 获取复核意见。管理员核对事实后，再决定是否审核通过。","muted"));
+    }
     const note=text("textarea","","review-note");
     note.maxLength=800;note.placeholder="填写审核依据（至少12字）。通过需说明如何独立核验真实用户；风险迹象、验证码通过或注册成功本身不构成核验依据。";
     note.setAttribute("aria-label","审核依据");
+    let jointConfirmed=null;
+    if(requiresJointReview){
+      const rowConfirm=text("label","","muted");rowConfirm.style.display="flex";rowConfirm.style.alignItems="flex-start";rowConfirm.style.gap="8px";
+      jointConfirmed=document.createElement("input");jointConfirmed.type="checkbox";jointConfirmed.style.flex="0 0 auto";jointConfirmed.style.marginTop="4px";
+      rowConfirm.append(jointConfirmed,text("span","已与 ChatGPT 进行辅助复核，并由我本人独立确认最终审核结论。"));
+      card.append(rowConfirm);
+    }
     const row=text("div","","buttons");
     const approve=text("button","审核通过"),reject=text("button","拒绝邀请","danger");
     async function decide(action){
       const reason=note.value.trim();
       if(reason.length<12){msg.textContent="请填写至少12字审核依据";note.focus();return}
+      if(requiresJointReview&&!jointConfirmed?.checked){msg.textContent="该邀请已达10位，请先完成与 ChatGPT 的辅助复核并勾选确认。";return}
       if(action==="approve"&&!confirm("确认已独立核验真实新用户，并批准该邀请计入奖励？"))return;
       if(action==="reject"&&!confirm("确认拒绝此邀请？请确保有充分证据，避免误伤真实用户。"))return;
       approve.disabled=true;reject.disabled=true;msg.textContent="正在写入审核结果…";
