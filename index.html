@@ -176,6 +176,14 @@
     .report-professional:empty{display:none}
     @media(max-width:380px){.report-key-picks{gap:7px}.report-main-pick,.report-alt-pick{padding:10px}}
     .auth-remember{display:flex;align-items:center;gap:8px;font-size:12px;color:#64746a;margin:12px 0;line-height:1.5}.auth-remember input{width:16px;height:16px;flex:0 0 16px;accent-color:#2b7150}.auth-retry{max-width:420px;margin:10vh auto;padding:25px;line-height:1.8}
+
+  /* Beta membership and referrals: compact mobile-first panel */
+  .member-panel{margin:12px 0 0;padding:14px;border:1px solid #e6e6e6;border-radius:12px;background:#fff;line-height:1.7;font-size:12px}
+  .member-panel h3{margin:0 0 7px;font-size:16px}.member-panel p{margin:6px 0;color:#666}
+  .member-code{font-size:20px;letter-spacing:2px;font-weight:800;color:#b92731}
+  .member-panel input{display:block;width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:7px;font-size:14px}
+  .member-panel button{background:#cb2b31;color:white;border:0;padding:9px 12px;border-radius:8px;margin:5px 6px 5px 0;font-size:13px}
+  .member-panel button:disabled{opacity:.55}
 </style>
 </head>
 <body>
@@ -253,7 +261,13 @@
   <script>
     const AUTH_BASE='https://ttydbcejxqxdkcfoizkj.supabase.co';const AUTH_KEY='sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa';
     const AUTH_STORE='soren_auth_v2',LEGACY_AUTH_STORE='soren_auth';
-    let authSession=null,authPersistence='session',authRefreshPending=null;
+    let authSession=null,authPersistence='session',authRefreshPending=null,memberInfo=null;
+    const INVITE_KEY='soren_beta_invite_v1';
+    function savedInvite(){
+      const query=new URLSearchParams(location.search).get('ref');
+      if(query&&/^[a-f0-9]{10}$/i.test(query)){try{localStorage.setItem(INVITE_KEY,query.toUpperCase())}catch{}return query.toUpperCase()}
+      try{const value=localStorage.getItem(INVITE_KEY)||'';return /^[A-F0-9]{10}$/.test(value)?value:''}catch{return ''}
+    }
     const storageRead=(store,key)=>{try{return store.getItem(key)}catch{return null}};
     const storageWrite=(store,key,value)=>{try{store.setItem(key,value);return true}catch{return false}};
     const storageDelete=(store,key)=>{try{store.removeItem(key)}catch{}};
@@ -358,11 +372,50 @@
       location.reload();
     }
 
-    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(el('div','sub','已登录：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();wrap.append(out);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
+    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(el('div','sub','已登录：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();wrap.append(out);wrap.append(memberPanel());return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(type==='注册'?{data:{invite_code:savedInvite()}}:{})});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
     async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id}),signal:AbortSignal.timeout(6000)});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
     authSession=storedAuth();initVisits();
     const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
-    function showLoginGate(message=''){document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';let gate=document.getElementById('loginGate');if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:10vh auto;padding:25px';document.body.append(gate)}gate.replaceChildren();const h=document.createElement('h2');h.textContent='索伦引擎 · 会员登录';const note=document.createElement('p');note.textContent='使用邮箱和密码注册或登录，无需填写验证码';gate.append(h,note);const email=document.createElement('input'),pass=document.createElement('input'),msg=document.createElement('p');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=document.createElement('label'),remember=document.createElement('input');rememberLabel.className='auth-remember';remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,document.createTextNode('在此设备保持登录（共用设备请取消）'));gate.append(email,pass,rememberLabel,msg);if(message)msg.textContent=message;const saveSession=data=>{const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器无法保存登录状态，下次可能需要重新登录';location.reload()};for(const mode of ['登录','注册']){const btn=document.createElement('button');btn.textContent=mode;btn.onclick=async()=>{if(!email.value.trim()||!pass.value){msg.textContent='请填写邮箱和密码';return}if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}btn.disabled=true;msg.textContent='处理中…';try{const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value});if(data.access_token&&data.user)saveSession(data);else msg.textContent='当前服务器仍要求邮箱确认，注册尚未完成。请管理员在 Supabase 关闭 Confirm email 后重试。'}catch(e){msg.textContent=e.message}finally{btn.disabled=false}};gate.append(btn)}const recover=document.createElement('button');recover.textContent='忘记密码';recover.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='已请求发送密码重置邮件'}catch(e){msg.textContent=e.message}};gate.append(recover)}
+    async function membershipFetch(){
+      const r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store'});
+      const j=await r.json();
+      if(!r.ok||j.ok!==true||!j.membership)throw Error('会员信息暂不可用，请稍后重试');
+      memberInfo=j.membership;return memberInfo;
+    }
+    async function redeemInvite(code){
+      const r=await authorizedApiFetch(API+'?action=invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({inviteCode:code}),cache:'no-store'});
+      const j=await r.json();
+      if(j.membership)memberInfo=j.membership;
+      if(!r.ok||!j.ok)throw Error(({INVALID_CODE:'邀请码不存在',SELF_INVITE_FORBIDDEN:'不可填写自己的邀请码',ALREADY_BOUND:'已绑定邀请人',INVALID_INVITER:'邀请人尚未验证邮箱',INVALID_INVITE_CODE:'邀请码格式不正确'}[j.error])||'邀请码暂不可使用：仅限公测期间新注册且完成邮箱验证的账户');
+      return memberInfo;
+    }
+    function memberPanel(){
+      const panel=el('section','member-panel');panel.append(el('h3','','公测会员 · 邀请好友'));
+      if(!memberInfo){panel.append(el('p','','正在核验会员状态…'));return panel}
+      const expires=memberInfo.memberUntil?new Date(memberInfo.memberUntil).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):null;
+      panel.append(el('p','',memberInfo.active?(memberInfo.legacyGrace?'今日公测体验中 · 明日起按会员有效期开放':'会员有效期至：'+(expires||'未确认')):'当前未开通会员，当天比赛推荐暂不可查看'));
+      panel.append(el('p','','公测期：9月23日—10月1日（北京时间）。新用户完成邮箱验证赠1天；累计邀请1/3/8名有效新用户，分别额外获得3天、15天、1个月会员，奖励可叠加。'));
+      panel.append(el('p','','我的邀请码：'),el('div','member-code',String(memberInfo.inviteCode||'未生成')));
+      panel.append(el('p','','有效邀请：'+Number(memberInfo.invitedCount||0)+' 人'));
+      if(memberInfo.inviteCode){
+        const link='https://suolunpro.github.io/?ref='+memberInfo.inviteCode;
+        const b=el('button','','复制邀请链接');b.onclick=async()=>{try{await navigator.clipboard.writeText(link);b.textContent='已复制邀请链接'}catch{prompt('长按复制邀请链接',link)}};
+        const share=el('button','','分享给好友');share.onclick=async()=>{if(navigator.share){try{await navigator.share({title:'索伦引擎 · 公测邀请',text:'索伦引擎赛事数据公测，注册时填写邀请码 '+memberInfo.inviteCode,url:link})}catch{}}else b.click()};
+        panel.append(b,share);
+      }
+      const code=el('input');code.placeholder='新注册用户填写好友邀请码';code.autocomplete='off';code.maxLength=10;code.value=savedInvite();
+      const submit=el('button','','确认绑定邀请码'),msg=el('p','sub','仅注册24小时内、完成邮箱验证且尚未绑定邀请人的新会员可填写。');
+      submit.onclick=async()=>{submit.disabled=true;msg.textContent='正在核验…';try{await redeemInvite(code.value.trim().toUpperCase());msg.textContent='邀请码绑定成功';panel.replaceWith(memberPanel());if(memberInfo?.active)beginAuthenticatedApp()}catch(e){msg.textContent=e.message}finally{submit.disabled=false}};
+      panel.append(code,submit,msg);return panel;
+    }
+    function renderMemberRequired(){
+      const box=$('content');box.replaceChildren(sectionHead('会员专属数据','当天比赛推荐'));
+      const p=el('section','member-panel');p.append(el('h3','','会员有效期已结束'),el('p','','当天比赛推荐仅对有效会员开放。可前往「我的」查看邀请码、公测活动与会员到期时间。'));
+      const b=el('button','','前往我的邀请码');b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};p.append(b);box.append(p);
+    }
+    function showLoginGate(message=''){document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';let gate=document.getElementById('loginGate');if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:10vh auto;padding:25px';document.body.append(gate)}gate.replaceChildren();const h=document.createElement('h2');h.textContent='索伦引擎 · 会员登录';const note=document.createElement('p');note.textContent='使用邮箱和密码注册或登录；注册时可填写好友邀请码。邮箱验证通过后可领取公测会员。';gate.append(h,note);const email=document.createElement('input'),pass=document.createElement('input'),msg=document.createElement('p');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=document.createElement('label'),remember=document.createElement('input');rememberLabel.className='auth-remember';remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,document.createTextNode('在此设备保持登录（共用设备请取消）'));const invite=document.createElement('input');invite.placeholder='好友邀请码（注册时填写，选填）';invite.maxLength=10;invite.autocomplete='off';invite.value=savedInvite();gate.append(email,pass,invite,rememberLabel,msg);if(message)msg.textContent=message;const saveSession=data=>{const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器无法保存登录状态，下次可能需要重新登录';location.reload()};for(const mode of ['登录','注册']){const btn=document.createElement('button');btn.textContent=mode;btn.onclick=async()=>{if(!email.value.trim()||!pass.value){msg.textContent='请填写邮箱和密码';return}if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}btn.disabled=true;msg.textContent='处理中…';try{const inviteCode=invite.value.trim().toUpperCase();if(mode==='注册'&&inviteCode&&!/^[A-F0-9]{10}$/.test(inviteCode)){msg.textContent='请输入10位有效邀请码，或留空';return}
+        if(mode==='注册'&&inviteCode)try{localStorage.setItem(INVITE_KEY,inviteCode)}catch{}
+        const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(mode==='注册'?{data:{invite_code:inviteCode}}:{})});if(data.access_token&&data.user)saveSession(data);else msg.textContent='注册申请已提交，请查收邮箱验证邮件；验证后再登录领取公测体验。'}catch(e){msg.textContent=e.message}finally{btn.disabled=false}};gate.append(btn)}const recover=document.createElement('button');recover.textContent='忘记密码';recover.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='已请求发送密码重置邮件'}catch(e){msg.textContent=e.message}};gate.append(recover)}
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null};
     const ARCHIVED_FOCUS={
       '2026-09-13':['002','006','008','009','020','022','023'],
@@ -1178,8 +1231,8 @@
       const coverage=state.model==='goals'?' · 严格xG正式 '+rows.filter(isFormalGoalPrediction).length+'场 · 历史进球参考 '+rows.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda(row)!==null).length+'场 · 有效正式评测 '+evaluable.length+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
-    function render(){closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile';if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
-    async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
+    function render(){closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile'||(memberInfo?.active===false&&state.tab!=='profile');if(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday())){renderMemberRequired();return}if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
+    async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
@@ -1237,9 +1290,12 @@
         if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('请登录以继续使用索伦引擎');return}
         showAuthRetry('网络暂不可用，登录信息已保留，请稍后重新连接');return;
       }
+      try{await membershipFetch()}catch(error){showAuthRetry('会员状态暂不可核验，请稍后重新连接');return}
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
-      const today=beijingToday();readDay(today).then(d=>{state.baseDate=d.date||today;rememberDay(d);if(d.date!==today||!d.rows.length){showUnopened(today);return}applyDay(d)}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
+      const today=beijingToday();
+      if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='索伦引擎';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
+      readDay(today).then(d=>{state.baseDate=d.date||today;rememberDay(d);if(d.date!==today||!d.rows.length){showUnopened(today);return}applyDay(d)}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
     }
     beginAuthenticatedApp();
     // Keep following the newest published match day without disrupting manual history browsing.
