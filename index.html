@@ -214,33 +214,33 @@
   .profile-page .profile-more .engine-intro h2{font-size:14px}
   .profile-page .member-account{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 3px;color:#878a91;font-size:11px;overflow-wrap:anywhere}
   .profile-page .account-panel .member-account button{margin:0;padding:6px 10px;font-size:11px;background:#eeeeef;color:#555}
-  /* 公测欢迎公告：仅叠加卡片，不更换原有品牌背景和页面数据。 */
+  /* 公测公告精简版：仅调整欢迎层，不触碰主站、登录和会员审核。 */
   .welcome-screen.beta-active .welcome-fallback,.welcome-screen.beta-active .welcome-skip,.welcome-screen.beta-active .welcome-legal{display:none}
   .beta-notice[hidden]{display:none!important}
-  .beta-notice{position:absolute;z-index:3;left:12px;right:12px;top:max(12px,env(safe-area-inset-top));bottom:max(12px,env(safe-area-inset-bottom));max-width:474px;margin:auto;overflow-y:auto;overscroll-behavior:contain;color:#f8f8f8;background:rgba(13,16,21,.95);border:1px solid #4a3e2e;border-radius:20px;padding:18px 16px 15px;box-shadow:0 8px 44px #000b;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-  .beta-tag{display:inline-block;padding:4px 10px;border-radius:30px;border:1px solid #77623c;color:#f4d18e;background:#3a3023;font-size:11px;font-weight:700}
-  .beta-name{margin:10px 0 3px;font-size:24px;line-height:1.2;font-weight:850;letter-spacing:1px}
+  .beta-notice{position:absolute;z-index:3;left:14px;right:14px;top:50%;transform:translateY(-50%);width:calc(100% - 28px);max-width:432px;max-height:calc(100dvh - 30px - env(safe-area-inset-top) - env(safe-area-inset-bottom));margin:auto;overflow-y:auto;overscroll-behavior:contain;color:#f8f8f8;background:rgba(16,18,22,.97);border:1px solid #5a4932;border-radius:20px;padding:18px 17px 16px;box-shadow:0 8px 44px #000b;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .beta-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .beta-tag{display:inline-block;padding:5px 10px;border-radius:30px;border:1px solid #77623c;color:#f4d18e;background:#3a3023;font-size:11px;font-weight:700}
+  .beta-close{flex:none;border:0;background:transparent;color:#c4c5ca;font-size:22px;line-height:1;min-width:36px;min-height:36px;cursor:pointer}
+  .beta-name{margin:5px 0 2px;font-size:24px;line-height:1.2;font-weight:850;letter-spacing:1px}
   .beta-en{font-size:10px;letter-spacing:2px;color:#9e9fa4}
-  .beta-sub{margin:9px 0 5px;color:#efd295;font-size:14px;font-weight:750}
+  .beta-sub{margin:9px 0 4px;color:#efd295;font-size:15px;font-weight:750}
   .beta-time{font-size:11px;color:#b8b8bf;margin:0 0 11px}
-  .beta-welcome{padding:10px 12px;border:1px solid #414650;background:#222730;border-radius:11px;margin-bottom:10px}
-  .beta-welcome b{display:block;color:#f6d48e;font-size:12px}
-  .beta-welcome strong{display:block;font-size:15px;margin-top:2px}
-  .beta-note{font-size:11px;color:#c7c8ce;line-height:1.6;margin:8px 0}
-  .beta-reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0 12px}
-  .beta-reward{border:1px solid #3f444c;background:#222730;border-radius:11px;padding:9px 8px}
+  .beta-welcome{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 12px;border:1px solid #414650;background:#222730;border-radius:11px;margin-bottom:10px}
+  .beta-welcome span{color:#e4e5ea;font-size:13px}.beta-welcome strong{color:#f6d48e;font-size:14px;white-space:nowrap}
+  .beta-reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 11px}
+  .beta-reward{border:1px solid #3f444c;background:#222730;border-radius:11px;padding:10px 9px}
   .beta-reward small{display:block;color:#bcbec5;font-size:11px}
-  .beta-reward b{display:block;font-size:18px;margin-top:3px}
+  .beta-reward b{display:block;font-size:17px;margin-top:3px}
   .beta-reward.top{border-color:#a9854d;background:#332d23}.beta-reward.top b,.beta-reward.top small{color:#f1d08d}
-  .beta-access{padding:10px 12px;background:#312b22;border:1px solid #6b5838;border-radius:11px;margin:10px 0}
-  .beta-access strong{display:block;color:#f6d48e;font-size:12px;margin-bottom:4px}
-  .beta-access p{margin:0;color:#fff;font-size:12px;line-height:1.65}
-  .beta-rules{font-size:10px;line-height:1.65;color:#b8bac1;margin:10px 0 12px}
-  .beta-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-  .beta-actions button{border:0;cursor:pointer;min-height:43px;border-radius:10px;font-size:12px;font-weight:750;padding:9px 6px}
+  .beta-access{margin:0 0 9px;color:#e8d5ad;background:#312b22;border:1px solid #6b5838;border-radius:10px;padding:9px 10px;font-size:12px;line-height:1.5}
+  .beta-details{margin:0 0 10px;color:#c1c2c9;font-size:11px;line-height:1.6}
+  .beta-details summary{cursor:pointer;list-style:revert;padding:3px 0;color:#d7c29a;min-height:27px}
+  .beta-details p{margin:6px 0 0;color:#b8bac1}
+  .beta-actions{display:flex;flex-direction:column;gap:7px}
+  .beta-actions button{border:0;cursor:pointer;min-height:43px;border-radius:10px;font-size:13px;font-weight:750;padding:9px 8px}
   #betaEnter{background:#c72b32;color:#fff}#betaInvite{background:#333947;border:1px solid #9d865b;color:#f6d48e}
-  .beta-disclaimer{font-size:10px;line-height:1.5;color:#9e9fa7;text-align:center;margin:10px 0 0}
-  @media(max-width:360px){.beta-notice{padding:12px}.beta-name{font-size:21px}.beta-reward b{font-size:16px}.beta-actions button{font-size:11px}}
+  .beta-disclaimer{font-size:10px;line-height:1.5;color:#9e9fa7;text-align:center;margin:9px 0 0}
+  @media(max-width:360px){.beta-notice{left:10px;right:10px;width:calc(100% - 20px);padding:13px 12px}.beta-name{font-size:22px}.beta-reward b{font-size:16px}.beta-welcome strong{font-size:12px}}
 
     /* Compact detail-only additions; never create home-list requests or charts. */
     .report-insight-compact{display:grid;gap:8px}
@@ -363,21 +363,20 @@
     <div class="welcome-poster">
       <div class="welcome-fallback"><strong>索伦引擎</strong><small>SAURON ENGINE</small></div>
       <section class="beta-notice" id="betaNotice" aria-label="索伦引擎公测会员公告" hidden>
-        <span class="beta-tag">公测会员公告</span>
+        <div class="beta-head"><span class="beta-tag">公测限时活动</span><button id="betaClose" class="beta-close" type="button" aria-label="关闭公告">×</button></div>
         <div class="beta-name">索伦引擎</div>
         <div class="beta-en">SAURON ENGINE</div>
-        <div class="beta-sub">公测开启 · 邀请好友解锁会员权益</div>
-        <p class="beta-time">活动时间：2026年9月23日—10月1日（北京时间）</p>
-        <div class="beta-welcome"><b>新用户专享</b><strong>完成邮箱验证，赠送1天会员</strong></div>
-        <p class="beta-note">邀请好友通过专属邀请码注册并完成邮箱验证，累计有效邀请达到对应人数，即可解锁会员权益：</p>
+        <div class="beta-sub">邀请好友 · 解锁会员</div>
+        <p class="beta-time">活动时间：9月23日—10月1日（北京时间）</p>
+        <div class="beta-welcome"><span>新用户注册</span><strong>赠送1天会员</strong></div>
         <div class="beta-reward-grid">
-          <div class="beta-reward"><small>有效邀请满 1 人</small><b>3天会员</b></div>
-          <div class="beta-reward"><small>有效邀请满 5 人</small><b>15天会员</b></div>
-          <div class="beta-reward"><small>有效邀请满 10 人</small><b>1个月会员</b></div>
-          <div class="beta-reward top"><small>有效邀请满 20 人 · 奖励上限</small><b>2个月会员</b></div>
+          <div class="beta-reward"><small>有效邀请满1人</small><b>3天会员</b></div>
+          <div class="beta-reward"><small>有效邀请满5人</small><b>15天会员</b></div>
+          <div class="beta-reward"><small>有效邀请满10人</small><b>1个月会员</b></div>
+          <div class="beta-reward top"><small>有效邀请满20人 · 上限</small><b>2个月会员</b></div>
         </div>
-        <div class="beta-access"><strong>会员访问说明</strong><p>9月23日已注册用户可正常查看当天内容。自9月24日起，当天比赛所有推荐仅向有效会员开放。</p></div>
-        <p class="beta-rules">每位新用户仅能绑定一名邀请人；邮箱验证完成后方计为有效邀请。会员邀请奖励按最高档累计计算，满20人共获60天邀请奖励（1个月按30天计），不会重复叠加各档天数；新用户1天体验另计。活动截止后不再新增邀请奖励。</p>
+        <p class="beta-access">当日赛事推荐仅对有效会员开放。</p>
+        <details class="beta-details"><summary>查看活动规则</summary><p>新用户按注册流程完成账户验证后领取1天体验会员；好友通过专属邀请码注册并符合活动条件，方计入有效邀请，部分邀请需审核。每位新用户仅能绑定一名邀请人。邀请奖励按最高档累计补足，满20人共获60天（1个月按30天计），各档不重复叠加，1天体验另计。9月23日已注册用户当天仍可查看内容；活动结束后不再新增邀请奖励。</p></details>
         <div class="beta-actions"><button id="betaEnter" type="button">立即进入索伦引擎</button><button id="betaInvite" type="button">查看我的邀请码</button></div>
         <p class="beta-disclaimer">赛事数据仅供研究与交流，不构成投注建议。</p>
       </section>
@@ -395,6 +394,8 @@
       var day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).split('/').join('-');
       if(notice && day>='2026-09-23' && day<='2026-10-01'){notice.hidden=false;welcome.classList.add('beta-active');}
       var enter=document.getElementById('betaEnter'),invite=document.getElementById('betaInvite');
+      var close=document.getElementById('betaClose');
+      if(close)close.addEventListener('click',function(){skip.click()});
       if(enter)enter.addEventListener('click',function(){skip.click()});
       if(invite)invite.addEventListener('click',function(){
         try{sessionStorage.setItem('soren_welcome_invite_v1','1')}catch(e){}
