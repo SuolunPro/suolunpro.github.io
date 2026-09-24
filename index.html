@@ -30,8 +30,8 @@
     .upset-team.away .upset-crest{background:linear-gradient(145deg,#4b83c9,#1f477d)}.upset-crest img{width:100%;height:100%;object-fit:contain;background:#fff}
     .upset-team-name{font-size:15px;font-weight:800;line-height:1.35;overflow:hidden;text-overflow:ellipsis}.upset-score{text-align:center;font-size:22px;font-weight:900;color:#222;white-space:nowrap;font-variant-numeric:tabular-nums}
     .upset-main{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 15px 15px}.upset-panel{min-height:108px;border:2px solid #d0d0d0;border-radius:11px;background:#f5f5f5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px}
-    .upset-value{font-size:29px;line-height:1.15;font-weight:900;color:#d62c31}.upset-value.direction{font-size:23px}.upset-label{margin-top:8px;color:#4e4e4e;font-size:14px}
-    .upset-evidence{margin:0 15px 15px;border-top:1px solid #eee;padding-top:10px;color:#666}.upset-evidence summary{cursor:pointer;color:#666;font-size:12px;font-weight:700;list-style:none}.upset-evidence summary::-webkit-details-marker{display:none}.upset-evidence summary:after{content:"＋";float:right;color:#999}.upset-evidence[open] summary:after{content:"－"}.upset-evidence p{margin:7px 0 0;font-size:11px;line-height:1.65;color:#737373;word-break:break-word}
+    .upset-value{font-size:29px;line-height:1.15;font-weight:900;color:#d62c31}.upset-value.risk-level{font-size:25px;color:#b7791f}.upset-value.risk-level.high{color:#d62c31}.upset-value.direction{font-size:23px}.upset-label{margin-top:8px;color:#4e4e4e;font-size:14px}
+    .upset-evidence{margin:0 15px 15px;border-top:1px solid #eee;padding-top:10px;color:#666}.upset-evidence summary{cursor:pointer;color:#666;font-size:12px;font-weight:700;list-style:none}.upset-evidence summary::-webkit-details-marker{display:none}.upset-evidence summary:after{content:"＋";float:right;color:#999}.upset-evidence[open] summary:after{content:"－"}.upset-evidence p{margin:7px 0 0;font-size:11px;line-height:1.65;color:#737373;word-break:break-word}.upset-evidence p.upset-evidence-heading{font-size:12px;font-weight:800;color:#444;margin-top:12px}
     @media(max-width:390px){.upset-top{gap:7px;padding-left:11px;padding-right:118px;font-size:11px}.upset-league{font-size:13px}.upset-state{min-width:108px;padding:10px 6px;font-size:11px}.upset-fixture{padding-left:11px;padding-right:11px}.upset-crest{width:36px;height:36px}.upset-team-name{font-size:13px}.upset-main{padding-left:11px;padding-right:11px}.upset-panel{min-height:96px}.upset-value{font-size:26px}.upset-value.direction{font-size:20px}}
     .empty,.error{background:#fff;border-radius:16px;padding:34px 18px;text-align:center;color:#999;font-size:12px;line-height:1.7}.empty b,.error b{display:block;color:#444;font-size:15px;margin-bottom:6px}.notice{margin-top:12px;background:#fff5dc;border:1px solid #f1dfaa;color:#896c26;border-radius:11px;padding:10px 12px;font-size:10px;line-height:1.7}
     .backbar{position:sticky;top:0;z-index:4;background:var(--red);padding:12px 14px;color:#fff;display:flex;align-items:center;gap:12px}.back{border:0;background:none;color:#fff;font-size:21px;padding:2px 7px}.backbar b{font-size:15px}.detail-body{padding:12px}.detail-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px #00000008}.detail-card h2{font-size:20px;margin:11px 0 5px}.sub{font-size:11px;color:#999}.audit{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.audit-item{border:1px solid #eee;background:#fafafa;border-radius:9px;padding:10px}.audit-item span{display:block;color:#999;font-size:9px;margin-bottom:4px}.audit-item b{font-size:12px;word-break:break-word}.riskbox{margin-top:12px;border-top:1px solid #eee;padding-top:12px}.riskbox h3{font-size:12px;margin:0 0 6px}.riskbox p{font-size:11px;line-height:1.7;color:#737373;margin:0 0 5px}
@@ -1126,11 +1126,17 @@
       const score=isVerified?(row.resultScore??(row.resultHome!==null&&row.resultHome!==undefined&&row.resultAway!==null&&row.resultAway!==undefined?row.resultHome+':'+row.resultAway:'完赛')):'VS';
       fixture.append(team(home,row.homeLogo??row.home_logo??row.homeTeamLogo,'home'),el('div','upset-score',String(score).replace('-',':')),team(away,row.awayLogo??row.away_logo??row.awayTeamLogo,'away'));
       const main=el('div','upset-main'),indexPanel=el('div','upset-panel'),directionPanel=el('div','upset-panel');
-      indexPanel.append(el('div','upset-value',info.score===null?'—':Number(info.score).toFixed(1)),el('div','upset-label','数据分值'));
-      directionPanel.append(el('div','upset-value direction',info.direction),el('div','upset-label','数据迹象'));
+      indexPanel.append(el('div','upset-value risk-level'+(info.level==='高'?' high':''),info.level+'风险'),el('div','upset-label',info.score===null?'分值待确认':Number(info.score).toFixed(1)+'分'));
+      directionPanel.append(el('div','upset-value direction',info.direction),el('div','upset-label','风险方向'));
       main.append(indexPanel,directionPanel);
       const evidence=el('details','upset-evidence'),summary=el('summary','','查看分析依据');
-      evidence.append(summary,el('p','','风险等级：'+info.level+' ｜ 赛前原始首选：'+safe(info.originalPick)),el('p','','风险依据：'+info.reason));
+      evidence.append(summary,
+        el('p','upset-evidence-heading','风险分值说明'),
+        el('p','','分值越高，表示赛前识别到的风险迹象越明显；并非胜率、准确率或结果保证。'),
+        el('p','','0—2分：低风险｜3—6分：中风险｜7分及以上：高风险；关键数据不足时显示待确认。'),
+        el('p','upset-evidence-heading','本场分析依据'),
+        el('p','','风险等级：'+info.level+' ｜ 赛前原始首选：'+safe(info.originalPick)),
+        el('p','','风险依据：'+info.reason));
       if(info.directionReason)evidence.append(el('p','','方向依据：'+info.directionReason));
       else evidence.append(el('p','','方向依据：独立证据域不足，不强行反推具体方向'));
       if(info.alternativePick)evidence.append(el('p','','证据倾向：'+safe(info.alternativePick)));
