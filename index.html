@@ -889,7 +889,7 @@
       overview:['索伦赛事分析','汇总正式赛前冻结记录，展示模型首选、次选与让球方向'],
       handicap:['索伦全场让球','展示原始赛前预测与历史盲跑重建的首选、次选及概率'],
       wdl:['索伦胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
-      goals:['索伦泊松进球','按赛前冻结参数展示进球参考；比分同源参考与严格xG正式评测分开统计'],
+      goals:['索伦泊松进球','基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'],
       score:['索伦比分矩阵','展示赛前冻结的4项比分与模型概率；赛后对照实际比分'],
       daily:['索伦赛事观察','仅展示赛前已标记的重点观察场次；完整全池请切换赛事分析查看'],
       upset:['索伦赛事风险观察','展示赛前风险信号及可核验的分析方向']
@@ -1019,15 +1019,15 @@
         const goals=el('section','goals-inline');
         const goalsShadow=row.goalPrediction?.formalEligible===false;
         const scoreBasedGoal=row.goalPrediction?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
-        goals.append(el('div','goals-inline-title',scoreBasedGoal?'比分模型进球参考 · Top3':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'));
+        goals.append(el('div','goals-inline-title',scoreBasedGoal?'泊松总进球预测 · Top3参考':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'));
         if(lambda===null){
           goals.append(el('p','goals-note','赛前进球参数未确认'));
         }else{
           let p=Math.exp(-lambda);const ranked=[];
           for(let k=0;k<=15;k++){if(k>0)p*=lambda/k;ranked.push({goals:k,p})}
           ranked.sort((a,b)=>b.p-a.p||a.goals-b.goals);
-          goals.append(el('p','goals-note','预计总进球 λ：'+lambda.toFixed(2)+(scoreBasedGoal?' · 来源：同场赛前冻结比分模型，非严格xG':goalsShadow?' · 最近6场得失球估计，非严格xG':'')));
-          if(goalsShadow)goals.append(el('p','goals-note','赛前参考发布 '+fmtStamp(row.goalPrediction.frozenAt)+' · 不计正式命中率'));
+          goals.append(el('p','goals-note','预计总进球 λ：'+lambda.toFixed(2)+(scoreBasedGoal?' · 基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。':goalsShadow?' · 最近6场得失球估计':'')));
+          if(goalsShadow)goals.append(el('p','goals-note','赛前参考发布时间 '+fmtStamp(row.goalPrediction.frozenAt)+' · 不计正式命中率'));
           const grid=el('div','goals-grid');
           ranked.slice(0,6).forEach((item,i)=>{
             const cell=el('div','goal-cell'+(i>=3?' reference':''));
@@ -1315,14 +1315,14 @@
     function goalPredictionPanel(row){
       const goalsShadow=row.goalPrediction?.formalEligible===false;
       const scoreBasedGoal=row.goalPrediction?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
-      const panel=el('section','goals-panel');panel.append(el('h3','',scoreBasedGoal?'比分模型进球参考 · Top3':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'));
+      const panel=el('section','goals-panel');panel.append(el('h3','',scoreBasedGoal?'泊松总进球预测 · Top3参考':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'));
       const lambda=publishedGoalLambda(row);
       if(lambda===null){panel.append(el('p','goals-note','赛前总进球参数未确认，暂不展示预测或计入命中率。'));return panel}
       let p=Math.exp(-lambda);const ranks=[];
       for(let k=0;k<=15;k++){if(k>0)p*=lambda/k;ranks.push({goals:k,p})}
       ranks.sort((a,b)=>b.p-a.p||a.goals-b.goals);
-      panel.append(el('p','sub','预计总进球 λ：'+lambda.toFixed(2)+' · 按泊松概率排序'+(scoreBasedGoal?' · 与比分Top4同源的赛前冻结进球参数':goalsShadow?' · 最近6场历史得失球参考':'')));
-      if(goalsShadow)panel.append(el('p','goals-note','赛前参考发布时间 '+fmtStamp(row.goalPrediction.frozenAt)+'；非严格xG，结果不计正式评测。'));
+      panel.append(el('p','sub','预计总进球 λ：'+lambda.toFixed(2)+' · 基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'+(scoreBasedGoal?' · 参数与比分Top4同源':goalsShadow?' · 最近6场历史得失球参考':'')));
+      if(goalsShadow)panel.append(el('p','goals-note','赛前参考发布时间 '+fmtStamp(row.goalPrediction.frozenAt)+'；结果不计正式评测。'));
       const grid=el('div','goals-grid');ranks.slice(0,6).forEach((item,i)=>{
         const cell=el('div','goal-cell'+(i>=3?' reference':''));
         cell.append(el('small','',goalsShadow?'参考 Top'+(i+1):i<3?'正式 Top'+(i+1):'参考 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));grid.append(cell)
