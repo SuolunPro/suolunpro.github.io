@@ -704,11 +704,11 @@
       price.style.cssText='color:#b92731;font-size:22px;margin:9px 0';
       purchaseCard.append(price,el('p','member-muted','会员有效期内可查看当天全部完整赛事报告；具体可查看内容以页面实际提供的数据为准。'));
       const contact=el('button','','复制开通申请');
-      const contactNote=el('p','member-muted','请通过现有客服沟通渠道发送申请，确认办理方式与实际到账后由管理员开通；本页面不收款、不自动开通。');
+      const contactNote=el('p','member-muted','联系客服开通｜微信：GoodLuck_H3。添加微信时请备注索伦引擎及注册邮箱；确认办理方式与实际到账后由管理员开通。本页面不收款、不自动开通。');
       contact.onclick=async()=>{
         const message='索伦引擎会员开通申请\\n注册邮箱：'+String(authSession?.user?.email||'请填写注册邮箱')+'\\n申请：月卡29.9元（1个月）';
-        try{await navigator.clipboard.writeText(message);contactNote.textContent='申请内容已复制，请发送至现有客服沟通渠道。确认办理后由管理员开通。'}
-        catch{window.prompt('请复制申请内容并发送至现有客服沟通渠道',message)}
+        try{await navigator.clipboard.writeText(message);contactNote.textContent='申请内容已复制。请添加客服微信 GoodLuck_H3，发送申请内容，确认办理后由管理员开通。'}
+        catch{window.prompt('请复制申请内容并发送至客服微信 GoodLuck_H3',message)}
       };
       purchaseCard.append(contact,contactNote);
       panel.append(purchaseCard);
