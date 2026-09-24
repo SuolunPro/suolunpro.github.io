@@ -47,6 +47,19 @@
   .goals-inline{border-top:1px solid #eee;margin-top:12px;padding-top:12px}.goals-inline-title{font-weight:700;margin-bottom:8px}.goals-inline .goals-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.goals-inline .goal-cell{min-width:0;padding:8px 3px;text-align:center}.goals-inline .goal-cell b{font-size:17px}.goals-inline .goal-cell small{font-size:11px}.goals-inline .goals-note{margin:7px 0;font-size:12px;color:#777}
     .goals-inline-verdict{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px;padding:9px 11px;border-radius:8px;font-size:13px}.goals-inline-icon{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;font-size:14px;font-weight:800}.goals-inline-success{background:#eaf6f0;color:#278464}.goals-inline-success .goals-inline-icon{background:#34936e;color:white}.goals-inline-fail{background:#fff0f0;color:#c44848}.goals-inline-fail .goals-inline-icon{background:#c44848;color:white}.goals-inline-reference{background:#f4f4f4;color:#777}.goals-inline-reference .goals-inline-icon{background:#999;color:white}
     .score-top4{border-top:1px solid #eee;margin-top:12px;padding-top:12px}.score-top4-title{display:flex;justify-content:space-between;gap:8px;align-items:center;font-weight:700;margin-bottom:8px}.score-top4-title small{color:#888;font-weight:400}.score-top4-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.score-pick{border:1px solid #f0d1d3;background:#fff4f4;border-radius:9px;padding:9px 3px;text-align:center;min-width:0}.score-pick.challenger{border-style:dashed;background:#fff9ed}.score-pick.hit{border-color:#2f936f;background:#eaf6f0}.score-pick small{display:block;color:#777;font-size:10px}.score-pick b{display:block;color:#c92731;font-size:18px;margin:4px 0}.score-pick.hit b{color:#278464}.score-top4-verdict{margin-top:11px;padding:9px 11px;border-radius:8px;font-size:13px;font-weight:700}.score-top4-verdict.pending{background:#f5f5f5;color:#777}.score-top4-verdict.success{background:#eaf6f0;color:#278464}.score-top4-verdict.fail{background:#fff0f0;color:#c44848}.score-top4-note{font-size:10px;color:#888;line-height:1.55;margin:8px 0 0}
+
+    .htft-top4-panel{border:1px solid #d9e7df;background:#fff;margin-top:12px}
+    .htft-top4-summary{padding:12px;border-radius:10px;background:#edf5ef;margin-bottom:12px}
+    .htft-top4-summary small{display:block;color:#567464;font-size:11px;margin-bottom:4px}
+    .htft-top4-summary strong{font-size:25px;color:#236748;line-height:1.3}
+    .htft-top4-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .htft-top4-pick{padding:10px 12px;border:1px solid #dce8df;background:#f8fbf8;border-radius:10px;min-width:0}
+    .htft-top4-pick.is-hit{border-color:#31825e;background:#e8f5eb}
+    .htft-top4-pick small{display:block;color:#697c6f;font-size:11px}
+    .htft-top4-pick b{display:block;color:#22583d;font-size:17px;margin:4px 0}
+    .htft-top4-pick .htft-prob{font-size:13px;font-weight:650;color:#375b47}
+    .htft-top4-note{font-size:11px;color:#66766e;line-height:1.65;margin:10px 0 0}
+    .htft-top4-flag{font-size:11px;color:#80601b;background:#fff8e5;padding:7px 10px;border-radius:7px;margin-top:10px}
     .site-disclaimer{margin:16px 14px 0;padding:17px 16px;background:#fff;border:1px solid #e8e8e8;border-radius:14px;color:#666;font-size:12px;line-height:1.8;box-shadow:0 2px 10px #00000005}.site-disclaimer h2{margin:0 0 10px;text-align:center;color:#333;font-size:15px}.site-disclaimer h2 span{color:#c69a43;margin-right:6px}.site-disclaimer p{margin:0 0 9px}.site-disclaimer p:last-child{margin-bottom:0}
     .app{padding-bottom:82px}
 
@@ -964,6 +977,50 @@
       if(state.model==='wdl')return '胜平负分析：'+safe(row.ftTop1)+' / '+safe(row.second);
       if(state.model==='daily')return '模型参考：'+safe(row.ftTop1)+' / '+safe(row.second);
       return '模型参考：'+safe(row.ftTop1)+' / '+safe(row.second);
+    }
+
+    function htftTop4Panel(row){
+      const panel=reportSection('半全场 Top4');
+      panel.classList.add('htft-top4-panel');
+      const info=row.htftTop4;
+      const kickoff=Date.parse(String(row.kickoff??''));
+      if(!info||info.sourceKind!=='PUBLISHED_PREMATCH'||!Array.isArray(info.picks)||info.picks.length!==4
+        ||!Number.isFinite(Date.parse(String(info.publishedAt??'')))||!Number.isFinite(kickoff)
+        ||Date.parse(String(info.publishedAt))>=kickoff){
+        panel.append(el('p','report-empty',Date.now()<kickoff
+          ?'本场半全场四选数据待发布；仅在赛前参数和发布时间核验通过后展示。'
+          :'本场未保存有效的赛前半全场四选记录，不使用赛后结果补写。'));
+        return panel;
+      }
+      const percentage=value=>{
+        const n=Number(value);
+        return value!==null&&value!==undefined&&Number.isFinite(n)&&n>=0&&n<=1?(n*100).toFixed(1)+'%':'—';
+      };
+      const summary=el('div','htft-top4-summary');
+      summary.append(el('small','','四选合计模型概率'),el('strong','',percentage(info.top4Probability)));
+      summary.append(el('div','htft-top4-note','覆盖九种半全场结果中的四种；合计概率不是历史命中率。'));
+      panel.append(summary);
+      const grid=el('div','htft-top4-grid');
+      info.picks.forEach((pick,i)=>{
+        const name=String(pick.direction??'');
+        const cell=el('div','htft-top4-pick'+(info.settlementStatus==='SUCCESS'&&name===info.actual?' is-hit':''));
+        cell.append(el('small','','Top '+(i+1)),el('b','',name),el('span','htft-prob',percentage(pick.probability)));
+        grid.append(cell);
+      });
+      panel.append(grid);
+      reportLine(panel,'半场平局模型概率',percentage(info.htDrawProbability));
+      if(info.lowGoalDrawAudit===true)
+        panel.append(el('p','htft-top4-flag','低进球＋双方预期接近：已重点审查半场平局，但四个方向仍按九项联合概率排序。'));
+      if(info.settlementStatus==='SUCCESS'||info.settlementStatus==='FAILURE'){
+        panel.append(el('div','score-top4-verdict '+(info.settlementStatus==='SUCCESS'?'success':'fail'),
+          info.settlementStatus==='SUCCESS'?'评测成功 · 实际半全场 '+String(info.actual):
+          '评测失败 · 实际半全场 '+String(info.actual)+' 未落在四选内'));
+        if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+String(info.halfScore)+'；全场按90分钟正式赛果。'));
+      }else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'
+        ?'半场赛果尚未核验，不进行评测':'等待赛果 · 暂未评测'));
+      panel.append(el('p','htft-top4-note','独立泊松九项联合计算：上半场使用全场预期进球的45%，下半场55%；不将半场和全场独立相乘。模型概率并非收益承诺。'));
+      panel.append(el('p','htft-top4-note','赛前发布：'+fmtStamp(info.publishedAt)+'；采用已保存的赛前冻结进球参数，不随赛果改写四选。'));
+      return panel;
     }
     function scoreTop4Panel(row){
       const simulation=scoreSimulationInfo(row),panel=el('section','score-top4'),info=scoreInfo(row)||simulation;
@@ -1937,6 +1994,7 @@
         reportProbability(summary,'索伦引擎赛前概率',['homeProbability','drawProbability','awayProbability'],row);
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
       c.append(summary);
+      c.append(htftTop4Panel(row));
       c.append(detailUpsetWarningPanel(row));
       if(scoreInfo(row)||publishedGoalLambda(row)!==null){
         const score=reportDisclosure('展开比分与进球 · Top4 / 总进球');
