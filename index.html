@@ -1921,12 +1921,10 @@
       summary.classList.add('report-core-summary');
       const choices=el('div','report-key-picks');
       const first=el('div','report-main-pick');
-      const ftPass=row.pass===true||row.mode==='PASS'||row.tier==='PASS';
-      first.append(el('small','',ftPass?'胜平负参考方向':'胜平负首选'),el('strong','',reportHas(row.ftTop1)?String(row.ftTop1):ftPass?'未发布正式方向':'赛前分析更新中'));
+      first.append(el('small','','胜平负首选'),el('strong','',reportHas(row.ftTop1)?String(row.ftTop1):'赛前分析更新中'));
       choices.append(first);
-      if(reportHas(row.second)){const second=el('div','report-alt-pick');second.append(el('small','',ftPass?'第二参考方向':'第二方向'),el('strong','',String(row.second)));choices.append(second)}
+      if(reportHas(row.second)){const second=el('div','report-alt-pick');second.append(el('small','','胜平负次选'),el('strong','',String(row.second)));choices.append(second)}
       summary.append(choices);
-      if(ftPass)summary.append(el('p','report-sub','本场未通过模型数据筛选条件；上述胜平负方向仅为赛前概率排序参考。'));
       const hasOfficial=row.officialHandicap!==null&&row.officialHandicap!==undefined&&row.officialHandicap!=='';
       const handicap=[reportHas(row.handicapTop1)?row.handicapTop1:reportHas(row.handicap)?row.handicap:null,reportHas(row.handicapSecond)?row.handicapSecond:null].filter(Boolean);
       const isTop5=String(row.handicapModelVersion??'').startsWith('HJ38-HHAD-TOP5-FT-MKT');
