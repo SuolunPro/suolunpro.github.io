@@ -2007,7 +2007,13 @@
       const rows=state.model==='daily'?visibleRows():(state.today?.rows||[]);
       const settled=rows.filter(verified);
       // Poisson statistics include only settled matches with a valid frozen pre-kickoff goal prediction and verified score.
-      const evaluable=state.model==='goals'?settled.filter(row=>isFormalGoalPrediction(row)&&hasScore(row)):state.model==='handicap'?settled.filter(handicapEvaluable):settled;
+      // Formal goal predictions and the separately-labelled frozen-score Poisson references
+      // have different provenance: show reference coverage when there is no formal sample,
+      // without recategorizing a reference as an independently published goal prediction.
+      const formalGoals=state.model==='goals'?settled.filter(row=>isFormalGoalPrediction(row)&&hasScore(row)):[];
+      const referenceGoals=state.model==='goals'?settled.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda(row)!==null&&hasScore(row)):[];
+      const showGoalReference=state.model==='goals'&&formalGoals.length===0&&referenceGoals.length>0;
+      const evaluable=state.model==='goals'?(showGoalReference?referenceGoals:formalGoals):state.model==='handicap'?settled.filter(handicapEvaluable):settled;
       const hits=state.model==='goals'?evaluable.filter(row=>{
         const lambda=publishedGoalLambda(row),actual=Number(row.resultHome)+Number(row.resultAway);
         let p=Math.exp(-lambda);const ranked=[];
@@ -2020,10 +2026,10 @@
       $('pickCount').textContent=hits+'/'+evaluable.length;
       $('passCount').textContent=rows.length-settled.length;
       const labels=document.querySelectorAll('.metric span');
-      labels[0].textContent=({ft:'胜平负首选命中率',double:'双选覆盖率',handicap:'让球命中率',goals:'进球Top3覆盖率',combined:'综合评测成功率',daily:'重心场次命中率'})[state.model]||'当日评测命中率';
-      labels[1].textContent='命中 / 有效评测';
+      labels[0].textContent=state.model==='goals'?(showGoalReference?'泊松Top3参考覆盖率':'进球Top3正式覆盖率'):({ft:'胜平负首选命中率',double:'双选覆盖率',handicap:'让球命中率',combined:'综合评测成功率',daily:'重心场次命中率'})[state.model]||'当日评测命中率';
+      labels[1].textContent=showGoalReference?'参考命中 / 已核验':'命中 / 有效评测';
       labels[2].textContent='未核验赛果';
-      const coverage=state.model==='goals'?' · 严格xG正式 '+rows.filter(isFormalGoalPrediction).length+'场 · 进球参考 '+rows.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda(row)!==null).length+'场 · 有效正式评测 '+evaluable.length+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
+      const coverage=state.model==='goals'?' · 独立正式预测 '+rows.filter(isFormalGoalPrediction).length+'场 · 泊松参考 '+rows.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda(row)!==null).length+'场 · 正式已评测 '+formalGoals.length+'场 · 参考已评测 '+referenceGoals.length+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
     function render(){closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile'||(memberInfo?.active===false&&state.tab!=='profile');if(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday())){renderMemberRequired();return}if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
