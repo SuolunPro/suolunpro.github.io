@@ -697,6 +697,21 @@
       stateCard.append(el('div','member-deadline',label));
       stateCard.append(el('div','member-muted',expires?'有效期至：'+expires+'（北京时间）':memberInfo.legacyGrace?'免费体验截至9月24日00:00（北京时间）':'9月24日起，当天比赛所有推荐仅向有效会员开放。'));
       panel.append(stateCard);
+      const purchaseCard=el('div','member-card');
+      purchaseCard.append(el('h3','','开通会员 · 无需邀请好友'));
+      purchaseCard.append(el('p','member-muted','不邀请好友也可以开通会员。当前尚未接入网站自助支付，请勿向陌生账户转账。'));
+      const price=el('div','member-deadline','月卡 ¥29.9 / 月');
+      price.style.cssText='color:#b92731;font-size:22px;margin:9px 0';
+      purchaseCard.append(price,el('p','member-muted','会员有效期内可查看当天全部完整赛事报告；具体可查看内容以页面实际提供的数据为准。'));
+      const contact=el('button','','复制开通申请');
+      const contactNote=el('p','member-muted','请通过现有客服沟通渠道发送申请，确认办理方式与实际到账后由管理员开通；本页面不收款、不自动开通。');
+      contact.onclick=async()=>{
+        const message='索伦引擎会员开通申请\\n注册邮箱：'+String(authSession?.user?.email||'请填写注册邮箱')+'\\n申请：月卡29.9元（1个月）';
+        try{await navigator.clipboard.writeText(message);contactNote.textContent='申请内容已复制，请发送至现有客服沟通渠道。确认办理后由管理员开通。'}
+        catch{window.prompt('请复制申请内容并发送至现有客服沟通渠道',message)}
+      };
+      purchaseCard.append(contact,contactNote);
+      panel.append(purchaseCard);
       if(memberInfo.isAdmin===true){
         const adminReview=el('button','','邀请审核后台');
         adminReview.onclick=()=>{location.href='./review.html'};
@@ -739,8 +754,8 @@
     }
     function renderMemberRequired(){
       const box=$('content');box.replaceChildren(sectionHead('会员专属数据','当天比赛推荐'));
-      const p=el('section','member-panel');p.append(el('h3','','会员有效期已结束'),el('p','','当天比赛推荐仅对有效会员开放。可前往「我的」查看邀请码、公测活动与会员到期时间。'));
-      const b=el('button','','前往我的邀请码');b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};p.append(b);box.append(p);
+      const p=el('section','member-panel');p.append(el('h3','','会员有效期已结束'),el('p','','当天比赛完整报告目前仅向有效会员开放。无需邀请好友，也可前往「我的」查看月卡开通说明与会员到期时间。'));
+      const b=el('button','','前往我的会员中心');b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};p.append(b);box.append(p);
     }
     const TURNSTILE_SITE_KEY='0x4AAAAAAFBKndRZlD2qH4Km';
     let turnstileLoadPromise=null;
