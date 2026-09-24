@@ -979,23 +979,32 @@
       return '模型参考：'+safe(row.ftTop1)+' / '+safe(row.second);
     }
 
+
     function htftTop4Panel(row){
-      const panel=reportSection('半全场 Top4');
-      panel.classList.add('htft-top4-panel');
       const info=row.htftTop4;
+      const historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
+      const panel=reportSection(historical?'半全场 Top4 · 历史补算':'半全场 Top4');
+      panel.classList.add('htft-top4-panel');
       const kickoff=Date.parse(String(row.kickoff??''));
-      if(!info||info.sourceKind!=='PUBLISHED_PREMATCH'||!Array.isArray(info.picks)||info.picks.length!==4
-        ||!Number.isFinite(Date.parse(String(info.publishedAt??'')))||!Number.isFinite(kickoff)
-        ||Date.parse(String(info.publishedAt))>=kickoff){
+      const frozen=Date.parse(String(info?.sourceFrozenAt??''));
+      const published=Date.parse(String(info?.publishedAt??''));
+      const reconstructed=Date.parse(String(info?.reconstructedAt??''));
+      const validTime=historical
+        ?Number.isFinite(frozen)&&Number.isFinite(reconstructed)&&frozen<kickoff&&reconstructed>=kickoff
+        :info?.sourceKind==='PUBLISHED_PREMATCH'&&Number.isFinite(frozen)&&Number.isFinite(published)
+          &&frozen<=published&&published<kickoff;
+      if(!info||!Array.isArray(info.picks)||info.picks.length!==4||!Number.isFinite(kickoff)||!validTime){
         panel.append(el('p','report-empty',Date.now()<kickoff
           ?'本场半全场四选数据待发布；仅在赛前参数和发布时间核验通过后展示。'
-          :'本场未保存有效的赛前半全场四选记录，不使用赛后结果补写。'));
+          :'本场缺少可核验的半全场四选数据，无法补算；不会使用赛果倒推四选。'));
         return panel;
       }
       const percentage=value=>{
         const n=Number(value);
         return value!==null&&value!==undefined&&Number.isFinite(n)&&n>=0&&n<=1?(n*100).toFixed(1)+'%':'—';
       };
+      if(historical)
+        panel.append(el('p','htft-top4-flag','历史资料补算：开球后根据留存的开球前来源参数重新计算，不属于当时已发布的半全场预测；仅作历史回放对照，不计入正式赛前战绩。'));
       const summary=el('div','htft-top4-summary');
       summary.append(el('small','','四选合计模型概率'),el('strong','',percentage(info.top4Probability)));
       summary.append(el('div','htft-top4-note','覆盖九种半全场结果中的四种；合计概率不是历史命中率。'));
@@ -1010,16 +1019,23 @@
       panel.append(grid);
       reportLine(panel,'半场平局模型概率',percentage(info.htDrawProbability));
       if(info.lowGoalDrawAudit===true)
-        panel.append(el('p','htft-top4-flag','低进球＋双方预期接近：已重点审查半场平局，但四个方向仍按九项联合概率排序。'));
+        panel.append(el('p','htft-top4-flag','低进球＋双方预期接近：半场平局已列入重点观察，四个方向仍按九项联合概率排序。'));
       if(info.settlementStatus==='SUCCESS'||info.settlementStatus==='FAILURE'){
-        panel.append(el('div','score-top4-verdict '+(info.settlementStatus==='SUCCESS'?'success':'fail'),
-          info.settlementStatus==='SUCCESS'?'评测成功 · 实际半全场 '+String(info.actual):
-          '评测失败 · 实际半全场 '+String(info.actual)+' 未落在四选内'));
+        const hit=info.settlementStatus==='SUCCESS';
+        const verdict=historical
+          ?(hit?'历史回放一致 · 实际半全场 ':'历史回放不一致 · 实际半全场 ')+String(info.actual)
+          :hit?'评测成功 · 实际半全场 '+String(info.actual):
+            '评测失败 · 实际半全场 '+String(info.actual)+' 未落在四选内';
+        panel.append(el('div','score-top4-verdict '+(hit?'success':'fail'),verdict));
         if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+String(info.halfScore)+'；全场按90分钟正式赛果。'));
       }else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'
-        ?'半场赛果尚未核验，不进行评测':'等待赛果 · 暂未评测'));
-      panel.append(el('p','htft-top4-note','独立泊松九项联合计算：上半场使用全场预期进球的45%，下半场55%；不将半场和全场独立相乘。模型概率并非收益承诺。'));
-      panel.append(el('p','htft-top4-note','赛前发布：'+fmtStamp(info.publishedAt)+'；采用已保存的赛前冻结进球参数，不随赛果改写四选。'));
+        ?'半场赛果尚未核验，不进行对照':'等待赛果 · 暂未对照'));
+      panel.append(el('p','htft-top4-note','独立泊松九项联合计算：上半场使用全场预期进球的45%，下半场55%；不将半场与全场独立相乘。模型概率并非收益承诺。'));
+      if(historical){
+        const sourceLabels={SALE_FREEZE_SCORE_LAMBDA:'既有赛前冻结比分参数',ORIGINAL_PREMATCH_GOAL_LAMBDA:'既有赛前进球参数',HISTORICAL_REPLAY_LAMBDA:'历史盲跑回放参数（赛后重建）'};
+        const sourceLabel=sourceLabels[info.originalSourceKind]||'已核验的赛前来源参数';
+        panel.append(el('p','htft-top4-note','原始参数时间：'+fmtStamp(info.sourceFrozenAt)+'；来源：'+sourceLabel+'；半全场补算于 '+fmtStamp(info.reconstructedAt)+'。'));
+      }else panel.append(el('p','htft-top4-note','赛前发布：'+fmtStamp(info.publishedAt)+'；采用已保存的赛前冻结进球参数，不随赛果改写四选。'));
       return panel;
     }
     function scoreTop4Panel(row){
