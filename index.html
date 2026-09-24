@@ -1929,8 +1929,10 @@
       if(ftPass)summary.append(el('p','report-sub','本场未通过模型数据筛选条件；上述胜平负方向仅为赛前概率排序参考。'));
       const hasOfficial=row.officialHandicap!==null&&row.officialHandicap!==undefined&&row.officialHandicap!=='';
       const handicap=[reportHas(row.handicapTop1)?row.handicapTop1:reportHas(row.handicap)?row.handicap:null,reportHas(row.handicapSecond)?row.handicapSecond:null].filter(Boolean);
-      const handicapMarketOnly=row.handicapQualityEligible===false;
-      if(hasOfficial||handicap.length)reportLine(summary,handicapMarketOnly?'官方让球 / 市场参考':'官方让球 / 让球方向',(hasOfficial?String(row.officialHandicap):'—')+' / '+(handicap.length?handicap.join('、'):'未发布'));
+      const isTop5=String(row.handicapModelVersion??'').startsWith('HJ38-HHAD-TOP5-FT-MKT');
+      const handicapMarketOnly=row.handicapQualityEligible===false&&!isTop5;
+      if(hasOfficial||handicap.length)reportLine(summary,isTop5?'官方让球 / 综合双选':handicapMarketOnly?'官方让球 / 市场参考':'官方让球 / 让球方向',(hasOfficial?String(row.officialHandicap):'—')+' / '+(handicap.length?handicap.join('、'):'未发布'));
+      if(isTop5&&handicap.length)summary.append(el('p','report-sub','让球首选与次选依据赛前比分Top5、胜平负概率及让球市场综合计算；双选仅表示覆盖两个方向，不保证命中。'));
       if(handicapMarketOnly&&handicap.length)summary.append(el('p','report-sub','让球方向来自市场概率排序，尚未通过模型让球数据质量审核，仅供统计参考。'));
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
       if([row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
