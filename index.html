@@ -214,6 +214,46 @@
   .profile-page .profile-more .engine-intro h2{font-size:14px}
   .profile-page .member-account{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 3px;color:#878a91;font-size:11px;overflow-wrap:anywhere}
   .profile-page .account-panel .member-account button{margin:0;padding:6px 10px;font-size:11px;background:#eeeeef;color:#555}
+  /* Customer feedback: scoped to 我的; never alters match cards or membership access. */
+  .feedback-entry{background:#fff;border:1px solid #ececef;border-radius:14px;padding:15px;margin:8px 0 12px;box-shadow:0 2px 10px #00000008}
+  .feedback-entry h3{font-size:16px;margin:0 0 5px;color:#25272c}
+  .feedback-entry p{font-size:12px;line-height:1.6;color:#777f89;margin:0 0 10px}
+  .feedback-entry-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .feedback-entry button,.feedback-page button{cursor:pointer;border:0;border-radius:10px;min-height:40px;padding:9px 13px;font:inherit;font-size:13px}
+  .feedback-entry button{color:#fff;background:#c72b32;font-weight:700}
+  .feedback-entry button.feedback-admin-open{background:#262a34}
+  .feedback-page{padding:12px 14px 30px}
+  .feedback-head{display:flex;gap:12px;align-items:center;margin:0 0 10px}
+  .feedback-back{background:#ebecf0;color:#4c525d;flex:none}
+  .feedback-head h3{font-size:19px;line-height:1.4;margin:0}
+  .feedback-head p,.feedback-hint{font-size:12px;color:#777f89;line-height:1.6;margin:3px 0 10px}
+  .feedback-tabs{display:flex;gap:7px;margin:11px 0}
+  .feedback-tabs button{flex:1;padding:9px 5px;background:#eceef2;color:#525966;font-size:12px}
+  .feedback-tabs button.active{background:#262a34;color:#fff;font-weight:700}
+  .feedback-card{border:1px solid #e8e8ec;border-radius:13px;background:#fff;padding:13px;margin-bottom:10px;overflow-wrap:anywhere}
+  .feedback-card h4{font-size:14px;margin:0 0 9px;color:#282c32}
+  .feedback-card label{display:block;font-size:12px;font-weight:650;color:#424650;margin:10px 0 5px}
+  .feedback-categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .feedback-categories button{background:#f3f4f6;color:#4d535e;border:1px solid #e7e9ec}
+  .feedback-categories button.active{border-color:#c72b32;color:#b32530;background:#fff1f1;font-weight:750}
+  .feedback-input{display:block;width:100%;box-sizing:border-box;min-height:110px;padding:11px;border:1px solid #dedfe5;border-radius:10px;background:#fff;color:#222;font:inherit;font-size:14px;line-height:1.65;resize:vertical}
+  .feedback-input:focus{outline:2px solid #d7a0a4;outline-offset:1px}
+  .feedback-char{text-align:right;color:#8a8f98;font-size:11px;margin:4px 0 10px}
+  .feedback-submit{width:100%;background:#c72b32;color:#fff;font-weight:750}
+  .feedback-page button:disabled{opacity:.5;cursor:not-allowed}
+  .feedback-message{color:#7c3338;font-size:12px;line-height:1.6;margin:8px 0}
+  .feedback-list-meta{color:#858992;font-size:12px;margin:6px 0 10px}
+  .feedback-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .feedback-chip{background:#f0f1f3;color:#656a73;border-radius:20px;padding:4px 8px;font-size:11px}
+  .feedback-chip.pending{background:#fff3e2;color:#956121}.feedback-chip.replied{background:#eaf6ed;color:#278348}.feedback-chip.resolved{background:#eaf1fd;color:#4666a5}
+  .feedback-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.75;color:#373b41;margin:10px 0}
+  .feedback-reply{background:#f5f6f8;border-radius:9px;padding:10px;margin-top:8px}
+  .feedback-reply strong{font-size:12px;color:#41464e}
+  .feedback-time{font-size:11px;color:#8a8e98;margin-top:8px}
+  .feedback-admin-actions{display:flex;gap:8px;margin-top:9px}
+  .feedback-admin-actions button{flex:1;background:#323842;color:#fff}
+  .feedback-admin-actions button:last-child{background:#c72b32}
+  @media(max-width:360px){.feedback-page{padding:10px}.feedback-tabs button{font-size:11px;padding:8px 3px}}
   /* 公测公告精简版：仅调整欢迎层，不触碰主站、登录和会员审核。 */
   .welcome-screen.beta-active .welcome-fallback,.welcome-screen.beta-active .welcome-skip,.welcome-screen.beta-active .welcome-legal{display:none}
   .beta-notice[hidden]{display:none!important}
@@ -604,6 +644,36 @@
       return null;
     }
     const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
+    // Feedback uses an isolated client-database Edge Function; existing membership API is unchanged.
+    const FEEDBACK_API=AUTH_BASE+'/functions/v1/soren-feedback-api-v1';
+    let feedbackMode=null,feedbackFilter='all',feedbackDraft={category:'功能建议',content:''};
+    function feedbackError(code){
+      return ({LOGIN_REQUIRED:'请重新登录后提交',FORBIDDEN:'当前账号没有留言管理权限',
+        RATE_LIMIT:'留言过于频繁，请稍后再试（10分钟最多3条，每24小时最多15条）',
+        INVALID_LENGTH:'留言内容请控制在1至500字以内',INVALID_FEEDBACK:'请选择类型并填写留言内容',
+        INVALID_REPLY:'请输入有效回复内容',INVALID_BODY:'请求内容格式不正确',
+        SERVICE_UNAVAILABLE:'留言服务暂不可用，请稍后重试',SUBMIT_FAILED:'提交失败，请稍后再试',
+        REPLY_FAILED:'回复失败，请稍后再试'})[code]||'操作未成功，请稍后重试';
+    }
+    async function feedbackRequest(query,body){
+      const qs=new URLSearchParams(query),res=await authorizedApiFetch(FEEDBACK_API+'?'+qs,{
+        ...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{}),
+        cache:'no-store',signal:AbortSignal.timeout(12000)});
+      let data=null;try{data=await res.json()}catch{}
+      if(!res.ok||data?.ok!==true)throw Error(feedbackError(data?.error));
+      return data;
+    }
+    function openFeedback(mode='write'){
+      feedbackMode=mode;state.tab='profile';
+      document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));
+      render();
+    }
+    function feedbackTime(value){
+      if(!value)return '';
+      try{return new Date(value).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',
+        month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})}
+      catch{return ''}
+    }
     async function membershipFetch(){
       const r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store'});
       const j=await r.json();
@@ -1061,10 +1131,130 @@
       const rows=filterRows(state.history.rows||[]);if(!rows.length){box.append(empty('暂无已核验战绩','当前模块没有同时满足赛前冻结与赛果核验的记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(matchCard(r,true)));const statsNote=el('section','risk-sample');statsNote.style.cssText='margin:12px 16px;padding:14px 15px;background:#fff;border:1px solid #eee;border-radius:12px;font-size:12px;line-height:1.7;color:#555';statsNote.textContent='统计口径：本页仅展示已核验赛果的场次；顶部百分比按当前所选玩法、当前日期和有效评测场次计算。胜平负首选=首选命中数/有效场次；双选覆盖=首选或次选命中数/有效场次；让球=对应让球方向命中数/具备赛前让球预测及赛果的场次；综合评测=页面所列方向任一命中/有效场次；冷门避冷=原始首选未打出/已核验预警场次。各玩法分母不同，不可混作同一胜率；缺预测或缺赛果的场次不计入命中率，须另行列示。';box.replaceChildren(sectionHead('真实战绩',rows.length+'场 · 赛果已核验'),statsNote,grid,notice())
     }
+    function renderFeedbackPage(){
+      const box=$('content');box.replaceChildren(sectionHead('留言与建议','用户反馈'));
+      const page=el('div','profile-page feedback-page'),head=el('div','feedback-head');
+      const back=el('button','feedback-back','‹ 返回');back.type='button';back.onclick=()=>{feedbackMode=null;render()};
+      const title=el('div');title.append(el('h3','',feedbackMode==='admin'?'客户留言管理':'留言与建议'),
+        el('p','','你提交的留言仅本人和授权管理员可查看。'));
+      head.append(back,title);page.append(head);
+      const tabs=el('div','feedback-tabs');
+      const choices=[['write','我要留言'],['mine','我的留言']];
+      if(memberInfo?.isAdmin===true)choices.push(['admin','管理留言']);
+      choices.forEach(([mode,label])=>{
+        const b=el('button',feedbackMode===mode?'active':'',label);
+        b.type='button';b.onclick=()=>{feedbackMode=mode;renderFeedbackPage()};tabs.append(b);
+      });
+      page.append(tabs);box.append(page);
+      if(feedbackMode==='write'){
+        const form=el('div','feedback-card');
+        form.append(el('h4','','请选择反馈类型'));
+        const categories=el('div','feedback-categories');
+        for(const category of ['功能建议','网站问题','会员咨询','其他反馈']){
+          const button=el('button',feedbackDraft.category===category?'active':'',category);
+          button.type='button';
+          button.onclick=()=>{feedbackDraft.category=category;renderFeedbackPage()};
+          categories.append(button);
+        }
+        form.append(categories,el('label','','留言内容'));
+        const input=el('textarea','feedback-input');input.placeholder='请描述遇到的问题，或者希望索伦增加的功能…';
+        input.maxLength=500;input.value=feedbackDraft.content;input.setAttribute('aria-label','留言内容');
+        const counter=el('div','feedback-char'),send=el('button','feedback-submit','提交留言'),msg=el('p','feedback-message','');
+        send.type='button';
+        const update=()=>{feedbackDraft.content=input.value;counter.textContent=String(input.value.length)+'/500字';send.disabled=!input.value.trim()||input.value.length>500};
+        input.oninput=update;update();
+        send.onclick=async()=>{
+          send.disabled=true;msg.textContent='正在提交…';
+          try{
+            await feedbackRequest({action:'create'},{category:feedbackDraft.category,content:feedbackDraft.content});
+            feedbackDraft={category:'功能建议',content:''};feedbackMode='mine';renderFeedbackPage();
+          }catch(error){msg.textContent=error.message;update()}
+        };
+        form.append(input,counter,send,msg);page.append(form);
+        page.append(el('p','feedback-hint','请勿填写密码、身份证号或其他敏感个人信息。留言仅用于网站服务与问题处理。'));
+        return;
+      }
+      if(feedbackMode==='admin'&&memberInfo?.isAdmin!==true){feedbackMode='mine';renderFeedbackPage();return}
+      if(feedbackMode==='admin'){
+        const filters=el('div','feedback-tabs');
+        for(const [filter,label] of [['all','全部'],['pending','待处理'],['replied','已回复'],['resolved','已处理']]){
+          const b=el('button',feedbackFilter===filter?'active':'',label);
+          b.type='button';b.onclick=()=>{feedbackFilter=filter;renderFeedbackPage()};filters.append(b);
+        }
+        page.append(filters);
+      }
+      const meta=el('div','feedback-list-meta','正在读取留言…'),list=el('div','feedback-list');
+      page.append(meta,list);
+      const mode=feedbackMode;
+      (async()=>{
+        try{
+          const data=await feedbackRequest({scope:mode==='admin'?'admin':'mine',
+            ...(mode==='admin'?{filter:feedbackFilter}:{})});
+          if(!list.isConnected||feedbackMode!==mode)return;
+          meta.textContent=(mode==='admin'?'待处理 '+data.pendingCount+' 条 · ':'')+
+            '共 '+data.count+' 条'+(data.count>50?'，仅展示最近50条':'');
+          list.replaceChildren();
+          if(!data.items.length){list.append(el('div','feedback-card','暂无留言记录'));return}
+          for(const item of data.items){
+            const card=el('div','feedback-card'),heading=el('div','feedback-card-head');
+            heading.append(el('strong','',item.category));
+            const label=({pending:'待处理',replied:'已回复',resolved:'已处理'})[item.status]||'待处理';
+            heading.append(el('span','feedback-chip '+item.status,label));card.append(heading);
+            if(mode==='admin')card.append(el('div','feedback-time','用户 '+String(item.user_id||'').slice(0,8)+'…'));
+            card.append(el('div','feedback-text',item.content),
+              el('div','feedback-time','提交于 '+feedbackTime(item.created_at)));
+            if(item.admin_reply){
+              const reply=el('div','feedback-reply');
+              reply.append(el('strong','','管理员回复'),el('div','feedback-text',item.admin_reply));
+              if(item.replied_at)reply.append(el('div','feedback-time',feedbackTime(item.replied_at)));
+              card.append(reply);
+            }
+            if(mode==='admin'){
+              const replyInput=el('textarea','feedback-input');replyInput.maxLength=1000;
+              replyInput.setAttribute('aria-label','回复留言 '+item.id);
+              replyInput.placeholder='请输入给客户的回复…';replyInput.value=item.admin_reply||'';
+              const actions=el('div','feedback-admin-actions'),info=el('p','feedback-message','');
+              for(const [status,title] of [['replied','回复客户'],['resolved','回复并处理']]){
+                const button=el('button','',title);button.type='button';
+                button.onclick=async()=>{
+                  const clean=replyInput.value.trim();
+                  if(!clean||Array.from(clean).length>1000){info.textContent='回复内容请控制在1至1000字以内';return}
+                  [...actions.querySelectorAll('button')].forEach(b=>b.disabled=true);
+                  info.textContent='正在提交回复…';
+                  try{await feedbackRequest({action:'reply'},{id:item.id,reply:clean,status});
+                    renderFeedbackPage()}
+                  catch(error){info.textContent=error.message;[...actions.querySelectorAll('button')].forEach(b=>b.disabled=false)}
+                };
+                actions.append(button);
+              }
+              card.append(replyInput,actions,info);
+            }
+            list.append(card);
+          }
+        }catch(error){
+          if(!list.isConnected||feedbackMode!==mode)return;
+          meta.textContent='暂时无法读取留言';
+          const retry=el('button','feedback-submit','重试读取');retry.onclick=()=>renderFeedbackPage();
+          list.replaceChildren(el('p','feedback-message',error.message),retry);
+        }
+      })();
+    }
     function renderProfile(){
+      if(feedbackMode){renderFeedbackPage();return}
       const box=$('content');
       box.replaceChildren(sectionHead('我的','会员中心'));
-      const page=el('div','profile-page');page.append(accountPanel());
+      const page=el('div','profile-page');
+      const entry=el('section','feedback-entry');
+      entry.append(el('h3','','留言与建议'),el('p','','网站问题、功能建议或会员疑问，都可以在这里告诉我们。'));
+      const actions=el('div','feedback-entry-actions'),write=el('button','','我要留言');
+      write.type='button';write.onclick=()=>openFeedback('write');
+      const mine=el('button','','我的留言');mine.type='button';mine.onclick=()=>openFeedback('mine');
+      actions.append(write,mine);
+      if(memberInfo?.isAdmin===true){
+        const admin=el('button','feedback-admin-open','客户留言管理');
+        admin.type='button';admin.onclick=()=>openFeedback('admin');actions.append(admin);
+      }
+      entry.append(actions);page.append(entry,accountPanel());
       const about=el('details','profile-more');
       about.append(el('summary','','关于索伦'));
       const intro=el('p','sub','索伦引擎专注赛事数据整理与分析，提供赛前赛事观察及赛后数据回顾。');
@@ -1836,7 +2026,7 @@
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦引擎';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;state.tab='home';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];requestAnimationFrame(()=>{if(state.model===b.dataset.model&&state.tab==='home')render()})});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
-    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}render()});
+    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}render()});
     $('back').onclick=closeDetail;
     function showAuthRetry(error){
       document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';
