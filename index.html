@@ -1032,7 +1032,7 @@
         ?'半场赛果尚未核验，不进行对照':'等待赛果 · 暂未对照'));
       panel.append(el('p','htft-top4-note','独立泊松九项联合计算：上半场使用全场预期进球的45%，下半场55%；不将半场与全场独立相乘。模型概率并非收益承诺。'));
       if(historical){
-        const sourceLabels={SALE_FREEZE_SCORE_LAMBDA:'既有赛前冻结比分参数',ORIGINAL_PREMATCH_GOAL_LAMBDA:'既有赛前进球参数',HISTORICAL_REPLAY_LAMBDA:'历史盲跑回放参数（赛后重建）'};
+        const sourceLabels={SALE_FREEZE_SCORE_LAMBDA:'既有赛前冻结比分参数',ORIGINAL_PREMATCH_GOAL_LAMBDA:'既有赛前进球参数',ORIGINAL_PREDICTION_SCORE_LAMBDA:'既有赛前冻结比分参数',HISTORICAL_REPLAY_LAMBDA:'历史盲跑回放参数（赛后重建）'};
         const sourceLabel=sourceLabels[info.originalSourceKind]||'已核验的赛前来源参数';
         panel.append(el('p','htft-top4-note','原始参数时间：'+fmtStamp(info.sourceFrozenAt)+'；来源：'+sourceLabel+'；半全场补算于 '+fmtStamp(info.reconstructedAt)+'。'));
       }else panel.append(el('p','htft-top4-note','赛前发布：'+fmtStamp(info.publishedAt)+'；采用已保存的赛前冻结进球参数，不随赛果改写四选。'));
