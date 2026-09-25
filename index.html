@@ -2007,17 +2007,9 @@
       const market=report.market?.european??null,first=market?.initial,last=market?.current;
       updateDetailMarketStatus(context?.dataStatus,report);
       const meaningfulChange=first&&last?['home','draw','away'].some(k=>Number.isFinite(Number(first[k]))&&Number.isFinite(Number(last[k]))&&Number(first[k])>1&&Number(last[k])>1&&Math.abs(Number(first[k])-Number(last[k]))>=0.015):false;
-      const riskText=report.model?.sourceKind==='ORIGINAL_PREMATCH'&&reportHas(report.model?.riskAnalysis)&&!String(report.model.riskAnalysis).includes('已通过正式赛前质量核验')?String(report.model.riskAnalysis):null;
-      const summary=context?.summary;
-      if(summary){
-        const plainRisk=riskText&&riskText.trim().length<=125?riskText.trim():null;
-        if(plainRisk){
-          const note=el('p','report-attention');
-          note.append(el('b','','赛前关注 · '),document.createTextNode(plainRisk));
-          summary.append(note);
-        }
-      }
-      if(stories.length||meaningfulChange||(riskText&&!context?.summary)){
+      // Keep raw research riskAnalysis in its source record. Do not repeat
+      // internal PASS/risk-gate jargon as an alarming customer-facing banner.
+      if(stories.length||meaningfulChange){
         const intel=reportSection('赛前情报与市场变化');
         stories.forEach(item=>{
           const article=el('div','report-story'),title=el('a','report-story-link',String(item.title||'赛前报道').replace(/^\[小炮APP\]竞彩情报：/,''));
@@ -2037,7 +2029,6 @@
           });
           changed.append(el('p','report-sub','威廉希尔 · 赔率采集于 '+fmtStamp(last.capturedAt)+'；变化不等于赛果判断'));intel.append(changed);
         }
-        if(riskText&&!context?.summary)reportLine(intel,'九十刻度赛前风险',riskText);
         slot.append(intel);
       }
       renderHeroWeather(report.environment??context?.fallbackEnvironment??null);
