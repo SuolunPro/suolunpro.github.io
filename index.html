@@ -1235,7 +1235,7 @@
     }
     function htftMethodText(kind){
       return kind==='dynamic'
-        ?'从已冻结的双方进球参数出发，结合开赛前采集的威廉希尔欧赔校准预期进球，再用泊松模型计算九种半全场结果的联合概率，依概率排序取前四。每场以开球前最后一条有效动态记录作评测。'
+        ?'从已冻结的双方进球参数出发，结合开赛前采集的威廉希尔欧赔校准预期进球，同样按上半场45%、下半场55%分配进球期望，再用泊松模型计算九种半全场结果的联合概率，依概率排序取前四。每场以开球前最后一条有效动态记录作评测。'
         :'取原始赛前锁定的比分模型中双方预期进球参数，不采用随后新增的市场校准结果；按上半场45%、下半场55%分配进球期望，计算九种半全场结果的泊松联合概率，依概率排序取前四。原始版本发布后保持不变。';
     }
     function htftMethodDisclosure(kind,row,info){
@@ -2454,7 +2454,7 @@
       const attackDefense=renderAttackDefensePanel(row);
       if(teamOverview&&attackDefense){teamOverview.append(attackDefense);c.append(teamOverview);}
       else {if(teamOverview)c.append(teamOverview);if(attackDefense)c.append(attackDefense);}
-      c.append(htftVersionPanel(row));
+      c.append(state.model==='htft'?htftVersionPanel(row):htftTop4Panel(row));
       c.append(detailUpsetWarningPanel(row));
       if(scoreInfo(row)||publishedGoalLambda(row)!==null){
         const score=reportDisclosure('展开比分与进球 · Top4 / 总进球');
