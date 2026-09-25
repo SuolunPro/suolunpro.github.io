@@ -64,7 +64,7 @@ Deno.serve(async req=>{
   for(const c of context??[])if(!contexts.has(Number(c.match_id))&&c.payload?.fotmob_match_id)
     contexts.set(Number(c.match_id),c.payload);
   const teams=[...new Set(list.flatMap(m=>[m.home_team,m.away_team]))];
-  const {data:aliases,error:aliasError}=await db.from("soren_team_alias_fotmob").select("jc_team,fotmob_team_id").in("jc_team",teams);
+  const {data:aliases,error:aliasError}=await db.from("soren_team_alias_fotmob").select("jc_team,fotmob_team_id,fotmob_team").in("jc_team",teams);
   if(aliasError)throw aliasError;
   // Reuse only fixture-verified shadow aliases: no transliteration guessing and no
   // silent override if the live and verified shadow mappings conflict.
@@ -78,7 +78,12 @@ Deno.serve(async req=>{
     const id=finite(value);if(id===null||id<=0)return;
     const ids=map.get(name)??new Set<number>();ids.add(id);map.set(name,ids);
   };
-  for(const a of aliases??[])addAlias(formalMap,String(a.jc_team),a.fotmob_team_id);
+  for(const a of aliases??[]){
+    // Known corrupted legacy alias: 中国女 was imported as the men's club FC Osaka.
+    // Do not reuse it until the exact women's national team ID is independently verified.
+    if(String(a.jc_team)==="中国女"&&String(a.fotmob_team)==="FC Osaka")continue;
+    addAlias(formalMap,String(a.jc_team),a.fotmob_team_id);
+  }
   for(const a of shadowRows??[]){
     const name=String(a.jc_team),id=finite(a.fotmob_team_id);
     if(id===null||id<=0||a.evidence?.strict_time_orientation!==true)continue;
