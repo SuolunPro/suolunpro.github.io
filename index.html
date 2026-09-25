@@ -1379,14 +1379,14 @@
     }
     function htftCard(row,history=false){
       const c=el('article','card'),head=el('div','card-head'),id=el('div','match-id');
-      const info=row.dynamicHTFTPending?null:(row.dynamicHTFT??row.htftTop4),marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01',historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
+      const info=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??row.htftTop4,marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01',historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
       const valid=info&&Array.isArray(info.picks)&&info.picks.length===4&&
         ['PUBLISHED_PREMATCH','HISTORICAL_POSTMATCH_RECONSTRUCTION','MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01'].includes(info.sourceKind);
       id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
       if(marketShadow)id.append(el('span','focus-label','赛前动态预测'));
       if(historical)id.append(el('span','focus-label','历史复算'));
       const done=valid&&['SUCCESS','FAILURE'].includes(info.settlementStatus);
-      const label=!valid?'数据待更新':marketShadow?(done?(info.settlementStatus==='SUCCESS'?'动态预测命中':'动态预测未命中'):'动态参考'):done?(historical?(info.settlementStatus==='SUCCESS'?'历史覆盖':'历史未覆盖'):(info.settlementStatus==='SUCCESS'?'覆盖成功':'未覆盖')):'等待赛果';
+      const label=!valid?'数据待更新':marketShadow?(done?(info.settlementStatus==='SUCCESS'?'动态预测命中':'动态预测未命中'):'赛前动态'):done?(historical?(info.settlementStatus==='SUCCESS'?'历史覆盖':'历史未覆盖'):(info.settlementStatus==='SUCCESS'?'覆盖成功':'未覆盖')):'等待赛果';
       head.append(id,el('span','status'+(done?(info.settlementStatus==='SUCCESS'?' verified':' fail'):'') ,label));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
@@ -2526,7 +2526,7 @@
         $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 原始赛前 '+original.length+'场 · 动态赛前 '+dynamic.length+'场 · 历史复算 '+replay.length+'场';
         const panel=el('div','htft-stats-breakdown');panel.id='htftStatsBreakdown';
         const add=(title,entries,description)=>{
-          if(!entries.length)return;const v=htftSummary(entries),group=el('section','htft-stats-group');
+          if(!entries.length&&title==='历史复算')return;const v=htftSummary(entries),group=el('section','htft-stats-group');
           group.append(el('strong','',title));
           const values=el('div','htft-stats-values');
           values.append(el('span','','Top1 '+htftRate(v.top1,v.n)+'（'+v.top1+'/'+v.n+'）'),el('span','','Top4 '+htftRate(v.top4,v.n)+'（'+v.top4+'/'+v.n+'）'));
@@ -2541,7 +2541,7 @@
         };
         add('原始赛前预测',original,'原始版单独统计');
         add('动态赛前预测',dynamic,'动态版单独统计，每场取最后有效记录');
-        if(!original.length&&!dynamic.length)add('历史复算',replay,'赛后复算，不计原始赛前成绩');
+        if(!original.length&&!dynamic.length)add('历史复算',replay,'赛后复算，不计赛前发布成绩');
         const toolbar=$('poolCount').closest('.toolbar');if(toolbar&&panel.childElementCount)toolbar.append(panel);
         return;
       }
