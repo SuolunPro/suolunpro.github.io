@@ -450,6 +450,28 @@
       .detail .report-line{gap:7px}
       .detail .report-line span{flex-basis:36%}
     }
+
+  /* Detail transparency and explanations reuse data already loaded for each match. */
+  .detail .report-data-status{margin:10px 12px 0;padding:11px 13px;border:1px solid #e3eae5;border-radius:12px;background:#fff;color:#294435}
+  .detail .report-data-status-heading{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:13px}
+  .detail .report-data-status-items{display:grid;grid-template-columns:1fr;gap:5px}
+  .detail .report-data-status-item{display:flex;align-items:baseline;justify-content:space-between;gap:9px;font-size:11px;line-height:1.5}
+  .detail .report-data-status-item span{color:#78847d;flex-shrink:0}
+  .detail .report-data-status-item b{color:#355243;text-align:right;font-weight:650}
+  .detail .report-data-status-item b.report-data-verified{color:#26845a}
+  .detail .report-metric-title{display:flex;align-items:center;gap:6px;margin:9px 0 5px;flex-wrap:wrap;font-size:12px;color:#64766a}
+  .detail .report-metric-title h3{margin:0 2px 0 0}
+  .detail .metric-help{display:inline-block;position:relative;flex:none;font-size:11px;line-height:1.4}
+  .detail .metric-help summary{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #b7c8be;background:#f3f7f4;color:#406d54;width:19px;height:19px;border-radius:50%;font-weight:750;list-style:none;font-size:12px}
+  .detail .metric-help summary::-webkit-details-marker{display:none}
+  .detail .metric-help p{position:absolute;z-index:5;top:24px;left:0;width:min(265px,75vw);padding:10px 11px;margin:0;background:#f7faf8;border:1px solid #c7d5cc;border-radius:9px;box-shadow:0 5px 14px #18312221;color:#3c5444;font-size:11px;font-weight:450;line-height:1.65;text-align:left}
+  .detail .report-data-status-heading .metric-help p{left:auto;right:0}
+  .detail .report-detail-upset-status{flex-wrap:wrap}
+  .profile-page .profile-changelog{margin-top:10px}
+  .profile-page .profile-changelog-list{margin-top:9px}
+  .profile-page .profile-changelog-entry{display:flex;align-items:baseline;gap:10px;padding:6px 0;border-top:1px solid #edf0ed}
+  .profile-page .profile-changelog-entry span{flex:none;font-size:11px;font-weight:650;color:#648071}
+  .profile-page .profile-changelog-entry p{margin:0;font-size:12px;line-height:1.55;color:#4d5d54}
   </style>
 </head>
 <body>
@@ -1500,6 +1522,19 @@
         admin.type='button';admin.onclick=()=>openFeedback('admin');actions.append(admin);
       }
       entry.append(actions);page.append(entry,accountPanel());
+      const updates=el('details','profile-more profile-changelog');
+      updates.append(el('summary','','网站更新日志'));
+      const updateList=el('div','profile-changelog-list');
+      [
+        ['09/25','完善比赛详情的数据状态与指标说明'],
+        ['09/25','优化公测会员方案展示与人工双账号申请'],
+        ['09/25','补充9月19日至24日赛事球场与草皮资料']
+      ].forEach(([day,description])=>{
+        const entry=el('div','profile-changelog-entry');
+        entry.append(el('span','',day),el('p','',description));
+        updateList.append(entry);
+      });
+      updates.append(updateList);page.append(updates);
       const about=el('details','profile-more');
       about.append(el('summary','','关于九十刻度'));
       const intro=el('p','sub','九十刻度专注赛事数据整理与分析，提供赛前优选场次及赛后数据回顾。');
@@ -1524,7 +1559,11 @@
     function goalPredictionPanel(row){
       const goalsShadow=row.goalPrediction?.formalEligible===false;
       const scoreBasedGoal=row.goalPrediction?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
-      const panel=el('section','goals-panel');panel.append(el('h3','',scoreBasedGoal?'泊松总进球预测 · Top3参考':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'));
+      const panel=el('section','goals-panel');
+      const heading=el('div','report-metric-title');
+      heading.append(el('h3','',scoreBasedGoal?'泊松总进球预测 · Top3参考':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'),
+        metricHelp('泊松总进球','使用赛前保存的主客队预期进球参数，按泊松分布计算不同总进球数的模型概率。它不是实际进球数保证，也不是未经核验的xG数据；参考项与正式发布的评测口径不同。'));
+      panel.append(heading);
       const lambda=publishedGoalLambda(row);
       if(lambda===null){panel.append(el('p','goals-note','赛前总进球参数未确认，暂不展示预测或计入命中率。'));return panel}
       let p=Math.exp(-lambda);const ranks=[];
@@ -1605,7 +1644,22 @@
     }
     function reportSection(title){const section=el('section','report-section');section.append(el('h3','',title));return section}
     function reportLine(parent,label,value){const line=el('div','report-line');line.append(el('span','',label),el('b','',safe(value)));parent.append(line)}
-    function reportProbability(parent,label,fields,row){const wrap=el('div','report-grid');fields.forEach((field,i)=>{const cell=el('div','report-cell');cell.append(el('small','',['主胜','平局','客胜'][i]),el('strong','',probability(row[field])));wrap.append(cell)});parent.append(el('p','report-sub',label),wrap)}
+    // Lightweight, locally rendered disclosure: no API calls or background observers.
+    function metricHelp(label,explanation){
+      const help=el('details','metric-help');
+      const toggle=el('summary','','?');toggle.setAttribute('aria-label','查看'+label+'说明');
+      toggle.title='查看'+label+'说明';
+      help.append(toggle,el('p','',explanation));
+      return help;
+    }
+    function reportProbability(parent,label,fields,row){
+      const wrap=el('div','report-grid');
+      fields.forEach((field,i)=>{const cell=el('div','report-cell');cell.append(el('small','',['主胜','平局','客胜'][i]),el('strong','',probability(row[field])));wrap.append(cell)});
+      const heading=el('div','report-metric-title');
+      heading.append(el('span','',label),
+        metricHelp('胜平负概率','主胜、平局、客胜为模型对90分钟赛果的概率估算。平局概率表示模型估计双方90分钟战平的可能性，不代表必然发生，也不等于投注收益。'));
+      parent.append(heading,wrap);
+    }
 
     function reportOddsGrid(section,label,values){
       const grid=el('div','report-grid');['主胜','平局','客胜'].forEach((name,i)=>{
@@ -1911,6 +1965,7 @@
         catch{return false}
       }):[];
       const market=report.market?.european??null,first=market?.initial,last=market?.current;
+      updateDetailMarketStatus(context?.dataStatus,report);
       const meaningfulChange=first&&last?['home','draw','away'].some(k=>Number.isFinite(Number(first[k]))&&Number.isFinite(Number(last[k]))&&Number(first[k])>1&&Number(last[k])>1&&Math.abs(Number(first[k])-Number(last[k]))>=0.015):false;
       const riskText=report.model?.sourceKind==='ORIGINAL_PREMATCH'&&reportHas(report.model?.riskAnalysis)&&!String(report.model.riskAnalysis).includes('已通过正式赛前质量核验')?String(report.model.riskAnalysis):null;
       const summary=context?.summary;
@@ -2070,6 +2125,7 @@
       }catch(err){
         if(state.selected!==row)return;
         slot.replaceChildren(el('p','report-loading','扩展赛事资料暂时无法获取，已发布的赛前分析仍可查看。'));
+        const odds=context?.dataStatus?.querySelector('.report-data-odds b');if(odds)odds.textContent='采集时间未确认';
         if(context?.audit)context.audit.append(el('p','report-sub','扩展资料暂时无法读取：'+safe(err?.message||err)));
       }
     }
@@ -2105,6 +2161,7 @@
       const risk=el('div','report-detail-upset-status');
       risk.append(el('b','','赛前关注级别：'+level));
       if(numericScore!==null)risk.append(el('span','','数据分值 '+numericScore.toFixed(1)));
+      risk.append(metricHelp('风险数据分值','分值用于归纳赛前已核验的风险迹象；分值越高表示触发的风险信号越明显。它不是胜率或准确率，预警方向也需要独立证据支持。'));
       panel.append(risk);
       reportLine(panel,'预警针对的原始首选',String(original));
       const rawDirection=String(raw.warningDirection??raw.warning_direction??'').trim();
@@ -2125,6 +2182,39 @@
       panel.append(warningAudit);
       return panel;
     }
+    function renderDetailDataStatus(row){
+      const status=el('section','report-data-status');
+      const head=el('div','report-data-status-heading');
+      head.append(el('strong','','数据更新状态'),
+        metricHelp('数据更新状态','预测冻结时间、机构赔率采集时间和赛果核验状态来自不同资料。后续赔率更新不等于模型预测已更新；无可靠时间戳时显示未确认。'));
+      status.append(head);
+      const list=el('div','report-data-status-items');
+      const item=(name,value,cls='')=>{
+        const line=el('div','report-data-status-item');
+        line.append(el('span','',name),el('b',cls,value));list.append(line);
+        return line;
+      };
+      const cutoff=Number.isFinite(Date.parse(String(row.kickoff??'')))?Date.parse(row.kickoff):null;
+      const freeze=Number.isFinite(Date.parse(String(row.frozenAt??'')))?Date.parse(row.frozenAt):null;
+      item('预测冻结',freeze!==null&&cutoff!==null&&freeze<cutoff?fmtStamp(row.frozenAt)+' · 已记录':'时间未确认');
+      const oddsLine=item('机构赔率采集','读取中','report-data-odds');
+      oddsLine.querySelector('b').textContent='查看本场资料';
+      item('赛果核验',verified(row)?'已核验':row.matchStatus==='POSTPONED'?'比赛延期':'待核验',verified(row)?'report-data-verified':'');
+      status.dataset.detailStatus='1';
+      return status;
+    }
+    function updateDetailMarketStatus(status,report){
+      if(!status)return;
+      const odds=status.querySelector('.report-data-odds b');
+      if(!odds)return;
+      const quotes=[report?.market?.european?.current?.capturedAt,
+        ...(Array.isArray(report?.market?.asian)?report.market.asian.flatMap(x=>[x?.current?.capturedAt,x?.initial?.capturedAt]):[])];
+      const valid=quotes.filter(t=>t&&Number.isFinite(Date.parse(String(t)))).map(t=>new Date(t).getTime());
+      // Display the verified European quote's timestamp; never confuse an API response time
+      // or an unrelated source's newer fetch with the frozen model's update time.
+      const euro=report?.market?.european?.current?.capturedAt;
+      odds.textContent=euro&&Number.isFinite(Date.parse(String(euro)))?fmtStamp(euro):'采集时间未确认';
+    }
     function openDetail(row,history){
       state.selected=row;$('main').classList.add('hide');$('detail').classList.add('show');
       const c=$('detailCard');c.replaceChildren();
@@ -2137,7 +2227,8 @@
       const center=el('div','');
       center.append(el('div','report-score',hasScore(row)?scoreline(row):'VS'),el('div','report-status',statusText(row,history)));
       fixture.append(home,center,away);hero.append(fixture,el('div','report-meta','九十刻度'));c.append(hero);
-
+      const dataStatus=renderDetailDataStatus(row);
+      c.append(dataStatus);
       const summary=reportSection('赛前核心数据');
       summary.classList.add('report-core-summary');
       const choices=el('div','report-key-picks');
@@ -2201,7 +2292,7 @@
       c.append(audit);
       c.append(el('div','report-disclaimer','赛事数据仅供研究参考，不构成投注建议或收益承诺。'));
       renderHeroWeather(row.environment??null);
-      loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot,row,fallbackEnvironment:row.environment??null});
+      loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot,row,dataStatus,fallbackEnvironment:row.environment??null});
       window.scrollTo({top:0,behavior:'instant'});
     }
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
