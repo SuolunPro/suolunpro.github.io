@@ -2481,7 +2481,7 @@
         try{return await verifiedAuthToken()}catch(error){
           if(!authSession?.access_token||error.message==='LOGIN_REQUIRED')throw error;
           const temporary=error instanceof TypeError||['AbortError','TimeoutError'].includes(error.name)||
-            /network|fetch|timeout|temporarily|SESSION_REFRESH_RETRY|HTTP 5\\d\\d/i.test(String(error.message||''));
+            /network|fetch|timeout|temporarily|SESSION_REFRESH_RETRY|HTTP 5\d\d/i.test(String(error.message||''));
           if(!temporary||attempt===1)throw error;
           await new Promise(resolve=>setTimeout(resolve,600));
         }
