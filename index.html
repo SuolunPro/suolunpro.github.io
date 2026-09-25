@@ -1423,7 +1423,7 @@
       const title=el('div','score-top4-title');
       const historical=info?.sourceKind==='HISTORICAL_BLIND_REPLAY';
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
-      title.append(el('span','',simulation?'比分概率参考':marketShadow?'动态赛前比分Top4':historical?'历史比分回放':'原始赛前比分Top4'),el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':'赛前留存 '+fmtStamp(info.frozenAt)));panel.append(title);
+      title.append(el('span','',simulation?'比分概率参考':historical?'历史比分回放':'全场比分 · Top4'),el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':'预测更新 '+fmtStamp(info.frozenAt)));panel.append(title);
       if(!info){panel.append(el('p','score-top4-note','暂无比分预测 · 赛前参数未确认，不计入比分覆盖统计。'));return panel}
       const grid=el('div','score-top4-grid');
       info.picks.forEach((pick,i)=>{
@@ -1444,9 +1444,9 @@
         ?'历史复算 · '+(top4?'Top4覆盖':'Top4未覆盖')
         :'实际比分 '+actual.replace('-',':')+' · Top1 '+(top1?'命中':'未中')+' · Top4 '+(top4?'覆盖':'未覆盖');
       panel.append(el('div','score-top4-verdict '+cls,verdict));
-      if(marketShadow)panel.append(el('p','score-top4-note','开赛前欧赔校准后留存的动态比分预测，按本版Top1、Top4独立评测。'));
+      if(marketShadow)panel.append(el('p','score-top4-note','赛前记录 · 赛果核验后计算Top1和Top4。'));
       else if(historical)panel.append(el('p','score-top4-note','本场为赛后依据赛前留存参数复算，不属于当时发布的赛前比分预测，不计入赛前版命中率。'));
-      else panel.append(el('p','score-top4-note','原始赛前冻结的比分预测；按本版Top1、Top4独立评测。'));
+      else panel.append(el('p','score-top4-note','赛前记录 · 赛果核验后计算Top1和Top4。'));
       panel.append(el('p','score-top4-note','比分概率为模型估算值，不代表历史命中率或结果保证。'));
       return panel
     }
@@ -1505,14 +1505,9 @@
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
       const settled=verified(row),score=el('div','score',settled&&hasScore(row)?scoreline(row):'VS');score.append(el('span','',settled&&hasScore(row)?'90分钟正式赛果':scoreSimulationInfo(row)?'赛后比分模拟':scoreInfo(row)?.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史比分回放':'赛前比分预测'));fixture.append(teams,score);
-      const original=scoreVersionInfo(row,'original'),dynamic=scoreVersionInfo(row,'dynamic'),selected=dynamic??original;
-      if(selected){
-        c.append(head,fixture,scoreTop4Panel(row,selected));
-        if(original&&dynamic){
-          const a=String(original.picks[0].score).replace('-',':'),b=String(dynamic.picks[0].score).replace('-',':');
-          c.append(el('p','score-version-note','原始Top1：'+a+' · '+(a===b?'与动态首选一致':'动态Top1：'+b)+' · 点击查看两版依据'));
-        }
-      }else if(scoreSimulationInfo(row))c.append(head,fixture,el('p','score-top4-note','胜平负 · 赛前分析　｜　查看比赛详情 ›'));
+      const selected=scoreVersionInfo(row,'dynamic')??scoreVersionInfo(row,'original');
+      if(selected)c.append(head,fixture,scoreTop4Panel(row,selected));
+      else if(scoreSimulationInfo(row))c.append(head,fixture,el('p','score-top4-note','赛前比分预测未发布 · 查看比赛详情 ›'));
       else c.append(head,fixture,scoreTop4Panel(row));
       c.setAttribute('role','button');c.tabIndex=0;c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
     }
@@ -1539,7 +1534,7 @@
         const goalsShadow=goalSource?.formalEligible===false;
         const marketShadow=goalSource?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
         const scoreBasedGoal=goalSource?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
-        goals.append(el('div','goals-inline-title',marketShadow?'赛前动态泊松 · Top3':scoreBasedGoal?'泊松总进球预测 · Top3参考':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'));
+        goals.append(el('div','goals-inline-title','泊松进球 · Top3'));
         if(lambda===null){
           goals.append(el('p','goals-note','赛前进球参数未确认'));
         }else{
@@ -1547,7 +1542,7 @@
           for(let k=0;k<=15;k++){if(k>0)p*=lambda/k;ranked.push({goals:k,p})}
           ranked.sort((a,b)=>b.p-a.p||a.goals-b.goals);
           goals.append(el('p','goals-note','预计总进球 λ：'+lambda.toFixed(2)+(marketShadow?' · 赛前威廉希尔欧赔校准双方λ（总λ不变）':scoreBasedGoal?' · 基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。':goalsShadow?' · 最近6场得失球估计':'')));
-          if(goalsShadow)goals.append(el('p','goals-note','赛前参数留存于 '+fmtStamp(goalSource.frozenAt)+(marketShadow?' · 按赛前有效记录核验':' · 原始赛前参数参考')));
+          if(goalsShadow)goals.append(el('p','goals-note','赛前更新 '+fmtStamp(goalSource.frozenAt)));
           const grid=el('div','goals-grid');
           ranked.slice(0,6).forEach((item,i)=>{
             const cell=el('div','goal-cell'+(i>=3?' reference':''));
@@ -1922,7 +1917,7 @@
       const scoreReference=g?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
       const panel=el('section','goals-panel');
       const heading=el('div','report-metric-title');
-      heading.append(el('h3','',marketShadow?'动态赛前 · 总进球Top3':scoreReference?'原始赛前 · 总进球Top3参数计算':'原始赛前 · 总进球Top3'),
+      heading.append(el('h3','','泊松进球 · Top3'),
         metricHelp('总进球泊松','将双方赛前预期进球相加得到总进球λ，按泊松分布计算各个总进球数的模型概率。预测概率不等于历史命中率；Top1、Top3统计按赛果核验后各算一次。'));
       panel.append(heading);
       const lambda=g?publishedGoalLambda({...row,dynamicGoalPrediction:null,goalPrediction:g}):null;
@@ -1938,7 +1933,7 @@
         const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
         panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top1 '+(top1?'命中':'未中')+' · Top3 '+(top3?'覆盖':'未覆盖')));
       }else panel.append(el('div','goals-verdict','等待赛果核验'));
-      panel.append(el('p','goals-note',marketShadow?'动态市场校准只改变双方预期进球分配，现行算法不改变总进球λ；本版单独留存，但不当作额外的一次独立总进球预测。':scoreReference?'本版来自原始赛前冻结比分参数，并非另行发布的独立总进球预测；赛后可按留存参数核验。':'本版采用独立留存的赛前进球参数，赛后按原始版本核验。'));
+      panel.append(el('p','goals-note','依据赛前留存参数计算总进球概率；赛果核验后每场只评测一次。'));
       return panel;
     }
     function teamOverviewPanel(row){
@@ -2606,10 +2601,12 @@
       else if(state.model!=='score')c.append(htftTop4Panel(row));
       c.append(detailUpsetWarningPanel(row));
       if(state.model==='score'){
-        c.append(scoreVersionPanel(row));
+        c.append(scoreTop4Panel(row,scoreVersionInfo(row,'dynamic')??scoreVersionInfo(row,'original')??undefined));
         if(publishedGoalLambda(row)!==null){const goals=reportDisclosure('展开泊松总进球');goals.append(goalPredictionPanel(row));c.append(goals);}
       }else if(state.model==='goals'){
-        c.append(goalVersionPanel(row));
+        const selected=goalVersionInfo(row,'dynamic')??goalVersionInfo(row,'original');
+        if(selected)c.append(goalPredictionPanel(row,selected));
+        else c.append(el('p','goals-note','本场赛前进球参数待确认'));
         if(scoreInfo(row)){const score=reportDisclosure('展开比分 · Top4');score.append(scoreTop4Panel(row));c.append(score);}
       }else if(scoreInfo(row)||publishedGoalLambda(row)!==null){
         const score=reportDisclosure('展开比分与进球 · Top4 / 总进球');
@@ -2635,11 +2632,9 @@
           reportLine(review,'动态赛前Top4',verdict(dynamic));
           review.append(el('p','report-sub','两个版本按各自赛前留存的方向独立核验与统计；历史补算不计入赛前发布成绩。'));
         }else if(state.model==='score'){
-          const original=scoreVersionInfo(row,'original'),dynamic=scoreVersionInfo(row,'dynamic');
-          const actual=scoreActual(row),status=info=>!info?'无有效赛前记录':actual===null?'赛果待核验':info.picks.some(p=>String(p.score)===actual)?'Top4覆盖成功':'Top4未覆盖';
-          reportLine(review,'原始赛前比分Top4',status(original));
-          reportLine(review,'动态赛前比分Top4',status(dynamic));
-          review.append(el('p','report-sub','原始版与动态版各自按已留存赛前方向统计；历史赛后复算单独标注。'));
+          const info=scoreVersionInfo(row,'dynamic')??scoreVersionInfo(row,'original'),actual=scoreActual(row);
+          const verdict=!info?'无有效赛前比分':actual===null?'赛果待核验':info.picks.some(p=>String(p.score)===actual)?'Top4覆盖成功':'Top4未覆盖';
+          reportLine(review,'赛前比分Top4',verdict);
         }else{
           reportLine(review,'模型方向与赛果',evaluationHit(row)?'预测一致':'预测不一致');
           review.append(el('p','report-sub','评测仅在赛前预测落库、赛果核验后进行。'));
@@ -2709,66 +2704,28 @@
         return;
       }
       if(state.model==='goals'){
-        const rows=state.today?.rows||[],original=goalStatRows(rows,'original'),dynamic=goalStatRows(rows,'dynamic');
-        // A dynamic record supersedes the original for display, but a match counts only once.
-        const chosen=rows.map(row=>({row,g:goalVersionInfo(row,'dynamic')??goalVersionInfo(row,'original')})).filter(x=>x.g);
-        const stat=goalStatSummary(chosen),labels=document.querySelectorAll('.metric span');
-        $('totalCount').textContent=htftRate(stat.top3,stat.n);
-        $('pickCount').textContent=stat.top3+'/'+stat.n;
-        $('passCount').textContent=(stat.total-stat.n)+' / '+(rows.length-stat.total);
-        labels[0].textContent='总进球Top3覆盖率';labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无赛前参数';
-        $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 原始参数 '+original.length+'场 · 动态参数 '+dynamic.length+'场';
-        const panel=el('div','htft-stats-breakdown');panel.id='goalStatsBreakdown';
-        const add=(label,entries,kind)=>{
-          const v=goalStatSummary(entries),group=el('section','htft-stats-group');
-          group.append(el('strong','',label));
-          const values=el('div','htft-stats-values');
-          values.append(el('span','','Top1 '+htftRate(v.top1,v.n)+'（'+v.top1+'/'+v.n+'）'),
-                        el('span','','Top3 '+htftRate(v.top3,v.n)+'（'+v.top3+'/'+v.n+'）'));
-          group.append(values,el('small','','赛前参数 '+v.total+'场 · 已核验 '+v.n+'场'));
-          const help=el('details','htft-stats-method');
-          help.append(el('summary','','? 计算依据'),el('p','',goalMethodText(kind,entries[0]?.g)));
-          group.append(help);panel.append(group);
-        };
-        add('原始赛前参数',original,'original');add('动态赛前参数',dynamic,'dynamic');
-        const note=el('p','htft-version-compare','当前动态算法保持双方预期总进球不变：同场两版Top1、Top3通常一致，不能当作两次独立预测；只按每场一条有效记录计算上方总覆盖率。');
-        note.style.gridColumn='1 / -1';panel.append(note);
-        const toolbar=$('poolCount').closest('.toolbar');if(toolbar)toolbar.append(panel);
+        const rows=state.today?.rows||[];
+        const selected=rows.map(row=>({row,g:goalVersionInfo(row,'dynamic')??goalVersionInfo(row,'original')})).filter(x=>x.g);
+        const st=goalStatSummary(selected),labels=document.querySelectorAll('.metric span');
+        $('totalCount').textContent=htftRate(st.top3,st.n);
+        $('pickCount').textContent=st.top3+'/'+st.n;
+        $('passCount').textContent=(st.total-st.n)+' / '+(rows.length-st.total);
+        labels[0].textContent='总进球Top3覆盖率';labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无预测';
+        $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 赛前总进球 '+st.total+'场';
         return;
       }
       if(state.model==='score'){
         const rows=state.today?.rows||[];
-        const original=rows.map(row=>({row,info:scoreVersionInfo(row,'original')})).filter(x=>x.info);
-        const dynamic=rows.map(row=>({row,info:scoreVersionInfo(row,'dynamic')})).filter(x=>x.info);
         const chosen=rows.map(row=>({row,info:scoreVersionInfo(row,'dynamic')??scoreVersionInfo(row,'original')})).filter(x=>x.info);
-        const historical=rows.map(row=>({row,info:scoreInfo({...row,dynamicScoreTop4:null})}))
+        const replay=rows.map(row=>({row,info:scoreInfo({...row,dynamicScoreTop4:null})}))
           .filter(({row,info})=>!scoreVersionInfo(row,'original')&&!scoreVersionInfo(row,'dynamic')&&info?.sourceKind==='HISTORICAL_BLIND_REPLAY');
-        const selected=chosen.length?chosen:historical,stat=scoreVersionStat(selected);
-        const labels=document.querySelectorAll('.metric span');
-        $('totalCount').textContent=htftRate(stat.top4,stat.n);
-        $('pickCount').textContent=stat.top4+'/'+stat.n;
-        $('passCount').textContent=(stat.total-stat.n)+' / '+(rows.length-stat.total);
-        labels[0].textContent=chosen.length?'赛前比分Top4覆盖率':historical.length?'历史复算Top4覆盖率':'比分Top4覆盖率';
-        labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无赛前比分';
-        $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 原始赛前 '+original.length+'场 · 动态赛前 '+dynamic.length+'场 · 历史复算 '+historical.length+'场';
-        const panel=el('div','htft-stats-breakdown');panel.id='scoreStatsBreakdown';
-        const add=(name,entries,kind)=>{
-          const v=scoreVersionStat(entries),group=el('section','htft-stats-group');
-          group.append(el('strong','',name));
-          const values=el('div','htft-stats-values');
-          values.append(el('span','','Top1 '+htftRate(v.top1,v.n)+'（'+v.top1+'/'+v.n+'）'),
-                        el('span','','Top4 '+htftRate(v.top4,v.n)+'（'+v.top4+'/'+v.n+'）'));
-          group.append(values,el('small','','赛前留存 '+v.total+'场 · 已核验 '+v.n+'场'));
-          const help=el('details','htft-stats-method');
-          help.append(el('summary','','? 计算依据'),el('p','',scoreVersionMethod(kind)));
-          group.append(help);panel.append(group);
-        };
-        add('原始赛前预测',original,'original');add('动态赛前预测',dynamic,'dynamic');
-        if(!chosen.length&&historical.length){
-          const h=scoreVersionStat(historical),note=el('p','score-version-note','历史回放Top4：'+h.top4+'/'+h.n+'；赛后重建不计入赛前预测战绩。');
-          note.style.gridColumn='1 / -1';panel.append(note);
-        }
-        const toolbar=$('poolCount').closest('.toolbar');if(toolbar)toolbar.append(panel);
+        const selected=chosen.length?chosen:replay,st=scoreVersionStat(selected),labels=document.querySelectorAll('.metric span');
+        $('totalCount').textContent=htftRate(st.top4,st.n);
+        $('pickCount').textContent=st.top4+'/'+st.n;
+        $('passCount').textContent=(st.total-st.n)+' / '+(rows.length-st.total);
+        labels[0].textContent=chosen.length?'比分Top4覆盖率':replay.length?'历史回放Top4覆盖率':'比分Top4覆盖率';
+        labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无预测';
+        $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 赛前比分 '+chosen.length+'场'+(!chosen.length&&replay.length?' · 历史回放 '+replay.length+'场':'');
         return;
       }
       if(state.model==='upset'){
