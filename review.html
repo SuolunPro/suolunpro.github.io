@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow"><title>索伦引擎 · 邀请审核后台</title>
+<meta name="robots" content="noindex,nofollow"><title>九十刻度 · 邀请审核后台</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#242933;background:#f3f5f8}
 *{box-sizing:border-box}body{margin:0;min-height:100vh}.layout{max-width:800px;margin:0 auto;padding:22px 13px 48px}
@@ -17,7 +17,7 @@ header{background:#171e2a;color:#fff;border-radius:16px;padding:20px;margin-bott
 @media(max-width:390px){.meta{grid-template-columns:1fr}.layout{padding-top:10px}}
 </style></head>
 <body><div class="layout">
-<header><a href="./">← 返回索伦引擎</a><h1>邀请审核后台</h1><div class="sub">1—9位基础条件通过后自动计入；第10位起需管理员结合 AI 辅助意见复核。风险迹象不等于作弊证明</div></header>
+<header><a href="./">← 返回九十刻度</a><h1>邀请审核后台</h1><div class="sub">1—9位基础条件通过后自动计入；第10位起需管理员结合 AI 辅助意见复核。风险迹象不等于作弊证明</div></header>
 <div id="message" role="status" aria-live="polite"></div>
 <section class="panel"><h2>邀请审核概况</h2>
 <div id="stats" class="stats"><div class="stat">—<small>待审核</small></div><div class="stat">—<small>已通过</small></div><div class="stat">—<small>已拒绝</small></div></div>
@@ -37,16 +37,16 @@ function session(){for(const store of [localStorage,sessionStorage]){
 }return null}
 function time(t){if(!t)return"暂无记录";const d=new Date(t);return Number.isNaN(+d)?"暂无记录":d.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false})}
 async function request(method,payload){
-  const s=session();if(!s)throw Error("请先返回索伦引擎登录管理员账号，再打开审核后台");
-  if(s.expires_at && Number(s.expires_at)<Date.now()+10000)throw Error("登录已过期，请返回索伦引擎重新登录后再试");
+  const s=session();if(!s)throw Error("请先返回九十刻度登录管理员账号，再打开审核后台");
+  if(s.expires_at && Number(s.expires_at)<Date.now()+10000)throw Error("登录已过期，请返回九十刻度重新登录后再试");
   const response=await fetch(API+(method==="GET"?"?status="+encodeURIComponent(select.value):""),{
     method,headers:{"Authorization":"Bearer "+s.access_token,...(method==="POST"?{"Content-Type":"application/json"}:{})},
     ...(method==="POST"?{body:JSON.stringify(payload)}:{}),cache:"no-store"
   });
   const body=await response.json();
   if(!response.ok||!body.ok){
-    if(response.status===403)throw Error("无管理员权限：请使用被授权的索伦账号登录");
-    if(response.status===401)throw Error("登录状态无效，请返回索伦引擎重新登录");
+    if(response.status===403)throw Error("无管理员权限：请使用被授权的九十刻度账号登录");
+    if(response.status===401)throw Error("登录状态无效，请返回九十刻度重新登录");
     if(body.error==="ALREADY_REVIEWED")throw Error("这条邀请已被审核，请刷新列表");
     throw Error("操作未完成："+String(body.error||response.status));
   }
@@ -80,7 +80,7 @@ function renderItem(r){
       const copy=text("button","复制脱敏摘要 · 和 ChatGPT 复核","secondary");
       copy.addEventListener("click",async()=>{
         const summary=[
-          "请辅助复核索伦引擎邀请奖励是否需要补充核验。以下仅为统计迹象，不能据此认定小号或真实身份。",
+          "请辅助复核九十刻度邀请奖励是否需要补充核验。以下仅为统计迹象，不能据此认定小号或真实身份。",
           "这是该邀请人第"+String(r.inviteOrdinal)+"位邀请。",
           "受邀账号注册时间："+time(r.invitedCreatedAt)+"；绑定时间："+time(r.boundAt)+"；最近登录："+time(r.invitedLastSignInAt),
           "十分钟内同邀请人其他绑定数："+String(r.otherInvites10m??0)+"；二十四小时关联绑定数："+String(r.invites24h??0),
