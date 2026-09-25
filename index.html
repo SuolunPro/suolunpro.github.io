@@ -1553,6 +1553,7 @@
       "Allianz Arena": "慕尼黑安联球场",
       "Allianz Riviera": "安联里维埃拉球场",
       "Anfield": "安菲尔德球场",
+      "Nagoya City Mizuho Park Rugby Field": "名古屋市瑞穗公园橄榄球场",
       "Anyang Stadium": "安养体育场",
       "Åråsen Stadion": "阿罗森球场",
       "Ashton Gate Stadium": "阿什顿门球场",
@@ -1687,7 +1688,7 @@
       const venue=el('div','report-venue-line','球场 · '+displayed);
       if(surface)venue.append(el('span','report-surface-badge',' · '+surface));
       if(environment.venueCity)venue.append(el('span','',' · '+String(environment.venueCity)));
-      venue.title='球场原名：'+String(environment.venueName)+'。'+(environment.venueRecoveredAfterKickoff?'球场资料来自赛后匹配的 FotMob 比赛记录；没有可核验的赛前天气。':'球场资料来自 FotMob；若有天气数值，来源为 Open-Meteo 赛前预报。');
+      venue.title='球场原名：'+String(environment.venueName)+'。'+(environment.venueRecoveredAfterKickoff?'球场资料在赛后核验；没有可核验的赛前天气。':'球场及草皮来自已核验的场地资料；若有天气数值，来源为 Open-Meteo 赛前预报。');
       hero.append(venue);
     }
 
