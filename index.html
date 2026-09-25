@@ -48,6 +48,10 @@
     .goals-inline-verdict{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px;padding:9px 11px;border-radius:8px;font-size:13px}.goals-inline-icon{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;font-size:14px;font-weight:800}.goals-inline-success{background:#eaf6f0;color:#278464}.goals-inline-success .goals-inline-icon{background:#34936e;color:white}.goals-inline-fail{background:#fff0f0;color:#c44848}.goals-inline-fail .goals-inline-icon{background:#c44848;color:white}.goals-inline-reference{background:#f4f4f4;color:#777}.goals-inline-reference .goals-inline-icon{background:#999;color:white}
     .score-top4{border-top:1px solid #eee;margin-top:12px;padding-top:12px}.score-top4-title{display:flex;justify-content:space-between;gap:8px;align-items:center;font-weight:700;margin-bottom:8px}.score-top4-title small{color:#888;font-weight:400}.score-top4-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.score-pick{border:1px solid #f0d1d3;background:#fff4f4;border-radius:9px;padding:9px 3px;text-align:center;min-width:0}.score-pick.challenger{border-style:dashed;background:#fff9ed}.score-pick.hit{border-color:#2f936f;background:#eaf6f0}.score-pick small{display:block;color:#777;font-size:10px}.score-pick b{display:block;color:#c92731;font-size:18px;margin:4px 0}.score-pick.hit b{color:#278464}.score-top4-verdict{margin-top:11px;padding:9px 11px;border-radius:8px;font-size:13px;font-weight:700}.score-top4-verdict.pending{background:#f5f5f5;color:#777}.score-top4-verdict.success{background:#eaf6f0;color:#278464}.score-top4-verdict.fail{background:#fff0f0;color:#c44848}.score-top4-note{font-size:10px;color:#888;line-height:1.55;margin:8px 0 0}
 
+    .dates.htft-dates{display:flex;overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+    .dates.htft-dates .day{flex:0 0 14.285%;min-width:52px;scroll-snap-align:center}
+    .htft-list-note{margin:0 0 12px;padding:11px 12px;border:1px solid #e6e5da;border-radius:10px;background:#fffdf4;color:#74613b;font-size:11px;line-height:1.75}
+    .htft-list-meta{font-size:11px;color:#8b8b8b;margin:8px 0 0}
     .htft-top4-panel{border:1px solid #d9e7df;background:#fff;margin-top:12px}
     .htft-top4-summary{padding:12px;border-radius:10px;background:#edf5ef;margin-bottom:12px}
     .htft-top4-summary small{display:block;color:#567464;font-size:11px;margin-bottom:4px}
@@ -468,6 +472,7 @@
       <div class="models" id="models">
         <button class="model active" data-model="daily">今日优选</button>
         <button class="model" data-model="overview">全场胜平负</button>
+        <button class="model" data-model="htft">半全场</button>
         
         <button class="model" data-model="handicap">全场让球</button>
         <button class="model" data-model="upset">风险观察</button>
@@ -904,6 +909,7 @@
       wdl:['索伦胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
       goals:['索伦泊松进球','基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'],
       score:['索伦比分矩阵','展示赛前冻结的4项比分与模型概率；赛后对照实际比分'],
+      htft:['索伦半全场','测试阶段 · 展示模型Top4半全场走势及概率，按日期核对实际覆盖情况'],
       daily:['索伦今日优选','仅展示赛前已标记的重点观察场次；完整全池请切换赛事分析查看'],
       upset:['索伦赛事风险观察','展示赛前风险信号及可核验的分析方向']
     };
@@ -954,6 +960,7 @@
     };
     const handicapEvaluable=row=>verified(row)&&effectiveHandicapResult(row)!==null&&[row.handicapTop1,row.handicapSecond,row.handicap].some(validHandicapPick);
     function evaluationHit(row){
+      if(state.model==='htft')return row.htftTop4?.settlementStatus==='SUCCESS';
       if(state.model==='score')return scoreHit(row);
       if(state.model==='handicap')return handicapHit(row)||handicapChoiceHit(row,row.handicapTop1??row.handicap)||handicapChoiceHit(row,row.handicapSecond);
       if(state.model==='overview')return ftHit(row);
@@ -1064,6 +1071,41 @@
       }
       return panel
     }
+    function htftCard(row,history=false){
+      const c=el('article','card'),head=el('div','card-head'),id=el('div','match-id');
+      const info=row.htftTop4,historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
+      const valid=info&&Array.isArray(info.picks)&&info.picks.length===4&&
+        ['PUBLISHED_PREMATCH','HISTORICAL_POSTMATCH_RECONSTRUCTION'].includes(info.sourceKind);
+      id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
+      if(historical)id.append(el('span','focus-label','历史复算'));
+      const done=valid&&['SUCCESS','FAILURE'].includes(info.settlementStatus);
+      const label=!valid?'数据待确认':done?(historical?(info.settlementStatus==='SUCCESS'?'历史覆盖':'历史未覆盖'):(info.settlementStatus==='SUCCESS'?'覆盖成功':'未覆盖')):'等待赛果';
+      head.append(id,el('span','status'+(done?(info.settlementStatus==='SUCCESS'?' verified':' fail'):'') ,label));
+      const fixture=el('div','fixture'),teams=el('div','team-list');
+      [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
+      const settled=verified(row),score=el('div','score',settled&&hasScore(row)?scoreline(row):'VS');
+      score.append(el('span','',settled&&hasScore(row)?'90分钟正式赛果':'半全场 · Top4测试'));
+      fixture.append(teams,score);c.append(head,fixture);
+      const panel=el('div','analysis');
+      if(valid){
+        const grid=el('div','htft-top4-grid');
+        info.picks.forEach((pick,i)=>{
+          const direction=String(pick.direction??''),prob=Number(pick.probability),hit=done&&info.settlementStatus==='SUCCESS'&&info.actual===direction;
+          const cell=el('div','htft-top4-pick'+(hit?' is-hit':''));
+          cell.append(el('small','','Top'+(i+1)),el('b','',direction),el('span','htft-prob',pick.probability!==null&&pick.probability!==undefined&&Number.isFinite(prob)&&prob>=0&&prob<=1?(prob*100).toFixed(1)+'%':'—'));
+          grid.append(cell);
+        });
+        panel.append(grid);
+        if(done)panel.append(el('div','score-top4-verdict '+(info.settlementStatus==='SUCCESS'?'success':'fail'),
+          '实际半全场：'+safe(info.actual)+' · '+(historical?(info.settlementStatus==='SUCCESS'?'历史复算覆盖':'历史复算未覆盖'):(info.settlementStatus==='SUCCESS'?'Top4覆盖成功':'Top4未覆盖'))));
+        else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
+        panel.append(el('p','htft-list-meta',historical?'本场为赛后依据赛前留存参数复算，非当时发布的预测；不计入正式赛前战绩。':'本场采用原始赛前发布的半全场Top4记录。'));
+      }else panel.append(el('p','htft-top4-note','本场暂无可核验的半全场Top4，不使用赛果补写预测。'));
+      c.append(panel);c.setAttribute('role','button');c.tabIndex=0;
+      c.onclick=()=>openDetail(row,history);
+      c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};
+      return c;
+    }
     function scoreCard(row,history=false){
       const c=el('article','card'),head=el('div','card-head'),id=el('div','match-id');
       id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));head.append(id,el('span',statusClass(row,history),statusText(row,history)));
@@ -1073,6 +1115,7 @@
       if(scoreSimulationInfo(row)){c.append(head,fixture,el('p','score-top4-note','胜平负 · 赛前分析　｜　查看比赛详情 ›'))}else c.append(head,fixture,scoreTop4Panel(row));c.setAttribute('role','button');c.tabIndex=0;c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
     }
     function matchCard(row,history=false){
+      if(state.model==='htft')return htftCard(row,history);
       if(state.model==='score')return scoreCard(row,history);
       const c=el('article','card');
       const head=el('div','card-head');
@@ -1222,12 +1265,13 @@
       return rows
     }
     function visibleRows(){if(!state.today)return [];return filterRows(state.today.rows||[])}
-    function currentTitle(){return {overview:'今日竞足',handicap:'全场让球',wdl:'胜平负',goals:'泊松进球',score:'比分Top4',daily:'今日优选',upset:'风险观察'}[state.model]||'今日竞足'}
+    function currentTitle(){return {overview:'今日竞足',handicap:'全场让球',wdl:'胜平负',goals:'泊松进球',score:'比分Top4',htft:'半全场Top4',daily:'今日优选',upset:'风险观察'}[state.model]||'今日竞足'}
 
     function engineBanner(){const b=el('button','engine-banner');b.type='button';b.append(el('strong','','索伦引擎 · 多维赛事数据分析'),el('small','','结合球队表现、市场赔率、比赛进球分布与风险信息，提供结构化赛事数据报告'));const tags=el('div','engine-tags');['市场赔率','球队实力','独立概率','风险审计'].forEach(t=>tags.append(el('span','',t)));b.append(tags);b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};return b}
     function updateNotice(){if(state.tab!=='home'||!['daily','overview'].includes(state.model))return null;const p=el('div','');p.style.cssText='margin:10px 16px;padding:10px 12px;background:#fff8ec;border:1px solid #f1d9b0;border-radius:10px;color:#795726;font-size:12px;line-height:1.65';p.textContent='数据更新提示：当日赛事数据预计12:00左右更新，赔率及盘口将随赛前信息持续调整。请以各项数据标注的更新时间为准。';return p}
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));const updateTip=updateNotice();if(updateTip)box.append(updateTip);
+      if(state.model==='htft'){const tip=el('div','htft-list-note');tip.textContent='测试阶段 · 前一字表示半场结果，后一字表示90分钟全场结果，胜平负均以主队为参照。四个百分比是模型估算概率，实际赛果也可能不在Top4中；请独立判断，仅供参考。历史复算仅作回放对照，非当时发布的赛前预测。';box.append(tip)}
       if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前风险记录':state.model==='daily'?'暂无重点观察场次':'暂无已发布赛事',state.model==='upset'?'本日暂无满足证据条件的赛事风险记录；单独HUR风险灯不生成方向。':'当前没有符合筛选条件的赛事记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
@@ -2052,6 +2096,22 @@
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
     function errorBox(e){const x=el('div','error');x.append(el('b','','正式接口暂不可用'),el('div','',safe(e?.message||e)+'。页面不会使用模拟数据代替。'));return x}
     function updateMetrics(){
+      if(state.model==='htft'){
+        const rows=state.today?.rows||[],valid=rows.filter(r=>r.htftTop4&&Array.isArray(r.htftTop4.picks)&&r.htftTop4.picks.length===4);
+        const formal=valid.filter(r=>r.htftTop4.sourceKind==='PUBLISHED_PREMATCH');
+        const replay=valid.filter(r=>r.htftTop4.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION');
+        const selected=formal.length?formal:replay;
+        const settled=selected.filter(r=>['SUCCESS','FAILURE'].includes(r.htftTop4.settlementStatus));
+        const covered=settled.filter(r=>r.htftTop4.settlementStatus==='SUCCESS').length;
+        const labels=document.querySelectorAll('.metric span');
+        $('totalCount').textContent=settled.length?(100*covered/settled.length).toFixed(1)+'%':'—';
+        $('pickCount').textContent=covered+'/'+settled.length;
+        $('passCount').textContent=(selected.length-settled.length)+' / '+(rows.length-valid.length);
+        labels[0].textContent=formal.length?'赛前Top4覆盖率':replay.length?'历史复算Top4覆盖率':'半全场Top4覆盖率';
+        labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无Top4';
+        $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 赛前发布 '+formal.length+'场 · 历史复算 '+replay.length+'场';
+        return;
+      }
       if(state.model==='score'){
         const rows=state.today?.rows||[],published=rows.filter(row=>scoreInfo(row)!==null);
         const isReplay=row=>scoreInfo(row)?.sourceKind==='HISTORICAL_BLIND_REPLAY';
@@ -2119,7 +2179,9 @@
     }
     function buildDates(){
       const days=['日','一','二','三','四','五','六'],box=$('dates'),latest=displayLatestDate();box.replaceChildren();
-      for(let offset=-6;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
+      box.classList.toggle('htft-dates',state.model==='htft');
+      const firstOffset=state.model==='htft'?Math.max(-14,Math.round((Date.parse('2026-09-19T00:00:00Z')-Date.parse(latest+'T00:00:00Z'))/86400000)):-6;
+      for(let offset=firstOffset;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
         b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
     }
     // Keep a short-lived in-memory copy of already opened days; never alter the source data.
@@ -2131,8 +2193,8 @@
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
     async function selectDate(date){
       if(date===state.selectedDate)return;
-      const earliest=addDays(displayLatestDate(),-6);
-      if(date<earliest||date>displayLatestDate()){alert('仅展示最近7天的记录。');return}
+      const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-6);
+      if(date<earliest||date>displayLatestDate()){alert(state.model==='htft'?'半全场仅展示近15天可核验记录。':'仅展示最近7天的记录。');return}
       const requestId=++dateRequestId;
       const cached=cachedDay(date);
       if(cached){applyDay(cached);return}
@@ -2146,7 +2208,7 @@
       }catch(e){if(requestId!==dateRequestId)return;if(state.baseDate&&date>state.baseDate){showUnopened(date);return}$('content').replaceChildren(errorBox(e))}
     }
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦引擎';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
-    document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;state.tab='home';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];requestAnimationFrame(()=>{if(state.model===b.dataset.model&&state.tab==='home')render()})});
+    document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;state.tab='home';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];buildDates();requestAnimationFrame(()=>{if(state.model===b.dataset.model&&state.tab==='home')render()})});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}render()});
     $('back').onclick=closeDetail;
