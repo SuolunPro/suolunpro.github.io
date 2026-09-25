@@ -967,12 +967,19 @@
       return ftHit(row)
     }
     function statusText(row,history){
+      if(state.model==='htft'){
+        const h=row.htftTop4,historical=h?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
+        if(!h||!Array.isArray(h.picks)||h.picks.length!==4)return '半全场数据待确认';
+        if(h.settlementStatus==='SUCCESS')return historical?'历史复算覆盖':'Top4覆盖成功';
+        if(h.settlementStatus==='FAILURE')return historical?'历史复算未覆盖':'Top4未覆盖';
+        return historical?'历史复算 · 等待核验':'赛前Top4 · 等待赛果';
+      }
       if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row))return verified(row)?'赛果已核验':'比分预测未发布';if(!x)return history?'未发布比分预测':'比分预测待确认';if(x.settlementStatus==='SUCCESS')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放一致':'预测一致';if(x.settlementStatus==='FAILURE')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放不一致':'预测不一致';return '等待赛果';}
       if(verified(row)){if(state.model==='goals')return hasScore(row)?'赛果已核验':'等待赛果';if(state.model==='handicap'&&!handicapEvaluable(row))return [row.handicapTop1,row.handicapSecond,row.handicap].some(v=>String(v??'').trim().toUpperCase()==='PASS')?'未发布正式让球方向':'赛前让球预测未记录';return evaluationHit(row)?'预测一致':'预测不一致';}
       if(row.matchStatus==='POSTPONED')return '比赛延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='daily')return '等待赛果';
       return '赛前冻结'
     }
-    function statusClass(row,history){if(row.matchStatus==='POSTPONED')return 'status pass';if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':state.model==='handicap'&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
+    function statusClass(row,history){if(row.matchStatus==='POSTPONED')return 'status pass';if(state.model==='htft')return 'status '+(row.htftTop4?.settlementStatus==='SUCCESS'?'verified':row.htftTop4?.settlementStatus==='FAILURE'?'fail':'');if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':state.model==='handicap'&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
     function moduleData(row){
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球首选',handicapChoice(row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapChoice(row.handicapSecond,row.handicapSecondProbability)]];
       if(state.model==='wdl')return [['主胜',ftProbability(row,'H')],['平局',ftProbability(row,'D')],['客胜',ftProbability(row,'A')]];
@@ -2077,8 +2084,15 @@
         const review=reportSection('赛后数据对照');
         reportLine(review,'90分钟赛果',resultName[row.result]||row.result);
         if(hasScore(row))reportLine(review,'比分',scoreline(row));
-        reportLine(review,'模型方向与赛果',evaluationHit(row)?'预测一致':'预测不一致');
-        review.append(el('p','report-sub','评测仅在赛前预测落库、赛果核验后进行。'));c.append(review);
+        if(state.model==='htft'){
+          const ht=row.htftTop4,historical=ht?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
+          reportLine(review,'半全场Top4覆盖',ht?.settlementStatus==='SUCCESS'?'实际结果在Top4内':ht?.settlementStatus==='FAILURE'?'实际结果不在Top4内':'尚未完成半场核验');
+          review.append(el('p','report-sub',historical?'历史复算于赛后生成，只用于历史研究，不属于当时正式发布的预测。':'仅对赛前发布且赛果已核验的半全场Top4进行正式评测。'));
+        }else{
+          reportLine(review,'模型方向与赛果',evaluationHit(row)?'预测一致':'预测不一致');
+          review.append(el('p','report-sub','评测仅在赛前预测落库、赛果核验后进行。'));
+        }
+        c.append(review);
       }
       const audit=reportDisclosure('预测来源与数据说明');
       
