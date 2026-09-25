@@ -2501,7 +2501,17 @@
           '登录状态暂时无法核验，可能是网络超时或验证服务暂不可达；账号信息已保留，请点击重新连接。');
         return;
       }
-      try{await membershipFetch()}catch(error){
+      try{
+        // A single transient membership read failure must not force a full-page reconnect.
+        try{await membershipFetch()}catch(error){
+          if(!authSession?.access_token||error.message==='LOGIN_REQUIRED')throw error;
+          const transient=error instanceof TypeError||['AbortError','TimeoutError'].includes(error.name)||
+            /network|fetch|timeout|会员信息暂不可用|HTTP 5\d\d/i.test(String(error.message||''));
+          if(!transient)throw error;
+          await new Promise(resolve=>setTimeout(resolve,650));
+          await membershipFetch();
+        }
+      }catch(error){
         if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('登录状态已过期，请重新登录');return}
         showAuthRetry('会员状态暂不可核验；登录信息已保留，请点击重新连接。');return;
       }
