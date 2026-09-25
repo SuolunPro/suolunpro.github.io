@@ -2463,28 +2463,55 @@
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}render()});
     $('back').onclick=closeDetail;
-    function showAuthRetry(error){
+    function showAuthRetry(message,working=false){
       document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';
       const gate=document.getElementById('loginGate')||document.createElement('div');
       gate.id='loginGate';gate.className='account-panel auth-retry';
-      gate.replaceChildren(el('h2','','九十刻度'),el('p','',error||'正在核验登录状态，请检查网络后重试'));
-      const retry=el('button','','重新连接');retry.onclick=()=>location.reload();gate.append(retry);
+      gate.replaceChildren(el('h2','','九十刻度'),el('p','',message||'正在核验登录状态，请检查网络后重试'));
+      if(!working){
+        const retry=el('button','','重新连接');
+        // Re-check the retained session in place; do not reload or discard member credentials.
+        retry.onclick=()=>{retry.disabled=true;retry.textContent='正在重试…';beginAuthenticatedApp()};
+        gate.append(retry);
+      }
       if(!gate.isConnected)document.body.append(gate);
     }
-    async function beginAuthenticatedApp(){
-      if(!authSession?.access_token){showLoginGate();return}
-      showAuthRetry('正在恢复登录状态…');
-      try{await verifiedAuthToken()}catch(error){
-        if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('请登录以继续使用九十刻度');return}
-        showAuthRetry('网络暂不可用，登录信息已保留，请稍后重新连接');return;
+    async function verifyAuthWithNetworkRetry(){
+      for(let attempt=0;attempt<2;attempt++){
+        try{return await verifiedAuthToken()}catch(error){
+          if(!authSession?.access_token||error.message==='LOGIN_REQUIRED')throw error;
+          const temporary=error instanceof TypeError||['AbortError','TimeoutError'].includes(error.name)||
+            /network|fetch|timeout|temporarily|SESSION_REFRESH_RETRY|HTTP 5\\d\\d/i.test(String(error.message||''));
+          if(!temporary||attempt===1)throw error;
+          await new Promise(resolve=>setTimeout(resolve,600));
+        }
       }
-      try{await membershipFetch()}catch(error){showAuthRetry('会员状态暂不可核验，请稍后重新连接');return}
+    }
+    let authBootInFlight=false;
+    async function beginAuthenticatedApp(){
+      if(authBootInFlight)return;
+      authBootInFlight=true;
+      try{
+      if(!authSession?.access_token){showLoginGate();return}
+      showAuthRetry('正在恢复登录状态…',true);
+      try{await verifyAuthWithNetworkRetry()}catch(error){
+        if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('请登录以继续使用九十刻度');return}
+        const offline=typeof navigator.onLine==='boolean'&&!navigator.onLine;
+        showAuthRetry(offline?'当前设备未连接网络；登录信息已保留，联网后点击重新连接。':
+          '登录状态暂时无法核验，可能是网络超时或验证服务暂不可达；账号信息已保留，请点击重新连接。');
+        return;
+      }
+      try{await membershipFetch()}catch(error){
+        if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('登录状态已过期，请重新登录');return}
+        showAuthRetry('会员状态暂不可核验；登录信息已保留，请点击重新连接。');return;
+      }
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
       try{if(sessionStorage.getItem('soren_welcome_invite_v1')==='1'){sessionStorage.removeItem('soren_welcome_invite_v1');state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'))}}catch(e){}
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
       if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='九十刻度';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
       readDay(today).then(d=>{state.baseDate=d.date||today;rememberDay(d);if(d.date!==today||!d.rows.length){showUnopened(today);return}applyDay(d)}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
+      }finally{authBootInFlight=false}
     }
     (async()=>{
       try{
