@@ -722,7 +722,7 @@
       if(hash.has('error')){
         const code=hash.get('error_code')||hash.get('error')||'UNKNOWN';
         history.replaceState(null,'',location.pathname+location.search);
-        return code==='otp_expired'?'邮箱验证链接已过期或已使用，请在登录页填写注册邮箱，点击「重新发送邮箱验证邮件」。':'邮箱验证未完成（'+code+'），请在登录页申请重新发送验证邮件。';
+        return code==='otp_expired'?'邮箱验证链接已过期或已使用。若账号仍无法登录，请联系客服处理。':'邮箱验证未完成（'+code+'），如仍无法登录，请联系客服核实。';
       }
       const token=hash.get('access_token'),refresh=hash.get('refresh_token');
       if(!token||!refresh)return null;
@@ -909,14 +909,14 @@
       if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:7vh auto;padding:25px';document.body.append(gate)}
       gate.replaceChildren();
       const h=document.createElement('h2');h.textContent='九十刻度 · 账号注册';
-      const note=document.createElement('p');note.textContent='新用户填写邮箱和密码即可注册，邀请码选填；已有账号可直接登录。';
+      const note=document.createElement('p');note.textContent='新用户填写邮箱和密码即可注册；已有账号可直接登录。';
       gate.append(h,note);
       const email=document.createElement('input'),pass=document.createElement('input'),msg=document.createElement('p');
       email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='new-password';pass.placeholder='密码（至少6位）';
       const rememberLabel=document.createElement('label'),remember=document.createElement('input');
       rememberLabel.className='auth-remember';remember.type='checkbox';remember.checked=true;
       rememberLabel.append(remember,document.createTextNode('在此设备保持登录（共用设备请取消）'));
-      const invite=document.createElement('input');invite.placeholder='好友邀请码（注册时填写，选填）';invite.maxLength=10;invite.autocomplete='off';invite.value=savedInvite();
+      const invite=document.createElement('input');invite.placeholder='好友邀请码（非必填）';invite.maxLength=10;invite.autocomplete='off';invite.value=savedInvite();
       const captchaBox=document.createElement('div');captchaBox.style='margin:13px 0;min-height:66px';
       const captchaLabel=document.createElement('p');captchaLabel.style='font-size:12px;color:#666;margin:8px 0';
       captchaLabel.textContent='请先完成安全验证后，再注册、登录或申请重置密码。';
@@ -943,7 +943,7 @@
           if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}
           if(mode==='注册'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())){msg.textContent='请填写有效的邮箱地址，例如 name@example.com';return}
           const inviteCode=invite.value.trim().toUpperCase();
-          if(mode==='注册'&&inviteCode&&!/^[A-F0-9]{10}$/.test(inviteCode)){msg.textContent='请输入10位有效邀请码，或留空';return}
+          if(mode==='注册'&&inviteCode&&!/^[A-F0-9]{10}$/.test(inviteCode)){msg.textContent='邀请码非必填；如填写，请输入10位有效邀请码';return}
           let token;try{token=takeToken()}catch(e){msg.textContent=e.message;return}
           btn.disabled=true;msg.textContent='处理中…';
           try{
@@ -953,13 +953,13 @@
               ...(mode==='注册'?{data:{invite_code:inviteCode}}:{})
             });
             if(data.access_token&&data.user)saveSession(data);
-            else msg.textContent='注册申请已提交；若提示验证邮箱，请查看收件箱及垃圾邮件中的最新验证邮件。';
+            else msg.textContent='注册申请已提交。如未自动登录，请点击「已有账号 · 登录」；如系统提示需要邮箱验证，请检查注册邮箱。';
           }catch(e){msg.textContent=e.message}finally{resetCaptcha();btn.disabled=false}
         };mainActions.append(btn);
       }
       gate.append(mainActions);
       const accountHelp=document.createElement('details');accountHelp.className='auth-help-details';
-      const helpTitle=document.createElement('summary');helpTitle.textContent='忘记密码或收不到验证邮件？';
+      const helpTitle=document.createElement('summary');helpTitle.textContent='忘记密码？';
       accountHelp.append(helpTitle);
       const recover=document.createElement('button');recover.textContent='忘记密码（需邮件）';
       recover.onclick=async()=>{
@@ -969,16 +969,7 @@
         try{await authRequest('recover',{email:email.value.trim(),captcha_token:token});msg.textContent='已请求发送密码重置邮件；是否送达取决于邮件服务'}
         catch(e){msg.textContent=e.message}finally{resetCaptcha();recover.disabled=false}
       };accountHelp.append(recover);
-      const resend=document.createElement('button');resend.textContent='重新发送邮箱验证邮件';
-      resend.onclick=async()=>{
-        const address=email.value.trim();if(!/^[^@ ]+@[^@ ]+[.][^@ ]+$/.test(address)){msg.textContent='请先填写注册时使用的邮箱';return}
-        let token;try{token=takeToken()}catch(e){msg.textContent=e.message;return}
-        resend.disabled=true;msg.textContent='正在申请重发…';
-        try{await authRequest('resend',{type:'signup',email:address,captcha_token:token});
-          msg.textContent='已提交重发请求。请检查收件箱与垃圾邮件；是否送达取决于邮件服务。';
-        }catch(e){msg.textContent='重发暂未成功：'+e.message}finally{resetCaptcha();resend.disabled=false}
-      };
-      accountHelp.append(resend);gate.append(accountHelp);
+      gate.append(accountHelp);
     }
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null};
     window.sorenGoInvite=()=>{
