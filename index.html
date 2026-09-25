@@ -750,8 +750,9 @@
       stateCard.append(el('div','member-deadline',label));
       stateCard.append(el('div','member-muted',expires?'有效期至：'+expires+'（北京时间）':memberInfo.legacyGrace?'免费体验截至9月24日00:00（北京时间）':'9月24日起，当天比赛所有推荐仅向有效会员开放。'));
       panel.append(stateCard);
-      // Membership plan display is informational: the customer backend currently
-      // supports ordinary membership only; never charge for an unimplemented sub-account.
+      // Both plans can be handled manually by customer service. Premium grants
+      // two separately registered accounts the same expiry; there is no automatic
+      // account binding or self-service payment in the current backend.
       const purchaseCard=el('div','member-card member-purchase');
       const purchaseHeader=el('div','member-purchase-head');
       purchaseHeader.append(el('span','member-purchase-eyebrow','九十刻度 · 会员中心'),
@@ -762,10 +763,10 @@
       const makePlan=(name,monthly,formal,features,premium=false)=>{
         const card=el('div','member-plan'+(premium?' member-plan-premium':''));
         const top=el('div','member-plan-top');
-        top.append(el('h4','',name),el('span','member-plan-tag',premium?'副卡即将开放':'个人使用'));
+        top.append(el('h4','',name),el('span','member-plan-tag',premium?'双账号 · 人工开通':'个人使用'));
         const cost=el('div','member-plan-price');
         cost.append(el('strong','','¥'+monthly),el('span','','/月'));
-        card.append(top,cost,el('div','member-plan-price-label',premium?'拟定公测价 · 暂不可开通':'公测体验价'));
+        card.append(top,cost,el('div','member-plan-price-label','公测体验价'));
         const items=el('ul','member-plan-list');
         features.forEach(feature=>items.append(el('li','',feature)));
         card.append(items,el('div','member-plan-future','公测结束后计划 ¥'+formal+'/月'));
@@ -774,9 +775,9 @@
       const ordinary=makePlan('普通会员','29.9','59.9',
         ['1个会员账号','有效期内查看完整赛事报告','查看平台开放的会员历史数据']);
       const premium=makePlan('高级会员','39.9','79.9',
-        ['包含普通会员全部权益','计划支持主账号＋1个副账号','两个账号独立登录、共享查看权益'],true);
+        ['包含普通会员全部权益','1个主账号＋1个副账号','两个账号独立登录、享有相同会员权益'],true);
       const contactNote=el('p','member-muted member-purchase-help',
-        '联系客服开通普通会员｜微信：GoodLuck_H3。请备注九十刻度及注册邮箱；确认办理方式后由管理员开通。本页面不收款、不自动开通。');
+        '联系客服开通普通会员或高级会员｜微信：GoodLuck_H3。高级会员请提供两个已注册账号的邮箱；确认办理方式后由管理员人工开通。本页面不收款、不自动开通。');
       const ordinaryContact=el('button','member-plan-apply','复制普通会员申请');
       ordinaryContact.onclick=async()=>{
         const message='九十刻度普通会员开通申请\\n注册邮箱：'+String(authSession?.user?.email||'请填写注册邮箱')+'\\n方案：普通会员29.9元/月（1个月）';
@@ -784,13 +785,13 @@
         catch{window.prompt('请复制申请内容并发送至客服微信 GoodLuck_H3',message)}
       };
       ordinary.append(ordinaryContact);
-      const premiumContact=el('button','member-plan-inquire','了解高级会员进度');
+      const premiumContact=el('button','member-plan-inquire','复制高级会员申请');
       premiumContact.onclick=async()=>{
-        const message='九十刻度高级会员功能咨询\\n注册邮箱：'+String(authSession?.user?.email||'请填写注册邮箱')+'\\n希望了解：主副账号绑定功能开放时间。当前未开放高级会员办理，请勿支付高级会员费用。';
-        try{await navigator.clipboard.writeText(message);contactNote.textContent='咨询内容已复制。可发送至微信 GoodLuck_H3 了解副账号功能进度；当前暂不办理高级会员。'}
-        catch{window.prompt('请复制咨询内容并发送至客服微信 GoodLuck_H3',message)}
+        const message='九十刻度高级会员开通申请\\n主账号邮箱：'+String(authSession?.user?.email||'请填写主账号注册邮箱')+'\\n副账号邮箱：请填写另一位用户的已注册邮箱\\n方案：高级会员39.9元/月（两个账号共1个月，人工开通相同到期时间）';
+        try{await navigator.clipboard.writeText(message);contactNote.textContent='高级会员申请已复制。请填写主、副账号的两个注册邮箱，发送至微信 GoodLuck_H3；由管理员人工开通相同期限。'}
+        catch{window.prompt('请复制高级会员申请并填写两个已注册账号邮箱后发送至客服微信 GoodLuck_H3',message)}
       };
-      premium.append(el('p','member-plan-pending','副账号绑定功能尚在开发及验收中，暂不办理高级会员，也不收取高级会员费用。'),premiumContact);
+      premium.append(el('p','member-plan-pending','联系客服提供两个已注册账号，由管理员人工开通相同期限；暂不支持自助绑定或更换副账号。'),premiumContact);
       planGrid.append(ordinary,premium);
       const explainer=el('div','member-beta-explainer');
       explainer.append(el('strong','','公测会员说明'),
