@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#d72b30">
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?v=20260920-logo">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=20260920-logo">
-  <title>索伦引擎 · 足球赛事分析</title>
+  <title>九十刻度 · 足球赛事分析</title>
   <style>
     :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Microsoft YaHei",sans-serif;color:#282828;background:#f3f3f3;font-synthesis:none;--red:#d62c31;--deep:#bd1f26;--ink:#2d2d2d;--muted:#999;--line:#e8e8e8;--green:#159d78}
     *{box-sizing:border-box}body{margin:0;background:#f3f3f3;min-height:100vh}.app{max-width:640px;margin:0 auto;min-height:100vh;background:#f5f5f5;padding-bottom:82px}
@@ -418,13 +418,13 @@
   </style>
 </head>
 <body>
-  <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="索伦引擎欢迎页">
+  <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="九十刻度欢迎页">
     <div class="welcome-poster">
-      <div class="welcome-fallback"><strong>索伦引擎</strong><small>SAURON ENGINE</small></div>
-      <section class="beta-notice" id="betaNotice" aria-label="索伦引擎公测会员公告" hidden>
+      <div class="welcome-fallback"><strong>九十刻度</strong><small>NINETY MARK</small></div>
+      <section class="beta-notice" id="betaNotice" aria-label="九十刻度公测会员公告" hidden>
         <div class="beta-head"><span class="beta-tag">公测 · 免费体验</span><button id="betaClose" class="beta-close" type="button" aria-label="关闭公告">×</button></div>
-        <div class="beta-name">索伦引擎</div>
-        <div class="beta-en">SAURON ENGINE</div>
+        <div class="beta-name">九十刻度</div>
+        <div class="beta-en">NINETY MARK</div>
         <div class="beta-sub">免费体验1天 · 邀请好友享更多</div>
         <p class="beta-time">活动时间：9月23日—10月1日（北京时间）</p>
         <div class="beta-welcome"><span>新用户注册</span><strong>免费领取1天会员</strong></div>
@@ -436,7 +436,7 @@
         </div>
         <p class="beta-access">当日赛事推荐仅对有效会员开放。</p>
         <details class="beta-details"><summary>查看活动规则</summary><p>新用户按注册流程完成账户验证后领取1天体验会员；好友通过专属邀请码注册并符合活动条件，方计入有效邀请，部分邀请需审核。每位新用户仅能绑定一名邀请人。邀请奖励按最高档累计补足，满20人共获60天（1个月按30天计），各档不重复叠加，1天体验另计。9月23日已注册用户当天仍可查看内容；活动结束后不再新增邀请奖励。</p></details>
-        <div class="beta-actions"><button id="betaEnter" type="button">立即进入索伦引擎</button><button id="betaInvite" type="button">查看我的邀请码</button></div>
+        <div class="beta-actions"><button id="betaEnter" type="button">立即进入九十刻度</button><button id="betaInvite" type="button">查看我的邀请码</button></div>
         <p class="beta-disclaimer">赛事数据仅供研究与交流，不构成投注建议。</p>
       </section>
       <button id="welcomeSkip" class="welcome-skip" type="button">跳过 ›</button>
@@ -468,7 +468,7 @@
   <div class="app">
     <header class="hero">
       <div class="brandbar">
-        <div class="brand"><img class="logo" src="assets/sauron-engine-logo.webp?v=20260920-logo" alt="索伦引擎图标" width="40" height="40"><div><strong>索伦引擎</strong><small>SAURON ENGINE</small></div></div>
+        <div class="brand"><img class="logo" src="assets/sauron-engine-logo.webp?v=20260920-logo" alt="九十刻度图标" width="40" height="40"><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
         <div class="version" id="version">版本核验中</div>
       </div>
       <div class="models" id="models" aria-label="赛事分析模块">
@@ -499,7 +499,7 @@
           <div class="metric"><b id="passCount">—</b><span>等待赛果</span></div>
         </div>
       </section>
-      <section class="content" id="content"><div class="empty"><b>正在连接正式数据</b><span class="loading">核验索伦引擎赛前冻结记录</span></div></section>
+      <section class="content" id="content"><div class="empty"><b>正在连接正式数据</b><span class="loading">核验九十刻度赛前冻结记录</span></div></section>
     </main>
     <section class="detail" id="detail">
       <div class="backbar"><button class="back" id="back" aria-label="返回">‹</button><b>比赛详情</b></div>
@@ -507,8 +507,8 @@
     </section>
     <footer class="site-footer">
       <section class="site-disclaimer" role="note" aria-label="重要声明"><h2><span>▲</span>重要声明</h2><p>本平台内容基于历史赛事数据、市场信息及足球分析模型生成，仅供足球赛事研究与交流参考，不构成任何投注建议或收益承诺。</p><p>足球比赛存在诸多不确定因素，模型预测结果不代表实际赛果。请理性看待分析数据，遵守所在地法律法规，独立判断并自行承担相关风险。</p></section>
-      <div class="brand-motto" aria-label="索伦引擎品牌宣言">索伦引擎，数据先行；<br class="motto-mobile">看清风险，判断更明。</div>
-      <div class="site-counter">索伦引擎 © 2026 · 展示计数 <b id="visitCount">—</b></div>
+      <div class="brand-motto" aria-label="九十刻度品牌宣言">九十刻度，数据先行；<br class="motto-mobile">看清风险，判断更明。</div>
+      <div class="site-counter">九十刻度 © 2026 · 展示计数 <b id="visitCount">—</b></div>
     </footer>
   </div>
   
@@ -641,7 +641,7 @@
       location.reload();
     }
 
-    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(memberPanel());const settings=el('div','member-account');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(type==='注册'?{data:{invite_code:savedInvite()}}:{})});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回索伦引擎。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
+    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(memberPanel());const settings=el('div','member-account');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(type==='注册'?{data:{invite_code:savedInvite()}}:{})});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回九十刻度。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
     async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id}),signal:AbortSignal.timeout(6000)});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
     authSession=storedAuth();initVisits();
     async function recoverEmailConfirmationRedirect(){
@@ -723,9 +723,9 @@
       price.style.cssText='color:#b92731;font-size:22px;margin:9px 0';
       purchaseCard.append(price,el('p','member-muted','会员有效期内可查看当天全部完整赛事报告；具体可查看内容以页面实际提供的数据为准。'));
       const contact=el('button','','复制开通申请');
-      const contactNote=el('p','member-muted','联系客服开通｜微信：GoodLuck_H3。添加微信时请备注索伦引擎及注册邮箱；确认办理方式与实际到账后由管理员开通。本页面不收款、不自动开通。');
+      const contactNote=el('p','member-muted','联系客服开通｜微信：GoodLuck_H3。添加微信时请备注九十刻度及注册邮箱；确认办理方式与实际到账后由管理员开通。本页面不收款、不自动开通。');
       contact.onclick=async()=>{
-        const message='索伦引擎会员开通申请\\n注册邮箱：'+String(authSession?.user?.email||'请填写注册邮箱')+'\\n申请：月卡29.9元（1个月）';
+        const message='九十刻度会员开通申请\\n注册邮箱：'+String(authSession?.user?.email||'请填写注册邮箱')+'\\n申请：月卡29.9元（1个月）';
         try{await navigator.clipboard.writeText(message);contactNote.textContent='申请内容已复制。请添加客服微信 GoodLuck_H3，发送申请内容，确认办理后由管理员开通。'}
         catch{window.prompt('请复制申请内容并发送至客服微信 GoodLuck_H3',message)}
       };
@@ -755,7 +755,7 @@
       if(memberInfo.inviteCode){
         const link='https://suolunpro.github.io/?ref='+memberInfo.inviteCode,actions=el('div','member-actions');
         const copy=el('button','','复制邀请链接');copy.onclick=async()=>{try{await navigator.clipboard.writeText(link);copy.textContent='已复制邀请链接'}catch{prompt('长按复制邀请链接',link)}};
-        const share=el('button','','分享给好友');share.onclick=async()=>{if(navigator.share){try{await navigator.share({title:'索伦引擎 · 公测邀请',text:'索伦引擎赛事数据公测，注册时填写邀请码 '+memberInfo.inviteCode,url:link})}catch{}}else copy.click()};
+        const share=el('button','','分享给好友');share.onclick=async()=>{if(navigator.share){try{await navigator.share({title:'九十刻度 · 公测邀请',text:'九十刻度赛事数据公测，注册时填写邀请码 '+memberInfo.inviteCode,url:link})}catch{}}else copy.click()};
         actions.append(copy,share);inviteCard.append(actions);
       }
       // Keep the invitation input visible without opening the optional activity rules.
@@ -793,7 +793,7 @@
       let gate=document.getElementById('loginGate');
       if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:10vh auto;padding:25px';document.body.append(gate)}
       gate.replaceChildren();
-      const h=document.createElement('h2');h.textContent='索伦引擎 · 会员登录';
+      const h=document.createElement('h2');h.textContent='九十刻度 · 会员登录';
       const note=document.createElement('p');note.textContent='使用邮箱和密码注册或登录；注册时可填写好友邀请码。邀请奖励由平台核验后发放。';
       gate.append(h,note);
       const email=document.createElement('input'),pass=document.createElement('input'),msg=document.createElement('p');
@@ -905,14 +905,14 @@
     const ftProbability=(row,code)=>{const fields={H:['homeProbability','homePct','home_pct','ftHomeProbability','ft_home_probability'],D:['drawProbability','drawPct','draw_pct','ftDrawProbability','ft_draw_probability'],A:['awayProbability','awayPct','away_pct','ftAwayProbability','ft_away_probability']}[code];const raw=fields.map(k=>row[k]).find(v=>v!==null&&v!==undefined&&v!=='');if(raw!==undefined)return probability(raw);return normalizeResult(row.ftTop1)===code?probability(row.confidence):'—'};
     const handicapChoice=(pick,prob)=>{const p=safe(pick);return p==='未确认'?p:p+' · '+probability(prob)};
     const modelCopy={
-      overview:['索伦赛事分析','汇总正式赛前冻结记录，展示模型首选、次选与让球方向'],
-      handicap:['索伦全场让球','展示原始赛前预测与历史盲跑重建的首选、次选及概率'],
-      wdl:['索伦胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
-      goals:['索伦泊松进球','基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'],
-      score:['索伦比分矩阵','展示赛前冻结的4项比分与模型概率；赛后对照实际比分'],
-      htft:['索伦半全场','测试阶段 · 展示模型Top4半全场走势及概率，按日期核对实际覆盖情况'],
-      daily:['索伦今日优选','仅展示赛前已标记的重点观察场次；完整全池请切换赛事分析查看'],
-      upset:['索伦赛事风险观察','展示赛前风险信号及可核验的分析方向']
+      overview:['九十刻度赛事分析','汇总正式赛前冻结记录，展示模型首选、次选与让球方向'],
+      handicap:['九十刻度全场让球','展示原始赛前预测与历史盲跑重建的首选、次选及概率'],
+      wdl:['九十刻度胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
+      goals:['九十刻度泊松进球','基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'],
+      score:['九十刻度比分矩阵','展示赛前冻结的4项比分与模型概率；赛后对照实际比分'],
+      htft:['九十刻度半全场','测试阶段 · 展示模型Top4半全场走势及概率，按日期核对实际覆盖情况'],
+      daily:['九十刻度今日优选','仅展示赛前已标记的重点观察场次；完整全池请切换赛事分析查看'],
+      upset:['九十刻度赛事风险观察','展示赛前风险信号及可核验的分析方向']
     };
     const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
     const matchTimeFormatter=new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
@@ -1233,7 +1233,7 @@
         sourceModelVersion:raw.sourceModelVersion??raw.source_model_version??row.version??'未确认',
         sourceRevision:raw.sourceRevision??raw.source_revision??row.revision??'未确认',
         prematchAt:raw.prematchAt??raw.prematch_at??row.frozenAt,
-        source:'索伦引擎赛前风险观察'
+        source:'九十刻度赛前风险观察'
       };
     }
     function upsetCard(row){
@@ -1271,7 +1271,7 @@
       if(info.directionReason)evidence.append(el('p','','方向依据：'+info.directionReason));
       else evidence.append(el('p','','方向依据：独立证据域不足，不强行反推具体方向'));
       if(info.alternativePick)evidence.append(el('p','','证据倾向：'+safe(info.alternativePick)));
-      evidence.append(el('p','','索伦引擎赛前预警'),el('p','','赛前冻结：'+fmtStamp(info.prematchAt)));
+      evidence.append(el('p','','九十刻度赛前预警'),el('p','','赛前冻结：'+fmtStamp(info.prematchAt)));
       card.append(top,state,fixture,main,evidence);card.setAttribute('role','button');card.tabIndex=0;card.onclick=e=>{if(e.target.closest('details'))return;openDetail(row,false)};card.onkeydown=e=>{if(e.key==='Enter'&&e.target===card)openDetail(row,false)};return card;
     }
     function filterRows(rows){
@@ -1282,7 +1282,7 @@
     function visibleRows(){if(!state.today)return [];return filterRows(state.today.rows||[])}
     function currentTitle(){return {overview:'今日竞足',handicap:'全场让球',wdl:'胜平负',goals:'泊松进球',score:'比分Top4',htft:'半全场Top4',daily:'今日优选',upset:'风险观察'}[state.model]||'今日竞足'}
 
-    function engineBanner(){const b=el('button','engine-banner');b.type='button';b.append(el('strong','','索伦引擎 · 多维赛事数据分析'),el('small','','结合球队表现、市场赔率、比赛进球分布与风险信息，提供结构化赛事数据报告'));const tags=el('div','engine-tags');['市场赔率','球队实力','独立概率','风险审计'].forEach(t=>tags.append(el('span','',t)));b.append(tags);b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};return b}
+    function engineBanner(){const b=el('button','engine-banner');b.type='button';b.append(el('strong','','九十刻度 · 多维赛事数据分析'),el('small','','结合球队表现、市场赔率、比赛进球分布与风险信息，提供结构化赛事数据报告'));const tags=el('div','engine-tags');['市场赔率','球队实力','独立概率','风险审计'].forEach(t=>tags.append(el('span','',t)));b.append(tags);b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};return b}
     function updateNotice(){if(state.tab!=='home'||!['daily','overview'].includes(state.model))return null;const p=el('div','');p.style.cssText='margin:10px 16px;padding:10px 12px;background:#fff8ec;border:1px solid #f1d9b0;border-radius:10px;color:#795726;font-size:12px;line-height:1.65';p.textContent='数据更新提示：当日赛事数据预计12:00左右更新，赔率及盘口将随赛前信息持续调整。请以各项数据标注的更新时间为准。';return p}
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));const updateTip=updateNotice();if(updateTip)box.append(updateTip);
@@ -1290,8 +1290,8 @@
       if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前风险记录':state.model==='daily'?'暂无重点观察场次':'暂无已发布赛事',state.model==='upset'?'本日暂无满足证据条件的赛事风险记录；单独HUR风险灯不生成方向。':'当前没有符合筛选条件的赛事记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
-    function renderHome(){if(state.unopenedDate){const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(empty('赛事数据待更新','正在等待该日期比赛与预测同步。'));return}const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('风险观察',all.length+'场 · 索伦引擎赛前风险记录',all);return}if(state.model==='overview'){renderCards('全场胜平负',all.length+'场 · 索伦引擎',all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 索伦引擎',all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('重点赛事',focus.length+'场 · 仅展示已标记的赛前重点观察场次'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无重点观察场次','当前没有符合筛选条件的场次。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
-    function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 索伦引擎',rows)}
+    function renderHome(){if(state.unopenedDate){const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(empty('赛事数据待更新','正在等待该日期比赛与预测同步。'));return}const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('风险观察',all.length+'场 · 九十刻度赛前风险记录',all);return}if(state.model==='overview'){renderCards('全场胜平负',all.length+'场 · 九十刻度',all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 九十刻度',all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('重点赛事',focus.length+'场 · 仅展示已标记的赛前重点观察场次'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无重点观察场次','当前没有符合筛选条件的场次。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
+    function renderMatches(){const rows=visibleRows();renderCards(currentTitle()+'赛事',rows.length+'场 · 九十刻度',rows)}
     async function renderHistory(){
       if(state.unopenedDate){$('content').replaceChildren(empty('赛事数据待更新','可选择此前日期查看赛果。'));return}
       const box=$('content');box.replaceChildren(sectionHead('真实战绩','仅已核验赛果'));
@@ -1325,7 +1325,7 @@
           categories.append(button);
         }
         form.append(categories,el('label','','留言内容'));
-        const input=el('textarea','feedback-input');input.placeholder='请描述遇到的问题，或者希望索伦增加的功能…';
+        const input=el('textarea','feedback-input');input.placeholder='请描述遇到的问题，或者希望九十刻度增加的功能…';
         input.maxLength=500;input.value=feedbackDraft.content;input.setAttribute('aria-label','留言内容');
         const counter=el('div','feedback-char'),send=el('button','feedback-submit','提交留言'),msg=el('p','feedback-message','');
         send.type='button';
@@ -1424,8 +1424,8 @@
       }
       entry.append(actions);page.append(entry,accountPanel());
       const about=el('details','profile-more');
-      about.append(el('summary','','关于索伦'));
-      const intro=el('p','sub','索伦引擎专注赛事数据整理与分析，提供赛前优选场次及赛后数据回顾。');
+      about.append(el('summary','','关于九十刻度'));
+      const intro=el('p','sub','九十刻度专注赛事数据整理与分析，提供赛前优选场次及赛后数据回顾。');
       intro.style.cssText='margin:10px 0 5px;font-size:12px;line-height:1.8;color:#555';
       const note=el('p','sub','本站内容仅供数据研究与交流，不构成投注建议。');
       note.style.cssText='margin:0 0 3px;font-size:11px;line-height:1.7;color:#888';
@@ -1853,7 +1853,7 @@
           });
           changed.append(el('p','report-sub','威廉希尔 · 赔率采集于 '+fmtStamp(last.capturedAt)+'；变化不等于赛果判断'));intel.append(changed);
         }
-        if(riskText&&!context?.summary)reportLine(intel,'索伦引擎赛前风险',riskText);
+        if(riskText&&!context?.summary)reportLine(intel,'九十刻度赛前风险',riskText);
         slot.append(intel);
       }
       renderHeroWeather(report.environment??context?.fallbackEnvironment??null);
@@ -2047,7 +2047,7 @@
       home.append(teamNode(row.home,row.homeLogo));away.append(teamNode(row.away,row.awayLogo));
       const center=el('div','');
       center.append(el('div','report-score',hasScore(row)?scoreline(row):'VS'),el('div','report-status',statusText(row,history)));
-      fixture.append(home,center,away);hero.append(fixture,el('div','report-meta','索伦引擎'));c.append(hero);
+      fixture.append(home,center,away);hero.append(fixture,el('div','report-meta','九十刻度'));c.append(hero);
 
       const summary=reportSection('赛前核心数据');
       summary.classList.add('report-core-summary');
@@ -2066,7 +2066,7 @@
       if(handicapMarketOnly&&handicap.length)summary.append(el('p','report-sub','让球方向来自市场概率排序，尚未通过模型让球数据质量审核，仅供统计参考。'));
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
       if([row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
-        reportProbability(summary,'索伦引擎赛前概率',['homeProbability','drawProbability','awayProbability'],row);
+        reportProbability(summary,'九十刻度赛前概率',['homeProbability','drawProbability','awayProbability'],row);
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
       c.append(summary);
       c.append(htftTop4Panel(row));
@@ -2238,7 +2238,7 @@
         rememberDay(d);applyDay(d)
       }catch(e){if(requestId!==dateRequestId)return;if(state.baseDate&&date>state.baseDate){showUnopened(date);return}$('content').replaceChildren(errorBox(e))}
     }
-    function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='索伦引擎';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
+    function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='九十刻度';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;state.tab='home';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];buildDates();requestAnimationFrame(()=>{if(state.model===b.dataset.model&&state.tab==='home')render()})});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}render()});
@@ -2247,7 +2247,7 @@
       document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';
       const gate=document.getElementById('loginGate')||document.createElement('div');
       gate.id='loginGate';gate.className='account-panel auth-retry';
-      gate.replaceChildren(el('h2','','索伦引擎'),el('p','',error||'正在核验登录状态，请检查网络后重试'));
+      gate.replaceChildren(el('h2','','九十刻度'),el('p','',error||'正在核验登录状态，请检查网络后重试'));
       const retry=el('button','','重新连接');retry.onclick=()=>location.reload();gate.append(retry);
       if(!gate.isConnected)document.body.append(gate);
     }
@@ -2255,7 +2255,7 @@
       if(!authSession?.access_token){showLoginGate();return}
       showAuthRetry('正在恢复登录状态…');
       try{await verifiedAuthToken()}catch(error){
-        if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('请登录以继续使用索伦引擎');return}
+        if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('请登录以继续使用九十刻度');return}
         showAuthRetry('网络暂不可用，登录信息已保留，请稍后重新连接');return;
       }
       try{await membershipFetch()}catch(error){showAuthRetry('会员状态暂不可核验，请稍后重新连接');return}
@@ -2263,7 +2263,7 @@
       try{if(sessionStorage.getItem('soren_welcome_invite_v1')==='1'){sessionStorage.removeItem('soren_welcome_invite_v1');state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'))}}catch(e){}
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
-      if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='索伦引擎';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
+      if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='九十刻度';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
       readDay(today).then(d=>{state.baseDate=d.date||today;rememberDay(d);if(d.date!==today||!d.rows.length){showUnopened(today);return}applyDay(d)}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
     }
     (async()=>{
