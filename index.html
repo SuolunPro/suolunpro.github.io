@@ -2097,7 +2097,7 @@
       }
       renderHeroWeather(report.environment??context?.fallbackEnvironment??null);
       const hasOdds=!!(last||first||(report.market?.asian??[]).some(x=>x.current||x.initial));
-      const hasModelOddsProduct=Array.isArray(report.modelOddsIndex?.values)&&report.modelOddsIndex.values.length===3&&
+      const hasModelOddsProduct=context?.row?.predictionView!=='LATEST_PREMATCH_ONLY'&&Array.isArray(report.modelOddsIndex?.values)&&report.modelOddsIndex.values.length===3&&
         report.modelOddsIndex.values.every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v))&&Number(v)>=0);
 
       const elo=report.feature?.elo,ai=report.feature?.kickoffAi;
@@ -2291,7 +2291,7 @@
       };
       const cutoff=Number.isFinite(Date.parse(String(row.kickoff??'')))?Date.parse(row.kickoff):null;
       const freeze=Number.isFinite(Date.parse(String(row.frozenAt??'')))?Date.parse(row.frozenAt):null;
-      item('预测冻结',freeze!==null&&cutoff!==null&&freeze<cutoff?fmtStamp(row.frozenAt)+' · 已记录':'时间未确认');
+      item('模型预测更新',freeze!==null&&cutoff!==null&&freeze<cutoff?fmtStamp(row.frozenAt):'时间未确认');
       const oddsLine=item('机构赔率采集','读取中','report-data-odds');
       oddsLine.querySelector('b').textContent='查看本场资料';
       item('赛果核验',verified(row)?'已核验':row.matchStatus==='POSTPONED'?'比赛延期':'待核验',verified(row)?'report-data-verified':'');
@@ -2310,46 +2310,6 @@
       const euro=report?.market?.european?.current?.capturedAt;
       odds.textContent=euro&&Number.isFinite(Date.parse(String(euro)))?fmtStamp(euro):'采集时间未确认';
     }
-    // A separately labelled live observation: never replace or settle the locked formal snapshot.
-    function renderLatestPrematchObservation(row,history){
-      const v=row?.liveReference;
-      if(!v||v.kind!=='LATEST_PREMATCH_REFERENCE_NOT_FORMAL_SETTLEMENT')return null;
-      const kick=Date.parse(String(row.kickoff??'')),fresh=Date.parse(String(v.frozenAt??'')),original=Date.parse(String(row.frozenAt??''));
-      if(!Number.isFinite(kick)||!Number.isFinite(fresh)||!Number.isFinite(original)
-         ||Date.now()>=kick||fresh<=original||fresh>=kick||fresh>Date.now())return null;
-      const vals=[v.homeProbability,v.drawProbability,v.awayProbability].map(Number);
-      if(!vals.every(x=>Number.isFinite(x)&&x>=0&&x<=100)||Math.abs(vals.reduce((a,b)=>a+b,0)-100)>1.5)return null;
-      const section=reportSection('赛前最新模型观察');
-      section.classList.add('report-live-observation');
-      section.append(el('p','report-sub','母模型最新赛前记录：'+fmtStamp(v.frozenAt)+' · 可能随赛前资料继续变化'));
-      const grid=el('div','report-grid');
-      [['主胜',vals[0]],['平局',vals[1]],['客胜',vals[2]]].forEach(([label,pct])=>{
-        const cell=el('div','report-cell');cell.append(el('small','',label),el('strong','',Number(pct).toFixed(1)+'%'));grid.append(cell);
-      });
-      section.append(grid,el('p','report-sub','本区为赛前更新参考，不替代下方已发布的原始冻结记录，也不参与原有历史战绩评测。'));
-      const button=el('button','report-trend-toggle','刷新赛前观察');
-      button.type='button';
-      button.onclick=async()=>{
-        if(button.disabled||state.selected!==row||Date.now()>=kick)return;
-        button.disabled=true;button.textContent='正在读取最新赛前记录…';
-        try{
-          const params=new URLSearchParams({view:'archive',date:String(row.date||state.selectedDate),client:'1',_ :String(Date.now())});
-          const response=await authorizedApiFetch(API+'?'+params.toString(),{cache:'no-store',signal:AbortSignal.timeout(15000)});
-          if(!response.ok)throw Error('HTTP '+response.status);
-          const payload=await response.json();
-          const latest=Array.isArray(payload.rows)?payload.rows.find(x=>String(x.no).padStart(3,'0')===String(row.no).padStart(3,'0')&&x.home===row.home&&x.away===row.away):null;
-          if(!latest||state.selected!==row)return;
-          const nextTime=Date.parse(String(latest.liveReference?.frozenAt??''));
-          if(Number.isFinite(nextTime)&&nextTime>=fresh){
-            const index=state.today?.rows?.indexOf(row)??-1;
-            if(index>=0)state.today.rows[index]=latest;
-            openDetail(latest,history);
-          }else{button.textContent='暂无更新的赛前观察';button.disabled=false;}
-        }catch(error){if(state.selected===row){button.textContent='刷新失败，点击重试';button.disabled=false;}}
-      };
-      section.append(button);
-      return section;
-    }
     function openDetail(row,history){
       state.selected=row;$('main').classList.add('hide');$('detail').classList.add('show');
       const c=$('detailCard');c.replaceChildren();
@@ -2364,9 +2324,7 @@
       fixture.append(home,center,away);hero.append(fixture,el('div','report-meta','九十刻度'));c.append(hero);
       const dataStatus=renderDetailDataStatus(row);
       c.append(dataStatus);
-      const liveObservation=renderLatestPrematchObservation(row,history);
-      if(liveObservation)c.append(liveObservation);
-      const summary=reportSection(liveObservation?'原始赛前记录 · 正式评测':'赛前核心数据');
+      const summary=reportSection('赛前核心数据');
       summary.classList.add('report-core-summary');
       const choices=el('div','report-key-picks');
       const first=el('div','report-main-pick');
@@ -2384,7 +2342,7 @@
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
       if([row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
         reportProbability(summary,'九十刻度赛前概率',['homeProbability','drawProbability','awayProbability'],row);
-      if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
+      if(reportHas(row.frozenAt))summary.append(el('p','report-sub',(row.predictionView==='LATEST_PREMATCH_ONLY'?'最新赛前预测更新于 ':'赛前预测记录于 ')+fmtStamp(row.frozenAt)));
       c.append(summary);
       const teamOverview=teamOverviewPanel(row);
       const attackDefense=renderAttackDefensePanel(row);
@@ -2421,7 +2379,7 @@
       }
       const audit=reportDisclosure('预测来源与数据说明');
       
-      if(reportHas(row.frozenAt))reportLine(audit,'模型冻结',fmtStamp(row.frozenAt));
+      if(reportHas(row.frozenAt))reportLine(audit,'模型版本时间',fmtStamp(row.frozenAt));
       if(reportHas(row.dq))reportLine(audit,'数据质量',row.dq);
       if(reportHas(row.handicapSourceLabel))reportLine(audit,'让球数据来源',row.handicapSourceLabel);
       if(reportHas(row.handicapFrozenAt))reportLine(audit,'让球冻结时间',fmtStamp(row.handicapFrozenAt));
@@ -2649,7 +2607,16 @@
         // The API issues a new updatedAt per request even when the match records are unchanged.
         // Do not rebuild dozens of cards or reset the customer's scroll position for identical data.
         if(state.today?.date===d.date&&JSON.stringify(state.today.rows)===JSON.stringify(d.rows))return;
-        state.today=d;const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);if(!state.selected)render();
+        const previousSelected=state.selected;
+        const updatedDetail=previousSelected&&$('detail').classList.contains('show')?
+          d.rows.find(r=>String(r.no).padStart(3,'0')===String(previousSelected.no).padStart(3,'0')
+            &&r.home===previousSelected.home&&r.away===previousSelected.away):null;
+        state.today=d;const settled=d.rows.filter(verified);state.history={...d,count:settled.length,rows:settled};setHeader(d);
+        if(updatedDetail&&JSON.stringify(updatedDetail)!==JSON.stringify(previousSelected)){
+          const scrollY=window.scrollY;
+          openDetail(updatedDetail,false);
+          window.scrollTo({top:scrollY,behavior:'instant'});
+        }else if(!state.selected)render();
       }catch(e){console.warn('正式数据刷新失败',e)}finally{syncInFlight=false}
     }
   </script>
