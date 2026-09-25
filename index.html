@@ -51,6 +51,8 @@
     .dates.htft-dates{display:flex;overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
     .dates.htft-dates .day{flex:0 0 14.285%;min-width:52px;scroll-snap-align:center}
     .htft-list-note{margin:0 0 12px;padding:11px 12px;border:1px solid #e6e5da;border-radius:10px;background:#fffdf4;color:#74613b;font-size:11px;line-height:1.75}
+    .htft-list-draw{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:11px 2px 0;padding:1px 0 2px;color:#64766b;font-size:12px}
+    .htft-list-draw strong{color:#285b42;font-size:16px;font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap}
     .htft-list-meta{font-size:11px;color:#8b8b8b;margin:8px 0 0}
     .htft-top4-panel{border:1px solid #d9e7df;background:#fff;margin-top:12px}
     .htft-top4-summary{padding:12px;border-radius:10px;background:#edf5ef;margin-bottom:12px}
@@ -1103,6 +1105,13 @@
           grid.append(cell);
         });
         panel.append(grid);
+        // Show the SAME frozen HT draw estimate already used by the detail view; never derive it from the settled result.
+        const htDraw=Number(info.htDrawProbability);
+        if(info.htDrawProbability!==null&&info.htDrawProbability!==undefined&&Number.isFinite(htDraw)&&htDraw>=0&&htDraw<=1){
+          const drawLine=el('div','htft-list-draw');
+          drawLine.append(el('span','','半场平局模型概率'),el('strong','',(htDraw*100).toFixed(1)+'%'));
+          panel.append(drawLine);
+        }
         if(done)panel.append(el('div','score-top4-verdict '+(info.settlementStatus==='SUCCESS'?'success':'fail'),
           '实际半全场：'+safe(info.actual)+' · '+(historical?(info.settlementStatus==='SUCCESS'?'历史复算覆盖':'历史复算未覆盖'):(info.settlementStatus==='SUCCESS'?'Top4覆盖成功':'Top4未覆盖'))));
         else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
