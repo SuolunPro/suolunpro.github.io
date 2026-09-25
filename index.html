@@ -495,6 +495,63 @@
   .account-panel .password-input-wrap .password-visibility{position:absolute;right:5px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:40px;height:40px;min-height:40px;padding:0;margin:0;background:transparent;border:0;border-radius:8px;color:#707a75;cursor:pointer;touch-action:manipulation}
   .account-panel .password-input-wrap .password-visibility:focus-visible{outline:2px solid #27734e;outline-offset:1px}
   .account-panel .password-input-wrap .password-visibility svg{pointer-events:none}
+
+  /* 2026-09-25 detail-only clarity pass: same data, fewer competing visual weights. */
+  #detail .detail-body{background:#f3f5f4;padding-bottom:26px}
+  #detail .detail-card{max-width:760px;margin:0 auto;background:transparent}
+  #detail .report-hero{padding:17px 16px 18px}
+  #detail .report-fixture{margin:13px 0 8px;gap:10px}
+  #detail .report-team{line-height:1.4;gap:7px}
+  #detail .report-meta,#detail .report-venue-line{line-height:1.6}
+  #detail .report-section,#detail .report-data-status{box-sizing:border-box;margin:10px 12px 0;padding:15px 16px;border:1px solid #e7ebe8;border-radius:13px;background:#fff;box-shadow:0 1px 4px #172c2410}
+  #detail .report-section h3{margin:0 0 12px;font-size:15px;line-height:1.5;color:#26392f}
+  #detail .report-sub{font-size:12px;line-height:1.65;margin:8px 0;color:#64746b}
+  #detail .report-core-summary{border-top:1px solid #e7ebe8}
+  #detail .report-key-picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #detail .report-main-pick,#detail .report-alt-pick{box-sizing:border-box;min-width:0;padding:11px 10px;border:1px solid #e7ece8;border-radius:10px;background:#f7f9f7;text-align:center}
+  #detail .report-main-pick small,#detail .report-alt-pick small{display:block;font-size:12px;line-height:1.5;color:#68776e}
+  #detail .report-main-pick strong,#detail .report-alt-pick strong{display:block;font-size:18px;line-height:1.45;font-weight:750;color:#284b38;overflow-wrap:anywhere}
+  #detail .report-metric-title{margin:12px 0 8px;color:#4f6558;font-size:12px}
+  #detail .report-grid{gap:8px}
+  #detail .report-cell{padding:11px 4px;background:#f4f7f5;border:1px solid #edf1ee}
+  #detail .report-cell small{font-size:12px;line-height:1.4;color:#637368}
+  #detail .report-cell strong{font-size:18px;line-height:1.4;font-variant-numeric:tabular-nums;color:#2b4938}
+  #detail .report-line{align-items:flex-start;gap:12px;padding:10px 0;font-size:12.5px;line-height:1.6}
+  #detail .report-line span{flex:0 0 38%;min-width:0;font-size:12px;line-height:1.6}
+  #detail .report-line b{flex:1;min-width:0;text-align:right;line-height:1.6;overflow-wrap:anywhere}
+  #detail .team-overview{padding:15px 16px}
+  #detail .team-overview-grid{gap:9px}
+  #detail .team-overview-team{padding:12px 10px;background:#f7f9f7;border:1px solid #e7ede9}
+  #detail .team-overview-name{font-size:12px;line-height:1.45;white-space:normal;overflow-wrap:anywhere}
+  #detail .team-overview-metric{font-size:14px;line-height:1.5;margin-top:6px}
+  #detail .team-overview-muted{font-size:11.5px;line-height:1.55}
+  #detail .team-overview-rest{font-size:12px;line-height:1.5;margin-top:10px;padding-top:9px;color:#335c45;font-weight:650}
+  #detail .team-overview-h2h{margin-top:12px;padding-top:11px;gap:5px}
+  #detail .team-overview-h2h-name,#detail .team-overview-h2h-values{font-size:12px}
+  #detail .team-overview-details>summary{min-height:36px;padding:11px 0 2px;font-size:12px}
+  #detail .report-attack-team{background:#f7f9f7}
+  #detail .report-more{padding:0;overflow:hidden}
+  #detail .report-more>summary{min-height:48px;padding:13px 15px;font-size:13px;line-height:1.5}
+  #detail .report-more>.report-section{margin:0;padding:13px 15px;border:0;border-top:1px solid #edf0ed;border-radius:0;box-shadow:none}
+  #detail .report-more>.report-more{margin:0;padding:0;border:0;border-top:1px solid #edf0ed;box-shadow:none}
+  #detail .report-more>.report-more>summary{padding:12px 15px}
+  #detail .report-professional:empty{display:none}
+  #detail .report-data-status{padding:10px 13px;background:#fbfcfb;box-shadow:none}
+  #detail .report-data-status-items{gap:6px}
+  #detail .report-data-status-item{font-size:11.5px;line-height:1.55}
+  #detail .report-disclaimer{margin:12px 12px 0;line-height:1.65}
+  @media(max-width:380px){
+    #detail .report-section,#detail .report-data-status{margin-left:9px;margin-right:9px;padding:13px 12px}
+    #detail .report-more{padding:0}
+    #detail .report-more>.report-section{padding:12px}
+    #detail .report-key-picks,#detail .team-overview-grid{gap:6px}
+    #detail .report-main-pick,#detail .report-alt-pick{padding:10px 7px}
+    #detail .report-main-pick strong,#detail .report-alt-pick strong{font-size:16px}
+    #detail .report-cell{padding:10px 3px}
+    #detail .report-cell strong{font-size:15px}
+    #detail .report-line{gap:7px}
+    #detail .report-line span{flex-basis:35%}
+  }
   </style>
 </head>
 <body>
@@ -2280,6 +2337,10 @@
         reportProbability(summary,'九十刻度赛前概率',['homeProbability','drawProbability','awayProbability'],row);
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub','原始预测冻结于 '+fmtStamp(row.frozenAt)));
       c.append(summary);
+      const teamOverview=teamOverviewPanel(row);
+      const attackDefense=renderAttackDefensePanel(row);
+      if(teamOverview&&attackDefense){teamOverview.append(attackDefense);c.append(teamOverview);}
+      else {if(teamOverview)c.append(teamOverview);if(attackDefense)c.append(attackDefense);}
       c.append(htftTop4Panel(row));
       c.append(detailUpsetWarningPanel(row));
       if(scoreInfo(row)||publishedGoalLambda(row)!==null){
@@ -2293,10 +2354,6 @@
         supplement.append(scoreTop4Panel(row));
         c.append(supplement);
       }
-      const teamOverview=teamOverviewPanel(row);
-      const attackDefense=renderAttackDefensePanel(row);
-      if(teamOverview&&attackDefense){teamOverview.append(attackDefense);c.append(teamOverview);}
-      else {if(teamOverview)c.append(teamOverview);if(attackDefense)c.append(attackDefense);}
       const professionalSlot=el('div','report-professional');c.append(professionalSlot);
       const advancedSlot=el('div','report-professional');c.append(advancedSlot);
       if(verified(row)){
