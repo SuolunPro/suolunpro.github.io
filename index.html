@@ -1083,7 +1083,7 @@
     const verified=row=>row.resultVerified===true&&normalizeResult(row.result)!==null;
     const hasScore=row=>verified(row)&&row.resultHome!==null&&row.resultHome!==undefined&&row.resultHome!==''&&row.resultAway!==null&&row.resultAway!==undefined&&row.resultAway!==''&&Number.isFinite(Number(row.resultHome))&&Number.isFinite(Number(row.resultAway));
     const scoreline=row=>hasScore(row)?Number(row.resultHome)+' : '+Number(row.resultAway):'未确认';
-    const scoreInfo=row=>{const x=row?.scoreTop4;if(!x||x.pregameVerified!==true||!Array.isArray(x.picks)||x.picks.length!==4)return null;const frozen=Date.parse(String(x.frozenAt||'')),kickoff=Date.parse(String(row.kickoff||''));return Number.isFinite(frozen)&&Number.isFinite(kickoff)&&frozen<kickoff?x:null};
+    const scoreInfo=row=>{const x=row?.dynamicScoreTop4??row?.scoreTop4;if(!x||x.pregameVerified!==true||!Array.isArray(x.picks)||x.picks.length!==4)return null;const frozen=Date.parse(String(x.frozenAt||'')),kickoff=Date.parse(String(row.kickoff||''));return Number.isFinite(frozen)&&Number.isFinite(kickoff)&&frozen<kickoff?x:null};
     // Read-only display simulation for the specifically missing, already finished 09-23/003 match.
     // Never write to scoreTop4 or take part in pre-match score settlement/coverage metrics.
     const scoreSimulationInfo=row=>{
@@ -1260,7 +1260,8 @@
       const simulation=scoreSimulationInfo(row),panel=el('section','score-top4'),info=scoreInfo(row)||simulation;
       const title=el('div','score-top4-title');
       const historical=info?.sourceKind==='HISTORICAL_BLIND_REPLAY';
-      title.append(el('span','',simulation?'比分概率参考':'比分Top4'),el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':'赛前发布 '+fmtStamp(info.frozenAt)));panel.append(title);
+      const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
+      title.append(el('span','',simulation?'比分概率参考':marketShadow?'赛前动态比分Top4参考':'比分Top4'),el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow?'参考生成 '+fmtStamp(info.frozenAt):'赛前发布 '+fmtStamp(info.frozenAt)));panel.append(title);
       if(!info){panel.append(el('p','score-top4-note','暂无比分预测 · 赛前参数未确认，不计入比分覆盖统计。'));return panel}
       const grid=el('div','score-top4-grid');
       info.picks.forEach((pick,i)=>{
@@ -1273,6 +1274,7 @@
       let verdict='等待赛果 · 尚未评测',cls='pending';
       if(info.settlementStatus==='SUCCESS'){cls='success';verdict=historical?'历史回放一致':'预测一致'}
       else if(info.settlementStatus==='FAILURE'){cls='fail';verdict=(historical?'历史回放不一致':'预测不一致')+' · 四项预测均与赛果不同'}
+      if(marketShadow){panel.append(el('p','score-top4-note','随赛前威廉希尔胜负报价变化重新计算；原始总进球参数不变。市场数据 '+fmtStamp(info.marketAt)+'，参考生成 '+fmtStamp(info.frozenAt)+'。属于未经历史验证的研究参考，不计入正式比分战绩。'));return panel}
       if(simulation){panel.append(el('p','score-top4-note','依据原有赛前参数，于赛后计算的比分概率参考；不属于当时发布的比分预测，不计入赛前评测。'));return panel}
       panel.append(el('div','score-top4-verdict '+cls,verdict),el('p','score-top4-note','百分比为模型概率，并非实际赔率；四项比分任一与赛果一致，计入比分覆盖统计。'));
       if(historical){
@@ -1351,17 +1353,19 @@
       if(state.model==='goals'){
         const lambda=publishedGoalLambda(row);
         const goals=el('section','goals-inline');
-        const goalsShadow=row.goalPrediction?.formalEligible===false;
-        const scoreBasedGoal=row.goalPrediction?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
-        goals.append(el('div','goals-inline-title',scoreBasedGoal?'泊松总进球预测 · Top3参考':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'));
+        const goalSource=row.dynamicGoalPrediction??row.goalPrediction;
+        const goalsShadow=goalSource?.formalEligible===false;
+        const marketShadow=goalSource?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
+        const scoreBasedGoal=goalSource?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
+        goals.append(el('div','goals-inline-title',marketShadow?'赛前动态泊松参考 · Top3':scoreBasedGoal?'泊松总进球预测 · Top3参考':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'));
         if(lambda===null){
           goals.append(el('p','goals-note','赛前进球参数未确认'));
         }else{
           let p=Math.exp(-lambda);const ranked=[];
           for(let k=0;k<=15;k++){if(k>0)p*=lambda/k;ranked.push({goals:k,p})}
           ranked.sort((a,b)=>b.p-a.p||a.goals-b.goals);
-          goals.append(el('p','goals-note','预计总进球 λ：'+lambda.toFixed(2)+(scoreBasedGoal?' · 基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。':goalsShadow?' · 最近6场得失球估计':'')));
-          if(goalsShadow)goals.append(el('p','goals-note','赛前参考发布时间 '+fmtStamp(row.goalPrediction.frozenAt)+' · 不计正式命中率'));
+          goals.append(el('p','goals-note','预计总进球 λ：'+lambda.toFixed(2)+(marketShadow?' · 随威廉希尔赛前赔率变化的独立研究参考':scoreBasedGoal?' · 基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。':goalsShadow?' · 最近6场得失球估计':'')));
+          if(goalsShadow)goals.append(el('p','goals-note','赛前参考发布时间 '+fmtStamp(goalSource.frozenAt)+' · 不计正式命中率'));
           const grid=el('div','goals-grid');
           ranked.slice(0,6).forEach((item,i)=>{
             const cell=el('div','goal-cell'+(i>=3?' reference':''));
@@ -1651,7 +1655,7 @@
 
     // Only accept independently published, pre-kickoff goal inputs. Never infer them from final scores.
     function publishedGoalLambda(row){
-      const g=row.goalPrediction;
+      const g=row.dynamicGoalPrediction??row.goalPrediction;
       if(!g||g.pregameVerified!==true||!g.frozenAt||!row.kickoff)return null;
       const frozen=Date.parse(g.frozenAt),kickoff=Date.parse(row.kickoff);
       if(!Number.isFinite(frozen)||!Number.isFinite(kickoff)||frozen>=kickoff)return null;
@@ -1659,13 +1663,15 @@
       if(g.lambdaHome==null||g.lambdaAway==null||!Number.isFinite(home)||!Number.isFinite(away)||home<0||away<0||home+away<=0||home+away>15)return null;
       return home+away;
     }
-    function isFormalGoalPrediction(row){return row.goalPrediction?.formalEligible!==false&&publishedGoalLambda(row)!==null}
+    function isFormalGoalPrediction(row){return row.goalPrediction?.formalEligible!==false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null}
     function goalPredictionPanel(row){
-      const goalsShadow=row.goalPrediction?.formalEligible===false;
-      const scoreBasedGoal=row.goalPrediction?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
+      const g=row.dynamicGoalPrediction??row.goalPrediction;
+      const marketShadow=g?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
+      const goalsShadow=g?.formalEligible===false;
+      const scoreBasedGoal=g?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
       const panel=el('section','goals-panel');
       const heading=el('div','report-metric-title');
-      heading.append(el('h3','',scoreBasedGoal?'泊松总进球预测 · Top3参考':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'),
+      heading.append(el('h3','',marketShadow?'赛前动态泊松参考 · Top3':scoreBasedGoal?'泊松总进球预测 · Top3参考':goalsShadow?'历史进球泊松参考 · Top3':'泊松总进球 · Top3正式评测'),
         metricHelp('泊松总进球','使用赛前保存的主客队预期进球参数，按泊松分布计算不同总进球数的模型概率。它不是实际进球数保证，也不是未经核验的xG数据；参考项与正式发布的评测口径不同。'));
       panel.append(heading);
       const lambda=publishedGoalLambda(row);
@@ -1673,8 +1679,8 @@
       let p=Math.exp(-lambda);const ranks=[];
       for(let k=0;k<=15;k++){if(k>0)p*=lambda/k;ranks.push({goals:k,p})}
       ranks.sort((a,b)=>b.p-a.p||a.goals-b.goals);
-      panel.append(el('p','sub','预计总进球 λ：'+lambda.toFixed(2)+' · 基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'+(scoreBasedGoal?' · 参数与比分Top4同源':goalsShadow?' · 最近6场历史得失球参考':'')));
-      if(goalsShadow)panel.append(el('p','goals-note','赛前参考发布时间 '+fmtStamp(row.goalPrediction.frozenAt)+'；结果不计正式评测。'));
+      panel.append(el('p','sub','预计总进球 λ：'+lambda.toFixed(2)+' · 基于本场记录的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'+(marketShadow?' · 固定原始总λ，按最新威廉希尔胜负报价调整双方λ（研究参考，未验证预测增益）':scoreBasedGoal?' · 参数与比分Top4同源':goalsShadow?' · 最近6场历史得失球参考':'')));
+      if(goalsShadow)panel.append(el('p','goals-note','赛前参考发布时间 '+fmtStamp(g.frozenAt)+'；结果不计正式评测。'));
       const grid=el('div','goals-grid');ranks.slice(0,6).forEach((item,i)=>{
         const cell=el('div','goal-cell'+(i>=3?' reference':''));
         cell.append(el('small','',goalsShadow?'参考 Top'+(i+1):i<3?'正式 Top'+(i+1):'参考 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));grid.append(cell)
@@ -1684,7 +1690,7 @@
         const verdict=goalsShadow?(rank>=0&&rank<3?'参考命中（不计正式评测）':'参考未中（不计正式评测）'):rank>=0&&rank<3?'评测成功':rank>=3?'参考命中（不计正式评测）':'评测未成功';
         panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · '+verdict));
       }else panel.append(el('div','goals-verdict','等待赛果 · 尚未评测'));
-      panel.append(el('p','goals-note',scoreBasedGoal?'本项使用同场赛前冻结的比分模型泊松参数，仅为进球数参考，未作为独立总进球正式预测发布，不计正式总进球命中率。':goalsShadow?'此模型使用球队赛前近6场历史进球、失球，不是严格xG正式预测；所有方向仅供参考，不进入正式命中率。':'Top1—Top3任一命中计入总进球正式命中率；Top4、Top5、Top6仅供参考，不计入评测。总进球评测与胜平负、全场让球独立。'));
+      panel.append(el('p','goals-note',marketShadow?'本项是独立的赛前市场校准研究参考，未经过历史验证，不计入正式命中率；原有比分和进球预测的正式评测记录不变。':scoreBasedGoal?'本项使用同场赛前冻结的比分模型泊松参数，仅为进球数参考，未作为独立总进球正式预测发布，不计正式总进球命中率。':goalsShadow?'此模型使用球队赛前近6场历史进球、失球，不是严格xG正式预测；所有方向仅供参考，不进入正式命中率。':'Top1—Top3任一命中计入总进球正式命中率；Top4、Top5、Top6仅供参考，不计入评测。总进球评测与胜平负、全场让球独立。'));
       return panel;
     }
     function teamOverviewPanel(row){
@@ -2410,11 +2416,11 @@
         return;
       }
       if(state.model==='score'){
-        const rows=state.today?.rows||[],published=rows.filter(row=>scoreInfo(row)!==null);
-        const isReplay=row=>scoreInfo(row)?.sourceKind==='HISTORICAL_BLIND_REPLAY';
+        const rows=state.today?.rows||[],published=rows.filter(row=>scoreInfo({...row,dynamicScoreTop4:null})!==null);
+        const isReplay=row=>scoreInfo({...row,dynamicScoreTop4:null})?.sourceKind==='HISTORICAL_BLIND_REPLAY';
         const live=published.filter(row=>!isReplay(row)),replay=published.filter(isReplay);
         const group=live.length?live:replay;
-        const settled=group.filter(scoreSettled),hits=settled.filter(scoreHit).length;
+        const settled=group.filter(row=>scoreSettled({...row,dynamicScoreTop4:null})),hits=settled.filter(row=>scoreHit({...row,dynamicScoreTop4:null})).length;
         $('totalCount').textContent=settled.length?(100*hits/settled.length).toFixed(1)+'%':'—';
         $('pickCount').textContent=hits+'/'+settled.length;
         $('passCount').textContent=(group.length-settled.length)+' / '+(rows.length-published.length);
@@ -2442,11 +2448,11 @@
       // have different provenance: show reference coverage when there is no formal sample,
       // without recategorizing a reference as an independently published goal prediction.
       const formalGoals=state.model==='goals'?settled.filter(row=>isFormalGoalPrediction(row)&&hasScore(row)):[];
-      const referenceGoals=state.model==='goals'?settled.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda(row)!==null&&hasScore(row)):[];
+      const referenceGoals=state.model==='goals'?settled.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null&&hasScore(row)):[];
       const showGoalReference=state.model==='goals'&&formalGoals.length===0&&referenceGoals.length>0;
       const evaluable=state.model==='goals'?(showGoalReference?referenceGoals:formalGoals):state.model==='handicap'?settled.filter(handicapEvaluable):settled;
       const hits=state.model==='goals'?evaluable.filter(row=>{
-        const lambda=publishedGoalLambda(row),actual=Number(row.resultHome)+Number(row.resultAway);
+        const lambda=publishedGoalLambda({...row,dynamicGoalPrediction:null}),actual=Number(row.resultHome)+Number(row.resultAway);
         let p=Math.exp(-lambda);const ranked=[];
         for(let k=0;k<=15;k++){if(k>0)p*=lambda/k;ranked.push({goals:k,p})}
         ranked.sort((a,b)=>b.p-a.p||a.goals-b.goals);
@@ -2460,7 +2466,7 @@
       labels[0].textContent=state.model==='goals'?(showGoalReference?'泊松Top3参考覆盖率':'进球Top3正式覆盖率'):({ft:'胜平负首选命中率',double:'双选覆盖率',handicap:'让球命中率',combined:'综合评测成功率',daily:'重心场次命中率'})[state.model]||'当日评测命中率';
       labels[1].textContent=showGoalReference?'参考命中 / 已核验':'命中 / 有效评测';
       labels[2].textContent='未核验赛果';
-      const coverage=state.model==='goals'?' · 独立正式预测 '+rows.filter(isFormalGoalPrediction).length+'场 · 泊松参考 '+rows.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda(row)!==null).length+'场 · 正式已评测 '+formalGoals.length+'场 · 参考已评测 '+referenceGoals.length+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
+      const coverage=state.model==='goals'?' · 独立正式预测 '+rows.filter(isFormalGoalPrediction).length+'场 · 泊松参考 '+rows.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null).length+'场 · 正式已评测 '+formalGoals.length+'场 · 参考已评测 '+referenceGoals.length+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
     function render(){closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile'||(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday()));if(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday())){renderMemberRequired();return}if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
@@ -2593,6 +2599,7 @@
     let syncInFlight=false;
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&authSession?.access_token){refreshAuthSession().then(()=>refreshPublishedData()).catch(e=>console.warn('会话续期暂不可用',e))}});
     setInterval(()=>{if(!document.hidden&&authSession?.access_token){refreshAuthSession().then(()=>refreshPublishedData()).catch(e=>console.warn('会话续期暂不可用',e))}},300000);
+    setInterval(()=>{if(!document.hidden&&authSession?.access_token)refreshPublishedData().catch(e=>console.warn('赛前数据同步暂不可用',e))},120000);
     async function refreshPublishedData(){
       if(syncInFlight||!state.selectedDate||state.selectedDate===state.futureDate)return;
       syncInFlight=true;
