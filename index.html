@@ -472,6 +472,22 @@
   .profile-page .profile-changelog-entry{display:flex;align-items:baseline;gap:10px;padding:6px 0;border-top:1px solid #edf0ed}
   .profile-page .profile-changelog-entry span{flex:none;font-size:11px;font-weight:650;color:#648071}
   .profile-page .profile-changelog-entry p{margin:0;font-size:12px;line-height:1.55;color:#4d5d54}
+
+  /* Unauthenticated entry: registration first; retain existing Auth / CAPTCHA flows. */
+  #loginGate{width:min(420px,calc(100% - 28px));box-sizing:border-box}
+  #loginGate h2{font-size:clamp(21px,6vw,25px);line-height:1.4;margin:0 0 12px}
+  #loginGate>p{font-size:13px;line-height:1.7;color:#656a70}
+  #loginGate .auth-main-actions{display:grid;gap:10px;margin-top:12px}
+  #loginGate .auth-main-actions button{width:100%;margin:0;min-height:47px;padding:11px 12px;font-size:15px;font-weight:700}
+  #loginGate .auth-main-actions .auth-action-register{background:#24704e;color:#fff}
+  #loginGate .auth-main-actions .auth-action-login{background:#fff;border:1px solid #a9b9af;color:#315747}
+  #loginGate .auth-main-actions button:disabled{opacity:.6}
+  #loginGate .auth-help-details{border-top:1px solid #eceeed;margin-top:16px;padding-top:12px;font-size:13px}
+  #loginGate .auth-help-details summary{cursor:pointer;color:#65756c;line-height:1.6;list-style:none}
+  #loginGate .auth-help-details summary::-webkit-details-marker{display:none}
+  #loginGate .auth-help-details summary:after{content:'⌄';float:right;color:#86958a}
+  #loginGate .auth-help-details[open] summary:after{content:'⌃'}
+  #loginGate .auth-help-details button{display:block;width:100%;background:#f0f3f1;border:1px solid #d7ded9;color:#405e4d;min-height:40px;margin:10px 0 0;font-size:12px;line-height:1.5}
   </style>
 </head>
 <body>
@@ -697,7 +713,7 @@
       location.reload();
     }
 
-    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(memberPanel());const settings=el('div','member-account');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(type==='注册'?{data:{invite_code:savedInvite()}}:{})});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回九十刻度。'}catch(e){msg.textContent=e.message}};for(const name of ['登录','注册']){const b=el('button','',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
+    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(memberPanel());const settings=el('div','member-account');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,pass,rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(type==='注册'?{data:{invite_code:savedInvite()}}:{})});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回九十刻度。'}catch(e){msg.textContent=e.message}};for(const name of ['注册','登录']){const b=el('button',name==='注册'?'':'secondary',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
     async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id}),signal:AbortSignal.timeout(6000)});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
     authSession=storedAuth();initVisits();
     async function recoverEmailConfirmationRedirect(){
@@ -890,13 +906,13 @@
     function showLoginGate(message=''){
       document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';
       let gate=document.getElementById('loginGate');
-      if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:10vh auto;padding:25px';document.body.append(gate)}
+      if(!gate){gate=document.createElement('div');gate.id='loginGate';gate.className='account-panel';gate.style='max-width:420px;margin:7vh auto;padding:25px';document.body.append(gate)}
       gate.replaceChildren();
-      const h=document.createElement('h2');h.textContent='九十刻度 · 会员登录';
-      const note=document.createElement('p');note.textContent='使用邮箱和密码注册或登录；注册时可填写好友邀请码。邀请奖励由平台核验后发放。';
+      const h=document.createElement('h2');h.textContent='九十刻度 · 账号注册';
+      const note=document.createElement('p');note.textContent='新用户填写邮箱和密码即可注册，邀请码选填；已有账号可直接登录。';
       gate.append(h,note);
       const email=document.createElement('input'),pass=document.createElement('input'),msg=document.createElement('p');
-      email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';
+      email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='new-password';pass.placeholder='密码（至少6位）';
       const rememberLabel=document.createElement('label'),remember=document.createElement('input');
       rememberLabel.className='auth-remember';remember.type='checkbox';remember.checked=true;
       rememberLabel.append(remember,document.createTextNode('在此设备保持登录（共用设备请取消）'));
@@ -917,11 +933,15 @@
       const takeToken=()=>{if(!captchaToken)throw Error('请先完成安全验证');return captchaToken};
       const resetCaptcha=()=>{captchaToken='';if(captchaWidget!==null&&window.turnstile)try{window.turnstile.reset(captchaWidget)}catch{}};
       const saveSession=data=>{const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器无法保存登录状态，下次可能需要重新登录';location.reload()};
-      for(const mode of ['登录','注册']){
-        const btn=document.createElement('button');btn.textContent=mode;
+      const mainActions=document.createElement('div');mainActions.className='auth-main-actions';
+      for(const mode of ['注册','登录']){
+        const btn=document.createElement('button');btn.textContent=mode==='注册'?'注册新账号':'已有账号 · 登录';
+        btn.className=mode==='注册'?'auth-action-register':'auth-action-login';
+        btn.type='button';
         btn.onclick=async()=>{
           if(!email.value.trim()||!pass.value){msg.textContent='请填写邮箱和密码';return}
           if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}
+          if(mode==='注册'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())){msg.textContent='请填写有效的邮箱地址，例如 name@example.com';return}
           const inviteCode=invite.value.trim().toUpperCase();
           if(mode==='注册'&&inviteCode&&!/^[A-F0-9]{10}$/.test(inviteCode)){msg.textContent='请输入10位有效邀请码，或留空';return}
           let token;try{token=takeToken()}catch(e){msg.textContent=e.message;return}
@@ -933,10 +953,14 @@
               ...(mode==='注册'?{data:{invite_code:inviteCode}}:{})
             });
             if(data.access_token&&data.user)saveSession(data);
-            else msg.textContent='注册请求已提交；如仍提示验证邮箱，说明后台免验证注册尚未启用。';
+            else msg.textContent='注册申请已提交；若提示验证邮箱，请查看收件箱及垃圾邮件中的最新验证邮件。';
           }catch(e){msg.textContent=e.message}finally{resetCaptcha();btn.disabled=false}
-        };gate.append(btn);
+        };mainActions.append(btn);
       }
+      gate.append(mainActions);
+      const accountHelp=document.createElement('details');accountHelp.className='auth-help-details';
+      const helpTitle=document.createElement('summary');helpTitle.textContent='忘记密码或收不到验证邮件？';
+      accountHelp.append(helpTitle);
       const recover=document.createElement('button');recover.textContent='忘记密码（需邮件）';
       recover.onclick=async()=>{
         if(!email.value.trim()){msg.textContent='请先填写邮箱';return}
@@ -944,7 +968,7 @@
         recover.disabled=true;
         try{await authRequest('recover',{email:email.value.trim(),captcha_token:token});msg.textContent='已请求发送密码重置邮件；是否送达取决于邮件服务'}
         catch(e){msg.textContent=e.message}finally{resetCaptcha();recover.disabled=false}
-      };gate.append(recover);
+      };accountHelp.append(recover);
       const resend=document.createElement('button');resend.textContent='重新发送邮箱验证邮件';
       resend.onclick=async()=>{
         const address=email.value.trim();if(!/^[^@ ]+@[^@ ]+[.][^@ ]+$/.test(address)){msg.textContent='请先填写注册时使用的邮箱';return}
@@ -954,7 +978,7 @@
           msg.textContent='已提交重发请求。请检查收件箱与垃圾邮件；是否送达取决于邮件服务。';
         }catch(e){msg.textContent='重发暂未成功：'+e.message}finally{resetCaptcha();resend.disabled=false}
       };
-      gate.append(resend);
+      accountHelp.append(resend);gate.append(accountHelp);
     }
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null};
     window.sorenGoInvite=()=>{
