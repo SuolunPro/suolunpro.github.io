@@ -27,7 +27,7 @@ async function fetchForecast(lat:number,lon:number,kickoff:string,nowMs:number){
  if(nowMs>=stamp(kickoff))return null;
  return {temperature_c:t,humidity_pct:hu,precipitation_probability_pct:p,wind_speed_kmh:w,
    forecast_time:new Date(stamp(kickoff.slice(0,13)+":00Z")).toISOString(),forecast_fetched_at:new Date(nowMs).toISOString(),
-   weather_source:"Open-Meteo hourly forecast at verified FotMob stadium coordinates"};
+   weather_source:"Open-Meteo hourly forecast at independently verified stadium coordinates"};
 }
 Deno.serve(async req=>{
  if(req.method!=="POST")return Response.json({ok:false,error:"METHOD_NOT_ALLOWED"},{status:405});
@@ -51,18 +51,39 @@ Deno.serve(async req=>{
   const list=matches??[];
   if(!list.length)return Response.json({ok:true,mode:backfill?"backfill":"live",checked:0,cached:0,venueOnly:0,weather:0});
   const ids=list.map(m=>Number(m.id));
-  const [{data:maps,error:mapError},{data:env,error:envError},{data:context,error:ctxError}]=await Promise.all([
+  const [{data:maps,error:mapError},{data:env,error:envError},{data:context,error:ctxError},{data:venueEvidence,error:venueEvidenceError}]=await Promise.all([
     db.from("soren_environment_fixture_map_v1").select("match_id,fotmob_match_id,mapping_quality,home_team_id,away_team_id").in("match_id",ids),
     db.from("soren_environment_cache_v1").select("*").in("match_id",ids).order("created_at",{ascending:false}).limit(250),
-    db.from("soren_feature_snapshots").select("match_id,payload,captured_at").in("match_id",ids).eq("feature_type","FOTMOB_CONTEXT").order("captured_at",{ascending:false}).limit(80)
+    db.from("soren_feature_snapshots").select("match_id,payload,captured_at").in("match_id",ids).eq("feature_type","FOTMOB_CONTEXT").order("captured_at",{ascending:false}).limit(80),
+    db.from("soren_environment_venue_evidence_v1").select("*").in("match_id",ids)
   ]);
-  if(mapError||envError||ctxError)throw mapError||envError||ctxError;
+  if(mapError||envError||ctxError||venueEvidenceError)throw mapError||envError||ctxError||venueEvidenceError;
   const mapping=new Map<number,any>((maps??[]).map(m=>[Number(m.match_id),m]));
   const existing=new Map<number,any>();
   for(const e of env??[])if(!existing.has(Number(e.match_id))&&e.venue_name)existing.set(Number(e.match_id),e);
   const contexts=new Map<number,any>();
   for(const c of context??[])if(!contexts.has(Number(c.match_id))&&c.payload?.fotmob_match_id)
     contexts.set(Number(c.match_id),c.payload);
+  // Match-specific venue evidence is never inferred from a team's usual stadium.
+  const venueEvidenceMap=new Map<number,any>((venueEvidence??[]).map(e=>[Number(e.match_id),e]));
+  const verifiedVenue=(m:any)=>{
+    const e=venueEvidenceMap.get(Number(m.id));
+    if(!e||String(e.pool_date)!==String(m.pool_date)||
+      String(e.match_no).padStart(3,"0")!==String(m.match_no).padStart(3,"0")||
+      e.home_team!==m.home_team||e.away_team!==m.away_team||
+      !Number.isFinite(stamp(e.kickoff_at))||
+      Math.abs(stamp(e.kickoff_at)-stamp(m.kickoff_at))>300000||
+      typeof e.venue_name!=="string"||!e.venue_name.trim()||
+      typeof e.fixture_source!=="string"||!e.fixture_source.startsWith("https://"))return null;
+    const lat=finite(e.venue_lat),lon=finite(e.venue_lon);
+    const coords=lat!==null&&lon!==null&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180&&
+      typeof e.coordinates_source==="string"&&e.coordinates_source.startsWith("https://");
+    return {name:e.venue_name,city:e.venue_city,country:e.venue_country,
+      lat:coords?lat:null,long:coords?lon:null,
+      surface:typeof e.turf_source==="string"&&e.turf_source.startsWith("https://")?e.pitch_surface:null,
+      venue_source:"Verified fixture venue "+e.fixture_source+"; turf "+(e.turf_source??"unverified")+
+        "; coordinates "+(e.coordinates_source??"unverified")};
+  };
   const teams=[...new Set(list.flatMap(m=>[m.home_team,m.away_team]))];
   const {data:aliases,error:aliasError}=await db.from("soren_team_alias_fotmob").select("jc_team,fotmob_team_id,fotmob_team").in("jc_team",teams);
   if(aliasError)throw aliasError;
@@ -137,10 +158,11 @@ Deno.serve(async req=>{
    // coordinates. Re-downloading the identical venue every check cannot add
    // a defensible weather forecast for that fixture.
    if(old?.venue_name&&old.venue_source&&
-      (finite(old.venue_lat)===null||finite(old.venue_lon)===null)){
+      (finite(old.venue_lat)===null||finite(old.venue_lon)===null)&&!verifiedVenue(m)){
      cached++;record("venue_cached_coordinates_unverified");continue;
    }
-   if(budget<=0){skipped++;record("budget_limited");continue}
+   const fallbackVenue=verifiedVenue(m);
+   if(budget<=0&&!fallbackVenue){skipped++;record("budget_limited");continue}
    const homeId=alias(String(m.home_team)),awayId=alias(String(m.away_team));
    const mapped=mapping.get(id),ctx=contexts.get(id);
    let fixtureId=finite(mapped?.fotmob_match_id)||finite(ctx?.fotmob_match_id)||
@@ -155,10 +177,21 @@ Deno.serve(async req=>{
     }catch{record("fixture_lookup_failed")}
    }
    if(!fixtureId){skipped++;record("fixture_unmatched");continue}
-   let stadium:any,matchJson:any;
+   let stadium:any,matchJson:any,venueSource:string|null=null;
    if(old?.venue_name&&old.venue_source){
      stadium={name:old.venue_name,city:old.venue_city,country:old.venue_country,
        lat:old.venue_lat,long:old.venue_lon,surface:old.pitch_surface};
+     venueSource=old.venue_source;
+     if(fallbackVenue&&old.venue_name.trim().toLowerCase()===fallbackVenue.name.trim().toLowerCase()){
+       stadium.surface=stadium.surface??fallbackVenue.surface;
+       stadium.lat=stadium.lat??fallbackVenue.lat;
+       stadium.long=stadium.long??fallbackVenue.long;
+       venueSource+="; additional verified evidence "+fallbackVenue.venue_source;
+     }
+   }else if(fallbackVenue){
+     stadium=fallbackVenue;
+     venueSource=fallbackVenue.venue_source;
+     record("venue_from_verified_fixture_source");
    }else{
     if(budget<=0){skipped++;record("budget_limited");continue}
     budget--;
@@ -180,6 +213,7 @@ Deno.serve(async req=>{
         mapping_quality:"fixture_id_time_orientation_verified"},{onConflict:"match_id"});
     if(fixtureMapError)record("fixture_map_write_failed",fixtureMapError.code);
     stadium=matchJson?.content?.matchFacts?.infoBox?.Stadium;
+    if(stadium?.name)venueSource="FotMob matchDetails verified fixture "+fixtureId;
    }
    const lat=finite(stadium?.lat),lon=finite(stadium?.long);
    // The venue name is match-specific FotMob evidence; coordinates are separately
@@ -206,7 +240,7 @@ Deno.serve(async req=>{
     precipitation_probability_pct:forecast?.precipitation_probability_pct??null,
     wind_speed_kmh:forecast?.wind_speed_kmh??null,
     forecast_time:forecast?.forecast_time??null,forecast_fetched_at:forecast?.forecast_fetched_at??null,
-    venue_source:"FotMob matchDetails verified fixture "+fixtureId,
+    venue_source:venueSource??"FotMob matchDetails verified fixture "+fixtureId,
     weather_source:forecast?.weather_source??null,
     quality:forecast?"EXACT_STADIUM_FORECAST":venueVerifiedPre?"VERIFIED_STADIUM_PREMATCH":"VERIFIED_STADIUM_POSTMATCH",
     prematch_verified:!!forecast||venueVerifiedPre,
