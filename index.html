@@ -1349,7 +1349,7 @@
       const c=el('article','card');
       const head=el('div','card-head');
       const id=el('div','match-id');id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-      if(state.model==='daily')id.append(el('span','focus-label','重点观察'));if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',row.handicapSourceLabel));head.append(id,el('span',statusClass(row,history),statusText(row,history)));
+      if(state.model==='daily')id.append(el('span','focus-label','重点观察'));if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',String(row.handicapSourceLabel).includes('Top5新方案赛前冻结')?'赛前预测':row.handicapSourceLabel));head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
       const settled=verified(row),outcome=safe(resultName[row.result]||row.result),score=el('div','score',settled?(hasScore(row)?scoreline(row):'比分待核验'):'VS');score.append(el('span','',settled?(hasScore(row)?outcome+' · 正式赛果':'比分待核验'):row.matchStatus==='POSTPONED'?'比赛延期':'官方让球 '+(row.officialHandicap==null?'待确认':String(row.officialHandicap))));
