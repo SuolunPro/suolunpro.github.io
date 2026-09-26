@@ -804,7 +804,11 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         ?row.upsetWarning as Record<string,unknown>:null;
       if(!raw||row.pregameVerified!==true)return row;
       const sourcePublish=raw.publish===true;
-      if(!sourcePublish)return row;
+      const rawScore=riskNum(raw.riskScore??raw.risk_score);
+      // Preserve meaningful broad-risk records in the detail page even when they
+      // do not qualify for a highlighted focus strip. Low-signal (0–2) rows stay quiet.
+      const generalCandidate=sourcePublish||(rawScore!==null&&rawScore>=3);
+      if(!generalCandidate)return row;
       const no=String(row.no??"").padStart(3,"0"),match=matchByNo.get(no);
       if(!match)return row;
       const freezeAt=String(raw.prematchAt??raw.prematch_at??row.frozenAt??"");
@@ -874,10 +878,13 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
     return rows.map(row=>{
       const raw=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
         ?row.upsetWarning as Record<string,unknown>:null;
-      if(!raw||raw.publish!==true||row.pregameVerified!==true)return row;
+      if(!raw||row.pregameVerified!==true)return row;
+      const sourcePublish=raw.publish===true,rawScore=riskNum(raw.riskScore??raw.risk_score);
+      const generalCandidate=sourcePublish||(rawScore!==null&&rawScore>=3);
+      if(!generalCandidate)return row;
       const top=riskPick(raw.originalTop1??raw.original_top1??row.ftTop1),second=riskPick(row.second);
       const opposite=!!(top&&second&&["H","A"].includes(top)&&["H","A"].includes(second)&&top!==second);
-      return {...row,upsetWarning:{...raw,sourcePublish:true,publish:opposite,detailOnly:!opposite,
+      return {...row,upsetWarning:{...raw,sourcePublish,publish:opposite,detailOnly:!opposite,
         displayTier:opposite?"重点风险":"一般风险",
         focusGate:{opposite_second:opposite,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.1.0-FALLBACK"},
         marketSignals:[]}};
