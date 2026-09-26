@@ -2517,7 +2517,7 @@
     // Show only the warning tied to this match's verified pre-kickoff record.
     // Never infer a directional warning from the original Top1 or from final results.
     function detailUpsetWarningPanel(row){
-      const panel=reportSection('冷门预警 · 赛前数据迹象');
+      const panel=reportSection('风险观察 · 赛前数据迹象');
       panel.classList.add('report-detail-upset');
       const raw=row.upsetWarning??row.upset_warning;
       const eligible=raw&&typeof raw==='object'&&row.pregameVerified===true;
@@ -2531,39 +2531,63 @@
         raw?.hurDirectionUsed!==true&&raw?.hur_direction_used!==true;
       if(!eligible||!timeValid||!sameOriginal||!sourceClean){
         panel.classList.add('report-detail-upset-empty');
-        panel.append(el('p','report-sub','本场暂无可核验的赛前冷门预警；不代表比赛没有风险。'));
+        panel.append(el('p','report-sub','本场暂无可核验的赛前风险记录；不代表比赛没有风险。'));
         return panel;
       }
       const level=String(raw.riskLevel??raw.risk_level??'未确认');
-      if(!['中','高'].includes(level)||raw.publish!==true){
+      const detailOnly=raw.detailOnly===true||raw.detail_only===true;
+      const published=raw.publish===true;
+      if(!published&&!detailOnly){
         panel.classList.add('report-detail-upset-empty');
-        const note=level==='低'?'本场未达到中高等级预警条件；不代表没有风险。':'本场尚未发布已核验的中高等级预警。';
+        const note=level==='低'?'本场未达到重点风险门槛；不代表没有风险。':'本场暂无已核验的重点风险记录。';
         panel.append(el('p','report-sub',note));
         return panel;
       }
+      const tier=published?String(raw.displayTier??raw.display_tier??(level==='高'?'强风险信号':'重点风险')):'一般风险';
       const score=raw.riskScore??raw.risk_score;
       const numericScore=score!==null&&score!==undefined&&score!==''&&Number.isFinite(Number(score))?Number(score):null;
       const risk=el('div','report-detail-upset-status');
-      risk.append(el('b','','赛前关注级别：'+level));
+      risk.append(el('b','',tier));
       if(numericScore!==null)risk.append(el('span','','数据分值 '+numericScore.toFixed(1)));
-      risk.append(metricHelp('风险数据分值','分值用于归纳赛前已核验的风险迹象；分值越高表示触发的风险信号越明显。它不是胜率或准确率，预警方向也需要独立证据支持。'));
+      risk.append(metricHelp('风险数据分值','分值用于归纳赛前已核验的风险迹象；分值越高表示触发的风险信号越明显。它不是胜率或准确率，也不保证实际赛果。'));
       panel.append(risk);
-      reportLine(panel,'预警针对的原始首选',String(original));
+      reportLine(panel,'赛前原始首选',String(original));
+      const gate=(raw.focusGate&&typeof raw.focusGate==='object')?raw.focusGate:
+        (raw.focus_gate&&typeof raw.focus_gate==='object'?raw.focus_gate:null);
+      const gateReasons=[];
+      if(gate?.opposite_second===true)gateReasons.push('首选与次选形成主/客胜方向分歧');
+      if(gate?.qualified_draw===true){
+        const p=Number(raw.independentDrawProbability??raw.independent_draw_probability);
+        gateReasons.push(Number.isFinite(p)?'独立进球模型提示平局风险 '+(p*100).toFixed(1)+'%':'独立进球模型提示平局风险');
+      }
+      const marketSignals=Array.isArray(raw.marketSignals)?raw.marketSignals:
+        (Array.isArray(raw.market_signals)?raw.market_signals:[]);
+      if(gate?.market_anomaly===true){
+        if(marketSignals.length)gateReasons.push(...marketSignals.map(x=>'市场变化：'+String(x)));
+        else gateReasons.push('市场出现反向变化');
+      }
+      if(detailOnly)reportLine(panel,'当前层级','一般风险，仅保留详情分析，不在比赛卡片突出显示');
+      else if(gateReasons.length)reportLine(panel,'重点依据',gateReasons.join('；'));
       const rawDirection=String(raw.warningDirection??raw.warning_direction??'').trim();
       const actualDirection=({'主队不胜':'客队不败','客队不胜':'主队不败'}[rawDirection]??rawDirection);
-      if(['主队不败','客队不败'].includes(actualDirection))
-        reportLine(panel,'预警方向',actualDirection);
-      else reportLine(panel,'预警方向','尚未确认，不反推具体方向');
+      if(published&&['主队不败','客队不败'].includes(actualDirection))
+        reportLine(panel,'风险方向',actualDirection);
+      else if(published&&gate?.qualified_draw===true)
+        reportLine(panel,'风险方向','平局风险');
+      else if(published)
+        reportLine(panel,'风险方向','首选失手风险，不强行反推具体赛果');
       const reasons=Array.isArray(raw.riskBasis)?raw.riskBasis:Array.isArray(raw.risk_basis)?raw.risk_basis:[];
       const verifiedReasons=reasons.filter(x=>typeof x==='string'&&x.trim()).slice(0,6);
       if(verifiedReasons.length){
         const details=el('details','report-detail-upset-evidence');
-        details.append(el('summary','','查看赛前预警依据'));
+        details.append(el('summary','','查看赛前风险依据'));
         for(const reason of verifiedReasons)details.append(el('p','report-sub',String(reason)));
         panel.append(details);
       }else panel.append(el('p','report-sub','本场暂无可展示的详细风险依据。'));
       const warningAudit=el('details','report-inline-help');
-      warningAudit.append(el('summary','','记录时间与数据说明'),el('p','report-sub','预警记录于 '+fmtStamp(freezeAt)+'；仅展示赛前冻结内容，不根据赛果补写。'));
+      warningAudit.append(el('summary','','记录时间与数据说明'),
+        el('p','report-sub','风险记录于 '+fmtStamp(freezeAt)+'；仅使用赛前冻结资料，不根据赛果补写。'),
+        el('p','report-sub','重点风险由胜负方向分歧或合格独立进球模型防平通道触发；强风险信号需在此基础上再出现可核验的市场反向变化。'));
       panel.append(warningAudit);
       return panel;
     }
