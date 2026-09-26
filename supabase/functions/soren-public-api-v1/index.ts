@@ -15,6 +15,18 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string):Promis
   if(date<"2026-09-23")return rows; // historic data predating deployment: do not relabel as sale-verified.
   const {data,error}=await db.rpc("soren_capture_sale_snapshots_v1",{p_date:date,p_rows:rows});
   if(error||!Array.isArray(data))throw new Error("SALE_FREEZE_UNAVAILABLE:"+String(error?.message??"INVALID_RESPONSE"));
+  // Save immutable, time-verified model versions before each fixture's kickoff/cutoff.
+  const {error:captureError}=await db.rpc("soren_capture_prematch_updates_v1",{p_date:date,p_rows:rows});
+  if(captureError)throw new Error("PREMATCH_CAPTURE_UNAVAILABLE:"+String(captureError.message));
+  const {data:updates,error:updatesError}=await db.from("soren_prematch_updates_v1")
+    .select("match_no,source_frozen_at,captured_at,snapshot").eq("pool_date",date)
+    .order("source_frozen_at",{ascending:false}).limit(2500);
+  if(updatesError)throw new Error("PREMATCH_ARCHIVE_UNAVAILABLE:"+String(updatesError.message));
+  const latestByNo=new Map<string,Record<string,unknown>>();
+  for(const entry of updates??[]){
+    const key=String(entry.match_no??"").padStart(3,"0");
+    if(!latestByNo.has(key))latestByNo.set(key,entry as Record<string,unknown>);
+  }
   const byNo=new Map(data.map((x:Record<string,unknown>)=>[String(x.no??""),x]));
   const pick=(v:unknown)=>({"主胜":"H","平":"D","客胜":"A","3":"H","1":"D","0":"A","H":"H","D":"D","A":"A"}[String(v??"")]??null);
   return rows.map(row=>{
@@ -43,6 +55,45 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string):Promis
       output.saleFreezeCapturedAt=freeze?.capturedAt??null;
       output.saleFreezeLockedAt=freeze?.lockedAt??null;
       output.saleCutoffAt=freeze?.cutoffAt??null;
+      // Serve exactly one latest VERIFIED pre-kickoff snapshot; historical
+      // official sale-time records in soren_sale_freezes_v1 remain untouched.
+      const stored=latestByNo.get(String(row.no??"").padStart(3,"0"));
+      const candidate=stored?.snapshot as Record<string,unknown>|undefined;
+      const sourceAt=Date.parse(String(stored?.source_frozen_at??""));
+      const capturedAt=Date.parse(String(stored?.captured_at??""));
+      const kick=Date.parse(String(original.kickoff??""));
+      const originalAt=Date.parse(String(original.frozenAt??""));
+      const candidateKick=Date.parse(String(candidate?.kickoff??""));
+      if(candidate&&candidate.pregameVerified===true&&
+         Number.isFinite(sourceAt)&&Number.isFinite(capturedAt)&&Number.isFinite(kick)&&
+         Number.isFinite(originalAt)&&Number.isFinite(candidateKick)&&
+         sourceAt>originalAt&&sourceAt<kick&&capturedAt<kick&&
+         Math.abs(kick-candidateKick)<120000&&
+         String(candidate.home??"")===String(original.home??"")&&
+         String(candidate.away??"")===String(original.away??"")&&
+         String(candidate.date??"")===String(original.date??"")&&
+         [candidate.homeProbability,candidate.drawProbability,candidate.awayProbability]
+           .every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v))&&Number(v)>=0&&Number(v)<=100)){
+        const newest:Record<string,unknown>={...candidate};
+        for(const key of mutable)if(Object.prototype.hasOwnProperty.call(row,key))newest[key]=row[key];
+        if(newest.resultVerified===true){
+          const actual=pick(newest.result);
+          const first=pick(candidate.ftTop1),second=pick(candidate.second);
+          newest.top1Hit=actual!==null&&first===actual;
+          newest.coverageHit=actual!==null&&(first===actual||second===actual);
+          const hp=String(candidate.handicapTop1??candidate.handicap??"");
+          newest.handicapHit=["让胜","让平","让负"].includes(String(newest.handicapResult??""))
+            ?hp===String(newest.handicapResult):null;
+        }else{newest.top1Hit=null;newest.coverageHit=null;newest.handicapHit=null;}
+        newest.predictionView="LATEST_PREMATCH_ONLY";
+        newest.prematchLastCapturedAt=stored?.captured_at??null;
+        newest.originalFormalFrozenAt=original.frozenAt;
+        newest.saleFreezeStatus=freeze?.status??"UNKNOWN";
+        newest.saleFreezeCapturedAt=freeze?.capturedAt??null;
+        newest.saleFreezeLockedAt=freeze?.lockedAt??null;
+        newest.saleCutoffAt=freeze?.cutoffAt??null;
+        return settlePublishedScoreTop4(newest);
+      }
       return settlePublishedScoreTop4(output);
     }
     // Show an unpublished placeholder while the fixture is still upcoming; do not
@@ -62,6 +113,228 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string):Promis
       awayPct:null,saleFreezeStatus:String(freeze?.status??"UNVERIFIED"),
       saleCutoffAt:freeze?.cutoffAt??null};
   });
+}
+
+
+/* Independent, immutable, pre-kickoff market-anchored Poisson reference.
+   Never overwrite formal scoreTop4, goalPrediction or the sale freeze. */
+async function attachLiveScoreGoals(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
+ if(date<"2026-09-25")return rows;
+ const {data,error}=await db.from("soren_live_score_goals_v1")
+   .select("id,match_no,market_at,base_frozen_at,computed_at,lambda_home,lambda_away,scores,input_manifest")
+   .eq("pool_date",date).order("computed_at",{ascending:false}).limit(1200);
+ if(error){console.error("LIVE_SCORE_GOALS_UNAVAILABLE",error);return rows;}
+ const newest=new Map<string,Record<string,unknown>>();
+ for(const x of data??[]){
+   const key=String(x.match_no??"").padStart(3,"0");
+   if(!newest.has(key))newest.set(key,x as Record<string,unknown>);
+ }
+ return rows.map(row=>{
+   if(row.pregameVerified!==true)return row;
+   const x=newest.get(String(row.no??"").padStart(3,"0"));
+   if(!x)return row;
+   const kickoff=Date.parse(String(row.kickoff??""));
+   const calc=Date.parse(String(x.computed_at??""));
+   const source=Date.parse(String(x.market_at??""));
+   const base=Date.parse(String(x.base_frozen_at??""));
+   const lh=Number(x.lambda_home),la=Number(x.lambda_away);
+   const scores=x.scores;
+   if(!Number.isFinite(kickoff)||!Number.isFinite(calc)||!Number.isFinite(source)||
+      !Number.isFinite(base)||calc>=kickoff||source>calc||source<base||
+      !Number.isFinite(lh)||!Number.isFinite(la)||lh<0.2||la<0.2||
+      lh>3.8||la>3.8||!Array.isArray(scores)||scores.length!==4||
+      scores.some(p=>!p||!String(p.score??"").split("-").every(v=>v!==""&&Number.isInteger(Number(v))&&Number(v)>=0&&Number(v)<=8)||
+        !Number.isFinite(Number(p.baseProbability))||
+        Number(p.baseProbability)<0||Number(p.baseProbability)>1))return row;
+   // These two references use one source record, so their lambdas and version timestamps match.
+   const actual=row.resultVerified===true&&Number.isInteger(Number(row.resultHome))&&
+     Number.isInteger(Number(row.resultAway))?
+       String(row.resultHome)+"-"+String(row.resultAway):null;
+   const referenceHit=actual!==null&&scores.some(p=>String(p.score)===actual);
+   const dynamicScoreTop4={
+     pregameVerified:true,formalEligible:false,
+     sourceKind:"MARKET_ANCHORED_POISSON_SHADOW_V01",
+     sourceLiveScoreId:x.id,
+     frozenAt:x.computed_at,marketAt:x.market_at,
+     baselineAt:x.base_frozen_at,lambdaHome:lh,lambdaAway:la,
+     picks:scores,settlementStatus:actual===null?"PENDING":referenceHit?"SUCCESS":"FAILURE",
+     hitScore:referenceHit?actual:null,inputManifest:x.input_manifest
+   };
+   const dynamicGoalPrediction={
+     pregameVerified:true,formalEligible:false,
+     sourceKind:"MARKET_ANCHORED_POISSON_SHADOW_V01",
+     sourceLiveScoreId:x.id,
+     frozenAt:x.computed_at,marketAt:x.market_at,
+     lambdaHome:lh,lambdaAway:la,
+     source:"原冻结进球参数与威廉希尔欧赔条件胜率校准的赛前动态研究参考；尚未通过历史验证"
+   };
+   return {...row,dynamicScoreTop4,dynamicGoalPrediction};
+ });
+}
+
+/* Match half/full-time reference to the exact same immutable Poisson+score
+   version. Avoid mixing an older HTFT forecast with a newer score distribution. */
+async function attachLiveHTFT(rows:Record<string,unknown>[],date:string,verifiedResults:Map<string,Record<string,unknown>>):Promise<Record<string,unknown>[]>{
+ if(date<"2026-09-25")return rows;
+ const {data,error}=await db.from("soren_live_htft_v1")
+   .select("match_no,source_live_score_id,source_frozen_at,computed_at,lambda_home,lambda_away,picks,top4_probability,ht_draw_probability,low_goal_draw_audit,method_version")
+   .eq("pool_date",date).order("source_frozen_at",{ascending:false}).limit(1200);
+ if(error){console.error("LIVE_HTFT_UNAVAILABLE",error);return rows;}
+ const byScoreId=new Map<string,Record<string,unknown>>();
+ for(const item of data??[])byScoreId.set(String(item.source_live_score_id),item as Record<string,unknown>);
+ return rows.map(row=>{
+   const score=row.dynamicScoreTop4 as Record<string,unknown>|undefined;
+   if(!score||row.pregameVerified!==true)return row;
+   const matching=byScoreId.get(String(score.sourceLiveScoreId??""));
+   const kickoff=Date.parse(String(row.kickoff??""));
+   if(!matching||String(matching.match_no??"").padStart(3,"0")!==String(row.no??"").padStart(3,"0"))
+     // Never generate an unrecorded dynamic forecast after kickoff: show the
+     // original genuine prematch publication, rather than a permanent loading state.
+     return Date.now()>=kickoff?row:{...row,dynamicHTFTPending:true};
+   const source=Date.parse(String(matching.source_frozen_at??""));
+   const calc=Date.parse(String(matching.computed_at??""));
+   const scoreAt=Date.parse(String(score.frozenAt??""));
+   const lh=Number(matching.lambda_home),la=Number(matching.lambda_away);
+   const picks=matching.picks;
+   if(!Number.isFinite(kickoff)||!Number.isFinite(source)||!Number.isFinite(calc)||
+     source>=kickoff||calc>=kickoff||source!==scoreAt||source>calc||
+     !Number.isFinite(lh)||!Number.isFinite(la)||
+     Math.abs(lh-Number(score.lambdaHome))>0.000001||
+     Math.abs(la-Number(score.lambdaAway))>0.000001||
+     !Array.isArray(picks)||picks.length!==4||picks.some(x=>!x||
+       !["胜胜","胜平","胜负","平胜","平平","平负","负胜","负平","负负"].includes(String(x.direction))||
+       !Number.isFinite(Number(x.probability))||Number(x.probability)<0||Number(x.probability)>1))
+     return {...row,dynamicHTFTPending:true};
+   // Result data are read independently and ONLY after the four prematch picks passed
+   // their timestamp, provenance and probability checks above. Never rewrite any pick.
+   const verified=verifiedResults.get(String(row.no??"").padStart(3,"0"));
+   let actual:string|null=null,halfScore:string|null=null;
+   let settlementStatus="PENDING";
+   if(row.resultVerified===true&&verified?.verified===true&&
+      verified.home_score!==null&&verified.away_score!==null){
+     settlementStatus="PENDING_HALFTIME_VERIFICATION";
+     const raw=(verified.raw_result as Record<string,unknown>|null)?.score_text;
+     const score=String(raw??"").match(/^\s*(\d+)\s*[:：-]\s*(\d+)\s*\(\s*(\d+)\s*[:：-]\s*(\d+)\s*\)\s*$/);
+     if(score){
+       const [,fh,fa,hh,ha]=score.map(Number);
+       if(fh===Number(verified.home_score)&&fa===Number(verified.away_score)&&
+          hh>=0&&ha>=0&&hh<=fh&&ha<=fa){
+         const dir=(h:number,a:number)=>h>a?"胜":h===a?"平":"负";
+         actual=dir(hh,ha)+dir(fh,fa);halfScore=hh+":"+ha;
+         settlementStatus=picks.some((x:Record<string,unknown>)=>String(x.direction)===actual)?"SUCCESS":"FAILURE";
+       }
+     }
+   }
+   return {...row,dynamicHTFT:{
+     sourceKind:"MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01",formalEligible:false,
+     methodVersion:matching.method_version,
+     sourceLiveScoreId:matching.source_live_score_id,
+     sourceFrozenAt:matching.source_frozen_at,
+     publishedAt:matching.computed_at,
+     picks,top4Probability:matching.top4_probability,
+     htDrawProbability:matching.ht_draw_probability,
+     lowGoalDrawAudit:matching.low_goal_draw_audit===true,
+     settlementStatus,actual,halfScore,
+     lambdaHome:lh,lambdaAway:la
+   }};
+ });
+}
+/* Immutable pre-kickoff half-time/full-time Top4, published from the existing
+   customer-side sale freeze. Independent of later model refresh and results. */
+async function loadPublishedHTFTTop4(date:string){
+  const {data,error}=await db.from("soren_htft_top4_v1")
+    .select("match_id,pool_date,match_no,home_team,away_team,kickoff_at,source_frozen_at,published_at,picks,top4_probability,ht_draw_probability,low_goal_draw_audit,method_version")
+    .eq("pool_date",date);
+  if(error)throw error;
+  return new Map((data??[]).map((v:Record<string,unknown>)=>[String(v.match_no??"").padStart(3,"0"),v]));
+}
+function attachPublishedHTFTTop4(row:Record<string,unknown>,
+  published:Map<string,Record<string,unknown>>,verifiedResults:Map<string,Record<string,unknown>>):Record<string,unknown>{
+  const no=String(row.no??"").padStart(3,"0");
+  const p=published.get(no);
+  if(!p)return {...row,htftTop4:null};
+  const kickoff=Date.parse(String(row.kickoff??""));
+  const originalKickoff=Date.parse(String(p.kickoff_at??""));
+  const source=Date.parse(String(p.source_frozen_at??""));
+  const publication=Date.parse(String(p.published_at??""));
+  const picks=p.picks;
+  if(String(p.home_team)!==String(row.home)||String(p.away_team)!==String(row.away)
+    ||!Number.isFinite(kickoff)||!Number.isFinite(originalKickoff)||Math.abs(kickoff-originalKickoff)>60000
+    ||!Number.isFinite(source)||!Number.isFinite(publication)||source>publication||publication>=kickoff
+    ||!Array.isArray(picks)||picks.length!==4)return {...row,htftTop4:null};
+  const verified=verifiedResults.get(no);
+  let result:string|null=null;
+  let halfScore:string|null=null;
+  let settlementStatus="PENDING";
+  if(verified && row.resultVerified===true && verified.home_score!==null && verified.away_score!==null){
+    const raw=(verified.raw_result as Record<string,unknown>|null)?.score_text;
+    const match=String(raw??"").match(/^\s*(\d+)\s*[:：-]\s*(\d+)\s*\(\s*(\d+)\s*[:：-]\s*(\d+)\s*\)\s*$/);
+    if(match){
+      const [,fh,fa,hh,ha]=match.map(Number);
+      if(fh===Number(verified.home_score)&&fa===Number(verified.away_score)
+        &&hh<=fh&&ha<=fa&&hh>=0&&ha>=0){
+        const direction=(h:number,a:number)=>h>a?"胜":h===a?"平":"负";
+        result=direction(hh,ha)+direction(fh,fa);
+        halfScore=hh+":"+ha;
+        settlementStatus=picks.some((item:Record<string,unknown>)=>String(item.direction)===result)?"SUCCESS":"FAILURE";
+      }else settlementStatus="PENDING_HALFTIME_VERIFICATION";
+    }else settlementStatus="PENDING_HALFTIME_VERIFICATION";
+  }
+  return {...row,htftTop4:{
+    sourceKind:"PUBLISHED_PREMATCH",methodVersion:p.method_version,sourceFrozenAt:p.source_frozen_at,
+    publishedAt:p.published_at,picks,top4Probability:p.top4_probability,
+    htDrawProbability:p.ht_draw_probability,lowGoalDrawAudit:p.low_goal_draw_audit===true,
+    settlementStatus,actual:result,halfScore
+  }};
+}
+
+
+/* Post-kickoff reconstruction is a separate collection and NEVER a published
+   prematch record or an input to the formal Top4 performance metrics. */
+async function loadHistoricalHTFTTop4(date:string){
+  if(date<"2026-09-19"||date>"2026-09-24")return new Map<string,Record<string,unknown>>();
+  const {data,error}=await db.from("soren_htft_top4_history_v1")
+    .select("match_id,pool_date,match_no,home_team,away_team,kickoff_at,source_frozen_at,reconstructed_at,original_source_kind,original_replay_at,picks,top4_probability,ht_draw_probability,low_goal_draw_audit,method_version")
+    .eq("pool_date",date);
+  if(error)throw error;
+  return new Map((data??[]).map((v:Record<string,unknown>)=>[String(v.match_no??"").padStart(3,"0"),v]));
+}
+function attachHistoricalHTFTTop4(row:Record<string,unknown>,
+  historical:Map<string,Record<string,unknown>>,verifiedResults:Map<string,Record<string,unknown>>):Record<string,unknown>{
+  const no=String(row.no??"").padStart(3,"0");
+  const p=historical.get(no);
+  if(!p)return {...row,htftTop4:null};
+  const kickoff=Date.parse(String(row.kickoff??""));
+  const sourceKickoff=Date.parse(String(p.kickoff_at??""));
+  const frozen=Date.parse(String(p.source_frozen_at??""));
+  const computed=Date.parse(String(p.reconstructed_at??""));
+  if(String(p.home_team)!==String(row.home)||String(p.away_team)!==String(row.away)
+    ||!Number.isFinite(kickoff)||!Number.isFinite(sourceKickoff)||Math.abs(kickoff-sourceKickoff)>60000
+    ||!Number.isFinite(frozen)||!Number.isFinite(computed)||frozen>=kickoff||computed<kickoff
+    ||!Array.isArray(p.picks)||p.picks.length!==4)return {...row,htftTop4:null};
+  const verified=verifiedResults.get(no);
+  let actual:string|null=null,halfScore:string|null=null,settlementStatus="PENDING";
+  if(verified?.verified===true && String(verified.home_team)===String(row.home)
+     &&String(verified.away_team)===String(row.away)
+     &&verified.home_score!==null&&verified.away_score!==null){
+    const match=String((verified.raw_result as Record<string,unknown>|null)?.score_text??"")
+      .match(/^\s*(\d+)\s*[:：-]\s*(\d+)\s*\(\s*(\d+)\s*[:：-]\s*(\d+)\s*\)\s*$/);
+    if(match){
+      const [,fh,fa,hh,ha]=match.map(Number);
+      if(fh===Number(verified.home_score)&&fa===Number(verified.away_score)&&hh<=fh&&ha<=fa){
+        const dir=(h:number,a:number)=>h>a?"胜":h===a?"平":"负";
+        actual=dir(hh,ha)+dir(fh,fa);halfScore=hh+":"+ha;
+        settlementStatus=(p.picks as Record<string,unknown>[]).some(x=>String(x.direction)===actual)?"SUCCESS":"FAILURE";
+      }else settlementStatus="PENDING_HALFTIME_VERIFICATION";
+    }else settlementStatus="PENDING_HALFTIME_VERIFICATION";
+  }
+  return {...row,htftTop4:{
+    sourceKind:"HISTORICAL_POSTMATCH_RECONSTRUCTION",originalSourceKind:p.original_source_kind,
+    sourceFrozenAt:p.source_frozen_at,reconstructedAt:p.reconstructed_at,
+    methodVersion:p.method_version,picks:p.picks,top4Probability:p.top4_probability,
+    htDrawProbability:p.ht_draw_probability,lowGoalDrawAudit:p.low_goal_draw_audit===true,
+    settlementStatus,actual,halfScore
+  }};
 }
 
 const TEAM_LOGO_PUBLIC_BASE = Deno.env.get("SUPABASE_URL") + "/storage/v1/object/public/team-logos/";
@@ -148,7 +421,7 @@ async function loadVerifiedResults(date:string){
   const ids=(matches??[]).map((m:Record<string,unknown>)=>Number(m.id)).filter(Number.isFinite);
   if(!ids.length)return out;
   const byId=new Map((matches??[]).map((m:Record<string,unknown>)=>[Number(m.id),m]));
-  const {data:results,error:re}=await db.from("soren_results").select("match_id,home_score,away_score,ft_result,handicap_result,result_source,verified,verified_at").in("match_id",ids).eq("verified",true);
+  const {data:results,error:re}=await db.from("soren_results").select("match_id,home_score,away_score,ft_result,handicap_result,result_source,verified,verified_at,raw_result").in("match_id",ids).eq("verified",true);
   if(re)throw re;
   for(const result of results??[]){
     const match=byId.get(Number(result.match_id));if(!match)continue;
@@ -236,6 +509,25 @@ function settlePublishedScoreTop4(row:Record<string,unknown>){
  return {...row,scoreTop4:updated};
 }
 
+/* A display-only reference from the SAME already-frozen score model inputs.
+   No new prediction, post-result inference, mutation of sale freezes or xG classification. */
+function attachScoreGoalReference(row:Record<string,unknown>):Record<string,unknown> {
+  if(row.pregameVerified===false || row.goalPrediction!==null && row.goalPrediction!==undefined)return row;
+  const score=row.scoreTop4 as Record<string,unknown>|null|undefined;
+  if(!score || score.pregameVerified!==true || !Array.isArray(score.picks) || score.picks.length!==4)return row;
+  const frozenAt=String(score.frozenAt??"");
+  const frozen=Date.parse(frozenAt),kickoff=Date.parse(String(row.kickoff??""));
+  if(!Number.isFinite(frozen)||!Number.isFinite(kickoff)||frozen>=kickoff)return row;
+  if(score.lambdaHome===null||score.lambdaHome===undefined||score.lambdaAway===null||score.lambdaAway===undefined)return row;
+  const home=Number(score.lambdaHome),away=Number(score.lambdaAway);
+  if(!Number.isFinite(home)||!Number.isFinite(away)||home<=0||away<=0||home+away>15)return row;
+  return {...row,goalPrediction:{
+    pregameVerified:true,frozenAt,lambdaHome:home,lambdaAway:away,
+    formalEligible:false,sourceKind:"SCORE_TOP4_FROZEN_LAMBDA_REFERENCE",
+    source:"同场赛前冻结比分模型泊松参数（非严格xG）"
+  }};
+}
+
 async function loadGoalPredictions(date: string) {
   const {data,error}=await db.from("soren_prematch_goals_v1").select("pool_date,match_no,home_team,away_team,kickoff_at,frozen_at,lambda_home,lambda_away").eq("pool_date",date);
   if(error)throw error;
@@ -316,6 +608,15 @@ function attachTeamFormH2h(row:Record<string,unknown>,forms:Map<string,Record<st
  return {...row,teamFormH2h:{verified:true,capturedAt:s.captured_at,home,away,h2h,
   source:"FotMob赛前球队历史比赛与直接交锋",definition:"最近6场独立球队战绩与直接交锋分别统计；非本场预测概率"}};
 }
+function settleTop5Handicap(row:Record<string,unknown>):Record<string,unknown>{
+  if(!String(row.handicapModelVersion??'').startsWith('HJ38-HHAD-TOP5-FT-MKT'))return row;
+  const actual=String(row.handicapResult??'');
+  const known=['让胜','让平','让负'].includes(actual);
+  if(row.resultVerified!==true||!known)return {...row,handicapTop1Hit:null,handicapCoverageHit:null,handicapHit:null};
+  const first=String(row.handicapTop1??row.handicap??'');
+  const second=String(row.handicapSecond??'');
+  return {...row,handicapTop1Hit:first===actual,handicapCoverageHit:first===actual||second===actual,handicapHit:first===actual||second===actual};
+}
 function buildHandicapStats(rows: Record<string,unknown>[]) {
   const settled = rows.filter((r) => r.handicapTop1Hit !== null && r.handicapTop1Hit !== undefined);
   const original = rows.filter((r) => r.handicapSourceKind === "ORIGINAL_PREMATCH");
@@ -337,7 +638,7 @@ const legacySnapshots = {"2026-09-13":[{"date":"2026-09-13","no":"001","league":
 const upstream = "https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-console-v1";
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "content-type, authorization, apikey",
+  "Access-Control-Allow-Headers": "content-type, authorization, apikey, x-soren-device",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Cache-Control": "no-store",
   "Content-Type": "application/json; charset=utf-8",
@@ -367,7 +668,7 @@ async function syncUpsetWarnings(rows: Record<string,unknown>[], data: Record<st
       kickoff_bjt: row.kickoff ?? null,
       source_model_version: String(w.sourceModelVersion ?? w.source_model_version ?? row.version ?? data.modelVersion ?? "3.8"),
       source_revision: String(w.sourceRevision ?? w.source_revision ?? row.revision ?? data.revision ?? "unconfirmed"),
-      warning_model_version: String(w.modelVersion ?? w.model_version ?? "HJ38-UPSET-v1.0.0"),
+      warning_model_version: String(w.modelVersion ?? w.model_version ?? "HJ38-UPSET-v1.1.0"),
       risk_level: String(w.riskLevel ?? w.risk_level ?? "未确认"),
       risk_score: Number(w.riskScore ?? w.risk_score ?? 0),
       original_top1: w.originalTop1 ?? w.original_top1 ?? row.ftTop1 ?? null,
@@ -406,16 +707,186 @@ async function loadUpsetWarningMap(date:string){
 function publicWarning(w:Record<string,unknown>){
   const p=(w.source_payload&&typeof w.source_payload==="object"?w.source_payload:{}) as Record<string,unknown>;
   const risk=String(w.risk_level??"未确认");
-  return {status:String(p.status??"ACTIVE"),publish:risk==="中"||risk==="高",riskLevel:risk,riskScore:Number(w.risk_score??0),originalTop1:w.original_top1??null,warningDirection:w.warning_direction??null,alternativePick:w.alternative_pick??null,riskBasis:Array.isArray(w.risk_basis)?w.risk_basis:[],directionBasis:Array.isArray(w.direction_basis)?w.direction_basis:[],evidenceDomains:Array.isArray(w.evidence_domains)?w.evidence_domains:[],directionalDomainCount:Number(w.directional_domain_count??0),modelVersion:w.warning_model_version??null,sourceModelVersion:w.source_model_version??null,sourceRevision:w.source_revision??null,prematchAt:w.source_frozen_at??null,resultFieldsUsed:w.result_fields_used===true,hurDirectionUsed:w.hur_direction_used===true,note:p.note??null,replayMode:p.replay_mode??null,historyRewrite:p.history_rewrite===true};
+  const explicitPublish=typeof p.publish==="boolean"?p.publish:null;
+  return {
+    status:String(p.status??"ACTIVE"),
+    publish:explicitPublish??(risk==="中"||risk==="高"),
+    riskLevel:risk,
+    riskScore:Number(w.risk_score??0),
+    displayTier:p.display_tier??p.displayTier??(risk==="高"?"强风险信号":risk==="中"?"重点风险":"一般风险"),
+    detailOnly:p.detail_only===true||p.detailOnly===true,
+    focusGate:(p.focus_gate&&typeof p.focus_gate==="object")?p.focus_gate:(p.focusGate&&typeof p.focusGate==="object"?p.focusGate:null),
+    marketSignals:Array.isArray(p.market_signals)?p.market_signals:(Array.isArray(p.marketSignals)?p.marketSignals:[]),
+    independentDrawProbability:Number.isFinite(Number(p.independent_draw_probability??p.independentDrawProbability))?Number(p.independent_draw_probability??p.independentDrawProbability):null,
+    originalTop1:w.original_top1??null,
+    warningDirection:w.warning_direction??null,
+    alternativePick:w.alternative_pick??null,
+    riskBasis:Array.isArray(w.risk_basis)?w.risk_basis:[],
+    directionBasis:Array.isArray(w.direction_basis)?w.direction_basis:[],
+    evidenceDomains:Array.isArray(w.evidence_domains)?w.evidence_domains:[],
+    directionalDomainCount:Number(w.directional_domain_count??0),
+    modelVersion:w.warning_model_version??null,
+    sourceModelVersion:w.source_model_version??null,
+    sourceRevision:w.source_revision??null,
+    prematchAt:w.source_frozen_at??null,
+    resultFieldsUsed:w.result_fields_used===true,
+    hurDirectionUsed:w.hur_direction_used===true,
+    note:p.note??null,replayMode:p.replay_mode??null,historyRewrite:p.history_rewrite===true
+  };
 }
 function attachUpsetWarning(row:Record<string,unknown>,warnings:Map<string,Record<string,unknown>>){
   if(row.upsetWarning&&typeof row.upsetWarning==="object")return row;
   const w=warnings.get(warningKey(row.no,row.frozenAt));
   return w?{...row,upsetWarning:publicWarning(w)}:row;
 }
+
+const riskPick=(v:unknown)=>({"主胜":"H","平":"D","客胜":"A","3":"H","1":"D","0":"A","H":"H","D":"D","A":"A"}[String(v??"")]??null);
+const riskNum=(v:unknown)=>v===null||v===undefined||v===""?null:(Number.isFinite(Number(v))?Number(v):null);
+function riskLine(v:unknown){
+  if(v===null||v===undefined||v==="")return null;
+  const raw=String(v).trim(),sign=raw.startsWith("-")?-1:1;
+  const parts=raw.replace(/^-/,"").split("/").map(Number);
+  if(!parts.length||parts.some(x=>!Number.isFinite(x)))return null;
+  return sign*(parts.reduce((a,b)=>a+b,0)/parts.length);
+}
+async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
+  if(date<"2026-09-26"||!rows.length)return rows;
+  try{
+    const {data:matches,error:matchError}=await db.from("soren_matches")
+      .select("id,match_no,kickoff_at").eq("pool_date",date).limit(200);
+    if(matchError)throw matchError;
+    const matchByNo=new Map<string,Record<string,unknown>>();
+    const ids:number[]=[];
+    for(const m of matches??[]){
+      const no=String(m.match_no??"").padStart(3,"0");
+      matchByNo.set(no,m as Record<string,unknown>);
+      if(Number.isFinite(Number(m.id)))ids.push(Number(m.id));
+    }
+    if(!ids.length)return rows;
+    const [{data:market,error:marketError},{data:features,error:featureError}]=await Promise.all([
+      db.from("soren_market_snapshots")
+        .select("match_id,source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,data_quality,payload,captured_at,ingested_at")
+        .in("match_id",ids)
+        .in("source_code",["zucaijia_william","zucaijia_asia4:1","qiulaile_sp_mirror"])
+        .in("market_type",["FT_1X2","ASIAN_HANDICAP","HAD"])
+        .in("data_quality",["verified","verified_mirror"])
+        .order("captured_at",{ascending:false}).limit(6000),
+      db.from("soren_feature_snapshots")
+        .select("match_id,feature_type,data_quality,payload,captured_at,ingested_at")
+        .in("match_id",ids).like("feature_type","SCORE_ENGINE%")
+        .order("captured_at",{ascending:false}).limit(1000),
+    ]);
+    if(marketError)throw marketError;
+    if(featureError)throw featureError;
+    const marketById=new Map<number,Record<string,unknown>[]>();
+    for(const x of market??[]){
+      const id=Number(x.match_id);if(!Number.isFinite(id))continue;
+      if(!marketById.has(id))marketById.set(id,[]);
+      marketById.get(id)!.push(x as Record<string,unknown>);
+    }
+    const featureById=new Map<number,Record<string,unknown>[]>();
+    for(const x of features??[]){
+      const id=Number(x.match_id);if(!Number.isFinite(id))continue;
+      if(!featureById.has(id))featureById.set(id,[]);
+      featureById.get(id)!.push(x as Record<string,unknown>);
+    }
+    const before=(x:Record<string,unknown>,cut:number)=>{
+      const c=Date.parse(String(x.captured_at??"")),i=Date.parse(String(x.ingested_at??x.captured_at??""));
+      return Number.isFinite(c)&&Number.isFinite(i)&&c<=cut&&i<=cut;
+    };
+    const latestMarket=(list:Record<string,unknown>[],source:string,type:string,snapshot:string,cut:number)=>
+      list.find(x=>String(x.source_code)===source&&String(x.market_type)===type&&String(x.snapshot_type)===snapshot&&before(x,cut))??null;
+    const latestScore=(list:Record<string,unknown>[],cut:number)=>
+      list.find(x=>before(x,cut)&&String(x.feature_type).startsWith("SCORE_ENGINE"))??null;
+
+    return rows.map(row=>{
+      const raw=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
+        ?row.upsetWarning as Record<string,unknown>:null;
+      if(!raw||row.pregameVerified!==true)return row;
+      const sourcePublish=raw.publish===true;
+      if(!sourcePublish)return row;
+      const no=String(row.no??"").padStart(3,"0"),match=matchByNo.get(no);
+      if(!match)return row;
+      const freezeAt=String(raw.prematchAt??raw.prematch_at??row.frozenAt??"");
+      const cut=Date.parse(freezeAt),kick=Date.parse(String(row.kickoff??match.kickoff_at??""));
+      if(!Number.isFinite(cut)||!Number.isFinite(kick)||cut>=kick)return row;
+      const top=riskPick(raw.originalTop1??raw.original_top1??row.ftTop1);
+      const second=riskPick(row.second);
+      const oppositeSecond=!!(top&&second&&["H","A"].includes(top)&&["H","A"].includes(second)&&top!==second);
+
+      const id=Number(match.id),scoreRow=latestScore(featureById.get(id)??[],cut);
+      const scorePayload=(scoreRow?.payload&&typeof scoreRow.payload==="object"?scoreRow.payload:{}) as Record<string,unknown>;
+      const drawProb=riskNum(scorePayload.dc_p_draw??scorePayload.p_draw);
+      const strictScore=scoreRow!==null&&
+        String(scoreRow.data_quality??scorePayload.input_quality??"")==="STRICT_PREMATCH_XG"&&
+        scorePayload.strict_prematch===true&&scorePayload.target_result_used!==true&&
+        Number.isFinite(drawProb??NaN);
+      const qualifiedDraw=second==="D"&&strictScore&&(drawProb??0)>=0.27;
+
+      const list=marketById.get(id)??[],signals:string[]=[];
+      const wi=latestMarket(list,"zucaijia_william","FT_1X2","initial",cut);
+      const wc=latestMarket(list,"zucaijia_william","FT_1X2","current",cut);
+      if(top&&wi&&wc){
+        const a=riskNum(top==="H"?wi.home_value:wi.away_value),b=riskNum(top==="H"?wc.home_value:wc.away_value);
+        if(a!==null&&b!==null&&b>a&&(b-a>=0.08||b/a>=1.05))signals.push("William热门方向升赔");
+      }
+      const ai=latestMarket(list,"zucaijia_asia4:1","ASIAN_HANDICAP","initial",cut);
+      const ac=latestMarket(list,"zucaijia_asia4:1","ASIAN_HANDICAP","current",cut);
+      if(ai&&ac){
+        const api=(ai.payload&&typeof ai.payload==="object"?ai.payload:{}) as Record<string,unknown>;
+        const acp=(ac.payload&&typeof ac.payload==="object"?ac.payload:{}) as Record<string,unknown>;
+        const a=riskLine(api.original_line??ai.line),b=riskLine(acp.original_line??ac.line);
+        if(a!==null&&b!==null&&Math.abs(b)+0.24<=Math.abs(a))signals.push("Bet365亚洲盘退盘");
+      }
+      const si=latestMarket(list,"qiulaile_sp_mirror","HAD","initial",cut);
+      const sc=latestMarket(list,"qiulaile_sp_mirror","HAD","current",cut);
+      if(top&&sc){
+        const sh=riskNum(sc.home_value),sa=riskNum(sc.away_value);
+        if(sh!==null&&sa!==null){
+          const side=sh<sa?"H":"A";
+          if(side!==top)signals.push("体彩HAD方向冲突");
+        }
+        if(si){
+          const a=riskNum(top==="H"?si.home_value:si.away_value),b=riskNum(top==="H"?sc.home_value:sc.away_value);
+          if(a!==null&&b!==null&&b-a>=0.08)signals.push("体彩HAD热门方向升赔");
+        }
+      }
+      const marketSignals=[...new Set(signals)],marketAnomaly=marketSignals.length>0;
+      const focus=oppositeSecond||qualifiedDraw;
+      const displayTier=focus?(marketAnomaly?"强风险信号":"重点风险"):"一般风险";
+      return {...row,upsetWarning:{...raw,
+        sourcePublish,publish:focus,detailOnly:!focus,displayTier,
+        focusGate:{
+          opposite_second:oppositeSecond,
+          qualified_draw:qualifiedDraw,
+          market_anomaly:marketAnomaly,
+          rule_version:"HJ38-RISK-LAYER-v1.1.0",
+          evaluated_at:freezeAt
+        },
+        marketSignals,
+        independentDrawProbability:strictScore?drawProb:null,
+        focusRuleVersion:"HJ38-RISK-LAYER-v1.1.0"
+      }};
+    });
+  }catch(error){
+    console.error("RISK_FOCUS_LAYER_UNAVAILABLE",error);
+    // Fail closed for the new highlighted layer: preserve detail data but do not invent a strong signal.
+    return rows.map(row=>{
+      const raw=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
+        ?row.upsetWarning as Record<string,unknown>:null;
+      if(!raw||raw.publish!==true||row.pregameVerified!==true)return row;
+      const top=riskPick(raw.originalTop1??raw.original_top1??row.ftTop1),second=riskPick(row.second);
+      const opposite=!!(top&&second&&["H","A"].includes(top)&&["H","A"].includes(second)&&top!==second);
+      return {...row,upsetWarning:{...raw,sourcePublish:true,publish:opposite,detailOnly:!opposite,
+        displayTier:opposite?"重点风险":"一般风险",
+        focusGate:{opposite_second:opposite,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.1.0-FALLBACK"},
+        marketSignals:[]}};
+    });
+  }
+}
 function upsetStatsFor(rows:Record<string,unknown>[]){
   const published=rows.filter(r=>{const w=r.upsetWarning as Record<string,unknown>|null;return w?.publish===true});
-  return {modelVersion:"HJ38-UPSET-v1.0.0",published:published.length,high:published.filter(r=>(r.upsetWarning as Record<string,unknown>)?.riskLevel==="高").length,medium:published.filter(r=>(r.upsetWarning as Record<string,unknown>)?.riskLevel==="中").length,directionPublished:published.filter(r=>!!(r.upsetWarning as Record<string,unknown>)?.warningDirection).length,resultFieldsUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.resultFieldsUsed===true),hurDirectionUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.hurDirectionUsed===true)};
+  return {modelVersion:"HJ38-UPSET-v1.1.0",published:published.length,high:published.filter(r=>(r.upsetWarning as Record<string,unknown>)?.riskLevel==="高").length,medium:published.filter(r=>(r.upsetWarning as Record<string,unknown>)?.riskLevel==="中").length,directionPublished:published.filter(r=>!!(r.upsetWarning as Record<string,unknown>)?.warningDirection).length,resultFieldsUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.resultFieldsUsed===true),hurDirectionUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.hurDirectionUsed===true)};
 }
 
 
@@ -560,9 +1031,52 @@ async function professionalReport(date:string,no:string){
     capturedLimit:"仅使用开球前已采集的缓存；盘口采集时间可能晚于原预测冻结时间，不能视作原预测输入"};
 }
 
+
+/* Compact time series read only when the user expands a market chart.
+   Match identity + verified source + pre-kickoff time are mandatory. */
+async function marketTrend(date:string,no:string){
+  const {data:match,error:matchError}=await db.from("soren_matches")
+    .select("id,home_team,away_team,kickoff_at")
+    .eq("pool_date",date).eq("match_no",no).maybeSingle();
+  if(matchError)throw matchError;
+  if(!match)return null;
+  const kickoff=String(match.kickoff_at??"");
+  const source="zucaijia_william";
+  const select="captured_at,home_value,draw_value,away_value,data_quality";
+  const [recent,opening]=await Promise.all([
+    db.from("soren_market_snapshots").select(select).eq("match_id",match.id)
+      .eq("source_code",source).eq("market_type","FT_1X2").eq("snapshot_type","current")
+      .in("data_quality",["verified","verified_mirror"]).lt("captured_at",kickoff)
+      .order("captured_at",{ascending:false}).limit(360),
+    db.from("soren_market_snapshots").select(select).eq("match_id",match.id)
+      .eq("source_code",source).eq("market_type","FT_1X2").eq("snapshot_type","initial")
+      .in("data_quality",["verified","verified_mirror"]).lt("captured_at",kickoff)
+      .order("captured_at",{ascending:true}).limit(1),
+  ]);
+  if(recent.error||opening.error)throw recent.error??opening.error;
+  const normalize=(v:Record<string,unknown>,phase:string)=>{
+    const values=[v.home_value,v.draw_value,v.away_value].map(x=>x===null||x===undefined?NaN:Number(x));
+    const t=Date.parse(String(v.captured_at??""));
+    if(!Number.isFinite(t)||values.some(n=>!Number.isFinite(n)||n<=1||n>100))return null;
+    return {at:v.captured_at,phase,home:values[0],draw:values[1],away:values[2]};
+  };
+  const unique=new Map<string,Record<string,unknown>>();
+  for(const raw of recent.data??[]){
+    const point=normalize(raw,"赛前");
+    if(point&&!unique.has(String(point.at)))unique.set(String(point.at),point);
+  }
+  const ascending=[...unique.values()].sort((a,b)=>Date.parse(String(a.at))-Date.parse(String(b.at)));
+  const selected=ascending.length<=12?ascending:Array.from({length:12},(_,i)=>ascending[Math.round(i*(ascending.length-1)/11)]);
+  const first=opening.data?.[0]?normalize(opening.data[0],"初赔"):null;
+  const points=first&&(!selected.length||Date.parse(String(first.at))<Date.parse(String(selected[0].at)))?[first,...selected]:selected;
+  return {date,no,home:match.home_team,away:match.away_team,source:"威廉希尔",points,
+    note:"同一机构赛前已核验赔率快照；仅展示抽样关键时点，非连续全量报价。"};
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
-  if (req.method !== "GET") return reply({ ok: false, error: "METHOD_NOT_ALLOWED" }, 405);
+  if (req.method !== "GET" && req.method !== "POST") return reply({ ok: false, error: "METHOD_NOT_ALLOWED" }, 405);
+  if(req.method==="POST" && new URL(req.url).searchParams.get("action")!=="invite") return reply({ok:false,error:"METHOD_NOT_ALLOWED"},405);
   const requestUrl = new URL(req.url);
   if (requestUrl.searchParams.get("health") === "team-logos") {
     try {
@@ -594,10 +1108,11 @@ Deno.serve(async (req: Request) => {
   }
   if (requestUrl.searchParams.get("sync_upset") === "1") {
     try {
-      const replayDate=requestUrl.searchParams.get("date");
-      if(replayDate){
-        if(!/^2026-09-(14|15|16|17|18|19|20)$/.test(replayDate))return reply({ok:false,error:"UPSET_REPLAY_DATE_OUT_OF_SCOPE"},400);
-        const replayUrl="https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-model-hourly-executor-v01?upset_replay=1&date="+encodeURIComponent(replayDate);
+      const requestedDate=requestUrl.searchParams.get("date");
+      const historicalReplay=!!requestedDate&&/^2026-09-(14|15|16|17|18|19|20)$/.test(requestedDate);
+      if(requestedDate&&!/^\d{4}-\d{2}-\d{2}$/.test(requestedDate))return reply({ok:false,error:"VALID_DATE_REQUIRED"},400);
+      if(historicalReplay){
+        const replayUrl="https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-model-hourly-executor-v01?upset_replay=1&date="+encodeURIComponent(requestedDate!);
         const response=await fetch(replayUrl,{headers:{accept:"application/json"},signal:AbortSignal.timeout(45_000)});
         if(!response.ok)throw new Error("REPLAY_UPSTREAM_"+response.status);
         const data=await response.json();
@@ -605,7 +1120,8 @@ Deno.serve(async (req: Request) => {
         const result=await syncUpsetWarnings(data.rows,data);
         return reply({ok:true,sync:"upset-warning-history",date:data.date,count:data.count,published:data.published,high:data.high,medium:data.medium,directionPublished:data.directionPublished,resultFieldsUsed:data.resultFieldsUsed,hurDirectionUsed:data.hurDirectionUsed,historyRewrite:data.historyRewrite,...result});
       }
-      const response=await fetch(upstream+"?public_hj38=1&view=today",{headers:{accept:"application/json"},signal:AbortSignal.timeout(10_000)});
+      const upstreamUrl=upstream+"?public_hj38=1&view=today"+(requestedDate?"&date="+encodeURIComponent(requestedDate):"");
+      const response=await fetch(upstreamUrl,{headers:{accept:"application/json"},signal:AbortSignal.timeout(10_000)});
       if(!response.ok)throw new Error("UPSTREAM_"+response.status);
       const data=await response.json();
       const expectedRevision=allowed.get(String(data?.modelVersion??""));
@@ -623,7 +1139,7 @@ Deno.serve(async (req: Request) => {
       .order("pool_date",{ascending:false}).order("match_no",{ascending:true}).limit(300);
     if(error)return reply({ok:false,error:"UPSET_WARNING_HEALTH_ERROR"},500);
     const rows=data??[];
-    return reply({ok:true,health:"upset-warning",revision:"HJ38-UPSET-v1.0.0",count:rows.length,high:rows.filter(r=>r.risk_level==="高").length,medium:rows.filter(r=>r.risk_level==="中").length,directionPublished:rows.filter(r=>!!r.warning_direction).length,resultFieldsUsed:rows.some(r=>r.result_fields_used===true),hurDirectionUsed:rows.some(r=>r.hur_direction_used===true),latestFrozenAt:rows.map(r=>r.source_frozen_at).filter(Boolean).sort().at(-1)??null});
+    return reply({ok:true,health:"upset-warning",revision:"HJ38-UPSET-v1.1.0",count:rows.length,high:rows.filter(r=>r.risk_level==="高").length,medium:rows.filter(r=>r.risk_level==="中").length,directionPublished:rows.filter(r=>!!r.warning_direction).length,resultFieldsUsed:rows.some(r=>r.result_fields_used===true),hurDirectionUsed:rows.some(r=>r.hur_direction_used===true),latestFrozenAt:rows.map(r=>r.source_frozen_at).filter(Boolean).sort().at(-1)??null});
   }
   if (requestUrl.searchParams.get("health") === "results") {
     const resultDate=requestUrl.searchParams.get("date")??"";
@@ -654,6 +1170,69 @@ Deno.serve(async (req: Request) => {
     if (!auth.ok) return reply({ok:false,error:"LOGIN_REQUIRED"},401);
     const user = await auth.json();
     if (!user?.id) return reply({ok:false,error:"LOGIN_REQUIRED"},401);
+    // Store only pseudonymous hashes; the raw IP and browser UUID never enter the claims table.
+    // IP is advisory only; a shared IP must not independently deny a trial.
+    const browserId=req.headers.get("x-soren-device")??"";
+    const ipForAudit=req.headers.get("cf-connecting-ip")||
+      req.headers.get("x-real-ip")||
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()||"";
+    const hashAudit=async(value:string,prefix:string)=>Array.from(
+      new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(prefix+value)))
+    ).map(byte=>byte.toString(16).padStart(2,"0")).join("");
+    let trialStatus="DEVICE_REQUIRED";
+    try {
+      const deviceHash=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(browserId)
+        ?await hashAudit(browserId.toLowerCase(),"soren-welcome-device-v2:"):null;
+      const ipHash=ipForAudit&&ipForAudit.length<=64
+        ?await hashAudit(ipForAudit,"soren-welcome-ip-v2:"):null;
+      const {data:claimResult,error:claimError}=await db.rpc("soren_welcome_claim_v2",{
+        p_user:String(user.id),p_device_hash:deviceHash,p_ip_hash:ipHash,
+      });
+      if(claimError)throw claimError;
+      trialStatus=String(claimResult??"CHECK_UNAVAILABLE");
+    }catch(e){
+      console.error("WELCOME_CLAIM_CHECK_UNAVAILABLE",e);
+      trialStatus="CHECK_UNAVAILABLE";
+    }
+    // Enforce membership on the server before exposing current/future recommendations.
+    let submittedInvite:string|null=null;
+    const redeeming=req.method==="POST"&&requestUrl.searchParams.get("action")==="invite";
+    if(redeeming){
+      let payload:Record<string,unknown>;
+      try{payload=await req.json()}catch{return reply({ok:false,error:"INVALID_JSON"},400)}
+      submittedInvite=String(payload?.inviteCode??"").trim().toUpperCase();
+      if(!/^[A-F0-9]{10}$/.test(submittedInvite))return reply({ok:false,error:"INVALID_INVITE_CODE"},400);
+    }
+    const {data:membership,error:membershipError}=await db.rpc("soren_member_status_v1",{
+      p_user:String(user.id),p_invite_code:submittedInvite,
+    });
+    if(membershipError||!membership||typeof membership!=="object"){
+      console.error("MEMBER_STATUS_UNAVAILABLE",membershipError);
+      return reply({ok:false,error:"MEMBERSHIP_STATUS_UNAVAILABLE"},503);
+    }
+    (membership as Record<string,unknown>).trialStatus=trialStatus;
+    if(redeeming){
+      const accepted=["BOUND","ALREADY_BOUND"].includes(String(membership.inviteStatus??""));
+      return reply({ok:accepted,membership,error:accepted?null:String(membership.inviteStatus??"INVITE_UNAVAILABLE")},accepted?200:400);
+    }
+    if(requestUrl.searchParams.get("view")==="membership")return reply({ok:true,membership});
+    const beijingToday=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).split("/").join("-");
+    const requestedDate=requestUrl.searchParams.get("date");
+    if(membership.active!==true&&(!requestedDate||requestedDate>=beijingToday))
+      return reply({ok:false,error:"MEMBERSHIP_REQUIRED",membership},403);
+
+    if(requestUrl.searchParams.get("view")==="market-trend"){
+      const date=requestUrl.searchParams.get("date")??"";
+      const no=requestUrl.searchParams.get("no")??"";
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{3}$/.test(no))
+        return reply({ok:false,error:"INVALID_TREND_ID"},400);
+      try{
+        const trend=await marketTrend(date,no);
+        if(!trend)return reply({ok:false,error:"TREND_MATCH_NOT_FOUND"},404);
+        return reply({ok:true,trend,updatedAt:new Date().toISOString()});
+      }catch(error){console.error("TREND_READ_ERROR",error);return reply({ok:false,error:"TREND_UNAVAILABLE"},502);}
+    }
+
     if(requestUrl.searchParams.get("view")==="report"){
       const date=requestUrl.searchParams.get("date")??"";
       const no=requestUrl.searchParams.get("no")??"";
@@ -687,11 +1266,20 @@ Deno.serve(async (req: Request) => {
         loadUpsetWarningMap(date),loadTeamLogoMap(),loadDayEnvironment(date),
       ]);
       const full = originalFull.map((r: Record<string,unknown>) => settlePublishedScoreTop4(attachDayEnvironment(attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachTeamFormH2h(attachTeamSchedule(attachGoalFormReference(attachGoalPrediction(applyHandicapBackfill(r,handicapBackfill),goalPredictions),goalFormReferences),teamSchedules),teamFormH2h),upsetWarnings),historicalScores),teamLogos),dayEnvironment)));
-      const rows = view === "history" ? full.filter((r) => r.resultVerified) : full;
+      let rows = view === "history" ? full.filter((r) => r.resultVerified) : full;
+      if(date>="2026-09-19"&&date<="2026-09-24"){
+        try{
+          const [historic,verified]=await Promise.all([loadHistoricalHTFTTop4(date),loadVerifiedResults(date)]);
+          rows=rows.map((r:Record<string,unknown>)=>attachHistoricalHTFTTop4(r,historic,verified));
+        }catch(htftError){
+          console.error("HISTORICAL_HTFT_UNAVAILABLE",htftError);
+          rows=rows.map((r:Record<string,unknown>)=>({...r,htftTop4:null}));
+        }
+      }
       const handicapStats = buildHandicapStats(rows);
       const version = date === "2026-09-13" ? "3.2" : "3.3";
       const revision = date === "2026-09-13" ? "3.2-native-pass-v0.1.1-20260913" : "3.3-best-play-selector-v1.0-20260914";
-      return reply({ok:true,view,date,count:rows.length,model:"索伦引擎",modelVersion:version,revision,batchTime:null,dataTime:full.at(-1)?.frozenAt??null,pregameVerifiedCount:rows.length,handicapStats,upsetStats:upsetStatsFor(rows),updatedAt:new Date().toISOString(),rows});
+      return reply({ok:true,view,date,count:rows.length,model:"索伦引擎",modelVersion:version,revision,batchTime:null,dataTime:full.at(-1)?.frozenAt??null,pregameVerifiedCount:rows.length,handicapStats,upsetStats:upsetStatsFor(rows),updatedAt:new Date().toISOString(),rows:rows.map(attachScoreGoalReference)});
     }
     const query = new URLSearchParams({ public_hj38: "1", view });
     if (date) query.set("date", date);
@@ -744,7 +1332,27 @@ Deno.serve(async (req: Request) => {
       loadTeamScheduleSnapshots(dynamicDate),loadTeamFormH2hSnapshots(dynamicDate),loadHistoricalScoreTop4(dynamicDate),
       loadUpsetWarningMap(dynamicDate),loadTeamLogoMap(),loadDayEnvironment(dynamicDate),
     ]);
-    const rows = await applySaleFreeze(sourceRows.map((row: Record<string,unknown>) => settlePublishedScoreTop4(attachDayEnvironment(attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachTeamFormH2h(attachTeamSchedule(attachGoalFormReference(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),goalFormReferences),teamSchedules),teamFormH2h),upsetWarnings),historicalScores),teamLogos),dayEnvironment))),dynamicDate);
+    let rows = (await applySaleFreeze(sourceRows.map((row: Record<string,unknown>) => settlePublishedScoreTop4(attachDayEnvironment(attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachTeamFormH2h(attachTeamSchedule(attachGoalFormReference(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),goalFormReferences),teamSchedules),teamFormH2h),upsetWarnings),historicalScores),teamLogos),dayEnvironment))),dynamicDate)).map(settleTop5Handicap);
+    rows=await applyRiskFocusLayer(rows,dynamicDate);
+    rows=await attachLiveScoreGoals(rows,dynamicDate);
+        try {
+      // Safe to invoke repeatedly: the producer inserts only future fixtures and never overwrites.
+      if(dynamicDate>="2026-09-25"){
+        const {error:publishError}=await db.rpc("soren_publish_htft_top4_v1");
+        if(publishError)throw publishError;
+      }
+      if(dynamicDate>="2026-09-19"&&dynamicDate<="2026-09-24"){
+        const historicalHTFT=await loadHistoricalHTFTTop4(dynamicDate);
+        rows=rows.map((r:Record<string,unknown>)=>attachHistoricalHTFTTop4(r,historicalHTFT,databaseResults));
+      }else{
+        const htftPublished=await loadPublishedHTFTTop4(dynamicDate);
+        rows=rows.map((r:Record<string,unknown>)=>attachPublishedHTFTTop4(r,htftPublished,databaseResults));
+      }
+    } catch(htftError){
+      console.error("HTFT_TOP4_UNAVAILABLE",htftError);
+      rows=rows.map((r:Record<string,unknown>)=>({...r,htftTop4:null}));
+    }
+    rows=await attachLiveHTFT(rows,dynamicDate,databaseResults);
     const handicapStats = buildHandicapStats(rows);
     const warningSync=await syncUpsetWarnings(rows,data);
     return reply({
@@ -762,7 +1370,7 @@ Deno.serve(async (req: Request) => {
       upsetStats: upsetStatsFor(rows),
       warningSync,
       updatedAt: new Date().toISOString(),
-      rows,
+      rows: rows.map(attachScoreGoalReference),
     });
   } catch (error) {
     console.error(error);
