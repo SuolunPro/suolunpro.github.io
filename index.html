@@ -1618,6 +1618,11 @@
     function isFocus(row){
       const archived=ARCHIVED_FOCUS[row.date],no=String(row.no??'').padStart(3,'0');
       if(Array.isArray(archived))return row.pregameVerified===true&&archived.includes(no);
+      const dailyTier=String(row.dailySelectionTier??row.daily_selection_tier??'').trim().toUpperCase();
+      if(dailyTier==='CORE')return row.pregameVerified===true;
+      // Since 2026-09-20 the API is the single source of truth for 今日优选.
+      // Do not re-promote SINGLE/DOUBLE rows on the client after the server risk gate removed them.
+      if(String(row.date??'')>='2026-09-20')return false;
       const tags=[row.focusTag,row.focus_tag,row.recommendationLevel,row.recommendation_level,row.priorityTag,row.priority_tag,row.bestPlayLevel,row.best_play_level,row.bestPlay?.level,row.best_play?.level];
       const explicit=tags.some(v=>/^(重心|重点|核心|FOCUS|PRIORITY|BEST_PLAY|A\+|A\+单|A\+双)$/i.test(String(v??'').trim()));
       const marked=row.isFocus===true||row.is_focus===true||row.isKeyMatch===true||row.is_key_match===true||row.isBestPlay===true||row.is_best_play===true;
