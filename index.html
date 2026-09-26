@@ -598,6 +598,11 @@
     .risk-inline.strong{background:#fff8e8;border-color:#e6c982}
     .risk-inline.strong strong{color:#8a5a08}
     .risk-inline.focus{background:#f5f7fb;border-color:#d8deea}
+    .daily-detail-selection{margin:12px 0 2px;padding:10px 12px;border-radius:10px;display:flex;align-items:flex-start;gap:7px;flex-direction:column;font-size:12px;line-height:1.5}
+    .daily-detail-selection.core{background:#fff8e8;border:1px solid #ead39a}
+    .daily-detail-selection.supplement{background:#f4f7fb;border:1px solid #d9e1ec}
+    .daily-detail-selection strong{font-size:13px}
+    .daily-detail-selection span{color:#667085}
 </style>
 </head>
 <body>
@@ -2716,6 +2721,17 @@
       choices.append(first);
       if(reportHas(row.second)){const second=el('div','report-alt-pick');second.append(el('small','','胜平负次选'),el('strong','',String(row.second)));choices.append(second)}
       summary.append(choices);
+      if(state.model==='daily'){
+        const supplement=isSupplement(row)&&!isFocus(row);
+        const selection=el('div','daily-detail-selection '+(supplement?'supplement':'core'));
+        selection.append(el('strong','',supplement?'精选补充':'核心优选'));
+        if(supplement){
+          const meta=row.dailySelectionMeta??row.daily_selection_meta??{};
+          const odds=Number(meta.williamTop1Odds??meta.william_top1_odds);
+          selection.append(el('span','',Number.isFinite(odds)?'高性价比筛选通过 · 风险过滤通过 · 参考赔率 '+odds.toFixed(2):'高性价比筛选通过 · 风险过滤通过'));
+        }else selection.append(el('span','','原重心规则保持不变'));
+        summary.append(selection);
+      }
       const hasOfficial=row.officialHandicap!==null&&row.officialHandicap!==undefined&&row.officialHandicap!=='';
       const handicap=[reportHas(row.handicapTop1)?row.handicapTop1:reportHas(row.handicap)?row.handicap:null,reportHas(row.handicapSecond)?row.handicapSecond:null].filter(Boolean);
       const isTop5=String(row.handicapModelVersion??'').startsWith('HJ38-HHAD-TOP5-FT-MKT');
