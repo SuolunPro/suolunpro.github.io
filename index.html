@@ -797,10 +797,22 @@
       if(!user?.id||user.id!==authSession.user?.id){clearAuthSession();throw Error('LOGIN_REQUIRED')}
       authSession.user=user;return authSession.access_token;
     }
+    // Persistent browser-level welcome-trial marker. The API hashes it before storage.
+    function welcomeBrowserId(){
+      try{
+        let id=localStorage.getItem('soren_visit_id');
+        if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'')){
+          id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id);
+        }
+        return id;
+      }catch{return ''}
+    }
     async function authorizedApiFetch(url,options={}){
       if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
       await refreshAuthSession();
-      const request=()=>fetch(url,{...options,headers:{...(options.headers||{}),Authorization:'Bearer '+authSession.access_token}});
+      const welcomeHeader=url.startsWith('https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1')
+        ?{'X-Soren-Device':welcomeBrowserId()}:{};
+      const request=()=>fetch(url,{...options,headers:{...(options.headers||{}),...welcomeHeader,Authorization:'Bearer '+authSession.access_token}});
       let response=await request();
       if(response.status===401&&authSession?.refresh_token){
         await refreshAuthSession(true);response=await request();
@@ -1009,7 +1021,12 @@
     }
     function renderMemberRequired(){
       const box=$('content');box.replaceChildren(sectionHead('会员专属数据','当天比赛推荐'));
-      const p=el('section','member-panel');p.append(el('h3','','会员有效期已结束'),el('p','','当天比赛完整报告目前仅向有效会员开放。无需邀请好友，也可前往「我的」查看月卡开通说明与会员到期时间。'));
+      const trial=memberInfo?.trialStatus;
+      const blocked=trial==='DEVICE_USED'||trial==='REVIEW_REQUIRED';
+      const browserUnavailable=trial==='DEVICE_REQUIRED'||trial==='CHECK_UNAVAILABLE';
+      const p=el('section','member-panel');
+      p.append(el('h3','',blocked?'新人体验资格暂不可领取':browserUnavailable?'新人体验资格暂不可核验':'会员有效期已结束'),
+        el('p','',blocked?'该浏览器的新人体验资格可能已被领取。账号仍可正常登录，已开通的会员权益不受影响；如有疑问请联系客服核实。':browserUnavailable?'请开启浏览器本地存储后重新登录；如果仍无法领取，请联系客服核实。':'当天比赛完整报告目前仅向有效会员开放。无需邀请好友，也可前往「我的」查看月卡开通说明与会员到期时间。'));
       const b=el('button','','前往我的会员中心');b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};p.append(b);box.append(p);
     }
     const TURNSTILE_SITE_KEY='0x4AAAAAAFBKndRZlD2qH4Km';
