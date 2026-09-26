@@ -665,7 +665,7 @@
       </div>
       <div class="hero-copy">
         <h1 id="modelTitle">今日优选</h1>
-        <p id="modelDesc">展示赛前已确认的重点观察场次</p>
+        <p id="modelDesc">核心优选 + 精选补充，分层展示今日赛前筛选结果</p>
         <div class="warn">赛前发布与历史资料回放分开评测，详情可查数据来源。</div>
       </div>
       <div class="dates" id="dates"></div>
@@ -1748,7 +1748,7 @@
         tip.textContent='新版规则历史回放 · 仅使用该场当时赛前冻结的首选/次选、市场快照与独立模型数据重新分层；不使用赛果，不改写当时原始风险记录。';
         box.append(tip);
       }
-      if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前风险记录':state.model==='daily'?'暂无重点观察场次':'暂无已发布赛事',state.model==='upset'?'本日暂无通过重点风险门槛的赛前记录；一般风险仅保留在比赛详情中。':'当前没有符合筛选条件的赛事记录。'),notice());return}
+      if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前风险记录':state.model==='daily'?'今日暂无优选场次':'暂无已发布赛事',state.model==='upset'?'本日暂无通过重点风险门槛的赛前记录；一般风险仅保留在比赛详情中。':'当前没有符合筛选条件的赛事记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
     function renderHome(){
