@@ -1636,16 +1636,28 @@
       else if(direction==='平局不稳'&&alternativePick==='客胜')direction='客队不败';
       if(!['主队不败','客队不败','平局风险'].includes(direction))direction='';
       let inlineReason='';
-      if(displayTier==='强风险信号')inlineReason='胜负方向分歧 · 市场反向变化';
-      else if(qualifiedDraw&&!oppositeSecond)inlineReason='独立进球模型提示平局风险';
+      if(displayTier==='强风险信号'){
+        const focusText=oppositeSecond&&qualifiedDraw?'胜负方向分歧 · 防平信号':oppositeSecond?'胜负方向分歧':'防平信号';
+        inlineReason=focusText+' · 市场反向变化';
+      }else if(qualifiedDraw&&!oppositeSecond)inlineReason='独立进球模型提示平局风险';
       else if(oppositeSecond)inlineReason='胜负方向分歧';
       else inlineReason=basis[0]||'赛前风险证据达到重点观察门槛';
+      const evidenceLines=[];
+      if(oppositeSecond)evidenceLines.push('首选与次选形成主/客胜方向分歧');
+      if(qualifiedDraw)evidenceLines.push('严格赛前独立进球模型提示平局风险');
+      if(marketAnomaly)evidenceLines.push('赛前市场异常：'+(marketSignals.slice(0,2).join('、')||'赔率或盘口出现反向变化'));
+      for(const item of basis){
+        const value=String(item??'').trim();
+        if(evidenceLines.length>=3)break;
+        if(value&&!evidenceLines.includes(value))evidenceLines.push(value);
+      }
       return {
         level,displayTier,
         score:Number.isFinite(Number(raw.riskScore??raw.risk_score))?Number(raw.riskScore??raw.risk_score):null,
         direction,alternativePick,
-        reason:basis.length?basis.join('；'):'赛前风险证据已达到发布门槛',
-        directionReason:directionBasis.join('；'),
+        reason:evidenceLines.length?evidenceLines.join('；'):'赛前风险证据已达到发布门槛',
+        directionReason:directionBasis.slice(0,3).join('；'),
+        evidenceLines,
         originalPick,oppositeSecond,qualifiedDraw,marketAnomaly,marketSignals,inlineReason,
         modelVersion,
         sourceModelVersion:raw.sourceModelVersion??raw.source_model_version??row.version??'未确认',
@@ -1686,12 +1698,12 @@
       main.append(indexPanel,directionPanel);
       const evidence=el('details','upset-evidence'),summary=el('summary','','查看分析依据');
       evidence.append(summary,
-        el('p','upset-evidence-heading','风险分值说明'),
-        el('p','','分值越高，表示赛前识别到的风险迹象越明显；并非胜率、准确率或结果保证。'),
-        el('p','','0—2分：低风险｜3—6分：中风险｜7分及以上：高风险；关键数据不足时显示待确认。'),
+        el('p','upset-evidence-heading','新版风险层级'),
+        el('p','','一般风险仅保留在比赛详情；重点风险由胜负方向分歧或合格的严格赛前独立进球模型防平通道触发；强风险信号需在重点风险基础上再叠加可核验的赛前市场异常。'),
+        el('p','','数据分值只描述已核验风险迹象的强弱，不直接决定新版层级，也不是胜率、准确率或结果保证。'),
         el('p','upset-evidence-heading','本场分析依据'),
-        el('p','','风险等级：'+info.level+' ｜ 赛前原始首选：'+safe(info.originalPick)),
-        el('p','','风险依据：'+info.reason));
+        el('p','','当前层级：'+info.displayTier+' ｜ 赛前原始首选：'+safe(info.originalPick)));
+      (info.evidenceLines||[info.reason]).slice(0,3).forEach((line,i)=>evidence.append(el('p','','依据'+(i+1)+'：'+line)));
       if(info.directionReason)evidence.append(el('p','','方向依据：'+info.directionReason));
       else evidence.append(el('p','','方向依据：独立证据域不足，不强行反推具体方向'));
       if(info.alternativePick)evidence.append(el('p','','证据倾向：'+safe(info.alternativePick)));
@@ -2567,7 +2579,7 @@
         else gateReasons.push('市场出现反向变化');
       }
       if(detailOnly)reportLine(panel,'当前层级','一般风险，仅保留详情分析，不在比赛卡片突出显示');
-      else if(gateReasons.length)reportLine(panel,'重点依据',gateReasons.join('；'));
+      else if(gateReasons.length)reportLine(panel,'重点依据',gateReasons.slice(0,3).join('；'));
       const rawDirection=String(raw.warningDirection??raw.warning_direction??'').trim();
       const actualDirection=({'主队不胜':'客队不败','客队不胜':'主队不败'}[rawDirection]??rawDirection);
       if(published&&['主队不败','客队不败'].includes(actualDirection))
@@ -2577,7 +2589,7 @@
       else if(published)
         reportLine(panel,'风险方向','首选失手风险，不强行反推具体赛果');
       const reasons=Array.isArray(raw.riskBasis)?raw.riskBasis:Array.isArray(raw.risk_basis)?raw.risk_basis:[];
-      const verifiedReasons=reasons.filter(x=>typeof x==='string'&&x.trim()).slice(0,6);
+      const verifiedReasons=reasons.filter(x=>typeof x==='string'&&x.trim()).slice(0,3);
       if(verifiedReasons.length){
         const details=el('details','report-detail-upset-evidence');
         details.append(el('summary','','查看赛前风险依据'));
