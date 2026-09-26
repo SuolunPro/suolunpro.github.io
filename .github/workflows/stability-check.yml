@@ -1,0 +1,48 @@
+name: stability-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  frontend-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate critical frontend invariants
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          text = p.read_text(encoding="utf-8")
+          required = [
+              "dynamicScoreTop4",
+              "dynamicHTFT",
+              "赛前动态预测",
+              "原始赛前预测",
+              "动态赛前比分 · Top4",
+              "原始赛前比分 · Top4",
+              "新版规则历史回放",
+              "raw.publicationEligible===false",
+              "if(['overview','wdl','daily'].includes(state.model))appendRiskStrip(c,row);",
+          ]
+          missing = [x for x in required if x not in text]
+          forbidden = [
+              "<<<<<<<",
+              "=======",
+              ">>>>>>>",
+              "0—2分：低风险｜3—6分：中风险｜7分及以上：高风险",
+          ]
+          present_forbidden = [x for x in forbidden if x in text]
+          if missing:
+              raise SystemExit("Missing critical markers: " + " | ".join(missing))
+          if present_forbidden:
+              raise SystemExit("Forbidden/legacy markers present: " + " | ".join(present_forbidden))
+          if text.count("function scoreCard(") != 1:
+              raise SystemExit("scoreCard definition count is not 1")
+          if text.count("function htftCard(") != 1:
+              raise SystemExit("htftCard definition count is not 1")
+          print("stability-check: OK")
+          PY
