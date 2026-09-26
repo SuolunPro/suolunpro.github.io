@@ -854,7 +854,11 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       // serve the latest pre-kickoff warning that still matches the formal Top1.
       if(date>="2026-09-26"&&formalTop&&Number.isFinite(formalAt)&&Number.isFinite(kick)){
         const currentTop=riskPick(raw.originalTop1??raw.original_top1);
-        if(currentTop!==formalTop){
+        const servedAt=Date.parse(String(row.frozenAt??""));
+        const warningAt=Date.parse(String(raw.prematchAt??raw.prematch_at??""));
+        const currentWarningMatchesServedSnapshot=currentTop!==null&&currentTop===riskPick(row.ftTop1)&&
+          Number.isFinite(servedAt)&&Number.isFinite(warningAt)&&Math.abs(servedAt-warningAt)<=300000;
+        if(currentTop!==formalTop&&!currentWarningMatchesServedSnapshot){
           const stable=(riskLedgerByNo.get(no)??[]).find(x=>{
             const payload=(x.source_payload&&typeof x.source_payload==="object"?x.source_payload:{}) as Record<string,unknown>;
             const candidateTop=riskPick(x.original_top1??payload.originalTop1);
