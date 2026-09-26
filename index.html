@@ -591,7 +591,14 @@
     .score-version-label{font-size:11px;line-height:1.6;color:#627467;margin:8px 2px}
     .score-version-summary{font-size:11px;line-height:1.65;color:#486753;border-top:1px solid #e5eae5;padding-top:9px;margin-top:9px}
     .score-version-note{font-size:11px;line-height:1.6;color:#516b57;margin:9px 2px 0}
-  </style>
+  
+    .risk-inline{margin:0 14px 12px;padding:9px 11px;border:1px solid #e3e7ee;border-radius:10px;background:#f7f9fc;display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.55;color:#4a5568}
+    .risk-inline strong{flex:0 0 auto;font-size:12px;color:#30415f;white-space:nowrap}
+    .risk-inline span{min-width:0;color:#667085}
+    .risk-inline.strong{background:#fff8e8;border-color:#e6c982}
+    .risk-inline.strong strong{color:#8a5a08}
+    .risk-inline.focus{background:#f5f7fb;border-color:#d8deea}
+</style>
 </head>
 <body>
   <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="九十刻度欢迎页">
@@ -1164,7 +1171,7 @@
       score:['九十刻度比分矩阵','展示赛前冻结的4项比分与模型概率；赛后对照实际比分'],
       htft:['九十刻度半全场','测试阶段 · 展示模型Top4半全场走势及概率，按日期核对实际覆盖情况'],
       daily:['九十刻度今日优选','仅展示赛前已标记的重点观察场次；完整全池请切换赛事分析查看'],
-      upset:['九十刻度赛事风险观察','展示赛前风险信号及可核验的分析方向']
+      upset:['九十刻度赛事风险观察','仅突出重点风险与强风险信号，一般风险保留在详情分析中']
     };
     const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
     const matchTimeFormatter=new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
@@ -1578,6 +1585,7 @@
         }
         c.append(goals);
       }
+      appendRiskStrip(c,row);
       if(history&&state.model!=='goals'){const r=el('div','history-result');r.append(document.createTextNode('比分 '),el('b','',scoreline(row)),document.createTextNode(' · '));if(state.model==='handicap')r.append(document.createTextNode('来源 '+safe(row.handicapSourceLabel)+' · 首选 '+safe(row.handicapTop1??row.handicap)+' · 次选 '+safe(row.handicapSecond)+' · 赛果 '+safe(effectiveHandicapResult(row))+' · 评测 '),el('b','',!handicapEvaluable(row)?'未发布有效赛前让球预测':evaluationHit(row)?'成功':'未中'));else{r.append(document.createTextNode('首选 '),el('b','',pickCode[row.ftTop1]===normalizeResult(row.result)?'命中':'未中'),document.createTextNode(' · 次选 '),el('b','',pickCode[row.second]===normalizeResult(row.result)?'命中':'未中'));if(state.model==='overview')r.append(document.createTextNode(' · 让球 '),el('b','',handicapHit(row)?'命中':'未中'));r.append(document.createTextNode(' · 评测 '),el('b','',evaluationHit(row)?'成功':'未中'))}c.append(r)}
       c.setAttribute('role','button');c.tabIndex=0;c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};
       return c
@@ -1600,42 +1608,57 @@
       const raw=row.upsetWarning??row.upset_warning;
       if(!raw||typeof raw!=='object'||row.pregameVerified!==true||raw.publish!==true)return null;
       const level=String(raw.riskLevel??raw.risk_level??'未确认');
-      if(!['中','高'].includes(level))return null;
       const basis=Array.isArray(raw.riskBasis)?raw.riskBasis:Array.isArray(raw.risk_basis)?raw.risk_basis:[];
       const directionBasis=Array.isArray(raw.directionBasis)?raw.directionBasis:Array.isArray(raw.direction_basis)?raw.direction_basis:[];
       const alternativePick=raw.alternativePick??raw.alternative_pick??null;
       const originalPick=raw.originalTop1??raw.original_top1??row.ftTop1;
-      const originalCode=normalizeResult(originalPick);
-      const nonHurEvidence=basis.filter(item=>!/\\bHUR\\b|热门风险灯|红灯/i.test(String(item)));
-      let direction=String(raw.warningDirection??raw.warning_direction??'').trim(),derivedFromOriginal=false;
-      // Public copy uses only the clearer “unbeaten” wording.
+      const originalCode=normalizeResult(originalPick),secondCode=normalizeResult(row.second);
+      const gate=(raw.focusGate&&typeof raw.focusGate==='object')?raw.focusGate:
+        (raw.focus_gate&&typeof raw.focus_gate==='object'?raw.focus_gate:null);
+      const oppositeSecond=gate?.opposite_second===true||
+        (['H','A'].includes(originalCode)&&['H','A'].includes(secondCode)&&originalCode!==secondCode);
+      const qualifiedDraw=gate?.qualified_draw===true;
+      const marketAnomaly=gate?.market_anomaly===true;
+      const marketSignals=Array.isArray(raw.marketSignals)?raw.marketSignals:
+        (Array.isArray(raw.market_signals)?raw.market_signals:[]);
+      const modelVersion=String(raw.modelVersion??raw.model_version??'HJ38-UPSET-v1.0.0');
+      // Do not rewrite older historical publications. For the 9/26 transition only,
+      // legacy v1.0 rows are visually narrowed by the verified opposite-second rule
+      // until the next v1.1 prematch freeze arrives.
+      if(!gate&&String(row.date??'')>='2026-09-26'&&!oppositeSecond)return null;
+      const displayTier=String(raw.displayTier??raw.display_tier??
+        (gate?(level==='高'?'强风险信号':'重点风险'):
+          String(row.date??'')>='2026-09-26'?'重点风险':level==='高'?'强风险信号':'重点风险'));
+      let direction=String(raw.warningDirection??raw.warning_direction??'').trim();
       if(direction==='主队不胜')direction='客队不败';
       else if(direction==='客队不胜')direction='主队不败';
       else if(direction==='平局不稳'&&alternativePick==='主胜')direction='主队不败';
       else if(direction==='平局不稳'&&alternativePick==='客胜')direction='客队不败';
-      // When the warning is formally published but lacks display wording, protect against
-      // the frozen original Top1. A HUR-only red light is never enough for this fallback.
-      if(!['主队不败','客队不败'].includes(direction)&&nonHurEvidence.length){
-        if(originalCode==='H'){direction='客队不败';derivedFromOriginal=true}
-        else if(originalCode==='A'){direction='主队不败';derivedFromOriginal=true}
-        else if(alternativePick==='主胜'){direction='主队不败';derivedFromOriginal=true}
-        else if(alternativePick==='客胜'){direction='客队不败';derivedFromOriginal=true}
-      }
-      if(!['主队不败','客队不败'].includes(direction))return null;
+      if(!['主队不败','客队不败','平局风险'].includes(direction))direction='';
+      let inlineReason='';
+      if(displayTier==='强风险信号')inlineReason='胜负方向分歧 · 市场反向变化';
+      else if(qualifiedDraw&&!oppositeSecond)inlineReason='独立进球模型提示平局风险';
+      else if(oppositeSecond)inlineReason='胜负方向分歧';
+      else inlineReason=basis[0]||'赛前风险证据达到重点观察门槛';
       return {
-        level,
+        level,displayTier,
         score:Number.isFinite(Number(raw.riskScore??raw.risk_score))?Number(raw.riskScore??raw.risk_score):null,
-        direction,
-        alternativePick,
+        direction,alternativePick,
         reason:basis.length?basis.join('；'):'赛前风险证据已达到发布门槛',
-        directionReason:directionBasis.join('；')||(derivedFromOriginal?'针对赛前原始首选的风险观察方向，仅供赛前数据对照':''),
-        originalPick,
-        modelVersion:raw.modelVersion??raw.model_version??'HJ38-UPSET-v1.0.0',
+        directionReason:directionBasis.join('；'),
+        originalPick,oppositeSecond,qualifiedDraw,marketAnomaly,marketSignals,inlineReason,
+        modelVersion,
         sourceModelVersion:raw.sourceModelVersion??raw.source_model_version??row.version??'未确认',
         sourceRevision:raw.sourceRevision??raw.source_revision??row.revision??'未确认',
         prematchAt:raw.prematchAt??raw.prematch_at??row.frozenAt,
         source:'九十刻度赛前风险观察'
       };
+    }
+    function appendRiskStrip(card,row){
+      const info=upsetInfo(row);if(!info)return;
+      const strip=el('div','risk-inline '+(info.displayTier==='强风险信号'?'strong':'focus'));
+      strip.append(el('strong','',info.displayTier),el('span','',info.inlineReason));
+      card.append(strip);
     }
     function upsetCard(row){
       const info=upsetInfo(row),card=el('article','match-card upset-card');
@@ -1658,8 +1681,8 @@
       const score=isVerified?(row.resultScore??(row.resultHome!==null&&row.resultHome!==undefined&&row.resultAway!==null&&row.resultAway!==undefined?row.resultHome+':'+row.resultAway:'完赛')):'VS';
       fixture.append(team(home,row.homeLogo??row.home_logo??row.homeTeamLogo,'home'),el('div','upset-score',String(score).replace('-',':')),team(away,row.awayLogo??row.away_logo??row.awayTeamLogo,'away'));
       const main=el('div','upset-main'),indexPanel=el('div','upset-panel'),directionPanel=el('div','upset-panel');
-      indexPanel.append(el('div','upset-value risk-level'+(info.level==='高'?' high':''),info.level+'风险'),el('div','upset-label',info.score===null?'分值待确认':Number(info.score).toFixed(1)+'分'));
-      directionPanel.append(el('div','upset-value direction',info.direction),el('div','upset-label','风险方向'));
+      indexPanel.append(el('div','upset-value risk-level'+(info.displayTier==='强风险信号'?' high':''),info.displayTier),el('div','upset-label',info.score===null?'分值待确认':Number(info.score).toFixed(1)+'分'));
+      directionPanel.append(el('div','upset-value direction',info.direction||(info.qualifiedDraw?'平局风险':'首选失手风险')),el('div','upset-label','风险类型'));
       main.append(indexPanel,directionPanel);
       const evidence=el('details','upset-evidence'),summary=el('summary','','查看分析依据');
       evidence.append(summary,
@@ -1688,7 +1711,7 @@
     function renderCards(title,sub,rows,history=false){
       const box=$('content');box.replaceChildren(sectionHead(title,sub));const updateTip=updateNotice();if(updateTip)box.append(updateTip);
       if(state.model==='htft'){const tip=el('div','htft-list-note');tip.textContent='测试阶段 · 前一字表示半场结果，后一字表示90分钟全场结果，胜平负均以主队为参照。四个百分比是模型估算概率，实际赛果也可能不在Top4中；请独立判断，仅供参考。历史复算仅作回放对照，非当时发布的赛前预测。';box.append(tip)}
-      if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前风险记录':state.model==='daily'?'暂无重点观察场次':'暂无已发布赛事',state.model==='upset'?'本日暂无满足证据条件的赛事风险记录；单独HUR风险灯不生成方向。':'当前没有符合筛选条件的赛事记录。'),notice());return}
+      if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前风险记录':state.model==='daily'?'暂无重点观察场次':'暂无已发布赛事',state.model==='upset'?'本日暂无通过重点风险门槛的赛前记录；一般风险仅保留在比赛详情中。':'当前没有符合筛选条件的赛事记录。'),notice());return}
       const grid=el('div','cards');rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));box.append(grid,notice())
     }
     function renderHome(){if(state.unopenedDate){const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(empty('赛事数据待更新','正在等待该日期比赛与预测同步。'));return}const all=visibleRows(),focus=all.filter(isFocus);if(state.model==='upset'){renderCards('风险观察',all.length+'场 · 九十刻度赛前风险记录',all);return}if(state.model==='overview'){renderCards('全场胜平负',all.length+'场 · 九十刻度',all);return}if(state.model!=='daily'){renderCards(currentTitle(),all.length+'场 · 九十刻度',all);return}const box=$('content');box.replaceChildren();const updateTip=updateNotice();if(updateTip)box.append(updateTip);box.append(sectionHead('重点赛事',focus.length+'场 · 仅展示已标记的赛前重点观察场次'));if(focus.length){const g=el('div','cards');focus.forEach(row=>g.append(matchCard(row,false)));box.append(g)}else box.append(empty('今日暂无重点观察场次','当前没有符合筛选条件的场次。'));if(state.model==='overview'){const other=all.filter(r=>!isFocus(r));box.append(sectionHead('其余竞足',other.length+'场'));if(other.length){const g=el('div','cards');other.forEach(row=>g.append(matchCard(row,false)));box.append(g)}}box.append(notice())}
@@ -1828,6 +1851,7 @@
       updates.append(el('summary','','网站更新日志'));
       const updateList=el('div','profile-changelog-list');
       [
+        ['09/26','赛事风险升级为重点风险 / 强风险信号分层，并在对应比赛卡片下直接展示'],
         ['09/25','完善比赛详情的数据状态与指标说明'],
         ['09/25','优化公测会员方案展示与人工双账号申请'],
         ['09/25','补充9月19日至24日赛事球场与草皮资料']
