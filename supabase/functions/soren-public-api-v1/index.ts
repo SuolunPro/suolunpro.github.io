@@ -292,7 +292,7 @@ function attachPublishedHTFTTop4(row:Record<string,unknown>,
 /* Post-kickoff reconstruction is a separate collection and NEVER a published
    prematch record or an input to the formal Top4 performance metrics. */
 async function loadHistoricalHTFTTop4(date:string){
-  if(date<"2026-09-19"||date>"2026-09-24")return new Map<string,Record<string,unknown>>();
+  if(date<"2026-09-19")return new Map<string,Record<string,unknown>>();
   const {data,error}=await db.from("soren_htft_top4_history_v1")
     .select("match_id,pool_date,match_no,home_team,away_team,kickoff_at,source_frozen_at,reconstructed_at,original_source_kind,original_replay_at,picks,top4_probability,ht_draw_probability,low_goal_draw_audit,method_version")
     .eq("pool_date",date);
@@ -301,9 +301,10 @@ async function loadHistoricalHTFTTop4(date:string){
 }
 function attachHistoricalHTFTTop4(row:Record<string,unknown>,
   historical:Map<string,Record<string,unknown>>,verifiedResults:Map<string,Record<string,unknown>>):Record<string,unknown>{
+  if(row.htftTop4&&typeof row.htftTop4==="object")return row;
   const no=String(row.no??"").padStart(3,"0");
   const p=historical.get(no);
-  if(!p)return {...row,htftTop4:null};
+  if(!p)return row;
   const kickoff=Date.parse(String(row.kickoff??""));
   const sourceKickoff=Date.parse(String(p.kickoff_at??""));
   const frozen=Date.parse(String(p.source_frozen_at??""));
@@ -700,9 +701,15 @@ async function loadUpsetWarningMap(date:string){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return new Map<string,Record<string,unknown>>();
   const {data,error}=await db.from("soren_upset_warnings_v1")
     .select("pool_date,match_no,source_model_version,source_revision,warning_model_version,risk_level,risk_score,original_top1,warning_direction,alternative_pick,risk_basis,direction_basis,evidence_domains,directional_domain_count,source_frozen_at,result_fields_used,hur_direction_used,source_payload")
-    .eq("pool_date",date).order("match_no",{ascending:true});
+    .eq("pool_date",date).order("match_no",{ascending:true}).order("source_frozen_at",{ascending:true});
   if(error)throw error;
-  return new Map((data??[]).map((w:Record<string,unknown>)=>[warningKey(w.match_no,w.source_frozen_at),w]));
+  const map=new Map<string,Record<string,unknown>>();
+  for(const w of data??[]){
+    const row=w as Record<string,unknown>,no=String(row.match_no??"").padStart(3,"0");
+    map.set(warningKey(row.match_no,row.source_frozen_at),row);
+    map.set("LATEST|"+no,row);
+  }
+  return map;
 }
 function publicWarning(w:Record<string,unknown>){
   const p=(w.source_payload&&typeof w.source_payload==="object"?w.source_payload:{}) as Record<string,unknown>;
@@ -715,6 +722,12 @@ function publicWarning(w:Record<string,unknown>){
     riskScore:Number(w.risk_score??0),
     displayTier:p.display_tier??p.displayTier??(risk==="高"?"强风险信号":risk==="中"?"重点风险":"一般风险"),
     detailOnly:p.detail_only===true||p.detailOnly===true,
+    publicationEligible:
+      typeof p.publication_eligible==="boolean"?p.publication_eligible:
+      typeof p.publicationEligible==="boolean"?p.publicationEligible:null,
+    publicationReason:p.publication_reason??p.publicationReason??null,
+    formalPredictionAt:p.formal_prediction_at??p.formalPredictionAt??null,
+    formalPredictionDq:p.formal_prediction_dq??p.formalPredictionDq??null,
     focusGate:(p.focus_gate&&typeof p.focus_gate==="object")?p.focus_gate:(p.focusGate&&typeof p.focusGate==="object"?p.focusGate:null),
     marketSignals:Array.isArray(p.market_signals)?p.market_signals:(Array.isArray(p.marketSignals)?p.marketSignals:[]),
     independentDrawProbability:Number.isFinite(Number(p.independent_draw_probability??p.independentDrawProbability))?Number(p.independent_draw_probability??p.independentDrawProbability):null,
@@ -736,7 +749,11 @@ function publicWarning(w:Record<string,unknown>){
 }
 function attachUpsetWarning(row:Record<string,unknown>,warnings:Map<string,Record<string,unknown>>){
   if(row.upsetWarning&&typeof row.upsetWarning==="object")return row;
-  const w=warnings.get(warningKey(row.no,row.frozenAt));
+  const exact=warnings.get(warningKey(row.no,row.frozenAt));
+  const day=String(row.date??"");
+  const historicalReplay=day>="2026-09-20"&&day<"2026-09-26";
+  const fallback=historicalReplay?warnings.get("LATEST|"+String(row.no??"").padStart(3,"0")):null;
+  const w=exact??fallback;
   return w?{...row,upsetWarning:publicWarning(w)}:row;
 }
 
@@ -750,7 +767,7 @@ function riskLine(v:unknown){
   return sign*(parts.reduce((a,b)=>a+b,0)/parts.length);
 }
 async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
-  if(date<"2026-09-26"||!rows.length)return rows;
+  if(date<"2026-09-20"||!rows.length)return rows;
   try{
     const {data:matches,error:matchError}=await db.from("soren_matches")
       .select("id,match_no,kickoff_at").eq("pool_date",date).limit(200);
@@ -763,7 +780,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(Number.isFinite(Number(m.id)))ids.push(Number(m.id));
     }
     if(!ids.length)return rows;
-    const [{data:market,error:marketError},{data:features,error:featureError}]=await Promise.all([
+    const [{data:market,error:marketError},{data:features,error:featureError},{data:formalPredictions,error:predictionError},{data:riskLedger,error:riskLedgerError}]=await Promise.all([
       db.from("soren_market_snapshots")
         .select("match_id,source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,data_quality,payload,captured_at,ingested_at")
         .in("match_id",ids)
@@ -775,9 +792,19 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         .select("match_id,feature_type,data_quality,payload,captured_at,ingested_at")
         .in("match_id",ids).like("feature_type","SCORE_ENGINE%")
         .order("captured_at",{ascending:false}).limit(1000),
+      db.from("soren_predictions")
+        .select("match_id,ft_top1,ft_second,dq,frozen_at")
+        .in("match_id",ids)
+        .order("frozen_at",{ascending:false}).limit(1000),
+      db.from("soren_upset_warnings_v1")
+        .select("pool_date,match_no,source_model_version,source_revision,warning_model_version,risk_level,risk_score,original_top1,warning_direction,alternative_pick,risk_basis,direction_basis,evidence_domains,directional_domain_count,source_frozen_at,result_fields_used,hur_direction_used,source_payload")
+        .eq("pool_date",date)
+        .order("source_frozen_at",{ascending:false}).limit(1200),
     ]);
     if(marketError)throw marketError;
     if(featureError)throw featureError;
+    if(predictionError)throw predictionError;
+    if(riskLedgerError)throw riskLedgerError;
     const marketById=new Map<number,Record<string,unknown>[]>();
     for(const x of market??[]){
       const id=Number(x.match_id);if(!Number.isFinite(id))continue;
@@ -790,6 +817,17 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(!featureById.has(id))featureById.set(id,[]);
       featureById.get(id)!.push(x as Record<string,unknown>);
     }
+    const formalPredictionById=new Map<number,Record<string,unknown>>();
+    for(const x of formalPredictions??[]){
+      const id=Number(x.match_id);if(!Number.isFinite(id)||formalPredictionById.has(id))continue;
+      formalPredictionById.set(id,x as Record<string,unknown>);
+    }
+    const riskLedgerByNo=new Map<string,Record<string,unknown>[]>();
+    for(const x of riskLedger??[]){
+      const no=String(x.match_no??"").padStart(3,"0");
+      if(!riskLedgerByNo.has(no))riskLedgerByNo.set(no,[]);
+      riskLedgerByNo.get(no)!.push(x as Record<string,unknown>);
+    }
     const before=(x:Record<string,unknown>,cut:number)=>{
       const c=Date.parse(String(x.captured_at??"")),i=Date.parse(String(x.ingested_at??x.captured_at??""));
       return Number.isFinite(c)&&Number.isFinite(i)&&c<=cut&&i<=cut;
@@ -800,25 +838,99 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       list.find(x=>before(x,cut)&&String(x.feature_type).startsWith("SCORE_ENGINE"))??null;
 
     return rows.map(row=>{
-      const raw=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
+      let raw=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
         ?row.upsetWarning as Record<string,unknown>:null;
       if(!raw||row.pregameVerified!==true)return row;
+      const no=String(row.no??"").padStart(3,"0"),match=matchByNo.get(no);
+      if(!match)return row;
+      const id=Number(match.id),formal=formalPredictionById.get(id)??null;
+      const formalAt=Date.parse(String(formal?.frozen_at??""));
+      const formalTop=riskPick(formal?.ft_top1),formalSecond=riskPick(formal?.ft_second);
+      const formalDq=String(formal?.dq??"");
+      const kick=Date.parse(String(row.kickoff??match.kickoff_at??""));
+
+      // Public risk is anchored to the immutable formal prediction. If a later
+      // upstream refresh changes the Top1, retain it in the ledger for audit but
+      // serve the latest pre-kickoff warning that still matches the formal Top1.
+      if(date>="2026-09-26"&&formalTop&&Number.isFinite(formalAt)&&Number.isFinite(kick)){
+        const currentTop=riskPick(raw.originalTop1??raw.original_top1);
+        if(currentTop!==formalTop){
+          const stable=(riskLedgerByNo.get(no)??[]).find(x=>{
+            const payload=(x.source_payload&&typeof x.source_payload==="object"?x.source_payload:{}) as Record<string,unknown>;
+            const candidateTop=riskPick(x.original_top1??payload.originalTop1);
+            const at=Date.parse(String(x.source_frozen_at??payload.prematchAt??""));
+            const gate=(payload.focusGate&&typeof payload.focusGate==="object"?payload.focusGate:{}) as Record<string,unknown>;
+            const basis=Array.isArray(x.risk_basis)?x.risk_basis:[];
+            const marketEvidence=gate.market_anomaly===true||
+              basis.some(v=>/竞彩HAD首选.*与William原始首选.*冲突|升赔|退盘/.test(String(v??"")));
+            return candidateTop===formalTop&&marketEvidence&&Number.isFinite(at)&&at>=formalAt&&at<kick;
+          });
+          if(stable)raw=publicWarning(stable);
+        }
+      }
+
       const sourcePublish=raw.publish===true;
       const rawScore=riskNum(raw.riskScore??raw.risk_score);
       // Preserve meaningful broad-risk records in the detail page even when they
       // do not qualify for a highlighted focus strip. Low-signal (0–2) rows stay quiet.
       const generalCandidate=sourcePublish||(rawScore!==null&&rawScore>=3);
       if(!generalCandidate)return row;
-      const no=String(row.no??"").padStart(3,"0"),match=matchByNo.get(no);
-      if(!match)return row;
       const freezeAt=String(raw.prematchAt??raw.prematch_at??row.frozenAt??"");
-      const cut=Date.parse(freezeAt),kick=Date.parse(String(row.kickoff??match.kickoff_at??""));
+      const cut=Date.parse(freezeAt);
       if(!Number.isFinite(cut)||!Number.isFinite(kick)||cut>=kick)return row;
       const top=riskPick(raw.originalTop1??raw.original_top1??row.ftTop1);
-      const second=riskPick(row.second);
+      const rowFreeze=Date.parse(String(row.frozenAt??""));
+      const rowTop=riskPick(row.ftTop1),rowSecond=riskPick(row.second);
+      const rowRisk=(row.risk&&typeof row.risk==="object"?row.risk:{}) as Record<string,unknown>;
+      const servedDq=String(rowRisk.dq??formalDq??"");
+      // The customer page serves the newest verified pre-kickoff snapshot, which can
+      // legitimately be newer than soren_predictions. When the warning belongs to
+      // that exact served snapshot, evaluate the visible Top1/Top2 pair instead of
+      // forcing an older formal-prediction pair and suppressing a real H/A split.
+      const servedSnapshotMatchesTop=date>="2026-09-26"&&rowTop!==null&&rowTop===top;
+      const second=date>="2026-09-26"?
+        (servedSnapshotMatchesTop?(rowSecond??formalSecond):(formalSecond??rowSecond)):
+        rowSecond;
       const oppositeSecond=!!(top&&second&&["H","A"].includes(top)&&["H","A"].includes(second)&&top!==second);
+      const historicalReplay=date<"2026-09-26";
+      const historicalDq=servedDq;
+      const historicalPredictionAt=Number.isFinite(rowFreeze)?rowFreeze:formalAt;
+      const historicalTop=rowTop??formalTop;
+      const historicalSecond=rowSecond??formalSecond;
+      const historicalEligible=historicalReplay&&row.pregameVerified===true&&
+        ["DQ-A","DQ-B"].includes(historicalDq)&&
+        Number.isFinite(historicalPredictionAt)&&historicalPredictionAt<kick&&historicalPredictionAt<=cut&&
+        Number.isFinite(cut)&&cut<kick&&
+        historicalTop===top&&historicalSecond===second;
+      const formalStoreEligible=!historicalReplay&&!!formal&&Number.isFinite(formalAt)&&formalAt<kick&&
+        ["DQ-A","DQ-B"].includes(formalDq)&&formalTop===top&&formalSecond===second;
+      const servedPredictionEligible=!historicalReplay&&row.pregameVerified===true&&
+        Number.isFinite(rowFreeze)&&rowFreeze<kick&&Number.isFinite(cut)&&
+        Math.abs(rowFreeze-cut)<=300000&&["DQ-A","DQ-B"].includes(servedDq)&&
+        rowTop===top&&rowSecond===second;
+      const formalPredictionEligible=!historicalReplay&&(formalStoreEligible||servedPredictionEligible);
+      const publicationEligible=historicalReplay?historicalEligible:formalPredictionEligible;
+      if(!publicationEligible){
+        return {...row,upsetWarning:{...raw,
+          sourcePublish,publish:false,detailOnly:false,displayTier:null,
+          publicationEligible:false,
+          publicationReason:historicalReplay?"HISTORICAL_FREEZE_MISMATCH":"NO_MATCHING_FORMAL_PREDICTION",
+          replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
+          historyRewrite:false,
+          focusGate:{
+            opposite_second:false,
+            qualified_draw:false,
+            market_anomaly:false,
+            rule_version:"HJ38-RISK-LAYER-v1.2.5",
+            evaluated_at:freezeAt
+          },
+          marketSignals:[],
+          independentDrawProbability:null,
+          focusRuleVersion:"HJ38-RISK-LAYER-v1.2.5"
+        }};
+      }
 
-      const id=Number(match.id),scoreRow=latestScore(featureById.get(id)??[],cut);
+      const scoreRow=latestScore(featureById.get(id)??[],cut);
       const scorePayload=(scoreRow?.payload&&typeof scoreRow.payload==="object"?scoreRow.payload:{}) as Record<string,unknown>;
       const drawProb=riskNum(scorePayload.dc_p_draw??scorePayload.p_draw);
       const strictScore=scoreRow!==null&&
@@ -828,6 +940,18 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       const qualifiedDraw=second==="D"&&strictScore&&(drawProb??0)>=0.27;
 
       const list=marketById.get(id)??[],signals:string[]=[];
+      // Preserve a market conflict already certified inside the same frozen upstream warning.
+      // Count it only when William's original side equals the frozen Top1 and the lottery HAD side opposes it.
+      const frozenRiskBasis=Array.isArray(raw.riskBasis)?raw.riskBasis:(Array.isArray(raw.risk_basis)?raw.risk_basis:[]);
+      for(const item of frozenRiskBasis){
+        const m=String(item??"").match(/竞彩HAD首选(主胜|平|客胜)与William原始首选(主胜|平|客胜)冲突/);
+        if(!m)continue;
+        const sporttery=riskPick(m[1]),williamOriginal=riskPick(m[2]);
+        if(top&&williamOriginal===top&&sporttery&&sporttery!==top){
+          signals.push("体彩HAD方向冲突");
+          break;
+        }
+      }
       const wi=latestMarket(list,"zucaijia_william","FT_1X2","initial",cut);
       const wc=latestMarket(list,"zucaijia_william","FT_1X2","current",cut);
       if(top&&wi&&wc){
@@ -840,7 +964,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         const api=(ai.payload&&typeof ai.payload==="object"?ai.payload:{}) as Record<string,unknown>;
         const acp=(ac.payload&&typeof ac.payload==="object"?ac.payload:{}) as Record<string,unknown>;
         const a=riskLine(api.original_line??ai.line),b=riskLine(acp.original_line??ac.line);
-        if(a!==null&&b!==null&&Math.abs(b)+0.24<=Math.abs(a))signals.push("Bet365亚洲盘退盘");
+        if(a!==null&&b!==null&&Math.abs(b)+0.24<=Math.abs(a))signals.push("亚洲盘退盘");
       }
       const si=latestMarket(list,"qiulaile_sp_mirror","HAD","initial",cut);
       const sc=latestMarket(list,"qiulaile_sp_mirror","HAD","current",cut);
@@ -864,12 +988,21 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
           opposite_second:oppositeSecond,
           qualified_draw:qualifiedDraw,
           market_anomaly:marketAnomaly,
-          rule_version:"HJ38-RISK-LAYER-v1.1.0",
+          rule_version:"HJ38-RISK-LAYER-v1.2.5",
           evaluated_at:freezeAt
         },
         marketSignals,
         independentDrawProbability:strictScore?drawProb:null,
-        focusRuleVersion:"HJ38-RISK-LAYER-v1.1.0"
+        publicationEligible:true,
+        publicationReason:historicalReplay?"HISTORICAL_PREMATCH_FREEZE_MATCHED":
+          (servedPredictionEligible&&!formalStoreEligible?"LATEST_PREMATCH_FREEZE_MATCHED":"FORMAL_PREDICTION_MATCHED"),
+        formalPredictionAt:historicalReplay?(row.frozenAt??null):
+          (servedPredictionEligible&&!formalStoreEligible?(row.frozenAt??null):(formal?.frozen_at??null)),
+        formalPredictionDq:historicalReplay?(row.risk&&typeof row.risk==="object"?(row.risk as Record<string,unknown>).dq??null:null):
+          (servedPredictionEligible&&!formalStoreEligible?servedDq:formalDq),
+        replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
+        historyRewrite:false,
+        focusRuleVersion:"HJ38-RISK-LAYER-v1.2.5"
       }};
     });
   }catch(error){
@@ -882,20 +1015,149 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       const sourcePublish=raw.publish===true,rawScore=riskNum(raw.riskScore??raw.risk_score);
       const generalCandidate=sourcePublish||(rawScore!==null&&rawScore>=3);
       if(!generalCandidate)return row;
-      const top=riskPick(raw.originalTop1??raw.original_top1??row.ftTop1),second=riskPick(row.second);
-      const opposite=!!(top&&second&&["H","A"].includes(top)&&["H","A"].includes(second)&&top!==second);
-      return {...row,upsetWarning:{...raw,sourcePublish,publish:opposite,detailOnly:!opposite,
-        displayTier:opposite?"重点风险":"一般风险",
-        focusGate:{opposite_second:opposite,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.1.0-FALLBACK"},
+      return {...row,upsetWarning:{...raw,sourcePublish,publish:false,detailOnly:false,
+        displayTier:null,publicationEligible:false,publicationReason:"RISK_LAYER_UNAVAILABLE",
+        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.2.5-FALLBACK"},
         marketSignals:[]}};
     });
   }
 }
 function upsetStatsFor(rows:Record<string,unknown>[]){
   const published=rows.filter(r=>{const w=r.upsetWarning as Record<string,unknown>|null;return w?.publish===true});
-  return {modelVersion:"HJ38-UPSET-v1.1.0",published:published.length,high:published.filter(r=>(r.upsetWarning as Record<string,unknown>)?.riskLevel==="高").length,medium:published.filter(r=>(r.upsetWarning as Record<string,unknown>)?.riskLevel==="中").length,directionPublished:published.filter(r=>!!(r.upsetWarning as Record<string,unknown>)?.warningDirection).length,resultFieldsUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.resultFieldsUsed===true),hurDirectionUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.hurDirectionUsed===true)};
+  const tierOf=(r:Record<string,unknown>)=>{
+    const w=r.upsetWarning as Record<string,unknown>|null;
+    return String(w?.displayTier??w?.display_tier??"");
+  };
+  const strong=published.filter(r=>tierOf(r)==="强风险信号").length;
+  const focus=published.filter(r=>tierOf(r)==="重点风险").length;
+  return {
+    modelVersion:"HJ38-UPSET-v1.1.0",
+    riskLayerVersion:"HJ38-RISK-LAYER-v1.2.5",
+    published:published.length,
+    strong,focus,
+    // Backward-compatible keys: high/medium now follow the public layered tier, not legacy risk_score bands.
+    high:strong,medium:focus,
+    directionPublished:published.filter(r=>!!(r.upsetWarning as Record<string,unknown>)?.warningDirection).length,
+    resultFieldsUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.resultFieldsUsed===true),
+    hurDirectionUsed:published.some(r=>(r.upsetWarning as Record<string,unknown>)?.hurDirectionUsed===true)
+  };
 }
 
+
+
+/* Daily selection layer v1.0.
+   Preserve formal/core picks unchanged. Supplement only from the daily Top3
+   William 1.45–1.75 value band, then remove core overlap and highlighted risk.
+   Ranking happens BEFORE core/risk removal and never backfills from rank 4+. */
+function dailyCorePick(row:Record<string,unknown>){
+  const tier=String(row.tier??"").trim().toUpperCase();
+  const mode=String(row.mode??"").trim().toUpperCase();
+  return row.pregameVerified===true&&(mode==="SINGLE"||mode==="DOUBLE")&&tier!==""&&tier!=="PASS"&&row.pass!==true;
+}
+function dailySelectionStatsFor(rows:Record<string,unknown>[]){
+  const core=rows.filter(r=>String(r.dailySelectionTier??"")==="CORE");
+  const supplement=rows.filter(r=>String(r.dailySelectionTier??"")==="SUPPLEMENT");
+  const odds=supplement.map(r=>Number((r.dailySelectionMeta as Record<string,unknown>|null)?.williamTop1Odds))
+    .filter(Number.isFinite);
+  return {
+    selectorVersion:"DAILY-VALUE-v1.0-20260926",
+    core:core.length,
+    supplement:supplement.length,
+    total:core.length+supplement.length,
+    supplementAverageWilliamOdds:odds.length?Math.round(odds.reduce((a,b)=>a+b,0)/odds.length*1000)/1000:null
+  };
+}
+async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
+  const selectorVersion="DAILY-VALUE-v1.0-20260926";
+  let tagged=rows.map(row=>dailyCorePick(row)?{...row,dailySelectionTier:"CORE",dailySelectionLabel:"核心优选"}:{...row,dailySelectionTier:null,dailySelectionLabel:null});
+  if(!rows.length||date<"2026-09-20")return tagged;
+  try{
+    const {data:matches,error:matchError}=await db.from("soren_matches")
+      .select("id,match_no,home_team,away_team,kickoff_at")
+      .eq("pool_date",date).limit(200);
+    if(matchError)throw matchError;
+    const byNo=new Map<string,Record<string,unknown>>();
+    const ids:number[]=[];
+    for(const m of matches??[]){
+      const no=String(m.match_no??"").padStart(3,"0");
+      byNo.set(no,m as Record<string,unknown>);
+      if(Number.isFinite(Number(m.id)))ids.push(Number(m.id));
+    }
+    if(!ids.length)return tagged;
+
+    const {data:markets,error:marketError}=await db.from("soren_market_snapshots")
+      .select("match_id,snapshot_type,home_value,draw_value,away_value,data_quality,captured_at,ingested_at")
+      .in("match_id",ids)
+      .eq("source_code","zucaijia_william")
+      .eq("market_type","FT_1X2")
+      .in("data_quality",["verified","verified_mirror"])
+      .order("captured_at",{ascending:false}).limit(5000);
+    if(marketError)throw marketError;
+
+    const marketById=new Map<number,Record<string,unknown>[]>();
+    for(const x of markets??[]){
+      const id=Number(x.match_id);if(!Number.isFinite(id))continue;
+      if(!marketById.has(id))marketById.set(id,[]);
+      marketById.get(id)!.push(x as Record<string,unknown>);
+    }
+
+    const raw:{row:Record<string,unknown>;odds:number;confidence:number;no:string}[]=[];
+    for(const row of tagged){
+      if(row.pregameVerified!==true)continue;
+      const no=String(row.no??"").padStart(3,"0"),match=byNo.get(no);
+      if(!match||String(match.home_team)!==String(row.home??"")||String(match.away_team)!==String(row.away??""))continue;
+      const cut=Date.parse(String(row.frozenAt??"")),kick=Date.parse(String(row.kickoff??match.kickoff_at??""));
+      if(!Number.isFinite(cut)||!Number.isFinite(kick)||cut>=kick)continue;
+
+      const list=marketById.get(Number(match.id))??[];
+      const snap=list.find(x=>{
+        const captured=Date.parse(String(x.captured_at??""));
+        const ingested=Date.parse(String(x.ingested_at??x.captured_at??""));
+        return String(x.snapshot_type)==="current"&&Number.isFinite(captured)&&Number.isFinite(ingested)&&captured<=cut&&ingested<=cut;
+      });
+      if(!snap)continue;
+
+      const code=riskPick(row.ftTop1);
+      const odds=riskNum(code==="H"?snap.home_value:code==="D"?snap.draw_value:code==="A"?snap.away_value:null);
+      const confidence=riskNum(row.confidence);
+      if(odds===null||odds<1.45||odds>1.75||confidence===null)continue;
+      raw.push({row,odds,confidence,no});
+    }
+
+    raw.sort((a,b)=>b.confidence-a.confidence||a.odds-b.odds||a.no.localeCompare(b.no));
+    const selected=new Map<string,{rank:number;odds:number;confidence:number}>();
+    raw.slice(0,3).forEach((x,i)=>{
+      if(dailyCorePick(x.row))return;
+      const warning=(x.row.upsetWarning&&typeof x.row.upsetWarning==="object"&&!Array.isArray(x.row.upsetWarning))
+        ?x.row.upsetWarning as Record<string,unknown>:null;
+      const tier=String(warning?.displayTier??warning?.display_tier??"");
+      const blocked=warning?.publish===true||tier==="重点风险"||tier==="强风险信号";
+      if(blocked)return;
+      selected.set(String(x.row.no??"").padStart(3,"0"),{rank:i+1,odds:x.odds,confidence:x.confidence});
+    });
+
+    tagged=tagged.map(row=>{
+      if(dailyCorePick(row))return row;
+      const no=String(row.no??"").padStart(3,"0"),hit=selected.get(no);
+      if(!hit)return row;
+      return {...row,
+        dailySelectionTier:"SUPPLEMENT",
+        dailySelectionLabel:"精选补充",
+        dailySelectionMeta:{
+          selectorVersion,
+          rank:hit.rank,
+          williamTop1Odds:Math.round(hit.odds*100)/100,
+          frozenAt:row.frozenAt??null,
+          rule:"William 1.45–1.75 · 日内Top3 · 非核心 · 风险过滤通过"
+        }
+      };
+    });
+    return tagged;
+  }catch(error){
+    console.error("DAILY_SUPPLEMENT_LAYER_UNAVAILABLE",error);
+    return tagged;
+  }
+}
 
 /* Read-only, authenticated, on-demand match report. All inputs are cached
    in Soren customer DB; this route never invokes an external football API. */
@@ -1133,8 +1395,16 @@ Deno.serve(async (req: Request) => {
       const data=await response.json();
       const expectedRevision=allowed.get(String(data?.modelVersion??""));
       if(data?.ok!==true||!expectedRevision||data?.revision!==expectedRevision||!Array.isArray(data?.rows))throw new Error("UPSTREAM_VALIDATION_FAILED");
-      const result=await syncUpsetWarnings(data.rows,data);
-      return reply({ok:true,sync:"upset-warning",date:data.date??null,modelVersion:data.modelVersion??null,revision:data.revision??null,upsetStats:data.upsetStats??null,...result});
+      const syncDate=String(data.date??requestedDate??"");
+      const layered=await applyRiskFocusLayer(data.rows as Record<string,unknown>[],syncDate);
+      const result=await syncUpsetWarnings(layered,data);
+      return reply({
+        ok:true,sync:"upset-warning",date:syncDate,
+        modelVersion:data.modelVersion??null,revision:data.revision??null,
+        upsetStats:upsetStatsFor(layered),
+        riskLayerVersion:"HJ38-RISK-LAYER-v1.2.5",
+        ...result
+      });
     } catch(error) {
       console.error(error);
       return reply({ok:false,error:"UPSET_WARNING_SYNC_ERROR"},502);
@@ -1341,6 +1611,7 @@ Deno.serve(async (req: Request) => {
     ]);
     let rows = (await applySaleFreeze(sourceRows.map((row: Record<string,unknown>) => settlePublishedScoreTop4(attachDayEnvironment(attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachTeamFormH2h(attachTeamSchedule(attachGoalFormReference(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),goalFormReferences),teamSchedules),teamFormH2h),upsetWarnings),historicalScores),teamLogos),dayEnvironment))),dynamicDate)).map(settleTop5Handicap);
     rows=await applyRiskFocusLayer(rows,dynamicDate);
+    rows=await attachDailySupplementLayer(rows,dynamicDate);
     rows=await attachLiveScoreGoals(rows,dynamicDate);
         try {
       // Safe to invoke repeatedly: the producer inserts only future fixtures and never overwrites.
@@ -1352,8 +1623,13 @@ Deno.serve(async (req: Request) => {
         const historicalHTFT=await loadHistoricalHTFTTop4(dynamicDate);
         rows=rows.map((r:Record<string,unknown>)=>attachHistoricalHTFTTop4(r,historicalHTFT,databaseResults));
       }else{
-        const htftPublished=await loadPublishedHTFTTop4(dynamicDate);
-        rows=rows.map((r:Record<string,unknown>)=>attachPublishedHTFTTop4(r,htftPublished,databaseResults));
+        const [htftPublished,historicalHTFT]=await Promise.all([
+          loadPublishedHTFTTop4(dynamicDate),
+          loadHistoricalHTFTTop4(dynamicDate),
+        ]);
+        rows=rows
+          .map((r:Record<string,unknown>)=>attachPublishedHTFTTop4(r,htftPublished,databaseResults))
+          .map((r:Record<string,unknown>)=>attachHistoricalHTFTTop4(r,historicalHTFT,databaseResults));
       }
     } catch(htftError){
       console.error("HTFT_TOP4_UNAVAILABLE",htftError);
@@ -1361,7 +1637,10 @@ Deno.serve(async (req: Request) => {
     }
     rows=await attachLiveHTFT(rows,dynamicDate,databaseResults);
     const handicapStats = buildHandicapStats(rows);
-    const warningSync=await syncUpsetWarnings(rows,data);
+    const riskHistoricalReplay=dynamicDate>="2026-09-20"&&dynamicDate<"2026-09-26";
+    const warningSync=riskHistoricalReplay
+      ?{synced:0,readOnly:true,replayMode:"STRICT_PREMATCH_LAYER_REPLAY"}
+      :await syncUpsetWarnings(rows,data);
     return reply({
       ok: true,
       view,
@@ -1375,6 +1654,7 @@ Deno.serve(async (req: Request) => {
       pregameVerifiedCount: rows.length,
       handicapStats,
       upsetStats: upsetStatsFor(rows),
+      dailySelectionStats: dailySelectionStatsFor(rows),
       warningSync,
       updatedAt: new Date().toISOString(),
       rows: rows.map(attachScoreGoalReference),
