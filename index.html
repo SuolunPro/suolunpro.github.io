@@ -1606,7 +1606,7 @@
     // Historical replay uses only evidence available at the original pre-kickoff freeze; HUR never determines direction and result fields are excluded.
     function upsetInfo(row){
       const raw=row.upsetWarning??row.upset_warning;
-      if(!raw||typeof raw!=='object'||row.pregameVerified!==true||raw.publish!==true)return null;
+      if(!raw||typeof raw!=='object'||row.pregameVerified!==true||raw.publish!==true||raw.publicationEligible===false||raw.publication_eligible===false)return null;
       const level=String(raw.riskLevel??raw.risk_level??'未确认');
       const basis=Array.isArray(raw.riskBasis)?raw.riskBasis:Array.isArray(raw.risk_basis)?raw.risk_basis:[];
       const directionBasis=Array.isArray(raw.directionBasis)?raw.directionBasis:Array.isArray(raw.direction_basis)?raw.direction_basis:[];
@@ -2532,7 +2532,7 @@
       const panel=reportSection('风险观察 · 赛前数据迹象');
       panel.classList.add('report-detail-upset');
       const raw=row.upsetWarning??row.upset_warning;
-      const eligible=raw&&typeof raw==='object'&&row.pregameVerified===true;
+      const eligible=raw&&typeof raw==='object'&&row.pregameVerified===true&&raw.publicationEligible!==false&&raw.publication_eligible!==false;
       const kickoff=Date.parse(String(row.kickoff??''));
       const freezeAt=eligible?(raw.prematchAt??raw.prematch_at??null):null;
       const freeze=Date.parse(String(freezeAt??''));
