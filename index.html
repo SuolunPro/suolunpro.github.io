@@ -797,10 +797,22 @@
       if(!user?.id||user.id!==authSession.user?.id){clearAuthSession();throw Error('LOGIN_REQUIRED')}
       authSession.user=user;return authSession.access_token;
     }
+    // Stable, pseudonymous browser identifier for the optional one-time welcome trial.
+    // It is not proof of a physical device and clearing browser storage resets it.
+    function welcomeDeviceId(){
+      try{
+        let id=localStorage.getItem('soren_visit_id');
+        if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'')){
+          id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id);
+        }
+        return id;
+      }catch{return ''}
+    }
     async function authorizedApiFetch(url,options={}){
       if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
       await refreshAuthSession();
-      const request=()=>fetch(url,{...options,headers:{...(options.headers||{}),Authorization:'Bearer '+authSession.access_token}});
+      const welcomeHeader=url.includes('/functions/v1/soren-public-api-v1')?{'X-Soren-Device':welcomeDeviceId()}:{};
+      const request=()=>fetch(url,{...options,headers:{...(options.headers||{}),...welcomeHeader,Authorization:'Bearer '+authSession.access_token}});
       let response=await request();
       if(response.status===401&&authSession?.refresh_token){
         await refreshAuthSession(true);response=await request();
@@ -1009,7 +1021,10 @@
     }
     function renderMemberRequired(){
       const box=$('content');box.replaceChildren(sectionHead('会员专属数据','当天比赛推荐'));
-      const p=el('section','member-panel');p.append(el('h3','','会员有效期已结束'),el('p','','当天比赛完整报告目前仅向有效会员开放。无需邀请好友，也可前往「我的」查看月卡开通说明与会员到期时间。'));
+      const p=el('section','member-panel');
+      const trialBlocked=memberInfo?.trialStatus==='DEVICE_USED'||memberInfo?.trialStatus==='REVIEW_REQUIRED';
+      p.append(el('h3','',trialBlocked?'新用户体验资格待核验':'会员有效期已结束'),
+        el('p','',trialBlocked?'此浏览器可能已领取过新人会员，或存在异常重复注册。账号可以正常使用，已购会员权益不受影响；如属误判，请联系会员客服核实。':'当天比赛完整报告目前仅向有效会员开放。无需邀请好友，也可前往「我的」查看月卡开通说明与会员到期时间。'));
       const b=el('button','','前往我的会员中心');b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};p.append(b);box.append(p);
     }
     const TURNSTILE_SITE_KEY='0x4AAAAAAFBKndRZlD2qH4Km';
