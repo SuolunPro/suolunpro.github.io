@@ -1653,7 +1653,9 @@
     // Historical replay uses only evidence available at the original pre-kickoff freeze; HUR never determines direction and result fields are excluded.
     function upsetInfo(row){
       const raw=row.upsetWarning??row.upset_warning;
-      if(!raw||typeof raw!=='object'||row.pregameVerified!==true||raw.publish!==true||raw.publicationEligible===false||raw.publication_eligible===false)return null;
+      const riskDisplayEligible=raw?.riskDisplayEligible===true||raw?.risk_display_eligible===true;
+      if(!raw||typeof raw!=='object'||row.pregameVerified!==true||raw.publish!==true||
+        ((raw.publicationEligible===false||raw.publication_eligible===false)&&!riskDisplayEligible))return null;
       const level=String(raw.riskLevel??raw.risk_level??'未确认');
       const basis=Array.isArray(raw.riskBasis)?raw.riskBasis:Array.isArray(raw.risk_basis)?raw.risk_basis:[];
       const directionBasis=Array.isArray(raw.directionBasis)?raw.directionBasis:Array.isArray(raw.direction_basis)?raw.direction_basis:[];
@@ -1676,7 +1678,8 @@
       const displayTier=String(raw.displayTier??raw.display_tier??
         (gate?(level==='高'?'强风险信号':'重点风险'):
           String(row.date??'')>='2026-09-26'?'重点风险':level==='高'?'强风险信号':'重点风险'));
-      let direction=String(raw.warningDirection??raw.warning_direction??'').trim();
+      const directionEligible=raw.directionPublicationEligible!==false&&raw.direction_publication_eligible!==false;
+      let direction=directionEligible?String(raw.warningDirection??raw.warning_direction??'').trim():'';
       if(direction==='主队不胜')direction='客队不败';
       else if(direction==='客队不胜')direction='主队不败';
       else if(direction==='平局不稳'&&alternativePick==='主胜')direction='主队不败';
@@ -1706,6 +1709,7 @@
         directionReason:directionBasis.slice(0,3).join('；'),
         evidenceLines,
         originalPick,oppositeSecond,qualifiedDraw,marketAnomaly,marketSignals,inlineReason,
+        directionEligible,riskDisplayEligible,
         modelVersion,
         sourceModelVersion:raw.sourceModelVersion??raw.source_model_version??row.version??'未确认',
         sourceRevision:raw.sourceRevision??raw.source_revision??row.revision??'未确认',
@@ -1746,7 +1750,7 @@
         gap!==null&&gap<=6&&
         hadPct!==null&&hadPct>=58;
 
-      if(info.oppositeSecond===true&&validHandicapPick(handicapPick)&&hadPct!==null){
+      if(info.directionEligible!==false&&info.oppositeSecond===true&&validHandicapPick(handicapPick)&&hadPct!==null){
         const had=el('div','risk-inline-handicap'+(strongHandicap?' strong-handicap':''));
 
         const official=Number(row.officialHandicap);
@@ -1806,7 +1810,8 @@
         el('p','upset-evidence-heading','本场分析依据'),
         el('p','','当前层级：'+info.displayTier+' ｜ 赛前原始首选：'+safe(info.originalPick)));
       (info.evidenceLines||[info.reason]).slice(0,3).forEach((line,i)=>evidence.append(el('p','','依据'+(i+1)+'：'+line)));
-      if(info.directionReason)evidence.append(el('p','','方向依据：'+info.directionReason));
+      if(info.directionEligible===false)evidence.append(el('p','','方向依据：当前数据质量不足以发布具体反向方向，仅保留已核验的风险分歧提示。'));
+      else if(info.directionReason)evidence.append(el('p','','方向依据：'+info.directionReason));
       else evidence.append(el('p','','方向依据：独立证据域不足，不强行反推具体方向'));
       if(info.alternativePick)evidence.append(el('p','','证据倾向：'+safe(info.alternativePick)));
       evidence.append(el('p','','九十刻度赛前预警'),el('p','','赛前冻结：'+fmtStamp(info.prematchAt)));
