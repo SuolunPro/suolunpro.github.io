@@ -1209,7 +1209,7 @@
         const cold=row.coldRecognition||null;
         const probs=Array.isArray(row.model?.probability)?row.model.probability:[null,null,null];
         const isHomeTop=row.model?.top1==='主胜';
-        const direction=String(cold?.unbeatenDirection||'');
+        const direction=isHomeTop?'主队不胜':row.model?.top1==='客胜'?'客队不胜':String(cold?.unbeatenDirection||'');
         const pickShort=x=>x==='主胜'?'主':x==='客胜'?'客':x==='平'?'平':String(x||'');
         const refs=Array.isArray(cold?.referencePicks)?cold.referencePicks:[];
         const refText=refs.map(x=>pickShort(x?.pick)).filter(Boolean).join(' + ');
