@@ -35,7 +35,7 @@
     @media(max-width:390px){.upset-top{gap:7px;padding-left:11px;padding-right:118px;font-size:11px}.upset-league{font-size:13px}.upset-state{min-width:108px;padding:10px 6px;font-size:11px}.upset-fixture{padding-left:11px;padding-right:11px}.upset-crest{width:36px;height:36px}.upset-team-name{font-size:13px}.upset-main{padding-left:11px;padding-right:11px}.upset-panel{min-height:96px}.upset-value{font-size:26px}.upset-value.direction{font-size:20px}}
     .empty,.error{background:#fff;border-radius:16px;padding:34px 18px;text-align:center;color:#999;font-size:12px;line-height:1.7}.empty b,.error b{display:block;color:#444;font-size:15px;margin-bottom:6px}.notice{margin-top:12px;background:#fff5dc;border:1px solid #f1dfaa;color:#896c26;border-radius:11px;padding:10px 12px;font-size:10px;line-height:1.7}
     .backbar{position:sticky;top:0;z-index:4;background:var(--red);padding:12px 14px;color:#fff;display:flex;align-items:center;gap:12px}.back{border:0;background:none;color:#fff;font-size:21px;padding:2px 7px}.backbar b{font-size:15px}.detail-body{padding:12px}.detail-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px #00000008}.detail-card h2{font-size:20px;margin:11px 0 5px}.sub{font-size:11px;color:#999}.audit{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.audit-item{border:1px solid #eee;background:#fafafa;border-radius:9px;padding:10px}.audit-item span{display:block;color:#999;font-size:9px;margin-bottom:4px}.audit-item b{font-size:12px;word-break:break-word}.riskbox{margin-top:12px;border-top:1px solid #eee;padding-top:12px}.riskbox h3{font-size:12px;margin:0 0 6px}.riskbox p{font-size:11px;line-height:1.7;color:#737373;margin:0 0 5px}
-    .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#ffffffed;backdrop-filter:blur(15px);border-top:1px solid #ddd;padding:7px 0 max(8px,env(safe-area-inset-bottom));display:flex;justify-content:center}.bottom-inner{width:min(640px,100%);display:grid;grid-template-columns:repeat(2,1fr)}.nav{border:0;background:none;color:#999;font-size:9px;padding:3px}.nav i{display:block;font-style:normal;font-size:18px;margin-bottom:2px}.nav.active{color:var(--red);font-weight:700}.loading{display:inline-flex;gap:5px;align-items:center}.loading:after{content:"";width:10px;height:10px;border:2px solid #ddd;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(min-width:641px){.app{box-shadow:0 0 40px #0001}.hero{border-radius:0 0 18px 18px}}
+    .bottom{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#ffffffed;backdrop-filter:blur(15px);border-top:1px solid #ddd;padding:7px 0 max(8px,env(safe-area-inset-bottom));display:flex;justify-content:center}.bottom-inner{width:min(640px,100%);display:grid;grid-template-columns:repeat(3,1fr)}.nav{border:0;background:none;color:#999;font-size:9px;padding:3px}.nav i{display:block;font-style:normal;font-size:18px;margin-bottom:2px}.nav.active{color:var(--red);font-weight:700}.loading{display:inline-flex;gap:5px;align-items:center}.loading:after{content:"";width:10px;height:10px;border:2px solid #ddd;border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(min-width:641px){.app{box-shadow:0 0 40px #0001}.hero{border-radius:0 0 18px 18px}}
     .focus-label{display:inline-block;margin-left:7px;padding:2px 5px;border-radius:4px;background:#fff0f0;color:var(--red);font-size:9px;font-weight:700}.focus-label.core{background:#fff0f0;color:var(--red)}.focus-label.supplement{background:#eef5ff;color:#2463a8}.daily-summary{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 2px 12px;padding:10px 12px;background:#fff;border:1px solid #ececec;border-radius:11px;color:#777;font-size:11px}.daily-summary b{font-size:13px;color:#333}.daily-summary .core-count{color:var(--red)}.daily-summary .supp-count{color:#2463a8}.daily-summary .dot{color:#bbb}.triplet.pair .datum{padding:11px 6px}.score{font-size:22px}.score span{font-size:9px}
     /* Compact mobile-first client layout */
     .hero{background:var(--red)}.hero:before,.hero:after{display:none}.brandbar{padding:10px 14px 7px}.models{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;padding:6px 12px 10px;overflow:visible}.model{grid-column:span 3;display:flex;align-items:center;justify-content:center;min-width:0;min-height:42px;padding:8px 2px;border:1px solid #ffffff29;border-radius:8px;background:#ffffff17;color:#fff;font-size:clamp(11px,2.9vw,13px);font-weight:600;line-height:1.3;white-space:nowrap;text-align:center}.model:nth-child(n+5){grid-column:span 4}.model.active{background:#fff;color:var(--deep);border-color:#fff;font-weight:800}.hero-copy{display:none}.dates{padding:6px 0 7px;background:var(--red);border-top:1px solid #ffffff24}.day{font-size:10px}.day b{font-size:12px;margin-bottom:2px}
@@ -267,6 +267,8 @@
   .profile-page .profile-more .engine-intro{margin-top:11px;padding:0}
   .profile-page .profile-more .engine-intro h2{font-size:14px}
   .profile-page .member-account{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 3px;color:#878a91;font-size:11px;overflow-wrap:anywhere}
+  .member-zone-page{display:grid;gap:10px}.member-zone-intro{padding:14px;border-radius:14px;background:linear-gradient(135deg,#252932,#353943);color:#fff}.member-zone-intro h2{margin:0 0 5px;font-size:17px}.member-zone-intro p{margin:0;color:#cbd1d8;font-size:11px;line-height:1.65}.member-zone-card{background:#fff;border:1px solid #e8eaed;border-radius:13px;padding:13px}.member-zone-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.member-zone-match{font-size:14px;font-weight:750;color:#25272c}.member-zone-badge{flex:none;padding:3px 7px;border-radius:20px;background:#f3f4f6;color:#596171;font-size:10px;font-weight:700}.member-zone-badge.分歧,.member-zone-badge.谨慎{background:#fff1ec;color:#a3472c}.member-zone-badge.强化{background:#eef7f0;color:#287044}.member-zone-summary{font-size:12px;color:#48534d;line-height:1.65;margin-bottom:9px}.member-zone-row{display:flex;justify-content:space-between;gap:8px;padding-top:7px;border-top:1px solid #f0f1f2;color:#6f7772;font-size:11px;line-height:1.55}.member-zone-row b{color:#2d3731;text-align:right}.member-zone-lock{padding:18px 14px;border-radius:14px;background:#fff;border:1px solid #ececef;text-align:center}.member-zone-lock h3{margin:0 0 7px}.member-zone-lock p{margin:0 0 12px;color:#727780;font-size:12px;line-height:1.7}
+
   .profile-page .account-panel .member-account button{margin:0;padding:6px 10px;font-size:11px;background:#eeeeef;color:#555}
   /* Customer feedback: scoped to 我的; never alters match cards or membership access. */
   .feedback-entry{background:#fff;border:1px solid #ececef;border-radius:14px;padding:15px;margin:8px 0 12px;box-shadow:0 2px 10px #00000008}
@@ -711,7 +713,7 @@
   <nav class="bottom">
     <div class="bottom-inner">
       <button class="nav active" data-tab="home"><i>⌂</i>首页</button>
-      
+      <button class="nav" data-tab="memberzone"><i>◆</i>会员专区</button>
       <button class="nav" data-tab="profile"><i>◎</i>我的</button>
     </div>
   </nav>
@@ -965,7 +967,7 @@
         return card;
       };
       const ordinary=makePlan('普通会员','29.9','59.9',
-        ['1个会员账号','有效期内查看完整赛事报告','查看平台开放的会员历史数据']);
+        ['1个会员账号','有效期内查看完整赛事报告','查看平台开放的会员历史数据','进入会员专区查看深度研究内容']);
       const premium=makePlan('高级会员','39.9','79.9',
         ['包含普通会员全部权益','1个主账号＋1个副账号','两个账号独立登录、享有相同会员权益'],true);
       const contactNote=el('p','member-muted member-purchase-help',
@@ -1050,6 +1052,59 @@
         el('p','',blocked?'该浏览器的新人体验资格可能已被领取。账号仍可正常登录，已开通的会员权益不受影响；如有疑问请联系客服核实。':browserUnavailable?'请开启浏览器本地存储后重新登录；如果仍无法领取，请联系客服核实。':'当天比赛完整报告目前仅向有效会员开放。无需邀请好友，也可前往「我的」查看月卡开通说明与会员到期时间。'));
       const b=el('button','','前往我的会员中心');b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};p.append(b);box.append(p);
     }
+
+    function renderPaidMemberRequired(){
+      const box=$('content');box.replaceChildren(sectionHead('会员专区','付费会员专属'));
+      const p=el('section','member-zone-lock');
+      p.append(el('h3','','会员专区仅向付费会员开放'),
+        el('p','','新人体验、邀请奖励会员仍可正常查看原有赛事报告；市场深度专栏仅向已付费会员开放。'));
+      const b=el('button','','查看会员方案');
+      b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};
+      p.append(b);box.append(p);
+    }
+    function memberPct3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?Number(x).toFixed(1)+'%':'—'):['—','—','—']}
+    function memberOdds3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?Number(x).toFixed(2):'—').join(' / '):'—'}
+    function renderMemberZone(){
+      const box=$('content');box.replaceChildren(sectionHead('会员专区','市场深度观察'));
+      if(memberInfo?.paidActive!==true){renderPaidMemberRequired();return}
+      const page=el('div','member-zone-page'),intro=el('section','member-zone-intro');
+      intro.append(el('h2','',state.memberZone?.title||'今日会员专栏 · 市场深度观察'),
+        el('p','',state.memberZone?.subtitle||'赛前市场结构与模型分歧试运行'));
+      page.append(intro);
+      if(state.memberZoneLoading){page.append(el('div','empty','','正在读取会员专栏…'));box.append(page);return}
+      if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
+      const rows=state.memberZone?.rows||[];
+      if(!rows.length){page.append(el('div','empty','','今天暂无可发布的会员专栏内容'));box.append(page);return}
+      for(const row of rows){
+        const card=el('section','member-zone-card'),head=el('div','member-zone-head');
+        head.append(el('div','member-zone-match',(row.no?row.no+' · ':'')+row.home+' vs '+row.away),
+          el('span','member-zone-badge '+String(row.status||'观察'),String(row.status||'观察')));
+        card.append(head,el('div','member-zone-summary',String(row.summary||'')));
+        const mf=memberPct3(row.market?.currentFair),market=el('div','member-zone-row');
+        market.append(el('span','','市场概率'),el('b','',mf.join(' / ')));card.append(market);
+        const odds=el('div','member-zone-row');
+        odds.append(el('span','','威廉 初盘 → 当前'),el('b','',memberOdds3(row.market?.initialOdds)+' → '+memberOdds3(row.market?.currentOdds)));card.append(odds);
+        if(row.model){
+          const mp=memberPct3(row.model.probability),model=el('div','member-zone-row');
+          model.append(el('span','','模型概率'),el('b','',mp.join(' / ')));card.append(model);
+        }
+        page.append(card);
+      }
+      box.append(page);
+    }
+    async function loadMemberZone(){
+      if(memberInfo?.paidActive!==true)return;
+      state.memberZoneLoading=true;state.memberZoneError=null;renderMemberZone();
+      try{
+        const qs=new URLSearchParams({view:'member-zone',date:beijingToday(),_:String(Date.now())});
+        const r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store'});
+        const j=await r.json();
+        if(r.status===403&&j.error==='PAID_MEMBERSHIP_REQUIRED'){memberInfo=j.membership||memberInfo;throw Error('该专区仅向付费会员开放')}
+        if(!r.ok||j.ok!==true||!j.zone)throw Error(j.error||'会员专区暂不可用');
+        memberInfo=j.membership||memberInfo;state.memberZone=j.zone;
+      }catch(e){state.memberZoneError=e.message||'会员专区暂不可用'}
+      finally{state.memberZoneLoading=false;if(state.tab==='memberzone')renderMemberZone()}
+    }
     const TURNSTILE_SITE_KEY='0x4AAAAAAFBKndRZlD2qH4Km';
     let turnstileLoadPromise=null;
     function loadTurnstile(){
@@ -1130,7 +1185,7 @@
       };accountHelp.append(recover);
       gate.append(accountHelp);
     }
-    const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null};
+    const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null,memberZone:null,memberZoneLoading:false,memberZoneError:null};
     window.sorenGoInvite=()=>{
       if(!authSession?.access_token){showLoginGate('登录后可查看专属邀请码');return}
       state.tab='profile';
@@ -3031,7 +3086,7 @@
       const coverage=state.model==='goals'?' · 独立正式预测 '+rows.filter(isFormalGoalPrediction).length+'场 · 泊松参考 '+rows.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null).length+'场 · 正式已评测 '+formalGoals.length+'场 · 参考已评测 '+referenceGoals.length+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
-    function render(){closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile'||(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday()));if(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday())){renderMemberRequired();return}if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
+    function render(){closeDetail();document.querySelector('.toolbar').hidden=state.tab==='profile'||state.tab==='memberzone'||(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday()));if(state.tab==='memberzone'){if(memberInfo?.paidActive!==true){renderPaidMemberRequired();return}renderMemberZone();return}if(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday())){renderMemberRequired();return}if(state.tab!=='profile')updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
     async function load(view,date){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),15000);try{const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));const r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{clearTimeout(timer)}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
@@ -3140,7 +3195,7 @@
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='九十刻度';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;state.tab='home';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];buildDates();requestAnimationFrame(()=>{if(state.model===b.dataset.model&&state.tab==='home')render()})});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
-    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}render()});
+    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}if(state.tab==='memberzone'&&memberInfo?.paidActive===true&&!state.memberZone&&!state.memberZoneLoading){loadMemberZone();return}render()});
     $('back').onclick=closeDetail;
     function showAuthRetry(message,working=false){
       document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';
