@@ -1640,47 +1640,73 @@ function cnResult(v:unknown){
   return ({H:"主胜",D:"平",A:"客胜","主胜":"主胜","平":"平","客胜":"客胜"} as Record<string,string>)[String(v??"")]??null;
 }
 async function paidMemberZone(date:string){
+  const upstreamData=await fetchPublicUpstream("today",date);
+  const expectedRevision=allowed.get(String(upstreamData?.modelVersion??""));
+  if(upstreamData?.ok!==true||!expectedRevision||upstreamData?.revision!==expectedRevision||!Array.isArray(upstreamData?.rows))
+    throw new Error("VIP_RUNTIME_UPSTREAM_INVALID");
+
+  const runtimeSource=(upstreamData.rows as Record<string,unknown>[])
+    .filter((row)=>String(row?.version??"")===String(upstreamData.modelVersion??"")&&row?.no&&row?.kickoff);
+  let runtimeRows=await applySaleFreeze(runtimeSource,String(upstreamData.date??date),false);
+  runtimeRows=await applyRiskFocusLayer(runtimeRows,String(upstreamData.date??date));
+  runtimeRows=applyHighDrawRiskLayer(runtimeRows);
+  const runtimeByNo=new Map<string,any>(runtimeRows.map((r:any)=>[String(r.no??"").padStart(3,"0"),r]));
+
   const {data:matches,error:matchError}=await db.from("soren_matches")
     .select("id,pool_date,match_no,home_team,away_team,kickoff_at,league,is_world_cup")
     .eq("pool_date",date).eq("is_world_cup",false).order("match_no",{ascending:true});
   if(matchError)throw matchError;
   const list=matches??[];
   if(!list.length)return {date,rows:[]};
+
   const ids=list.map((m:any)=>Number(m.id));
-  const [
-    {data:preds,error:predError},
-    {data:markets,error:marketError},
-    {data:behaviors,error:behaviorError},
-    {data:registry,error:registryError}
-  ]=await Promise.all([
-    db.from("soren_predictions")
-      .select("match_id,ft_top1,ft_second,selection_mode,selection_codes,confidence,dq,primary_reason,source_snapshot,frozen_at")
-      .in("match_id",ids).order("frozen_at",{ascending:false}).limit(800),
+  const [{data:markets,error:marketError},{data:behaviors,error:behaviorError}]=await Promise.all([
     db.from("soren_market_snapshots")
-      .select("match_id,snapshot_type,home_value,draw_value,away_value,captured_at,data_quality")
-      .in("match_id",ids).eq("source_code","zucaijia_william").eq("market_type","FT_1X2")
-      .in("snapshot_type",["initial","current"]).order("captured_at",{ascending:false}).limit(2500),
+      .select("match_id,source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,home_water,away_water,payload,captured_at,data_quality")
+      .in("match_id",ids)
+      .in("source_code",["zucaijia_william","qiulaile_sp_mirror","zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31"])
+      .in("market_type",["FT_1X2","HAD","HHAD","ASIAN_HANDICAP"])
+      .order("captured_at",{ascending:false}).limit(6000),
     db.from("soren_market_behavior_v1")
       .select("match_id,match_no,okooo_match_id,exchange_scale,transaction_rows,index_rows,captured_at,kickoff_at,prematch_verified,source_quality")
-      .eq("pool_date",date).eq("prematch_verified",true).order("captured_at",{ascending:false}).limit(300),
-    db.from("soren_model_registry")
-      .select("display_name,version,revision_tag,effective_at")
-      .eq("status","active").order("effective_at",{ascending:false}).limit(1)
+      .eq("pool_date",date).eq("prematch_verified",true).order("captured_at",{ascending:false}).limit(300)
   ]);
-  if(predError||marketError||behaviorError||registryError)throw predError||marketError||behaviorError||registryError;
+  if(marketError||behaviorError)throw marketError||behaviorError;
 
-  const activeModel=registry?.[0]??null;
-  const activeVersion=String(activeModel?.version??"3.8");
-  const predBy=new Map<number,any>(),marketBy=new Map<string,any>(),behaviorBy=new Map<number,any>();
-
+  const marketBy=new Map<string,any>(),officialBy=new Map<number,any>(),asiaBy=new Map<number,any[]>(),behaviorBy=new Map<number,any>();
+  const asiaSources=["zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31"];
   for(const m of list){
     const id=Number(m.id),kick=Date.parse(String(m.kickoff_at));
-    const p=(preds??[]).find((x:any)=>Number(x.match_id)===id&&Date.parse(String(x.frozen_at))<kick);
-    if(p)predBy.set(id,p);
+    const pre=(markets??[]).filter((q:any)=>Number(q.match_id)===id&&Date.parse(String(q.captured_at))<kick);
     for(const typ of ["initial","current"]){
-      const x=(markets??[]).find((q:any)=>Number(q.match_id)===id&&q.snapshot_type===typ&&Date.parse(String(q.captured_at))<kick);
+      const x=pre.find((q:any)=>q.source_code==="zucaijia_william"&&q.market_type==="FT_1X2"&&q.snapshot_type===typ);
       if(x)marketBy.set(id+"|"+typ,x);
     }
+    const had=pre.find((q:any)=>q.source_code==="qiulaile_sp_mirror"&&q.market_type==="HAD"&&q.snapshot_type==="current")??null;
+    const hhad=pre.find((q:any)=>q.source_code==="qiulaile_sp_mirror"&&q.market_type==="HHAD"&&q.snapshot_type==="current")??null;
+    if(had||hhad)officialBy.set(id,{had,hhad});
+    const asian=asiaSources.map((source)=>{
+      const initial=pre.find((q:any)=>q.source_code===source&&q.market_type==="ASIAN_HANDICAP"&&q.snapshot_type==="initial")??null;
+      const current=pre.find((q:any)=>q.source_code===source&&q.market_type==="ASIAN_HANDICAP"&&q.snapshot_type==="current")??null;
+      const ref=current??initial;
+      if(!ref)return null;
+      const payload=(ref.payload&&typeof ref.payload==="object"?ref.payload:{}) as Record<string,any>;
+      const initPayload=(initial?.payload&&typeof initial.payload==="object"?initial.payload:{}) as Record<string,any>;
+      const curPayload=(current?.payload&&typeof current.payload==="object"?current.payload:{}) as Record<string,any>;
+      const lineText=(x:any,p:Record<string,any>)=>p?.original_line??(Number.isFinite(Number(x?.line))?Number(x.line):null);
+      return {
+        source,
+        institution:String(payload.institution_name??source),
+        initialLine:lineText(initial,initPayload),
+        currentLine:lineText(current,curPayload),
+        initialHomeWater:Number.isFinite(Number(initial?.home_water))?Number(initial.home_water):null,
+        initialAwayWater:Number.isFinite(Number(initial?.away_water))?Number(initial.away_water):null,
+        currentHomeWater:Number.isFinite(Number(current?.home_water))?Number(current.home_water):null,
+        currentAwayWater:Number.isFinite(Number(current?.away_water))?Number(current.away_water):null,
+        capturedAt:current?.captured_at??initial?.captured_at??null
+      };
+    }).filter(Boolean);
+    if(asian.length)asiaBy.set(id,asian as any[]);
     const b=(behaviors??[]).find((x:any)=>Number(x.match_id)===id&&x.prematch_verified===true&&Date.parse(String(x.captured_at))<kick);
     if(b)behaviorBy.set(id,b);
   }
@@ -1690,27 +1716,45 @@ async function paidMemberZone(date:string){
   const toNums=(rows:any[],key:string)=>Array.isArray(rows)?rows.map((x:any)=>Number(x?.[key])).map((v:number)=>Number.isFinite(v)?v:0):[0,0,0];
 
   const rows=list.map((m:any)=>{
-    const id=Number(m.id),p=predBy.get(id),ini=marketBy.get(id+"|initial"),cur=marketBy.get(id+"|current"),b=behaviorBy.get(id);
+    const id=Number(m.id),no=String(m.match_no).padStart(3,"0"),rt=runtimeByNo.get(no)??null;
+    const ini=marketBy.get(id+"|initial"),cur=marketBy.get(id+"|current"),b=behaviorBy.get(id);
+    const officialRaw=officialBy.get(id)??{},asianHandicap=asiaBy.get(id)??[];
     const initialFair=fair3(ini?.home_value,ini?.draw_value,ini?.away_value);
     const currentFair=fair3(cur?.home_value,cur?.draw_value,cur?.away_value);
     const marketTop=currentFair?labels[maxIndex(currentFair)]:null;
-    const modelTop=cnResult(p?.ft_top1);
-    const snap=(p?.source_snapshot&&typeof p.source_snapshot==="object"?p.source_snapshot:{}) as Record<string,any>;
-    const modelProb=[
-      Number(snap.homeProbability),Number(snap.drawProbability),Number(snap.awayProbability)
-    ].every(Number.isFinite)?[Number(snap.homeProbability),Number(snap.drawProbability),Number(snap.awayProbability)]:null;
+    const hadFair=fair3(officialRaw?.had?.home_value,officialRaw?.had?.draw_value,officialRaw?.had?.away_value);
+    const officialTop=hadFair?labels[maxIndex(hadFair)]:null;
+    const officialMarket={
+      had:officialRaw?.had?{
+        top1:officialTop,
+        odds:[Number(officialRaw.had.home_value),Number(officialRaw.had.draw_value),Number(officialRaw.had.away_value)],
+        fair:hadFair,capturedAt:officialRaw.had.captured_at
+      }:null,
+      hhad:officialRaw?.hhad?{
+        line:Number.isFinite(Number(officialRaw.hhad.line))?Number(officialRaw.hhad.line):null,
+        odds:[Number(officialRaw.hhad.home_value),Number(officialRaw.hhad.draw_value),Number(officialRaw.hhad.away_value)],
+        capturedAt:officialRaw.hhad.captured_at
+      }:null
+    };
 
-    const hur=String(snap?.risk?.hur??"");
-    const dtr=String(snap?.risk?.dtr??"");
-    const dlr=String(snap?.risk?.dlr??"");
-    const warning=String(snap?.upsetWarning?.riskLevel??"");
-    const displayTier=String(snap?.upsetWarning?.displayTier??"");
-    const mode=String(p?.selection_mode??"");
-    const officialHandicap=Number.isFinite(Number(snap?.officialHandicap))?Number(snap.officialHandicap):null;
-    const handicapTop1=String(snap?.handicapTop1??snap?.handicap??"")||null;
-    const handicapSecond=String(snap?.handicapSecond??"")||null;
-    const handicapProb=Number.isFinite(Number(snap?.handicapProbability))?Number(snap.handicapProbability):null;
-    const handicapSecondProb=Number.isFinite(Number(snap?.handicapSecondProbability))?Number(snap.handicapSecondProbability):null;
+    const modelTop=rt?cnResult(rt.ftTop1):null;
+    const secondTop=rt?cnResult(rt.second):null;
+    const modelProb=rt&&[rt.homeProbability,rt.drawProbability,rt.awayProbability].every((v:any)=>Number.isFinite(Number(v)))
+      ?[Number(rt.homeProbability),Number(rt.drawProbability),Number(rt.awayProbability)]:null;
+    const mode=String(rt?.mode??"");
+    const codes=Array.isArray(rt?.selectionCodes)?rt.selectionCodes.map((x:any)=>String(x)):[];
+    const risk=(rt?.risk&&typeof rt.risk==="object"?rt.risk:{}) as Record<string,any>;
+    const warning=(rt?.upsetWarning&&typeof rt.upsetWarning==="object"?rt.upsetWarning:{}) as Record<string,any>;
+    const hur=String(risk?.hur??"");
+    const dtr=String(risk?.dtr??"");
+    const dlr=String(risk?.dlr??"");
+    const riskLevel=String(warning?.riskLevel??"");
+    const displayTier=String(warning?.displayTier??"");
+    const officialHandicap=Number.isFinite(Number(rt?.officialHandicap))?Number(rt.officialHandicap):null;
+    const handicapTop1=String(rt?.handicapTop1??rt?.handicap??"")||null;
+    const handicapSecond=String(rt?.handicapSecond??"")||null;
+    const handicapProb=Number.isFinite(Number(rt?.handicapProbability))?Number(rt.handicapProbability):null;
+    const handicapSecondProb=Number.isFinite(Number(rt?.handicapSecondProbability))?Number(rt.handicapSecondProbability):null;
 
     let behavior:any=null,behaviorTop:string|null=null,behaviorStrength:string|null=null,drawSignal=false,overheat=false;
     if(b){
@@ -1726,7 +1770,6 @@ async function paidMemberZone(date:string){
       const bfHotTop=maxIndex(bfHot),jcHotTop=maxIndex(jcHot);
       if(bfHotTop>=0&&bfHot[bfHotTop]>=15)score[bfHotTop]+=b.exchange_scale==="较小"?0.5:1;
       if(jcHotTop>=0&&jcHot[jcHotTop]>=15)score[jcHotTop]+=1;
-
       const rank=score.map((v:number,i:number)=>({i,v})).sort((a:any,c:any)=>c.v-a.v);
       behaviorTop=rank[0]?.v>0?labels[rank[0].i]:null;
       const margin=(rank[0]?.v??0)-(rank[1]?.v??0);
@@ -1749,122 +1792,102 @@ async function paidMemberZone(date:string){
       };
     }
 
-    let alignment:string|null=null;
-    let marketConfirm="待确认";
+    let alignment:string|null=null,marketConfirm="待确认";
     if(modelTop&&marketTop&&behaviorTop){
       if(modelTop===marketTop&&modelTop===behaviorTop){alignment="三方同向";marketConfirm=overheat?"中":"强";}
-      else if(modelTop===behaviorTop||modelTop===marketTop){alignment=modelTop===behaviorTop?"模型×资金同向":"模型×威廉同向";marketConfirm="中";}
+      else if(modelTop===behaviorTop||modelTop===marketTop){alignment=modelTop===behaviorTop?"九十刻度×资金同向":"九十刻度×威廉同向";marketConfirm="中";}
       else {alignment="多方分歧";marketConfirm="弱";}
     }else if(behaviorTop&&marketTop){
       alignment=behaviorTop===marketTop?"赔率×资金同向":"赔率×资金分歧";
       marketConfirm=behaviorTop===marketTop?(behaviorStrength==="强"?"强":"中"):"弱";
     }else if(modelTop&&marketTop){
-      alignment=modelTop===marketTop?"模型×威廉同向":"模型×威廉分歧";
+      alignment=modelTop===marketTop?"九十刻度×威廉同向":"九十刻度×威廉分歧";
       marketConfirm=modelTop===marketTop?"中":"弱";
     }
 
+    const highDraw=rt?.highDrawRisk===true||rt?.high_draw_risk===true||
+      String(rt?.highDrawRiskLevel??rt?.high_draw_risk_level??"")==="高";
     const drawProb=modelProb?Number(modelProb[1]):null;
-    let drawRisk="低";
-    if((drawProb!==null&&drawProb>=30)||(drawSignal&&drawProb!==null&&drawProb>=27))drawRisk="高";
-    else if(drawSignal||(drawProb!==null&&drawProb>=27))drawRisk="中";
+    let drawRisk=highDraw?"高":"低";
+    if(!highDraw){
+      if((drawProb!==null&&drawProb>=30)||(drawSignal&&drawProb!==null&&drawProb>=27))drawRisk="高";
+      else if(drawSignal||(drawProb!==null&&drawProb>=27))drawRisk="中";
+    }
 
-    let status="观察";
-    let summary="";
-    let conclusionType="市场观察";
-    let conclusionDirection=behaviorTop??marketTop??null;
+    const doubleDirection=(()=>{
+      if(codes.includes("H")&&codes.includes("D"))return "主队不败";
+      if(codes.includes("A")&&codes.includes("D"))return "客队不败";
+      if(codes.includes("H")&&codes.includes("A"))return "分胜负";
+      if(modelTop==="主胜"&&secondTop==="平"||modelTop==="平"&&secondTop==="主胜")return "主队不败";
+      if(modelTop==="客胜"&&secondTop==="平"||modelTop==="平"&&secondTop==="客胜")return "客队不败";
+      if(modelTop&&secondTop&&modelTop!==secondTop)return modelTop+" + "+secondTop;
+      return modelTop;
+    })();
+    const formalDirection=mode==="PASS"?"暂不发布":mode==="DOUBLE"?doubleDirection:modelTop;
+    const riskOverride=(hur==="红"||riskLevel==="高"||displayTier==="强风险信号");
+    const handicapProtection=officialHandicap!==null&&handicapTop1
+      ?(handicapTop1+(handicapSecond?(" + "+handicapSecond):"")):null;
 
+    let status="观察",summary="",conclusionType="市场观察",conclusionDirection=formalDirection??behaviorTop??marketTop??null;
     if(modelTop){
-      const codes=Array.isArray((p as any)?.selection_codes)?(p as any).selection_codes.map((x:any)=>String(x)):[];
-      const secondTop=cnResult(p?.ft_second);
-      const doubleDirection=(()=>{
-        if(codes.includes("H")&&codes.includes("D"))return "主队不败";
-        if(codes.includes("A")&&codes.includes("D"))return "客队不败";
-        if(codes.includes("H")&&codes.includes("A"))return "胜负方向";
-        if(modelTop==="主胜"&&secondTop==="平"||modelTop==="平"&&secondTop==="主胜")return "主队不败";
-        if(modelTop==="客胜"&&secondTop==="平"||modelTop==="平"&&secondTop==="客胜")return "客队不败";
-        if(modelTop&&secondTop&&modelTop!==secondTop)return modelTop+" + "+secondTop;
-        return modelTop;
-      })();
-      const formalDirection=mode==="PASS"
-        ? "暂不发布"
-        : mode==="DOUBLE"
-          ? doubleDirection
-          : modelTop;
-      const riskOverride=(hur==="红"||warning==="高"||displayTier==="强风险信号");
-      const handicapProtection=officialHandicap!==null&&handicapTop1
-        ? (handicapTop1+(handicapSecond?(" + "+handicapSecond):""))
-        : null;
-
-      conclusionType=mode==="PASS"?"九十刻度风险结论":mode==="DOUBLE"?"九十刻度综合方向":"九十刻度综合方向";
-      conclusionDirection=formalDirection;
-
+      conclusionType=mode==="PASS"?"九十刻度风险结论":"九十刻度综合方向";
       if(mode==="PASS"){
-        status="谨慎";
-        summary="九十刻度已完成赛前冻结，但风险门槛未通过；不发布正式胜平负方向，仅保留原始首选作审计。";
+        status="谨慎";conclusionDirection=handicapProtection?("让球保护 "+handicapProtection):"暂不发布";
+        summary="九十刻度已完成赛前核验，但风险门槛未通过；不强化原始"+modelTop+"。"+(handicapProtection?(" 当前让球侧参考："+handicapProtection+"。"):"");
       }else if(riskOverride&&mode==="DOUBLE"){
-        status="谨慎";
-        conclusionType="风险处理";
+        status="谨慎";conclusionType="风险处理";
         conclusionDirection=handicapProtection?("让球保护 "+handicapProtection):formalDirection;
-        summary="九十刻度原始胜平负首选为"+modelTop+"，但风险信号已触发，不再强化单一"+modelTop+"。"+(handicapProtection?(" 当前优先采用让球保护："+handicapProtection+"。"):(" 正式胜平负按"+formalDirection+"双向保护。"));
+        summary="九十刻度原始胜平负首选为"+modelTop+"，但风险信号已触发，不再强化单一"+modelTop+"。"+(handicapProtection?(" 当前优先采用让球保护："+handicapProtection+"。"):(" 正式胜平负按"+formalDirection+"保护。"));
       }else if(alignment==="三方同向"){
         status=overheat?"谨慎":"强化";
         summary=overheat
-          ? "九十刻度、威廉与资金行为方向一致，但热门程度偏高，赔率支撑不足，需防过热。"
-          : "九十刻度、威廉与必发/竞彩资金行为三方同向，原模型方向获得额外市场确认。";
-      }else if(alignment==="模型×资金同向"){
-        status="分歧";
-        summary="九十刻度与资金行为同向，但威廉当前概率首位不同，保留模型方向并降低确认等级。";
-      }else if(alignment==="模型×威廉同向"){
-        status="分歧";
-        summary="九十刻度与威廉方向一致，但必发/竞彩资金行为未同步，当前不做强化。";
+          ?"九十刻度、威廉与资金行为方向一致，但热门程度偏高，赔率支撑不足，需防过热。"
+          :"九十刻度、威廉与必发/竞彩资金行为三方同向，原方向获得额外市场确认。";
+      }else if(alignment==="九十刻度×资金同向"){
+        status="分歧";summary="九十刻度与资金行为同向，但威廉当前概率首位不同，降低确认等级。";
+      }else if(alignment==="九十刻度×威廉同向"){
+        status="分歧";summary="九十刻度与威廉方向一致，但必发/竞彩资金行为未同步，当前不做强化。";
       }else if(alignment==="多方分歧"){
-        status="分歧";
-        summary="九十刻度、赔率与资金行为未形成一致方向，本场保持谨慎，不强化单一方向。";
+        status="分歧";summary="九十刻度、赔率与资金行为未形成一致方向，本场保持谨慎。";
       }else{
-        status=(hur==="红"||warning==="中"||warning==="高")?"谨慎":"稳定";
-        summary="九十刻度赛前方向已冻结；当前资金快照不足，仅结合已有赔率与风险信息观察。";
+        status=riskOverride?"谨慎":"稳定";
+        summary="九十刻度赛前方向已核验；当前结合已有赔率与风险信息观察。";
       }
     }else if(behaviorTop&&marketTop){
-      conclusionType="市场观察";
       if(behaviorTop===marketTop){
-        status="市场确认";
-        summary="九十刻度方向待更新；当前威廉与必发/竞彩资金行为暂时同向于"+behaviorTop+"，仅作市场观察。";
+        status="市场确认";summary="九十刻度方向待更新；当前威廉与必发/竞彩资金行为暂时同向于"+behaviorTop+"，仅作市场观察。";
       }else{
-        status="分歧";
-        summary="九十刻度方向待更新；当前威廉与必发/竞彩资金行为存在分歧，不提前替代模型结论。";
+        status="分歧";summary="九十刻度方向待更新；当前威廉与必发/竞彩资金行为存在分歧，不提前替代模型结论。";
       }
     }else if(marketTop){
-      conclusionType="市场观察";
-      status="市场观察";
-      summary="九十刻度方向待更新；当前仅有赛前赔率结构，暂不形成综合方向。";
-    }else{
-      summary="当前赛前数据仍在更新，暂不形成综合方向。";
-    }
+      status="市场观察";summary="九十刻度方向待更新；当前仅有赛前赔率结构，暂不形成综合方向。";
+    }else summary="当前赛前数据仍在更新，暂不形成综合方向。";
 
     if(drawRisk==="高"&&!summary.includes("平局"))summary+=" 平局风险偏高。";
     else if(drawRisk==="中"&&!summary.includes("平局"))summary+=" 平局风险需留意。";
 
     const fundBehavior=behavior
-      ? (overheat
-          ? (behaviorTop??"热门方向")+"过热"
-          : drawSignal&&behaviorTop!=="平"
-            ? (behaviorTop??"资金")+"占优，平局资金偏热"
-            : (behaviorTop??"方向未定")+" · "+(behaviorStrength??"弱")+"确认")
-      : "赛前资金快照未冻结";
+      ?(overheat?(behaviorTop??"热门方向")+"过热":
+        drawSignal&&behaviorTop!=="平"?(behaviorTop??"资金")+"占优，平局资金偏热":
+        (behaviorTop??"方向未定")+" · "+(behaviorStrength??"弱")+"确认")
+      :"赛前资金快照未冻结";
 
     return {
-      no:String(m.match_no).padStart(3,"0"),league:m.league??null,home:m.home_team,away:m.away_team,kickoff:m.kickoff_at,
+      no,league:m.league??rt?.league??null,home:m.home_team,away:m.away_team,kickoff:m.kickoff_at,
       status,summary,alignment,
       conclusion:{type:conclusionType,direction:conclusionDirection,marketConfirm,drawRisk,fundBehavior},
       market:{institution:"威廉希尔",top1:marketTop,initialOdds:ini?[Number(ini.home_value),Number(ini.draw_value),Number(ini.away_value)]:null,
         currentOdds:cur?[Number(cur.home_value),Number(cur.draw_value),Number(cur.away_value)]:null,
         initialFair,currentFair,capturedAt:cur?.captured_at??ini?.captured_at??null},
+      officialMarket,
+      asianHandicap,
       behavior,
-      model:p?{
-        version:String(snap?.version??activeVersion),top1:modelTop,second:cnResult(p.ft_second),probability:modelProb,
-        confidence:Number.isFinite(Number(p.confidence))?Number((100*Number(p.confidence)).toFixed(1)):null,
-        dq:p.dq??null,mode:p.selection_mode??null,frozenAt:p.frozen_at??null,
-        risk:{hur:hur||null,dtr:dtr||null,dlr:dlr||null,warning:warning||null,displayTier:displayTier||null},
+      model:rt?{
+        top1:modelTop,second:secondTop,probability:modelProb,
+        confidence:Number.isFinite(Number(rt.confidence))?Number(rt.confidence):null,
+        dq:String(risk?.dq??"")||null,mode:mode||null,tier:String(rt?.tier??"")||null,frozenAt:rt?.frozenAt??null,
+        risk:{hur:hur||null,dtr:dtr||null,dlr:dlr||null,warning:riskLevel||null,displayTier:displayTier||null,
+          marketSignals:Array.isArray(warning?.marketSignals)?warning.marketSignals:[]},
         handicap:{official:officialHandicap,top1:handicapTop1,second:handicapSecond,top1Probability:handicapProb,secondProbability:handicapSecondProb}
       }:null
     };
@@ -1874,8 +1897,6 @@ async function paidMemberZone(date:string){
     date,
     title:"尊贵月卡VIP · 九十刻度综合研判",
     subtitle:"九十刻度赛前模型 × 威廉赔率 × 必发/竞彩资金行为",
-    modelVersion:activeVersion,
-    revision:activeModel?.revision_tag??null,
     rows
   };
 }
