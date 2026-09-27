@@ -1718,6 +1718,27 @@
       };
     }
     function appendRiskStrip(card,row){
+      if(row.marketDirectionAnomaly===true){
+        const strip=el('div','risk-inline strong');
+        const main=el('div','risk-inline-main');
+        main.append(el('strong','','市场异动信号'),el('span','','市场方向变化'));
+        strip.append(main);
+        const had=el('div','risk-inline-handicap');
+        const official=Number(row.officialHandicap);
+        const officialText=Number.isFinite(official)
+          ?'主队 '+(official>0?'+':'')+(Number.isInteger(official)?official:official.toFixed(2).replace(/0+$/,'').replace(/\.$/,''))
+          :'未确认';
+        const officialLine=el('div','risk-inline-handicap-line');
+        officialLine.append(el('strong','','官方让球'),el('span','',officialText));
+        had.append(officialLine);
+        const picksLine=el('div','risk-inline-handicap-line');
+        picksLine.append(el('strong','','方向'));
+        const picks=el('div','risk-inline-handicap-picks');
+        picks.append(el('span','risk-inline-handicap-pick','首选 '+String(row.marketProtectionFirst??(official<0?'让负':'让胜'))));
+        picks.append(el('span','risk-inline-handicap-sep','｜'));
+        picks.append(el('span','risk-inline-handicap-pick','次选 '+String(row.marketProtectionSecond??'让平')));
+        picksLine.append(picks);had.append(picksLine);strip.append(had);card.append(strip);return;
+      }
       const info=upsetInfo(row);if(!info)return;
       const strip=el('div','risk-inline '+(info.displayTier==='强风险信号'?'strong':'focus'));
       const main=el('div','risk-inline-main');
