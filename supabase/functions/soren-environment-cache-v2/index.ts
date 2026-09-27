@@ -6,6 +6,27 @@ const HEADERS={"user-agent":"Mozilla/5.0 (compatible; SorenStadiumCache/2.0)","a
 const finite=(v:unknown):number|null=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v))?Number(v):null;
 const stamp=(v:unknown)=>Date.parse(String(v??""));
 const matchesFixture=(j:any)=>j?.fixtures?.allFixtures?.fixtures??[];
+const discoverFixtureByChineseNames=async(home:string,away:string,kickoff:string)=>{
+ const suggestions:any[]=[];
+ for(const term of [home,away]){
+  try{
+   const j=await getJson("https://www.fotmob.com/api/data/search/suggest?hits=40&lang=en%2Czh&term="+encodeURIComponent(term));
+   for(const group of (Array.isArray(j)?j:[]))
+    for(const item of (Array.isArray(group?.suggestions)?group.suggestions:[]))suggestions.push(item);
+  }catch{}
+ }
+ const target=stamp(kickoff),matches=new Map<number,any>();
+ for(const x of suggestions){
+  if(x?.type!=="match")continue;
+  const id=finite(x?.id),when=stamp(x?.matchDate??x?.status?.utcTime);
+  if(id===null||!Number.isFinite(target)||!Number.isFinite(when)||Math.abs(when-target)>300000)continue;
+  if(String(x?.homeTeamName??"").trim()!==home||String(x?.awayTeamName??"").trim()!==away)continue;
+  const homeId=finite(x?.homeTeamId),awayId=finite(x?.awayTeamId);
+  if(homeId===null||awayId===null)continue;
+  matches.set(id,{fixtureId:id,homeId,awayId,homeName:String(x.homeTeamName),awayName:String(x.awayTeamName)});
+ }
+ return matches.size===1?[...matches.values()][0]:null;
+};
 const dayBjt=(d:Date)=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(d);
 async function getJson(url:string):Promise<any>{
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9500);
@@ -163,10 +184,31 @@ Deno.serve(async req=>{
    }
    const fallbackVenue=verifiedVenue(m);
    if(budget<=0&&!fallbackVenue){skipped++;record("budget_limited");continue}
-   const homeId=alias(String(m.home_team)),awayId=alias(String(m.away_team));
+   let homeId=alias(String(m.home_team)),awayId=alias(String(m.away_team));
    const mapped=mapping.get(id),ctx=contexts.get(id);
    let fixtureId=finite(mapped?.fotmob_match_id)||finite(ctx?.fotmob_match_id)||
      shadowFixture(m,homeId,awayId);
+   if(!fixtureId&&pre){
+    const discovered=await discoverFixtureByChineseNames(String(m.home_team),String(m.away_team),kickoff);
+    if(discovered){
+      fixtureId=discovered.fixtureId;homeId=discovered.homeId;awayId=discovered.awayId;
+      const verifiedAt=new Date().toISOString(),evidence={
+        strict_time_orientation:true,jc_home:m.home_team,jc_away:m.away_team,
+        pool_date:m.pool_date,match_no:String(m.match_no).padStart(3,"0"),
+        discovery:"fotmob_search_suggest_exact_chinese_names"
+      };
+      const {error:aliasWriteError}=await db.from("soren_team_alias_fotmob_v2_shadow").upsert([
+        {jc_team:m.home_team,fotmob_team_id:homeId,fotmob_team:discovered.homeName,
+         resolution_method:"fixture_time_orientation_strict",status:"fixture_verified",
+         evidence_match_id:fixtureId,evidence_kickoff_at:kickoff,evidence,verified_at:verifiedAt,updated_at:verifiedAt},
+        {jc_team:m.away_team,fotmob_team_id:awayId,fotmob_team:discovered.awayName,
+         resolution_method:"fixture_time_orientation_strict",status:"fixture_verified",
+         evidence_match_id:fixtureId,evidence_kickoff_at:kickoff,evidence,verified_at:verifiedAt,updated_at:verifiedAt}
+      ],{onConflict:"jc_team"});
+      if(aliasWriteError)record("auto_alias_write_failed",aliasWriteError.code);
+      else record("fixture_auto_discovered");
+    }
+   }
    if(!fixtureId&&pre&&homeId!==null&&awayId!==null){
     try{
       let teamJson=teamCache.get(homeId);
@@ -176,7 +218,7 @@ Deno.serve(async req=>{
       if(cand.length===1)fixtureId=finite(cand[0].id);
     }catch{record("fixture_lookup_failed")}
    }
-   if(!fixtureId){skipped++;record("fixture_unmatched");continue}
+   if(!fixtureId&&!fallbackVenue){skipped++;record("fixture_unmatched");continue}
    let stadium:any,matchJson:any,venueSource:string|null=null;
    if(old?.venue_name&&old.venue_source){
      stadium={name:old.venue_name,city:old.venue_city,country:old.venue_country,
@@ -248,11 +290,14 @@ Deno.serve(async req=>{
    };
    const {error:writeError}=await db.from("soren_environment_cache_v1").upsert(entry,{onConflict:"match_id,imported_from"});
    if(writeError){skipped++;record("cache_write_failed",writeError.code);continue}
-   const {error:mapWrite}=await db.from("soren_environment_fixture_map_v1")
-      .upsert({match_id:id,fotmob_match_id:fixtureId,home_team_id:homeId,away_team_id:awayId,
-        mapping_source:mapped?.mapping_source??"fotmob_fixture_verified_details",
-        mapping_quality:"fixture_id_time_orientation_verified"},{onConflict:"match_id"});
-   if(mapWrite)record("mapped_cache_saved_mapping_warning",mapWrite.code);
+   // A source-verified venue alone is sufficient for the cache: never write a null FotMob fixture ID.
+   if(fixtureId){
+     const {error:mapWrite}=await db.from("soren_environment_fixture_map_v1")
+        .upsert({match_id:id,fotmob_match_id:fixtureId,home_team_id:homeId,away_team_id:awayId,
+          mapping_source:mapped?.mapping_source??"fotmob_fixture_verified_details",
+          mapping_quality:"fixture_id_time_orientation_verified"},{onConflict:"match_id"});
+     if(mapWrite)record("mapped_cache_saved_mapping_warning",mapWrite.code);
+   }
    if(forecast){weather++;record("weather_cached")}else{venueOnly++;record(pre?"venue_only_pregame":"venue_only_postmatch")}
   }
   return Response.json({ok:true,mode:backfill?"backfill":"live",date:backfill?targetDate:dayBjt(now),
