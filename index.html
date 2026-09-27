@@ -3430,7 +3430,7 @@
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='九十刻度';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.model=b.dataset.model;state.tab='home';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));[$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];buildDates();requestAnimationFrame(()=>{if(state.model===b.dataset.model&&state.tab==='home')render()})});
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
-    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'&&state.selectedDate!==beijingToday()){selectDate(beijingToday());return}if(state.tab==='memberzone'&&memberInfo?.vipActive===true&&!state.memberZoneLoading){const d=memberZoneDate();if(!state.memberZone||state.memberZone.date!==d){loadMemberZone();return}}render()});
+    document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'){const target=state.baseDate||beijingToday();if(state.selectedDate!==target){selectDate(target);return}}if(state.tab==='memberzone'&&memberInfo?.vipActive===true&&!state.memberZoneLoading){const d=memberZoneDate();if(!state.memberZone||state.memberZone.date!==d){loadMemberZone();return}}render()});
     $('back').onclick=closeDetail;
     function showAuthRetry(message,working=false){
       document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';
@@ -3485,7 +3485,11 @@
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
       if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='九十刻度';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
-      readDay(today).then(d=>{state.baseDate=d.date||today;rememberDay(d);if(d.date!==today||!d.rows.length){showUnopened(today);return}applyDay(d);scheduleHistoryPrefetch()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
+      readDay().then(d=>{
+        state.baseDate=d.date||today;rememberDay(d);
+        if(!d||!Array.isArray(d.rows)||!d.rows.length){showUnopened(today);return}
+        applyDay(d);scheduleHistoryPrefetch()
+      }).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
       }finally{authBootInFlight=false}
     }
     (async()=>{
