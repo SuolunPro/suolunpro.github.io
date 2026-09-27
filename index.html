@@ -314,6 +314,19 @@
 .member-zone-main strong{display:block;color:#252a2f;font-size:15px;line-height:1.45}
 .member-zone-main.risk{background:#fff5ef}
 .member-zone-main.risk strong{color:#9a432e}
+.member-zone-origin{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:3px 1px 8px;color:#727980;font-size:9px}
+.member-zone-origin b{color:#30363c;font-size:11px}
+.member-zone-cold{margin:0 0 8px;padding:11px 12px;border-radius:11px;background:#f5f6f7;border:1px solid #eceef0}
+.member-zone-cold small{display:block;font-size:9px;color:#848b92;margin-bottom:4px}
+.member-zone-cold strong{display:block;font-size:14px;line-height:1.45;color:#343a40}
+.member-zone-cold.medium{background:#fff8ea;border-color:#f3e5c7}
+.member-zone-cold.medium strong{color:#8b641f}
+.member-zone-cold.high{background:#fff0eb;border-color:#f2d8cf}
+.member-zone-cold.high strong{color:#a0432d}
+.member-zone-cold-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.member-zone-cold-tags span{padding:3px 6px;border-radius:20px;background:#ffffffb8;color:#686f77;font-size:8px;line-height:1.3}
+.member-zone-cold.high .member-zone-cold-tags span{color:#8f4937}
+.member-zone-cold.medium .member-zone-cold-tags span{color:#7c642f}
 .member-zone-brief{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
 .member-zone-brief span{padding:4px 7px;border-radius:20px;background:#f2f3f5;color:#656d76;font-size:9px;line-height:1.35}
 .member-zone-brief span.risk{background:#fff0eb;color:#a04a32}
@@ -1155,6 +1168,8 @@
       if(!rows.length){page.append(el('div','empty','','当前暂无可发布内容'));box.append(page);return}
 
       const fmtPct=v=>Number.isFinite(Number(v))?Number(v).toFixed(1)+'%':'—';
+      const fmtPp=v=>Number.isFinite(Number(v))?(Number(v)>=0?'+':'')+Number(v).toFixed(1)+'pp':'—';
+      const fmtNum=v=>Number.isFinite(Number(v))?Number(v).toFixed(0):'—';
       const addLine=(wrap,label,value)=>{
         const x=el('div','member-zone-proof-line');
         x.append(el('span','',label),el('b','',String(value??'—')));wrap.append(x);
@@ -1166,55 +1181,72 @@
         return (h.official===null||h.official===undefined?'':('官方 '+(Number(h.official)>0?'+':'')+h.official+' · '))+first+(second?' / '+second:'');
       };
       const resultCls=x=>x?.evaluable===true?(x.hit===true?'hit':'miss'):'';
-      const riskNames=row=>{
-        const list=[];
-        if(Array.isArray(row.riskRouting?.triggered))list.push(...row.riskRouting.triggered);
-        if(!list.length&&row.marketDirectionAnomaly===true)list.push('市场异动信号');
-        if(!list.length&&row.highDrawRisk===true)list.push('高平风险');
-        const tier=row.model?.risk?.displayTier||row.model?.risk?.warning;
-        if(tier&&['重点风险','强风险信号'].includes(String(tier)))list.push(String(tier));
-        if(row.conclusion?.intelligenceRisk===true)list.push('情报利空');
-        return [...new Set(list)];
+      const coldClass=level=>level==='高'?'high':level==='中'?'medium':'';
+      const coldTitle=cold=>{
+        if(!cold)return '暂无识别';
+        if(cold.level==='高')return cold.direction?('高风险 · 冷门倾向 '+cold.direction):'高风险 · 冷门方向待确认';
+        if(cold.level==='中')return cold.direction?('中风险 · 冷门倾向 '+cold.direction):'中风险 · 冷门方向待确认';
+        if(cold.level==='留意')return '存在冷门因素 · 暂不降级';
+        return '未见明显冷门结构';
       };
 
       for(const row of rows){
-        const st=row.settlement||{},ev=st.evaluation||null,ftEv=st.ftEvaluation||null,hEv=st.handicapEvaluation||null;
-        const risks=riskNames(row),card=el('article','card member-zone-regular-card');
+        const st=row.settlement||{},ftEv=st.ftEvaluation||null,hEv=st.handicapEvaluation||null;
+        const cold=row.coldRecognition||null,coldSet=st.coldRecognition||null;
+        const card=el('article','card member-zone-regular-card');
 
         const head=el('div','member-zone-compact-head'),left=el('div','');
         left.append(el('div','member-zone-compact-title',safe(row.no)+' · '+safe(row.home)+' vs '+safe(row.away)));
         left.append(el('div','member-zone-compact-meta',[safe(row.league),fmtTime(row.kickoff)].filter(Boolean).join(' · ')));
-        const badge=el('span','member-zone-badge '+String(row.status||'观察'),
-          st.verified
-            ?(ev?.evaluable===true?(ev.hit===true?'评测命中':'评测未中'):'已核验')
-            :String(row.status||'观察'));
+        const badgeText=cold?.level&&cold.level!=='低'?'冷门 '+cold.level:(st.verified?'已赛后核验':'赛前');
+        const badge=el('span','member-zone-badge '+(cold?.level==='高'?'谨慎':cold?.level==='中'?'观察':String(row.status||'观察')),badgeText);
         head.append(left,badge);card.append(head);
 
-        const main=el('div','member-zone-main'+(row.riskRouting?.active?' risk':''));
-        main.append(el('small','',row.riskRouting?.active?'风险触发后主处理':'主处理'));
-        main.append(el('strong','',
-          row.riskRouting?.active
-            ?('让球保护 '+(row.riskRouting.protection||'待确认'))
-            :(row.conclusion?.direction||row.model?.top1||'待更新')));
-        card.append(main);
+        const probs=Array.isArray(row.model?.probability)?row.model.probability:[null,null,null];
+        const topMap={主胜:0,平:1,客胜:2},topIdx=topMap[row.model?.top1];
+        const origin=el('div','member-zone-origin');
+        origin.append(el('span','','九十刻度原Top1'),el('b','',(row.model?.top1||'待更新')+(topIdx!==undefined?' '+fmtPct(probs[topIdx]):'')));
+        card.append(origin);
 
-        const brief=el('div','member-zone-brief');
-        if(risks.length)brief.append(el('span','risk','风险：'+risks.join(' / ')));
-        else brief.append(el('span','ok','风险：未触发重点模块'));
-        if(row.model?.handicap?.official!==null&&row.model?.handicap?.official!==undefined)
-          brief.append(el('span','', '官方让球 '+(Number(row.model.handicap.official)>0?'+':'')+row.model.handicap.official));
-        if(row.conclusion?.marketConfirm)brief.append(el('span',row.conclusion.marketConfirm==='弱'?'warn':'','市场 '+row.conclusion.marketConfirm+'确认'));
-        card.append(brief);
+        const coldBox=el('div','member-zone-cold '+coldClass(cold?.level));
+        coldBox.append(el('small','','冷门识别（影子验证）'));
+        coldBox.append(el('strong','',coldTitle(cold)));
+        const tags=el('div','member-zone-cold-tags');
+        const evidence=Array.isArray(cold?.evidence)?cold.evidence:[];
+        if(evidence.length)evidence.slice(0,4).forEach(x=>tags.append(el('span','',String(x))));
+        else tags.append(el('span','','暂无独立冷门证据'));
+        coldBox.append(tags);card.append(coldBox);
+
+        const formalRisk=row.riskRouting?.active===true;
+        const useCold=cold&&['中','高'].includes(String(cold.level));
+        const main=el('div','member-zone-main'+(formalRisk||useCold?' risk':''));
+        main.append(el('small','',formalRisk?'正式风险处理':useCold?'冷门处理（影子）':'主处理'));
+        main.append(el('strong','',
+          formalRisk
+            ?('让球保护 '+(row.riskRouting.protection||'待确认'))
+            :useCold
+              ?(cold.action||'原Top1降级')
+              :(row.conclusion?.direction||row.model?.top1||'待更新')));
+        card.append(main);
 
         if(st.verified){
           const results=el('div','member-zone-compact-result');
           const f=el('div','member-zone-result-chip '+resultCls(ftEv));
-          f.append(el('b','','胜平负'),el('span','',ftEv?.label||'仅作参考'));
+          f.append(el('b','','原Top1/胜平负'),el('span','',ftEv?.label||'仅作参考'));
           if(st.ftResult)f.append(el('small','','实际 '+st.ftResult));
           const h=el('div','member-zone-result-chip '+resultCls(hEv));
           h.append(el('b','','让球'),el('span','',hEv?.label||'无有效评测'));
           if(st.handicapResult)h.append(el('small','','实际 '+st.handicapResult));
           results.append(f,h);card.append(results);
+
+          if(coldSet){
+            const coldEval=el('div','member-zone-main'+(coldSet.riskEvaluable?' risk':''));
+            coldEval.append(el('small','','冷门识别赛后评测'));
+            let t='本场未进入中/高冷门风险评测';
+            if(coldSet.riskEvaluable)t=coldSet.riskHit===true?'✅ 冷门风险识别命中':'❌ 冷门风险识别未中';
+            if(coldSet.directionEvaluable)t+=' · '+(coldSet.directionHit===true?'冷门方向命中':'冷门方向未中');
+            coldEval.append(el('strong','',t));card.append(coldEval);
+          }
         }
 
         const details=el('details','member-zone-proof');
@@ -1222,8 +1254,8 @@
         const body=el('div','member-zone-proof-body');
 
         const psec=el('section','member-zone-proof-section');
-        psec.append(el('div','member-zone-proof-title','胜平负与让球'));
-        const pg=el('div','member-zone-proof-probs'),probs=Array.isArray(row.model?.probability)?row.model.probability:[null,null,null];
+        psec.append(el('div','member-zone-proof-title','九十刻度'));
+        const pg=el('div','member-zone-proof-probs');
         ['主胜','平','客胜'].forEach((lab,i)=>{
           const x=el('div','member-zone-proof-prob');
           x.append(el('span','',lab),el('b','',fmtPct(probs[i])));pg.append(x);
@@ -1233,8 +1265,22 @@
         addLine(psec,'让球模型',handicapText(row.model?.handicap));
         body.append(psec);
 
+        if(cold?.popularity){
+          const pop=cold.popularity,popsec=el('section','member-zone-proof-section');
+          popsec.append(el('div','member-zone-proof-title','人气—市场背离'));
+          addLine(popsec,'市场概率',fmtPct(pop.marketProbability));
+          addLine(popsec,'必发资金占比',fmtPct(pop.betfairShare));
+          addLine(popsec,'竞彩保存资金占比',fmtPct(pop.sportterySavedShare));
+          addLine(popsec,'人气溢价',fmtPp(pop.gap));
+          addLine(popsec,'冷热指数',fmtNum(pop.heat));
+          addLine(popsec,'盈亏指数',fmtNum(pop.profitIndex));
+          addLine(popsec,'William概率变化',fmtPp(pop.williamProbabilityMove));
+          addLine(popsec,'识别结果',pop.divergence?'人气过热 / 市场支持不足':pop.fundAnomaly?'资金盈亏异常':'暂无强背离');
+          body.append(popsec);
+        }
+
         const msec=el('section','member-zone-proof-section');
-        msec.append(el('div','member-zone-proof-title','市场校验'));
+        msec.append(el('div','member-zone-proof-title','赔率与资金'));
         addLine(msec,'市场确认',row.conclusion?.marketConfirm||'待确认');
         addLine(msec,'资金行为',row.conclusion?.fundBehavior||'待确认');
         addLine(msec,'威廉概率',memberPct3(row.market?.currentFair).join(' / '));
@@ -1244,15 +1290,24 @@
           const ln=row.officialMarket.hhad.line;
           addLine(msec,'体彩让球SP',(Number.isFinite(Number(ln))?('主'+(Number(ln)>0?'+':'')+Number(ln)):'让球')+' · '+memberOdds3(row.officialMarket.hhad.odds));
         }
+        if(Array.isArray(row.asianHandicap)&&row.asianHandicap.length){
+          row.asianHandicap.slice(0,4).forEach(x=>{
+            const fmtLine=v=>v===null||v===undefined?'—':String(v);
+            const fmtWater=v=>Number.isFinite(Number(v))?Number(v).toFixed(2):'—';
+            addLine(msec,String(x.institution||'亚盘'),
+              fmtLine(x.initialLine)+' '+fmtWater(x.initialHomeWater)+'/'+fmtWater(x.initialAwayWater)+
+              ' → '+fmtLine(x.currentLine)+' '+fmtWater(x.currentHomeWater)+'/'+fmtWater(x.currentAwayWater));
+          });
+        }
         body.append(msec);
 
         if(row.intelligence){
           const isec=el('section','member-zone-proof-section');
           isec.append(el('div','member-zone-proof-title','赛前情报'));
           addLine(isec,'总体影响',(row.intelligence.impactSide||'中性')+' · '+(row.intelligence.impactLevel||'低'));
-          if(row.intelligence.riskActivated===true)addLine(isec,'结论校验','已进入风险降级');
-          (Array.isArray(row.intelligence.categories)?row.intelligence.categories:[]).slice(0,3)
-            .forEach(x=>addLine(isec,String(x.type||'情报'),String(x.summary||'')));
+          if(row.intelligence.riskActivated===true)addLine(isec,'结论校验','已进入冷门识别');
+          (Array.isArray(row.intelligence.categories)?row.intelligence.categories:[]).slice(0,5)
+            .forEach(x=>addLine(isec,String(x.side||'')+' '+String(x.type||'情报'),String(x.summary||'')));
           body.append(isec);
         }
 
@@ -1267,7 +1322,6 @@
       }
       box.append(page);
     }
-
     function memberZoneDate(){
       return state.baseDate||state.today?.date||state.selectedDate||beijingToday();
     }
