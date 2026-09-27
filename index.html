@@ -1146,9 +1146,17 @@
         const badgeText=st.verified
           ?(ev?.evaluable===true
             ?((ev.basis||'主结论')+'评测'+(ev.hit===true?'命中':'未中'))
-            :'赛果已核验')
+            :ftEv?.evaluable===true
+              ?ftEv.label
+              :'赛果已核验')
           :String(row.status||'观察');
-        const badgeClass=st.verified?(ev?.evaluable===true?(ev.hit===true?'强化':'谨慎'):'观察'):String(row.status||'观察');
+        const badgeClass=st.verified
+          ?(ev?.evaluable===true
+            ?(ev.hit===true?'强化':'谨慎')
+            :ftEv?.evaluable===true
+              ?(ftEv.hit===true?'强化':'谨慎')
+              :'观察')
+          :String(row.status||'观察');
         head.append(id,el('span','member-zone-badge '+badgeClass,badgeText));
 
         const fixture=el('div','fixture'),teams=el('div','team-list');
@@ -1188,7 +1196,9 @@
           const basis=el('div','member-zone-eval-basis',
             ev?.evaluable===true
               ?('本场主评测口径：'+(ev.basis||'正式主结论')+'；另一玩法独立展示，不影响主评测结果。')
-              :'本场没有正式主评测方向；胜平负与让球仅分别展示核验结果。');
+              :ftEv?.evaluable===true
+                ?'本场未纳入正式主评测，但赛前胜平负首选仍独立核验并记录命中/未中。'
+                :'本场没有正式主评测方向；胜平负与让球仅分别展示核验结果。');
           wrap.append(basis);
           card.append(wrap);
         }
