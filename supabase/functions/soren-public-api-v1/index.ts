@@ -1825,7 +1825,9 @@ async function paidMemberZone(date:string){
     })();
     const formalDirection=mode==="PASS"?"暂不发布":mode==="DOUBLE"?doubleDirection:modelTop;
     const riskOverride=(hur==="红"||riskLevel==="高"||displayTier==="强风险信号");
-    const handicapProtection=officialHandicap!==null&&handicapTop1
+    // High-draw handicap protection is only enabled for official -1.
+    // +1 fixtures may display handicap data, but must never be rerouted to handicap solely because draw risk is high.
+    const handicapProtection=officialHandicap===-1&&handicapTop1
       ?(handicapTop1+(handicapSecond?(" + "+handicapSecond):"")):null;
 
     let status="观察",summary="",conclusionType="市场观察",conclusionDirection=formalDirection??behaviorTop??marketTop??null;
