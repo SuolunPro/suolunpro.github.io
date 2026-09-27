@@ -1111,6 +1111,7 @@ function upsetStatsFor(rows:Record<string,unknown>[]){
    core overlap and highlighted risk. Ranking happens BEFORE core/risk removal
    and never backfills from rank 4+. */
 function dailySelectionRiskBlocked(row:Record<string,unknown>){
+  if(row.dailySelectionRiskLocked===true)return true;
   const warning=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
     ?row.upsetWarning as Record<string,unknown>:null;
   const tier=String(warning?.displayTier??warning?.display_tier??"");
@@ -1128,18 +1129,50 @@ function dailySelectionStatsFor(rows:Record<string,unknown>[]){
   const odds=supplement.map(r=>Number((r.dailySelectionMeta as Record<string,unknown>|null)?.williamTop1Odds))
     .filter(Number.isFinite);
   return {
-    selectorVersion:"DAILY-VALUE-v1.1-20260927",
+    selectorVersion:"DAILY-VALUE-v1.2-20260927",
     core:core.length,
     supplement:supplement.length,
     total:core.length+supplement.length,
+    frozenRiskLocked:rows.filter(r=>r.dailySelectionRiskLocked===true).length,
     supplementAverageWilliamOdds:odds.length?Math.round(odds.reduce((a,b)=>a+b,0)/odds.length*1000)/1000:null
   };
 }
 async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
-  const selectorVersion="DAILY-VALUE-v1.1-20260927";
+  const selectorVersion="DAILY-VALUE-v1.2-20260927";
   let tagged=rows.map(row=>dailyCorePick(row)?{...row,dailySelectionTier:"CORE",dailySelectionLabel:"核心优选"}:{...row,dailySelectionTier:null,dailySelectionLabel:null});
   if(!rows.length||date<"2026-09-20")return tagged;
   try{
+    // Immutable one-way eligibility lock: if the first formal customer freeze was
+    // already blocked by published/focus risk, later prematch risk downgrades may
+    // update analysis but must never promote the match into CORE or SUPPLEMENT.
+    const {data:saleFreezes,error:saleFreezeError}=await db.from("soren_sale_freezes_v1")
+      .select("match_no,source_frozen_at,snapshot").eq("pool_date",date).limit(300);
+    if(saleFreezeError)throw saleFreezeError;
+    const frozenRiskLocks=new Map<string,string|null>();
+    for(const freeze of saleFreezes??[]){
+      const snapshot=freeze.snapshot;
+      if(!snapshot||typeof snapshot!=="object"||Array.isArray(snapshot))continue;
+      const warning=(snapshot as Record<string,unknown>).upsetWarning;
+      if(!warning||typeof warning!=="object"||Array.isArray(warning))continue;
+      const w=warning as Record<string,unknown>;
+      const tier=String(w.displayTier??w.display_tier??"");
+      if(w.publish===true||tier==="重点风险"||tier==="强风险信号"){
+        frozenRiskLocks.set(String(freeze.match_no??"").padStart(3,"0"),
+          freeze.source_frozen_at?String(freeze.source_frozen_at):null);
+      }
+    }
+    tagged=rows.map(row=>{
+      const no=String(row.no??"").padStart(3,"0");
+      const locked=frozenRiskLocks.has(no);
+      const prepared=locked?{...row,
+        dailySelectionRiskLocked:true,
+        dailySelectionRiskLockReason:"FORMAL_FREEZE_RISK_BLOCK",
+        dailySelectionRiskLockAt:frozenRiskLocks.get(no)??null}:row;
+      return dailyCorePick(prepared)
+        ?{...prepared,dailySelectionTier:"CORE",dailySelectionLabel:"核心优选"}
+        :{...prepared,dailySelectionTier:null,dailySelectionLabel:null};
+    });
+
     const {data:matches,error:matchError}=await db.from("soren_matches")
       .select("id,match_no,home_team,away_team,kickoff_at")
       .eq("pool_date",date).limit(200);
