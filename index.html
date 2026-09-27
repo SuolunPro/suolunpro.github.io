@@ -3439,7 +3439,9 @@
       dayCache.delete(d.date);dayCache.set(d.date,entry);
       while(dayCache.size>7)dayCache.delete(dayCache.keys().next().value);
       if(settled){
-        try{sessionStorage.setItem(ARCHIVE_SESSION_PREFIX+d.date,JSON.stringify({data:d,at:entry.at}))}catch{}
+        const persist=()=>{try{sessionStorage.setItem(ARCHIVE_SESSION_PREFIX+d.date,JSON.stringify({data:d,at:entry.at}))}catch{}};
+        if('requestIdleCallback' in window)window.requestIdleCallback(persist,{timeout:5000});
+        else setTimeout(persist,1200);
       }
     }
     function cachedDay(date){
@@ -3472,19 +3474,22 @@
     function scheduleHistoryPrefetch(){
       if(historyPrefetchStarted||!authSession?.access_token)return;
       historyPrefetchStarted=true;
-      const latest=beijingToday();
-      // Dates at least two days old are normally settled; prefetch the five visible history days
-      // in the background. Any unexpectedly unsettled day only receives the short active TTL.
-      const queue=[-2,-3,-4,-5,-6].map(offset=>addDays(latest,offset));
+      const latest=state.baseDate||beijingToday();
+      // Mobile-first: prefetch only the two nearest archive days, serially and only
+      // when the browser is idle. Never compete with active scrolling/date switching.
+      const queue=[-1,-2].map(offset=>addDays(latest,offset));
       const worker=async()=>{
         while(queue.length){
+          if(document.hidden||state.tab!=='home'||state.selectedDate!==state.baseDate)return;
           const date=queue.shift();
           if(!date||cachedDay(date))continue;
           try{await readDay(date)}catch(e){console.warn('历史日期预取暂不可用',date,e)}
-          await new Promise(resolve=>setTimeout(resolve,120));
+          await new Promise(resolve=>setTimeout(resolve,900));
         }
       };
-      setTimeout(()=>{worker();worker()},900);
+      const start=()=>worker();
+      if('requestIdleCallback' in window)window.requestIdleCallback(start,{timeout:4500});
+      else setTimeout(start,3200);
     }
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
     async function selectDate(date){
