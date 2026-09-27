@@ -516,7 +516,7 @@ function attachHistoricalScoreTop4(row:Record<string,unknown>,scores:Map<string,
  if(!Array.isArray(picks)||picks.length!==4||!Number.isFinite(frozen)||!Number.isFinite(kickoff)||frozen>=kickoff||Math.abs(sourceKickoff-kickoff)>60000)return row;
  const actual=row.resultVerified===true&&Number.isFinite(Number(row.resultHome))&&Number.isFinite(Number(row.resultAway))?String(row.resultHome)+"-"+String(row.resultAway):null;
  const hit=actual!==null&&picks.some(p=>String(p.score)===actual);
- return {...row,scoreTop4:{pregameVerified:true,frozenAt:item.source_frozen_at,picks,sourceKind:"HISTORICAL_BLIND_REPLAY",sourceLabel:"历史盲跑重建 · 豪竞3.8比分规则",settlementStatus:actual===null?"PENDING":hit?"SUCCESS":"FAILURE",hitScore:hit?actual:null}};
+ return {...row,scoreTop4:{pregameVerified:true,frozenAt:item.source_frozen_at,picks,sourceKind:"HISTORICAL_BLIND_REPLAY",sourceLabel:"历史盲跑重建 · 九十刻度比分规则",settlementStatus:actual===null?"PENDING":hit?"SUCCESS":"FAILURE",hitScore:hit?actual:null}};
 }
 
 /* Score predictions are immutable; settle only a response copy against verified 90-minute results.
@@ -1795,48 +1795,48 @@ async function paidMemberZone(date:string){
         ? (handicapTop1+(handicapSecond?(" + "+handicapSecond):""))
         : null;
 
-      conclusionType=mode==="PASS"?"3.8风险结论":mode==="DOUBLE"?"3.8综合方向":"3.8综合方向";
+      conclusionType=mode==="PASS"?"九十刻度风险结论":mode==="DOUBLE"?"九十刻度综合方向":"九十刻度综合方向";
       conclusionDirection=formalDirection;
 
       if(mode==="PASS"){
         status="谨慎";
-        summary="3.8已完成赛前冻结，但风险门槛未通过；不发布正式胜平负方向，仅保留原始首选作审计。";
+        summary="九十刻度已完成赛前冻结，但风险门槛未通过；不发布正式胜平负方向，仅保留原始首选作审计。";
       }else if(riskOverride&&mode==="DOUBLE"){
         status="谨慎";
         conclusionType="风险处理";
         conclusionDirection=handicapProtection?("让球保护 "+handicapProtection):formalDirection;
-        summary="3.8原始胜平负首选为"+modelTop+"，但风险信号已触发，不再强化单一"+modelTop+"。"+(handicapProtection?(" 当前优先采用让球保护："+handicapProtection+"。"):(" 正式胜平负按"+formalDirection+"双向保护。"));
+        summary="九十刻度原始胜平负首选为"+modelTop+"，但风险信号已触发，不再强化单一"+modelTop+"。"+(handicapProtection?(" 当前优先采用让球保护："+handicapProtection+"。"):(" 正式胜平负按"+formalDirection+"双向保护。"));
       }else if(alignment==="三方同向"){
         status=overheat?"谨慎":"强化";
         summary=overheat
-          ? "3.8、威廉与资金行为方向一致，但热门程度偏高，赔率支撑不足，需防过热。"
-          : "3.8、威廉与必发/竞彩资金行为三方同向，原模型方向获得额外市场确认。";
+          ? "九十刻度、威廉与资金行为方向一致，但热门程度偏高，赔率支撑不足，需防过热。"
+          : "九十刻度、威廉与必发/竞彩资金行为三方同向，原模型方向获得额外市场确认。";
       }else if(alignment==="模型×资金同向"){
         status="分歧";
-        summary="3.8与资金行为同向，但威廉当前概率首位不同，保留模型方向并降低确认等级。";
+        summary="九十刻度与资金行为同向，但威廉当前概率首位不同，保留模型方向并降低确认等级。";
       }else if(alignment==="模型×威廉同向"){
         status="分歧";
-        summary="3.8与威廉方向一致，但必发/竞彩资金行为未同步，当前不做强化。";
+        summary="九十刻度与威廉方向一致，但必发/竞彩资金行为未同步，当前不做强化。";
       }else if(alignment==="多方分歧"){
         status="分歧";
-        summary="3.8、赔率与资金行为未形成一致方向，本场保持谨慎，不强化单一方向。";
+        summary="九十刻度、赔率与资金行为未形成一致方向，本场保持谨慎，不强化单一方向。";
       }else{
         status=(hur==="红"||warning==="中"||warning==="高")?"谨慎":"稳定";
-        summary="3.8赛前方向已冻结；当前资金快照不足，仅结合已有赔率与风险信息观察。";
+        summary="九十刻度赛前方向已冻结；当前资金快照不足，仅结合已有赔率与风险信息观察。";
       }
     }else if(behaviorTop&&marketTop){
       conclusionType="市场观察";
       if(behaviorTop===marketTop){
         status="市场确认";
-        summary="九十刻度"+activeVersion+"方向待更新；当前威廉与必发/竞彩资金行为暂时同向于"+behaviorTop+"，仅作市场观察。";
+        summary="九十刻度方向待更新；当前威廉与必发/竞彩资金行为暂时同向于"+behaviorTop+"，仅作市场观察。";
       }else{
         status="分歧";
-        summary="九十刻度"+activeVersion+"方向待更新；当前威廉与必发/竞彩资金行为存在分歧，不提前替代模型结论。";
+        summary="九十刻度方向待更新；当前威廉与必发/竞彩资金行为存在分歧，不提前替代模型结论。";
       }
     }else if(marketTop){
       conclusionType="市场观察";
       status="市场观察";
-      summary="九十刻度"+activeVersion+"方向待更新；当前仅有赛前赔率结构，暂不形成综合方向。";
+      summary="九十刻度方向待更新；当前仅有赛前赔率结构，暂不形成综合方向。";
     }else{
       summary="当前赛前数据仍在更新，暂不形成综合方向。";
     }
@@ -1873,7 +1873,7 @@ async function paidMemberZone(date:string){
   return {
     date,
     title:"尊贵月卡VIP · 九十刻度综合研判",
-    subtitle:""+activeVersion+"赛前模型 × 威廉赔率 × 必发/竞彩资金行为",
+    subtitle:"九十刻度赛前模型 × 威廉赔率 × 必发/竞彩资金行为",
     modelVersion:activeVersion,
     revision:activeModel?.revision_tag??null,
     rows
