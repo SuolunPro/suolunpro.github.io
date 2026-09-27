@@ -1727,7 +1727,7 @@
         gap!==null&&gap<=6&&
         hadPct!==null&&hadPct>=58;
 
-      if(validHandicapPick(handicapPick)&&hadPct!==null){
+      if(info.oppositeSecond===true&&validHandicapPick(handicapPick)&&hadPct!==null){
         const had=el('div','risk-inline-handicap'+(strongHandicap?' strong-handicap':''));
         had.append(
           el('strong','',strongHandicap?'强让球观察':'让球观察'),
