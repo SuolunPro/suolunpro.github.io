@@ -1746,7 +1746,7 @@
           ?'主队 '+(official>0?'+':'')+(Number.isInteger(official)?official:official.toFixed(2).replace(/0+$/,'').replace(/\.$/,''))
           :'未确认';
         const officialLine=el('div','risk-inline-handicap-line');
-        officialLine.append(el('strong','',strongHandicap?'强让球':'官方让球'),el('span','',officialText));
+        officialLine.append(el('strong','','官方让球'),el('span','',officialText));
         had.append(officialLine);
 
         const result=verified(row)?pickLabel(effectiveHandicapResult(row)):null;
