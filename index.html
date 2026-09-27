@@ -3137,14 +3137,10 @@
       try{
       if(!authSession?.access_token){showLoginGate();return}
       showAuthRetry('正在恢复登录状态…',true);
-      try{await verifyAuthWithNetworkRetry()}catch(error){
-        if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('请登录以继续使用九十刻度');return}
-        const offline=typeof navigator.onLine==='boolean'&&!navigator.onLine;
-        showAuthRetry(offline?'当前设备未连接网络；登录信息已保留，联网后点击重新连接。':
-          '登录状态暂时无法核验，可能是网络超时或验证服务暂不可达；账号信息已保留，请点击重新连接。');
-        return;
-      }
       try{
+        // The membership endpoint performs the authoritative server-side JWT check.
+        // Do not duplicate it with a browser-direct /auth/v1/user request: on some
+        // mobile networks that extra request can time out even after a successful login.
         // A single transient membership read failure must not force a full-page reconnect.
         try{await membershipFetch()}catch(error){
           if(!authSession?.access_token||error.message==='LOGIN_REQUIRED')throw error;
