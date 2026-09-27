@@ -1357,6 +1357,41 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
 
 /* Read-only, authenticated, on-demand match report. All inputs are cached
    in Soren customer DB; this route never invokes an external football API. */
+function vipRiskSignalPresent(row:Record<string,unknown>){
+  const raw=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
+    ?row.upsetWarning as Record<string,unknown>:{};
+  const tier=String(raw.displayTier??raw.display_tier??"");
+  const drawRaw=Number(row.drawProbability??row.drawPct??row.draw_pct);
+  const drawPct=Number.isFinite(drawRaw)?(drawRaw<=1?drawRaw*100:drawRaw):null;
+  const official=Number(row.officialHandicap);
+  const first=String(row.handicapTop1??row.handicap??"").trim();
+  const second=String(row.handicapSecond??"").trim();
+  const p1=Number(row.handicapProbability??row.handicap_probability);
+  const p2=Number(row.handicapSecondProbability??row.handicap_second_probability);
+  const valid=(v:string)=>["让胜","让平","让负","HWIN","HDRAW","HLOSS"].includes(v);
+  const highDrawFallback=row.pregameVerified===true&&drawPct!==null&&drawPct>=29&&official===-1&&
+    valid(first)&&valid(second)&&Number.isFinite(p1)&&Number.isFinite(p2);
+  return row.highDrawRisk===true||highDrawFallback||row.marketDirectionAnomaly===true||
+    raw.publish===true||["重点风险","强风险信号"].includes(tier);
+}
+function redactLiveVipRisk(row:Record<string,unknown>){
+  const locked=vipRiskSignalPresent(row);
+  return {
+    ...row,
+    vipRiskAccessRestricted:true,
+    vipRiskLocked:locked,
+    vipRiskNotice:locked?"VIP风险信号已触发":null,
+    highDrawRisk:false,
+    highDrawRiskReason:null,
+    marketDirectionAnomaly:false,
+    marketProtectionFirst:null,
+    marketProtectionSecond:null,
+    upsetWarning:null,
+    upset_warning:null,
+    riskAnalysis:locked?"VIP_RISK_LOCKED":null
+  };
+}
+
 async function professionalReport(date:string,no:string){
   const {data:match,error:matchError}=await db.from("soren_matches")
     .select("id,pool_date,match_no,home_team,away_team,kickoff_at,official_handicap")
@@ -1539,7 +1574,7 @@ async function marketTrend(date:string,no:string){
 }
 
 
-async function serveFastArchiveBundle(date:string,view:string):Promise<Response|null>{
+async function serveFastArchiveBundle(date:string,view:string,vipActive=false):Promise<Response|null>{
   try{
     const {data:bundle,error}=await db.rpc("soren_fast_archive_bundle_v2",{p_date:date});
     if(error||!bundle||typeof bundle!=="object"||Array.isArray(bundle)){
@@ -1601,6 +1636,9 @@ async function serveFastArchiveBundle(date:string,view:string):Promise<Response|
       Array.isArray(b.liveHtft)?(b.liveHtft as Record<string,unknown>[]):[],
       verifiedResults
     ).map(attachScoreGoalReference);
+
+    const liveUnsettled=rows.some((r:Record<string,unknown>)=>r.resultVerified!==true&&r.matchStatus!=="POSTPONED");
+    if(!vipActive&&liveUnsettled)rows=rows.map(redactLiveVipRisk);
 
     const handicapStats=buildHandicapStats(rows);
     const dataTimes=rows.map(r=>Date.parse(String(r.frozenAt??""))).filter(Number.isFinite);
@@ -2383,7 +2421,9 @@ Deno.serve(async (req: Request) => {
     const fastToday=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).split("/").join("-");
     const fastDate=requestUrl.searchParams.get("date");
     if(requestUrl.searchParams.get("view")==="archive"&&fastDate&&/^\d{4}-\d{2}-\d{2}$/.test(fastDate)&&fastDate<fastToday&&fastDate>="2026-09-26"){
-      const fastResponse=await serveFastArchiveBundle(fastDate,"archive");
+      let fastVip=false;
+      try{fastVip=(await vipAccessStatus(String(user.id))).active===true}catch(e){console.error("FAST_ARCHIVE_VIP_CHECK_UNAVAILABLE",e)}
+      const fastResponse=await serveFastArchiveBundle(fastDate,"archive",fastVip);
       if(fastResponse)return fastResponse;
     }
 
@@ -2472,6 +2512,8 @@ Deno.serve(async (req: Request) => {
       const no=requestUrl.searchParams.get("no")??"";
       if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{3}$/.test(no))
         return reply({ok:false,error:"INVALID_TREND_ID"},400);
+      if(vipAccess.active!==true)
+        return reply({ok:false,error:"VIP_DEEP_DATA_REQUIRED",membership},403);
       try{
         const trend=await marketTrend(date,no);
         if(!trend)return reply({ok:false,error:"TREND_MATCH_NOT_FOUND"},404);
@@ -2484,6 +2526,8 @@ Deno.serve(async (req: Request) => {
       const no=requestUrl.searchParams.get("no")??"";
       if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(date)||!/^[0-9]{3}$/.test(no))
         return reply({ok:false,error:"INVALID_REPORT_ID"},400);
+      if(vipAccess.active!==true)
+        return reply({ok:false,error:"VIP_DEEP_DATA_REQUIRED",membership},403);
       try{
         const report=await professionalReport(date,no);
         if(!report)return reply({ok:false,error:"REPORT_MATCH_NOT_FOUND"},404);
@@ -2590,6 +2634,8 @@ Deno.serve(async (req: Request) => {
               console.error("FAST_ARCHIVE_HTFT_UNAVAILABLE",htftError);
             }
 
+            const liveUnsettled=rows.some((r:Record<string,unknown>)=>r.resultVerified!==true&&r.matchStatus!=="POSTPONED");
+            if(vipAccess.active!==true&&liveUnsettled)rows=rows.map(redactLiveVipRisk);
             const handicapStats=buildHandicapStats(rows);
             const dataTimes=rows.map(r=>Date.parse(String(r.frozenAt??""))).filter(Number.isFinite);
             return reply({
@@ -2697,6 +2743,8 @@ Deno.serve(async (req: Request) => {
       rows=rows.map((r:Record<string,unknown>)=>({...r,htftTop4:null}));
     }
     rows=await attachLiveHTFT(rows,dynamicDate,databaseResults);
+    const liveUnsettled=rows.some((r:Record<string,unknown>)=>r.resultVerified!==true&&r.matchStatus!=="POSTPONED");
+    if(vipAccess.active!==true&&liveUnsettled)rows=rows.map(redactLiveVipRisk);
     const handicapStats = buildHandicapStats(rows);
     const riskHistoricalReplay=dynamicDate>="2026-09-20"&&dynamicDate<"2026-09-26";
     const warningSync=archiveReadOnly
