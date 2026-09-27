@@ -328,6 +328,13 @@
 .member-zone-pick-note{font-size:10px;color:#8b9299;margin-top:7px}
 .member-zone-pick-evidence{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:10px}
 .member-zone-pick-evidence span{padding:5px 8px;border-radius:20px;background:#fff;color:#765b52;font-size:10px;font-weight:650}
+.member-zone-result{margin:10px 0 0;padding:12px 14px;border-radius:12px;background:#f7f7f8;border:1px solid #ececef;text-align:center}
+.member-zone-result small{display:block;font-size:9px;color:#8a8f96;margin-bottom:4px}
+.member-zone-result-score{font-size:22px;font-weight:900;color:#252a31;line-height:1.2}
+.member-zone-result-meta{font-size:11px;color:#656b73;margin-top:5px;font-weight:700}
+.member-zone-result.hit{background:#eef8f1;border-color:#d7eadc}.member-zone-result.hit .member-zone-result-meta{color:#2f7a47}
+.member-zone-result.miss{background:#fff1f1;border-color:#efd6d6}.member-zone-result.miss .member-zone-result-meta{color:#a43c3c}
+.member-zone-result.pending .member-zone-result-score{font-size:15px;color:#8a8f96}
 .member-zone-cold.high{background:#fff0eb;border-color:#f2d8cf}
 .member-zone-cold.high strong{color:#a0432d}
 .member-zone-cold-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
@@ -1224,11 +1231,16 @@
           const coldHit=st.coldRecognition?.vipDirectionEvaluable===true
             ?st.coldRecognition?.vipDirectionHit===true
             :(isHomeTop?['平','客胜'].includes(actual):['主胜','平'].includes(actual));
-          const evalBox=el('div','member-zone-main '+(coldHit?'':'risk'));
-          evalBox.append(el('small','','赛后评测'));
-          evalBox.append(el('strong','',coldHit?'✅ 冷门方向命中':'❌ 冷门方向未中'));
-          if(actual)evalBox.append(el('div','member-zone-compact-meta','实际：'+actual));
-          card.append(evalBox);
+          const resultBox=el('div','member-zone-result '+(coldHit?'hit':'miss'));
+          resultBox.append(el('small','','同步赛果'));
+          resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
+          resultBox.append(el('div','member-zone-result-meta',(actual?actual+' · ':'')+(coldHit?'✅ 冷门方向命中':'❌ 冷门方向未中')));
+          card.append(resultBox);
+        }else{
+          const resultBox=el('div','member-zone-result pending');
+          resultBox.append(el('small','','同步赛果'));
+          resultBox.append(el('div','member-zone-result-score','等待赛果'));
+          card.append(resultBox);
         }
 
         const details=el('details','member-zone-proof');
