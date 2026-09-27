@@ -1732,11 +1732,11 @@
         officialLine.append(el('strong','','官方让球'),el('span','',officialText));
         had.append(officialLine);
         const picksLine=el('div','risk-inline-handicap-line');
-        picksLine.append(el('strong','','方向'));
+        picksLine.append(el('strong','','让球保护'));
         const picks=el('div','risk-inline-handicap-picks');
-        picks.append(el('span','risk-inline-handicap-pick','首选 '+String(row.marketProtectionFirst??(official<0?'让负':'让胜'))));
-        picks.append(el('span','risk-inline-handicap-sep','｜'));
-        picks.append(el('span','risk-inline-handicap-pick','次选 '+String(row.marketProtectionSecond??'让平')));
+        picks.append(el('span','risk-inline-handicap-pick',String(row.marketProtectionFirst??(official<0?'让负':'让胜'))));
+        picks.append(el('span','risk-inline-handicap-sep',' + '));
+        picks.append(el('span','risk-inline-handicap-pick',String(row.marketProtectionSecond??'让平')));
         picksLine.append(picks);had.append(picksLine);strip.append(had);card.append(strip);return;
       }
       const info=upsetInfo(row);if(!info)return;
@@ -1784,13 +1784,13 @@
 
         const result=verified(row)?pickLabel(effectiveHandicapResult(row)):null;
         const picksLine=el('div','risk-inline-handicap-line');
-        picksLine.append(el('strong','','方向'));
+        picksLine.append(el('strong','','让球保护'));
         const picks=el('div','risk-inline-handicap-picks');
-        const firstText='首选 '+handicapPick+' '+probability(hadPct)+(result===handicapPick?' ✅':'');
+        const firstText=handicapPick+' '+probability(hadPct)+(result===handicapPick?' ✅':'');
         picks.append(el('span','risk-inline-handicap-pick'+(result===handicapPick?' hit':''),firstText));
         if(validHandicapPick(handicapSecond)&&hadSecondPct!==null){
-          picks.append(el('span','risk-inline-handicap-sep','｜'));
-          const secondText='次选 '+handicapSecond+' '+probability(hadSecondPct)+(result===handicapSecond?' ✅':'');
+          picks.append(el('span','risk-inline-handicap-sep',' + '));
+          const secondText=handicapSecond+' '+probability(hadSecondPct)+(result===handicapSecond?' ✅':'');
           picks.append(el('span','risk-inline-handicap-pick'+(result===handicapSecond?' hit':''),secondText));
         }
         picksLine.append(picks);
