@@ -11,13 +11,32 @@ const handicapName: Record<string,string> = { HWIN: "让胜", HDRAW: "让平", H
 /* A per-match customer-side freeze, independent of later mother-model refreshes.
    Without verified official cutoff, lock the first valid published snapshot early.
    Results and independent team/logo metadata remain live; prediction fields do not. */
-async function applySaleFreeze(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]> {
+async function applySaleFreeze(rows:Record<string,unknown>[],date:string,readOnly=false):Promise<Record<string,unknown>[]> {
   if(date<"2026-09-23")return rows; // historic data predating deployment: do not relabel as sale-verified.
-  const {data,error}=await db.rpc("soren_capture_sale_snapshots_v1",{p_date:date,p_rows:rows});
-  if(error||!Array.isArray(data))throw new Error("SALE_FREEZE_UNAVAILABLE:"+String(error?.message??"INVALID_RESPONSE"));
-  // Save immutable, time-verified model versions before each fixture's kickoff/cutoff.
-  const {error:captureError}=await db.rpc("soren_capture_prematch_updates_v1",{p_date:date,p_rows:rows});
-  if(captureError)throw new Error("PREMATCH_CAPTURE_UNAVAILABLE:"+String(captureError.message));
+  let data:Record<string,unknown>[]=[];
+  if(readOnly){
+    // Historical navigation must never create/refresh freezes. Reuse the already locked customer snapshot.
+    const {data:stored,error:storedError}=await db.from("soren_sale_freezes_v1")
+      .select("match_no,snapshot,source_frozen_at,captured_at,locked_at,lock_reason,cutoff_at")
+      .eq("pool_date",date).order("match_no",{ascending:true});
+    if(storedError)throw new Error("SALE_FREEZE_READ_UNAVAILABLE:"+String(storedError.message));
+    data=(stored??[]).map((s:Record<string,unknown>)=>({
+      no:String(s.match_no??"").padStart(3,"0"),
+      status:s.locked_at?String(s.lock_reason??"LOCKED"):(s.cutoff_at?"PRE_SALE_REFRESHABLE":"EARLY_LOCK_CUTOFF_UNVERIFIED"),
+      snapshot:s.snapshot??null,
+      sourceFrozenAt:s.source_frozen_at??null,
+      capturedAt:s.captured_at??null,
+      lockedAt:s.locked_at??null,
+      cutoffAt:s.cutoff_at??null,
+    }));
+  }else{
+    const captured=await db.rpc("soren_capture_sale_snapshots_v1",{p_date:date,p_rows:rows});
+    if(captured.error||!Array.isArray(captured.data))throw new Error("SALE_FREEZE_UNAVAILABLE:"+String(captured.error?.message??"INVALID_RESPONSE"));
+    data=captured.data as Record<string,unknown>[];
+    // Save immutable, time-verified model versions before each fixture's kickoff/cutoff.
+    const {error:captureError}=await db.rpc("soren_capture_prematch_updates_v1",{p_date:date,p_rows:rows});
+    if(captureError)throw new Error("PREMATCH_CAPTURE_UNAVAILABLE:"+String(captureError.message));
+  }
   const {data:updates,error:updatesError}=await db.from("soren_prematch_updates_v1")
     .select("match_no,source_frozen_at,captured_at,snapshot").eq("pool_date",date)
     .order("source_frozen_at",{ascending:false}).limit(2500);
@@ -652,6 +671,21 @@ const allowed = new Map([
 const reply = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: cors });
 
+async function fetchPublicUpstream(view:string,date:string|null){
+  const query=new URLSearchParams({public_hj38:"1",view});
+  if(date)query.set("date",date);
+  const response=await fetch(upstream+"?"+query.toString(),{
+    headers:{accept:"application/json"},
+    signal:AbortSignal.timeout(10_000),
+  });
+  if(!response.ok)throw new Error("UPSTREAM_"+response.status);
+  const data=await response.json();
+  const expectedRevision=allowed.get(String(data?.modelVersion??""));
+  if(data?.ok!==true||!expectedRevision||data?.revision!==expectedRevision||!Array.isArray(data?.rows))
+    throw new Error("UPSTREAM_VALIDATION_FAILED");
+  return data;
+}
+
 async function syncUpsetWarnings(rows: Record<string,unknown>[], data: Record<string,unknown>) {
   const payload = rows.flatMap((row) => {
     const warning = row.upsetWarning;
@@ -1049,14 +1083,22 @@ function upsetStatsFor(rows:Record<string,unknown>[]){
 
 
 
-/* Daily selection layer v1.0.
-   Preserve formal/core picks unchanged. Supplement only from the daily Top3
-   William 1.45–1.75 value band, then remove core overlap and highlighted risk.
-   Ranking happens BEFORE core/risk removal and never backfills from rank 4+. */
+/* Daily selection layer v1.1.
+   Core and supplement must both pass the highlighted-risk gate.
+   Supplement only from the daily Top3 William 1.45–1.75 value band, then remove
+   core overlap and highlighted risk. Ranking happens BEFORE core/risk removal
+   and never backfills from rank 4+. */
+function dailySelectionRiskBlocked(row:Record<string,unknown>){
+  const warning=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
+    ?row.upsetWarning as Record<string,unknown>:null;
+  const tier=String(warning?.displayTier??warning?.display_tier??"");
+  return warning?.publish===true||tier==="重点风险"||tier==="强风险信号";
+}
 function dailyCorePick(row:Record<string,unknown>){
   const tier=String(row.tier??"").trim().toUpperCase();
   const mode=String(row.mode??"").trim().toUpperCase();
-  return row.pregameVerified===true&&(mode==="SINGLE"||mode==="DOUBLE")&&tier!==""&&tier!=="PASS"&&row.pass!==true;
+  return row.pregameVerified===true&&(mode==="SINGLE"||mode==="DOUBLE")&&tier!==""&&tier!=="PASS"&&row.pass!==true
+    &&!dailySelectionRiskBlocked(row);
 }
 function dailySelectionStatsFor(rows:Record<string,unknown>[]){
   const core=rows.filter(r=>String(r.dailySelectionTier??"")==="CORE");
@@ -1064,7 +1106,7 @@ function dailySelectionStatsFor(rows:Record<string,unknown>[]){
   const odds=supplement.map(r=>Number((r.dailySelectionMeta as Record<string,unknown>|null)?.williamTop1Odds))
     .filter(Number.isFinite);
   return {
-    selectorVersion:"DAILY-VALUE-v1.0-20260926",
+    selectorVersion:"DAILY-VALUE-v1.1-20260927",
     core:core.length,
     supplement:supplement.length,
     total:core.length+supplement.length,
@@ -1072,7 +1114,7 @@ function dailySelectionStatsFor(rows:Record<string,unknown>[]){
   };
 }
 async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
-  const selectorVersion="DAILY-VALUE-v1.0-20260926";
+  const selectorVersion="DAILY-VALUE-v1.1-20260927";
   let tagged=rows.map(row=>dailyCorePick(row)?{...row,dailySelectionTier:"CORE",dailySelectionLabel:"核心优选"}:{...row,dailySelectionTier:null,dailySelectionLabel:null});
   if(!rows.length||date<"2026-09-20")return tagged;
   try{
@@ -1132,11 +1174,7 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
     const selected=new Map<string,{rank:number;odds:number;confidence:number}>();
     raw.slice(0,3).forEach((x,i)=>{
       if(dailyCorePick(x.row))return;
-      const warning=(x.row.upsetWarning&&typeof x.row.upsetWarning==="object"&&!Array.isArray(x.row.upsetWarning))
-        ?x.row.upsetWarning as Record<string,unknown>:null;
-      const tier=String(warning?.displayTier??warning?.display_tier??"");
-      const blocked=warning?.publish===true||tier==="重点风险"||tier==="强风险信号";
-      if(blocked)return;
+      if(dailySelectionRiskBlocked(x.row))return;
       selected.set(String(x.row.no??"").padStart(3,"0"),{rank:i+1,odds:x.odds,confidence:x.confidence});
     });
 
@@ -1562,21 +1600,26 @@ Deno.serve(async (req: Request) => {
       const revision = date === "2026-09-13" ? "3.2-native-pass-v0.1.1-20260913" : "3.3-best-play-selector-v1.0-20260914";
       return reply({ok:true,view,date,count:rows.length,model:"索伦引擎",modelVersion:version,revision,batchTime:null,dataTime:full.at(-1)?.frozenAt??null,pregameVerifiedCount:rows.length,handicapStats,upsetStats:upsetStatsFor(rows),updatedAt:new Date().toISOString(),rows:rows.map(attachScoreGoalReference)});
     }
-    const query = new URLSearchParams({ public_hj38: "1", view });
-    if (date) query.set("date", date);
-    const response = await fetch(upstream + "?" + query.toString(), {
-      headers: { accept: "application/json" },
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!response.ok) throw new Error("UPSTREAM_" + response.status);
-    const data = await response.json();
-    const expectedRevision = allowed.get(String(data?.modelVersion ?? ""));
-    if (
-      data?.ok !== true ||
-      !expectedRevision ||
-      data?.revision !== expectedRevision ||
-      !Array.isArray(data?.rows)
-    ) throw new Error("UPSTREAM_VALIDATION_FAILED");
+    // Past dates are immutable customer history: read the already locked local snapshots
+    // instead of calling the mother model again. Today's live path is intentionally unchanged.
+    const archiveReadOnly=view==="archive"&&!!date&&date<beijingToday&&date>="2026-09-23";
+    let data:any=null;
+    if(archiveReadOnly){
+      const {data:freezeRows,error:freezeError}=await db.from("soren_sale_freezes_v1")
+        .select("match_no,snapshot,source_frozen_at").eq("pool_date",date).order("match_no",{ascending:true});
+      if(freezeError)throw new Error("ARCHIVE_FREEZE_READ_UNAVAILABLE:"+String(freezeError.message));
+      const frozenRows=(freezeRows??[])
+        .map((x:Record<string,unknown>)=>x.snapshot)
+        .filter((x:unknown)=>x&&typeof x==="object"&&!Array.isArray(x)) as Record<string,unknown>[];
+      const modelVersion=String(frozenRows.find(r=>r.version)?.version??"");
+      const expectedRevision=allowed.get(modelVersion);
+      if(frozenRows.length&&expectedRevision){
+        const sourceTimes=(freezeRows??[]).map((x:Record<string,unknown>)=>Date.parse(String(x.source_frozen_at??""))).filter(Number.isFinite);
+        data={ok:true,date,rows:frozenRows,modelVersion,revision:expectedRevision,batchTime:null,
+          dataTime:sourceTimes.length?new Date(Math.max(...sourceTimes)).toISOString():null};
+      }
+    }
+    if(!data)data=await fetchPublicUpstream(view,date);
 
     const verifiedResults: Record<string, Record<string, { result: string; score: string; source: string }>> = {
       "2026-09-17": {
@@ -1613,13 +1656,13 @@ Deno.serve(async (req: Request) => {
       loadTeamScheduleSnapshots(dynamicDate),loadTeamFormH2hSnapshots(dynamicDate),loadHistoricalScoreTop4(dynamicDate),
       loadUpsetWarningMap(dynamicDate),loadTeamLogoMap(),loadDayEnvironment(dynamicDate),
     ]);
-    let rows = (await applySaleFreeze(sourceRows.map((row: Record<string,unknown>) => settlePublishedScoreTop4(attachDayEnvironment(attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachTeamFormH2h(attachTeamSchedule(attachGoalFormReference(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),goalFormReferences),teamSchedules),teamFormH2h),upsetWarnings),historicalScores),teamLogos),dayEnvironment))),dynamicDate)).map(settleTop5Handicap);
+    let rows = (await applySaleFreeze(sourceRows.map((row: Record<string,unknown>) => settlePublishedScoreTop4(attachDayEnvironment(attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachTeamFormH2h(attachTeamSchedule(attachGoalFormReference(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),goalFormReferences),teamSchedules),teamFormH2h),upsetWarnings),historicalScores),teamLogos),dayEnvironment))),dynamicDate,archiveReadOnly)).map(settleTop5Handicap);
     rows=await applyRiskFocusLayer(rows,dynamicDate);
     rows=await attachDailySupplementLayer(rows,dynamicDate);
     rows=await attachLiveScoreGoals(rows,dynamicDate);
         try {
       // Safe to invoke repeatedly: the producer inserts only future fixtures and never overwrites.
-      if(dynamicDate>="2026-09-25"){
+      if(!archiveReadOnly&&dynamicDate>="2026-09-25"){
         const {error:publishError}=await db.rpc("soren_publish_htft_top4_v1");
         if(publishError)throw publishError;
       }
@@ -1642,9 +1685,11 @@ Deno.serve(async (req: Request) => {
     rows=await attachLiveHTFT(rows,dynamicDate,databaseResults);
     const handicapStats = buildHandicapStats(rows);
     const riskHistoricalReplay=dynamicDate>="2026-09-20"&&dynamicDate<"2026-09-26";
-    const warningSync=riskHistoricalReplay
-      ?{synced:0,readOnly:true,replayMode:"STRICT_PREMATCH_LAYER_REPLAY"}
-      :await syncUpsetWarnings(rows,data);
+    const warningSync=archiveReadOnly
+      ?{synced:0,readOnly:true,replayMode:"ARCHIVE_READ_ONLY"}
+      :riskHistoricalReplay
+        ?{synced:0,readOnly:true,replayMode:"STRICT_PREMATCH_LAYER_REPLAY"}
+        :await syncUpsetWarnings(rows,data);
     return reply({
       ok: true,
       view,
