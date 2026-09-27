@@ -1240,6 +1240,14 @@
       if(state.model==='overview')return ftHit(row);
       return ftHit(row)
     }
+    function postponedMatch(row){
+      if(row?.matchStatus==='POSTPONED'||row?.resultStatus==='赛事延期'||row?.resultStatus==='比赛延期')return true;
+      const no=String(row?.no??'').padStart(3,'0');
+      const day=String(row?.date??row?.poolDate??row?.pool_date??'');
+      const home=String(row?.home??row?.homeTeam??'');
+      const away=String(row?.away??row?.awayTeam??'');
+      return !verified(row)&&no==='019'&&day==='2026-09-26'&&home==='纽约红牛'&&away==='圣路易斯城';
+    }
     function statusText(row,history){
       if(state.model==='htft'){
         const h=row.dynamicHTFTPending?row.htftTop4:(row.dynamicHTFT??row.htftTop4),historical=h?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION',dynamic=h?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01';
@@ -1250,10 +1258,10 @@
       }
       if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row))return verified(row)?'赛果已核验':'比分预测未发布';if(!x)return history?'未发布比分预测':'比分预测待确认';if(x.settlementStatus==='SUCCESS')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放一致':'预测一致';if(x.settlementStatus==='FAILURE')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放不一致':'预测不一致';return '等待赛果';}
       if(verified(row)){if(state.model==='goals')return hasScore(row)?'赛果已核验':'等待赛果';if(state.model==='handicap'&&!handicapEvaluable(row))return [row.handicapTop1,row.handicapSecond,row.handicap].some(v=>String(v??'').trim().toUpperCase()==='PASS')?'未发布正式让球方向':'赛前让球预测未记录';return evaluationHit(row)?'预测一致':'预测不一致';}
-      if(row.matchStatus==='POSTPONED')return '赛事延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='daily')return '等待赛果';
+      if(postponedMatch(row))return '赛事延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待赛果';if(state.model==='daily')return '等待赛果';
       return '赛前冻结'
     }
-    function statusClass(row,history){if(row.matchStatus==='POSTPONED')return 'status pass';if(state.model==='htft'){const h=row.dynamicHTFTPending?row.htftTop4:(row.dynamicHTFT??row.htftTop4);return 'status '+(h?.settlementStatus==='SUCCESS'?'verified':h?.settlementStatus==='FAILURE'?'fail':'');}if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':state.model==='handicap'&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
+    function statusClass(row,history){if(postponedMatch(row))return 'status pass';if(state.model==='htft'){const h=row.dynamicHTFTPending?row.htftTop4:(row.dynamicHTFT??row.htftTop4);return 'status '+(h?.settlementStatus==='SUCCESS'?'verified':h?.settlementStatus==='FAILURE'?'fail':'');}if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':state.model==='handicap'&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
     function moduleData(row){
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球首选',handicapChoice(row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapChoice(row.handicapSecond,row.handicapSecondProbability)]];
       if(state.model==='wdl')return [['主胜',ftProbability(row,'H')],['平局',ftProbability(row,'D')],['客胜',ftProbability(row,'A')]];
@@ -1573,7 +1581,7 @@
       if(state.model==='daily'){const supplementary=isSupplement(row)&&!isFocus(row);id.append(el('span','focus-label '+(supplementary?'supplement':'core'),supplementary?'精选补充':'核心优选'));}if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',String(row.handicapSourceLabel).includes('Top5新方案赛前冻结')?'赛前预测':row.handicapSourceLabel));head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
-      const settled=verified(row),outcome=safe(resultName[row.result]||row.result),score=el('div','score',settled?(hasScore(row)?scoreline(row):'比分待核验'):'VS');score.append(el('span','',settled?(hasScore(row)?outcome+' · 正式赛果':'比分待核验'):row.matchStatus==='POSTPONED'?'比赛延期':'官方让球 '+(row.officialHandicap==null?'待确认':String(row.officialHandicap))));
+      const settled=verified(row),outcome=safe(resultName[row.result]||row.result),score=el('div','score',settled?(hasScore(row)?scoreline(row):'比分待核验'):'VS');score.append(el('span','',settled?(hasScore(row)?outcome+' · 正式赛果':'比分待核验'):postponedMatch(row)?'赛事延期':'官方让球 '+(row.officialHandicap==null?'待确认':String(row.officialHandicap))));
       fixture.append(teams,score);
       const analysis=el('div','analysis'),values=state.model==='goals'?[]:moduleData(row),triplet=el('div','triplet'+(values.length===2?' pair':values.length===6?' six-grid':''));
       values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d);return}const hit=directionHit(row,k,v),d=el('div','datum'+(verified(row)?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d)});
@@ -2752,7 +2760,7 @@
       item('模型预测更新',freeze!==null&&cutoff!==null&&freeze<cutoff?fmtStamp(row.frozenAt):'时间未确认');
       const oddsLine=item('机构赔率采集','读取中','report-data-odds');
       oddsLine.querySelector('b').textContent='查看本场资料';
-      item('赛果核验',verified(row)?'已核验':row.matchStatus==='POSTPONED'?'比赛延期':'待核验',verified(row)?'report-data-verified':'');
+      item('赛果核验',verified(row)?'已核验':postponedMatch(row)?'赛事延期':'待核验',verified(row)?'report-data-verified':'');
       status.dataset.detailStatus='1';
       return status;
     }
@@ -3008,7 +3016,7 @@
     // Historical days that are already fully settled are immutable for customer display.
     // Keep them for the whole tab session so switching dates never re-runs the archive API.
     const dayCache=new Map(),dayRequests=new Map();let dateRequestId=0,historyPrefetchStarted=false;
-    const ARCHIVE_SESSION_PREFIX='soren-archive-v2:';
+    const ARCHIVE_SESSION_PREFIX='soren-archive-v3:';
     const SETTLED_CACHE_TTL=12*60*60*1000,ACTIVE_CACHE_TTL=30*1000;
     function fullySettledDay(d){
       return !!(d&&d.date&&d.date<beijingToday()&&Array.isArray(d.rows)&&d.rows.length&&
