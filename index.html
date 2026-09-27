@@ -1158,7 +1158,8 @@
           }
           if(row.model.handicap){
             const hline=el('div','member-zone-model-line');
-            hline.append(el('span','','官方让球 / 保护方向'),el('b','',handicapText(row.model.handicap)));model.append(hline);
+            const protect=Number(row.model.handicap.official)===-1;
+            hline.append(el('span','',protect?'官方让球 / 保护方向':'官方让球 / 模型参考'),el('b','',handicapText(row.model.handicap)));model.append(hline);
           }
           card.append(model);
         }
