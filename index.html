@@ -1285,20 +1285,6 @@
       if(!Number.isFinite(kickoff)||!Number.isFinite(frozen)||!Number.isFinite(published)||frozen>published||published>=kickoff)return null;
       return info;
     }
-    function htftMethodText(kind){
-      return kind==='dynamic'
-        ?'从已冻结的双方进球参数出发，结合开赛前采集的威廉希尔欧赔校准预期进球，同样按上半场45%、下半场55%分配进球期望，再用泊松模型计算九种半全场结果的联合概率，依概率排序取前四。每场以开球前最后一条有效动态记录作评测。'
-        :'取原始赛前锁定的比分模型中双方预期进球参数，不采用随后新增的市场校准结果；按上半场45%、下半场55%分配进球期望，计算九种半全场结果的泊松联合概率，依概率排序取前四。原始版本发布后保持不变。';
-    }
-    function htftMethodDisclosure(kind,row,info){
-      const d=el('details','htft-version-method');
-      d.append(el('summary','','查看'+(kind==='dynamic'?'动态赛前':'原始赛前')+'计算依据'),el('p','',htftMethodText(kind)));
-      if(kind==='dynamic'&&row.dynamicScoreTop4?.marketAt)
-        d.append(el('p','','市场数据：'+fmtStamp(row.dynamicScoreTop4.marketAt)+'；模型参数更新：'+fmtStamp(info.sourceFrozenAt)+'；本版生成：'+fmtStamp(info.publishedAt)+'。'));
-      else d.append(el('p','','来源参数冻结：'+fmtStamp(info.sourceFrozenAt)+'；本版生成：'+fmtStamp(info.publishedAt)+'。'));
-      d.append(el('p','','半全场的前一个字表示半场，后一个字表示90分钟全场；模型概率不是历史命中率。'));
-      return d;
-    }
     function htftVersionPanel(row){
       const box=el('div','htft-version-area');
       const original=htftVersionInfo(row,'original'),dynamic=htftVersionInfo(row,'dynamic');
@@ -1423,10 +1409,6 @@
       return {total:items.length,n:settled.length,
         top1:settled.filter(({row,info})=>String(info.picks[0].score)===scoreActual(row)).length,
         top4:settled.filter(({row,info})=>info.picks.some(p=>String(p.score)===scoreActual(row))).length};
-    }
-    function scoreVersionMethod(kind,info){
-      if(kind==='dynamic')return '使用原始冻结的主客队进球参数作为基础，结合开赛前采集的威廉希尔欧赔校准双方预期进球，重新计算具体比分的泊松概率并形成动态Top4。当前校准保持预期总进球不变，但每个具体比分的概率和排序可能变化。每场采用开球前最后一条有效留存记录。';
-      return '采用原始赛前冻结的比分模型结果：依据当时的双方预期进球等模型参数生成比分概率与Top4，并保留原模型的方向补位规则（如有）。发布后锁定，不使用后续赔率或赛果改写。';
     }
     function scoreVersionPanel(row){
       const original=scoreVersionInfo(row,'original'),dynamic=scoreVersionInfo(row,'dynamic');
@@ -1856,9 +1838,9 @@
       main.append(indexPanel,directionPanel);
       const evidence=el('details','upset-evidence'),summary=el('summary','','查看分析依据');
       evidence.append(summary,
-        el('p','upset-evidence-heading','新版风险层级'),
-        el('p','','一般风险仅保留在比赛详情；重点风险由胜负方向分歧或合格的严格赛前独立进球模型防平通道触发；强风险信号需在重点风险基础上再叠加可核验的赛前市场异常。'),
-        el('p','','数据分值只描述已核验风险迹象的强弱，不直接决定新版层级，也不是胜率、准确率或结果保证。'),
+        el('p','upset-evidence-heading','风险提示'),
+        el('p','','风险层级由赛前多维数据综合评估；页面仅展示已核验的风险结论与主要证据。'),
+        el('p','','数据分值用于辅助理解风险强弱，不是胜率、准确率或结果保证。'),
         el('p','upset-evidence-heading','本场分析依据'),
         el('p','','当前层级：'+info.displayTier+' ｜ 赛前原始首选：'+safe(info.originalPick)));
       (info.evidenceLines||[info.reason]).slice(0,3).forEach((line,i)=>evidence.append(el('p','','依据'+(i+1)+'：'+line)));
@@ -2113,11 +2095,6 @@
       for(let k=0;k<=15;k++){if(k>0)prob*=lambda/k;ranked.push({goals:k,p:prob})}
       ranked.sort((a,b)=>b.p-a.p||a.goals-b.goals);
       return ranked;
-    }
-    function goalMethodText(kind,g){
-      if(kind==='dynamic')return '以赛前冻结的双方预期进球为底座，结合赛前威廉希尔欧赔校准主、客队的进球分配。当前算法保持双方预期总进球 λ 不变，因此总进球Top1、Top3及各项概率与原始比分参数版本相同；比分和半全场概率可能变化。';
-      if(g?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE')return '使用原始赛前冻结的比分模型双方预期进球参数，相加得到总进球 λ，再通过泊松分布计算各总进球数概率。这是赛前留存参数的总进球计算，不冒充当时另行发布的总进球预测。';
-      return '使用独立留存的原始赛前双方预期进球参数，相加得到总进球 λ，再通过泊松分布计算各总进球数概率；原始数据不会因赛后结果改动。';
     }
     function goalVersionPanel(row){
       const box=el('section','htft-version-area'),original=goalVersionInfo(row,'original'),dynamic=goalVersionInfo(row,'dynamic');
@@ -2958,12 +2935,6 @@
           const values=el('div','htft-stats-values');
           values.append(el('span','','Top1 '+htftRate(v.top1,v.n)+'（'+v.top1+'/'+v.n+'）'),el('span','','Top4 '+htftRate(v.top4,v.n)+'（'+v.top4+'/'+v.n+'）'));
           group.append(values,el('small','',description+' · 留存 '+v.total+'场，待核验 '+(v.total-v.n)+'场'));
-          if(title==='原始赛前预测'||title==='动态赛前预测'){
-            const kind=title==='动态赛前预测'?'dynamic':'original';
-            const help=el('details','htft-stats-method');
-            help.append(el('summary','','? 计算依据'),el('p','',htftMethodText(kind)));
-            group.append(help);
-          }
           panel.append(group);
         };
         add('原始赛前预测',original,'原始版单独统计');
