@@ -1064,6 +1064,7 @@
     }
     function memberPct3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?Number(x).toFixed(1)+'%':'—'):['—','—','—']}
     function memberOdds3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?Number(x).toFixed(2):'—').join(' / '):'—'}
+    function memberSigned3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?(Number(x)>0?'+':'')+Number(x).toFixed(0):'—').join(' / '):'—'}
     function renderMemberZone(){
       const box=$('content');box.replaceChildren(sectionHead('会员专区','市场深度观察'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
@@ -1081,12 +1082,33 @@
           el('span','member-zone-badge '+String(row.status||'观察'),String(row.status||'观察')));
         card.append(head,el('div','member-zone-summary',String(row.summary||'')));
         const mf=memberPct3(row.market?.currentFair),market=el('div','member-zone-row');
-        market.append(el('span','','市场概率'),el('b','',mf.join(' / ')));card.append(market);
+        market.append(el('span','','威廉市场概率'),el('b','',mf.join(' / ')));card.append(market);
         const odds=el('div','member-zone-row');
         odds.append(el('span','','威廉 初盘 → 当前'),el('b','',memberOdds3(row.market?.initialOdds)+' → '+memberOdds3(row.market?.currentOdds)));card.append(odds);
         if(row.model){
           const mp=memberPct3(row.model.probability),model=el('div','member-zone-row');
-          model.append(el('span','','模型概率'),el('b','',mp.join(' / ')));card.append(model);
+          model.append(el('span','','胜平负模型'),el('b','',mp.join(' / ')));card.append(model);
+        }
+        if(row.behavior){
+          const pop=el('div','member-zone-row');
+          pop.append(el('span','','做单人气'),el('b','',memberPct3(row.behavior.doerPct).join(' / ')));card.append(pop);
+          const bf=el('div','member-zone-row');
+          bf.append(el('span','','必发成交'),el('b','',memberPct3(row.behavior.betfairShare).join(' / ')));card.append(bf);
+          const jc=el('div','member-zone-row');
+          jc.append(el('span','','竞彩保存'),el('b','',memberPct3(row.behavior.jcSavedShare).join(' / ')));card.append(jc);
+          const hot=el('div','member-zone-row');
+          hot.append(el('span','','冷热指数 · 必发'),el('b','',memberSigned3(row.behavior.betfairHotCold)));card.append(hot);
+          const hotJc=el('div','member-zone-row');
+          hotJc.append(el('span','','冷热指数 · 竞彩'),el('b','',memberSigned3(row.behavior.jcHotCold)));card.append(hotJc);
+          const pl=el('div','member-zone-row');
+          pl.append(el('span','','盈亏指数 · 必发'),el('b','',memberSigned3(row.behavior.betfairProfitIndex)));card.append(pl);
+          const plJc=el('div','member-zone-row');
+          plJc.append(el('span','','盈亏指数 · 竞彩'),el('b','',memberSigned3(row.behavior.jcProfitIndex)));card.append(plJc);
+          const verdict=el('div','member-zone-row');
+          verdict.append(el('span','','市场行为校验'),el('b','',(row.alignment||'独立观察')+' · '+(row.behavior.top1||'—')+' · '+(row.behavior.strength||'—')));card.append(verdict);
+        }else{
+          const missing=el('div','member-zone-row');
+          missing.append(el('span','','市场行为校验'),el('b','','未形成赛前冻结，不参与结论'));card.append(missing);
         }
         page.append(card);
       }
