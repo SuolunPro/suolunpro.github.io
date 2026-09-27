@@ -971,22 +971,33 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       const formalPredictionEligible=!historicalReplay&&(formalStoreEligible||servedPredictionEligible);
       const publicationEligible=historicalReplay?historicalEligible:formalPredictionEligible;
       if(!publicationEligible){
+        // A low-DQ snapshot may still contain a directly visible H/A split.
+        // Keep that risk visible, but do not publish a concrete reverse direction.
+        const lowDqBasis=Array.isArray(raw.riskBasis)?raw.riskBasis:(Array.isArray(raw.risk_basis)?raw.risk_basis:[]);
+        const lowDqMarketAnomaly=lowDqBasis.some(v=>/竞彩HAD首选.*与William原始首选.*冲突|升赔|退盘/.test(String(v??"")));
+        const riskDisplayEligible=!historicalReplay&&row.pregameVerified===true&&
+          Number.isFinite(rowFreeze)&&rowFreeze<kick&&Number.isFinite(cut)&&Math.abs(rowFreeze-cut)<=300000&&
+          rowTop===top&&oppositeSecond;
+        const lowDqDisplayTier=riskDisplayEligible?(lowDqMarketAnomaly?"强风险信号":"重点风险"):null;
         return {...row,upsetWarning:{...raw,
-          sourcePublish,publish:false,detailOnly:false,displayTier:null,
+          sourcePublish,publish:riskDisplayEligible,detailOnly:false,displayTier:lowDqDisplayTier,
           publicationEligible:false,
-          publicationReason:historicalReplay?"HISTORICAL_FREEZE_MISMATCH":"NO_MATCHING_FORMAL_PREDICTION",
+          riskDisplayEligible,
+          directionPublicationEligible:false,
+          publicationReason:riskDisplayEligible?"RISK_SPLIT_VISIBLE_DIRECTION_BLOCKED_DQ":
+            (historicalReplay?"HISTORICAL_FREEZE_MISMATCH":"NO_MATCHING_FORMAL_PREDICTION"),
           replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
           historyRewrite:false,
           focusGate:{
-            opposite_second:false,
+            opposite_second:riskDisplayEligible&&oppositeSecond,
             qualified_draw:false,
-            market_anomaly:false,
-            rule_version:"HJ38-RISK-LAYER-v1.2.5",
+            market_anomaly:riskDisplayEligible&&lowDqMarketAnomaly,
+            rule_version:"HJ38-RISK-LAYER-v1.2.6",
             evaluated_at:freezeAt
           },
-          marketSignals:[],
+          marketSignals:riskDisplayEligible&&lowDqMarketAnomaly?["冻结风险依据存在市场反向变化"]:[],
           independentDrawProbability:null,
-          focusRuleVersion:"HJ38-RISK-LAYER-v1.2.5"
+          focusRuleVersion:"HJ38-RISK-LAYER-v1.2.6"
         }};
       }
 
@@ -1048,7 +1059,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
           opposite_second:oppositeSecond,
           qualified_draw:qualifiedDraw,
           market_anomaly:marketAnomaly,
-          rule_version:"HJ38-RISK-LAYER-v1.2.5",
+          rule_version:"HJ38-RISK-LAYER-v1.2.6",
           evaluated_at:freezeAt
         },
         marketSignals,
@@ -1062,7 +1073,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
           (servedPredictionEligible&&!formalStoreEligible?servedDq:formalDq),
         replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
         historyRewrite:false,
-        focusRuleVersion:"HJ38-RISK-LAYER-v1.2.5"
+        focusRuleVersion:"HJ38-RISK-LAYER-v1.2.6"
       }};
     });
   }catch(error){
@@ -1077,7 +1088,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(!generalCandidate)return row;
       return {...row,upsetWarning:{...raw,sourcePublish,publish:false,detailOnly:false,
         displayTier:null,publicationEligible:false,publicationReason:"RISK_LAYER_UNAVAILABLE",
-        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.2.5-FALLBACK"},
+        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.2.6-FALLBACK"},
         marketSignals:[]}};
     });
   }
@@ -1092,7 +1103,7 @@ function upsetStatsFor(rows:Record<string,unknown>[]){
   const focus=published.filter(r=>tierOf(r)==="重点风险").length;
   return {
     modelVersion:"HJ38-UPSET-v1.1.0",
-    riskLayerVersion:"HJ38-RISK-LAYER-v1.2.5",
+    riskLayerVersion:"HJ38-RISK-LAYER-v1.2.6",
     published:published.length,
     strong,focus,
     // Backward-compatible keys: high/medium now follow the public layered tier, not legacy risk_score bands.
@@ -1110,7 +1121,37 @@ function upsetStatsFor(rows:Record<string,unknown>[]){
    Supplement only from the daily Top3 William 1.45–1.75 value band, then remove
    core overlap and highlighted risk. Ranking happens BEFORE core/risk removal
    and never backfills from rank 4+. */
+/* High-draw risk shadow v0.1.
+   Historical trigger is deliberately narrow: frozen draw probability >=29%
+   AND official home handicap -1. It does not rewrite FT Top1; it only exposes
+   the already-frozen handicap Top1/Top2 as the protection layer. */
+function applyHighDrawRiskLayer(rows:Record<string,unknown>[]):Record<string,unknown>[]{
+  return rows.map(row=>{
+    const drawRaw=row.drawProbability??row.drawPct??row.draw_pct;
+    const draw=Number(drawRaw);
+    const drawPct=Number.isFinite(draw)?(draw<=1?draw*100:draw):null;
+    const official=Number(row.officialHandicap);
+    const top1=String(row.handicapTop1??row.handicap??"").trim();
+    const second=String(row.handicapSecond??"").trim();
+    const p1=Number(row.handicapProbability??row.handicap_probability);
+    const p2=Number(row.handicapSecondProbability??row.handicap_second_probability);
+    const validPick=(v:string)=>["让胜","让平","让负","HWIN","HDRAW","HLOSS"].includes(v);
+    const eligible=row.pregameVerified===true&&drawPct!==null&&drawPct>=29&&official===-1&&
+      validPick(top1)&&validPick(second)&&Number.isFinite(p1)&&Number.isFinite(p2);
+    if(!eligible)return {...row,highDrawRisk:false};
+    return {...row,
+      highDrawRisk:true,
+      highDrawRiskLabel:"高平风险",
+      highDrawRiskReason:"平局风险偏高",
+      highDrawRiskDrawProbability:drawPct,
+      highDrawRiskVersion:"HIGH-DRAW-SHADOW-v0.1-20260927"
+    };
+  });
+}
+
 function dailySelectionRiskBlocked(row:Record<string,unknown>){
+  if(row.highDrawRisk===true)return true;
+  if(row.marketDirectionAnomaly===true)return true;
   if(row.dailySelectionRiskLocked===true)return true;
   const warning=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
     ?row.upsetWarning as Record<string,unknown>:null;
@@ -1139,7 +1180,20 @@ function dailySelectionStatsFor(rows:Record<string,unknown>[]){
 }
 async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
   const selectorVersion="DAILY-VALUE-v1.2-20260927";
-  let tagged=rows.map(row=>dailyCorePick(row)?{...row,dailySelectionTier:"CORE",dailySelectionLabel:"核心优选"}:{...row,dailySelectionTier:null,dailySelectionLabel:null});
+  // High-draw risk shadow: only the historically validated structure is enabled.
+  // It does not rewrite FT Top1; it forces the already-frozen handicap protection into customer display.
+  const highDrawTagged=rows.map(row=>{
+    const draw=riskNum(row.drawProbability??row.drawPct??row.draw_pct);
+    const official=Number(row.officialHandicap);
+    const first=String(row.handicapTop1??row.handicap??"");
+    const second=String(row.handicapSecond??"");
+    const trigger=row.pregameVerified===true&&draw!==null&&draw>=29&&official===-1&&
+      ["让胜","让平","让负"].includes(first)&&["让胜","让平","让负"].includes(second);
+    return trigger?{...row,highDrawRisk:true,highDrawRiskLabel:"高平风险",
+      highDrawRiskReason:"平局风险偏高",highDrawRiskProbability:draw,
+      highDrawRiskRuleVersion:"HJ38-HIGH-DRAW-SHADOW-v0.1"}:row;
+  });
+  let tagged=highDrawTagged.map(row=>dailyCorePick(row)?{...row,dailySelectionTier:"CORE",dailySelectionLabel:"核心优选"}:{...row,dailySelectionTier:null,dailySelectionLabel:null});
   if(!rows.length||date<"2026-09-20")return tagged;
   try{
     // Immutable one-way eligibility lock: if the first formal customer freeze was
@@ -1174,7 +1228,7 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
     });
 
     const {data:matches,error:matchError}=await db.from("soren_matches")
-      .select("id,match_no,home_team,away_team,kickoff_at")
+      .select("id,match_no,home_team,away_team,kickoff_at,official_handicap")
       .eq("pool_date",date).limit(200);
     if(matchError)throw matchError;
     const byNo=new Map<string,Record<string,unknown>>();
@@ -1201,6 +1255,49 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
       if(!marketById.has(id))marketById.set(id,[]);
       marketById.get(id)!.push(x as Record<string,unknown>);
     }
+
+    // Dynamic market-direction anomaly: official +/-1 only. Compare the earliest
+    // verified William current quote with the latest verified pre-kickoff quote.
+    // This is a risk/exclusion layer only; it never rewrites the frozen FT Top1.
+    tagged=tagged.map(row=>{
+      const no=String(row.no??"").padStart(3,"0"),match=byNo.get(no);
+      if(!match)return row;
+      const official=Number(match.official_handicap);
+      if(Math.abs(official)!==1)return row;
+      const kick=Date.parse(String(row.kickoff??match.kickoff_at??""));
+      const now=Math.min(Date.now(),Number.isFinite(kick)?kick-1:Date.now());
+      const list=(marketById.get(Number(match.id))??[])
+        .filter(x=>String(x.snapshot_type)==="current"&&Date.parse(String(x.captured_at??""))<=now)
+        .sort((a,b)=>Date.parse(String(a.captured_at??""))-Date.parse(String(b.captured_at??"")));
+      if(list.length<2)return row;
+      const first=list[0],last=list[list.length-1];
+      const h0=riskNum(first.home_value),a0=riskNum(first.away_value);
+      const h1=riskNum(last.home_value),a1=riskNum(last.away_value);
+      if(h0===null||a0===null||h1===null||a1===null||h0===a0||h0<=0||a0<=0)return row;
+      const homeFav=h0<a0;
+      const fav0=homeFav?h0:a0,fav1=homeFav?h1:a1;
+      const opp0=homeFav?a0:h0,opp1=homeFav?a1:h1;
+      const rise=(fav1/fav0-1)*100,drop=(1-opp1/opp0)*100;
+      if(rise<5||drop<5)return row;
+      return {...row,
+        marketDirectionAnomaly:true,
+        marketDirectionRiskLabel:"市场异动信号",
+        marketDirectionRiskReason:"市场方向变化",
+        marketDirectionRisePct:Math.round(rise*100)/100,
+        marketDirectionDropPct:Math.round(drop*100)/100,
+        marketDirectionFirstAt:first.captured_at??null,
+        marketDirectionLatestAt:last.captured_at??null,
+        marketProtectionFirst:official<0?"让负":"让胜",
+        marketProtectionSecond:"让平",
+        dailySelectionRiskLocked:true,
+        dailySelectionRiskLockReason:"MARKET_DIRECTION_ANOMALY_5PCT"
+      };
+    });
+    // Re-evaluate CORE after the dynamic risk annotation. Triggered rows can never
+    // remain in 今日优选 during this response.
+    tagged=tagged.map(row=>dailyCorePick(row)
+      ?{...row,dailySelectionTier:"CORE",dailySelectionLabel:"核心优选"}
+      :{...row,dailySelectionTier:null,dailySelectionLabel:null});
 
     const raw:{row:Record<string,unknown>;odds:number;confidence:number;no:string}[]=[];
     for(const row of tagged){
@@ -1523,6 +1620,96 @@ async function serveFastArchiveBundle(date:string,view:string):Promise<Response|
   }
 }
 
+
+async function paidAccessStatus(userId:string){
+  const [{data:account,error:accountError},{data:grants,error:grantError}]=await Promise.all([
+    db.from("soren_member_accounts_v1").select("membership_until").eq("user_id",userId).maybeSingle(),
+    db.from("soren_member_grants_v1").select("effective_until").eq("user_id",userId).order("effective_until",{ascending:false}).limit(1)
+  ]);
+  if(accountError||grantError)throw accountError||grantError;
+  const memberUntilMs=Date.parse(String(account?.membership_until??""));
+  const grantUntilMs=Date.parse(String(grants?.[0]?.effective_until??""));
+  const now=Date.now();
+  const active=Number.isFinite(memberUntilMs)&&memberUntilMs>now&&
+    (!Number.isFinite(grantUntilMs)||memberUntilMs>grantUntilMs+300000);
+  return {active,until:active?account?.membership_until??null:null};
+}
+function fair3(h:unknown,d:unknown,a:unknown){
+  const odds=[Number(h),Number(d),Number(a)];
+  if(!odds.every(v=>Number.isFinite(v)&&v>1))return null;
+  const inv=odds.map(v=>1/v),sum=inv.reduce((x,y)=>x+y,0);
+  return inv.map(v=>Number((100*v/sum).toFixed(1)));
+}
+function cnResult(v:unknown){
+  return ({H:"主胜",D:"平",A:"客胜","主胜":"主胜","平":"平","客胜":"客胜"} as Record<string,string>)[String(v??"")]??null;
+}
+async function paidMemberZone(date:string){
+  const {data:matches,error:matchError}=await db.from("soren_matches")
+    .select("id,pool_date,match_no,home_team,away_team,kickoff_at,league,is_world_cup")
+    .eq("pool_date",date).eq("is_world_cup",false).order("match_no",{ascending:true});
+  if(matchError)throw matchError;
+  const list=matches??[];
+  if(!list.length)return {date,rows:[]};
+  const ids=list.map((m:any)=>Number(m.id));
+  const [{data:preds,error:predError},{data:markets,error:marketError}]=await Promise.all([
+    db.from("soren_predictions").select("match_id,ft_top1,ft_second,selection_mode,confidence,dq,primary_reason,source_snapshot,frozen_at")
+      .in("match_id",ids).order("frozen_at",{ascending:false}).limit(800),
+    db.from("soren_market_snapshots").select("match_id,snapshot_type,home_value,draw_value,away_value,captured_at,data_quality")
+      .in("match_id",ids).eq("source_code","zucaijia_william").eq("market_type","FT_1X2")
+      .in("snapshot_type",["initial","current"]).order("captured_at",{ascending:false}).limit(2500)
+  ]);
+  if(predError||marketError)throw predError||marketError;
+  const predBy=new Map<number,any>(),marketBy=new Map<string,any>();
+  for(const m of list){
+    const id=Number(m.id),kick=Date.parse(String(m.kickoff_at));
+    const p=(preds??[]).find((x:any)=>Number(x.match_id)===id&&Date.parse(String(x.frozen_at))<kick);
+    if(p)predBy.set(id,p);
+    for(const typ of ["initial","current"]){
+      const x=(markets??[]).find((q:any)=>Number(q.match_id)===id&&q.snapshot_type===typ&&Date.parse(String(q.captured_at))<kick);
+      if(x)marketBy.set(id+"|"+typ,x);
+    }
+  }
+  const labels=["主胜","平","客胜"];
+  const rows=list.map((m:any)=>{
+    const id=Number(m.id),p=predBy.get(id),ini=marketBy.get(id+"|initial"),cur=marketBy.get(id+"|current");
+    const initialFair=fair3(ini?.home_value,ini?.draw_value,ini?.away_value);
+    const currentFair=fair3(cur?.home_value,cur?.draw_value,cur?.away_value);
+    const marketTop=currentFair?labels[currentFair.indexOf(Math.max(...currentFair))]:null;
+    const modelTop=cnResult(p?.ft_top1);
+    const snap=(p?.source_snapshot&&typeof p.source_snapshot==="object"?p.source_snapshot:{}) as Record<string,any>;
+    const modelProb=[
+      Number(snap.homeProbability),Number(snap.drawProbability),Number(snap.awayProbability)
+    ].every(Number.isFinite)?[Number(snap.homeProbability),Number(snap.drawProbability),Number(snap.awayProbability)]:null;
+    const hur=String(snap?.risk?.hur??"");
+    const warning=String(snap?.upsetWarning?.riskLevel??"");
+    const mode=String(p?.selection_mode??"");
+    let status="观察";
+    let summary="赛前市场数据已记录，等待更多正式冻结信息。";
+    if(modelTop&&marketTop){
+      if(modelTop!==marketTop){status="分歧";summary="模型首选与市场概率首位不同，存在方向分歧。";}
+      else if(hur==="红"||["中","高"].includes(warning)||mode==="PASS"){status="谨慎";summary="模型与市场方向一致，但风险信号偏高，仍需谨慎观察。";}
+      else{
+        const idx=labels.indexOf(modelTop),move=initialFair&&currentFair&&idx>=0?currentFair[idx]-initialFair[idx]:0;
+        if(move>=4){status="强化";summary="模型与市场方向一致，且该方向较初盘获得进一步支持。";}
+        else {status="稳定";summary="模型与市场方向基本一致，当前结构相对稳定。";}
+      }
+      if(modelProb&&modelProb[1]>=28&&!summary.includes("平局"))summary+=" 平局概率不低。";
+    }else if(marketTop){
+      status="市场观察";summary="正式模型冻结尚未发布，当前仅记录赛前市场结构。";
+    }
+    return {
+      no:String(m.match_no).padStart(3,"0"),league:m.league??null,home:m.home_team,away:m.away_team,kickoff:m.kickoff_at,
+      status,summary,
+      market:{institution:"威廉希尔",top1:marketTop,initialOdds:ini?[Number(ini.home_value),Number(ini.draw_value),Number(ini.away_value)]:null,
+        currentOdds:cur?[Number(cur.home_value),Number(cur.draw_value),Number(cur.away_value)]:null,
+        initialFair,currentFair,capturedAt:cur?.captured_at??ini?.captured_at??null},
+      model:p?{top1:modelTop,second:cnResult(p.ft_second),probability:modelProb,confidence:Number.isFinite(Number(p.confidence))?Number((100*Number(p.confidence)).toFixed(1)):null,
+        dq:p.dq??null,mode:p.selection_mode??null,frozenAt:p.frozen_at??null}:null
+    };
+  });
+  return {date,title:"今日会员专栏 · 市场深度观察",subtitle:"赛前市场结构与模型分歧试运行",rows};
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "GET" && req.method !== "POST") return reply({ ok: false, error: "METHOD_NOT_ALLOWED" }, 405);
@@ -1583,7 +1770,7 @@ Deno.serve(async (req: Request) => {
         ok:true,sync:"upset-warning",date:syncDate,
         modelVersion:data.modelVersion??null,revision:data.revision??null,
         upsetStats:upsetStatsFor(layered),
-        riskLayerVersion:"HJ38-RISK-LAYER-v1.2.5",
+        riskLayerVersion:"HJ38-RISK-LAYER-v1.2.6",
         ...result
       });
     } catch(error) {
@@ -1680,6 +1867,11 @@ Deno.serve(async (req: Request) => {
       return reply({ok:false,error:"MEMBERSHIP_STATUS_UNAVAILABLE"},503);
     }
     (membership as Record<string,unknown>).trialStatus=trialStatus;
+    let paidAccess:{active:boolean;until:any}={active:false,until:null};
+    try{paidAccess=await paidAccessStatus(String(user.id));}
+    catch(e){console.error("PAID_ACCESS_STATUS_UNAVAILABLE",e);}
+    (membership as Record<string,unknown>).paidActive=paidAccess.active;
+    (membership as Record<string,unknown>).paidUntil=paidAccess.until;
     if(redeeming){
       const accepted=["BOUND","ALREADY_BOUND"].includes(String(membership.inviteStatus??""));
       return reply({ok:accepted,membership,error:accepted?null:String(membership.inviteStatus??"INVITE_UNAVAILABLE")},accepted?200:400);
@@ -1687,6 +1879,12 @@ Deno.serve(async (req: Request) => {
     if(requestUrl.searchParams.get("view")==="membership")return reply({ok:true,membership});
     const beijingToday=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).split("/").join("-");
     const requestedDate=requestUrl.searchParams.get("date");
+    if(requestUrl.searchParams.get("view")==="member-zone"){
+      if(paidAccess.active!==true)return reply({ok:false,error:"PAID_MEMBERSHIP_REQUIRED",membership},403);
+      const zoneDate=requestedDate&&/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)?requestedDate:beijingToday;
+      try{return reply({ok:true,membership,zone:await paidMemberZone(zoneDate),updatedAt:new Date().toISOString()});}
+      catch(error){console.error("MEMBER_ZONE_ERROR",error);return reply({ok:false,error:"MEMBER_ZONE_UNAVAILABLE"},502);}
+    }
     if(membership.active!==true&&(!requestedDate||requestedDate>=beijingToday))
       return reply({ok:false,error:"MEMBERSHIP_REQUIRED",membership},403);
 
@@ -1794,6 +1992,7 @@ Deno.serve(async (req: Request) => {
 
             // Daily selection is the only customer-facing layer not embedded in the prematch snapshots.
             // Rebuild just this thin layer; do not rerun the full risk/model pipeline.
+            rows=applyHighDrawRiskLayer(rows);
             rows=await attachDailySupplementLayer(rows,date);
 
             try{
@@ -1890,6 +2089,7 @@ Deno.serve(async (req: Request) => {
     ]);
     let rows = (await applySaleFreeze(sourceRows.map((row: Record<string,unknown>) => settlePublishedScoreTop4(attachDayEnvironment(attachTeamLogos(attachHistoricalScoreTop4(attachUpsetWarning(attachTeamFormH2h(attachTeamSchedule(attachGoalFormReference(attachGoalPrediction(applyHandicapBackfill(row,handicapBackfill),goalPredictions),goalFormReferences),teamSchedules),teamFormH2h),upsetWarnings),historicalScores),teamLogos),dayEnvironment))),dynamicDate,archiveReadOnly)).map(settleTop5Handicap);
     rows=await applyRiskFocusLayer(rows,dynamicDate);
+    rows=applyHighDrawRiskLayer(rows);
     rows=await attachDailySupplementLayer(rows,dynamicDate);
     rows=await attachLiveScoreGoals(rows,dynamicDate);
         try {
