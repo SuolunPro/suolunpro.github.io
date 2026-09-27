@@ -593,12 +593,17 @@
     .score-version-note{font-size:11px;line-height:1.6;color:#516b57;margin:9px 2px 0}
   
     .risk-inline{margin:0 14px 12px;padding:9px 11px;border:1px solid #e3e7ee;border-radius:10px;background:#f7f9fc;display:flex;flex-direction:column;gap:7px;font-size:12px;line-height:1.55;color:#4a5568}
-    .risk-inline-main,.risk-inline-handicap{display:flex;align-items:flex-start;gap:9px;min-width:0}
-    .risk-inline-main strong,.risk-inline-handicap strong{flex:0 0 auto;font-size:12px;color:#30415f;white-space:nowrap}
-    .risk-inline-main span,.risk-inline-handicap span{min-width:0;color:#667085}
-    .risk-inline-handicap{padding-top:7px;border-top:1px solid rgba(48,65,95,.10)}
-    .risk-inline-handicap strong{color:#465b7a}
-    .risk-inline-handicap.strong-handicap strong{color:#9a6100}
+    .risk-inline-main,.risk-inline-handicap,.risk-inline-handicap-line{display:flex;align-items:flex-start;gap:9px;min-width:0}
+    .risk-inline-main strong,.risk-inline-handicap strong,.risk-inline-handicap-line strong{flex:0 0 auto;font-size:12px;color:#30415f;white-space:nowrap}
+    .risk-inline-main span,.risk-inline-handicap span,.risk-inline-handicap-line span{min-width:0;color:#667085}
+    .risk-inline-handicap{padding-top:7px;border-top:1px solid rgba(48,65,95,.10);flex-direction:column;gap:5px}
+    .risk-inline-handicap-line{width:100%;align-items:center}
+    .risk-inline-handicap-line strong{width:58px;color:#465b7a}
+    .risk-inline-handicap-picks{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+    .risk-inline-handicap-pick{font-weight:650;color:#344054}
+    .risk-inline-handicap-pick.hit{color:#1f6f43}
+    .risk-inline-handicap-sep{color:#98a2b3}
+    .risk-inline-handicap.strong-handicap .risk-inline-handicap-line:first-child strong{color:#9a6100}
     .risk-inline.strong{background:#fff8e8;border-color:#e6c982}
     .risk-inline.strong .risk-inline-main strong{color:#8a5a08}
     .risk-inline.focus{background:#f5f7fb;border-color:#d8deea}
@@ -1707,7 +1712,12 @@
       main.append(el('strong','',info.displayTier),el('span','',info.inlineReason));
       strip.append(main);
 
-      const handicapPick=String(row.handicapTop1??row.handicap??'').trim();
+      const pickLabel=value=>{
+        const raw=String(value??'').split(' · ')[0].trim();
+        return ({HWIN:'让胜',HDRAW:'让平',HLOSS:'让负'})[raw]||raw;
+      };
+      const handicapPick=pickLabel(row.handicapTop1??row.handicap);
+      const handicapSecond=pickLabel(row.handicapSecond);
       const readPct=keys=>{
         for(const key of keys){
           const raw=row[key];
@@ -1717,7 +1727,8 @@
         }
         return null;
       };
-      const hadPct=readPct(['handicapProbability','handicap_probability']);
+      const hadPct=readPct(['handicapProbability','handicap_probability','top1Probability','top1_probability']);
+      const hadSecondPct=readPct(['handicapSecondProbability','handicap_second_probability','secondProbability','second_probability']);
       const homePct=readPct(['homeProbability','homePct','home_pct','ftHomeProbability','ft_home_probability']);
       const awayPct=readPct(['awayProbability','awayPct','away_pct','ftAwayProbability','ft_away_probability']);
       const confidencePct=readPct(['confidence']);
@@ -1729,10 +1740,28 @@
 
       if(info.oppositeSecond===true&&validHandicapPick(handicapPick)&&hadPct!==null){
         const had=el('div','risk-inline-handicap'+(strongHandicap?' strong-handicap':''));
-        had.append(
-          el('strong','',strongHandicap?'强让球观察':'让球观察'),
-          el('span','',handicapPick+' · '+probability(hadPct))
-        );
+
+        const official=Number(row.officialHandicap);
+        const officialText=Number.isFinite(official)
+          ?'主队 '+(official>0?'+':'')+(Number.isInteger(official)?official:official.toFixed(2).replace(/0+$/,'').replace(/\.$/,''))
+          :'未确认';
+        const officialLine=el('div','risk-inline-handicap-line');
+        officialLine.append(el('strong','',strongHandicap?'强让球':'官方让球'),el('span','',officialText));
+        had.append(officialLine);
+
+        const result=verified(row)?pickLabel(effectiveHandicapResult(row)):null;
+        const picksLine=el('div','risk-inline-handicap-line');
+        picksLine.append(el('strong','','方向'));
+        const picks=el('div','risk-inline-handicap-picks');
+        const firstText='首选 '+handicapPick+' '+probability(hadPct)+(result===handicapPick?' ✅':'');
+        picks.append(el('span','risk-inline-handicap-pick'+(result===handicapPick?' hit':''),firstText));
+        if(validHandicapPick(handicapSecond)&&hadSecondPct!==null){
+          picks.append(el('span','risk-inline-handicap-sep','｜'));
+          const secondText='次选 '+handicapSecond+' '+probability(hadSecondPct)+(result===handicapSecond?' ✅':'');
+          picks.append(el('span','risk-inline-handicap-pick'+(result===handicapSecond?' hit':''),secondText));
+        }
+        picksLine.append(picks);
+        had.append(picksLine);
         strip.append(had);
       }
       card.append(strip);
