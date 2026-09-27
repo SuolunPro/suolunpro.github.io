@@ -720,6 +720,10 @@
     .daily-detail-selection.supplement{background:#f4f7fb;border:1px solid #d9e1ec}
     .daily-detail-selection strong{font-size:13px}
     .daily-detail-selection span{color:#667085}
+
+    .vip-inline-lock{margin:9px 0 7px;padding:11px 12px;border:1px solid #ead8ad;background:#fff8e8;border-radius:11px;color:#795d22;font-size:11px;line-height:1.6}
+    .vip-inline-lock b{display:block;font-size:12px;color:#684b13;margin-bottom:2px}
+    .member-preview-lock{margin-top:8px;padding:8px 10px;border-radius:9px;background:#f6f6f7;border:1px solid #e9e9eb;color:#767b82;font-size:10px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -1430,6 +1434,8 @@
       gate.append(accountHelp);
     }
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null,memberZone:null,memberZoneLoading:false,memberZoneError:null};
+    const fullMemberAnalysis=()=>memberInfo?.active===true;
+    const vipDeepAccess=()=>memberInfo?.vipActive===true;
     window.sorenGoInvite=()=>{
       if(!authSession?.access_token){showLoginGate('登录后可查看专属邀请码');return}
       state.tab='profile';
@@ -1615,9 +1621,10 @@
     }
     function htftTop4Panel(row,selectedInfo){
       const info=selectedInfo===undefined?(row.dynamicHTFTPending?null:(row.dynamicHTFT??row.htftTop4)):selectedInfo;
+      const full=fullMemberAnalysis();
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01';
       const historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
-      const panel=reportSection(marketShadow?'赛前动态半全场 · Top4预测':historical?'半全场 Top4 · 历史补算':'半全场 Top4');
+      const panel=reportSection(marketShadow?(full?'赛前动态半全场 · Top4预测':'赛前动态半全场 · Top1'):historical?(full?'半全场 Top4 · 历史补算':'半全场 Top1 · 历史补算'):(full?'半全场 Top4':'半全场 Top1'));
       panel.classList.add('htft-top4-panel');
       const kickoff=Date.parse(String(row.kickoff??''));
       const frozen=Date.parse(String(info?.sourceFrozenAt??''));
@@ -1643,19 +1650,22 @@
         panel.append(el('p','htft-top4-flag','赛前动态预测 · 按开球前最后一次有效更新进行赛后评测。'));
       if(historical)
         panel.append(el('p','htft-top4-flag','历史资料补算：开球后根据留存的开球前来源参数重新计算，不属于当时已发布的半全场预测；仅作历史回放对照，不计入正式赛前战绩。'));
-      const summary=el('div','htft-top4-summary');
-      summary.append(el('small','','四选合计模型概率'),el('strong','',percentage(info.top4Probability)));
-      summary.append(el('div','htft-top4-note','覆盖九种半全场结果中的四种；合计概率不是历史命中率。'));
-      panel.append(summary);
+      if(full){
+        const summary=el('div','htft-top4-summary');
+        summary.append(el('small','','四选合计模型概率'),el('strong','',percentage(info.top4Probability)));
+        summary.append(el('div','htft-top4-note','覆盖九种半全场结果中的四种；合计概率不是历史命中率。'));
+        panel.append(summary);
+      }
       const grid=el('div','htft-top4-grid');
-      info.picks.forEach((pick,i)=>{
+      (full?info.picks:info.picks.slice(0,1)).forEach((pick,i)=>{
         const name=String(pick.direction??'');
         const cell=el('div','htft-top4-pick'+(info.settlementStatus==='SUCCESS'&&name===info.actual?' is-hit':''));
         cell.append(el('small','','Top '+(i+1)),el('b','',name),el('span','htft-prob',percentage(pick.probability)));
         grid.append(cell);
       });
       panel.append(grid);
-      reportLine(panel,'半场平局模型概率',percentage(info.htDrawProbability));
+      if(full)reportLine(panel,'半场平局模型概率',percentage(info.htDrawProbability));
+      if(!full)panel.append(el('div','member-preview-lock','会员可查看完整Top4、合计概率与半场平局概率'));
       if(info.lowGoalDrawAudit===true)
         panel.append(el('p','htft-top4-flag','低进球＋双方预期接近：半场平局已列入重点观察，四个方向仍按九项联合概率排序。'));
       if(marketShadow){
@@ -1740,24 +1750,26 @@
     }
     function scoreTop4Panel(row,selectedInfo){
       const simulation=selectedInfo===undefined?scoreSimulationInfo(row):null,panel=el('section','score-top4'),info=selectedInfo===undefined?(scoreInfo(row)||simulation):selectedInfo;
+      const full=fullMemberAnalysis();
       const title=el('div','score-top4-title');
       const historical=info?.sourceKind==='HISTORICAL_BLIND_REPLAY';
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
       const originalPrematch=!!info&&!simulation&&!historical&&!marketShadow;
       title.append(
-        el('span','',simulation?'比分概率参考':historical?'历史比分回放':marketShadow?'动态赛前比分 · Top4':originalPrematch?'原始赛前比分 · Top4':'全场比分 · Top4'),
+        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):marketShadow?(full?'动态赛前比分 · Top4':'动态赛前比分 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
         el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow?'动态更新 '+fmtStamp(info.frozenAt):'原始冻结 '+fmtStamp(info.frozenAt))
       );
       panel.append(title);
       if(!info){panel.append(el('p','score-top4-note','暂无比分预测 · 赛前参数未确认，不计入比分覆盖统计。'));return panel}
       const grid=el('div','score-top4-grid');
-      info.picks.forEach((pick,i)=>{
+      (full?info.picks:info.picks.slice(0,1)).forEach((pick,i)=>{
         const isHit=scoreActual(row)!==null&&String(pick.score)===scoreActual(row);
         const cell=el('div','score-pick'+(String(pick.role).includes('CHALLENGER')?' challenger':'')+(isHit?' hit':''));
         const p=Number(pick.baseProbability);
         const prob=pick.baseProbability!==null&&pick.baseProbability!==undefined&&Number.isFinite(p)&&p>=0&&p<=1?(p*100).toFixed(1)+'%':'概率未确认';
         cell.append(el('small','',simulation?'回放Top'+(i+1):'Top'+(i+1)),el('b','',String(pick.score).replace('-',':')),el('small','',prob));grid.append(cell)
       });panel.append(grid);
+      if(!full)panel.append(el('div','member-preview-lock','会员可查看完整Top4及全部概率分布'));
       if(simulation){
         panel.append(el('p','score-top4-note','赛后依据赛前参数模拟，仅供参考；未在开球前发布，不计入赛前比分战绩。'));
         return panel;
@@ -1765,9 +1777,11 @@
       const actual=scoreActual(row),top1=actual!==null&&String(info.picks[0].score)===actual;
       const top4=actual!==null&&info.picks.some(p=>String(p.score)===actual);
       const cls=actual===null?'pending':top4?'success':'fail';
-      const verdict=actual===null?'等待赛果核验':historical
-        ?'历史复算 · '+(top4?'Top4覆盖':'Top4未覆盖')
-        :'实际比分 '+actual.replace('-',':')+' · Top1 '+(top1?'命中':'未中')+' · Top4 '+(top4?'覆盖':'未覆盖');
+      const verdict=actual===null?'等待赛果核验':!full
+        ?'实际比分 '+actual.replace('-',':')+' · Top1 '+(top1?'命中':'未中')
+        :historical
+          ?'历史复算 · '+(top4?'Top4覆盖':'Top4未覆盖')
+          :'实际比分 '+actual.replace('-',':')+' · Top1 '+(top1?'命中':'未中')+' · Top4 '+(top4?'覆盖':'未覆盖');
       panel.append(el('div','score-top4-verdict '+cls,verdict));
       if(marketShadow)panel.append(el('p','score-top4-note','赛前记录 · 赛果核验后计算Top1和Top4。'));
       else if(historical)panel.append(el('p','score-top4-note','本场为赛后依据赛前留存参数复算，不属于当时发布的赛前比分预测，不计入赛前版命中率。'));
@@ -1780,6 +1794,7 @@
       const info=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??row.htftTop4,marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01',historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
       const valid=info&&Array.isArray(info.picks)&&info.picks.length===4&&
         ['PUBLISHED_PREMATCH','HISTORICAL_POSTMATCH_RECONSTRUCTION','MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01'].includes(info.sourceKind);
+      const full=fullMemberAnalysis();
       id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
       if(marketShadow)id.append(el('span','focus-label','赛前动态预测'));
       if(historical)id.append(el('span','focus-label','历史复算'));
@@ -1794,7 +1809,7 @@
       const panel=el('div','analysis');
       if(valid){
         const grid=el('div','htft-top4-grid');
-        info.picks.forEach((pick,i)=>{
+        (full?info.picks:info.picks.slice(0,1)).forEach((pick,i)=>{
           const direction=String(pick.direction??''),prob=Number(pick.probability),hit=done&&info.settlementStatus==='SUCCESS'&&info.actual===direction;
           const cell=el('div','htft-top4-pick'+(hit?' is-hit':''));
           cell.append(el('small','','Top'+(i+1)),el('b','',direction),el('span','htft-prob',pick.probability!==null&&pick.probability!==undefined&&Number.isFinite(prob)&&prob>=0&&prob<=1?(prob*100).toFixed(1)+'%':'—'));
@@ -1803,13 +1818,17 @@
         panel.append(grid);
         // Show the SAME frozen HT draw estimate already used by the detail view; never derive it from the settled result.
         const htDraw=Number(info.htDrawProbability);
-        if(info.htDrawProbability!==null&&info.htDrawProbability!==undefined&&Number.isFinite(htDraw)&&htDraw>=0&&htDraw<=1){
+        if(full&&info.htDrawProbability!==null&&info.htDrawProbability!==undefined&&Number.isFinite(htDraw)&&htDraw>=0&&htDraw<=1){
           const drawLine=el('div','htft-list-draw');
           drawLine.append(el('span','','半场平局模型概率'),el('strong','',(htDraw*100).toFixed(1)+'%'));
           panel.append(drawLine);
         }
-        if(done)panel.append(el('div','score-top4-verdict '+(info.settlementStatus==='SUCCESS'?'success':'fail'),
-          '实际半全场：'+safe(info.actual)+' · '+(marketShadow?(info.settlementStatus==='SUCCESS'?'动态预测评测成功':'动态预测评测失败'):historical?(info.settlementStatus==='SUCCESS'?'历史复算覆盖':'历史复算未覆盖'):(info.settlementStatus==='SUCCESS'?'Top4覆盖成功':'Top4未覆盖'))));
+        if(!full)panel.append(el('div','member-preview-lock','会员可查看完整Top4及概率分布'));
+        if(done){
+          const top1Hit=String(info.picks?.[0]?.direction??'')===String(info.actual??'');
+          panel.append(el('div','score-top4-verdict '+(full?(info.settlementStatus==='SUCCESS'?'success':'fail'):(top1Hit?'success':'fail')),
+            '实际半全场：'+safe(info.actual)+' · '+(full?(marketShadow?(info.settlementStatus==='SUCCESS'?'动态预测评测成功':'动态预测评测失败'):historical?(info.settlementStatus==='SUCCESS'?'历史复算覆盖':'历史复算未覆盖'):(info.settlementStatus==='SUCCESS'?'Top4覆盖成功':'Top4未覆盖')):'Top1 '+(top1Hit?'命中':'未中'))));
+        }
         else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
         panel.append(el('p','htft-list-meta',marketShadow?'动态赛前 · 更新于 '+fmtStamp(info.publishedAt)+' · 冻结进球参数＋赛前威廉希尔欧赔校准。':historical?'本场为赛后依据赛前留存参数复算，非当时发布的预测；不计入赛前战绩。':'原始赛前 · 冻结的进球参数计算，发布于 '+fmtStamp(info.publishedAt)+'。'));
         const original=htftVersionInfo(row,'original'),dynamic=htftVersionInfo(row,'dynamic');
@@ -1869,7 +1888,8 @@
         const goalsShadow=goalSource?.formalEligible===false;
         const marketShadow=goalSource?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
         const scoreBasedGoal=goalSource?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
-        goals.append(el('div','goals-inline-title','泊松进球 · Top3'));
+        const full=fullMemberAnalysis();
+        goals.append(el('div','goals-inline-title',full?'泊松进球 · Top3':'泊松进球 · Top1'));
         if(lambda===null){
           goals.append(el('p','goals-note','赛前进球参数未确认'));
         }else{
@@ -1879,20 +1899,23 @@
           goals.append(el('p','goals-note','预计总进球 λ：'+lambda.toFixed(2)+(marketShadow?' · 赛前威廉希尔欧赔校准双方λ（总λ不变）':scoreBasedGoal?' · 基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。':goalsShadow?' · 最近6场得失球估计':'')));
           if(goalsShadow)goals.append(el('p','goals-note','赛前更新 '+fmtStamp(goalSource.frozenAt)));
           const grid=el('div','goals-grid');
-          ranked.slice(0,6).forEach((item,i)=>{
+          (full?ranked.slice(0,6):ranked.slice(0,1)).forEach((item,i)=>{
             const cell=el('div','goal-cell'+(i>=3?' reference':''));
             cell.append(el('small','',i<3?'Top'+(i+1):'观察 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));
             grid.append(cell);
           });
           goals.append(grid);
+          if(!full)goals.append(el('div','member-preview-lock','会员可查看Top3、观察Top4–Top6及完整概率分布'));
           if(hasScore(row)){
             const actual=Number(row.resultHome)+Number(row.resultAway);
             const rank=ranked.slice(0,6).findIndex(item=>item.goals===actual);
             const goalHit=rank>=0&&rank<3;
             const verdict=el('div','goals-inline-verdict '+(goalHit?'goals-inline-success':rank>=3?'goals-inline-reference':'goals-inline-fail'));
-            verdict.append(el('span','goals-inline-icon',goalHit?'✓':rank>=3?'○':'×'),el('b','',goalHit?'Top3覆盖成功':rank>=3?'Top3未覆盖 · 观察方向命中':'Top3未覆盖'),el('span','','实际总进球 '+actual+'球'+(marketShadow?' · 动态参数版':goalsShadow?' · 原始参数参考':'')));
+            verdict.append(el('span','goals-inline-icon',full?(goalHit?'✓':rank>=3?'○':'×'):(rank===0?'✓':'×')),
+              el('b','',full?(goalHit?'Top3覆盖成功':rank>=3?'Top3未覆盖 · 观察方向命中':'Top3未覆盖'):(rank===0?'Top1命中':'Top1未中')),
+              el('span','','实际总进球 '+actual+'球'+(marketShadow?' · 动态参数版':goalsShadow?' · 原始参数参考':'')));
             goals.append(verdict);
-          }else goals.append(el('p','goals-note','待评测 · Top4–Top6仅供参考'));
+          }else goals.append(el('p','goals-note',full?'待评测 · Top4–Top6仅供参考':'等待赛果核验'));
         }
         c.append(goals);
       }
@@ -1992,6 +2015,14 @@
       };
     }
     function appendRiskStrip(card,row){
+      if(row?.vipRiskAccessRestricted===true&&!vipDeepAccess()){
+        if(row?.vipRiskLocked===true){
+          const locked=el('div','vip-inline-lock');
+          locked.append(el('b','','VIP风险信号已触发 🔒'),el('span','','本场存在赛前风险变化；尊贵月卡VIP可查看风险类型、让球保护方向及概率。'));
+          card.append(locked);
+        }
+        return;
+      }
       const highDrawFallback=(()=>{
         const draw=Number(row.drawProbability??row.drawPct??row.draw_pct);
         const drawPct=Number.isFinite(draw)?(draw<=1?draw*100:draw):null;
@@ -2455,11 +2486,12 @@
     function isFormalGoalPrediction(row){return row.goalPrediction?.formalEligible!==false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null}
     function goalPredictionPanel(row,selectedGoal){
       const g=selectedGoal===undefined?(row.dynamicGoalPrediction??row.goalPrediction):selectedGoal;
+      const full=fullMemberAnalysis();
       const marketShadow=g?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
       const scoreReference=g?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
       const panel=el('section','goals-panel');
       const heading=el('div','report-metric-title');
-      heading.append(el('h3','','泊松进球 · Top3'),
+      heading.append(el('h3','',full?'泊松进球 · Top3':'泊松进球 · Top1'),
         metricHelp('总进球概率','展示赛前模型给出的总进球概率分布。预测概率不等于历史命中率；Top1、Top3会在赛果核验后分别评测。'));
       panel.append(heading);
       const lambda=g?publishedGoalLambda({...row,dynamicGoalPrediction:null,goalPrediction:g}):null;
@@ -2467,13 +2499,14 @@
       const ranks=goalRanks(g);
       panel.append(el('p','sub','双方预期进球：'+Number(g.lambdaHome).toFixed(2)+' / '+Number(g.lambdaAway).toFixed(2)+'；预计总进球λ：'+lambda.toFixed(2)+'。'));
       const grid=el('div','goals-grid');
-      ranks.slice(0,6).forEach((item,i)=>{
+      (full?ranks.slice(0,6):ranks.slice(0,1)).forEach((item,i)=>{
         const cell=el('div','goal-cell'+(i>=3?' reference':''));
         cell.append(el('small','',i<3?'Top'+(i+1):'观察 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));grid.append(cell);
       });panel.append(grid);
+      if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3、观察Top4–Top6及完整概率分布'));
       if(verified(row)&&hasScore(row)){
         const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
-        panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top1 '+(top1?'命中':'未中')+' · Top3 '+(top3?'覆盖':'未覆盖')));
+        panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top1 '+(top1?'命中':'未中')+(full?' · Top3 '+(top3?'覆盖':'未覆盖'):'')));
       }else panel.append(el('div','goals-verdict','等待赛果核验'));
       panel.append(el('p','goals-note','赛前数据已留存；赛果核验后每场只评测一次。'));
       return panel;
@@ -2998,6 +3031,14 @@
     }
     const professionalReportCache=new Map();
     async function loadProfessionalDetail(row,slot,context){
+      if(row?.vipRiskAccessRestricted===true&&!vipDeepAccess()){
+        const lock=el('div','vip-inline-lock');
+        lock.append(el('b','',row?.vipRiskLocked===true?'VIP风险信号已触发 🔒':'VIP深层分析 🔒'),
+          el('span','',row?.vipRiskLocked===true?'William、亚盘升退、水位、资金与重要情报依据仅向尊贵月卡VIP开放。':'William、亚盘升退、水位、资金与重要情报仅向尊贵月卡VIP开放。'));
+        slot.replaceChildren(lock);
+        if(context?.advancedSlot)context.advancedSlot.replaceChildren();
+        return;
+      }
       const key=String(row.date||state.selectedDate)+'|'+String(row.no).padStart(3,'0');
       const cached=professionalReportCache.get(key);
       const useReport=report=>{
@@ -3033,6 +3074,11 @@
     // Never infer a directional warning from the original Top1 or from final results.
     function detailUpsetWarningPanel(row){
       const panel=reportSection('风险观察 · 赛前数据迹象');
+      if(row?.vipRiskAccessRestricted===true&&!vipDeepAccess()){
+        panel.classList.add('report-detail-upset-empty');
+        panel.append(el('p','vip-inline-lock',row?.vipRiskLocked===true?'VIP风险信号已触发 🔒 · 风险类型与保护方向仅向尊贵月卡VIP开放。':'深层风险审计仅向尊贵月卡VIP开放。'));
+        return panel;
+      }
       panel.classList.add('report-detail-upset');
       const raw=row.upsetWarning??row.upset_warning;
       const eligible=raw&&typeof raw==='object'&&row.pregameVerified===true&&raw.publicationEligible!==false&&raw.publication_eligible!==false;
