@@ -2941,12 +2941,68 @@
       for(let offset=firstOffset;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
         b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
     }
-    // Keep a short-lived in-memory copy of already opened days; never alter the source data.
-    const dayCache=new Map(),dayRequests=new Map();let dateRequestId=0;
-    // Deduplicate simultaneous reads of the same day; keep source data only in memory.
-    function readDay(date){const key=date||'latest';if(dayRequests.has(key))return dayRequests.get(key);const request=load('archive',date).finally(()=>{if(dayRequests.get(key)===request)dayRequests.delete(key)});dayRequests.set(key,request);return request}
-    function rememberDay(d){if(d&&d.date&&Array.isArray(d.rows)){dayCache.delete(d.date);dayCache.set(d.date,{data:d,at:Date.now()});while(dayCache.size>7)dayCache.delete(dayCache.keys().next().value)}}
-    function cachedDay(date){const entry=dayCache.get(date);return entry&&Date.now()-entry.at<120000?entry.data:null}
+    // Historical days that are already fully settled are immutable for customer display.
+    // Keep them for the whole tab session so switching dates never re-runs the archive API.
+    const dayCache=new Map(),dayRequests=new Map();let dateRequestId=0,historyPrefetchStarted=false;
+    const ARCHIVE_SESSION_PREFIX='soren-archive-v2:';
+    const SETTLED_CACHE_TTL=12*60*60*1000,ACTIVE_CACHE_TTL=30*1000;
+    function fullySettledDay(d){
+      return !!(d&&d.date&&d.date<beijingToday()&&Array.isArray(d.rows)&&d.rows.length&&
+        d.rows.every(r=>verified(r)||r.matchStatus==='POSTPONED'));
+    }
+    function rememberDay(d){
+      if(!d||!d.date||!Array.isArray(d.rows))return;
+      const settled=fullySettledDay(d),entry={data:d,at:Date.now(),settled};
+      dayCache.delete(d.date);dayCache.set(d.date,entry);
+      while(dayCache.size>7)dayCache.delete(dayCache.keys().next().value);
+      if(settled){
+        try{sessionStorage.setItem(ARCHIVE_SESSION_PREFIX+d.date,JSON.stringify({data:d,at:entry.at}))}catch{}
+      }
+    }
+    function cachedDay(date){
+      const entry=dayCache.get(date);
+      if(entry){
+        const ttl=entry.settled?SETTLED_CACHE_TTL:ACTIVE_CACHE_TTL;
+        if(Date.now()-entry.at<ttl)return entry.data;
+        dayCache.delete(date);
+      }
+      try{
+        const raw=sessionStorage.getItem(ARCHIVE_SESSION_PREFIX+date);
+        if(!raw)return null;
+        const stored=JSON.parse(raw);
+        if(!stored?.data||Date.now()-Number(stored.at)>SETTLED_CACHE_TTL||!fullySettledDay(stored.data)){
+          sessionStorage.removeItem(ARCHIVE_SESSION_PREFIX+date);return null;
+        }
+        dayCache.set(date,{data:stored.data,at:Number(stored.at),settled:true});
+        return stored.data;
+      }catch{return null}
+    }
+    // Deduplicate both user clicks and background prefetches. Settled archive hits return instantly.
+    function readDay(date){
+      const cached=date?cachedDay(date):null;
+      if(cached)return Promise.resolve(cached);
+      const key=date||'latest';
+      if(dayRequests.has(key))return dayRequests.get(key);
+      const request=load('archive',date).then(d=>{rememberDay(d);return d}).finally(()=>{if(dayRequests.get(key)===request)dayRequests.delete(key)});
+      dayRequests.set(key,request);return request;
+    }
+    function scheduleHistoryPrefetch(){
+      if(historyPrefetchStarted||!authSession?.access_token)return;
+      historyPrefetchStarted=true;
+      const latest=beijingToday();
+      // Dates at least two days old are normally settled; prefetch the five visible history days
+      // in the background. Any unexpectedly unsettled day only receives the short active TTL.
+      const queue=[-2,-3,-4,-5,-6].map(offset=>addDays(latest,offset));
+      const worker=async()=>{
+        while(queue.length){
+          const date=queue.shift();
+          if(!date||cachedDay(date))continue;
+          try{await readDay(date)}catch(e){console.warn('历史日期预取暂不可用',date,e)}
+          await new Promise(resolve=>setTimeout(resolve,120));
+        }
+      };
+      setTimeout(()=>{worker();worker()},900);
+    }
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
     async function selectDate(date){
       const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-6);
@@ -3035,7 +3091,7 @@
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
       if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='九十刻度';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
-      readDay(today).then(d=>{state.baseDate=d.date||today;rememberDay(d);if(d.date!==today||!d.rows.length){showUnopened(today);return}applyDay(d)}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
+      readDay(today).then(d=>{state.baseDate=d.date||today;rememberDay(d);if(d.date!==today||!d.rows.length){showUnopened(today);return}applyDay(d);scheduleHistoryPrefetch()}).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
       }finally{authBootInFlight=false}
     }
     (async()=>{
@@ -3056,6 +3112,9 @@
     setInterval(()=>{if(!document.hidden&&authSession?.access_token)refreshPublishedData().catch(e=>console.warn('赛前数据同步暂不可用',e))},120000);
     async function refreshPublishedData(){
       if(syncInFlight||!state.selectedDate||state.selectedDate===state.futureDate)return;
+      // Never poll a fully settled historical day. Results and prematch content are immutable,
+      // and re-fetching them was the main cause of lag while browsing 21–25.
+      if(fullySettledDay(state.today)&&state.selectedDate===state.today?.date)return;
       syncInFlight=true;
       try{
         const previousDate=state.selectedDate;
