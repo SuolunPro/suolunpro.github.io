@@ -1211,11 +1211,19 @@
         const refText=refs.map(x=>pickShort(x?.pick)).filter(Boolean).join(' + ');
 
         const card=el('article','card member-zone-regular-card');
-        const head=el('div','member-zone-compact-head'),left=el('div','');
-        left.append(el('div','member-zone-compact-title',safe(row.no)+' · '+safe(row.home)+' vs '+safe(row.away)));
-        left.append(el('div','member-zone-compact-meta',[safe(row.league),fmtTime(row.kickoff)].filter(Boolean).join(' · ')));
-        head.append(left,el('span','member-zone-badge 谨慎','冷门识别'));
+        const head=el('div','card-head'),id=el('div','match-id');
+        id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
+        head.append(id,el('span','member-zone-badge 谨慎','冷门识别'));
         card.append(head);
+
+        // Reuse the same team/crest renderer as the normal match cards so names,
+        // logos and national-team flag fallbacks always stay in sync.
+        const fixture=el('div','fixture'),teams=el('div','team-list');
+        [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
+        const vs=el('div','score','VS');
+        vs.append(el('span','','冷门识别'));
+        fixture.append(teams,vs);
+        card.append(fixture);
 
         const pick=el('div','member-zone-pick');
         pick.append(el('div','member-zone-pick-label','冷门方向'));
