@@ -1931,21 +1931,38 @@ async function paidMemberZone(date:string){
     const ftActual=({H:"主胜",D:"平",A:"客胜"} as Record<string,string>)[ftCode]??null;
     const handicapCode=String(resultRow?.handicap_result??"").toUpperCase();
     const handicapActual=({HWIN:"让胜",HDRAW:"让平",HLOSS:"让负","让胜":"让胜","让平":"让平","让负":"让负"} as Record<string,string>)[handicapCode]??null;
-    let evaluation:{evaluable:boolean,hit:boolean|null,label:string}|null=null;
+    let evaluation:{evaluable:boolean,hit:boolean|null,label:string,basis?:string}|null=null;
+    let ftEvaluation:{evaluable:boolean,hit:boolean|null,label:string}|null=null;
+    let handicapEvaluation:{evaluable:boolean,hit:boolean|null,label:string}|null=null;
     if(resultRow?.verified===true){
-      if(highDrawHandicapProtection){
-        const picks=[handicapTop1,handicapSecond].filter((x:any)=>["让胜","让平","让负"].includes(String(x)));
-        const hit=!!handicapActual&&picks.includes(handicapActual);
-        evaluation={evaluable:true,hit,label:hit?"评测成功":"评测未覆盖"};
-      }else if(mode==="SINGLE"&&modelTop){
+      if(mode==="SINGLE"&&modelTop){
         const code=({主胜:"H",平:"D",客胜:"A"} as Record<string,string>)[modelTop]??null;
         const hit=!!code&&code===ftCode;
-        evaluation={evaluable:true,hit,label:hit?"评测成功":"评测未覆盖"};
+        ftEvaluation={evaluable:true,hit,label:hit?"胜平负命中":"胜平负未中"};
       }else if(mode==="DOUBLE"){
         const hit=!!ftCode&&codes.includes(ftCode);
-        evaluation={evaluable:true,hit,label:hit?"评测成功":"评测未覆盖"};
+        ftEvaluation={evaluable:true,hit,label:hit?"胜平负覆盖":"胜平负未覆盖"};
       }else{
-        evaluation={evaluable:false,hit:null,label:"赛果已核验"};
+        ftEvaluation={evaluable:false,hit:null,label:"胜平负仅作参考"};
+      }
+
+      const hpicks=[handicapTop1,handicapSecond].filter((x:any)=>["让胜","让平","让负"].includes(String(x)));
+      if(handicapActual&&hpicks.length){
+        const hhit=hpicks.includes(handicapActual);
+        handicapEvaluation={evaluable:true,hit:hhit,label:hhit?"让球命中":"让球未中"};
+      }else{
+        handicapEvaluation={evaluable:false,hit:null,label:"让球未形成有效评测"};
+      }
+
+      if(highDrawHandicapProtection){
+        const hit=handicapEvaluation?.hit===true;
+        evaluation={evaluable:handicapEvaluation?.evaluable===true,hit:handicapEvaluation?.evaluable===true?hit:null,
+          label:handicapEvaluation?.evaluable===true?(hit?"评测成功":"评测未覆盖"):"赛果已核验",basis:"让球保护"};
+      }else if(ftEvaluation?.evaluable===true){
+        const hit=ftEvaluation.hit===true;
+        evaluation={evaluable:true,hit,label:hit?"评测成功":"评测未覆盖",basis:"胜平负"};
+      }else{
+        evaluation={evaluable:false,hit:null,label:"赛果已核验",basis:"无正式主结论"};
       }
     }
     const settlement=resultRow?.verified===true?{
@@ -1957,10 +1974,12 @@ async function paidMemberZone(date:string){
       handicapResult:handicapActual,
       source:resultRow.result_source??null,
       verifiedAt:resultRow.verified_at??null,
-      evaluation
+      evaluation,
+      ftEvaluation,
+      handicapEvaluation
     }:{
       verified:false,homeScore:null,awayScore:null,score:null,ftResult:null,handicapResult:null,source:null,verifiedAt:null,
-      evaluation:null
+      evaluation:null,ftEvaluation:null,handicapEvaluation:null
     };
 
     const coverage={
