@@ -20,6 +20,7 @@ type MatchRow = {
   home_team:string;
   away_team:string;
   kickoff_at:string;
+  cutoff_at?:string|null;
   is_world_cup?:boolean;
 };
 
@@ -251,7 +252,7 @@ Deno.serve(async (req:Request) => {
     const until = new Date(nowMs + 48*3600*1000).toISOString();
 
     let q = db.from("soren_matches")
-      .select("id,pool_date,match_no,home_team,away_team,kickoff_at,is_world_cup")
+      .select("id,pool_date,match_no,home_team,away_team,kickoff_at,cutoff_at,is_world_cup")
       .eq("is_world_cup",false)
       .gt("kickoff_at",new Date(nowMs+60_000).toISOString())
       .lte("kickoff_at",until)
@@ -316,7 +317,9 @@ Deno.serve(async (req:Request) => {
         const oid=mapped.get(m.id);
         if (!oid) return {no:m.match_no,status:"NO_OKOOO_ID"};
         const kickoffMs=Date.parse(String(m.kickoff_at));
-        if (!(nowMs < kickoffMs-30_000)) return {no:m.match_no,status:"TOO_LATE"};
+        const cutoffMs=Date.parse(String(m.cutoff_at??""));
+        const freezeBoundary=Number.isFinite(cutoffMs)&&cutoffMs<kickoffMs?cutoffMs:kickoffMs;
+        if (!(nowMs < freezeBoundary-30_000)) return {no:m.match_no,status:"FROZEN",freezeBoundary:new Date(freezeBoundary).toISOString()};
         const url="https://www.okooo.com/soccer/match/"+oid+"/exchanges/";
         try {
           const html=await getHtml(url,18000);
@@ -370,7 +373,7 @@ Deno.serve(async (req:Request) => {
       skippedOrFailed:failures.length,
       sample:results.slice(0,12),
       issues:failures.slice(0,20),
-      policy:"prematch-only; exact teams + kickoff verification; no postkickoff backfill"
+      policy:"pre-freeze only; verified cutoff when available, otherwise kickoff; exact teams + kickoff verification; no post-freeze backfill"
     },{status:200,headers:{"Cache-Control":"no-store"}});
   } catch(error) {
     console.error("SOREN_MARKET_BEHAVIOR_COLLECTOR_ERROR",error);
