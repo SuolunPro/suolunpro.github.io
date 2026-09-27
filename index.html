@@ -306,6 +306,40 @@
 .member-zone-eval.fail{background:#fff1ec;color:#a3472c}
 .member-zone-eval.neutral{background:#f4f5f6;color:#737a82}
 .member-zone-eval-basis{grid-column:1/-1;font-size:9px;color:#858b92;padding:0 2px}
+.member-zone-compact-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px}
+.member-zone-compact-title{font-size:12px;font-weight:750;color:#2d3339;line-height:1.45}
+.member-zone-compact-meta{margin-top:2px;font-size:9px;color:#91979e}
+.member-zone-main{margin:7px 0 8px;padding:11px 12px;border-radius:11px;background:#f7f8fa}
+.member-zone-main small{display:block;color:#8c9299;font-size:9px;margin-bottom:4px}
+.member-zone-main strong{display:block;color:#252a2f;font-size:15px;line-height:1.45}
+.member-zone-main.risk{background:#fff5ef}
+.member-zone-main.risk strong{color:#9a432e}
+.member-zone-brief{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
+.member-zone-brief span{padding:4px 7px;border-radius:20px;background:#f2f3f5;color:#656d76;font-size:9px;line-height:1.35}
+.member-zone-brief span.risk{background:#fff0eb;color:#a04a32}
+.member-zone-brief span.ok{background:#eef7f0;color:#267041}
+.member-zone-brief span.warn{background:#fff7e8;color:#8d661b}
+.member-zone-compact-result{display:flex;gap:7px;margin:7px 0 8px}
+.member-zone-result-chip{flex:1;border-radius:9px;padding:7px 8px;background:#f3f4f5;color:#69717a;font-size:9px;line-height:1.45}
+.member-zone-result-chip b{display:block;font-size:10px;color:inherit;margin-bottom:2px}
+.member-zone-result-chip.hit{background:#edf7ef;color:#267041}
+.member-zone-result-chip.miss{background:#fff1ec;color:#a3472c}
+.member-zone-proof{margin-top:8px;border-top:1px solid #eceef0;padding-top:7px}
+.member-zone-proof>summary{list-style:none;cursor:pointer;color:#68717a;font-size:10px;font-weight:650}
+.member-zone-proof>summary::-webkit-details-marker{display:none}
+.member-zone-proof>summary:after{content:' ▾'}
+.member-zone-proof[open]>summary:after{content:' ▴'}
+.member-zone-proof-body{padding-top:6px}
+.member-zone-proof-section{margin-top:8px;padding-top:8px;border-top:1px solid #f0f1f2}
+.member-zone-proof-section:first-child{margin-top:0;padding-top:0;border-top:0}
+.member-zone-proof-title{font-size:9px;font-weight:750;color:#555e67;margin-bottom:5px}
+.member-zone-proof-line{display:flex;justify-content:space-between;gap:10px;font-size:9px;line-height:1.55;color:#788089;padding:2px 0}
+.member-zone-proof-line b{color:#333a40;text-align:right}
+.member-zone-proof-probs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.member-zone-proof-prob{padding:6px 4px;border-radius:8px;background:#f6f7f8;text-align:center}
+.member-zone-proof-prob span{display:block;font-size:8px;color:#8b9299}
+.member-zone-proof-prob b{display:block;font-size:11px;color:#343a40;margin-top:2px}
+
 
 
 
@@ -1114,221 +1148,124 @@
     function renderMemberZone(){
       const box=$('content');box.replaceChildren(sectionHead('会员专区','尊贵月卡VIP'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
-      const page=el('div','member-zone-page'),intro=el('section','member-zone-intro');
-      intro.append(el('h2','',state.memberZone?.title||'尊贵月卡VIP · 九十刻度综合研判'),
-        el('p','',state.memberZone?.subtitle||'普通胜平负完整信息 + 会员专属市场与情报校验'));
-      if(state.memberZone?.date)intro.append(el('p','','赛事日期 '+state.memberZone.date));
-      page.append(intro,el('p','member-zone-note','会员专区沿用普通胜平负展示逻辑，并额外加入赛前机构、资金行为与公开情报校验。'));
+      const page=el('div','member-zone-page');
       if(state.memberZoneLoading){page.append(el('div','empty','','正在读取会员专区…'));box.append(page);return}
       if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
       const rows=state.memberZone?.rows||[];
-      if(!rows.length){page.append(el('div','empty','','今天暂无可发布的会员专区内容'));box.append(page);return}
+      if(!rows.length){page.append(el('div','empty','','当前暂无可发布内容'));box.append(page);return}
 
-      const addKpi=(grid,label,value,cls='')=>{
-        const k=el('div','member-zone-kpi');k.append(el('small','',label),el('strong',cls,String(value||'—')));grid.append(k);
+      const fmtPct=v=>Number.isFinite(Number(v))?Number(v).toFixed(1)+'%':'—';
+      const addLine=(wrap,label,value)=>{
+        const x=el('div','member-zone-proof-line');
+        x.append(el('span','',label),el('b','',String(value??'—')));wrap.append(x);
       };
-      const fmtRisk=(v)=>v==='高'?'risk-high':v==='中'?'risk-mid':'';
-      const handicapText=(h)=>{
+      const handicapText=h=>{
         if(!h)return '未发布';
-        const first=h.top1?(h.top1+(Number.isFinite(Number(h.top1Probability))?' '+Number(h.top1Probability).toFixed(1)+'%':'')):'未发布';
-        const second=h.second?(h.second+(Number.isFinite(Number(h.secondProbability))?' '+Number(h.secondProbability).toFixed(1)+'%':'')):'';
+        const first=h.top1?(h.top1+' '+fmtPct(h.top1Probability)):'—';
+        const second=h.second?(h.second+' '+fmtPct(h.secondProbability)):'';
         return (h.official===null||h.official===undefined?'':('官方 '+(Number(h.official)>0?'+':'')+h.official+' · '))+first+(second?' / '+second:'');
       };
-      const sourceChip=(wrap,label,ok,missingText='未冻结')=>{
-        wrap.append(el('span','member-zone-source '+(ok?'ok':'missing'),ok?('✓ '+label):(label+' '+missingText)));
+      const resultCls=x=>x?.evaluable===true?(x.hit===true?'hit':'miss'):'';
+      const riskNames=row=>{
+        const list=[];
+        if(Array.isArray(row.riskRouting?.triggered))list.push(...row.riskRouting.triggered);
+        if(!list.length&&row.marketDirectionAnomaly===true)list.push('市场异动信号');
+        if(!list.length&&row.highDrawRisk===true)list.push('高平风险');
+        const tier=row.model?.risk?.displayTier||row.model?.risk?.warning;
+        if(tier&&['重点风险','强风险信号'].includes(String(tier)))list.push(String(tier));
+        return [...new Set(list)];
       };
 
       for(const row of rows){
-        const card=el('article','card member-zone-regular-card');
-        const head=el('div','card-head'),id=el('div','match-id');
-        id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
         const st=row.settlement||{},ev=st.evaluation||null,ftEv=st.ftEvaluation||null,hEv=st.handicapEvaluation||null;
-        const badgeText=st.verified
-          ?(ev?.evaluable===true
-            ?((ev.basis||'主结论')+'评测'+(ev.hit===true?'命中':'未中'))
-            :ftEv?.evaluable===true
-              ?ftEv.label
-              :'赛果已核验')
-          :String(row.status||'观察');
-        const badgeClass=st.verified
-          ?(ev?.evaluable===true
-            ?(ev.hit===true?'强化':'谨慎')
-            :ftEv?.evaluable===true
-              ?(ftEv.hit===true?'强化':'谨慎')
-              :'观察')
-          :String(row.status||'观察');
-        head.append(id,el('span','member-zone-badge '+badgeClass,badgeText));
+        const risks=riskNames(row),card=el('article','card member-zone-regular-card');
 
-        const fixture=el('div','fixture'),teams=el('div','team-list');
-        [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
-        const official=row.model?.handicap?.official;
-        const score=el('div','score',st.verified&&st.score?String(st.score).replace(/\s*:\s*/,':'):'VS');
-        score.append(el('span','',official===null||official===undefined?'官方让球 待确认':'官方让球 '+(Number(official)>0?'+':'')+String(official)));
-        fixture.append(teams,score);
+        const head=el('div','member-zone-compact-head'),left=el('div','');
+        left.append(el('div','member-zone-compact-title',safe(row.no)+' · '+safe(row.home)+' vs '+safe(row.away)));
+        left.append(el('div','member-zone-compact-meta',[safe(row.league),fmtTime(row.kickoff)].filter(Boolean).join(' · ')));
+        const badge=el('span','member-zone-badge '+String(row.status||'观察'),
+          st.verified
+            ?(ev?.evaluable===true?(ev.hit===true?'评测命中':'评测未中'):'已核验')
+            :String(row.status||'观察'));
+        head.append(left,badge);card.append(head);
 
-        const analysis=el('div','analysis'),triplet=el('div','triplet');
-        const probs=Array.isArray(row.model?.probability)?row.model.probability:[null,null,null];
-        const labels=['主胜','平局','客胜'],keys=['主胜','平','客胜'];
-        labels.forEach((lab,i)=>{
-          const pickLabel=row.model?.top1===keys[i]?'首选':row.model?.second===keys[i]?'次选':'　';
-          const d=el('div','datum wdl-prob'+(pickLabel.trim()?' wdl-pick':''));
-          const v=Number.isFinite(Number(probs[i]))?Number(probs[i]).toFixed(1)+'%':'—';
-          d.append(el('span','',lab),el('b','',v),el('span','',pickLabel));
-          triplet.append(d);
-        });
-        analysis.append(triplet);
-        card.append(head,fixture,analysis);
+        const main=el('div','member-zone-main'+(row.riskRouting?.active?' risk':''));
+        main.append(el('small','',row.riskRouting?.active?'风险触发后主处理':'主处理'));
+        main.append(el('strong','',
+          row.riskRouting?.active
+            ?('让球保护 '+(row.riskRouting.protection||'待确认'))
+            :(row.conclusion?.direction||row.model?.top1||'待更新')));
+        card.append(main);
+
+        const brief=el('div','member-zone-brief');
+        if(risks.length)brief.append(el('span','risk','风险：'+risks.join(' / ')));
+        else brief.append(el('span','ok','风险：未触发重点模块'));
+        if(row.model?.handicap?.official!==null&&row.model?.handicap?.official!==undefined)
+          brief.append(el('span','', '官方让球 '+(Number(row.model.handicap.official)>0?'+':'')+row.model.handicap.official));
+        if(row.conclusion?.marketConfirm)brief.append(el('span',row.conclusion.marketConfirm==='弱'?'warn':'','市场 '+row.conclusion.marketConfirm+'确认'));
+        card.append(brief);
 
         if(st.verified){
-          const wrap=el('div','member-zone-evals');
-          const ftCls=ftEv?.evaluable===true?(ftEv.hit===true?'success':'fail'):'neutral';
-          const ftBox=el('div','member-zone-eval '+ftCls);
-          ftBox.append(el('b','','胜平负'),el('span','',ftEv?.label||'仅作参考'));
-          if(st.ftResult)ftBox.append(el('small','','实际 '+st.ftResult));
-          wrap.append(ftBox);
-
-          const hCls=hEv?.evaluable===true?(hEv.hit===true?'success':'fail'):'neutral';
-          const hBox=el('div','member-zone-eval '+hCls);
-          hBox.append(el('b','','让球'),el('span','',hEv?.label||'无有效评测'));
-          if(st.handicapResult)hBox.append(el('small','','实际 '+st.handicapResult));
-          wrap.append(hBox);
-
-          const basis=el('div','member-zone-eval-basis',
-            ev?.evaluable===true
-              ?('本场主评测口径：'+(ev.basis||'正式主结论')+'；'+(row.riskRouting?.active?'胜平负风险触发后已转让球，原胜平负仍单独核验。':'另一玩法独立展示，不影响主评测结果。'))
-              :ftEv?.evaluable===true
-                ?'本场未纳入正式主评测，但赛前胜平负首选仍独立核验并记录命中/未中。'
-                :'本场没有正式主评测方向；胜平负与让球仅分别展示核验结果。');
-          wrap.append(basis);
-          card.append(wrap);
+          const results=el('div','member-zone-compact-result');
+          const f=el('div','member-zone-result-chip '+resultCls(ftEv));
+          f.append(el('b','','胜平负'),el('span','',ftEv?.label||'仅作参考'));
+          if(st.ftResult)f.append(el('small','','实际 '+st.ftResult));
+          const h=el('div','member-zone-result-chip '+resultCls(hEv));
+          h.append(el('b','','让球'),el('span','',hEv?.label||'无有效评测'));
+          if(st.handicapResult)h.append(el('small','','实际 '+st.handicapResult));
+          results.append(f,h);card.append(results);
         }
 
-        if(row.riskRouting?.active){
-          const route=el('div','member-zone-model');
-          route.append(el('div','member-zone-model-title','风险转让球'));
-          const line=el('div','member-zone-model-line');
-          line.append(
-            el('span','','触发模块'),
-            el('b','',(Array.isArray(row.riskRouting.triggered)&&row.riskRouting.triggered.length?row.riskRouting.triggered.join(' / '):(row.riskRouting.primary||'风险信号')))
-          );
-          route.append(line);
-          const protect=el('div','member-zone-model-line');
-          protect.append(el('span','','主处理'),el('b','','让球保护 '+(row.riskRouting.protection||'待确认')));
-          route.append(protect);
-          card.append(route);
+        const details=el('details','member-zone-proof');
+        details.append(el('summary','','查看依据'));
+        const body=el('div','member-zone-proof-body');
+
+        const psec=el('section','member-zone-proof-section');
+        psec.append(el('div','member-zone-proof-title','胜平负与让球'));
+        const pg=el('div','member-zone-proof-probs'),probs=Array.isArray(row.model?.probability)?row.model.probability:[null,null,null];
+        ['主胜','平','客胜'].forEach((lab,i)=>{
+          const x=el('div','member-zone-proof-prob');
+          x.append(el('span','',lab),el('b','',fmtPct(probs[i])));pg.append(x);
+        });
+        psec.append(pg);
+        addLine(psec,'原始首选 / 次选',(row.model?.top1||'—')+' / '+(row.model?.second||'—'));
+        addLine(psec,'让球模型',handicapText(row.model?.handicap));
+        body.append(psec);
+
+        const msec=el('section','member-zone-proof-section');
+        msec.append(el('div','member-zone-proof-title','市场校验'));
+        addLine(msec,'市场确认',row.conclusion?.marketConfirm||'待确认');
+        addLine(msec,'资金行为',row.conclusion?.fundBehavior||'待确认');
+        addLine(msec,'威廉概率',memberPct3(row.market?.currentFair).join(' / '));
+        addLine(msec,'威廉 初盘→赛前',memberOdds3(row.market?.initialOdds)+' → '+memberOdds3(row.market?.currentOdds));
+        if(row.officialMarket?.had)addLine(msec,'体彩胜平负SP',memberOdds3(row.officialMarket.had.odds));
+        if(row.officialMarket?.hhad){
+          const ln=row.officialMarket.hhad.line;
+          addLine(msec,'体彩让球SP',(Number.isFinite(Number(ln))?('主'+(Number(ln)>0?'+':'')+Number(ln)):'让球')+' · '+memberOdds3(row.officialMarket.hhad.odds));
         }
-
-        if(row.model){
-          const model=el('div','member-zone-model');
-          const riskBits=[row.model.risk?.hur?('HUR '+row.model.risk.hur):'',row.model.risk?.displayTier||row.model.risk?.warning||''].filter(Boolean);
-          const topLine=el('div','member-zone-model-line');
-          topLine.append(el('span','','胜平负分析'),el('b','',(row.model.top1||'—')+' / '+(row.model.second||'—')));
-          model.append(topLine);
-          if(riskBits.length){
-            const riskLine=el('div','member-zone-model-line');
-            riskLine.append(el('span','','风险信号'),el('b','',riskBits.join(' · ')));model.append(riskLine);
-          }
-          if(row.model.handicap){
-            const hline=el('div','member-zone-model-line');
-            const protect=Number(row.model.handicap.official)===-1;
-            hline.append(el('span','',protect?'让球保护':'让球模型参考'),el('b','',handicapText(row.model.handicap)));model.append(hline);
-          }
-          card.append(model);
-        }
-
-        const addon=el('section','member-zone-vip-addon');
-        const title=el('div','member-zone-vip-title');
-        title.append(el('b','','会员专属 · 综合校验'),el('span','',row.alignment||'独立观察'));
-        addon.append(title,el('p','member-zone-vip-summary',String(row.summary||'')));
-
-        const c=row.conclusion||{},grid=el('div','member-zone-conclusion');
-        addKpi(grid,'综合处理',c.direction||'待更新');
-        addKpi(grid,'市场确认',c.marketConfirm||'待确认');
-        addKpi(grid,'平局风险',c.drawRisk||'待确认',fmtRisk(c.drawRisk));
-        addKpi(grid,'资金行为',c.fundBehavior||'待确认');
-        addon.append(grid);
+        body.append(msec);
 
         if(row.intelligence){
-          const intel=row.intelligence,ibox=el('section','member-zone-intel'),ihead=el('div','member-zone-intel-head');
-          ihead.append(el('b','','赛前情报'),el('span','',(intel.impactSide||'中性')+' · 影响'+(intel.impactLevel||'低')+' · '+(intel.alignment||'中性')+'校验'));
-          ibox.append(ihead);
-          (Array.isArray(intel.categories)?intel.categories:[]).slice(0,5).forEach(item=>{
-            const line=el('div','member-zone-intel-item');
-            line.append(el('em','',String(item.type||'情报')),el('span','',String(item.summary||'')));
-            ibox.append(line);
-          });
-          const fm=intel.formation;
-          if(fm&&typeof fm==='object'){
-            const fmtMoney=(v)=>{
-              const n=Number(v);if(!Number.isFinite(n))return '—';
-              return n>=100000000?(n/100000000).toFixed(2)+'亿€':n>=10000?(n/10000).toFixed(0)+'万€':n.toFixed(0)+'€';
-            };
-            const strength=el('div','member-zone-intel-strength');
-            const parts=[];
-            if(Number.isFinite(Number(fm.home_value_eur))&&Number.isFinite(Number(fm.away_value_eur)))parts.push('身价 '+fmtMoney(fm.home_value_eur)+' / '+fmtMoney(fm.away_value_eur));
-            if(Number.isFinite(Number(fm.home_recent_goals))&&Number.isFinite(Number(fm.away_recent_goals)))parts.push('近20场均进球 '+Number(fm.home_recent_goals).toFixed(1)+' / '+Number(fm.away_recent_goals).toFixed(1));
-            if(parts.length)strength.textContent='阵容实力：'+parts.join(' · ');
-            if(parts.length)ibox.append(strength);
-          }
-          addon.append(ibox);
+          const isec=el('section','member-zone-proof-section');
+          isec.append(el('div','member-zone-proof-title','赛前情报'));
+          addLine(isec,'总体影响',(row.intelligence.impactSide||'中性')+' · '+(row.intelligence.impactLevel||'低'));
+          (Array.isArray(row.intelligence.categories)?row.intelligence.categories:[]).slice(0,3)
+            .forEach(x=>addLine(isec,String(x.type||'情报'),String(x.summary||'')));
+          body.append(isec);
         }
 
-        const cov=row.coverage||{},sources=el('div','member-zone-sources');
-        sourceChip(sources,'九十刻度',cov.model===true);
-        sourceChip(sources,'威廉',cov.william===true);
-        sourceChip(sources,'体彩',cov.sporttery===true);
-        sourceChip(sources,'亚盘',cov.asian===true);
-        sourceChip(sources,'资金',cov.behavior===true,'赛前未存档');
-        sourceChip(sources,'情报',cov.intelligence===true,'赛前未存档');
-        addon.append(sources);
+        const cov=row.coverage||{},dsec=el('section','member-zone-proof-section');
+        dsec.append(el('div','member-zone-proof-title','数据完整度'));
+        addLine(dsec,'九十刻度 / 威廉 / 体彩 / 亚盘',
+          [cov.model,cov.william,cov.sporttery,cov.asian].map(v=>v===true?'✓':'—').join(' / '));
+        addLine(dsec,'资金 / 情报',[cov.behavior,cov.intelligence].map(v=>v===true?'✓':'—').join(' / '));
+        body.append(dsec);
 
-        const details=el('details','member-zone-details');
-        details.append(el('summary','','查看会员市场明细'));
-
-        const mf=memberPct3(row.market?.currentFair),market=el('div','member-zone-row');
-        market.append(el('span','','威廉市场概率'),el('b','',mf.join(' / ')));details.append(market);
-        const odds=el('div','member-zone-row');
-        odds.append(el('span','','威廉 初盘 → 赛前'),el('b','',memberOdds3(row.market?.initialOdds)+' → '+memberOdds3(row.market?.currentOdds)));details.append(odds);
-
-        if(row.officialMarket?.had){
-          const had=el('div','member-zone-row');
-          had.append(el('span','','体彩胜平负SP'),el('b','',memberOdds3(row.officialMarket.had.odds)+(row.officialMarket.had.top1?' · '+row.officialMarket.had.top1:'')));details.append(had);
-        }
-        if(row.officialMarket?.hhad){
-          const hhad=el('div','member-zone-row'),ln=row.officialMarket.hhad.line;
-          hhad.append(el('span','','体彩让球SP'),el('b','',(Number.isFinite(Number(ln))?('主'+(Number(ln)>0?'+':'')+Number(ln)):'让球')+' · '+memberOdds3(row.officialMarket.hhad.odds)));details.append(hhad);
-        }
-        if(Array.isArray(row.asianHandicap)&&row.asianHandicap.length){
-          row.asianHandicap.forEach((x,idx)=>{
-            const asia=el('div','member-zone-row');
-            const iw=Number.isFinite(Number(x.initialHomeWater))&&Number.isFinite(Number(x.initialAwayWater))?' '+Number(x.initialHomeWater).toFixed(2)+'/'+Number(x.initialAwayWater).toFixed(2):'';
-            const cw=Number.isFinite(Number(x.currentHomeWater))&&Number.isFinite(Number(x.currentAwayWater))?' '+Number(x.currentHomeWater).toFixed(2)+'/'+Number(x.currentAwayWater).toFixed(2):'';
-            asia.append(el('span','',idx===0?'亚洲盘':''),
-              el('b','',String(x.institution||'机构')+' '+(x.initialLine??'—')+iw+' → '+(x.currentLine??'—')+cw));
-            details.append(asia);
-          });
-        }
-
-        if(row.behavior){
-          const pop=el('div','member-zone-row');pop.append(el('span','','做单人气'),el('b','',memberPct3(row.behavior.doerPct).join(' / ')));details.append(pop);
-          const bf=el('div','member-zone-row');bf.append(el('span','','必发成交'),el('b','',memberPct3(row.behavior.betfairShare).join(' / ')));details.append(bf);
-          const jc=el('div','member-zone-row');jc.append(el('span','','竞彩保存'),el('b','',memberPct3(row.behavior.jcSavedShare).join(' / ')));details.append(jc);
-          const hot=el('div','member-zone-row');hot.append(el('span','','冷热 · 必发'),el('b','',memberSigned3(row.behavior.betfairHotCold)));details.append(hot);
-          const hotJc=el('div','member-zone-row');hotJc.append(el('span','','冷热 · 竞彩'),el('b','',memberSigned3(row.behavior.jcHotCold)));details.append(hotJc);
-          const pl=el('div','member-zone-row');pl.append(el('span','','盈亏指数 · 必发'),el('b','',memberSigned3(row.behavior.betfairProfitIndex)));details.append(pl);
-          const plJc=el('div','member-zone-row');plJc.append(el('span','','盈亏指数 · 竞彩'),el('b','',memberSigned3(row.behavior.jcProfitIndex)));details.append(plJc);
-        }else{
-          const missing=el('div','member-zone-row');
-          missing.append(el('span','','必发 / 竞彩资金'),el('b','','本场未保存赛前资金快照'));details.append(missing);
-        }
-        addon.append(details);card.append(addon);page.append(card);
+        details.append(body);card.append(details);page.append(card);
       }
       box.append(page);
     }
 
-    function memberZoneDate(){
-      return state.baseDate||state.today?.date||state.selectedDate||beijingToday();
-    }
     async function loadMemberZone(silent=false){
       if(memberInfo?.vipActive!==true)return;
       const zoneDate=memberZoneDate();
