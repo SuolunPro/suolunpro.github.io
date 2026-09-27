@@ -1173,6 +1173,7 @@
         if(!list.length&&row.highDrawRisk===true)list.push('高平风险');
         const tier=row.model?.risk?.displayTier||row.model?.risk?.warning;
         if(tier&&['重点风险','强风险信号'].includes(String(tier)))list.push(String(tier));
+        if(row.conclusion?.intelligenceRisk===true)list.push('情报利空');
         return [...new Set(list)];
       };
 
@@ -1249,6 +1250,7 @@
           const isec=el('section','member-zone-proof-section');
           isec.append(el('div','member-zone-proof-title','赛前情报'));
           addLine(isec,'总体影响',(row.intelligence.impactSide||'中性')+' · '+(row.intelligence.impactLevel||'低'));
+          if(row.intelligence.riskActivated===true)addLine(isec,'结论校验','已进入风险降级');
           (Array.isArray(row.intelligence.categories)?row.intelligence.categories:[]).slice(0,3)
             .forEach(x=>addLine(isec,String(x.type||'情报'),String(x.summary||'')));
           body.append(isec);
