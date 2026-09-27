@@ -137,14 +137,9 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string,readOnl
 
 /* Independent, immutable, pre-kickoff market-anchored Poisson reference.
    Never overwrite formal scoreTop4, goalPrediction or the sale freeze. */
-async function attachLiveScoreGoals(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
- if(date<"2026-09-25")return rows;
- const {data,error}=await db.from("soren_live_score_goals_v1")
-   .select("id,match_no,market_at,base_frozen_at,computed_at,lambda_home,lambda_away,scores,input_manifest")
-   .eq("pool_date",date).order("computed_at",{ascending:false}).limit(1200);
- if(error){console.error("LIVE_SCORE_GOALS_UNAVAILABLE",error);return rows;}
+function attachLiveScoreGoalsFromRecords(rows:Record<string,unknown>[],records:Record<string,unknown>[]):Record<string,unknown>[]{
  const newest=new Map<string,Record<string,unknown>>();
- for(const x of data??[]){
+ for(const x of records??[]){
    const key=String(x.match_no??"").padStart(3,"0");
    if(!newest.has(key))newest.set(key,x as Record<string,unknown>);
  }
@@ -191,16 +186,20 @@ async function attachLiveScoreGoals(rows:Record<string,unknown>[],date:string):P
  });
 }
 
+async function attachLiveScoreGoals(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
+ if(date<"2026-09-25")return rows;
+ const {data,error}=await db.from("soren_live_score_goals_v1")
+   .select("id,match_no,market_at,base_frozen_at,computed_at,lambda_home,lambda_away,scores,input_manifest")
+   .eq("pool_date",date).order("computed_at",{ascending:false}).limit(1200);
+ if(error){console.error("LIVE_SCORE_GOALS_UNAVAILABLE",error);return rows;}
+ return attachLiveScoreGoalsFromRecords(rows,(data??[]) as Record<string,unknown>[]);
+}
+
 /* Match half/full-time reference to the exact same immutable Poisson+score
    version. Avoid mixing an older HTFT forecast with a newer score distribution. */
-async function attachLiveHTFT(rows:Record<string,unknown>[],date:string,verifiedResults:Map<string,Record<string,unknown>>):Promise<Record<string,unknown>[]>{
- if(date<"2026-09-25")return rows;
- const {data,error}=await db.from("soren_live_htft_v1")
-   .select("match_no,source_live_score_id,source_frozen_at,computed_at,lambda_home,lambda_away,picks,top4_probability,ht_draw_probability,low_goal_draw_audit,method_version")
-   .eq("pool_date",date).order("source_frozen_at",{ascending:false}).limit(1200);
- if(error){console.error("LIVE_HTFT_UNAVAILABLE",error);return rows;}
+function attachLiveHTFTFromRecords(rows:Record<string,unknown>[],records:Record<string,unknown>[],verifiedResults:Map<string,Record<string,unknown>>):Record<string,unknown>[]{
  const byScoreId=new Map<string,Record<string,unknown>>();
- for(const item of data??[])byScoreId.set(String(item.source_live_score_id),item as Record<string,unknown>);
+ for(const item of records??[])byScoreId.set(String(item.source_live_score_id),item as Record<string,unknown>);
  return rows.map(row=>{
    const score=row.dynamicScoreTop4 as Record<string,unknown>|undefined;
    if(!score||row.pregameVerified!==true)return row;
@@ -257,6 +256,15 @@ async function attachLiveHTFT(rows:Record<string,unknown>[],date:string,verified
      lambdaHome:lh,lambdaAway:la
    }};
  });
+}
+
+async function attachLiveHTFT(rows:Record<string,unknown>[],date:string,verifiedResults:Map<string,Record<string,unknown>>):Promise<Record<string,unknown>[]>{
+ if(date<"2026-09-25")return rows;
+ const {data,error}=await db.from("soren_live_htft_v1")
+   .select("match_no,source_live_score_id,source_frozen_at,computed_at,lambda_home,lambda_away,picks,top4_probability,ht_draw_probability,low_goal_draw_audit,method_version")
+   .eq("pool_date",date).order("source_frozen_at",{ascending:false}).limit(1200);
+ if(error){console.error("LIVE_HTFT_UNAVAILABLE",error);return rows;}
+ return attachLiveHTFTFromRecords(rows,(data??[]) as Record<string,unknown>[],verifiedResults);
 }
 /* Immutable pre-kickoff half-time/full-time Top4, published from the existing
    customer-side sale freeze. Independent of later model refresh and results. */
@@ -1398,6 +1406,90 @@ async function marketTrend(date:string,no:string){
     note:"同一机构赛前已核验赔率快照；仅展示抽样关键时点，非连续全量报价。"};
 }
 
+
+async function serveFastArchiveBundle(date:string,view:string):Promise<Response|null>{
+  try{
+    const {data:bundle,error}=await db.rpc("soren_fast_archive_bundle_v2",{p_date:date});
+    if(error||!bundle||typeof bundle!=="object"||Array.isArray(bundle)){
+      if(error)console.error("FAST_ARCHIVE_BUNDLE_UNAVAILABLE",error);
+      return null;
+    }
+    const b=bundle as Record<string,unknown>;
+    const rawRows=Array.isArray(b.rows)?(b.rows as Record<string,unknown>[]):[];
+    if(!rawRows.length)return null;
+    const modelVersion=String(rawRows.find(r=>r.version)?.version??"");
+    const revision=allowed.get(modelVersion);
+    if(!revision)return null;
+
+    const resultRecords=Array.isArray(b.results)?(b.results as Record<string,unknown>[]):[];
+    const verifiedResults=new Map<string,Record<string,unknown>>();
+    for(const r of resultRecords)verifiedResults.set(String(r.match_no??"").padStart(3,"0"),r);
+
+    const pick=(v:unknown)=>({"主胜":"H","平":"D","客胜":"A","3":"H","1":"D","0":"A",H:"H",D:"D",A:"A"}[String(v??"")]??null);
+    let rows=rawRows.map(row=>{
+      const no=String(row.no??"").padStart(3,"0");
+      const stored=verifiedResults.get(no);
+      if(!stored){
+        return {...row,resultVerified:false,result:null,resultHome:null,resultAway:null,resultScore:null,
+          resultSource:null,resultVerifiedAt:null,top1Hit:null,coverageHit:null,handicapResult:null,
+          handicapTop1Hit:null,handicapCoverageHit:null,handicapHit:null};
+      }
+      const actual=String(stored.ft_result??"");
+      const primary=pick(row.ftTop1),secondary=pick(row.second);
+      const handicapActual=handicapName[String(stored.handicap_result??"")]??null;
+      return {...row,
+        resultVerified:true,result:actual,
+        resultHome:Number(stored.home_score),resultAway:Number(stored.away_score),
+        resultScore:String(stored.home_score)+"-"+String(stored.away_score),
+        resultSource:stored.result_source??"客户库已核验赛果",
+        resultVerifiedAt:stored.verified_at??null,
+        top1Hit:primary===actual,coverageHit:primary===actual||secondary===actual,
+        handicapResult:handicapActual
+      };
+    }).map(settlePublishedScoreTop4).map(settleTop5Handicap);
+
+    rows=attachLiveScoreGoalsFromRecords(
+      rows,
+      Array.isArray(b.liveScoreGoals)?(b.liveScoreGoals as Record<string,unknown>[]):[]
+    );
+
+    const published=new Map<string,Record<string,unknown>>();
+    for(const x of (Array.isArray(b.htftPublished)?(b.htftPublished as Record<string,unknown>[]):[]))
+      published.set(String(x.match_no??"").padStart(3,"0"),x);
+    const historical=new Map<string,Record<string,unknown>>();
+    for(const x of (Array.isArray(b.htftHistorical)?(b.htftHistorical as Record<string,unknown>[]):[]))
+      historical.set(String(x.match_no??"").padStart(3,"0"),x);
+
+    rows=rows
+      .map(r=>attachPublishedHTFTTop4(r,published,verifiedResults))
+      .map(r=>attachHistoricalHTFTTop4(r,historical,verifiedResults));
+
+    rows=attachLiveHTFTFromRecords(
+      rows,
+      Array.isArray(b.liveHtft)?(b.liveHtft as Record<string,unknown>[]):[],
+      verifiedResults
+    ).map(attachScoreGoalReference);
+
+    const handicapStats=buildHandicapStats(rows);
+    const dataTimes=rows.map(r=>Date.parse(String(r.frozenAt??""))).filter(Number.isFinite);
+    return reply({
+      ok:true,view,date,count:rows.length,model:"索伦引擎",
+      modelVersion,revision,batchTime:null,
+      dataTime:dataTimes.length?new Date(Math.max(...dataTimes)).toISOString():null,
+      pregameVerifiedCount:rows.filter(r=>r.pregameVerified===true).length,
+      handicapStats,
+      upsetStats:upsetStatsFor(rows),
+      dailySelectionStats:dailySelectionStatsFor(rows),
+      warningSync:{synced:0,readOnly:true,replayMode:"FAST_ARCHIVE_LIVE_RESULTS_V2"},
+      updatedAt:new Date().toISOString(),
+      rows,
+    });
+  }catch(error){
+    console.error("FAST_ARCHIVE_BUNDLE_ERROR",error);
+    return null;
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "GET" && req.method !== "POST") return reply({ ok: false, error: "METHOD_NOT_ALLOWED" }, 405);
@@ -1503,6 +1595,17 @@ Deno.serve(async (req: Request) => {
     if (!auth.ok) return reply({ok:false,error:"LOGIN_REQUIRED"},401);
     const user = await auth.json();
     if (!user?.id) return reply({ok:false,error:"LOGIN_REQUIRED"},401);
+
+    // Past archive pages are available to any authenticated account. Serve the
+    // one-bundle path before trial/member RPCs so date switching is not delayed
+    // by account bookkeeping. Current/future pages keep the original checks.
+    const fastToday=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).split("/").join("-");
+    const fastDate=requestUrl.searchParams.get("date");
+    if(requestUrl.searchParams.get("view")==="archive"&&fastDate&&/^\d{4}-\d{2}-\d{2}$/.test(fastDate)&&fastDate<fastToday&&fastDate>="2026-09-26"){
+      const fastResponse=await serveFastArchiveBundle(fastDate,"archive");
+      if(fastResponse)return fastResponse;
+    }
+
     // Store only pseudonymous hashes; the raw IP and browser UUID never enter the claims table.
     // IP is advisory only; a shared IP must not independently deny a trial.
     const browserId=req.headers.get("x-soren-device")??"";
