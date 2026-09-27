@@ -686,6 +686,20 @@ async function fetchPublicUpstream(view:string,date:string|null){
   return data;
 }
 
+async function archiveDayFullySettled(date:string):Promise<boolean>{
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return false;
+  const {data:matches,error:matchError}=await db.from("soren_matches")
+    .select("id").eq("pool_date",date).limit(200);
+  if(matchError||!Array.isArray(matches)||matches.length===0)return false;
+  const ids=matches.map((m:Record<string,unknown>)=>Number(m.id)).filter(Number.isFinite);
+  if(ids.length!==matches.length)return false;
+  const {data:results,error:resultError}=await db.from("soren_results")
+    .select("match_id").in("match_id",ids).eq("verified",true);
+  if(resultError||!Array.isArray(results))return false;
+  const settled=new Set(results.map((r:Record<string,unknown>)=>Number(r.match_id)).filter(Number.isFinite));
+  return settled.size===ids.length;
+}
+
 async function syncUpsetWarnings(rows: Record<string,unknown>[], data: Record<string,unknown>) {
   const payload = rows.flatMap((row) => {
     const warning = row.upsetWarning;
@@ -1602,7 +1616,7 @@ Deno.serve(async (req: Request) => {
     }
     // Past dates are immutable customer history: read the already locked local snapshots
     // instead of calling the mother model again. Today's live path is intentionally unchanged.
-    const archiveReadOnly=view==="archive"&&!!date&&date<beijingToday&&date>="2026-09-23";
+    const archiveReadOnly=view==="archive"&&!!date&&date<beijingToday&&date>="2026-09-23"&&await archiveDayFullySettled(date);
     let data:any=null;
     if(archiveReadOnly){
       const {data:freezeRows,error:freezeError}=await db.from("soren_sale_freezes_v1")
