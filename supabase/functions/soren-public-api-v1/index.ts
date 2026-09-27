@@ -1827,19 +1827,34 @@ async function paidMemberZone(date:string){
     const riskOverride=(hur==="红"||riskLevel==="高"||displayTier==="强风险信号");
     // High-draw handicap protection is only enabled for official -1.
     // +1 fixtures may display handicap data, but must never be rerouted to handicap solely because draw risk is high.
-    const handicapProtection=officialHandicap===-1&&handicapTop1
+    // The high-draw reroute is a specific rule: high draw risk + official -1 only.
+    // Other fixtures may show handicap probabilities, but that is reference data, not an automatic reroute.
+    const highDrawHandicapProtection=drawRisk==="高"&&officialHandicap===-1&&handicapTop1
       ?(handicapTop1+(handicapSecond?(" + "+handicapSecond):"")):null;
 
     let status="观察",summary="",conclusionType="市场观察",conclusionDirection=formalDirection??behaviorTop??marketTop??null;
     if(modelTop){
-      conclusionType=mode==="PASS"?"九十刻度风险结论":"九十刻度综合方向";
+      conclusionType=mode==="PASS"?"风险处理":"九十刻度综合方向";
       if(mode==="PASS"){
-        status="谨慎";conclusionDirection=handicapProtection?("让球保护 "+handicapProtection):"暂不发布";
-        summary="九十刻度已完成赛前核验，但风险门槛未通过；不强化原始"+modelTop+"。"+(handicapProtection?(" 当前让球侧参考："+handicapProtection+"。"):"");
+        status="谨慎";
+        if(highDrawHandicapProtection){
+          conclusionType="高平风险处理";
+          conclusionDirection="让球保护 "+highDrawHandicapProtection;
+          summary="平局风险偏高且官方让球为-1，按高平规则转入让球保护："+highDrawHandicapProtection+"。原始"+modelTop+"仅保留作赛前参考。";
+        }else{
+          conclusionDirection="不强化胜平负";
+          const dqText=String(risk?.dq??"")==="DQ-C"?"赛前关键数据完整度不足":"胜平负方向存在风险分歧";
+          summary=dqText+"，原始"+modelTop+"不做强化。当前保留概率和风险提示；让球数据仅作模型参考。";
+        }
       }else if(riskOverride&&mode==="DOUBLE"){
         status="谨慎";conclusionType="风险处理";
-        conclusionDirection=handicapProtection?("让球保护 "+handicapProtection):formalDirection;
-        summary="九十刻度原始胜平负首选为"+modelTop+"，但风险信号已触发，不再强化单一"+modelTop+"。"+(handicapProtection?(" 当前优先采用让球保护："+handicapProtection+"。"):(" 正式胜平负按"+formalDirection+"保护。"));
+        if(highDrawHandicapProtection){
+          conclusionDirection="让球保护 "+highDrawHandicapProtection;
+          summary="平局风险偏高且官方让球为-1，按高平规则转入让球保护："+highDrawHandicapProtection+"。原始胜平负首选"+modelTop+"不再单独强化。";
+        }else{
+          conclusionDirection=formalDirection;
+          summary="原始胜平负首选为"+modelTop+"，同时存在风险信号；当前按"+formalDirection+"保护，不因风险自动转入让球。";
+        }
       }else if(alignment==="三方同向"){
         status=overheat?"谨慎":"强化";
         summary=overheat
@@ -1883,6 +1898,10 @@ async function paidMemberZone(date:string){
     };
     return {
       no,league:m.league??rt?.league??null,home:m.home_team,away:m.away_team,kickoff:m.kickoff_at,
+      homeLogo:rt?.homeLogo??null,awayLogo:rt?.awayLogo??null,
+      highDrawRisk:rt?.highDrawRisk===true,
+      highDrawRiskReason:rt?.highDrawRiskReason??null,
+      marketDirectionAnomaly:rt?.marketDirectionAnomaly===true,
       status,summary,alignment,coverage,
       conclusion:{type:conclusionType,direction:conclusionDirection,marketConfirm,drawRisk,fundBehavior},
       market:{institution:"威廉希尔",top1:marketTop,initialOdds:ini?[Number(ini.home_value),Number(ini.draw_value),Number(ini.away_value)]:null,
