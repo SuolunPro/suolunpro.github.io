@@ -1836,36 +1836,49 @@ async function paidMemberZone(date:string){
     })();
     const formalDirection=mode==="PASS"?"暂不发布":mode==="DOUBLE"?doubleDirection:modelTop;
     const riskOverride=(hur==="红"||riskLevel==="高"||displayTier==="强风险信号");
-    // High-draw handicap protection is only enabled for official -1.
-    // +1 fixtures may display handicap data, but must never be rerouted to handicap solely because draw risk is high.
-    // The high-draw reroute is a specific rule: high draw risk + official -1 only.
-    // Other fixtures may show handicap probabilities, but that is reference data, not an automatic reroute.
-    const highDrawHandicapProtection=drawRisk==="高"&&officialHandicap===-1&&handicapTop1
-      ?(handicapTop1+(handicapSecond?(" + "+handicapSecond):"")):null;
+    const validHandicap=(v:any)=>["让胜","让平","让负"].includes(String(v??""));
+    const frozenHandicapProtection=validHandicap(handicapTop1)
+      ?(String(handicapTop1)+(validHandicap(handicapSecond)?(" + "+String(handicapSecond)):""))
+      :null;
+    const warningFocus=(warning?.focusGate&&typeof warning.focusGate==="object"?warning.focusGate:{}) as Record<string,any>;
+    const warningOppositeSecond=warningFocus?.opposite_second===true||warningFocus?.oppositeSecond===true||warning?.oppositeSecond===true;
+    const marketProtectionFirst=String(rt?.marketProtectionFirst??(officialHandicap!==null&&officialHandicap<0?"让负":officialHandicap!==null&&officialHandicap>0?"让胜":""));
+    const marketProtectionSecond=String(rt?.marketProtectionSecond??"让平");
+    const marketProtection=validHandicap(marketProtectionFirst)
+      ?(marketProtectionFirst+(validHandicap(marketProtectionSecond)?(" + "+marketProtectionSecond):""))
+      :null;
+
+    // Customer-facing FT risk modules all reroute the main handling to handicap protection.
+    // High-draw is the one special case: it is eligible only on official -1.
+    const riskRoutes:{label:string;protection:string;priority:number}[]=[];
+    if(highDraw&&officialHandicap===-1&&frozenHandicapProtection)
+      riskRoutes.push({label:"高平风险",protection:frozenHandicapProtection,priority:1});
+    if(rt?.marketDirectionAnomaly===true&&officialHandicap!==null&&Math.abs(officialHandicap)===1&&marketProtection)
+      riskRoutes.push({label:"市场异动信号",protection:marketProtection,priority:3});
+    if(displayTier==="重点风险"&&warningOppositeSecond&&frozenHandicapProtection)
+      riskRoutes.push({label:"重点风险",protection:frozenHandicapProtection,priority:2});
+    if(displayTier==="强风险信号"&&warningOppositeSecond&&frozenHandicapProtection)
+      riskRoutes.push({label:"强风险信号",protection:frozenHandicapProtection,priority:4});
+    const activeRiskRoute=riskRoutes.slice().sort((a,b)=>b.priority-a.priority)[0]??null;
+    const triggeredRiskLabels=[...new Set(riskRoutes.map(x=>x.label))];
 
     let status="观察",summary="",conclusionType="市场观察",conclusionDirection=formalDirection??behaviorTop??marketTop??null;
     if(modelTop){
       conclusionType=mode==="PASS"?"风险处理":"九十刻度综合方向";
-      if(mode==="PASS"){
+      if(activeRiskRoute){
         status="谨慎";
-        if(highDrawHandicapProtection){
-          conclusionType="高平风险处理";
-          conclusionDirection="让球保护 "+highDrawHandicapProtection;
-          summary="平局风险偏高且官方让球为-1，按高平规则转入让球保护："+highDrawHandicapProtection+"。原始"+modelTop+"仅保留作赛前参考。";
-        }else{
-          conclusionDirection="不强化胜平负";
-          const dqText=String(risk?.dq??"")==="DQ-C"?"赛前关键数据完整度不足":"胜平负方向存在风险分歧";
-          summary=dqText+"，原始"+modelTop+"不做强化。当前保留概率和风险提示；让球数据仅作模型参考。";
-        }
+        conclusionType="风险转让球";
+        conclusionDirection="让球保护 "+activeRiskRoute.protection;
+        summary="胜平负触发"+triggeredRiskLabels.join("、")+"，主处理转入让球保护："+activeRiskRoute.protection+"。原始胜平负方向继续保留并独立核验。";
+      }else if(mode==="PASS"){
+        status="谨慎";
+        conclusionDirection="不强化胜平负";
+        const dqText=String(risk?.dq??"")==="DQ-C"?"赛前关键数据完整度不足":"胜平负方向存在风险分歧";
+        summary=dqText+"，原始"+modelTop+"不做强化。当前保留概率和风险提示；让球数据仅作模型参考。";
       }else if(riskOverride&&mode==="DOUBLE"){
         status="谨慎";conclusionType="风险处理";
-        if(highDrawHandicapProtection){
-          conclusionDirection="让球保护 "+highDrawHandicapProtection;
-          summary="平局风险偏高且官方让球为-1，按高平规则转入让球保护："+highDrawHandicapProtection+"。原始胜平负首选"+modelTop+"不再单独强化。";
-        }else{
-          conclusionDirection=formalDirection;
-          summary="原始胜平负首选为"+modelTop+"，同时存在风险信号；当前按"+formalDirection+"保护，不因风险自动转入让球。";
-        }
+        conclusionDirection=formalDirection;
+        summary="原始胜平负首选为"+modelTop+"，同时存在风险信号；当前按"+formalDirection+"保护。";
       }else if(alignment==="三方同向"){
         status=overheat?"谨慎":"强化";
         summary=overheat
@@ -1964,7 +1977,7 @@ async function paidMemberZone(date:string){
         handicapEvaluation={evaluable:false,hit:null,label:"让球未形成有效评测"};
       }
 
-      if(highDrawHandicapProtection){
+      if(activeRiskRoute){
         const hit=handicapEvaluation?.hit===true;
         evaluation={evaluable:handicapEvaluation?.evaluable===true,hit:handicapEvaluation?.evaluable===true?hit:null,
           label:handicapEvaluation?.evaluable===true?(hit?"评测成功":"评测未覆盖"):"赛果已核验",basis:"让球保护"};
@@ -2006,6 +2019,12 @@ async function paidMemberZone(date:string){
       highDrawRisk:rt?.highDrawRisk===true,
       highDrawRiskReason:rt?.highDrawRiskReason??null,
       marketDirectionAnomaly:rt?.marketDirectionAnomaly===true,
+      riskRouting:{
+        active:!!activeRiskRoute,
+        triggered:triggeredRiskLabels,
+        primary:activeRiskRoute?.label??null,
+        protection:activeRiskRoute?.protection??null
+      },
       status,summary,alignment,coverage,settlement,
       conclusion:{type:conclusionType,direction:conclusionDirection,marketConfirm,drawRisk,fundBehavior},
       market:{institution:"威廉希尔",top1:marketTop,initialOdds:ini?[Number(ini.home_value),Number(ini.draw_value),Number(ini.away_value)]:null,
