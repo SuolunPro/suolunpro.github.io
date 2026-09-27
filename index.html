@@ -299,6 +299,14 @@
 .member-zone-settlement.fail{background:#fff1ec;color:#a3472c;font-weight:700}
 .member-zone-settlement.neutral{background:#f4f5f6;color:#666d75}
 .member-zone-settlement small{display:block;margin-top:2px;font-size:9px;font-weight:500;color:inherit;opacity:.82}
+.member-zone-evals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:8px 0 10px}
+.member-zone-eval{border-radius:10px;padding:9px 10px;background:#f4f5f6;color:#5f666e;font-size:10px;line-height:1.5}
+.member-zone-eval b{display:block;margin-bottom:3px;font-size:10px;color:inherit}
+.member-zone-eval.success{background:#edf7ef;color:#267041}
+.member-zone-eval.fail{background:#fff1ec;color:#a3472c}
+.member-zone-eval.neutral{background:#f4f5f6;color:#737a82}
+.member-zone-eval-basis{grid-column:1/-1;font-size:9px;color:#858b92;padding:0 2px}
+
 
 
 .member-zone-regular-card .member-zone-conclusion{margin:0 0 8px}
@@ -1134,8 +1142,12 @@
         const card=el('article','card member-zone-regular-card');
         const head=el('div','card-head'),id=el('div','match-id');
         id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-        const st=row.settlement||{},ev=st.evaluation||null;
-        const badgeText=st.verified?(ev?.label||'赛果已核验'):String(row.status||'观察');
+        const st=row.settlement||{},ev=st.evaluation||null,ftEv=st.ftEvaluation||null,hEv=st.handicapEvaluation||null;
+        const badgeText=st.verified
+          ?(ev?.evaluable===true
+            ?((ev.basis||'主结论')+'评测'+(ev.hit===true?'命中':'未中'))
+            :'赛果已核验')
+          :String(row.status||'观察');
         const badgeClass=st.verified?(ev?.evaluable===true?(ev.hit===true?'强化':'谨慎'):'观察'):String(row.status||'观察');
         head.append(id,el('span','member-zone-badge '+badgeClass,badgeText));
 
@@ -1160,11 +1172,25 @@
         card.append(head,fixture,analysis);
 
         if(st.verified){
-          const cls=ev?.evaluable===true?(ev.hit===true?'success':'fail'):'neutral';
-          const box=el('div','member-zone-settlement '+cls,ev?.label||'赛果已核验');
-          const actual=['实际胜平负 '+(st.ftResult||'—'),st.handicapResult?('实际让球 '+st.handicapResult):''].filter(Boolean).join(' · ');
-          if(actual)box.append(el('small','',actual));
-          card.append(box);
+          const wrap=el('div','member-zone-evals');
+          const ftCls=ftEv?.evaluable===true?(ftEv.hit===true?'success':'fail'):'neutral';
+          const ftBox=el('div','member-zone-eval '+ftCls);
+          ftBox.append(el('b','','胜平负'),el('span','',ftEv?.label||'仅作参考'));
+          if(st.ftResult)ftBox.append(el('small','','实际 '+st.ftResult));
+          wrap.append(ftBox);
+
+          const hCls=hEv?.evaluable===true?(hEv.hit===true?'success':'fail'):'neutral';
+          const hBox=el('div','member-zone-eval '+hCls);
+          hBox.append(el('b','','让球'),el('span','',hEv?.label||'无有效评测'));
+          if(st.handicapResult)hBox.append(el('small','','实际 '+st.handicapResult));
+          wrap.append(hBox);
+
+          const basis=el('div','member-zone-eval-basis',
+            ev?.evaluable===true
+              ?('本场主评测口径：'+(ev.basis||'正式主结论')+'；另一玩法独立展示，不影响主评测结果。')
+              :'本场没有正式主评测方向；胜平负与让球仅分别展示核验结果。');
+          wrap.append(basis);
+          card.append(wrap);
         }
 
         if(row.model){
