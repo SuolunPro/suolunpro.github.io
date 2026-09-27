@@ -1621,18 +1621,14 @@ async function serveFastArchiveBundle(date:string,view:string):Promise<Response|
 }
 
 
-async function paidAccessStatus(userId:string){
-  const [{data:account,error:accountError},{data:grants,error:grantError}]=await Promise.all([
-    db.from("soren_member_accounts_v1").select("membership_until").eq("user_id",userId).maybeSingle(),
-    db.from("soren_member_grants_v1").select("effective_until").eq("user_id",userId).order("effective_until",{ascending:false}).limit(1)
-  ]);
-  if(accountError||grantError)throw accountError||grantError;
-  const memberUntilMs=Date.parse(String(account?.membership_until??""));
-  const grantUntilMs=Date.parse(String(grants?.[0]?.effective_until??""));
-  const now=Date.now();
-  const active=Number.isFinite(memberUntilMs)&&memberUntilMs>now&&
-    (!Number.isFinite(grantUntilMs)||memberUntilMs>grantUntilMs+300000);
-  return {active,until:active?account?.membership_until??null:null};
+async function vipAccessStatus(userId:string){
+  const {data:vip,error}=await db.from("soren_vip_members_v1")
+    .select("vip_name,expires_at,active,source")
+    .eq("user_id",userId).maybeSingle();
+  if(error)throw error;
+  const expiresMs=Date.parse(String(vip?.expires_at??""));
+  const active=vip?.active===true&&Number.isFinite(expiresMs)&&expiresMs>Date.now();
+  return {active,name:active?String(vip?.vip_name||"尊贵月卡VIP"):null,until:active?vip?.expires_at??null:null};
 }
 function fair3(h:unknown,d:unknown,a:unknown){
   const odds=[Number(h),Number(d),Number(a)];
@@ -1867,11 +1863,14 @@ Deno.serve(async (req: Request) => {
       return reply({ok:false,error:"MEMBERSHIP_STATUS_UNAVAILABLE"},503);
     }
     (membership as Record<string,unknown>).trialStatus=trialStatus;
-    let paidAccess:{active:boolean;until:any}={active:false,until:null};
-    try{paidAccess=await paidAccessStatus(String(user.id));}
-    catch(e){console.error("PAID_ACCESS_STATUS_UNAVAILABLE",e);}
-    (membership as Record<string,unknown>).paidActive=paidAccess.active;
-    (membership as Record<string,unknown>).paidUntil=paidAccess.until;
+    let vipAccess:{active:boolean;name:string|null;until:any}={active:false,name:null,until:null};
+    try{vipAccess=await vipAccessStatus(String(user.id));}
+    catch(e){console.error("VIP_ACCESS_STATUS_UNAVAILABLE",e);}
+    (membership as Record<string,unknown>).vipActive=vipAccess.active;
+    (membership as Record<string,unknown>).vipName=vipAccess.name;
+    (membership as Record<string,unknown>).vipUntil=vipAccess.until;
+    (membership as Record<string,unknown>).paidActive=vipAccess.active;
+    (membership as Record<string,unknown>).paidUntil=vipAccess.until;
     if(redeeming){
       const accepted=["BOUND","ALREADY_BOUND"].includes(String(membership.inviteStatus??""));
       return reply({ok:accepted,membership,error:accepted?null:String(membership.inviteStatus??"INVITE_UNAVAILABLE")},accepted?200:400);
@@ -1880,7 +1879,7 @@ Deno.serve(async (req: Request) => {
     const beijingToday=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).split("/").join("-");
     const requestedDate=requestUrl.searchParams.get("date");
     if(requestUrl.searchParams.get("view")==="member-zone"){
-      if(paidAccess.active!==true)return reply({ok:false,error:"PAID_MEMBERSHIP_REQUIRED",membership},403);
+      if(vipAccess.active!==true)return reply({ok:false,error:"VIP_MEMBERSHIP_REQUIRED",membership},403);
       const zoneDate=requestedDate&&/^\d{4}-\d{2}-\d{2}$/.test(requestedDate)?requestedDate:beijingToday;
       try{return reply({ok:true,membership,zone:await paidMemberZone(zoneDate),updatedAt:new Date().toISOString()});}
       catch(error){console.error("MEMBER_ZONE_ERROR",error);return reply({ok:false,error:"MEMBER_ZONE_UNAVAILABLE"},502);}
