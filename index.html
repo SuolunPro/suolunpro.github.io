@@ -267,7 +267,7 @@
   .profile-page .profile-more .engine-intro{margin-top:11px;padding:0}
   .profile-page .profile-more .engine-intro h2{font-size:14px}
   .profile-page .member-account{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 3px;color:#878a91;font-size:11px;overflow-wrap:anywhere}
-  .member-zone-page{display:grid;gap:10px}.member-zone-intro{padding:14px;border-radius:14px;background:linear-gradient(135deg,#252932,#353943);color:#fff}.member-zone-intro h2{margin:0 0 5px;font-size:17px}.member-zone-intro p{margin:0;color:#cbd1d8;font-size:11px;line-height:1.65}.member-zone-card{background:#fff;border:1px solid #e8eaed;border-radius:13px;padding:13px}.member-zone-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.member-zone-match{font-size:14px;font-weight:750;color:#25272c}.member-zone-badge{flex:none;padding:3px 7px;border-radius:20px;background:#f3f4f6;color:#596171;font-size:10px;font-weight:700}.member-zone-badge.分歧,.member-zone-badge.谨慎{background:#fff1ec;color:#a3472c}.member-zone-badge.强化{background:#eef7f0;color:#287044}.member-zone-summary{font-size:12px;color:#48534d;line-height:1.65;margin-bottom:9px}.member-zone-row{display:flex;justify-content:space-between;gap:8px;padding-top:7px;border-top:1px solid #f0f1f2;color:#6f7772;font-size:11px;line-height:1.55}.member-zone-row b{color:#2d3731;text-align:right}.member-zone-lock{padding:18px 14px;border-radius:14px;background:#fff;border:1px solid #ececef;text-align:center}.member-zone-lock h3{margin:0 0 7px}.member-zone-lock p{margin:0 0 12px;color:#727780;font-size:12px;line-height:1.7}
+  .member-zone-page{display:grid;gap:10px}.member-zone-intro{padding:15px;border-radius:14px;background:linear-gradient(135deg,#252932,#353943);color:#fff}.member-zone-intro h2{margin:0 0 5px;font-size:17px}.member-zone-intro p{margin:0;color:#cbd1d8;font-size:11px;line-height:1.65}.member-zone-note{margin:0;padding:0 2px;color:#858b94;font-size:10px;line-height:1.6}.member-zone-card{background:#fff;border:1px solid #e8eaed;border-radius:13px;padding:13px}.member-zone-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.member-zone-match{font-size:14px;font-weight:750;color:#25272c}.member-zone-badge{flex:none;padding:3px 7px;border-radius:20px;background:#f3f4f6;color:#596171;font-size:10px;font-weight:700}.member-zone-badge.分歧,.member-zone-badge.谨慎{background:#fff1ec;color:#a3472c}.member-zone-badge.强化,.member-zone-badge.市场确认{background:#eef7f0;color:#287044}.member-zone-summary{font-size:12px;color:#48534d;line-height:1.65;margin-bottom:10px}.member-zone-conclusion{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0 0 10px}.member-zone-kpi{min-width:0;border:1px solid #eceef0;background:#fafafa;border-radius:10px;padding:9px}.member-zone-kpi small{display:block;color:#8a9098;font-size:9px;margin-bottom:4px}.member-zone-kpi strong{display:block;color:#252a2f;font-size:12px;line-height:1.45;overflow-wrap:anywhere}.member-zone-kpi strong.risk-high{color:#b43b32}.member-zone-kpi strong.risk-mid{color:#9b6a1e}.member-zone-model{border-radius:10px;background:#f7f8fa;padding:9px 10px;margin:0 0 9px}.member-zone-model-title{font-size:10px;font-weight:750;color:#555f6a;margin-bottom:5px}.member-zone-model p{margin:3px 0;color:#5f6873;font-size:10px;line-height:1.55}.member-zone-details{border-top:1px solid #eceef0;padding-top:8px}.member-zone-details>summary{cursor:pointer;color:#65707b;font-size:11px;line-height:1.8;list-style:none}.member-zone-details>summary::-webkit-details-marker{display:none}.member-zone-details>summary:after{content:' ▾';font-size:10px}.member-zone-details[open]>summary:after{content:' ▴'}.member-zone-row{display:flex;justify-content:space-between;gap:8px;padding-top:7px;border-top:1px solid #f0f1f2;color:#6f7772;font-size:10px;line-height:1.55}.member-zone-row b{color:#2d3731;text-align:right;font-size:10px}.member-zone-lock{padding:18px 14px;border-radius:14px;background:#fff;border:1px solid #ececef;text-align:center}.member-zone-lock h3{margin:0 0 7px}.member-zone-lock p{margin:0 0 12px;color:#727780;font-size:12px;line-height:1.7}
 
   .profile-page .account-panel .member-account button{margin:0;padding:6px 10px;font-size:11px;background:#eeeeef;color:#555}
   /* Customer feedback: scoped to 我的; never alters match cards or membership access. */
@@ -937,7 +937,8 @@
     function memberPanel(){
       const panel=el('section','member-panel');
       if(!memberInfo){const card=el('div','member-card');card.append(el('h3','','会员状态'),el('p','member-muted','正在核验会员状态…'));panel.append(card);return panel}
-      const expires=memberInfo.memberUntil?new Date(memberInfo.memberUntil).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):null;
+      const expiryRaw=memberInfo.vipActive===true?(memberInfo.vipUntil||memberInfo.memberUntil):memberInfo.memberUntil;
+      const expires=expiryRaw?new Date(expiryRaw).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):null;
       const stateCard=el('div','member-card member-state');
       stateCard.append(el('h3','','我的会员'));
       const label=memberInfo.vipActive===true?(memberInfo.vipName||'尊贵月卡VIP'):memberInfo.legacyGrace?'今日公测体验中':memberInfo.active?'会员有效':'会员已到期';
@@ -1066,54 +1067,83 @@
     function memberOdds3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?Number(x).toFixed(2):'—').join(' / '):'—'}
     function memberSigned3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?(Number(x)>0?'+':'')+Number(x).toFixed(0):'—').join(' / '):'—'}
     function renderMemberZone(){
-      const box=$('content');box.replaceChildren(sectionHead('会员专区','市场深度观察'));
+      const box=$('content');box.replaceChildren(sectionHead('会员专区','尊贵月卡VIP'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
       const page=el('div','member-zone-page'),intro=el('section','member-zone-intro');
-      intro.append(el('h2','',state.memberZone?.title||'今日会员专栏 · 市场深度观察'),
-        el('p','',state.memberZone?.subtitle||'赛前市场结构与模型分歧试运行'));
-      page.append(intro);
-      if(state.memberZoneLoading){page.append(el('div','empty','','正在读取会员专栏…'));box.append(page);return}
+      const version=state.memberZone?.modelVersion||'3.8';
+      intro.append(el('h2','',state.memberZone?.title||'尊贵月卡VIP · 九十刻度综合研判'),
+        el('p','',state.memberZone?.subtitle||(version+'赛前模型 × 威廉赔率 × 必发/竞彩资金行为')));
+      page.append(intro,el('p','member-zone-note','仅使用开球前已冻结的数据参与综合研判；开球后取得的资金数据不会倒填赛前结论。'));
+      if(state.memberZoneLoading){page.append(el('div','empty','','正在读取会员专区…'));box.append(page);return}
       if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
       const rows=state.memberZone?.rows||[];
-      if(!rows.length){page.append(el('div','empty','','今天暂无可发布的会员专栏内容'));box.append(page);return}
+      if(!rows.length){page.append(el('div','empty','','今天暂无可发布的会员专区内容'));box.append(page);return}
+
+      const addKpi=(grid,label,value,cls='')=>{
+        const k=el('div','member-zone-kpi');k.append(el('small','',label),el('strong',cls,String(value||'—')));grid.append(k);
+      };
+      const fmtRisk=(v)=>v==='高'?'risk-high':v==='中'?'risk-mid':'';
+      const handicapText=(h)=>{
+        if(!h)return '未发布';
+        const first=h.top1?(h.top1+(Number.isFinite(Number(h.top1Probability))?' '+Number(h.top1Probability).toFixed(1)+'%':'')):'未发布';
+        const second=h.second?(h.second+(Number.isFinite(Number(h.secondProbability))?' '+Number(h.secondProbability).toFixed(1)+'%':'')):'';
+        return (h.official===null||h.official===undefined?'':('官方 '+(Number(h.official)>0?'+':'')+h.official+' · '))+first+(second?' + '+second:'');
+      };
+
       for(const row of rows){
         const card=el('section','member-zone-card'),head=el('div','member-zone-head');
         head.append(el('div','member-zone-match',(row.no?row.no+' · ':'')+row.home+' vs '+row.away),
           el('span','member-zone-badge '+String(row.status||'观察'),String(row.status||'观察')));
         card.append(head,el('div','member-zone-summary',String(row.summary||'')));
-        const mf=memberPct3(row.market?.currentFair),market=el('div','member-zone-row');
-        market.append(el('span','','威廉市场概率'),el('b','',mf.join(' / ')));card.append(market);
-        const odds=el('div','member-zone-row');
-        odds.append(el('span','','威廉 初盘 → 当前'),el('b','',memberOdds3(row.market?.initialOdds)+' → '+memberOdds3(row.market?.currentOdds)));card.append(odds);
+
+        const c=row.conclusion||{},grid=el('div','member-zone-conclusion');
+        addKpi(grid,c.type||'综合方向',c.direction||'待更新');
+        addKpi(grid,'市场确认',c.marketConfirm||'待确认');
+        addKpi(grid,'平局风险',c.drawRisk||'待确认',fmtRisk(c.drawRisk));
+        addKpi(grid,'资金行为',c.fundBehavior||'待确认');
+        card.append(grid);
+
         if(row.model){
-          const mp=memberPct3(row.model.probability),model=el('div','member-zone-row');
-          model.append(el('span','','胜平负模型'),el('b','',mp.join(' / ')));card.append(model);
-        }
-        if(row.behavior){
-          const pop=el('div','member-zone-row');
-          pop.append(el('span','','做单人气'),el('b','',memberPct3(row.behavior.doerPct).join(' / ')));card.append(pop);
-          const bf=el('div','member-zone-row');
-          bf.append(el('span','','必发成交'),el('b','',memberPct3(row.behavior.betfairShare).join(' / ')));card.append(bf);
-          const jc=el('div','member-zone-row');
-          jc.append(el('span','','竞彩保存'),el('b','',memberPct3(row.behavior.jcSavedShare).join(' / ')));card.append(jc);
-          const hot=el('div','member-zone-row');
-          hot.append(el('span','','冷热指数 · 必发'),el('b','',memberSigned3(row.behavior.betfairHotCold)));card.append(hot);
-          const hotJc=el('div','member-zone-row');
-          hotJc.append(el('span','','冷热指数 · 竞彩'),el('b','',memberSigned3(row.behavior.jcHotCold)));card.append(hotJc);
-          const pl=el('div','member-zone-row');
-          pl.append(el('span','','盈亏指数 · 必发'),el('b','',memberSigned3(row.behavior.betfairProfitIndex)));card.append(pl);
-          const plJc=el('div','member-zone-row');
-          plJc.append(el('span','','盈亏指数 · 竞彩'),el('b','',memberSigned3(row.behavior.jcProfitIndex)));card.append(plJc);
-          const verdict=el('div','member-zone-row');
-          verdict.append(el('span','','市场行为校验'),el('b','',(row.alignment||'独立观察')+' · '+(row.behavior.top1||'—')+' · '+(row.behavior.strength||'—')));card.append(verdict);
+          const model=el('div','member-zone-model');
+          model.append(el('div','member-zone-model-title','九十刻度 '+(row.model.version||version)+' · 已冻结赛前信息'));
+          const mp=memberPct3(row.model.probability);
+          model.append(el('p','','胜平负：'+(row.model.top1||'—')+' '+mp[['主胜','平','客胜'].indexOf(row.model.top1)]+' · 次选 '+(row.model.second||'—')));
+          if(row.model.risk){
+            const riskBits=[row.model.risk.hur?('HUR '+row.model.risk.hur):'',row.model.risk.displayTier||row.model.risk.warning||''].filter(Boolean);
+            if(riskBits.length)model.append(el('p','','风险：'+riskBits.join(' · ')));
+          }
+          if(row.model.handicap)model.append(el('p','','让球：'+handicapText(row.model.handicap)));
+          card.append(model);
         }else{
-          const missing=el('div','member-zone-row');
-          missing.append(el('span','','市场行为校验'),el('b','','未形成赛前冻结，不参与结论'));card.append(missing);
+          const model=el('div','member-zone-model');
+          model.append(el('div','member-zone-model-title','九十刻度 '+version),
+            el('p','','模型方向：待更新；当前市场行为不会替代正式3.8方向。'));
+          card.append(model);
         }
-        page.append(card);
+
+        const details=el('details','member-zone-details');
+        details.append(el('summary','','查看赔率 / 必发 / 竞彩明细'));
+        const mf=memberPct3(row.market?.currentFair),market=el('div','member-zone-row');
+        market.append(el('span','','威廉市场概率'),el('b','',mf.join(' / ')));details.append(market);
+        const odds=el('div','member-zone-row');
+        odds.append(el('span','','威廉 初盘 → 当前'),el('b','',memberOdds3(row.market?.initialOdds)+' → '+memberOdds3(row.market?.currentOdds)));details.append(odds);
+        if(row.behavior){
+          const pop=el('div','member-zone-row');pop.append(el('span','','做单人气'),el('b','',memberPct3(row.behavior.doerPct).join(' / ')));details.append(pop);
+          const bf=el('div','member-zone-row');bf.append(el('span','','必发成交'),el('b','',memberPct3(row.behavior.betfairShare).join(' / ')));details.append(bf);
+          const jc=el('div','member-zone-row');jc.append(el('span','','竞彩保存'),el('b','',memberPct3(row.behavior.jcSavedShare).join(' / ')));details.append(jc);
+          const hot=el('div','member-zone-row');hot.append(el('span','','冷热 · 必发'),el('b','',memberSigned3(row.behavior.betfairHotCold)));details.append(hot);
+          const hotJc=el('div','member-zone-row');hotJc.append(el('span','','冷热 · 竞彩'),el('b','',memberSigned3(row.behavior.jcHotCold)));details.append(hotJc);
+          const pl=el('div','member-zone-row');pl.append(el('span','','盈亏指数 · 必发'),el('b','',memberSigned3(row.behavior.betfairProfitIndex)));details.append(pl);
+          const plJc=el('div','member-zone-row');plJc.append(el('span','','盈亏指数 · 竞彩'),el('b','',memberSigned3(row.behavior.jcProfitIndex)));details.append(plJc);
+          const verdict=el('div','member-zone-row');verdict.append(el('span','','交叉校验'),el('b','',(row.alignment||'独立观察')+' · '+(row.behavior.top1||'—')+' · '+(row.behavior.strength||'—')));details.append(verdict);
+        }else{
+          const missing=el('div','member-zone-row');missing.append(el('span','','必发 / 竞彩资金'),el('b','','未形成开球前冻结，不参与研判'));details.append(missing);
+        }
+        card.append(details);page.append(card);
       }
       box.append(page);
     }
+
     async function loadMemberZone(){
       if(memberInfo?.vipActive!==true)return;
       state.memberZoneLoading=true;state.memberZoneError=null;renderMemberZone();
