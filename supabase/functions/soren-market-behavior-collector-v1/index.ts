@@ -215,22 +215,37 @@ function parseBehavior(html:string, expectedHome:string, expectedAway:string) {
 }
 
 async function getHtml(url:string, timeout=15000) {
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), timeout);
-  try {
-    const r = await fetch(url,{headers:WEB_HEADERS,signal:controller.signal,redirect:"follow"});
-    if (!r.ok) throw new Error("HTTP_"+r.status);
-    const buf=await r.arrayBuffer();
-    const ct=String(r.headers.get("content-type")??"").toLowerCase();
-    const declared=(ct.match(/charset=([^;\s]+)/)?.[1]??"").toLowerCase();
-    const preferred=/gb2312|gbk|gb18030/.test(declared)?"gb18030":"utf-8";
-    let text=new TextDecoder(preferred).decode(buf);
-    if(preferred==="utf-8"){
-      const bad=(text.match(/�/g)||[]).length;
-      if(bad>3)text=new TextDecoder("gb18030").decode(buf);
-    }
-    return text;
-  } finally { clearTimeout(timer); }
+  let lastError:unknown=null;
+  for(let attempt=0;attempt<3;attempt++){
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), timeout);
+    try {
+      const headers={...WEB_HEADERS,"referer":"https://www.okooo.com/jingcai/","cache-control":"no-cache"};
+      const r = await fetch(url,{headers,signal:controller.signal,redirect:"follow"});
+      if (!r.ok) {
+        lastError=new Error("HTTP_"+r.status);
+        if([403,405,408,425,429,500,502,503,504].includes(r.status)&&attempt<2){
+          await new Promise(resolve=>setTimeout(resolve,450*(attempt+1)));
+          continue;
+        }
+        throw lastError;
+      }
+      const buf=await r.arrayBuffer();
+      const ct=String(r.headers.get("content-type")??"").toLowerCase();
+      const declared=(ct.match(/charset=([^;\s]+)/)?.[1]??"").toLowerCase();
+      const preferred=/gb2312|gbk|gb18030/.test(declared)?"gb18030":"utf-8";
+      let text=new TextDecoder(preferred).decode(buf);
+      if(preferred==="utf-8"){
+        const bad=(text.match(/�/g)||[]).length;
+        if(bad>3)text=new TextDecoder("gb18030").decode(buf);
+      }
+      return text;
+    } catch(e) {
+      lastError=e;
+      if(attempt<2)await new Promise(resolve=>setTimeout(resolve,450*(attempt+1)));
+    } finally { clearTimeout(timer); }
+  }
+  throw lastError??new Error("FETCH_FAILED");
 }
 
 function beijingDate(d=new Date()) {
