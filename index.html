@@ -1934,7 +1934,19 @@
       };
     }
     function appendRiskStrip(card,row){
-      if(row.highDrawRisk===true){
+      const highDrawFallback=(()=>{
+        const draw=Number(row.drawProbability??row.drawPct??row.draw_pct);
+        const drawPct=Number.isFinite(draw)?(draw<=1?draw*100:draw):null;
+        const official=Number(row.officialHandicap);
+        const first=String(row.handicapTop1??row.handicap??'').trim();
+        const second=String(row.handicapSecond??'').trim();
+        const p1=Number(row.handicapProbability??row.handicap_probability);
+        const p2=Number(row.handicapSecondProbability??row.handicap_second_probability);
+        const valid=v=>['让胜','让平','让负','HWIN','HDRAW','HLOSS'].includes(v);
+        return row.pregameVerified===true&&drawPct!==null&&drawPct>=29&&official===-1&&
+          valid(first)&&valid(second)&&Number.isFinite(p1)&&Number.isFinite(p2);
+      })();
+      if(row.highDrawRisk===true||highDrawFallback){
         const strip=el('div','risk-inline focus');
         const main=el('div','risk-inline-main');
         main.append(el('strong','','高平风险'),el('span','','胜平负结构接近，平局风险偏高'));
