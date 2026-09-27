@@ -826,7 +826,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
   if(date<"2026-09-20"||!rows.length)return rows;
   try{
     const {data:matches,error:matchError}=await db.from("soren_matches")
-      .select("id,match_no,kickoff_at").eq("pool_date",date).limit(200);
+      .select("id,match_no,kickoff_at,cutoff_at").eq("pool_date",date).limit(200);
     if(matchError)throw matchError;
     const matchByNo=new Map<string,Record<string,unknown>>();
     const ids:number[]=[];
@@ -904,11 +904,13 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       const formalTop=riskPick(formal?.ft_top1),formalSecond=riskPick(formal?.ft_second);
       const formalDq=String(formal?.dq??"");
       const kick=Date.parse(String(row.kickoff??match.kickoff_at??""));
+      const cutoff=Date.parse(String(row.saleCutoffAt??match.cutoff_at??""));
+      const boundary=Number.isFinite(cutoff)&&Number.isFinite(boundary)&&cutoff<kick?cutoff:kick;
 
       // Public risk is anchored to the immutable formal prediction. If a later
       // upstream refresh changes the Top1, retain it in the ledger for audit but
-      // serve the latest pre-kickoff warning that still matches the formal Top1.
-      if(date>="2026-09-26"&&formalTop&&Number.isFinite(formalAt)&&Number.isFinite(kick)){
+      // serve the latest pre-freeze warning that still matches the formal Top1.
+      if(date>="2026-09-26"&&formalTop&&Number.isFinite(formalAt)&&Number.isFinite(boundary)){
         const currentTop=riskPick(raw.originalTop1??raw.original_top1);
         const servedAt=Date.parse(String(row.frozenAt??""));
         const warningAt=Date.parse(String(raw.prematchAt??raw.prematch_at??""));
@@ -923,7 +925,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
             const basis=Array.isArray(x.risk_basis)?x.risk_basis:[];
             const marketEvidence=gate.market_anomaly===true||
               basis.some(v=>/竞彩HAD首选.*与William原始首选.*冲突|升赔|退盘/.test(String(v??"")));
-            return candidateTop===formalTop&&marketEvidence&&Number.isFinite(at)&&at>=formalAt&&at<kick;
+            return candidateTop===formalTop&&marketEvidence&&Number.isFinite(at)&&at>=formalAt&&at<boundary;
           });
           if(stable)raw=publicWarning(stable);
         }
@@ -937,13 +939,13 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(!generalCandidate)return row;
       const freezeAt=String(raw.prematchAt??raw.prematch_at??row.frozenAt??"");
       const cut=Date.parse(freezeAt);
-      if(!Number.isFinite(cut)||!Number.isFinite(kick)||cut>=kick)return row;
+      if(!Number.isFinite(cut)||!Number.isFinite(boundary)||cut>=boundary)return row;
       const top=riskPick(raw.originalTop1??raw.original_top1??row.ftTop1);
       const rowFreeze=Date.parse(String(row.frozenAt??""));
       const rowTop=riskPick(row.ftTop1),rowSecond=riskPick(row.second);
       const rowRisk=(row.risk&&typeof row.risk==="object"?row.risk:{}) as Record<string,unknown>;
       const servedDq=String(rowRisk.dq??formalDq??"");
-      // The customer page serves the newest verified pre-kickoff snapshot, which can
+      // The customer page serves the newest verified pre-freeze snapshot, which can
       // legitimately be newer than soren_predictions. When the warning belongs to
       // that exact served snapshot, evaluate the visible Top1/Top2 pair instead of
       // forcing an older formal-prediction pair and suppressing a real H/A split.
@@ -959,13 +961,13 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       const historicalSecond=rowSecond??formalSecond;
       const historicalEligible=historicalReplay&&row.pregameVerified===true&&
         ["DQ-A","DQ-B"].includes(historicalDq)&&
-        Number.isFinite(historicalPredictionAt)&&historicalPredictionAt<kick&&historicalPredictionAt<=cut&&
-        Number.isFinite(cut)&&cut<kick&&
+        Number.isFinite(historicalPredictionAt)&&historicalPredictionAt<boundary&&historicalPredictionAt<=cut&&
+        Number.isFinite(cut)&&cut<boundary&&
         historicalTop===top&&historicalSecond===second;
-      const formalStoreEligible=!historicalReplay&&!!formal&&Number.isFinite(formalAt)&&formalAt<kick&&
+      const formalStoreEligible=!historicalReplay&&!!formal&&Number.isFinite(formalAt)&&formalAt<boundary&&
         ["DQ-A","DQ-B"].includes(formalDq)&&formalTop===top&&formalSecond===second;
       const servedPredictionEligible=!historicalReplay&&row.pregameVerified===true&&
-        Number.isFinite(rowFreeze)&&rowFreeze<kick&&Number.isFinite(cut)&&
+        Number.isFinite(rowFreeze)&&rowFreeze<boundary&&Number.isFinite(cut)&&
         Math.abs(rowFreeze-cut)<=300000&&["DQ-A","DQ-B"].includes(servedDq)&&
         rowTop===top&&rowSecond===second;
       const formalPredictionEligible=!historicalReplay&&(formalStoreEligible||servedPredictionEligible);
@@ -976,7 +978,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         const lowDqBasis=Array.isArray(raw.riskBasis)?raw.riskBasis:(Array.isArray(raw.risk_basis)?raw.risk_basis:[]);
         const lowDqMarketAnomaly=lowDqBasis.some(v=>/竞彩HAD首选.*与William原始首选.*冲突|升赔|退盘/.test(String(v??"")));
         const riskDisplayEligible=!historicalReplay&&row.pregameVerified===true&&
-          Number.isFinite(rowFreeze)&&rowFreeze<kick&&Number.isFinite(cut)&&Math.abs(rowFreeze-cut)<=300000&&
+          Number.isFinite(rowFreeze)&&rowFreeze<boundary&&Number.isFinite(cut)&&Math.abs(rowFreeze-cut)<=300000&&
           rowTop===top&&oppositeSecond;
         const lowDqDisplayTier=riskDisplayEligible?(lowDqMarketAnomaly?"强风险信号":"重点风险"):null;
         return {...row,upsetWarning:{...raw,
@@ -1687,7 +1689,10 @@ async function paidMemberZone(date:string){
   const asiaSources=["zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31"];
   for(const m of list){
     const id=Number(m.id),kick=Date.parse(String(m.kickoff_at));
-    const pre=(markets??[]).filter((q:any)=>Number(q.match_id)===id&&Date.parse(String(q.captured_at))<kick);
+    const rt=runtimeByNo.get(String(m.match_no??"").padStart(3,"0"))??null;
+    const cutoffCandidate=Date.parse(String(rt?.saleCutoffAt??""));
+    const freezeBoundary=Number.isFinite(cutoffCandidate)&&cutoffCandidate<kick?cutoffCandidate:kick;
+    const pre=(markets??[]).filter((q:any)=>Number(q.match_id)===id&&Date.parse(String(q.captured_at))<freezeBoundary);
     for(const typ of ["initial","current"]){
       const x=pre.find((q:any)=>q.source_code==="zucaijia_william"&&q.market_type==="FT_1X2"&&q.snapshot_type===typ);
       if(x)marketBy.set(id+"|"+typ,x);
@@ -1717,9 +1722,13 @@ async function paidMemberZone(date:string){
       };
     }).filter(Boolean);
     if(asian.length)asiaBy.set(id,asian as any[]);
-    const b=(behaviors??[]).find((x:any)=>Number(x.match_id)===id&&x.prematch_verified===true&&Date.parse(String(x.captured_at))<kick);
+    const b=(behaviors??[]).find((x:any)=>Number(x.match_id)===id&&x.prematch_verified===true&&Date.parse(String(x.captured_at))<freezeBoundary);
     if(b)behaviorBy.set(id,b);
-    const intel=(intelRows??[]).filter((x:any)=>Number(x.match_id)===id&&Date.parse(String(x.fetched_at))<kick);
+    const intel=(intelRows??[]).filter((x:any)=>{
+      const fetched=Date.parse(String(x.fetched_at));
+      const published=Date.parse(String(x.published_at??x.fetched_at));
+      return Number(x.match_id)===id&&Number.isFinite(fetched)&&Number.isFinite(published)&&fetched<freezeBoundary&&published<freezeBoundary;
+    });
     if(intel.length)intelBy.set(id,intel);
   }
 
