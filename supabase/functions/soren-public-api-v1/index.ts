@@ -1614,8 +1614,81 @@ Deno.serve(async (req: Request) => {
       const revision = date === "2026-09-13" ? "3.2-native-pass-v0.1.1-20260913" : "3.3-best-play-selector-v1.0-20260914";
       return reply({ok:true,view,date,count:rows.length,model:"索伦引擎",modelVersion:version,revision,batchTime:null,dataTime:full.at(-1)?.frozenAt??null,pregameVerifiedCount:rows.length,handicapStats,upsetStats:upsetStatsFor(rows),updatedAt:new Date().toISOString(),rows:rows.map(attachScoreGoalReference)});
     }
-    // Past dates are immutable customer history: read the already locked local snapshots
-    // instead of calling the mother model again. Today's live path is intentionally unchanged.
+    // Locked past pools can serve frozen pre-match analysis directly while still
+    // overlaying verified results on every request. This keeps yesterday's unfinished
+    // fixtures live without rebuilding the full analysis stack for the whole day.
+    const fastLockedArchive=view==="archive"&&!!date&&date<beijingToday&&date>="2026-09-23";
+    if(fastLockedArchive){
+      try{
+        const {data:fastRows,error:fastError}=await db.rpc("soren_fast_locked_archive_rows_v1",{p_date:date});
+        if(fastError)throw fastError;
+        if(Array.isArray(fastRows)&&fastRows.length){
+          const modelVersion=String((fastRows as Record<string,unknown>[]).find(r=>r.version)?.version??"");
+          const revision=allowed.get(modelVersion);
+          if(revision){
+            const databaseResults=await loadVerifiedResults(date);
+            const pick=(v:unknown)=>({"主胜":"H","平":"D","客胜":"A","3":"H","1":"D","0":"A",H:"H",D:"D",A:"A"}[String(v??"")]??null);
+            let rows=(fastRows as Record<string,unknown>[]).map(row=>{
+              const no=String(row.no??"").padStart(3,"0");
+              const stored=databaseResults.get(no);
+              if(!stored){
+                return {...row,resultVerified:false,result:null,resultHome:null,resultAway:null,resultScore:null,
+                  resultSource:null,resultVerifiedAt:null,top1Hit:null,coverageHit:null,handicapResult:null,
+                  handicapTop1Hit:null,handicapCoverageHit:null,handicapHit:null};
+              }
+              const actual=String(stored.ft_result??"");
+              const primary=pick(row.ftTop1),secondary=pick(row.second);
+              const handicapActual=handicapName[String(stored.handicap_result??"")]??null;
+              return {...row,
+                resultVerified:true,result:actual,
+                resultHome:Number(stored.home_score),resultAway:Number(stored.away_score),
+                resultScore:String(stored.home_score)+"-"+String(stored.away_score),
+                resultSource:stored.result_source??"客户库已核验赛果",
+                resultVerifiedAt:stored.verified_at??null,
+                top1Hit:primary===actual,coverageHit:primary===actual||secondary===actual,
+                handicapResult:handicapActual
+              };
+            }).map(settlePublishedScoreTop4).map(settleTop5Handicap).map(attachScoreGoalReference);
+
+            // Daily selection is the only customer-facing layer not embedded in the prematch snapshots.
+            // Rebuild just this thin layer; do not rerun the full risk/model pipeline.
+            rows=await attachDailySupplementLayer(rows,date);
+
+            try{
+              const [htftPublished,historicalHTFT]=await Promise.all([
+                loadPublishedHTFTTop4(date),
+                loadHistoricalHTFTTop4(date),
+              ]);
+              rows=rows
+                .map((r:Record<string,unknown>)=>attachPublishedHTFTTop4(r,htftPublished,databaseResults))
+                .map((r:Record<string,unknown>)=>attachHistoricalHTFTTop4(r,historicalHTFT,databaseResults));
+              rows=await attachLiveHTFT(rows,date,databaseResults);
+            }catch(htftError){
+              console.error("FAST_ARCHIVE_HTFT_UNAVAILABLE",htftError);
+            }
+
+            const handicapStats=buildHandicapStats(rows);
+            const dataTimes=rows.map(r=>Date.parse(String(r.frozenAt??""))).filter(Number.isFinite);
+            return reply({
+              ok:true,view,date,count:rows.length,model:"索伦引擎",
+              modelVersion,revision,batchTime:null,
+              dataTime:dataTimes.length?new Date(Math.max(...dataTimes)).toISOString():null,
+              pregameVerifiedCount:rows.filter(r=>r.pregameVerified===true).length,
+              handicapStats,
+              upsetStats:upsetStatsFor(rows),
+              dailySelectionStats:dailySelectionStatsFor(rows),
+              warningSync:{synced:0,readOnly:true,replayMode:"LOCKED_ARCHIVE_LIVE_RESULTS"},
+              updatedAt:new Date().toISOString(),
+              rows,
+            });
+          }
+        }
+      }catch(fastArchiveError){
+        console.error("FAST_LOCKED_ARCHIVE_FALLBACK",fastArchiveError);
+      }
+    }
+
+    // Fully settled fallback path retained for dates that do not yet have complete fast snapshots.
     const archiveReadOnly=view==="archive"&&!!date&&date<beijingToday&&date>="2026-09-23"&&await archiveDayFullySettled(date);
     let data:any=null;
     if(archiveReadOnly){
