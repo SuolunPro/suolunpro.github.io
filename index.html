@@ -1267,8 +1267,7 @@
     }
 
     function memberZoneDate(){
-      const candidate=state.selectedDate||state.baseDate||beijingToday();
-      return /^\d{4}-\d{2}-\d{2}$/.test(String(candidate||''))?String(candidate):beijingToday();
+      return state.baseDate||state.today?.date||state.selectedDate||beijingToday();
     }
 
     async function loadMemberZone(silent=false){
