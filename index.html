@@ -185,7 +185,7 @@
   
     .report-venue{font-weight:700;font-size:14px;color:#203a31;margin-bottom:10px;overflow-wrap:anywhere}.report-weather-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.report-weather-cell{background:#f2f6f3;border-radius:9px;padding:9px 4px;min-width:0;text-align:center}.report-weather-cell small{font-size:10px;color:#718075;display:block;margin-bottom:5px}.report-weather-cell strong{font-size:14px;color:#203a31;white-space:nowrap}@media(max-width:360px){.report-weather-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   
-    .report-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;min-height:32px}.report-meta-left{flex:1;min-width:0;text-align:left}.report-weather-anchor:empty{display:none}.report-weather-pill{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:6px 9px;max-width:164px;text-align:right;color:#fff}.report-weather-pill small{display:block;color:#c6e0d5;font-size:10px;line-height:1.5}.report-weather-pill strong{display:block;font-size:12px;line-height:1.5;white-space:normal;overflow-wrap:anywhere}.report-venue-line{margin:6px 0 0;font-size:11px;color:#c6d8d0;line-height:1.5;overflow-wrap:anywhere}
+    .report-hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;min-height:32px}.report-meta-left{flex:1;min-width:0;text-align:left}.report-weather-anchor:empty{display:none}.report-weather-pill{background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:6px 9px;max-width:164px;text-align:right;color:#fff}.report-weather-pill small{display:block;color:#c6e0d5;font-size:10px;line-height:1.5}.report-weather-pill strong{display:block;font-size:12px;line-height:1.5;white-space:normal;overflow-wrap:anywhere}.report-venue-line{margin:6px 0 0;font-size:11px;color:#c6d8d0;line-height:1.5;overflow-wrap:anywhere}.report-env-impact-line{margin:3px 0 0;font-size:11px;color:#d8e8e1;line-height:1.5;overflow-wrap:anywhere}.report-env-impact-line b{color:#fff;font-weight:800}
   
     .score-top4-provenance{margin-top:8px;color:#777;font-size:10px;line-height:1.6}.score-top4-provenance summary{cursor:pointer;display:inline-block;text-decoration:underline;text-underline-offset:3px}.score-top4-provenance p{margin:5px 0 0}
   
@@ -2377,6 +2377,25 @@
       if(['hybrid','hybrid grass','hybrid turf'].includes(normalized))return '混合草皮';
       return null;
     }
+    function summarizeEnvironmentImpact(environment){
+      const num=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
+      const temp=num(environment?.temperatureC),humidity=num(environment?.humidityPct);
+      const rain=num(environment?.precipitationProbabilityPct),wind=num(environment?.windKmh);
+      const surface=chinesePitchSurface(environment?.pitchSurface);
+      const candidates=[];
+      const add=(level,score,text)=>candidates.push({level,score,text});
+      if(temp!==null&&humidity!==null&&temp>=32&&humidity>=80)add('高',100,'高温高湿，比赛后段体能影响值得关注');
+      else if(temp!==null&&temp>=35)add('高',95,'高温明显，体能消耗可能显著增加');
+      if(wind!==null&&wind>=35)add('高',92,'风力较强，传球、传中与高空球稳定性可能受明显影响');
+      if(temp!==null&&humidity!==null&&temp>=30&&humidity>=70)add('中',76,'高温高湿，体能消耗可能增加');
+      else if(temp!==null&&temp>=30)add('中',72,'气温偏高，体能消耗可能增加');
+      if(wind!==null&&wind>=20)add('中',70,'风力偏强，长传与高空球稳定性需留意');
+      if(rain!==null&&rain>=65)add('中',66,'降雨概率较高，场地与技术动作稳定性需留意');
+      if(surface==='人工草地')add('中',62,'人工草，球速与反弹节奏可能不同');
+      if(!candidates.length)return {level:'低',text:'比赛条件正常'};
+      candidates.sort((a,b)=>b.score-a.score);
+      return {level:candidates[0].level,text:candidates[0].text};
+    }
     function renderHeroWeather(environment){
       const hero=$('detailCard')?.querySelector('.report-hero');
       const anchor=hero?.querySelector('.report-weather-anchor');
@@ -2408,6 +2427,11 @@
       if(environment.venueCity)venue.append(el('span','',' · '+String(environment.venueCity)));
       venue.title='球场原名：'+String(environment.venueName)+'。'+(environment.venueRecoveredAfterKickoff?'球场资料在赛后核验；没有可核验的赛前天气。':'球场及草皮来自已核验的场地资料；若有天气数值，来源为 Open-Meteo 赛前预报。');
       hero.append(venue);
+      const impact=summarizeEnvironmentImpact(environment);
+      const impactLine=el('div','report-env-impact-line');
+      impactLine.append(el('b','','环境影响：'+impact.level),document.createTextNode(' · '+impact.text));
+      impactLine.title='根据已核验的天气与草地条件生成的辅助提示，不单独代表胜负或进球数。';
+      hero.append(impactLine);
     }
 
     // Uses the already validated day-list snapshot. No new API call on detail open.
