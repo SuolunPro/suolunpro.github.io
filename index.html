@@ -1179,6 +1179,7 @@
       const box=$('content');box.replaceChildren(sectionHead('今日冷门识别','尊贵月卡VIP'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
       const page=el('div','member-zone-page');
+      page.append(el('p','member-zone-note','冷门预警会随赛前市场变化持续更新。单次波动不会直接触发，需经过连续异常或多源确认后才发布；停售/赛前冻结后不再调整。'));
       if(state.memberZoneLoading){page.append(el('div','empty','','正在读取冷门识别…'));box.append(page);return}
       if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
       const rows=state.memberZone?.rows||[];
