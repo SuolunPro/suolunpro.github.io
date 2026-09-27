@@ -1734,9 +1734,20 @@
         const picksLine=el('div','risk-inline-handicap-line');
         picksLine.append(el('strong','','让球保护'));
         const picks=el('div','risk-inline-handicap-picks');
-        picks.append(el('span','risk-inline-handicap-pick',String(row.marketProtectionFirst??(official<0?'让负':'让胜'))));
+        const protectionFirst=String(row.marketProtectionFirst??(official<0?'让负':'让胜'));
+        const protectionSecond=String(row.marketProtectionSecond??'让平');
+        const frozenTop1=String(row.handicapTop1??row.handicap_pick??row.handicapPick??'');
+        const frozenSecond=String(row.handicapSecond??'');
+        const top1Pct=Number(row.handicapProbability);
+        const secondPct=Number(row.handicapSecondProbability);
+        const result=String(row.handicapResult??'');
+        const firstPct=(protectionFirst===frozenTop1&&Number.isFinite(top1Pct))?top1Pct:((protectionFirst===frozenSecond&&Number.isFinite(secondPct))?secondPct:null);
+        const secondPctShown=(protectionSecond===frozenTop1&&Number.isFinite(top1Pct))?top1Pct:((protectionSecond===frozenSecond&&Number.isFinite(secondPct))?secondPct:null);
+        const firstText=protectionFirst+(firstPct!==null?' '+probability(firstPct):'')+(result===protectionFirst?' ✅':'');
+        const secondText=protectionSecond+(secondPctShown!==null?' '+probability(secondPctShown):'')+(result===protectionSecond?' ✅':'');
+        picks.append(el('span','risk-inline-handicap-pick'+(result===protectionFirst?' hit':''),firstText));
         picks.append(el('span','risk-inline-handicap-sep',' + '));
-        picks.append(el('span','risk-inline-handicap-pick',String(row.marketProtectionSecond??'让平')));
+        picks.append(el('span','risk-inline-handicap-pick'+(result===protectionSecond?' hit':''),secondText));
         picksLine.append(picks);had.append(picksLine);strip.append(had);card.append(strip);return;
       }
       const info=upsetInfo(row);if(!info)return;
