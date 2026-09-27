@@ -1718,6 +1718,34 @@
       };
     }
     function appendRiskStrip(card,row){
+      if(row.highDrawRisk===true){
+        const strip=el('div','risk-inline focus');
+        const main=el('div','risk-inline-main');
+        main.append(el('strong','','高平风险'),el('span','','平局风险偏高'));
+        strip.append(main);
+        const had=el('div','risk-inline-handicap');
+        const official=Number(row.officialHandicap);
+        const officialText=Number.isFinite(official)
+          ?'主队 '+(official>0?'+':'')+(Number.isInteger(official)?official:official.toFixed(2).replace(/0+$/,'').replace(/\.$/,''))
+          :'未确认';
+        const officialLine=el('div','risk-inline-handicap-line');
+        officialLine.append(el('strong','','官方让球'),el('span','',officialText));had.append(officialLine);
+        const pickLabel=v=>({HWIN:'让胜',HDRAW:'让平',HLOSS:'让负'})[String(v??'').trim()]||String(v??'').trim();
+        const first=pickLabel(row.handicapTop1??row.handicap),second=pickLabel(row.handicapSecond);
+        const p1=Number(row.handicapProbability??row.handicap_probability);
+        const p2=Number(row.handicapSecondProbability??row.handicap_second_probability);
+        const result=verified(row)?effectiveHandicapResult(row):null;
+        const picksLine=el('div','risk-inline-handicap-line');picksLine.append(el('strong','','让球保护'));
+        const picks=el('div','risk-inline-handicap-picks');
+        const firstText=first+(Number.isFinite(p1)?' '+probability(p1):'')+(result===first?' ✅':'');
+        picks.append(el('span','risk-inline-handicap-pick'+(result===first?' hit':''),firstText));
+        if(validHandicapPick(second)&&Number.isFinite(p2)){
+          picks.append(el('span','risk-inline-handicap-sep',' + '));
+          const secondText=second+' '+probability(p2)+(result===second?' ✅':'');
+          picks.append(el('span','risk-inline-handicap-pick'+(result===second?' hit':''),secondText));
+        }
+        picksLine.append(picks);had.append(picksLine);strip.append(had);card.append(strip);
+      }
       if(row.marketDirectionAnomaly===true){
         const strip=el('div','risk-inline strong');
         const main=el('div','risk-inline-main');
