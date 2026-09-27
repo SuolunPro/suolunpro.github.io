@@ -1672,16 +1672,17 @@ async function paidMemberZone(date:string){
       .eq("pool_date",date).eq("prematch_verified",true).order("captured_at",{ascending:false}).limit(300),
     db.from("soren_intelligence_reports_v1")
       .select("match_id,source_code,source_url,headline,published_at,fetched_at,quality,highlights")
-      .eq("pool_date",date).eq("source_code","okooo_public_intel")
-      .eq("quality","okooo_public_prematch_observed")
-      .order("fetched_at",{ascending:false}).limit(100),
+      .eq("pool_date",date)
+      .in("source_code",["okooo_public_intel","sina_xiaopao_attributed"])
+      .in("quality",["okooo_public_prematch_observed","attributed_prematch_article_pair_verified"])
+      .order("fetched_at",{ascending:false}).limit(300),
     db.from("soren_results")
       .select("match_id,home_score,away_score,ft_result,handicap_result,result_source,verified,verified_at")
       .in("match_id",ids)
   ]);
   if(marketError||behaviorError||intelError||resultError)throw marketError||behaviorError||intelError||resultError;
 
-  const marketBy=new Map<string,any>(),officialBy=new Map<number,any>(),asiaBy=new Map<number,any[]>(),behaviorBy=new Map<number,any>(),intelBy=new Map<number,any>(),resultBy=new Map<number,any>();
+  const marketBy=new Map<string,any>(),officialBy=new Map<number,any>(),asiaBy=new Map<number,any[]>(),behaviorBy=new Map<number,any>(),intelBy=new Map<number,any[]>(),resultBy=new Map<number,any>();
   for(const r of resultRows??[])if(r.verified===true)resultBy.set(Number(r.match_id),r);
   const asiaSources=["zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31"];
   for(const m of list){
@@ -1718,8 +1719,8 @@ async function paidMemberZone(date:string){
     if(asian.length)asiaBy.set(id,asian as any[]);
     const b=(behaviors??[]).find((x:any)=>Number(x.match_id)===id&&x.prematch_verified===true&&Date.parse(String(x.captured_at))<kick);
     if(b)behaviorBy.set(id,b);
-    const intel=(intelRows??[]).find((x:any)=>Number(x.match_id)===id&&Date.parse(String(x.fetched_at))<kick);
-    if(intel)intelBy.set(id,intel);
+    const intel=(intelRows??[]).filter((x:any)=>Number(x.match_id)===id&&Date.parse(String(x.fetched_at))<kick);
+    if(intel.length)intelBy.set(id,intel);
   }
 
   const labels=["主胜","平","客胜"];
@@ -1728,7 +1729,7 @@ async function paidMemberZone(date:string){
 
   const rows=list.map((m:any)=>{
     const id=Number(m.id),no=String(m.match_no).padStart(3,"0"),rt=runtimeByNo.get(no)??null;
-    const ini=marketBy.get(id+"|initial"),cur=marketBy.get(id+"|current"),b=behaviorBy.get(id),intelRow=intelBy.get(id)??null,resultRow=resultBy.get(id)??null;
+    const ini=marketBy.get(id+"|initial"),cur=marketBy.get(id+"|current"),b=behaviorBy.get(id),intelRowsForMatch=intelBy.get(id)??[],intelRow=intelRowsForMatch.find((x:any)=>x.source_code==="okooo_public_intel")??intelRowsForMatch[0]??null,resultRow=resultBy.get(id)??null;
     const officialRaw=officialBy.get(id)??{},asianHandicap=asiaBy.get(id)??[];
     const initialFair=fair3(ini?.home_value,ini?.draw_value,ini?.away_value);
     const currentFair=fair3(cur?.home_value,cur?.draw_value,cur?.away_value);
@@ -1825,6 +1826,58 @@ async function paidMemberZone(date:string){
       else if(drawSignal||(drawProb!==null&&drawProb>=27))drawRisk="中";
     }
 
+    // Prematch intelligence normalization: merge structured Okooo summaries with
+    // verified Sina/Xiaopao headlines. Medium/high adverse news on the current FT
+    // first-pick side may downgrade confidence, but never reverses a pick by itself.
+    const primaryHighlights=(intelRow?.highlights&&typeof intelRow.highlights==="object"&&!Array.isArray(intelRow.highlights)?intelRow.highlights:{}) as Record<string,any>;
+    const normalizedIntel:any[]=[];
+    for(const ir of intelRowsForMatch){
+      const hi=ir?.highlights;
+      if(hi&&typeof hi==="object"&&!Array.isArray(hi)&&Array.isArray(hi.categories)){
+        for(const raw of hi.categories){
+          if(!raw)continue;
+          normalizedIntel.push({
+            side:String(raw.side??""),
+            type:String(raw.type??"情报"),
+            level:String(raw.level??"低"),
+            impact:String(raw.impact??"中性"),
+            summary:String(raw.summary??""),
+            source:String(ir.source_code??"")
+          });
+        }
+      }
+      if(ir?.source_code==="sina_xiaopao_attributed"){
+        const headline=String(ir.headline??"").trim();
+        const adverse=/伤退|伤停|伤缺|缺席|缺阵|停赛|受伤|无法出战|无缘出战|多人缺席|多名重要球员缺席/.test(headline);
+        if(adverse){
+          const homeName=String(m.home_team??"").trim(),awayName=String(m.away_team??"").trim();
+          if(homeName&&headline.includes(homeName))normalizedIntel.push({
+            side:"主队",type:"伤停",level:"中",impact:"利空",summary:headline,source:"sina_xiaopao_attributed"
+          });
+          if(awayName&&headline.includes(awayName))normalizedIntel.push({
+            side:"客队",type:"伤停",level:"中",impact:"利空",summary:headline,source:"sina_xiaopao_attributed"
+          });
+        }
+      }
+    }
+    const seenIntel=new Set<string>();
+    const intelCategories=normalizedIntel.filter((x:any)=>{
+      const k=[x.side,x.type,x.level,x.impact,x.summary].join("|");
+      if(seenIntel.has(k))return false;seenIntel.add(k);return true;
+    });
+    const top1Side=modelTop==="主胜"?"主队":modelTop==="客胜"?"客队":null;
+    const intelAdverse=intelCategories.filter((x:any)=>
+      x&&String(x.impact)==="利空"&&["中","高"].includes(String(x.level))&&
+      top1Side!==null&&String(x.side)===top1Side
+    );
+    const intelligenceRisk=intelAdverse.length>0;
+    const intelligenceRiskReasons=[...new Set(intelAdverse.map((x:any)=>String(x.summary??"")).filter(Boolean))].slice(0,3);
+    const hasHomeAdverse=intelCategories.some((x:any)=>x.impact==="利空"&&["中","高"].includes(String(x.level))&&x.side==="主队");
+    const hasAwayAdverse=intelCategories.some((x:any)=>x.impact==="利空"&&["中","高"].includes(String(x.level))&&x.side==="客队");
+    const intelImpactSide=hasHomeAdverse&&hasAwayAdverse?"双方利空":hasHomeAdverse?"主队利空":hasAwayAdverse?"客队利空":String(primaryHighlights.impact_side??"中性");
+    const intelImpactLevel=intelCategories.some((x:any)=>x.impact==="利空"&&String(x.level)==="高")?"高":
+      intelCategories.some((x:any)=>x.impact==="利空"&&String(x.level)==="中")?"中":String(primaryHighlights.impact_level??"低");
+
     const doubleDirection=(()=>{
       if(codes.includes("H")&&codes.includes("D"))return "主队不败";
       if(codes.includes("A")&&codes.includes("D"))return "客队不败";
@@ -1909,24 +1962,33 @@ async function paidMemberZone(date:string){
     if(drawRisk==="高"&&!summary.includes("平局"))summary+=" 平局风险偏高。";
     else if(drawRisk==="中"&&!summary.includes("平局"))summary+=" 平局风险需留意。";
 
+    if(intelligenceRisk){
+      if(["强化","稳定","市场确认"].includes(status))status="谨慎";
+      const adverseSide=modelTop==="主胜"?"主队":modelTop==="客胜"?"客队":"首选侧";
+      const adverseLevel=intelAdverse.some((x:any)=>String(x.level)==="高")?"高":"中";
+      const detail=intelligenceRiskReasons.length?("："+intelligenceRiskReasons.join("；")):"";
+      summary+=` 赛前情报确认${adverseSide}存在${adverseLevel}等级利空${detail}。该信息与当前${modelTop}方向构成反向校验，已纳入风险降级，但不单独反转方向。`;
+    }
+
     const fundBehavior=behavior
       ?(overheat?(behaviorTop??"热门方向")+"过热":
         drawSignal&&behaviorTop!=="平"?(behaviorTop??"资金")+"占优，平局资金偏热":
         (behaviorTop??"方向未定")+" · "+(behaviorStrength??"弱")+"确认")
       :"赛前资金快照未冻结";
 
-    const ih=(intelRow?.highlights&&typeof intelRow.highlights==="object"?intelRow.highlights:{}) as Record<string,any>;
-    const intelCategories=Array.isArray(ih.categories)?ih.categories:[];
-    const intelligence=intelRow?{
-      source:"澳客公开赛前情报",
-      sourceUrl:intelRow.source_url,
-      fetchedAt:intelRow.fetched_at,
-      impactSide:String(ih.impact_side??"中性"),
-      impactLevel:String(ih.impact_level??"低"),
-      categories:intelCategories.slice(0,5),
-      formation:(ih.formation&&typeof ih.formation==="object")?ih.formation:null,
-      formationUrl:ih.formation_url??null,
-      note:"公开可见信息的结构化摘要，仅作赛前辅助校验"
+    const intelligence=intelRowsForMatch.length?{
+      source:intelRowsForMatch.length>1?"多源赛前情报":(intelRow?.source_code==="okooo_public_intel"?"澳客公开赛前情报":"新浪小炮赛前情报"),
+      sourceUrl:intelRow?.source_url??null,
+      fetchedAt:intelRowsForMatch.map((x:any)=>x.fetched_at).filter(Boolean).sort().slice(-1)[0]??null,
+      impactSide:intelImpactSide,
+      impactLevel:intelImpactLevel,
+      categories:intelCategories.slice(0,8),
+      riskActivated:intelligenceRisk,
+      riskReasons:intelligenceRiskReasons,
+      sources:[...new Set(intelRowsForMatch.map((x:any)=>String(x.source_code??"")).filter(Boolean))],
+      formation:(primaryHighlights.formation&&typeof primaryHighlights.formation==="object")?primaryHighlights.formation:null,
+      formationUrl:primaryHighlights.formation_url??null,
+      note:"赛前多源情报归一化；中/高等级且明确利空当前首选一方时进入风险降级"
     }:null;
     const intelAlignment=(()=>{
       if(!intelligence||!modelTop)return "未参与";
@@ -1941,6 +2003,136 @@ async function paidMemberZone(date:string){
       return "中性";
     })();
     if(intelligence)intelligence.alignment=intelAlignment;
+
+    // VIP shadow upset-recognition layer. It separates "the original Top1 looks unsafe"
+    // from "which alternative result has independent support". It never mutates the formal Top1.
+    const topIdx=modelTop?labels.indexOf(modelTop):-1;
+    const arrVal=(arr:any,idx:number)=>Array.isArray(arr)&&idx>=0&&Number.isFinite(Number(arr[idx]))?Number(arr[idx]):null;
+    const topAvgProb=arrVal(behavior?.avgProbability,topIdx);
+    const topBfShare=arrVal(behavior?.betfairShare,topIdx);
+    const topJcShare=arrVal(behavior?.jcSavedShare,topIdx);
+    const topBfHot=arrVal(behavior?.betfairHotCold,topIdx);
+    const topJcHot=arrVal(behavior?.jcHotCold,topIdx);
+    const topBfProfitIndex=arrVal(behavior?.betfairProfitIndex,topIdx);
+    const topJcProfitIndex=arrVal(behavior?.jcProfitIndex,topIdx);
+    const popularityGap=topAvgProb===null?null:Math.max(
+      topBfShare===null?-999:topBfShare-topAvgProb,
+      topJcShare===null?-999:topJcShare-topAvgProb
+    );
+    const topHeat=Math.max(topBfHot??-999,topJcHot??-999);
+    const topProfitIndex=Math.min(topBfProfitIndex??999,topJcProfitIndex??999);
+    const williamMove=(topIdx>=0&&initialFair&&currentFair)?Number(currentFair[topIdx])-Number(initialFair[topIdx]):null;
+    const popularityDivergence=topIdx>=0&&popularityGap!==null&&popularityGap>=10&&!(williamMove!==null&&williamMove>=1.5);
+    const fundAnomaly=topIdx>=0&&popularityGap!==null&&popularityGap>=5&&topHeat>=15&&topProfitIndex<=-15;
+    const marketConflict=!!modelTop&&!!marketTop&&marketTop!==modelTop;
+    const oddsAnomaly=rt?.marketDirectionAnomaly===true;
+    const modelRiskSignal=hur==="红"||["重点风险","强风险信号"].includes(displayTier);
+    const drawUpsetSignal=modelTop!=="平"&&(highDraw||drawRisk==="高");
+
+    const coldEvidence:string[]=[];
+    const coldDomains:string[]=[];
+    if(intelligenceRisk){coldEvidence.push("首选方情报利空");coldDomains.push("intelligence");}
+    if(popularityDivergence){
+      coldEvidence.push("人气—市场背离"+(popularityGap!==null?(" +"+popularityGap.toFixed(1)+"pp"):""));
+      coldDomains.push("market_behavior");
+    }
+    if(fundAnomaly){
+      coldEvidence.push("必发盈亏结构异常");
+      if(!coldDomains.includes("market_behavior"))coldDomains.push("market_behavior");
+    }
+    if(oddsAnomaly){coldEvidence.push("赔率市场异动");coldDomains.push("market_odds");}
+    else if(marketConflict){coldEvidence.push("威廉方向与Top1分歧");coldDomains.push("market_odds");}
+    if(modelRiskSignal){coldEvidence.push(displayTier==="强风险信号"?"强风险信号":"重点风险/HUR");coldDomains.push("risk_model");}
+    if(drawUpsetSignal){coldEvidence.push("高平风险");coldDomains.push("draw_risk");}
+
+    const strongBehavior=popularityGap!==null&&popularityGap>=15&&topProfitIndex<=-15;
+    let coldLevel="低";
+    if(coldDomains.length===1)coldLevel="留意";
+    if(coldDomains.length===2)coldLevel="中";
+    if(coldDomains.length>=3)coldLevel="高";
+    if(intelligenceRisk&&strongBehavior)coldLevel="高";
+    if(displayTier==="强风险信号"&&coldDomains.length>=2)coldLevel="高";
+
+    const altScores=[0,0,0];
+    const altReasons=[[] as string[],[] as string[],[] as string[]];
+    const addAlt=(pick:any,score:number,reason:string)=>{
+      const idx=labels.indexOf(String(pick??""));
+      if(idx>=0&&idx!==topIdx){altScores[idx]+=score;altReasons[idx].push(reason);}
+    };
+    addAlt(secondTop,0.5,"九十刻度次选");
+    addAlt(marketTop,1,"威廉");
+    addAlt(officialTop,1,"体彩SP");
+    addAlt(behaviorTop,1,"必发/竞彩资金");
+    addAlt(warning?.alternativePick,1,"风险模块");
+    if(drawUpsetSignal||drawSignal)addAlt("平",1,"平局风险");
+    const altRank=altScores.map((v:number,i:number)=>({i,v})).filter((x:any)=>x.i!==topIdx).sort((a:any,b:any)=>b.v-a.v);
+    const bestAlt=altRank[0]??null,secondAlt=altRank[1]??null;
+    const coldDirection=bestAlt&&bestAlt.v>=2&&bestAlt.v-(secondAlt?.v??0)>=0.5?labels[bestAlt.i]:null;
+    const coldDirectionSupport=coldDirection?altReasons[labels.indexOf(coldDirection)]:[];
+    const coldAction=(coldLevel==="高"||coldLevel==="中")
+      ?(coldDirection?("原Top1降级 · 防"+coldDirection):"原Top1降级 · 冷门方向待确认")
+      :"原Top1保留";
+
+    // Customer-facing VIP cold-upset gate:
+    // publish only when the opposite side's unbeaten direction is explicit.
+    // Soft warnings/heat alone stay internal and do not clutter the VIP page.
+    const warningSignals=Array.isArray(warning?.marketSignals)?warning.marketSignals.map((x:any)=>String(x)):[];
+    const asianRetreatSignal=warningSignals.some((x:string)=>/亚洲盘/.test(x)&&/退/.test(x));
+    const verifiedBehaviorScale=String(b?.exchange_scale??"");
+    const trustedBehaviorScale=["适中","较大"].includes(verifiedBehaviorScale);
+    const hardMarketReverse=asianRetreatSignal&&(popularityDivergence||fundAnomaly);
+    const hardRiskReverse=["重点风险","强风险信号"].includes(displayTier)&&fundAnomaly&&trustedBehaviorScale;
+    const vipPublish=["主胜","客胜"].includes(String(modelTop))&&(
+      (intelligenceRisk&&hardMarketReverse)||
+      (hardRiskReverse&&(intelligenceRisk||marketConflict||oddsAnomaly))
+    );
+    const vipUnbeatenDirection=vipPublish
+      ?(modelTop==="主胜"?"客队不败":"主队不败")
+      :null;
+    const vipReferenceIndices=modelTop==="主胜"?[1,2]:modelTop==="客胜"?[0,1]:[];
+    const vipReferencePicks=vipReferenceIndices
+      .map((idx:number)=>({pick:labels[idx],probability:modelProb?Number(modelProb[idx]):null}))
+      .sort((a:any,b:any)=>(Number(b.probability)||0)-(Number(a.probability)||0));
+    const vipEvidence:string[]=[];
+    if(intelligenceRisk)vipEvidence.push("首选方重要利空");
+    if(popularityDivergence)vipEvidence.push("人气过热");
+    if(williamMove!==null&&williamMove<=-1.5)vipEvidence.push("William支持减弱");
+    if(asianRetreatSignal)vipEvidence.push("亚盘退盘");
+    if(["重点风险","强风险信号"].includes(displayTier))vipEvidence.push(displayTier);
+    if(fundAnomaly)vipEvidence.push("资金结构异常");
+
+    const coldRecognition={
+      shadow:true,
+      level:coldLevel,
+      originalTop1:modelTop,
+      direction:coldDirection,
+      directionSupport:coldDirectionSupport,
+      evidence:[...new Set(coldEvidence)],
+      evidenceDomains:[...new Set(coldDomains)],
+      action:coldAction,
+      vipPublish,
+      unbeatenDirection:vipUnbeatenDirection,
+      referencePicks:vipReferencePicks,
+      vipEvidence:[...new Set(vipEvidence)].slice(0,4),
+      gate:{
+        hardMarketReverse,
+        hardRiskReverse,
+        asianRetreatSignal,
+        verifiedBehaviorScale:verifiedBehaviorScale||null,
+        trustedBehaviorScale
+      },
+      popularity:{
+        marketProbability:topAvgProb,
+        betfairShare:topBfShare,
+        sportterySavedShare:topJcShare,
+        gap:popularityGap,
+        heat:topHeat>-900?topHeat:null,
+        profitIndex:topProfitIndex<900?topProfitIndex:null,
+        williamProbabilityMove:williamMove,
+        divergence:popularityDivergence,
+        fundAnomaly
+      }
+    };
 
     const ftCode=String(resultRow?.ft_result??"").toUpperCase();
     const ftActual=({H:"主胜",D:"平",A:"客胜"} as Record<string,string>)[ftCode]??null;
@@ -1990,6 +2182,15 @@ async function paidMemberZone(date:string){
         evaluation={evaluable:false,hit:null,label:"赛果已核验",basis:mode==="PASS"?"PASS不计正式主评测":"无正式主结论"};
       }
     }
+    const coldSettlement=resultRow?.verified===true&&modelTop&&ftActual?{
+      upsetOccurred:ftActual!==modelTop,
+      riskEvaluable:["中","高"].includes(coldLevel),
+      riskHit:["中","高"].includes(coldLevel)?ftActual!==modelTop:null,
+      directionEvaluable:!!coldDirection,
+      directionHit:coldDirection?ftActual===coldDirection:null,
+      vipDirectionEvaluable:vipPublish,
+      vipDirectionHit:vipPublish?ftActual!==modelTop:null
+    }:null;
     const settlement=resultRow?.verified===true?{
       verified:true,
       homeScore:Number(resultRow.home_score),
@@ -2001,10 +2202,11 @@ async function paidMemberZone(date:string){
       verifiedAt:resultRow.verified_at??null,
       evaluation,
       ftEvaluation,
-      handicapEvaluation
+      handicapEvaluation,
+      coldRecognition:coldSettlement
     }:{
       verified:false,homeScore:null,awayScore:null,score:null,ftResult:null,handicapResult:null,source:null,verifiedAt:null,
-      evaluation:null,ftEvaluation:null,handicapEvaluation:null
+      evaluation:null,ftEvaluation:null,handicapEvaluation:null,coldRecognition:null
     };
 
     const coverage={
@@ -2021,6 +2223,7 @@ async function paidMemberZone(date:string){
       highDrawRisk:rt?.highDrawRisk===true,
       highDrawRiskReason:rt?.highDrawRiskReason??null,
       marketDirectionAnomaly:rt?.marketDirectionAnomaly===true,
+      coldRecognition,
       riskRouting:{
         active:!!activeRiskRoute,
         triggered:triggeredRiskLabels,
@@ -2028,7 +2231,8 @@ async function paidMemberZone(date:string){
         protection:activeRiskRoute?.protection??null
       },
       status,summary,alignment,coverage,settlement,
-      conclusion:{type:conclusionType,direction:conclusionDirection,marketConfirm,drawRisk,fundBehavior},
+      conclusion:{type:conclusionType,direction:conclusionDirection,marketConfirm,drawRisk,fundBehavior,
+        intelligenceRisk,intelligenceImpactSide:intelImpactSide,intelligenceImpactLevel:intelImpactLevel},
       market:{institution:"威廉希尔",top1:marketTop,initialOdds:ini?[Number(ini.home_value),Number(ini.draw_value),Number(ini.away_value)]:null,
         currentOdds:cur?[Number(cur.home_value),Number(cur.draw_value),Number(cur.away_value)]:null,
         initialFair,currentFair,capturedAt:cur?.captured_at??ini?.captured_at??null},
@@ -2047,11 +2251,14 @@ async function paidMemberZone(date:string){
     };
   });
 
+  const vipRows=rows.filter((r:any)=>r?.coldRecognition?.vipPublish===true);
   return {
     date,
-    title:"尊贵月卡VIP · 九十刻度综合研判",
-    subtitle:"九十刻度赛前模型 × 威廉赔率 × 必发/竞彩资金行为",
-    rows
+    title:"尊贵月卡VIP · 今日冷门识别",
+    subtitle:"仅展示形成明确不败方向的高价值冷门候选",
+    poolCount:rows.length,
+    publishedCount:vipRows.length,
+    rows:vipRows
   };
 }
 
