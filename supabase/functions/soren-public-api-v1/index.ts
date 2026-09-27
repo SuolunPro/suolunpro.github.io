@@ -1935,15 +1935,25 @@ async function paidMemberZone(date:string){
     let ftEvaluation:{evaluable:boolean,hit:boolean|null,label:string}|null=null;
     let handicapEvaluation:{evaluable:boolean,hit:boolean|null,label:string}|null=null;
     if(resultRow?.verified===true){
-      if(mode==="SINGLE"&&modelTop){
+      if(mode==="DOUBLE"){
+        const effectiveCodes=codes.length?codes:[
+          ({主胜:"H",平:"D",客胜:"A"} as Record<string,string>)[modelTop]??"",
+          ({主胜:"H",平:"D",客胜:"A"} as Record<string,string>)[secondTop]??""
+        ].filter(Boolean);
+        const hit=!!ftCode&&effectiveCodes.includes(ftCode);
+        ftEvaluation={evaluable:true,hit,label:hit?"胜平负覆盖":"胜平负未覆盖"};
+      }else if(modelTop){
         const code=({主胜:"H",平:"D",客胜:"A"} as Record<string,string>)[modelTop]??null;
         const hit=!!code&&code===ftCode;
-        ftEvaluation={evaluable:true,hit,label:hit?"胜平负命中":"胜平负未中"};
-      }else if(mode==="DOUBLE"){
-        const hit=!!ftCode&&codes.includes(ftCode);
-        ftEvaluation={evaluable:true,hit,label:hit?"胜平负覆盖":"胜平负未覆盖"};
+        ftEvaluation={
+          evaluable:true,
+          hit,
+          label:mode==="PASS"
+            ?(hit?"原始胜平负首选命中":"原始胜平负首选未中")
+            :(hit?"胜平负命中":"胜平负未中")
+        };
       }else{
-        ftEvaluation={evaluable:false,hit:null,label:"胜平负仅作参考"};
+        ftEvaluation={evaluable:false,hit:null,label:"无有效胜平负预测"};
       }
 
       const hpicks=[handicapTop1,handicapSecond].filter((x:any)=>["让胜","让平","让负"].includes(String(x)));
@@ -1958,11 +1968,11 @@ async function paidMemberZone(date:string){
         const hit=handicapEvaluation?.hit===true;
         evaluation={evaluable:handicapEvaluation?.evaluable===true,hit:handicapEvaluation?.evaluable===true?hit:null,
           label:handicapEvaluation?.evaluable===true?(hit?"评测成功":"评测未覆盖"):"赛果已核验",basis:"让球保护"};
-      }else if(ftEvaluation?.evaluable===true){
+      }else if(mode!=="PASS"&&ftEvaluation?.evaluable===true){
         const hit=ftEvaluation.hit===true;
         evaluation={evaluable:true,hit,label:hit?"评测成功":"评测未覆盖",basis:"胜平负"};
       }else{
-        evaluation={evaluable:false,hit:null,label:"赛果已核验",basis:"无正式主结论"};
+        evaluation={evaluable:false,hit:null,label:"赛果已核验",basis:mode==="PASS"?"PASS不计正式主评测":"无正式主结论"};
       }
     }
     const settlement=resultRow?.verified===true?{
