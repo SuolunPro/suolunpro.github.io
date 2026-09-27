@@ -1195,12 +1195,27 @@
 
           const basis=el('div','member-zone-eval-basis',
             ev?.evaluable===true
-              ?('本场主评测口径：'+(ev.basis||'正式主结论')+'；另一玩法独立展示，不影响主评测结果。')
+              ?('本场主评测口径：'+(ev.basis||'正式主结论')+'；'+(row.riskRouting?.active?'胜平负风险触发后已转让球，原胜平负仍单独核验。':'另一玩法独立展示，不影响主评测结果。'))
               :ftEv?.evaluable===true
                 ?'本场未纳入正式主评测，但赛前胜平负首选仍独立核验并记录命中/未中。'
                 :'本场没有正式主评测方向；胜平负与让球仅分别展示核验结果。');
           wrap.append(basis);
           card.append(wrap);
+        }
+
+        if(row.riskRouting?.active){
+          const route=el('div','member-zone-model');
+          route.append(el('div','member-zone-model-title','风险转让球'));
+          const line=el('div','member-zone-model-line');
+          line.append(
+            el('span','','触发模块'),
+            el('b','',(Array.isArray(row.riskRouting.triggered)&&row.riskRouting.triggered.length?row.riskRouting.triggered.join(' / '):(row.riskRouting.primary||'风险信号')))
+          );
+          route.append(line);
+          const protect=el('div','member-zone-model-line');
+          protect.append(el('span','','主处理'),el('b','','让球保护 '+(row.riskRouting.protection||'待确认')));
+          route.append(protect);
+          card.append(route);
         }
 
         if(row.model){
