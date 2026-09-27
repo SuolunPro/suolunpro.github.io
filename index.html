@@ -294,6 +294,12 @@
 .member-zone-intel-item{display:flex;gap:7px;align-items:flex-start;margin-top:6px;font-size:10px;line-height:1.55;color:#5b5e61}
 .member-zone-intel-item em{font-style:normal;flex:none;padding:1px 5px;border-radius:8px;background:#eee8df;color:#7a624b;font-size:9px}
 .member-zone-intel-strength{margin-top:7px;padding-top:7px;border-top:1px solid #eee5d7;color:#77716a;font-size:9px;line-height:1.55}
+.member-zone-settlement{margin:8px 0 10px;padding:9px 10px;border-radius:10px;font-size:11px;line-height:1.55;background:#f4f5f6;color:#5f666e}
+.member-zone-settlement.success{background:#edf7ef;color:#267041;font-weight:700}
+.member-zone-settlement.fail{background:#fff1ec;color:#a3472c;font-weight:700}
+.member-zone-settlement.neutral{background:#f4f5f6;color:#666d75}
+.member-zone-settlement small{display:block;margin-top:2px;font-size:9px;font-weight:500;color:inherit;opacity:.82}
+
 
 .member-zone-regular-card .member-zone-conclusion{margin:0 0 8px}
 .member-zone-regular-card .member-zone-sources{margin-top:8px;margin-bottom:0}
@@ -1128,12 +1134,15 @@
         const card=el('article','card member-zone-regular-card');
         const head=el('div','card-head'),id=el('div','match-id');
         id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-        head.append(id,el('span','member-zone-badge '+String(row.status||'观察'),String(row.status||'观察')));
+        const st=row.settlement||{},ev=st.evaluation||null;
+        const badgeText=st.verified?(ev?.label||'赛果已核验'):String(row.status||'观察');
+        const badgeClass=st.verified?(ev?.evaluable===true?(ev.hit===true?'强化':'谨慎'):'观察'):String(row.status||'观察');
+        head.append(id,el('span','member-zone-badge '+badgeClass,badgeText));
 
         const fixture=el('div','fixture'),teams=el('div','team-list');
         [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
         const official=row.model?.handicap?.official;
-        const score=el('div','score','VS');
+        const score=el('div','score',st.verified&&st.score?String(st.score).replace(/\s*:\s*/,':'):'VS');
         score.append(el('span','',official===null||official===undefined?'官方让球 待确认':'官方让球 '+(Number(official)>0?'+':'')+String(official)));
         fixture.append(teams,score);
 
@@ -1149,6 +1158,14 @@
         });
         analysis.append(triplet);
         card.append(head,fixture,analysis);
+
+        if(st.verified){
+          const cls=ev?.evaluable===true?(ev.hit===true?'success':'fail'):'neutral';
+          const box=el('div','member-zone-settlement '+cls,ev?.label||'赛果已核验');
+          const actual=['实际胜平负 '+(st.ftResult||'—'),st.handicapResult?('实际让球 '+st.handicapResult):''].filter(Boolean).join(' · ');
+          if(actual)box.append(el('small','',actual));
+          card.append(box);
+        }
 
         if(row.model){
           const model=el('div','member-zone-model');
@@ -1261,19 +1278,19 @@
     function memberZoneDate(){
       return state.baseDate||state.today?.date||state.selectedDate||beijingToday();
     }
-    async function loadMemberZone(){
+    async function loadMemberZone(silent=false){
       if(memberInfo?.vipActive!==true)return;
       const zoneDate=memberZoneDate();
-      state.memberZoneLoading=true;state.memberZoneError=null;renderMemberZone();
+      if(!silent){state.memberZoneLoading=true;state.memberZoneError=null;renderMemberZone()}
       try{
         const qs=new URLSearchParams({view:'member-zone',date:zoneDate,_:String(Date.now())});
         const r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store'});
         const j=await r.json();
         if(r.status===403&&j.error==='VIP_MEMBERSHIP_REQUIRED'){memberInfo=j.membership||memberInfo;throw Error('该专区仅向尊贵月卡VIP开放')}
         if(!r.ok||j.ok!==true||!j.zone)throw Error(j.error||'会员专区暂不可用');
-        memberInfo=j.membership||memberInfo;state.memberZone=j.zone;
-      }catch(e){state.memberZoneError=e.message||'会员专区暂不可用'}
-      finally{state.memberZoneLoading=false;if(state.tab==='memberzone')renderMemberZone()}
+        memberInfo=j.membership||memberInfo;state.memberZone=j.zone;state.memberZoneError=null;
+      }catch(e){if(!silent)state.memberZoneError=e.message||'会员专区暂不可用'}
+      finally{if(!silent)state.memberZoneLoading=false;if(state.tab==='memberzone')renderMemberZone()}
     }
     const TURNSTILE_SITE_KEY='0x4AAAAAAFBKndRZlD2qH4Km';
     let turnstileLoadPromise=null;
@@ -3440,6 +3457,10 @@
     setInterval(()=>{if(!document.hidden&&authSession?.access_token){refreshAuthSession().then(()=>refreshPublishedData()).catch(e=>console.warn('会话续期暂不可用',e))}},300000);
     setInterval(()=>{if(!document.hidden&&authSession?.access_token)refreshPublishedData().catch(e=>console.warn('赛前数据同步暂不可用',e))},120000);
     async function refreshPublishedData(){
+      if(state.tab==='memberzone'&&memberInfo?.vipActive===true){
+        if(!state.memberZoneLoading)await loadMemberZone(true);
+        return;
+      }
       if(syncInFlight||!state.selectedDate||state.selectedDate===state.futureDate)return;
       // Never poll a fully settled historical day. Results and prematch content are immutable,
       // and re-fetching them was the main cause of lag while browsing 21–25.
