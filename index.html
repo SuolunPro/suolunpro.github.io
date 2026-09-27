@@ -1127,6 +1127,26 @@
         market.append(el('span','','威廉市场概率'),el('b','',mf.join(' / ')));details.append(market);
         const odds=el('div','member-zone-row');
         odds.append(el('span','','威廉 初盘 → 当前'),el('b','',memberOdds3(row.market?.initialOdds)+' → '+memberOdds3(row.market?.currentOdds)));details.append(odds);
+
+        if(row.officialMarket?.had){
+          const had=el('div','member-zone-row');
+          had.append(el('span','','竞彩SP参考'),el('b','',memberOdds3(row.officialMarket.had.odds)+(row.officialMarket.had.top1?' · '+row.officialMarket.had.top1:'')));details.append(had);
+        }
+        if(row.officialMarket?.hhad){
+          const hhad=el('div','member-zone-row'),ln=row.officialMarket.hhad.line;
+          hhad.append(el('span','','竞彩让球SP'),el('b','',(Number.isFinite(Number(ln))?('主'+(Number(ln)>0?'+':'')+Number(ln)):'让球')+' · '+memberOdds3(row.officialMarket.hhad.odds)));details.append(hhad);
+        }
+        if(Array.isArray(row.asianHandicap)&&row.asianHandicap.length){
+          const asia=el('div','member-zone-row');
+          const txt=row.asianHandicap.map(x=>{
+            const iw=Number.isFinite(Number(x.initialHomeWater))&&Number.isFinite(Number(x.initialAwayWater))?' '+Number(x.initialHomeWater).toFixed(2)+'/'+Number(x.initialAwayWater).toFixed(2):'';
+            const cw=Number.isFinite(Number(x.currentHomeWater))&&Number.isFinite(Number(x.currentAwayWater))?' '+Number(x.currentHomeWater).toFixed(2)+'/'+Number(x.currentAwayWater).toFixed(2):'';
+            const il=x.initialLine??'—',cl=x.currentLine??'—';
+            return String(x.institution||'机构')+' '+il+iw+' → '+cl+cw;
+          }).join('；');
+          asia.append(el('span','','亚洲盘4家'),el('b','',txt));details.append(asia);
+        }
+
         if(row.behavior){
           const pop=el('div','member-zone-row');pop.append(el('span','','做单人气'),el('b','',memberPct3(row.behavior.doerPct).join(' / ')));details.append(pop);
           const bf=el('div','member-zone-row');bf.append(el('span','','必发成交'),el('b','',memberPct3(row.behavior.betfairShare).join(' / ')));details.append(bf);
