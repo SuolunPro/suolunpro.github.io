@@ -1315,7 +1315,7 @@
         sub.textContent=kind==='dynamic'
           ?'动态版：冻结进球参数＋赛前威廉希尔欧赔校准 · '+fmtStamp(info.publishedAt)
           :'原始版：初次锁定的赛前进球参数 · '+fmtStamp(info.publishedAt);
-        body.replaceChildren(htftTop4Panel(row,info),htftMethodDisclosure(kind,row,info));
+        body.replaceChildren(htftTop4Panel(row,info));
         if(original&&dynamic){
           const same=original.picks[0]?.direction===dynamic.picks[0]?.direction;
           body.append(el('p','htft-version-compare',
@@ -1391,14 +1391,11 @@
         if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+String(info.halfScore)+'；全场按90分钟正式赛果。'));
       }else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'
         ?'半场赛果尚未核验，不进行对照':'等待赛果 · 暂未对照'));
-      panel.append(el('p','htft-top4-note','独立泊松九项联合计算：上半场使用全场预期进球的45%，下半场55%；不将半场与全场独立相乘。模型概率并非收益承诺。'));
       if(marketShadow){
-        panel.append(el('p','htft-top4-note','泊松来源时间：'+fmtStamp(info.sourceFrozenAt)+'；半全场重算于 '+fmtStamp(info.publishedAt)+'。与本场动态比分及泊松同源；进球预期上下半场比例仍固定为45%/55%。'));
+        panel.append(el('p','htft-top4-note','赛前动态版更新于 '+fmtStamp(info.publishedAt)+'；使用开球前留存数据。'));
       }else if(historical){
-        const sourceLabels={SALE_FREEZE_SCORE_LAMBDA:'既有赛前冻结比分参数',ORIGINAL_PREMATCH_GOAL_LAMBDA:'既有赛前进球参数',ORIGINAL_PREDICTION_SCORE_LAMBDA:'既有赛前冻结比分参数',HISTORICAL_REPLAY_LAMBDA:'历史盲跑回放参数（赛后重建）'};
-        const sourceLabel=sourceLabels[info.originalSourceKind]||'已核验的赛前来源参数';
-        panel.append(el('p','htft-top4-note','原始参数时间：'+fmtStamp(info.sourceFrozenAt)+'；来源：'+sourceLabel+'；半全场补算于 '+fmtStamp(info.reconstructedAt)+'。'));
-      }else panel.append(el('p','htft-top4-note','赛前发布：'+fmtStamp(info.publishedAt)+'；采用已保存的赛前冻结进球参数，不随赛果改写四选。'));
+        panel.append(el('p','htft-top4-note','历史资料回放 · 来源数据冻结于 '+fmtStamp(info.sourceFrozenAt)+'；仅作对照，不计入正式赛前战绩。'));
+      }else panel.append(el('p','htft-top4-note','赛前发布于 '+fmtStamp(info.publishedAt)+'；预测记录已锁定。'));
       return panel;
     }
 
@@ -1449,11 +1446,6 @@
         dyn.setAttribute('aria-pressed',String(kind==='dynamic'));orig.setAttribute('aria-pressed',String(kind==='original'));
         sub.textContent=(kind==='dynamic'?'动态赛前':'原始赛前')+' · '+fmtStamp(info.frozenAt)+' 留存';
         body.replaceChildren(scoreTop4Panel(row,info));
-        const method=el('details','htft-version-method');
-        method.append(el('summary','','查看'+(kind==='dynamic'?'动态赛前':'原始赛前')+'计算依据'),el('p','',scoreVersionMethod(kind,info)));
-        if(kind==='dynamic')method.append(el('p','','原始参数：'+fmtStamp(info.baselineAt)+'；市场数据：'+fmtStamp(info.marketAt)+'；动态预测：'+fmtStamp(info.frozenAt)+'。'));
-        else method.append(el('p','','原始预测冻结：'+fmtStamp(info.frozenAt)+'。'));
-        body.append(method);
         if(original&&dynamic){
           const firstOriginal=String(original.picks[0].score).replace('-',':'),firstDynamic=String(dynamic.picks[0].score).replace('-',':');
           body.append(el('p','score-version-summary','版本对比：原始Top1 '+firstOriginal+' → 动态Top1 '+firstDynamic+
@@ -2140,12 +2132,7 @@
         dynBtn.classList.toggle('active',kind==='dynamic');origBtn.classList.toggle('active',kind==='original');
         dynBtn.setAttribute('aria-pressed',String(kind==='dynamic'));origBtn.setAttribute('aria-pressed',String(kind==='original'));
         sub.textContent=kind==='dynamic'?'动态赛前参数 · '+fmtStamp(g.frozenAt):'原始赛前参数 · '+fmtStamp(g.frozenAt);
-        const method=el('details','htft-version-method');
-        method.append(el('summary','','查看'+(kind==='dynamic'?'动态版':'原始版')+'计算依据'),
-          el('p','',goalMethodText(kind,g)));
-        if(kind==='dynamic')method.append(el('p','','市场数据：'+fmtStamp(g.marketAt)+'；动态参数留存：'+fmtStamp(g.frozenAt)+'。'));
-        else method.append(el('p','','原始进球参数留存：'+fmtStamp(g.frozenAt)+'。'));
-        body.replaceChildren(goalPredictionPanel(row,g),method);
+        body.replaceChildren(goalPredictionPanel(row,g));
         if(original&&dynamic){
           const origTotal=Number(original.lambdaHome)+Number(original.lambdaAway);
           const dynTotal=Number(dynamic.lambdaHome)+Number(dynamic.lambdaAway);
@@ -2176,7 +2163,7 @@
       const panel=el('section','goals-panel');
       const heading=el('div','report-metric-title');
       heading.append(el('h3','','泊松进球 · Top3'),
-        metricHelp('总进球泊松','将双方赛前预期进球相加得到总进球λ，按泊松分布计算各个总进球数的模型概率。预测概率不等于历史命中率；Top1、Top3统计按赛果核验后各算一次。'));
+        metricHelp('总进球概率','展示赛前模型给出的总进球概率分布。预测概率不等于历史命中率；Top1、Top3会在赛果核验后分别评测。'));
       panel.append(heading);
       const lambda=g?publishedGoalLambda({...row,dynamicGoalPrediction:null,goalPrediction:g}):null;
       if(lambda===null){panel.append(el('p','goals-note','赛前总进球参数未确认，不计入本版统计。'));return panel}
@@ -2191,7 +2178,7 @@
         const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
         panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top1 '+(top1?'命中':'未中')+' · Top3 '+(top3?'覆盖':'未覆盖')));
       }else panel.append(el('div','goals-verdict','等待赛果核验'));
-      panel.append(el('p','goals-note','依据赛前留存参数计算总进球概率；赛果核验后每场只评测一次。'));
+      panel.append(el('p','goals-note','赛前数据已留存；赛果核验后每场只评测一次。'));
       return panel;
     }
     function teamOverviewPanel(row){
@@ -2644,7 +2631,7 @@
           }
         }
         if(hasModelOddsProduct){
-          const k=reportSection('模型与赔率对照');
+          const k=reportSection('市场对照');
           const values=report.modelOddsIndex.values.map(Number);
           const names=['主胜','平局','客胜'],higher=values.map((v,i)=>v>1.00005?names[i]:null).filter(Boolean);
           const max=Math.max(...values),leaders=values.map((v,i)=>Math.abs(v-max)<0.00005?names[i]:null).filter(Boolean);
@@ -2656,17 +2643,7 @@
           const summary=el('p','report-sub',headline);
           summary.style.cssText='font-size:13px;line-height:1.6;color:#333;font-weight:650;margin:4px 0 9px';
           k.append(summary);
-          k.append(el('p','report-sub',leaders.length===1?'三项中'+leaders[0]+'数值最高，但不等于该方向最容易发生；请以本场胜平负概率及其他赛前资料为准。':'本项不是胜平负概率排序，不单凭这些数值选定赛果方向。'));
-          reportOddsGrid(k,'模型概率 × 对应欧赔',[...values].map(v=>v.toFixed(4)));
-          const explanation=el('details','report-more');
-          explanation.style.marginTop='9px';
-          explanation.append(el('summary','','这些数值是什么意思？'),
-            el('p','report-sub','计算方式：赛前模型概率（用小数表示）× 对应威廉希尔欧赔。1.0000 是数学对照线；高于它，仅表示这个乘积大于1；低于它，仅表示乘积小于1。'),
-            el('p','report-sub','这不是胜率、机构凯利指数或确定的收益判断；乘积大小不能单独预测胜平负。'),
-            el('p','report-sub','模型概率与赔率的记录时间可能不同，后续赔率仅用于市场对照，不是原始赛前预测输入。'));
-          if(report.modelOddsIndex.probabilityAt)reportLine(explanation,'模型概率冻结于',fmtStamp(report.modelOddsIndex.probabilityAt));
-          if(report.modelOddsIndex.oddsAt)reportLine(explanation,'赔率采集于',fmtStamp(report.modelOddsIndex.oddsAt));
-          k.append(explanation);
+          k.append(el('p','report-sub',leaders.length===1?'当前市场对照中'+leaders[0]+'相对突出；该项仅作辅助参考，最终以胜平负概率、风险提示及赛前资料综合判断。':'当前市场对照未形成单一突出方向；请结合胜平负概率、风险提示及赛前资料查看。'));
           detail.append(k);
         }
         if(hasElo||hasAi){
@@ -2802,9 +2779,8 @@
         panel.append(details);
       }else panel.append(el('p','report-sub','本场暂无可展示的详细风险依据。'));
       const warningAudit=el('details','report-inline-help');
-      warningAudit.append(el('summary','','记录时间与数据说明'),
-        el('p','report-sub','风险记录于 '+fmtStamp(freezeAt)+'；仅使用赛前冻结资料，不根据赛果补写。'),
-        el('p','report-sub','重点风险由胜负方向分歧或合格独立进球模型防平通道触发；强风险信号需在此基础上再出现可核验的市场反向变化。'));
+      warningAudit.append(el('summary','','数据记录说明'),
+        el('p','report-sub','风险记录于 '+fmtStamp(freezeAt)+'；仅使用赛前冻结资料，不根据赛果补写。'));
       panel.append(warningAudit);
       return panel;
     }
@@ -2879,7 +2855,7 @@
       const isTop5=String(row.handicapModelVersion??'').startsWith('HJ38-HHAD-TOP5-FT-MKT');
       const handicapMarketOnly=row.handicapQualityEligible===false&&!isTop5;
       if(hasOfficial||handicap.length)reportLine(summary,isTop5?'官方让球 / 综合双选':handicapMarketOnly?'官方让球 / 市场参考':'官方让球 / 让球方向',(hasOfficial?String(row.officialHandicap):'—')+' / '+(handicap.length?handicap.join('、'):'未发布'));
-      if(isTop5&&handicap.length)summary.append(el('p','report-sub','让球首选与次选依据赛前比分Top5、胜平负概率及让球市场综合计算；双选仅表示覆盖两个方向，不保证命中。'));
+      if(isTop5&&handicap.length)summary.append(el('p','report-sub','让球双选为赛前综合分析结果；双选表示覆盖两个方向，不代表确定赛果。'));
       if(handicapMarketOnly&&handicap.length)summary.append(el('p','report-sub','让球方向来自市场概率排序，尚未通过模型让球数据质量审核，仅供统计参考。'));
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
       if([row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
