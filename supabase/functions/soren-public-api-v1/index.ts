@@ -1735,6 +1735,12 @@ Deno.serve(async (req: Request) => {
               const no=String(row.no??"").padStart(3,"0");
               const stored=databaseResults.get(no);
               if(!stored){
+                if(date==="2026-09-26"&&no==="019"){
+                  return {...row,resultVerified:false,result:null,resultHome:null,resultAway:null,resultScore:null,
+                    resultSource:"MLS官方延期公告",resultVerifiedAt:null,top1Hit:null,coverageHit:null,handicapResult:null,
+                    handicapTop1Hit:null,handicapCoverageHit:null,handicapHit:null,
+                    matchStatus:"POSTPONED",resultStatus:"赛事延期"};
+                }
                 return {...row,resultVerified:false,result:null,resultHome:null,resultAway:null,resultScore:null,
                   resultSource:null,resultVerifiedAt:null,top1Hit:null,coverageHit:null,handicapResult:null,
                   handicapTop1Hit:null,handicapCoverageHit:null,handicapHit:null};
@@ -1833,7 +1839,10 @@ Deno.serve(async (req: Request) => {
         return {...row,resultVerified:true,result:actual,resultHome:Number(stored.home_score),resultAway:Number(stored.away_score),resultScore:String(stored.home_score)+"-"+String(stored.away_score),resultSource:stored.result_source??"客户库已核验赛果",resultVerifiedAt:stored.verified_at??null,top1Hit:primary===actual,coverageHit:primary===actual||secondary===actual,handicapResult:handicapActual,handicapHit:handicapActual!==null&&handicapPick===handicapActual};
       }
       if (day === "2026-09-16" && no === "014") {
-        return { ...row, resultVerified: false, result: null, matchStatus: "POSTPONED", resultStatus: "比赛延期", resultSource: "https://www.athletic-club.eus/en/news/2026/09/16/the-match-between-levante-ud-and-athletic-club-on-matchday-6-of-laliga-has-been-postponed/" };
+        return { ...row, resultVerified: false, result: null, matchStatus: "POSTPONED", resultStatus: "赛事延期", resultSource: "https://www.athletic-club.eus/en/news/2026/09/16/the-match-between-levante-ud-and-athletic-club-on-matchday-6-of-laliga-has-been-postponed/" };
+      }
+      if (day === "2026-09-26" && no === "019") {
+        return { ...row, resultVerified: false, result: null, matchStatus: "POSTPONED", resultStatus: "赛事延期", resultSource: "MLS官方延期公告" };
       }
       const verified = verifiedResults[day]?.[no];
       if (!verified || row.resultVerified === true) return row;
