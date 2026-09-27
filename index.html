@@ -1070,9 +1070,9 @@
       const box=$('content');box.replaceChildren(sectionHead('会员专区','尊贵月卡VIP'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
       const page=el('div','member-zone-page'),intro=el('section','member-zone-intro');
-      const version=state.memberZone?.modelVersion||'3.8';
+      const version=state.memberZone?.modelVersion||'';
       intro.append(el('h2','',state.memberZone?.title||'尊贵月卡VIP · 九十刻度综合研判'),
-        el('p','',state.memberZone?.subtitle||(version+'赛前模型 × 威廉赔率 × 必发/竞彩资金行为')));
+        el('p','',state.memberZone?.subtitle||'九十刻度赛前模型 × 威廉赔率 × 必发/竞彩资金行为'));
       page.append(intro,el('p','member-zone-note','仅使用开球前已冻结的数据参与综合研判；开球后取得的资金数据不会倒填赛前结论。'));
       if(state.memberZoneLoading){page.append(el('div','empty','','正在读取会员专区…'));box.append(page);return}
       if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
@@ -1105,7 +1105,7 @@
 
         if(row.model){
           const model=el('div','member-zone-model');
-          model.append(el('div','member-zone-model-title','九十刻度 '+(row.model.version||version)+' · 已冻结赛前信息'));
+          model.append(el('div','member-zone-model-title','九十刻度 · 已冻结赛前信息'));
           const mp=memberPct3(row.model.probability);
           model.append(el('p','','胜平负：'+(row.model.top1||'—')+' '+mp[['主胜','平','客胜'].indexOf(row.model.top1)]+' · 次选 '+(row.model.second||'—')));
           if(row.model.risk){
@@ -1116,8 +1116,8 @@
           card.append(model);
         }else{
           const model=el('div','member-zone-model');
-          model.append(el('div','member-zone-model-title','九十刻度 '+version),
-            el('p','','模型方向：待更新；当前市场行为不会替代正式3.8方向。'));
+          model.append(el('div','member-zone-model-title','九十刻度'),
+            el('p','','模型方向：待更新；当前市场行为不会替代九十刻度正式方向。'));
           card.append(model);
         }
 
