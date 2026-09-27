@@ -287,6 +287,14 @@
 .member-zone-vip-title b{font-size:11px;color:#2e353b}
 .member-zone-vip-title span{font-size:9px;color:#8b9097}
 .member-zone-vip-summary{font-size:11px;line-height:1.65;color:#505a55;margin:0 0 8px}
+.member-zone-intel{margin:8px 0 10px;padding:10px;border-radius:10px;background:#faf8f4;border:1px solid #eee8dc}
+.member-zone-intel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+.member-zone-intel-head b{font-size:11px;color:#33383d}
+.member-zone-intel-head span{font-size:9px;color:#8a7662}
+.member-zone-intel-item{display:flex;gap:7px;align-items:flex-start;margin-top:6px;font-size:10px;line-height:1.55;color:#5b5e61}
+.member-zone-intel-item em{font-style:normal;flex:none;padding:1px 5px;border-radius:8px;background:#eee8df;color:#7a624b;font-size:9px}
+.member-zone-intel-strength{margin-top:7px;padding-top:7px;border-top:1px solid #eee5d7;color:#77716a;font-size:9px;line-height:1.55}
+
 .member-zone-regular-card .member-zone-conclusion{margin:0 0 8px}
 .member-zone-regular-card .member-zone-sources{margin-top:8px;margin-bottom:0}
 
@@ -1094,8 +1102,8 @@
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
       const page=el('div','member-zone-page'),intro=el('section','member-zone-intro');
       intro.append(el('h2','',state.memberZone?.title||'尊贵月卡VIP · 九十刻度综合研判'),
-        el('p','',state.memberZone?.subtitle||'普通胜平负完整信息 + 会员专属市场校验'));
-      page.append(intro,el('p','member-zone-note','会员专区沿用普通胜平负展示逻辑，并额外加入赛前机构与资金行为校验。'));
+        el('p','',state.memberZone?.subtitle||'普通胜平负完整信息 + 会员专属市场与情报校验'));
+      page.append(intro,el('p','member-zone-note','会员专区沿用普通胜平负展示逻辑，并额外加入赛前机构、资金行为与公开情报校验。'));
       if(state.memberZoneLoading){page.append(el('div','empty','','正在读取会员专区…'));box.append(page);return}
       if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
       const rows=state.memberZone?.rows||[];
@@ -1161,7 +1169,7 @@
 
         const addon=el('section','member-zone-vip-addon');
         const title=el('div','member-zone-vip-title');
-        title.append(el('b','','会员专属 · 市场校验'),el('span','',row.alignment||'独立观察'));
+        title.append(el('b','','会员专属 · 综合校验'),el('span','',row.alignment||'独立观察'));
         addon.append(title,el('p','member-zone-vip-summary',String(row.summary||'')));
 
         const c=row.conclusion||{},grid=el('div','member-zone-conclusion');
@@ -1171,12 +1179,38 @@
         addKpi(grid,'资金行为',c.fundBehavior||'待确认');
         addon.append(grid);
 
+        if(row.intelligence){
+          const intel=row.intelligence,ibox=el('section','member-zone-intel'),ihead=el('div','member-zone-intel-head');
+          ihead.append(el('b','','赛前情报'),el('span','',(intel.impactSide||'中性')+' · 影响'+(intel.impactLevel||'低')+' · '+(intel.alignment||'中性')+'校验'));
+          ibox.append(ihead);
+          (Array.isArray(intel.categories)?intel.categories:[]).slice(0,5).forEach(item=>{
+            const line=el('div','member-zone-intel-item');
+            line.append(el('em','',String(item.type||'情报')),el('span','',String(item.summary||'')));
+            ibox.append(line);
+          });
+          const fm=intel.formation;
+          if(fm&&typeof fm==='object'){
+            const fmtMoney=(v)=>{
+              const n=Number(v);if(!Number.isFinite(n))return '—';
+              return n>=100000000?(n/100000000).toFixed(2)+'亿€':n>=10000?(n/10000).toFixed(0)+'万€':n.toFixed(0)+'€';
+            };
+            const strength=el('div','member-zone-intel-strength');
+            const parts=[];
+            if(Number.isFinite(Number(fm.home_value_eur))&&Number.isFinite(Number(fm.away_value_eur)))parts.push('身价 '+fmtMoney(fm.home_value_eur)+' / '+fmtMoney(fm.away_value_eur));
+            if(Number.isFinite(Number(fm.home_recent_goals))&&Number.isFinite(Number(fm.away_recent_goals)))parts.push('近20场均进球 '+Number(fm.home_recent_goals).toFixed(1)+' / '+Number(fm.away_recent_goals).toFixed(1));
+            if(parts.length)strength.textContent='阵容实力：'+parts.join(' · ');
+            if(parts.length)ibox.append(strength);
+          }
+          addon.append(ibox);
+        }
+
         const cov=row.coverage||{},sources=el('div','member-zone-sources');
         sourceChip(sources,'九十刻度',cov.model===true);
         sourceChip(sources,'威廉',cov.william===true);
         sourceChip(sources,'体彩',cov.sporttery===true);
         sourceChip(sources,'亚盘',cov.asian===true);
         sourceChip(sources,'资金',cov.behavior===true,'赛前未存档');
+        sourceChip(sources,'情报',cov.intelligence===true,'赛前未存档');
         addon.append(sources);
 
         const details=el('details','member-zone-details');
