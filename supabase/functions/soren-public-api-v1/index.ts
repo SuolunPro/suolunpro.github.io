@@ -1660,7 +1660,7 @@ async function paidMemberZone(date:string){
   if(!list.length)return {date,rows:[]};
 
   const ids=list.map((m:any)=>Number(m.id));
-  const [{data:markets,error:marketError},{data:behaviors,error:behaviorError}]=await Promise.all([
+  const [{data:markets,error:marketError},{data:behaviors,error:behaviorError},{data:intelRows,error:intelError}]=await Promise.all([
     db.from("soren_market_snapshots")
       .select("match_id,source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,home_water,away_water,payload,captured_at,data_quality")
       .in("match_id",ids)
@@ -1669,11 +1669,16 @@ async function paidMemberZone(date:string){
       .order("captured_at",{ascending:false}).limit(6000),
     db.from("soren_market_behavior_v1")
       .select("match_id,match_no,okooo_match_id,exchange_scale,transaction_rows,index_rows,captured_at,kickoff_at,prematch_verified,source_quality")
-      .eq("pool_date",date).eq("prematch_verified",true).order("captured_at",{ascending:false}).limit(300)
+      .eq("pool_date",date).eq("prematch_verified",true).order("captured_at",{ascending:false}).limit(300),
+    db.from("soren_intelligence_reports_v1")
+      .select("match_id,source_code,source_url,headline,published_at,fetched_at,quality,highlights")
+      .eq("pool_date",date).eq("source_code","okooo_public_intel")
+      .eq("quality","okooo_public_prematch_observed")
+      .order("fetched_at",{ascending:false}).limit(100)
   ]);
-  if(marketError||behaviorError)throw marketError||behaviorError;
+  if(marketError||behaviorError||intelError)throw marketError||behaviorError||intelError;
 
-  const marketBy=new Map<string,any>(),officialBy=new Map<number,any>(),asiaBy=new Map<number,any[]>(),behaviorBy=new Map<number,any>();
+  const marketBy=new Map<string,any>(),officialBy=new Map<number,any>(),asiaBy=new Map<number,any[]>(),behaviorBy=new Map<number,any>(),intelBy=new Map<number,any>();
   const asiaSources=["zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31"];
   for(const m of list){
     const id=Number(m.id),kick=Date.parse(String(m.kickoff_at));
@@ -1709,6 +1714,8 @@ async function paidMemberZone(date:string){
     if(asian.length)asiaBy.set(id,asian as any[]);
     const b=(behaviors??[]).find((x:any)=>Number(x.match_id)===id&&x.prematch_verified===true&&Date.parse(String(x.captured_at))<kick);
     if(b)behaviorBy.set(id,b);
+    const intel=(intelRows??[]).find((x:any)=>Number(x.match_id)===id&&Date.parse(String(x.fetched_at))<kick);
+    if(intel)intelBy.set(id,intel);
   }
 
   const labels=["主胜","平","客胜"];
@@ -1717,7 +1724,7 @@ async function paidMemberZone(date:string){
 
   const rows=list.map((m:any)=>{
     const id=Number(m.id),no=String(m.match_no).padStart(3,"0"),rt=runtimeByNo.get(no)??null;
-    const ini=marketBy.get(id+"|initial"),cur=marketBy.get(id+"|current"),b=behaviorBy.get(id);
+    const ini=marketBy.get(id+"|initial"),cur=marketBy.get(id+"|current"),b=behaviorBy.get(id),intelRow=intelBy.get(id)??null;
     const officialRaw=officialBy.get(id)??{},asianHandicap=asiaBy.get(id)??[];
     const initialFair=fair3(ini?.home_value,ini?.draw_value,ini?.away_value);
     const currentFair=fair3(cur?.home_value,cur?.draw_value,cur?.away_value);
@@ -1889,12 +1896,40 @@ async function paidMemberZone(date:string){
         (behaviorTop??"方向未定")+" · "+(behaviorStrength??"弱")+"确认")
       :"赛前资金快照未冻结";
 
+    const ih=(intelRow?.highlights&&typeof intelRow.highlights==="object"?intelRow.highlights:{}) as Record<string,any>;
+    const intelCategories=Array.isArray(ih.categories)?ih.categories:[];
+    const intelligence=intelRow?{
+      source:"澳客公开赛前情报",
+      sourceUrl:intelRow.source_url,
+      fetchedAt:intelRow.fetched_at,
+      impactSide:String(ih.impact_side??"中性"),
+      impactLevel:String(ih.impact_level??"低"),
+      categories:intelCategories.slice(0,5),
+      formation:(ih.formation&&typeof ih.formation==="object")?ih.formation:null,
+      formationUrl:ih.formation_url??null,
+      note:"公开可见信息的结构化摘要，仅作赛前辅助校验"
+    }:null;
+    const intelAlignment=(()=>{
+      if(!intelligence||!modelTop)return "未参与";
+      if(intelligence.impactSide==="主队利空"){
+        if(modelTop==="客胜")return "支持";
+        if(modelTop==="主胜")return "反向";
+      }
+      if(intelligence.impactSide==="客队利空"){
+        if(modelTop==="主胜")return "支持";
+        if(modelTop==="客胜")return "反向";
+      }
+      return "中性";
+    })();
+    if(intelligence)intelligence.alignment=intelAlignment;
+
     const coverage={
       model:!!rt,
       william:!!(ini||cur),
       sporttery:!!(officialMarket.had||officialMarket.hhad),
       asian:Array.isArray(asianHandicap)&&asianHandicap.length>0,
-      behavior:!!behavior
+      behavior:!!behavior,
+      intelligence:!!intelligence
     };
     return {
       no,league:m.league??rt?.league??null,home:m.home_team,away:m.away_team,kickoff:m.kickoff_at,
@@ -1910,6 +1945,7 @@ async function paidMemberZone(date:string){
       officialMarket,
       asianHandicap,
       behavior,
+      intelligence,
       model:rt?{
         top1:modelTop,second:secondTop,probability:modelProb,
         confidence:Number.isFinite(Number(rt.confidence))?Number(rt.confidence):null,
