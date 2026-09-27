@@ -1647,15 +1647,18 @@ async function paidMemberZone(date:string){
   const list=matches??[];
   if(!list.length)return {date,rows:[]};
   const ids=list.map((m:any)=>Number(m.id));
-  const [{data:preds,error:predError},{data:markets,error:marketError}]=await Promise.all([
+  const [{data:preds,error:predError},{data:markets,error:marketError},{data:behaviors,error:behaviorError}]=await Promise.all([
     db.from("soren_predictions").select("match_id,ft_top1,ft_second,selection_mode,confidence,dq,primary_reason,source_snapshot,frozen_at")
       .in("match_id",ids).order("frozen_at",{ascending:false}).limit(800),
     db.from("soren_market_snapshots").select("match_id,snapshot_type,home_value,draw_value,away_value,captured_at,data_quality")
       .in("match_id",ids).eq("source_code","zucaijia_william").eq("market_type","FT_1X2")
-      .in("snapshot_type",["initial","current"]).order("captured_at",{ascending:false}).limit(2500)
+      .in("snapshot_type",["initial","current"]).order("captured_at",{ascending:false}).limit(2500),
+    db.from("soren_market_behavior_v1")
+      .select("match_id,match_no,okooo_match_id,exchange_scale,transaction_rows,index_rows,captured_at,kickoff_at,prematch_verified,source_quality")
+      .eq("pool_date",date).eq("prematch_verified",true).order("captured_at",{ascending:false}).limit(300)
   ]);
-  if(predError||marketError)throw predError||marketError;
-  const predBy=new Map<number,any>(),marketBy=new Map<string,any>();
+  if(predError||marketError||behaviorError)throw predError||marketError||behaviorError;
+  const predBy=new Map<number,any>(),marketBy=new Map<string,any>(),behaviorBy=new Map<number,any>();
   for(const m of list){
     const id=Number(m.id),kick=Date.parse(String(m.kickoff_at));
     const p=(preds??[]).find((x:any)=>Number(x.match_id)===id&&Date.parse(String(x.frozen_at))<kick);
@@ -1664,13 +1667,17 @@ async function paidMemberZone(date:string){
       const x=(markets??[]).find((q:any)=>Number(q.match_id)===id&&q.snapshot_type===typ&&Date.parse(String(q.captured_at))<kick);
       if(x)marketBy.set(id+"|"+typ,x);
     }
+    const b=(behaviors??[]).find((x:any)=>Number(x.match_id)===id&&x.prematch_verified===true&&Date.parse(String(x.captured_at))<kick);
+    if(b)behaviorBy.set(id,b);
   }
   const labels=["主胜","平","客胜"];
+  const maxIndex=(arr:number[])=>arr.length?arr.indexOf(Math.max(...arr)):-1;
+  const toNums=(rows:any[],key:string)=>Array.isArray(rows)?rows.map((x:any)=>Number(x?.[key])).map((v:number)=>Number.isFinite(v)?v:0):[0,0,0];
   const rows=list.map((m:any)=>{
-    const id=Number(m.id),p=predBy.get(id),ini=marketBy.get(id+"|initial"),cur=marketBy.get(id+"|current");
+    const id=Number(m.id),p=predBy.get(id),ini=marketBy.get(id+"|initial"),cur=marketBy.get(id+"|current"),b=behaviorBy.get(id);
     const initialFair=fair3(ini?.home_value,ini?.draw_value,ini?.away_value);
     const currentFair=fair3(cur?.home_value,cur?.draw_value,cur?.away_value);
-    const marketTop=currentFair?labels[currentFair.indexOf(Math.max(...currentFair))]:null;
+    const marketTop=currentFair?labels[maxIndex(currentFair)]:null;
     const modelTop=cnResult(p?.ft_top1);
     const snap=(p?.source_snapshot&&typeof p.source_snapshot==="object"?p.source_snapshot:{}) as Record<string,any>;
     const modelProb=[
@@ -1679,31 +1686,81 @@ async function paidMemberZone(date:string){
     const hur=String(snap?.risk?.hur??"");
     const warning=String(snap?.upsetWarning?.riskLevel??"");
     const mode=String(p?.selection_mode??"");
-    let status="观察";
-    let summary="赛前市场数据已记录，等待更多正式冻结信息。";
-    if(modelTop&&marketTop){
+    let behavior:any=null,behaviorTop:string|null=null,behaviorStrength:string|null=null,drawSignal=false,overheat=false;
+    if(b){
+      const tr=Array.isArray(b.transaction_rows)?b.transaction_rows:[],ix=Array.isArray(b.index_rows)?b.index_rows:[];
+      const doer=toNums(tr,"doerPct"),bfShare=toNums(ix,"bfShare"),jcShare=toNums(ix,"jcSavedShare"),
+        avgProb=toNums(ix,"avgProb"),bfHot=toNums(ix,"bfHotCold"),jcHot=toNums(ix,"jcHotCold"),
+        bfProfitIndex=toNums(ix,"bfProfitIndex"),jcProfitIndex=toNums(ix,"jcProfitIndex"),
+        bfProfitLoss=toNums(tr,"bfProfitLoss"),jcProfitLoss=toNums(tr,"jcProfitLoss");
+      const score=[0,0,0];
+      const addTop=(arr:number[],w:number)=>{const k=maxIndex(arr);if(k>=0)score[k]+=w};
+      addTop(avgProb,1);addTop(jcShare,2);addTop(doer,1);addTop(bfShare,b.exchange_scale==="较小"?1:2);
+      const bfHotTop=maxIndex(bfHot),jcHotTop=maxIndex(jcHot);
+      if(bfHotTop>=0&&bfHot[bfHotTop]>=15)score[bfHotTop]+=b.exchange_scale==="较小"?0.5:1;
+      if(jcHotTop>=0&&jcHot[jcHotTop]>=15)score[jcHotTop]+=1;
+      const rank=score.map((v:number,i:number)=>({i,v})).sort((a:any,c:any)=>c.v-a.v);
+      behaviorTop=rank[0]?.v>0?labels[rank[0].i]:null;
+      const margin=(rank[0]?.v??0)-(rank[1]?.v??0);
+      behaviorStrength=margin>=3?"强":margin>=1.5?"中":"弱";
+      drawSignal=(jcHot[1]>=25)||(bfHot[1]>=40)||(jcShare[1]-avgProb[1]>=8);
+      const bi=behaviorTop?labels.indexOf(behaviorTop):-1;
+      const highHeat=bi>=0&&doer[bi]>=75&&(bfShare[bi]>=75||jcShare[bi]>=75);
+      const priceSupport=bi>=0&&initialFair&&currentFair?(currentFair[bi]-initialFair[bi]>=1.5):false;
+      overheat=highHeat&&!priceSupport;
+      behavior={
+        source:"澳客交易盈亏",okoooMatchId:b.okooo_match_id,capturedAt:b.captured_at,scale:b.exchange_scale,
+        top1:behaviorTop,strength:behaviorStrength,
+        doerPct:doer,betfairShare:bfShare,jcSavedShare:jcShare,avgProbability:avgProb,
+        betfairHotCold:bfHot,jcHotCold:jcHot,
+        betfairProfitIndex:bfProfitIndex,jcProfitIndex,
+        betfairProfitLoss:bfProfitLoss,jcProfitLoss,
+        drawSignal,overheat
+      };
+    }
+    let status="观察",summary="赛前市场数据已记录，等待更多正式冻结信息。",alignment:string|null=null;
+    if(modelTop&&marketTop&&behaviorTop){
+      if(modelTop===marketTop&&modelTop===behaviorTop){
+        alignment="三方同向";status=overheat?"谨慎":"强化";
+        summary="模型、威廉与资金行为三方同向，"+modelTop+"获得市场确认。";
+      }else if(modelTop===behaviorTop){
+        alignment="模型×资金同向";status="分歧";
+        summary="模型与资金行为同向，但威廉当前概率首位存在分歧。";
+      }else if(modelTop===marketTop){
+        alignment="模型×威廉同向";status="分歧";
+        summary="模型与威廉方向一致，但必发/竞彩资金行为出现反向分歧。";
+      }else{
+        alignment="多方分歧";status="分歧";
+        summary="模型、赔率与资金行为未形成一致方向，暂不强化原结论。";
+      }
+    }else if(modelTop&&marketTop){
       if(modelTop!==marketTop){status="分歧";summary="模型首选与市场概率首位不同，存在方向分歧。";}
       else if(hur==="红"||["中","高"].includes(warning)||mode==="PASS"){status="谨慎";summary="模型与市场方向一致，但风险信号偏高，仍需谨慎观察。";}
-      else{
-        const idx=labels.indexOf(modelTop),move=initialFair&&currentFair&&idx>=0?currentFair[idx]-initialFair[idx]:0;
-        if(move>=4){status="强化";summary="模型与市场方向一致，且该方向较初盘获得进一步支持。";}
-        else {status="稳定";summary="模型与市场方向基本一致，当前结构相对稳定。";}
-      }
-      if(modelProb&&modelProb[1]>=28&&!summary.includes("平局"))summary+=" 平局概率不低。";
+      else{status="稳定";summary="模型与市场方向基本一致，当前结构相对稳定。";}
+    }else if(behaviorTop&&marketTop){
+      alignment=behaviorTop===marketTop?"赔率×资金同向":"赔率×资金分歧";
+      status=behaviorTop===marketTop?"市场确认":"分歧";
+      summary=behaviorTop===marketTop
+        ? "正式模型冻结尚未发布；威廉与资金行为暂时同向于"+behaviorTop+"。"
+        : "正式模型冻结尚未发布；威廉与资金行为存在分歧，暂不形成模型结论。";
     }else if(marketTop){
       status="市场观察";summary="正式模型冻结尚未发布，当前仅记录赛前市场结构。";
     }
+    if(behavior?.drawSignal&&!summary.includes("平局"))summary+=" 平局资金关注度偏高。";
+    if(behavior?.overheat)summary+=" 热门人气偏高但赔率支持不足，需防过热。";
+    if(modelProb&&modelProb[1]>=28&&!summary.includes("平局"))summary+=" 模型平局概率不低。";
     return {
       no:String(m.match_no).padStart(3,"0"),league:m.league??null,home:m.home_team,away:m.away_team,kickoff:m.kickoff_at,
-      status,summary,
+      status,summary,alignment,
       market:{institution:"威廉希尔",top1:marketTop,initialOdds:ini?[Number(ini.home_value),Number(ini.draw_value),Number(ini.away_value)]:null,
         currentOdds:cur?[Number(cur.home_value),Number(cur.draw_value),Number(cur.away_value)]:null,
         initialFair,currentFair,capturedAt:cur?.captured_at??ini?.captured_at??null},
+      behavior,
       model:p?{top1:modelTop,second:cnResult(p.ft_second),probability:modelProb,confidence:Number.isFinite(Number(p.confidence))?Number((100*Number(p.confidence)).toFixed(1)):null,
         dq:p.dq??null,mode:p.selection_mode??null,frozenAt:p.frozen_at??null}:null
     };
   });
-  return {date,title:"今日会员专栏 · 市场深度观察",subtitle:"赛前市场结构与模型分歧试运行",rows};
+  return {date,title:"今日会员专栏 · 市场行为校验",subtitle:"胜平负模型 × 威廉赔率 × 必发/竞彩资金行为",rows};
 }
 
 Deno.serve(async (req: Request) => {
