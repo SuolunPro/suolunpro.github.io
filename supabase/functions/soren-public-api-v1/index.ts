@@ -1654,7 +1654,7 @@ async function paidMemberZone(date:string){
     {data:registry,error:registryError}
   ]=await Promise.all([
     db.from("soren_predictions")
-      .select("match_id,ft_top1,ft_second,selection_mode,confidence,dq,primary_reason,source_snapshot,frozen_at")
+      .select("match_id,ft_top1,ft_second,selection_mode,selection_codes,confidence,dq,primary_reason,source_snapshot,frozen_at")
       .in("match_id",ids).order("frozen_at",{ascending:false}).limit(800),
     db.from("soren_market_snapshots")
       .select("match_id,snapshot_type,home_value,draw_value,away_value,captured_at,data_quality")
@@ -1774,11 +1774,38 @@ async function paidMemberZone(date:string){
     let conclusionDirection=behaviorTop??marketTop??null;
 
     if(modelTop){
-      conclusionType=mode==="PASS"?"3.8原始方向":"3.8综合方向";
-      conclusionDirection=modelTop;
+      const codes=Array.isArray((p as any)?.selection_codes)?(p as any).selection_codes.map((x:any)=>String(x)):[];
+      const secondTop=cnResult(p?.ft_second);
+      const doubleDirection=(()=>{
+        if(codes.includes("H")&&codes.includes("D"))return "主队不败";
+        if(codes.includes("A")&&codes.includes("D"))return "客队不败";
+        if(codes.includes("H")&&codes.includes("A"))return "胜负方向";
+        if(modelTop==="主胜"&&secondTop==="平"||modelTop==="平"&&secondTop==="主胜")return "主队不败";
+        if(modelTop==="客胜"&&secondTop==="平"||modelTop==="平"&&secondTop==="客胜")return "客队不败";
+        if(modelTop&&secondTop&&modelTop!==secondTop)return modelTop+" + "+secondTop;
+        return modelTop;
+      })();
+      const formalDirection=mode==="PASS"
+        ? "暂不发布"
+        : mode==="DOUBLE"
+          ? doubleDirection
+          : modelTop;
+      const riskOverride=(hur==="红"||warning==="高"||displayTier==="强风险信号");
+      const handicapProtection=officialHandicap!==null&&handicapTop1
+        ? (handicapTop1+(handicapSecond?(" + "+handicapSecond):""))
+        : null;
+
+      conclusionType=mode==="PASS"?"3.8风险结论":mode==="DOUBLE"?"3.8综合方向":"3.8综合方向";
+      conclusionDirection=formalDirection;
+
       if(mode==="PASS"){
         status="谨慎";
-        summary="3.8已完成赛前冻结，但风险门槛未通过；保留原始方向，仅作交叉观察，不升级为正式优选。";
+        summary="3.8已完成赛前冻结，但风险门槛未通过；不发布正式胜平负方向，仅保留原始首选作审计。";
+      }else if(riskOverride&&mode==="DOUBLE"){
+        status="谨慎";
+        conclusionType="风险处理";
+        conclusionDirection=handicapProtection?("让球保护 "+handicapProtection):formalDirection;
+        summary="3.8原始胜平负首选为"+modelTop+"，但风险信号已触发，不再强化单一"+modelTop+"。"+(handicapProtection?(" 当前优先采用让球保护："+handicapProtection+"。"):(" 正式胜平负按"+formalDirection+"双向保护。"));
       }else if(alignment==="三方同向"){
         status=overheat?"谨慎":"强化";
         summary=overheat
