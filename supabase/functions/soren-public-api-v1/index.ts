@@ -1872,9 +1872,16 @@ async function paidMemberZone(date:string){
         (behaviorTop??"方向未定")+" · "+(behaviorStrength??"弱")+"确认")
       :"赛前资金快照未冻结";
 
+    const coverage={
+      model:!!rt,
+      william:!!(ini||cur),
+      sporttery:!!(officialMarket.had||officialMarket.hhad),
+      asian:Array.isArray(asianHandicap)&&asianHandicap.length>0,
+      behavior:!!behavior
+    };
     return {
       no,league:m.league??rt?.league??null,home:m.home_team,away:m.away_team,kickoff:m.kickoff_at,
-      status,summary,alignment,
+      status,summary,alignment,coverage,
       conclusion:{type:conclusionType,direction:conclusionDirection,marketConfirm,drawRisk,fundBehavior},
       market:{institution:"威廉希尔",top1:marketTop,initialOdds:ini?[Number(ini.home_value),Number(ini.draw_value),Number(ini.away_value)]:null,
         currentOdds:cur?[Number(cur.home_value),Number(cur.draw_value),Number(cur.away_value)]:null,
