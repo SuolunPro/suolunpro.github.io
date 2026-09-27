@@ -321,6 +321,13 @@
 .member-zone-cold strong{display:block;font-size:14px;line-height:1.45;color:#343a40}
 .member-zone-cold.medium{background:#fff8ea;border-color:#f3e5c7}
 .member-zone-cold.medium strong{color:#8b641f}
+.member-zone-pick{margin:4px 0 10px;padding:17px 14px 15px;border-radius:14px;background:#fff1ec;border:1px solid #efd8cf;text-align:center}
+.member-zone-pick-label{font-size:10px;font-weight:700;letter-spacing:.08em;color:#9a6a5c}
+.member-zone-pick-direction{font-size:25px;font-weight:900;line-height:1.2;color:#9e3f29;margin-top:5px}
+.member-zone-pick-ref{font-size:16px;font-weight:850;color:#3b4147;margin-top:7px}
+.member-zone-pick-note{font-size:9px;color:#8b9299;margin-top:6px}
+.member-zone-pick-evidence{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:10px}
+.member-zone-pick-evidence span{padding:4px 7px;border-radius:20px;background:#fff;color:#7d6259;font-size:9px}
 .member-zone-cold.high{background:#fff0eb;border-color:#f2d8cf}
 .member-zone-cold.high strong{color:#a0432d}
 .member-zone-cold-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
@@ -1159,21 +1166,17 @@
     function memberOdds3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?Number(x).toFixed(2):'—').join(' / '):'—'}
     function memberSigned3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?(Number(x)>0?'+':'')+Number(x).toFixed(0):'—').join(' / '):'—'}
     function renderMemberZone(){
-      const box=$('content');box.replaceChildren(sectionHead('会员专区','尊贵月卡VIP'));
+      const box=$('content');box.replaceChildren(sectionHead('今日冷门识别','尊贵月卡VIP'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
       const page=el('div','member-zone-page');
-      if(state.memberZoneLoading){page.append(el('div','empty','','正在读取会员专区…'));box.append(page);return}
+      if(state.memberZoneLoading){page.append(el('div','empty','','正在读取冷门识别…'));box.append(page);return}
       if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
       const rows=state.memberZone?.rows||[];
-      if(!rows.length){page.append(el('div','empty','','当前暂无可发布内容'));box.append(page);return}
 
       const fmtPct=v=>Number.isFinite(Number(v))?Number(v).toFixed(1)+'%':'—';
       const fmtPp=v=>Number.isFinite(Number(v))?(Number(v)>=0?'+':'')+Number(v).toFixed(1)+'pp':'—';
       const fmtNum=v=>Number.isFinite(Number(v))?Number(v).toFixed(0):'—';
-      const addLine=(wrap,label,value)=>{
-        const x=el('div','member-zone-proof-line');
-        x.append(el('span','',label),el('b','',String(value??'—')));wrap.append(x);
-      };
+      const addLine=(wrap,label,value)=>{const x=el('div','member-zone-proof-line');x.append(el('span','',label),el('b','',String(value??'—')));wrap.append(x)};
       const handicapText=h=>{
         if(!h)return '未发布';
         const first=h.top1?(h.top1+' '+fmtPct(h.top1Probability)):'—';
@@ -1181,72 +1184,64 @@
         return (h.official===null||h.official===undefined?'':('官方 '+(Number(h.official)>0?'+':'')+h.official+' · '))+first+(second?' / '+second:'');
       };
       const resultCls=x=>x?.evaluable===true?(x.hit===true?'hit':'miss'):'';
-      const coldClass=level=>level==='高'?'high':level==='中'?'medium':'';
-      const coldTitle=cold=>{
-        if(!cold)return '暂无识别';
-        if(cold.level==='高')return cold.direction?('高风险 · 冷门倾向 '+cold.direction):'高风险 · 冷门方向待确认';
-        if(cold.level==='中')return cold.direction?('中风险 · 冷门倾向 '+cold.direction):'中风险 · 冷门方向待确认';
-        if(cold.level==='留意')return '存在冷门因素 · 暂不降级';
-        return '未见明显冷门结构';
-      };
 
-      for(const row of rows){
+      // VIP publishing gate: only publish an actionable opposite-side unbeaten direction.
+      // Risk-only / watch-only rows stay hidden.
+      const publishable=rows.filter(row=>{
+        const cold=row.coldRecognition||{}, domains=Array.isArray(cold.evidenceDomains)?cold.evidenceDomains:[];
+        const top=row.model?.top1;
+        if(!['主胜','客胜'].includes(top))return false;
+        const hasIntel=domains.includes('intelligence');
+        const hasBehavior=domains.includes('market_behavior');
+        const hasOdds=domains.includes('market_odds');
+        const hasRisk=domains.includes('risk_model');
+        // Require at least three independent domains, including either intelligence or formal risk,
+        // and at least one market/behaviour domain. This suppresses generic "everything is abnormal" noise.
+        return domains.length>=3&&(hasIntel||hasRisk)&&(hasBehavior||hasOdds);
+      });
+
+      if(!publishable.length){
+        const empty=el('div','empty','','今日暂无达到发布门槛的冷门方向');
+        page.append(empty);box.append(page);return;
+      }
+
+      for(const row of publishable){
         const st=row.settlement||{},ftEv=st.ftEvaluation||null,hEv=st.handicapEvaluation||null;
-        const cold=row.coldRecognition||null,coldSet=st.coldRecognition||null;
-        const card=el('article','card member-zone-regular-card');
+        const cold=row.coldRecognition||null;
+        const probs=Array.isArray(row.model?.probability)?row.model.probability:[null,null,null];
+        const isHomeTop=row.model?.top1==='主胜';
+        const direction=isHomeTop?'客队不败':'主队不败';
+        const pair=isHomeTop
+          ?[{label:'平',p:Number(probs[1])},{label:'客',p:Number(probs[2])}]
+          :[{label:'主',p:Number(probs[0])},{label:'平',p:Number(probs[1])}];
+        pair.sort((a,b)=>(Number.isFinite(b.p)?b.p:-1)-(Number.isFinite(a.p)?a.p:-1));
+        const refText=pair.map(x=>x.label).join(' + ');
 
+        const card=el('article','card member-zone-regular-card');
         const head=el('div','member-zone-compact-head'),left=el('div','');
         left.append(el('div','member-zone-compact-title',safe(row.no)+' · '+safe(row.home)+' vs '+safe(row.away)));
         left.append(el('div','member-zone-compact-meta',[safe(row.league),fmtTime(row.kickoff)].filter(Boolean).join(' · ')));
-        const badgeText=cold?.level&&cold.level!=='低'?'冷门 '+cold.level:(st.verified?'已赛后核验':'赛前');
-        const badge=el('span','member-zone-badge '+(cold?.level==='高'?'谨慎':cold?.level==='中'?'观察':String(row.status||'观察')),badgeText);
-        head.append(left,badge);card.append(head);
+        head.append(left,el('span','member-zone-badge 谨慎','冷门识别'));
+        card.append(head);
 
-        const probs=Array.isArray(row.model?.probability)?row.model.probability:[null,null,null];
-        const topMap={主胜:0,平:1,客胜:2},topIdx=topMap[row.model?.top1];
-        const origin=el('div','member-zone-origin');
-        origin.append(el('span','','九十刻度原Top1'),el('b','',(row.model?.top1||'待更新')+(topIdx!==undefined?' '+fmtPct(probs[topIdx]):'')));
-        card.append(origin);
-
-        const coldBox=el('div','member-zone-cold '+coldClass(cold?.level));
-        coldBox.append(el('small','','冷门识别（影子验证）'));
-        coldBox.append(el('strong','',coldTitle(cold)));
-        const tags=el('div','member-zone-cold-tags');
-        const evidence=Array.isArray(cold?.evidence)?cold.evidence:[];
-        if(evidence.length)evidence.slice(0,4).forEach(x=>tags.append(el('span','',String(x))));
-        else tags.append(el('span','','暂无独立冷门证据'));
-        coldBox.append(tags);card.append(coldBox);
-
-        const formalRisk=row.riskRouting?.active===true;
-        const useCold=cold&&['中','高'].includes(String(cold.level));
-        const main=el('div','member-zone-main'+(formalRisk||useCold?' risk':''));
-        main.append(el('small','',formalRisk?'正式风险处理':useCold?'冷门处理（影子）':'主处理'));
-        main.append(el('strong','',
-          formalRisk
-            ?('让球保护 '+(row.riskRouting.protection||'待确认'))
-            :useCold
-              ?(cold.action||'原Top1降级')
-              :(row.conclusion?.direction||row.model?.top1||'待更新')));
-        card.append(main);
+        const pick=el('div','member-zone-pick');
+        pick.append(el('div','member-zone-pick-label','冷门方向'));
+        pick.append(el('div','member-zone-pick-direction',direction));
+        pick.append(el('div','member-zone-pick-ref','参考：'+refText));
+        pick.append(el('div','member-zone-pick-note','概率较高的方向优先排列'));
+        const tags=el('div','member-zone-pick-evidence');
+        (Array.isArray(cold?.evidence)?cold.evidence:[]).slice(0,4).forEach(x=>tags.append(el('span','',String(x))));
+        if(tags.childNodes.length)pick.append(tags);
+        card.append(pick);
 
         if(st.verified){
-          const results=el('div','member-zone-compact-result');
-          const f=el('div','member-zone-result-chip '+resultCls(ftEv));
-          f.append(el('b','','原Top1/胜平负'),el('span','',ftEv?.label||'仅作参考'));
-          if(st.ftResult)f.append(el('small','','实际 '+st.ftResult));
-          const h=el('div','member-zone-result-chip '+resultCls(hEv));
-          h.append(el('b','','让球'),el('span','',hEv?.label||'无有效评测'));
-          if(st.handicapResult)h.append(el('small','','实际 '+st.handicapResult));
-          results.append(f,h);card.append(results);
-
-          if(coldSet){
-            const coldEval=el('div','member-zone-main'+(coldSet.riskEvaluable?' risk':''));
-            coldEval.append(el('small','','冷门识别赛后评测'));
-            let t='本场未进入中/高冷门风险评测';
-            if(coldSet.riskEvaluable)t=coldSet.riskHit===true?'✅ 冷门风险识别命中':'❌ 冷门风险识别未中';
-            if(coldSet.directionEvaluable)t+=' · '+(coldSet.directionHit===true?'冷门方向命中':'冷门方向未中');
-            coldEval.append(el('strong','',t));card.append(coldEval);
-          }
+          const actual=st.ftResult;
+          const coldHit=isHomeTop?['平','客胜'].includes(actual):['主胜','平'].includes(actual);
+          const evalBox=el('div','member-zone-main '+(coldHit?'':'risk'));
+          evalBox.append(el('small','','赛后评测'));
+          evalBox.append(el('strong','',coldHit?'✅ 冷门方向命中':'❌ 冷门方向未中'));
+          if(actual)evalBox.append(el('div','member-zone-compact-meta','实际：'+actual));
+          card.append(evalBox);
         }
 
         const details=el('details','member-zone-proof');
@@ -1317,6 +1312,7 @@
           [cov.model,cov.william,cov.sporttery,cov.asian].map(v=>v===true?'✓':'—').join(' / '));
         addLine(dsec,'资金 / 情报',[cov.behavior,cov.intelligence].map(v=>v===true?'✓':'—').join(' / '));
         body.append(dsec);
+
 
         details.append(body);card.append(details);page.append(card);
       }
