@@ -1841,7 +1841,9 @@ async function paidMemberZone(date:string){
       ?(String(handicapTop1)+(validHandicap(handicapSecond)?(" + "+String(handicapSecond)):""))
       :null;
     const warningFocus=(warning?.focusGate&&typeof warning.focusGate==="object"?warning.focusGate:{}) as Record<string,any>;
-    const warningOppositeSecond=warningFocus?.opposite_second===true||warningFocus?.oppositeSecond===true||warning?.oppositeSecond===true;
+    const ftOppositeSecond=(modelTop==="主胜"&&secondTop==="客胜")||(modelTop==="客胜"&&secondTop==="主胜");
+    const warningOppositeSecond=warningFocus?.opposite_second===true||warningFocus?.oppositeSecond===true||
+      warning?.oppositeSecond===true||ftOppositeSecond;
     const marketProtectionFirst=String(rt?.marketProtectionFirst??(officialHandicap!==null&&officialHandicap<0?"让负":officialHandicap!==null&&officialHandicap>0?"让胜":""));
     const marketProtectionSecond=String(rt?.marketProtectionSecond??"让平");
     const marketProtection=validHandicap(marketProtectionFirst)
