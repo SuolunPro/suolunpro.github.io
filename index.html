@@ -3016,7 +3016,7 @@
     // Historical days that are already fully settled are immutable for customer display.
     // Keep them for the whole tab session so switching dates never re-runs the archive API.
     const dayCache=new Map(),dayRequests=new Map();let dateRequestId=0,historyPrefetchStarted=false;
-    const ARCHIVE_SESSION_PREFIX='soren-archive-v3:';
+    const ARCHIVE_SESSION_PREFIX='soren-archive-v4:';
     const SETTLED_CACHE_TTL=12*60*60*1000,ACTIVE_CACHE_TTL=30*1000;
     function fullySettledDay(d){
       return !!(d&&d.date&&d.date<beijingToday()&&Array.isArray(d.rows)&&d.rows.length&&
