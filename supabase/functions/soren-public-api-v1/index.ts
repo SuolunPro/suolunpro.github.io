@@ -2826,6 +2826,20 @@ Deno.serve(async (req: Request) => {
       rows=rows.map((r:Record<string,unknown>)=>({...r,htftTop4:null}));
     }
     rows=await attachLiveHTFT(rows,dynamicDate,databaseResults);
+    // Final customer-display fallback: if the dynamic HTFT path is unavailable,
+    // preserve any already-published, time-verified original prematch HTFT record.
+    // This prevents a valid original Top4 from disappearing because a later
+    // dynamic score/market update is missing for one fixture.
+    try{
+      const originalHtft=await loadPublishedHTFTTop4(dynamicDate);
+      rows=rows.map((r:Record<string,unknown>)=>
+        r.htftTop4&&typeof r.htftTop4==="object"
+          ?r
+          :attachPublishedHTFTTop4(r,originalHtft,databaseResults)
+      );
+    }catch(htftFallbackError){
+      console.error("HTFT_ORIGINAL_FALLBACK_UNAVAILABLE",htftFallbackError);
+    }
     const liveUnsettled=rows.some((r:Record<string,unknown>)=>r.resultVerified!==true&&r.matchStatus!=="POSTPONED");
     if(vipAccess.active!==true&&liveUnsettled)rows=rows.map(redactLiveVipRisk);
     const handicapStats = buildHandicapStats(rows);
