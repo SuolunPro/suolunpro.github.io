@@ -884,7 +884,7 @@
       }catch{return null}
     }
     function timeoutSignal(ms){
-      if(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout==='function')return timeoutSignal(ms);
+      if(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout==='function')return AbortSignal.timeout(ms);
       if(typeof AbortController==='undefined')return undefined;
       const controller=new AbortController();
       setTimeout(()=>controller.abort(),ms);
