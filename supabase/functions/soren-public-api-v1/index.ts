@@ -86,7 +86,7 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string,readOnl
       if(candidate&&candidate.pregameVerified===true&&
          Number.isFinite(sourceAt)&&Number.isFinite(capturedAt)&&Number.isFinite(kick)&&
          Number.isFinite(originalAt)&&Number.isFinite(candidateKick)&&
-         sourceAt>originalAt&&sourceAt<kick&&capturedAt<kick&&
+         sourceAt>=originalAt&&sourceAt<kick&&capturedAt<kick&&
          Math.abs(kick-candidateKick)<120000&&
          String(candidate.home??"")===String(original.home??"")&&
          String(candidate.away??"")===String(original.away??"")&&
