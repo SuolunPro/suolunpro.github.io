@@ -3576,7 +3576,7 @@
     }
     // Historical days that are already fully settled are immutable for customer display.
     // Keep them for the whole tab session so switching dates never re-runs the archive API.
-    const dayCache=new Map(),dayRequests=new Map();let dateRequestId=0,historyPrefetchStarted=false;
+    const dayCache=new Map(),dayRequests=new Map(),dayContentVersions=new Map();let dateRequestId=0,historyPrefetchStarted=false;
     const ARCHIVE_SESSION_PREFIX='soren-archive-v4:';
     const SETTLED_CACHE_TTL=12*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
     function fullySettledDay(d){
@@ -3585,9 +3585,10 @@
     }
     function rememberDay(d){
       if(!d||!d.date||!Array.isArray(d.rows))return;
-      const settled=fullySettledDay(d),previous=dayCache.get(d.date);
-      const signature=JSON.stringify(d.rows);
-      const version=previous?.signature===signature?(previous.version||1):(previous?.version||0)+1;
+      const settled=fullySettledDay(d),signature=JSON.stringify(d.rows),known=dayContentVersions.get(d.date);
+      const version=known?.signature===signature?(known.version||1):(known?.version||0)+1;
+      dayContentVersions.delete(d.date);dayContentVersions.set(d.date,{signature,version});
+      while(dayContentVersions.size>20)dayContentVersions.delete(dayContentVersions.keys().next().value);
       const entry={data:d,at:Date.now(),settled,signature,version};
       dayCache.delete(d.date);dayCache.set(d.date,entry);
       while(dayCache.size>7)dayCache.delete(dayCache.keys().next().value);
@@ -3613,7 +3614,10 @@
         if(!stored?.data||!Number.isFinite(Number(stored.at))||Date.now()-Number(stored.at)>ttl){
           sessionStorage.removeItem(ARCHIVE_SESSION_PREFIX+date);return null;
         }
-        dayCache.set(date,{data:stored.data,at:Number(stored.at),settled,signature:JSON.stringify(stored.data.rows||[]),version:1});
+        const signature=JSON.stringify(stored.data.rows||[]),known=dayContentVersions.get(date);
+        const version=known?.signature===signature?(known.version||1):(known?.version||0)+1;
+        dayContentVersions.delete(date);dayContentVersions.set(date,{signature,version});
+        dayCache.set(date,{data:stored.data,at:Number(stored.at),settled,signature,version});
         return stored.data;
       }catch{return null}
     }
