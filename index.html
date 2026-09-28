@@ -725,6 +725,10 @@
     .vip-inline-lock{margin:9px 0 7px;padding:11px 12px;border:1px solid #ead8ad;background:#fff8e8;border-radius:11px;color:#795d22;font-size:11px;line-height:1.6}
     .vip-inline-lock b{display:block;font-size:12px;color:#684b13;margin-bottom:2px}
     .member-preview-lock{margin-top:8px;padding:8px 10px;border-radius:9px;background:#f6f6f7;border:1px solid #e9e9eb;color:#767b82;font-size:10px;line-height:1.5}
+
+  @supports (content-visibility:auto){
+    .cards>*{content-visibility:auto;contain-intrinsic-size:auto 420px}
+  }
 </style>
 </head>
 <body>
@@ -2288,7 +2292,7 @@
     // Reuse already-built match-card DOM while switching modules on the same data generation.
     // A background API refresh that returns identical rows updates freshness but keeps the same
     // generation, so it no longer destroys every module cache every two minutes.
-    const moduleGridCache=new Map(),moduleGridBuildState=new WeakMap(),MODULE_GRID_CACHE_MAX=10;
+    const moduleGridCache=new Map(),moduleGridBuildState=new WeakMap(),MODULE_GRID_CACHE_MAX=4;
     function moduleGridKey(rows,history,scope){
       const snapshot=dayCache.get(state.selectedDate)?.version||0;
       return [state.selectedDate||'',state.model,history?'history':'live',scope,
@@ -2301,17 +2305,18 @@
       const run=deadline=>{
         meta.scheduled=false;
         if(meta.cancelled||state.model!==meta.model)return;
-        const started=performance.now();let built=0;
+        const started=performance.now();let built=0,fragment=document.createDocumentFragment();
         while(meta.next<meta.rows.length){
           const row=meta.rows[meta.next++];
-          grid.append(meta.model==='upset'?upsetCard(row):matchCard(row,meta.history));
+          fragment.append(meta.model==='upset'?upsetCard(row):matchCard(row,meta.history));
           built++;
-          const lowIdle=deadline&&typeof deadline.timeRemaining==='function'&&deadline.timeRemaining()<4;
-          if(lowIdle||(!deadline&&(built>=3||performance.now()-started>10)))break;
+          const lowIdle=deadline&&typeof deadline.timeRemaining==='function'&&deadline.timeRemaining()<5;
+          if(lowIdle||(!deadline&&(built>=2||performance.now()-started>8)))break;
         }
+        if(fragment.childNodes.length)grid.append(fragment);
         if(meta.next<meta.rows.length)scheduleModuleGridBuild(grid);
       };
-      if('requestIdleCallback' in window)window.requestIdleCallback(run,{timeout:180});
+      if('requestIdleCallback' in window)window.requestIdleCallback(run,{timeout:140});
       else setTimeout(()=>run(null),16);
     }
     function getModuleGrid(rows,history=false,scope='main'){
@@ -2323,7 +2328,7 @@
       }
       const grid=el('div','cards'),meta={rows,history,model:state.model,next:0,scheduled:false,cancelled:false};
       moduleGridBuildState.set(grid,meta);
-      const immediate=Math.min(rows.length,4);
+      const immediate=Math.min(rows.length,2);
       while(meta.next<immediate){
         const row=rows[meta.next++];
         grid.append(meta.model==='upset'?upsetCard(row):matchCard(row,history));
