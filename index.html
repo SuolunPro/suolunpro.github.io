@@ -1939,23 +1939,23 @@
           goals.append(el('p','goals-note','预计总进球 λ：'+lambda.toFixed(2)+(marketShadow?' · 赛前威廉希尔欧赔校准双方λ（总λ不变）':scoreBasedGoal?' · 基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。':goalsShadow?' · 最近6场得失球估计':'')));
           if(goalsShadow)goals.append(el('p','goals-note','赛前更新 '+fmtStamp(goalSource.frozenAt)));
           const grid=el('div','goals-grid');
-          (full?ranked.slice(0,6):ranked.slice(0,1)).forEach((item,i)=>{
-            const cell=el('div','goal-cell'+(i>=3?' reference':''));
-            cell.append(el('small','',i<3?'Top'+(i+1):'观察 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));
+          (full?ranked.slice(0,3):ranked.slice(0,1)).forEach((item,i)=>{
+            const cell=el('div','goal-cell');
+            cell.append(el('small','', 'Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));
             grid.append(cell);
           });
           goals.append(grid);
-          if(!full)goals.append(el('div','member-preview-lock','会员可查看Top3、观察Top4–Top6及完整概率分布'));
+          if(!full)goals.append(el('div','member-preview-lock','会员可查看Top3及完整概率分布'));
           if(hasScore(row)){
             const actual=Number(row.resultHome)+Number(row.resultAway);
-            const rank=ranked.slice(0,6).findIndex(item=>item.goals===actual);
-            const goalHit=rank>=0&&rank<3;
-            const verdict=el('div','goals-inline-verdict '+(goalHit?'goals-inline-success':rank>=3?'goals-inline-reference':'goals-inline-fail'));
-            verdict.append(el('span','goals-inline-icon',full?(goalHit?'✓':rank>=3?'○':'×'):(rank===0?'✓':'×')),
-              el('b','',full?(goalHit?'Top3覆盖成功':rank>=3?'Top3未覆盖 · 观察方向命中':'Top3未覆盖'):(rank===0?'Top1命中':'Top1未中')),
+            const rank=ranked.slice(0,3).findIndex(item=>item.goals===actual);
+            const goalHit=rank>=0;
+            const verdict=el('div','goals-inline-verdict '+(goalHit?'goals-inline-success':'goals-inline-fail'));
+            verdict.append(el('span','goals-inline-icon',full?(goalHit?'✓':'×'):(rank===0?'✓':'×')),
+              el('b','',full?(goalHit?'Top3覆盖成功':'Top3未覆盖'):(rank===0?'Top1命中':'Top1未中')),
               el('span','','实际总进球 '+actual+'球'+(marketShadow?' · 动态参数版':goalsShadow?' · 原始参数参考':'')));
             goals.append(verdict);
-          }else goals.append(el('p','goals-note',full?'待评测 · Top4–Top6仅供参考':'等待赛果核验'));
+          }else goals.append(el('p','goals-note',full?'待评测 · 统计Top3覆盖':'等待赛果核验'));
         }
         c.append(goals);
       }
@@ -2556,11 +2556,11 @@
       const ranks=goalRanks(g);
       panel.append(el('p','sub','双方预期进球：'+Number(g.lambdaHome).toFixed(2)+' / '+Number(g.lambdaAway).toFixed(2)+'；预计总进球λ：'+lambda.toFixed(2)+'。'));
       const grid=el('div','goals-grid');
-      (full?ranks.slice(0,6):ranks.slice(0,1)).forEach((item,i)=>{
-        const cell=el('div','goal-cell'+(i>=3?' reference':''));
-        cell.append(el('small','',i<3?'Top'+(i+1):'观察 Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));grid.append(cell);
+      (full?ranks.slice(0,3):ranks.slice(0,1)).forEach((item,i)=>{
+        const cell=el('div','goal-cell');
+        cell.append(el('small','', 'Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));grid.append(cell);
       });panel.append(grid);
-      if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3、观察Top4–Top6及完整概率分布'));
+      if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3及完整概率分布'));
       if(verified(row)&&hasScore(row)){
         const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
         panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top1 '+(top1?'命中':'未中')+(full?' · Top3 '+(top3?'覆盖':'未覆盖'):'')));
