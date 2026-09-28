@@ -2273,7 +2273,20 @@
         const pendingRows=state.today.rows||[];
         renderCards('今日赛事',pendingRows.length+'场 · 赛前分析待发布',pendingRows);return
       }
-      const all=visibleRows(),focus=all.filter(isFocus),supplement=all.filter(r=>isSupplement(r)&&!isFocus(r));
+      const all=visibleRows(),pending=(state.today?.rows||[]).filter(r=>r.analysisPending===true),focus=all.filter(isFocus),supplement=all.filter(r=>isSupplement(r)&&!isFocus(r));
+      if(state.model==='daily'&&pending.length){
+        const box=$('content');box.replaceChildren();
+        const updateTip=updateNotice();if(updateTip)box.append(updateTip);
+        const summary=el('div','daily-summary');
+        summary.append(
+          el('b','core-count','赛前分析待发布'),
+          el('span','dot','·'),
+          el('span','','今日共 '+pending.length+'场')
+        );
+        box.append(summary,sectionHead('今日赛事',pending.length+'场 · 赛前分析待发布'));
+        const g=el('div','cards');pending.forEach(row=>g.append(matchCard(row,false)));box.append(g,notice());
+        return;
+      }
       if(state.model==='upset'){
         const replay=state.selectedDate>='2026-09-20'&&state.selectedDate<'2026-09-26';
         renderCards('风险观察',all.length+'场 · '+(replay?'新版规则历史回放':'九十刻度赛前风险记录'),all);return
