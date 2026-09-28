@@ -745,7 +745,41 @@ async function syncUpsetWarnings(rows: Record<string,unknown>[], data: Record<st
   if (!payload.length) return {synced:0};
   const {error}=await db.from("soren_upset_warnings_v1").upsert(payload,{onConflict:"pool_date,match_no,source_frozen_at"});
   if(error)throw error;
-  return {synced:payload.length};
+
+  // Persist a one-way 今日优选 exclusion immediately when the background warning
+  // synchronizer publishes a cold/upset warning. This does not wait for a customer
+  // page view, so later risk downgrades cannot re-promote the match.
+  const todayBjt=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"})
+    .format(new Date()).split("/").join("-");
+  const lockRows=payload.flatMap((item:Record<string,unknown>)=>{
+    const day=String(item.pool_date??"");
+    if(day<"2026-09-28"||day<todayBjt)return [];
+    const w=(item.source_payload&&typeof item.source_payload==="object"&&!Array.isArray(item.source_payload))
+      ?item.source_payload as Record<string,unknown>:{};
+    const tier=String(w.displayTier??w.display_tier??"");
+    const published=w.publish===true||tier==="重点风险"||tier==="强风险信号";
+    if(!published)return [];
+    return [{
+      pool_date:day,
+      match_no:String(item.match_no??"").padStart(3,"0"),
+      lock_type:"UPSET_WARNING",
+      source:"UPSET_WARNING_SYNC",
+      source_payload:{
+        ruleVersion:"DAILY-COLD-EXCLUSION-v1.1-20260928",
+        displayTier:tier||null,
+        riskLevel:item.risk_level??null,
+        warningDirection:item.warning_direction??null,
+        marketSignals:Array.isArray(w.marketSignals)?w.marketSignals:(Array.isArray(w.market_signals)?w.market_signals:[]),
+        sourceFrozenAt:item.source_frozen_at??null
+      }
+    }];
+  });
+  if(lockRows.length){
+    const {error:lockError}=await db.from("soren_daily_selection_locks_v1")
+      .upsert(lockRows,{onConflict:"pool_date,match_no,lock_type",ignoreDuplicates:true});
+    if(lockError)throw lockError;
+  }
+  return {synced:payload.length,selectionLocks:lockRows.length};
 
 }
 
