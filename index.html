@@ -3650,6 +3650,7 @@
     }
     function scheduleHistoryPrefetch(){
       if(historyPrefetchStarted||!authSession?.access_token)return;
+      if(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches)return;
       historyPrefetchStarted=true;
       const latest=state.baseDate||beijingToday();
       // Mobile-first: prefetch only the two nearest archive days, serially and only
