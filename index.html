@@ -1401,7 +1401,9 @@
       let changed=false;
       const request=(async()=>{
         const qs=new URLSearchParams({view:'member-zone',date:zoneDate,_:String(Date.now())});
-        const r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store'});
+        const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),10000);let r;
+        try{r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal})}
+        finally{clearTimeout(timer)}
         const j=await r.json();
         if(r.status===403&&j.error==='VIP_MEMBERSHIP_REQUIRED'){memberInfo=j.membership||memberInfo;throw Error('冷门预警暂未全面开放')}
         if(!r.ok||j.ok!==true||!j.zone)throw Error(j.error||'会员专区暂不可用');
@@ -3818,15 +3820,16 @@
       syncInFlight=true;
       try{
         const previousDate=state.selectedDate;
+        const previousVersion=dayContentVersions.get(previousDate)?.version||0;
         const followingLatest=previousDate===state.baseDate&&previousDate!==beijingToday();
         const d=await readDay(followingLatest?undefined:previousDate);
         // A manual date change while refreshing must win over an older response.
         if(state.selectedDate!==previousDate)return;
         if(followingLatest){state.baseDate=d.date;if(state.unopenedDate&&state.unopenedDate>d.date){buildDates();return}state.selectedDate=d.date;state.unopenedDate=null}else if(d.date!==previousDate)return;
-        rememberDay(d);
-        // The API issues a new updatedAt per request even when the match records are unchanged.
-        // Do not rebuild dozens of cards or reset the customer's scroll position for identical data.
-        if(state.today?.date===d.date&&JSON.stringify(state.today.rows)===JSON.stringify(d.rows))return;
+        const refreshedVersion=dayContentVersions.get(d.date)?.version||0;
+        // readDay already remembered the payload. If its content generation did
+        // not change, do not serialize the full row tree or rebuild any DOM.
+        if(state.today?.date===d.date&&d.date===previousDate&&refreshedVersion===previousVersion)return;
         const previousSelected=state.selected;
         const updatedDetail=previousSelected&&$('detail').classList.contains('show')?
           d.rows.find(r=>String(r.no).padStart(3,'0')===String(previousSelected.no).padStart(3,'0')
