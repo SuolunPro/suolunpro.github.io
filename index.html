@@ -1205,9 +1205,18 @@
     function memberPct3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?Number(x).toFixed(1)+'%':'—'):['—','—','—']}
     function memberOdds3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?Number(x).toFixed(2):'—').join(' / '):'—'}
     function memberSigned3(v){return Array.isArray(v)?v.map(x=>Number.isFinite(Number(x))?(Number(x)>0?'+':'')+Number(x).toFixed(0):'—').join(' / '):'—'}
+    // Cold-warning cards are DOM-heavy. Reuse the exact page while its source
+    // object is unchanged; a successful changed API response gets a new object
+    // and therefore a fresh render automatically.
+    const memberZonePageCache=new WeakMap();
+    let memberZoneFingerprint='',memberZoneRequest=null;
     function renderMemberZone(){
       const box=$('content');box.replaceChildren(sectionHead('今日冷门识别','赛前市场动态识别'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
+      if(!state.memberZoneLoading&&!state.memberZoneError&&state.memberZone){
+        const cached=memberZonePageCache.get(state.memberZone);
+        if(cached){box.append(cached);return}
+      }
       const page=el('div','member-zone-page');
       const info=el('section','cold-warning-info');
       info.append(
@@ -1240,7 +1249,9 @@
 
       if(!publishable.length){
         const empty=el('div','empty','','今日暂无达到发布门槛的冷门方向');
-        page.append(empty);box.append(page);return;
+        page.append(empty);
+        if(state.memberZone)memberZonePageCache.set(state.memberZone,page);
+        box.append(page);return;
       }
 
       for(const row of publishable){
@@ -1366,6 +1377,7 @@
 
         details.append(body);card.append(details);page.append(card);
       }
+      if(state.memberZone)memberZonePageCache.set(state.memberZone,page);
       box.append(page);
     }
     function memberZoneDate(){
@@ -1377,19 +1389,42 @@
     async function loadMemberZone(silent=false){
       if(memberInfo?.vipActive!==true)return;
       const zoneDate=memberZoneDate();
+      // Deduplicate a foreground tap and a scheduled refresh for the same date.
+      if(memberZoneRequest?.date===zoneDate){
+        try{await memberZoneRequest.promise}finally{
+          if(!silent&&state.tab==='home'&&state.model==='cold')renderMemberZone();
+        }
+        return;
+      }
       if(!silent){state.memberZoneLoading=true;state.memberZoneError=null;renderMemberZone()}
-      try{
+      let changed=false;
+      const request=(async()=>{
         const qs=new URLSearchParams({view:'member-zone',date:zoneDate,_:String(Date.now())});
         const r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store'});
         const j=await r.json();
         if(r.status===403&&j.error==='VIP_MEMBERSHIP_REQUIRED'){memberInfo=j.membership||memberInfo;throw Error('冷门预警暂未全面开放')}
         if(!r.ok||j.ok!==true||!j.zone)throw Error(j.error||'会员专区暂不可用');
-        memberInfo=j.membership||memberInfo;state.memberZone=j.zone;state.memberZoneError=null;
-      }catch(e){if(!silent)state.memberZoneError=e.message||'会员专区暂不可用'}
+        memberInfo=j.membership||memberInfo;
+        const fingerprint=JSON.stringify(j.zone);
+        if(!state.memberZone||state.memberZone.date!==j.zone.date||fingerprint!==memberZoneFingerprint){
+          state.memberZone=j.zone;
+          memberZoneFingerprint=fingerprint;
+          changed=true;
+        }
+        state.memberZoneError=null;
+      })();
+      memberZoneRequest={date:zoneDate,promise:request};
+      try{await request}
+      catch(e){if(!silent)state.memberZoneError=e.message||'会员专区暂不可用'}
       finally{
+        if(memberZoneRequest?.promise===request)memberZoneRequest=null;
         if(!silent)state.memberZoneLoading=false;
-        if(state.tab==='memberzone')renderMemberZone();
-        else if(state.tab==='home'&&state.model==='cold')render();
+        // Silent refreshes must not rebuild the expensive cold-warning page
+        // when the payload is byte-for-byte unchanged.
+        if(!silent||changed){
+          if(state.tab==='memberzone')renderMemberZone();
+          else if(state.tab==='home'&&state.model==='cold')render();
+        }
       }
     }
     const TURNSTILE_SITE_KEY='0x4AAAAAAFBKndRZlD2qH4Km';
