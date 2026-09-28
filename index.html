@@ -3523,11 +3523,15 @@
     }
     // Deduplicate both user clicks and background prefetches. Settled archive hits return instantly.
     function readDay(date){
-      const cached=date?cachedDay(date):null;
+      // Never let an undated "latest" request jump the homepage into a future pool.
+      // Default navigation is always anchored to Beijing today; the API may only
+      // fall back to an available pool on or before today.
+      const target=date||beijingToday();
+      const cached=cachedDay(target);
       if(cached)return Promise.resolve(cached);
-      const key=date||'latest';
+      const key=target;
       if(dayRequests.has(key))return dayRequests.get(key);
-      const request=load('archive',date).then(d=>{rememberDay(d);return d}).finally(()=>{if(dayRequests.get(key)===request)dayRequests.delete(key)});
+      const request=load('archive',target).then(d=>{rememberDay(d);return d}).finally(()=>{if(dayRequests.get(key)===request)dayRequests.delete(key)});
       dayRequests.set(key,request);return request;
     }
     function scheduleHistoryPrefetch(){
