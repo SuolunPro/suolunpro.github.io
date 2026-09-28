@@ -883,6 +883,13 @@
         return cached.membership;
       }catch{return null}
     }
+    function timeoutSignal(ms){
+      if(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout==='function')return timeoutSignal(ms);
+      if(typeof AbortController==='undefined')return undefined;
+      const controller=new AbortController();
+      setTimeout(()=>controller.abort(),ms);
+      return controller.signal;
+    }
     async function authRequest(path,body){
       // Supabase Auth uses redirect_to to route email confirmations back to this website.
       const redirectUrl=location.origin+location.pathname;
@@ -893,7 +900,7 @@
         ? {...body,gotrue_meta_security:{...(body.gotrue_meta_security||{}),captcha_token:body.captcha_token}}:body;
       if(payload!==body)delete payload.captcha_token;
       const res=await fetch(AUTH_BASE+'/auth/v1/'+authPath,{method:'POST',
-        headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(payload),cache:'no-store',signal:AbortSignal.timeout(10000)});
+        headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(payload),cache:'no-store',signal:timeoutSignal(10000)});
       const json=await res.json();
       if(!res.ok){const err=Error(json.msg||json.error_description||json.message||'请求失败');err.status=res.status;throw err}
       return json;
@@ -929,10 +936,10 @@
     async function verifiedAuthToken(){
       if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
       await refreshAuthSession();
-      const check=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:AbortSignal.timeout(10000)});
+      const check=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:timeoutSignal(10000)});
       if(check.status===401){
         await refreshAuthSession(true);
-        const retry=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:AbortSignal.timeout(10000)});
+        const retry=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:timeoutSignal(10000)});
         if(retry.status===401){clearAuthSession();throw Error('LOGIN_REQUIRED')}
         if(!retry.ok)throw Error('登录状态核验暂时失败（HTTP '+retry.status+'）');
         const user=await retry.json();
@@ -972,7 +979,7 @@
       const old=authSession;clearAuthSession();
       if(old?.access_token){try{await fetch(AUTH_BASE+'/auth/v1/logout?scope=local',{
         method:'POST',headers:{apikey:AUTH_KEY,Authorization:'Bearer '+old.access_token},
-        signal:AbortSignal.timeout(5000),cache:'no-store'});}catch{}}
+        signal:timeoutSignal(5000),cache:'no-store'});}catch{}}
       location.reload();
     }
 
@@ -995,7 +1002,7 @@
       return wrap;
     }
     function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(memberPanel());const settings=el('div','member-account');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,passwordInput(pass),rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(type==='注册'?{data:{invite_code:savedInvite()}}:{})});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回九十刻度。'}catch(e){msg.textContent=e.message}};for(const name of ['注册','登录']){const b=el('button',name==='注册'?'':'secondary',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
-    async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id}),signal:AbortSignal.timeout(6000)});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
+    async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id}),signal:timeoutSignal(6000)});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
     authSession=storedAuth();initVisits();
     async function recoverEmailConfirmationRedirect(){
       const hash=location.hash.startsWith('#')?new URLSearchParams(location.hash.slice(1)):null;
@@ -1007,7 +1014,7 @@
       }
       const token=hash.get('access_token'),refresh=hash.get('refresh_token');
       if(!token||!refresh)return null;
-      const check=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(10000)});
+      const check=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+token},cache:'no-store',signal:timeoutSignal(10000)});
       if(!check.ok)throw Error('EMAIL_CALLBACK_TOKEN_INVALID');
       const user=await check.json();
       if(!user?.id)throw Error('EMAIL_CALLBACK_USER_MISSING');
@@ -1030,7 +1037,7 @@
     async function feedbackRequest(query,body){
       const qs=new URLSearchParams(query),res=await authorizedApiFetch(FEEDBACK_API+'?'+qs,{
         ...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{}),
-        cache:'no-store',signal:AbortSignal.timeout(12000)});
+        cache:'no-store',signal:timeoutSignal(12000)});
       let data=null;try{data=await res.json()}catch{}
       if(!res.ok||data?.ok!==true)throw Error(feedbackError(data?.error));
       return data;
@@ -1047,7 +1054,7 @@
       catch{return ''}
     }
     async function membershipFetch(){
-      const r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:AbortSignal.timeout(9000)});
+      const r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(9000)});
       const j=await r.json();
       if(!r.ok||j.ok!==true||!j.membership)throw Error('会员信息暂不可用，请稍后重试');
       memberInfo=j.membership;saveMemberCache(memberInfo);return memberInfo;
