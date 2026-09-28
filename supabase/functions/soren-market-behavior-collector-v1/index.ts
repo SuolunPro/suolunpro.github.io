@@ -8,9 +8,13 @@ const db = createClient(
 );
 
 const WEB_HEADERS = {
-  "user-agent": "Mozilla/5.0 (compatible; NinetyScaleMarketBehavior/1.0)",
+  "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
   "accept-language": "zh-CN,zh;q=0.9,en;q=0.7",
-  "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+  "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "sec-fetch-site": "same-origin",
+  "sec-fetch-mode": "navigate",
+  "sec-fetch-dest": "document",
+  "upgrade-insecure-requests": "1"
 };
 
 type MatchRow = {
@@ -335,8 +339,8 @@ Deno.serve(async (req:Request) => {
 
     const results:any[]=[];
     const failures:any[]=[];
-    for (let offset=0; offset<pool.length; offset+=5) {
-      const chunk=pool.slice(offset,offset+5);
+    for (let offset=0; offset<pool.length; offset+=2) {
+      const chunk=pool.slice(offset,offset+2);
       const batch=await Promise.all(chunk.map(async m=>{
         const oid=mapped.get(m.id);
         if (!oid) return {no:m.match_no,status:"NO_OKOOO_ID"};
@@ -383,6 +387,7 @@ Deno.serve(async (req:Request) => {
       for(const r of batch) {
         if(r.status==="STORED") results.push(r); else failures.push(r);
       }
+      if(offset+2<pool.length)await new Promise(resolve=>setTimeout(resolve,350));
     }
 
     return Response.json({
