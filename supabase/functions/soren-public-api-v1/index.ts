@@ -1172,16 +1172,17 @@ function dailySelectionStatsFor(rows:Record<string,unknown>[]){
   const odds=supplement.map(r=>Number((r.dailySelectionMeta as Record<string,unknown>|null)?.williamTop1Odds))
     .filter(Number.isFinite);
   return {
-    selectorVersion:"DAILY-VALUE-v1.2-20260927",
+    selectorVersion:"DAILY-VALUE-v1.3-20260928",
     core:core.length,
     supplement:supplement.length,
     total:core.length+supplement.length,
     frozenRiskLocked:rows.filter(r=>r.dailySelectionRiskLocked===true).length,
+    coldWarningLocked:rows.filter(r=>String(r.dailySelectionRiskLockReason??"")==="VIP_COLD_WARNING_PUBLISHED").length,
     supplementAverageWilliamOdds:odds.length?Math.round(odds.reduce((a,b)=>a+b,0)/odds.length*1000)/1000:null
   };
 }
 async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
-  const selectorVersion="DAILY-VALUE-v1.2-20260927";
+  const selectorVersion="DAILY-VALUE-v1.3-20260928";
   // High-draw risk shadow: only the historically validated structure is enabled.
   // It does not rewrite FT Top1; it forces the already-frozen handicap protection into customer display.
   const highDrawTagged=rows.map(row=>{
@@ -1201,9 +1202,14 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
     // Immutable one-way eligibility lock: if the first formal customer freeze was
     // already blocked by published/focus risk, later prematch risk downgrades may
     // update analysis but must never promote the match into CORE or SUPPLEMENT.
-    const {data:saleFreezes,error:saleFreezeError}=await db.from("soren_sale_freezes_v1")
-      .select("match_no,source_frozen_at,snapshot").eq("pool_date",date).limit(300);
+    const [{data:saleFreezes,error:saleFreezeError},{data:coldLocks,error:coldLockError}]=await Promise.all([
+      db.from("soren_sale_freezes_v1")
+        .select("match_no,source_frozen_at,snapshot").eq("pool_date",date).limit(300),
+      db.from("soren_daily_selection_locks_v1")
+        .select("match_no,locked_at").eq("pool_date",date).eq("lock_type","VIP_COLD_WARNING").limit(300),
+    ]);
     if(saleFreezeError)throw saleFreezeError;
+    if(coldLockError)throw coldLockError;
     const frozenRiskLocks=new Map<string,string|null>();
     for(const freeze of saleFreezes??[]){
       const snapshot=freeze.snapshot;
@@ -1217,13 +1223,22 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
           freeze.source_frozen_at?String(freeze.source_frozen_at):null);
       }
     }
+    const coldLockByNo=new Map<string,string|null>();
+    for(const lock of coldLocks??[]){
+      coldLockByNo.set(String(lock.match_no??"").padStart(3,"0"),lock.locked_at?String(lock.locked_at):null);
+    }
     tagged=rows.map(row=>{
       const no=String(row.no??"").padStart(3,"0");
-      const locked=frozenRiskLocks.has(no);
-      const prepared=locked?{...row,
+      const coldLocked=coldLockByNo.has(no);
+      const frozenLocked=frozenRiskLocks.has(no);
+      const prepared=coldLocked?{...row,
         dailySelectionRiskLocked:true,
-        dailySelectionRiskLockReason:"FORMAL_FREEZE_RISK_BLOCK",
-        dailySelectionRiskLockAt:frozenRiskLocks.get(no)??null}:row;
+        dailySelectionRiskLockReason:"VIP_COLD_WARNING_PUBLISHED",
+        dailySelectionRiskLockAt:coldLockByNo.get(no)??null}
+        :frozenLocked?{...row,
+          dailySelectionRiskLocked:true,
+          dailySelectionRiskLockReason:"FORMAL_FREEZE_RISK_BLOCK",
+          dailySelectionRiskLockAt:frozenRiskLocks.get(no)??null}:row;
       return dailyCorePick(prepared)
         ?{...prepared,dailySelectionTier:"CORE",dailySelectionLabel:"核心优选"}
         :{...prepared,dailySelectionTier:null,dailySelectionLabel:null};
@@ -1348,6 +1363,45 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
         }
       };
     });
+
+    // Final hard gate: 今日优选 and VIP 冷门预警 must never overlap.
+    // Evaluate only the tiny set already selected above, reusing the exact VIP cold-warning algorithm.
+    // A published cold warning is persisted as a one-way daily lock, so later market/risk downgrades
+    // cannot promote the match back into CORE or SUPPLEMENT.
+    const todayBjt=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"})
+      .format(new Date()).split("/").join("-");
+    if(date>="2026-09-28"&&date>=todayBjt){
+      const dailyNos=new Set(tagged
+        .filter(r=>["CORE","SUPPLEMENT"].includes(String(r.dailySelectionTier??"")))
+        .map(r=>String(r.no??"").padStart(3,"0")));
+      if(dailyNos.size){
+        try{
+          const coldZone=await paidMemberZone(date,tagged,dailyNos);
+          const coldNos=new Set((coldZone.rows??[]).map((r:any)=>String(r.no??"").padStart(3,"0")));
+          if(coldNos.size){
+            tagged=tagged.map(row=>{
+              const no=String(row.no??"").padStart(3,"0");
+              if(!coldNos.has(no))return row;
+              return {...row,
+                dailySelectionTier:null,
+                dailySelectionLabel:null,
+                dailySelectionRiskLocked:true,
+                dailySelectionRiskLockReason:"VIP_COLD_WARNING_PUBLISHED",
+                dailySelectionRiskLockAt:new Date().toISOString()
+              };
+            });
+          }
+        }catch(coldGateError){
+          console.error("DAILY_VIP_COLD_GATE_UNAVAILABLE",coldGateError);
+          // Fail closed: if exact cold-warning verification is unavailable, do not expose a
+          // possibly-conflicting 今日优选. This temporary block is not persisted.
+          tagged=tagged.map(row=>["CORE","SUPPLEMENT"].includes(String(row.dailySelectionTier??""))
+            ?{...row,dailySelectionTier:null,dailySelectionLabel:null,
+              dailySelectionRiskLocked:true,dailySelectionRiskLockReason:"VIP_COLD_GATE_UNAVAILABLE"}
+            :row);
+        }
+      }
+    }
     return tagged;
   }catch(error){
     console.error("DAILY_SUPPLEMENT_LAYER_UNAVAILABLE",error);
@@ -1679,22 +1733,33 @@ function fair3(h:unknown,d:unknown,a:unknown){
 function cnResult(v:unknown){
   return ({H:"主胜",D:"平",A:"客胜","主胜":"主胜","平":"平","客胜":"客胜"} as Record<string,string>)[String(v??"")]??null;
 }
-async function paidMemberZone(date:string){
-  const upstreamData=await fetchPublicUpstream("today",date);
-  const expectedRevision=allowed.get(String(upstreamData?.modelVersion??""));
-  if(upstreamData?.ok!==true||!expectedRevision||upstreamData?.revision!==expectedRevision||!Array.isArray(upstreamData?.rows))
-    throw new Error("VIP_RUNTIME_UPSTREAM_INVALID");
+async function paidMemberZone(
+  date:string,
+  runtimeRowsOverride:Record<string,unknown>[]|null=null,
+  onlyNos:Set<string>|null=null
+){
+  let runtimeRows:Record<string,unknown>[];
+  if(runtimeRowsOverride){
+    runtimeRows=runtimeRowsOverride;
+  }else{
+    const upstreamData=await fetchPublicUpstream("today",date);
+    const expectedRevision=allowed.get(String(upstreamData?.modelVersion??""));
+    if(upstreamData?.ok!==true||!expectedRevision||upstreamData?.revision!==expectedRevision||!Array.isArray(upstreamData?.rows))
+      throw new Error("VIP_RUNTIME_UPSTREAM_INVALID");
 
-  const runtimeSource=(upstreamData.rows as Record<string,unknown>[])
-    .filter((row)=>String(row?.version??"")===String(upstreamData.modelVersion??"")&&row?.no&&row?.kickoff);
-  let runtimeRows=await applySaleFreeze(runtimeSource,String(upstreamData.date??date),false);
-  runtimeRows=await applyRiskFocusLayer(runtimeRows,String(upstreamData.date??date));
-  runtimeRows=applyHighDrawRiskLayer(runtimeRows);
+    const runtimeSource=(upstreamData.rows as Record<string,unknown>[])
+      .filter((row)=>String(row?.version??"")===String(upstreamData.modelVersion??"")&&row?.no&&row?.kickoff);
+    runtimeRows=await applySaleFreeze(runtimeSource,String(upstreamData.date??date),false);
+    runtimeRows=await applyRiskFocusLayer(runtimeRows,String(upstreamData.date??date));
+    runtimeRows=applyHighDrawRiskLayer(runtimeRows);
+  }
   const runtimeByNo=new Map<string,any>(runtimeRows.map((r:any)=>[String(r.no??"").padStart(3,"0"),r]));
 
-  const {data:matches,error:matchError}=await db.from("soren_matches")
+  let matchQuery:any=db.from("soren_matches")
     .select("id,pool_date,match_no,home_team,away_team,kickoff_at,league,is_world_cup")
-    .eq("pool_date",date).eq("is_world_cup",false).order("match_no",{ascending:true});
+    .eq("pool_date",date).eq("is_world_cup",false);
+  if(onlyNos&&onlyNos.size)matchQuery=matchQuery.in("match_no",[...onlyNos]);
+  const {data:matches,error:matchError}=await matchQuery.order("match_no",{ascending:true});
   if(matchError)throw matchError;
   const list=matches??[];
   if(!list.length)return {date,rows:[]};
@@ -1709,10 +1774,10 @@ async function paidMemberZone(date:string){
       .order("captured_at",{ascending:false}).limit(6000),
     db.from("soren_market_behavior_v1")
       .select("match_id,match_no,okooo_match_id,exchange_scale,transaction_rows,index_rows,captured_at,kickoff_at,prematch_verified,source_quality")
-      .eq("pool_date",date).eq("prematch_verified",true).order("captured_at",{ascending:false}).limit(300),
+      .eq("pool_date",date).in("match_id",ids).eq("prematch_verified",true).order("captured_at",{ascending:false}).limit(300),
     db.from("soren_intelligence_reports_v1")
       .select("match_id,source_code,source_url,headline,published_at,fetched_at,quality,highlights")
-      .eq("pool_date",date)
+      .eq("pool_date",date).in("match_id",ids)
       .in("source_code",["okooo_public_intel","sina_xiaopao_attributed"])
       .in("quality",["okooo_public_prematch_observed","attributed_prematch_article_pair_verified"])
       .order("fetched_at",{ascending:false}).limit(300),
@@ -2299,6 +2364,24 @@ async function paidMemberZone(date:string){
   });
 
   const vipRows=rows.filter((r:any)=>r?.coldRecognition?.vipPublish===true);
+  const todayBjt=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"})
+    .format(new Date()).split("/").join("-");
+  if(date>="2026-09-28"&&date>=todayBjt&&vipRows.length){
+    const payload=vipRows.map((r:any)=>({
+      pool_date:date,
+      match_no:String(r.no??"").padStart(3,"0"),
+      lock_type:"VIP_COLD_WARNING",
+      source:"MEMBER_ZONE_VIP_COLD",
+      source_payload:{
+        ruleVersion:"DAILY-COLD-EXCLUSION-v1.0-20260928",
+        unbeatenDirection:r?.coldRecognition?.unbeatenDirection??null,
+        evidence:Array.isArray(r?.coldRecognition?.vipEvidence)?r.coldRecognition.vipEvidence:[],
+      }
+    }));
+    const {error:lockError}=await db.from("soren_daily_selection_locks_v1")
+      .upsert(payload,{onConflict:"pool_date,match_no,lock_type",ignoreDuplicates:true});
+    if(lockError)throw lockError;
+  }
   return {
     date,
     title:"尊贵月卡VIP · 今日冷门识别",
