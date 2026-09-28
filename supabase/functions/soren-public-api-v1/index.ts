@@ -2165,14 +2165,15 @@ async function paidMemberZone(
       }
       if(ir?.source_code==="sina_xiaopao_attributed"){
         const headline=String(ir.headline??"").trim();
-        const adverse=/伤退|伤停|伤缺|缺席|缺阵|停赛|受伤|无法出战|无缘出战|多人缺席|多名重要球员缺席/.test(headline);
+        const adverse=/伤退|伤停|伤缺|缺席|缺阵|停赛|受伤|无法出战|无缘出战|出战成疑|出场存疑|出战存疑|可能缺阵|可能缺席|伤疑|带伤|身体不适|未随队|无缘名单|多人缺席|多名重要球员缺席/.test(headline);
         if(adverse){
           const homeName=String(m.home_team??"").trim(),awayName=String(m.away_team??"").trim();
+          const adverseLevel=/主力|核心|头号|队长|门将|多人|多名重要球员/.test(headline)?"高":"中";
           if(homeName&&headline.includes(homeName))normalizedIntel.push({
-            side:"主队",type:"伤停",level:"中",impact:"利空",summary:headline,source:"sina_xiaopao_attributed"
+            side:"主队",type:"伤停",level:adverseLevel,impact:"利空",summary:headline,source:"sina_xiaopao_attributed"
           });
           if(awayName&&headline.includes(awayName))normalizedIntel.push({
-            side:"客队",type:"伤停",level:"中",impact:"利空",summary:headline,source:"sina_xiaopao_attributed"
+            side:"客队",type:"伤停",level:adverseLevel,impact:"利空",summary:headline,source:"sina_xiaopao_attributed"
           });
         }
       }
