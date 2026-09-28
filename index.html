@@ -16,7 +16,8 @@
     .hero-copy{position:relative;z-index:1;text-align:center;padding:18px 22px 17px;background:#ae111a20;border-top:1px solid #ffffff14}.hero-copy h1{font-size:20px;margin:0 0 7px}.hero-copy p{margin:0;font-size:12px;line-height:1.7;color:#fff}.hero-copy .warn{margin-top:10px;color:#ffd833;font-size:12px;line-height:1.65;text-align:left}
     .dates{position:relative;z-index:1;display:grid;grid-template-columns:repeat(7,1fr);background:#cb272d;border-top:1px solid #ffffff16;padding:8px 0 10px}.day{border:0;background:none;color:#ffffff9c;text-align:center;padding:2px 0;font-size:11px}.day b{display:block;font-size:13px;font-weight:500;margin-bottom:3px}.day.active{color:#fff}.day.active b{font-weight:900}.day.active span{font-weight:800}
     .main.hide,.detail{display:none}.detail.show{display:block}.toolbar{padding:14px 16px 10px;background:#fff}.toolbar-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.count{font-size:13px;color:#aaa}.filters{display:flex;gap:8px}.filter{border:1px solid #3b3b3b;background:white;color:#333;border-radius:6px;padding:7px 11px;font-size:13px}.filter.active{background:var(--red);border-color:var(--red);color:white}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:12px;background:#eee;border-radius:9px;overflow:hidden}.metric{background:#fafafa;padding:9px;text-align:center}.metric b{display:block;font-size:16px;color:#333}.metric span{font-size:9px;color:#9b9b9b}.content{padding:11px 12px 28px}.section-head{display:flex;justify-content:space-between;align-items:end;padding:4px 2px 10px}.section-head h2{font-size:16px;margin:0}.section-head span{font-size:10px;color:#999}
-    .cards{display:grid;gap:12px}.card{background:#fff;border-radius:16px;padding:0 14px 13px;box-shadow:0 2px 12px #00000008;overflow:hidden;cursor:pointer}.card:active{transform:scale(.996)}.card-head{height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px}.match-id{font-size:11px;color:#555;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.league{font-weight:700;margin-right:5px}.status{align-self:flex-start;background:var(--red);color:#fff;padding:8px 10px 7px;border-radius:0 0 0 13px;font-size:10px;white-space:nowrap}.status.pass{background:#777}.status.verified{background:var(--green)}
+    .cards{display:grid;gap:12px}.card{background:#fff;border-radius:16px;padding:0 14px 13px;box-shadow:0 2px 12px #00000008;overflow:hidden;cursor:pointer}.card:active{transform:scale(.996)}
+    @supports (content-visibility:auto){.card,.upset-card{content-visibility:auto;contain-intrinsic-size:240px}.member-zone-regular-card{content-visibility:auto;contain-intrinsic-size:420px}}.card-head{height:42px;display:flex;align-items:center;justify-content:space-between;gap:8px}.match-id{font-size:11px;color:#555;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.league{font-weight:700;margin-right:5px}.status{align-self:flex-start;background:var(--red);color:#fff;padding:8px 10px 7px;border-radius:0 0 0 13px;font-size:10px;white-space:nowrap}.status.pass{background:#777}.status.verified{background:var(--green)}
     .fixture{display:grid;grid-template-columns:1fr 72px;gap:9px;align-items:center;padding:5px 0 13px}.team-list{display:grid;gap:11px}.team{display:flex;align-items:center;gap:10px;min-width:0}.crest{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;color:white;background:linear-gradient(145deg,#e44a4f,#aa141b);font-size:12px;font-weight:900;box-shadow:inset 0 0 0 3px #ffffffc9,0 1px 3px #0002;flex:0 0 auto;overflow:hidden}.team:nth-child(2) .crest{background:linear-gradient(145deg,#3a75c4,#1c3e7d)}.crest img{width:100%;height:100%;object-fit:contain;background:#fff;display:block}.crest.national-flag,.upset-crest.national-flag{background:#fff!important;color:#222;font-size:24px;line-height:1;box-shadow:0 1px 4px #0002;display:grid;place-items:center}.team-name{font-size:16px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.score{text-align:right;color:var(--red);font-size:23px;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}.score span{display:block;color:#888;font-size:9px;font-weight:600;margin-top:3px;white-space:nowrap}
     .analysis{border-top:1px solid #ddd;padding-top:10px}.triplet{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #ddd;border-radius:5px;overflow:hidden}.triplet.pair{grid-template-columns:repeat(2,1fr)}.triplet.six-grid .datum:nth-child(3){border-right:0}.triplet.six-grid .datum:nth-child(-n+3){border-bottom:1px solid #ddd}.datum{padding:8px 5px;text-align:center;border-right:1px solid #ddd;min-width:0}.datum:last-child{border-right:0}.datum span{display:block;color:#777;font-size:9px;margin-bottom:4px}.datum b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.datum.primary b{color:var(--red)}.datum.wdl-pick span{font-weight:700}.datum.wdl-actual{background:#fafafa}.datum.wdl-prob b{font-size:17px}.datum.hit b{color:var(--red)!important}.datum.hit b:after{content:none}.datum .hit-check{display:block;margin:5px auto 0;color:#159d78;font-size:15px;font-weight:900;line-height:1}.datum.miss b{color:var(--ink)}.advice{font-size:13px;font-weight:800;color:var(--red);margin-top:10px;line-height:1.5}.advice small{color:#777;font-size:10px;font-weight:500;margin-left:5px}.history-result{margin-top:9px;padding-top:9px;border-top:1px solid #eee;font-size:11px;color:#777}.history-result b{color:var(--red)}.status.fail{background:#777}
     .upset-card{position:relative;background:#fff;border:1px solid #eee;border-radius:18px;overflow:hidden;box-shadow:0 3px 14px #0000000a}
@@ -2275,25 +2276,56 @@
       return rows
     }
     function visibleRows(){if(!state.today)return [];return filterRows(state.today.rows||[])}
-    // Reuse already-built match-card DOM while switching modules on the same data snapshot.
-    // This avoids recreating dozens of cards/images on every tap, while the day-cache timestamp
-    // automatically gives live data a fresh render after a new archive snapshot is received.
-    const moduleGridCache=new Map(),MODULE_GRID_CACHE_MAX=10;
+    // Reuse already-built match-card DOM while switching modules on the same data generation.
+    // A background API refresh that returns identical rows updates freshness but keeps the same
+    // generation, so it no longer destroys every module cache every two minutes.
+    const moduleGridCache=new Map(),moduleGridBuildState=new WeakMap(),MODULE_GRID_CACHE_MAX=10;
     function moduleGridKey(rows,history,scope){
-      const snapshot=dayCache.get(state.selectedDate)?.at||0;
+      const snapshot=dayCache.get(state.selectedDate)?.version||0;
       return [state.selectedDate||'',state.model,history?'history':'live',scope,
         fullMemberAnalysis()?'member':'preview',vipDeepAccess()?'vip':'standard',snapshot,rows.length].join('|');
+    }
+    function scheduleModuleGridBuild(grid){
+      const meta=moduleGridBuildState.get(grid);
+      if(!meta||meta.cancelled||meta.scheduled||meta.next>=meta.rows.length||state.model!==meta.model)return;
+      meta.scheduled=true;
+      const run=deadline=>{
+        meta.scheduled=false;
+        if(meta.cancelled||state.model!==meta.model)return;
+        const started=performance.now();let built=0;
+        while(meta.next<meta.rows.length){
+          const row=meta.rows[meta.next++];
+          grid.append(meta.model==='upset'?upsetCard(row):matchCard(row,meta.history));
+          built++;
+          const lowIdle=deadline&&typeof deadline.timeRemaining==='function'&&deadline.timeRemaining()<4;
+          if(lowIdle||(!deadline&&(built>=3||performance.now()-started>10)))break;
+        }
+        if(meta.next<meta.rows.length)scheduleModuleGridBuild(grid);
+      };
+      if('requestIdleCallback' in window)window.requestIdleCallback(run,{timeout:180});
+      else setTimeout(()=>run(null),16);
     }
     function getModuleGrid(rows,history=false,scope='main'){
       const key=moduleGridKey(rows,history,scope),cached=moduleGridCache.get(key);
       if(cached){
         moduleGridCache.delete(key);moduleGridCache.set(key,cached);
+        scheduleModuleGridBuild(cached);
         return cached;
       }
-      const grid=el('div','cards');
-      rows.forEach(r=>grid.append(state.model==='upset'?upsetCard(r):matchCard(r,history)));
+      const grid=el('div','cards'),meta={rows,history,model:state.model,next:0,scheduled:false,cancelled:false};
+      moduleGridBuildState.set(grid,meta);
+      const immediate=Math.min(rows.length,4);
+      while(meta.next<immediate){
+        const row=rows[meta.next++];
+        grid.append(meta.model==='upset'?upsetCard(row):matchCard(row,history));
+      }
       moduleGridCache.set(key,grid);
-      while(moduleGridCache.size>MODULE_GRID_CACHE_MAX)moduleGridCache.delete(moduleGridCache.keys().next().value);
+      while(moduleGridCache.size>MODULE_GRID_CACHE_MAX){
+        const oldest=moduleGridCache.keys().next().value,oldGrid=moduleGridCache.get(oldest);
+        const oldMeta=oldGrid&&moduleGridBuildState.get(oldGrid);if(oldMeta)oldMeta.cancelled=true;
+        moduleGridCache.delete(oldest);
+      }
+      scheduleModuleGridBuild(grid);
       return grid;
     }
     function currentTitle(){return {overview:'今日竞足',handicap:'全场让球',wdl:'胜平负',goals:'泊松进球',score:'比分Top4',htft:'半全场Top4',daily:'今日优选',upset:'风险观察'}[state.model]||'今日竞足'}
@@ -2329,7 +2361,10 @@
         const pendingRows=state.today.rows||[];
         renderCards('今日赛事',pendingRows.length+'场 · 赛前分析待发布',pendingRows);return
       }
-      const all=visibleRows(),pending=(state.today?.rows||[]).filter(r=>r.analysisPending===true),focus=all.filter(isFocus),supplement=all.filter(r=>isSupplement(r)&&!isFocus(r));
+      const all=visibleRows();
+      const pending=state.model==='daily'?(state.today?.rows||[]).filter(r=>r.analysisPending===true):[];
+      const focus=state.model==='daily'?all.filter(isFocus):[];
+      const supplement=state.model==='daily'?all.filter(r=>isSupplement(r)&&!isFocus(r)):[];
       if(state.model==='daily'&&pending.length){
         const box=$('content');box.replaceChildren();
         const updateTip=updateNotice();if(updateTip)box.append(updateTip);
@@ -2340,7 +2375,7 @@
           el('span','','今日共 '+pending.length+'场')
         );
         box.append(summary,sectionHead('今日赛事',pending.length+'场 · 赛前分析待发布'));
-        const g=el('div','cards');pending.forEach(row=>g.append(matchCard(row,false)));box.append(g,notice());
+        box.append(getModuleGrid(pending,false,'daily-pending'),notice());
         return;
       }
       if(state.model==='upset'){
@@ -3550,7 +3585,10 @@
     }
     function rememberDay(d){
       if(!d||!d.date||!Array.isArray(d.rows))return;
-      const settled=fullySettledDay(d),entry={data:d,at:Date.now(),settled};
+      const settled=fullySettledDay(d),previous=dayCache.get(d.date);
+      const signature=JSON.stringify(d.rows);
+      const version=previous?.signature===signature?(previous.version||1):(previous?.version||0)+1;
+      const entry={data:d,at:Date.now(),settled,signature,version};
       dayCache.delete(d.date);dayCache.set(d.date,entry);
       while(dayCache.size>7)dayCache.delete(dayCache.keys().next().value);
       // Persist both settled history and the latest active-day snapshot.
@@ -3575,7 +3613,7 @@
         if(!stored?.data||!Number.isFinite(Number(stored.at))||Date.now()-Number(stored.at)>ttl){
           sessionStorage.removeItem(ARCHIVE_SESSION_PREFIX+date);return null;
         }
-        dayCache.set(date,{data:stored.data,at:Number(stored.at),settled});
+        dayCache.set(date,{data:stored.data,at:Number(stored.at),settled,signature:JSON.stringify(stored.data.rows||[]),version:1});
         return stored.data;
       }catch{return null}
     }
@@ -3650,11 +3688,13 @@
     document.querySelectorAll('.model').forEach(b=>b.onclick=()=>{
       const next=b.dataset.model;
       if(state.model===next&&state.tab==='home')return;
+      const previous=state.model;
       document.querySelectorAll('.model').forEach(x=>x.classList.remove('active'));b.classList.add('active');
       state.model=next;state.tab='home';if(state.model==='cold')state.memberZoneError=null;
       document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));
       [$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];
-      buildDates();scheduleModuleRender(next)
+      if((previous==='htft')!==(next==='htft'))buildDates();
+      scheduleModuleRender(next)
     });
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'){const target=state.baseDate||beijingToday();if(state.selectedDate!==target){selectDate(target);return}}if(state.tab==='memberzone'&&memberInfo?.vipActive===true&&!state.memberZoneLoading){const d=memberZoneDate();if(!state.memberZone||state.memberZone.date!==d){loadMemberZone();return}}render()});
