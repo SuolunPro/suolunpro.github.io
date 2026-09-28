@@ -3689,8 +3689,17 @@
       try{
       if(!authSession?.access_token){showLoginGate();return}
       showAuthRetry('正在恢复登录状态…',true);
-      try{
-        await membershipFetchWithRetry(4);
+      // Fast boot on mobile: a recently verified membership snapshot may paint
+      // the app immediately. The authoritative membership endpoint is refreshed
+      // in the background right after the UI becomes usable.
+      const bootCachedMembership=readMemberCache(10*60*1000);
+      if(bootCachedMembership){
+        memberInfo=bootCachedMembership;usedCachedMembership=true;authBootRetryCount=0;
+      }else try{
+        // Do not keep the whole website behind several serial 9s retries.
+        // One bounded foreground attempt is enough; later retries happen without
+        // trapping the user on the restore-login screen.
+        await membershipFetchWithRetry(1);
         authBootRetryCount=0;
       }catch(error){
         if(!authSession?.access_token||error?.message==='LOGIN_REQUIRED'){showLoginGate('登录状态已过期，请重新登录');return}
@@ -3699,9 +3708,7 @@
           memberInfo=cached;usedCachedMembership=true;
         }else if(isTransientConnectionError(error)){
           authBootRetryCount++;
-          const delay=Math.min(1200*Math.pow(2,Math.min(authBootRetryCount-1,3)),8000);
-          showAuthRetry('网络连接有波动，正在自动恢复…',true);
-          setTimeout(()=>beginAuthenticatedApp(),delay);
+          showAuthRetry('网络连接有波动，请点击重新连接。');
           return;
         }else{
           showAuthRetry('会员状态暂不可核验；登录信息已保留，请稍后重试。');return;
@@ -3709,7 +3716,12 @@
       }
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
       if(usedCachedMembership){
-        setTimeout(()=>membershipFetch().then(()=>{authBootRetryCount=0;if(state.tab==='profile')render()}).catch(()=>{}),2200);
+        setTimeout(()=>membershipFetch().then(()=>{
+          authBootRetryCount=0;
+          // If the authoritative membership state changed while the cached UI
+          // was shown, rerender the current page without forcing a reload.
+          if(state.tab==='profile'||state.tab==='memberzone'||(state.tab==='home'&&state.model==='cold'))render();
+        }).catch(()=>{}),1200);
       }
       try{if(sessionStorage.getItem('soren_welcome_invite_v1')==='1'){sessionStorage.removeItem('soren_welcome_invite_v1');state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'))}}catch(e){}
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
