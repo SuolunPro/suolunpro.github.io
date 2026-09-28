@@ -3543,7 +3543,7 @@
     // Keep them for the whole tab session so switching dates never re-runs the archive API.
     const dayCache=new Map(),dayRequests=new Map();let dateRequestId=0,historyPrefetchStarted=false;
     const ARCHIVE_SESSION_PREFIX='soren-archive-v4:';
-    const SETTLED_CACHE_TTL=12*60*60*1000,ACTIVE_CACHE_TTL=30*1000;
+    const SETTLED_CACHE_TTL=12*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
     function fullySettledDay(d){
       return !!(d&&d.date&&d.date<beijingToday()&&Array.isArray(d.rows)&&d.rows.length&&
         d.rows.every(r=>verified(r)||r.matchStatus==='POSTPONED'));
@@ -3553,37 +3553,39 @@
       const settled=fullySettledDay(d),entry={data:d,at:Date.now(),settled};
       dayCache.delete(d.date);dayCache.set(d.date,entry);
       while(dayCache.size>7)dayCache.delete(dayCache.keys().next().value);
-      if(settled){
-        const persist=()=>{try{sessionStorage.setItem(ARCHIVE_SESSION_PREFIX+d.date,JSON.stringify({data:d,at:entry.at}))}catch{}};
-        if('requestIdleCallback' in window)window.requestIdleCallback(persist,{timeout:5000});
-        else setTimeout(persist,1200);
-      }
+      // Persist both settled history and the latest active-day snapshot.
+      // Active snapshots are only used for fast boot and are refreshed in the
+      // background immediately, so they never replace authoritative live sync.
+      const persist=()=>{try{sessionStorage.setItem(ARCHIVE_SESSION_PREFIX+d.date,JSON.stringify({data:d,at:entry.at,settled}))}catch{}};
+      if('requestIdleCallback' in window)window.requestIdleCallback(persist,{timeout:5000});
+      else setTimeout(persist,1200);
     }
-    function cachedDay(date){
+    function cachedDay(date,allowStaleActive=false){
       const entry=dayCache.get(date);
       if(entry){
-        const ttl=entry.settled?SETTLED_CACHE_TTL:ACTIVE_CACHE_TTL;
+        const ttl=entry.settled?SETTLED_CACHE_TTL:(allowStaleActive?ACTIVE_BOOT_CACHE_TTL:ACTIVE_CACHE_TTL);
         if(Date.now()-entry.at<ttl)return entry.data;
         dayCache.delete(date);
       }
       try{
         const raw=sessionStorage.getItem(ARCHIVE_SESSION_PREFIX+date);
         if(!raw)return null;
-        const stored=JSON.parse(raw);
-        if(!stored?.data||Date.now()-Number(stored.at)>SETTLED_CACHE_TTL||!fullySettledDay(stored.data)){
+        const stored=JSON.parse(raw),settled=fullySettledDay(stored?.data);
+        const ttl=settled?SETTLED_CACHE_TTL:(allowStaleActive?ACTIVE_BOOT_CACHE_TTL:ACTIVE_CACHE_TTL);
+        if(!stored?.data||!Number.isFinite(Number(stored.at))||Date.now()-Number(stored.at)>ttl){
           sessionStorage.removeItem(ARCHIVE_SESSION_PREFIX+date);return null;
         }
-        dayCache.set(date,{data:stored.data,at:Number(stored.at),settled:true});
+        dayCache.set(date,{data:stored.data,at:Number(stored.at),settled});
         return stored.data;
       }catch{return null}
     }
     // Deduplicate both user clicks and background prefetches. Settled archive hits return instantly.
-    function readDay(date){
+    function readDay(date,force=false){
       // Never let an undated "latest" request jump the homepage into a future pool.
       // Default navigation is always anchored to Beijing today; the API may only
       // fall back to an available pool on or before today.
       const target=date||beijingToday();
-      const cached=cachedDay(target);
+      const cached=force?null:cachedDay(target);
       if(cached)return Promise.resolve(cached);
       const key=target;
       if(dayRequests.has(key))return dayRequests.get(key);
@@ -3727,7 +3729,16 @@
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
       if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='九十刻度';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
-      readDay().then(d=>{
+      const bootDay=cachedDay(today,true);
+      if(bootDay&&Array.isArray(bootDay.rows)&&bootDay.rows.length){
+        // Paint the last successful active-day snapshot immediately after a
+        // reload, then replace it with the newest authoritative payload.
+        state.baseDate=bootDay.date||today;applyDay(bootDay);scheduleHistoryPrefetch();
+        readDay(today,true).then(d=>{
+          state.baseDate=d.date||today;
+          if(d&&Array.isArray(d.rows)&&d.rows.length&&state.selectedDate===today)applyDay(d);
+        }).catch(e=>console.warn('今日正式数据后台同步暂不可用',e));
+      }else readDay().then(d=>{
         state.baseDate=d.date||today;rememberDay(d);
         if(!d||!Array.isArray(d.rows)||!d.rows.length){showUnopened(today);return}
         applyDay(d);scheduleHistoryPrefetch()
