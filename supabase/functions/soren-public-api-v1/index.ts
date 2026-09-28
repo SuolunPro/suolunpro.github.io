@@ -1019,12 +1019,24 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(!publicationEligible){
         // A low-DQ snapshot may still contain a directly visible H/A split.
         // Keep that risk visible, but do not publish a concrete reverse direction.
+        // Okooo may strengthen the RISK DISPLAY only here; DQ-C/D never gains a
+        // concrete warning direction from market behavior alone.
         const lowDqBasis=Array.isArray(raw.riskBasis)?raw.riskBasis:(Array.isArray(raw.risk_basis)?raw.risk_basis:[]);
-        const lowDqMarketAnomaly=lowDqBasis.some(v=>/竞彩HAD首选.*与William原始首选.*冲突|升赔|退盘/.test(String(v??"")));
+        const lowDqFrozenMarketAnomaly=lowDqBasis.some(v=>/竞彩HAD首选.*与William原始首选.*冲突|升赔|退盘/.test(String(v??"")));
+        const lowDqBehaviorRow=latestBehavior(behaviorById.get(id)??[],cut);
+        const lowDqBehavior=behaviorDirection(lowDqBehaviorRow);
+        const lowDqOkoooAdverse=!!(
+          top&&lowDqBehavior.top&&lowDqBehavior.top!==top&&
+          ["中","强"].includes(String(lowDqBehavior.strength??""))
+        );
+        const lowDqMarketAnomaly=lowDqFrozenMarketAnomaly||lowDqOkoooAdverse;
         const riskDisplayEligible=!historicalReplay&&row.pregameVerified===true&&
           Number.isFinite(rowFreeze)&&rowFreeze<boundary&&Number.isFinite(cut)&&Math.abs(rowFreeze-cut)<=300000&&
           rowTop===top&&oppositeSecond;
         const lowDqDisplayTier=riskDisplayEligible?(lowDqMarketAnomaly?"强风险信号":"重点风险"):null;
+        const lowDqSignals:string[]=[];
+        if(riskDisplayEligible&&lowDqFrozenMarketAnomaly)lowDqSignals.push("冻结风险依据存在市场反向变化");
+        if(riskDisplayEligible&&lowDqOkoooAdverse)lowDqSignals.push("澳客资金方向与原Top1相反");
         return {...row,upsetWarning:{...raw,
           sourcePublish,publish:riskDisplayEligible,detailOnly:false,displayTier:lowDqDisplayTier,
           publicationEligible:false,
@@ -1038,12 +1050,14 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
             opposite_second:riskDisplayEligible&&oppositeSecond,
             qualified_draw:false,
             market_anomaly:riskDisplayEligible&&lowDqMarketAnomaly,
-            rule_version:"HJ38-RISK-LAYER-v1.2.7",
+            okooo_behavior_adverse:riskDisplayEligible&&lowDqOkoooAdverse,
+            okooo_behavior_strength:lowDqBehavior.strength,
+            rule_version:"HJ38-RISK-LAYER-v1.2.8",
             evaluated_at:freezeAt
           },
-          marketSignals:riskDisplayEligible&&lowDqMarketAnomaly?["冻结风险依据存在市场反向变化"]:[],
+          marketSignals:[...new Set(lowDqSignals)],
           independentDrawProbability:null,
-          focusRuleVersion:"HJ38-RISK-LAYER-v1.2.7"
+          focusRuleVersion:"HJ38-RISK-LAYER-v1.2.8"
         }};
       }
 
@@ -1181,7 +1195,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
           okooo_behavior_adverse:okoooAdverse,
           okooo_behavior_strength:behavior.strength,
           direction_confirmed:directionConfirmed||!!existingDirection,
-          rule_version:"HJ38-RISK-LAYER-v1.2.7",
+          rule_version:"HJ38-RISK-LAYER-v1.2.8",
           evaluated_at:freezeAt
         },
         marketSignals,
@@ -1195,7 +1209,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
           (servedPredictionEligible&&!formalStoreEligible?servedDq:formalDq),
         replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
         historyRewrite:false,
-        focusRuleVersion:"HJ38-RISK-LAYER-v1.2.7"
+        focusRuleVersion:"HJ38-RISK-LAYER-v1.2.8"
       }};
     });
   }catch(error){
@@ -1210,7 +1224,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(!generalCandidate)return row;
       return {...row,upsetWarning:{...raw,sourcePublish,publish:false,detailOnly:false,
         displayTier:null,publicationEligible:false,publicationReason:"RISK_LAYER_UNAVAILABLE",
-        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.2.7-FALLBACK"},
+        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.2.8-FALLBACK"},
         marketSignals:[]}};
     });
   }
@@ -1225,7 +1239,7 @@ function upsetStatsFor(rows:Record<string,unknown>[]){
   const focus=published.filter(r=>tierOf(r)==="重点风险").length;
   return {
     modelVersion:"HJ38-UPSET-v1.1.0",
-    riskLayerVersion:"HJ38-RISK-LAYER-v1.2.7",
+    riskLayerVersion:"HJ38-RISK-LAYER-v1.2.8",
     published:published.length,
     strong,focus,
     // Backward-compatible keys: high/medium now follow the public layered tier, not legacy risk_score bands.
@@ -2572,7 +2586,7 @@ Deno.serve(async (req: Request) => {
         ok:true,sync:"upset-warning",date:syncDate,
         modelVersion:data.modelVersion??null,revision:data.revision??null,
         upsetStats:upsetStatsFor(layered),
-        riskLayerVersion:"HJ38-RISK-LAYER-v1.2.7",
+        riskLayerVersion:"HJ38-RISK-LAYER-v1.2.8",
         ...result
       });
     } catch(error) {
