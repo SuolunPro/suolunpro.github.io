@@ -829,6 +829,7 @@
   <script>
     const AUTH_BASE='https://ttydbcejxqxdkcfoizkj.supabase.co';const AUTH_KEY='sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa';
     const AUTH_STORE='soren_auth_v2',LEGACY_AUTH_STORE='soren_auth';
+    const MEMBER_CACHE_KEY='soren_member_cache_v1';
     let authSession=null,authPersistence='session',authRefreshPending=null,memberInfo=null;
     const INVITE_KEY='soren_beta_invite_v1';
     function savedInvite(){
@@ -840,9 +841,9 @@
     const storageWrite=(store,key,value)=>{try{store.setItem(key,value);return true}catch{return false}};
     const storageDelete=(store,key)=>{try{store.removeItem(key)}catch{}};
     function clearAuthSession(){
-      authSession=null;authRefreshPending=null;
+      authSession=null;authRefreshPending=null;memberInfo=null;
       storageDelete(localStorage,AUTH_STORE);storageDelete(sessionStorage,AUTH_STORE);
-      storageDelete(sessionStorage,LEGACY_AUTH_STORE);
+      storageDelete(sessionStorage,LEGACY_AUTH_STORE);storageDelete(localStorage,MEMBER_CACHE_KEY);
     }
     function storedAuth(){
       for(const [store,mode,key] of [[localStorage,'local',AUTH_STORE],[sessionStorage,'session',AUTH_STORE],[sessionStorage,'session',LEGACY_AUTH_STORE]]){
@@ -866,6 +867,20 @@
       let stored=storageWrite(remember?localStorage:sessionStorage,AUTH_STORE,serialized);
       if(!stored&&remember){authPersistence='session';stored=storageWrite(sessionStorage,AUTH_STORE,serialized)}
       return stored&&authPersistence==='local';
+    }
+    function saveMemberCache(info){
+      try{
+        if(!authSession?.user?.id||!info||typeof info!=='object')return;
+        localStorage.setItem(MEMBER_CACHE_KEY,JSON.stringify({userId:String(authSession.user.id),savedAt:Date.now(),membership:info}));
+      }catch{}
+    }
+    function readMemberCache(maxAgeMs=30*60*1000){
+      try{
+        const cached=JSON.parse(localStorage.getItem(MEMBER_CACHE_KEY)||'null');
+        if(!cached?.membership||String(cached.userId)!==String(authSession?.user?.id||''))return null;
+        if(!Number.isFinite(Number(cached.savedAt))||Date.now()-Number(cached.savedAt)>maxAgeMs)return null;
+        return cached.membership;
+      }catch{return null}
     }
     async function authRequest(path,body){
       // Supabase Auth uses redirect_to to route email confirmations back to this website.
@@ -1031,10 +1046,25 @@
       catch{return ''}
     }
     async function membershipFetch(){
-      const r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store'});
+      const r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:AbortSignal.timeout(9000)});
       const j=await r.json();
       if(!r.ok||j.ok!==true||!j.membership)throw Error('会员信息暂不可用，请稍后重试');
-      memberInfo=j.membership;return memberInfo;
+      memberInfo=j.membership;saveMemberCache(memberInfo);return memberInfo;
+    }
+    function isTransientConnectionError(error){
+      return error instanceof TypeError||['AbortError','TimeoutError'].includes(error?.name)||
+        /network|fetch|timeout|load failed|temporarily|会员信息暂不可用|SESSION_REFRESH_RETRY|HTTP 5\d\d/i.test(String(error?.message||error||''));
+    }
+    async function membershipFetchWithRetry(attempts=4){
+      let lastError=null;
+      for(let attempt=0;attempt<attempts;attempt++){
+        try{return await membershipFetch()}catch(error){
+          lastError=error;
+          if(!authSession?.access_token||error?.message==='LOGIN_REQUIRED'||!isTransientConnectionError(error))throw error;
+          if(attempt<attempts-1)await new Promise(resolve=>setTimeout(resolve,[450,900,1800][Math.min(attempt,2)]));
+        }
+      }
+      throw lastError||Error('会员信息暂不可用，请稍后重试');
     }
     async function redeemInvite(code){
       const r=await authorizedApiFetch(API+'?action=invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({inviteCode:code}),cache:'no-store'});
@@ -3546,31 +3576,36 @@
         }
       }
     }
-    let authBootInFlight=false;
+    let authBootInFlight=false,authBootRetryCount=0;
     async function beginAuthenticatedApp(){
       if(authBootInFlight)return;
       authBootInFlight=true;
+      let usedCachedMembership=false;
       try{
       if(!authSession?.access_token){showLoginGate();return}
       showAuthRetry('正在恢复登录状态…',true);
       try{
-        // The membership endpoint performs the authoritative server-side JWT check.
-        // Do not duplicate it with a browser-direct /auth/v1/user request: on some
-        // mobile networks that extra request can time out even after a successful login.
-        // A single transient membership read failure must not force a full-page reconnect.
-        try{await membershipFetch()}catch(error){
-          if(!authSession?.access_token||error.message==='LOGIN_REQUIRED')throw error;
-          const transient=error instanceof TypeError||['AbortError','TimeoutError'].includes(error.name)||
-            /network|fetch|timeout|会员信息暂不可用|HTTP 5\d\d/i.test(String(error.message||''));
-          if(!transient)throw error;
-          await new Promise(resolve=>setTimeout(resolve,650));
-          await membershipFetch();
-        }
+        await membershipFetchWithRetry(4);
+        authBootRetryCount=0;
       }catch(error){
-        if(!authSession?.access_token||error.message==='LOGIN_REQUIRED'){showLoginGate('登录状态已过期，请重新登录');return}
-        showAuthRetry('会员状态暂不可核验；登录信息已保留，请点击重新连接。');return;
+        if(!authSession?.access_token||error?.message==='LOGIN_REQUIRED'){showLoginGate('登录状态已过期，请重新登录');return}
+        const cached=readMemberCache();
+        if(cached){
+          memberInfo=cached;usedCachedMembership=true;
+        }else if(isTransientConnectionError(error)){
+          authBootRetryCount++;
+          const delay=Math.min(1200*Math.pow(2,Math.min(authBootRetryCount-1,3)),8000);
+          showAuthRetry('网络连接有波动，正在自动恢复…',true);
+          setTimeout(()=>beginAuthenticatedApp(),delay);
+          return;
+        }else{
+          showAuthRetry('会员状态暂不可核验；登录信息已保留，请稍后重试。');return;
+        }
       }
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
+      if(usedCachedMembership){
+        setTimeout(()=>membershipFetch().then(()=>{authBootRetryCount=0;if(state.tab==='profile')render()}).catch(()=>{}),2200);
+      }
       try{if(sessionStorage.getItem('soren_welcome_invite_v1')==='1'){sessionStorage.removeItem('soren_welcome_invite_v1');state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'))}}catch(e){}
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
@@ -3596,6 +3631,7 @@
     // Keep following the newest published match day without disrupting manual history browsing.
     let syncInFlight=false;
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&authSession?.access_token){refreshAuthSession().then(()=>refreshPublishedData()).catch(e=>console.warn('会话续期暂不可用',e))}});
+    window.addEventListener('online',()=>{if(document.getElementById('loginGate')&&authSession?.access_token)beginAuthenticatedApp()});
     setInterval(()=>{if(!document.hidden&&authSession?.access_token){refreshAuthSession().then(()=>refreshPublishedData()).catch(e=>console.warn('会话续期暂不可用',e))}},300000);
     setInterval(()=>{if(!document.hidden&&authSession?.access_token)refreshPublishedData().catch(e=>console.warn('赛前数据同步暂不可用',e))},120000);
     async function refreshPublishedData(){
