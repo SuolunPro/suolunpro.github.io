@@ -203,7 +203,16 @@ function parseBehavior(html:string, expectedHome:string, expectedAway:string) {
   if (!["home","draw","away"].every(x=>txRoles.has(x)&&idxRoles.has(x))) return null;
 
   const text = htmlText(html);
-  const scale = text.match(/本场比赛必发交易规模(较大|适中|较小)/)?.[1] ?? null;
+  const scaleSource = [
+    text,
+    ...tables.flatMap(rows=>rows.flat())
+  ].join("\n")
+   .replace(/[\u00a0\u2000-\u200b\u3000]/g," ")
+   .replace(/[ \t]+/g," ");
+  const scale =
+    scaleSource.match(/本场比赛\s*必发交易规模\s*(?:为|[:：])?\s*(较大|适中|较小)/)?.[1] ??
+    scaleSource.match(/必发交易规模\s*(?:为|[:：])?\s*(较大|适中|较小)/)?.[1] ??
+    null;
   const order = {home:0,draw:1,away:2} as Record<string,number>;
   txByRole.sort((a,b)=>order[a.role]-order[b.role]);
   idxByRole.sort((a,b)=>order[a.role]-order[b.role]);
