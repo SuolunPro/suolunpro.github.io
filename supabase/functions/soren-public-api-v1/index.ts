@@ -836,7 +836,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(Number.isFinite(Number(m.id)))ids.push(Number(m.id));
     }
     if(!ids.length)return rows;
-    const [{data:market,error:marketError},{data:features,error:featureError},{data:formalPredictions,error:predictionError},{data:riskLedger,error:riskLedgerError}]=await Promise.all([
+    const [{data:market,error:marketError},{data:features,error:featureError},{data:formalPredictions,error:predictionError},{data:riskLedger,error:riskLedgerError},{data:behaviors,error:behaviorError}]=await Promise.all([
       db.from("soren_market_snapshots")
         .select("match_id,source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,data_quality,payload,captured_at,ingested_at")
         .in("match_id",ids)
@@ -856,11 +856,16 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         .select("pool_date,match_no,source_model_version,source_revision,warning_model_version,risk_level,risk_score,original_top1,warning_direction,alternative_pick,risk_basis,direction_basis,evidence_domains,directional_domain_count,source_frozen_at,result_fields_used,hur_direction_used,source_payload")
         .eq("pool_date",date)
         .order("source_frozen_at",{ascending:false}).limit(1200),
+      db.from("soren_market_behavior_v1")
+        .select("match_id,match_no,okooo_match_id,exchange_scale,transaction_rows,index_rows,captured_at,kickoff_at,prematch_verified,source_quality")
+        .eq("pool_date",date).in("match_id",ids).eq("prematch_verified",true)
+        .order("captured_at",{ascending:false}).limit(1200),
     ]);
     if(marketError)throw marketError;
     if(featureError)throw featureError;
     if(predictionError)throw predictionError;
     if(riskLedgerError)throw riskLedgerError;
+    if(behaviorError)throw behaviorError;
     const marketById=new Map<number,Record<string,unknown>[]>();
     for(const x of market??[]){
       const id=Number(x.match_id);if(!Number.isFinite(id))continue;
@@ -884,6 +889,12 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(!riskLedgerByNo.has(no))riskLedgerByNo.set(no,[]);
       riskLedgerByNo.get(no)!.push(x as Record<string,unknown>);
     }
+    const behaviorById=new Map<number,Record<string,unknown>[]>();
+    for(const x of behaviors??[]){
+      const id=Number(x.match_id);if(!Number.isFinite(id))continue;
+      if(!behaviorById.has(id))behaviorById.set(id,[]);
+      behaviorById.get(id)!.push(x as Record<string,unknown>);
+    }
     const before=(x:Record<string,unknown>,cut:number)=>{
       const c=Date.parse(String(x.captured_at??"")),i=Date.parse(String(x.ingested_at??x.captured_at??""));
       return Number.isFinite(c)&&Number.isFinite(i)&&c<=cut&&i<=cut;
@@ -892,6 +903,39 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       list.find(x=>String(x.source_code)===source&&String(x.market_type)===type&&String(x.snapshot_type)===snapshot&&before(x,cut))??null;
     const latestScore=(list:Record<string,unknown>[],cut:number)=>
       list.find(x=>before(x,cut)&&String(x.feature_type).startsWith("SCORE_ENGINE"))??null;
+    const latestBehavior=(list:Record<string,unknown>[],cut:number)=>
+      list.find(x=>{
+        const c=Date.parse(String(x.captured_at??""));
+        const k=Date.parse(String(x.kickoff_at??""));
+        const quality=String(x.source_quality??"");
+        return x.prematch_verified===true&&quality.includes("prematch")&&
+          Number.isFinite(c)&&c<=cut&&(!Number.isFinite(k)||c<k);
+      })??null;
+    const behaviorDirection=(b:Record<string,unknown>|null)=>{
+      if(!b)return {top:null as string|null,strength:null as string|null,margin:0};
+      const tr=Array.isArray(b.transaction_rows)?b.transaction_rows as Record<string,unknown>[]:[];
+      const ix=Array.isArray(b.index_rows)?b.index_rows as Record<string,unknown>[]:[];
+      if(tr.length<3||ix.length<3)return {top:null as string|null,strength:null as string|null,margin:0};
+      const nums=(list:Record<string,unknown>[],key:string)=>[0,1,2].map(i=>{
+        const v=Number(list[i]?.[key]);return Number.isFinite(v)?v:0;
+      });
+      const doer=nums(tr,"doerPct"),bfShare=nums(ix,"bfShare"),jcShare=nums(ix,"jcSavedShare"),
+        avgProb=nums(ix,"avgProb"),bfHot=nums(ix,"bfHotCold"),jcHot=nums(ix,"jcHotCold");
+      const score=[0,0,0],maxIndex=(a:number[])=>a.indexOf(Math.max(...a));
+      const addTop=(a:number[],w:number)=>{const i=maxIndex(a);if(i>=0)score[i]+=w;};
+      addTop(avgProb,1);addTop(jcShare,2);addTop(doer,1);
+      addTop(bfShare,String(b.exchange_scale??"")==="较小"?1:2);
+      const bf=maxIndex(bfHot),jc=maxIndex(jcHot);
+      if(bf>=0&&bfHot[bf]>=15)score[bf]+=String(b.exchange_scale??"")==="较小"?0.5:1;
+      if(jc>=0&&jcHot[jc]>=15)score[jc]+=1;
+      const rank=score.map((v,i)=>({i,v})).sort((a,c)=>c.v-a.v);
+      const margin=(rank[0]?.v??0)-(rank[1]?.v??0);
+      return {
+        top:(["H","D","A"][rank[0]?.i]??null) as string|null,
+        strength:margin>=3?"强":margin>=1.5?"中":"弱",
+        margin
+      };
+    };
 
     return rows.map(row=>{
       let raw=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
@@ -905,7 +949,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       const formalDq=String(formal?.dq??"");
       const kick=Date.parse(String(row.kickoff??match.kickoff_at??""));
       const cutoff=Date.parse(String(row.saleCutoffAt??match.cutoff_at??""));
-      const boundary=Number.isFinite(cutoff)&&Number.isFinite(boundary)&&cutoff<kick?cutoff:kick;
+      const boundary=Number.isFinite(cutoff)&&Number.isFinite(kick)&&cutoff<kick?cutoff:kick;
 
       // Public risk is anchored to the immutable formal prediction. If a later
       // upstream refresh changes the Top1, retain it in the ledger for audit but
@@ -994,12 +1038,12 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
             opposite_second:riskDisplayEligible&&oppositeSecond,
             qualified_draw:false,
             market_anomaly:riskDisplayEligible&&lowDqMarketAnomaly,
-            rule_version:"HJ38-RISK-LAYER-v1.2.6",
+            rule_version:"HJ38-RISK-LAYER-v1.2.7",
             evaluated_at:freezeAt
           },
           marketSignals:riskDisplayEligible&&lowDqMarketAnomaly?["冻结风险依据存在市场反向变化"]:[],
           independentDrawProbability:null,
-          focusRuleVersion:"HJ38-RISK-LAYER-v1.2.6"
+          focusRuleVersion:"HJ38-RISK-LAYER-v1.2.7"
         }};
       }
 
@@ -1027,8 +1071,17 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       }
       const wi=latestMarket(list,"zucaijia_william","FT_1X2","initial",cut);
       const wc=latestMarket(list,"zucaijia_william","FT_1X2","current",cut);
+      let williamCurrentSide:string|null=null;
+      if(wc){
+        const wh=riskNum(wc.home_value),wd=riskNum(wc.draw_value),wa=riskNum(wc.away_value);
+        if(wh!==null&&wd!==null&&wa!==null){
+          const values=[wh,wd,wa],i=values.indexOf(Math.min(...values));
+          williamCurrentSide=["H","D","A"][i]??null;
+        }
+      }
       if(top&&wi&&wc){
-        const a=riskNum(top==="H"?wi.home_value:wi.away_value),b=riskNum(top==="H"?wc.home_value:wc.away_value);
+        const a=riskNum(top==="H"?wi.home_value:top==="A"?wi.away_value:wi.draw_value);
+        const b=riskNum(top==="H"?wc.home_value:top==="A"?wc.away_value:wc.draw_value);
         if(a!==null&&b!==null&&b>a&&(b-a>=0.08||b/a>=1.05))signals.push("William热门方向升赔");
       }
       const ai=latestMarket(list,"zucaijia_asia4:1","ASIAN_HANDICAP","initial",cut);
@@ -1041,27 +1094,94 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       }
       const si=latestMarket(list,"qiulaile_sp_mirror","HAD","initial",cut);
       const sc=latestMarket(list,"qiulaile_sp_mirror","HAD","current",cut);
+      let sportterySide:string|null=null;
       if(top&&sc){
-        const sh=riskNum(sc.home_value),sa=riskNum(sc.away_value);
-        if(sh!==null&&sa!==null){
-          const side=sh<sa?"H":"A";
-          if(side!==top)signals.push("体彩HAD方向冲突");
+        const sh=riskNum(sc.home_value),sd=riskNum(sc.draw_value),sa=riskNum(sc.away_value);
+        if(sh!==null&&sd!==null&&sa!==null){
+          const values=[sh,sd,sa],i=values.indexOf(Math.min(...values));
+          sportterySide=["H","D","A"][i]??null;
+          if(sportterySide!==top)signals.push("体彩HAD方向冲突");
+        }else if(sh!==null&&sa!==null){
+          sportterySide=sh<sa?"H":"A";
+          if(sportterySide!==top)signals.push("体彩HAD方向冲突");
         }
         if(si){
-          const a=riskNum(top==="H"?si.home_value:si.away_value),b=riskNum(top==="H"?sc.home_value:sc.away_value);
+          const a=riskNum(top==="H"?si.home_value:top==="A"?si.away_value:si.draw_value);
+          const b=riskNum(top==="H"?sc.home_value:top==="A"?sc.away_value:sc.draw_value);
           if(a!==null&&b!==null&&b-a>=0.08)signals.push("体彩HAD热门方向升赔");
         }
       }
+
+      const behaviorRow=latestBehavior(behaviorById.get(id)??[],cut);
+      const behavior=behaviorDirection(behaviorRow);
+      const okoooAdverse=!!(top&&behavior.top&&behavior.top!==top&&["中","强"].includes(String(behavior.strength??"")));
+      if(okoooAdverse)signals.push("澳客资金方向与原Top1相反");
+
+      const rawDirectionBasis=Array.isArray(raw.directionBasis)?raw.directionBasis:
+        (Array.isArray(raw.direction_basis)?raw.direction_basis:[]);
+      const rawEvidenceDomains=Array.isArray(raw.evidenceDomains)?raw.evidenceDomains:
+        (Array.isArray(raw.evidence_domains)?raw.evidence_domains:[]);
+      const directionBasis:string[]=[...rawDirectionBasis.map(x=>String(x))];
+      const directionDomains=new Set<string>(
+        rawEvidenceDomains.map(x=>String(x)).filter(x=>!["risk_head","market_strength"].includes(x))
+      );
+      const resultLabel=(v:string|null)=>v==="H"?"主胜":v==="D"?"平":v==="A"?"客胜":null;
+
+      if(okoooAdverse&&behavior.top){
+        directionDomains.add("okooo_market_behavior");
+        directionBasis.push("澳客交易/指数资金方向"+String(resultLabel(behavior.top))+"，强度"+String(behavior.strength));
+      }
+      if(top&&sportterySide&&sportterySide!==top){
+        directionDomains.add("sporttery_market");
+        directionBasis.push("体彩HAD当前方向"+String(resultLabel(sportterySide))+"与原Top1相反");
+      }
+      if(top&&williamCurrentSide&&williamCurrentSide!==top){
+        directionDomains.add("william_market");
+        directionBasis.push("William即时方向"+String(resultLabel(williamCurrentSide))+"与原Top1相反");
+      }
+      if(top&&qualifiedDraw&&top!=="D"){
+        directionDomains.add("independent_model");
+        directionBasis.push("独立比分模型平局概率达到方向确认阈值");
+      }
+
+      const existingDirection=String(raw.warningDirection??raw.warning_direction??"")||null;
+      const directionConfirmed=!!(
+        !existingDirection&&top&&["H","A"].includes(top)&&okoooAdverse&&directionDomains.size>=2
+      );
+      const warningDirection=existingDirection??(directionConfirmed?(top==="H"?"主队不胜":"客队不胜"):null);
+      const alternativePick=raw.alternativePick??raw.alternative_pick??
+        (directionConfirmed&&behavior.top?resultLabel(behavior.top):null);
+      const directionalDomainCount=Math.max(
+        Number(raw.directionalDomainCount??raw.directional_domain_count??0)||0,
+        directionDomains.size
+      );
+      const mergedDirectionBasis=[...new Set(directionBasis.filter(Boolean))];
+      const mergedEvidenceDomains=[...new Set([
+        ...rawEvidenceDomains.map(x=>String(x)),
+        ...directionDomains
+      ])];
+
       const marketSignals=[...new Set(signals)],marketAnomaly=marketSignals.length>0;
-      const focus=oppositeSecond||qualifiedDraw;
-      const displayTier=focus?(marketAnomaly?"强风险信号":"重点风险"):"一般风险";
+      const focus=oppositeSecond||qualifiedDraw||directionConfirmed||!!existingDirection;
+      const displayTier=focus?((marketAnomaly||directionConfirmed||!!existingDirection)?"强风险信号":"重点风险"):"一般风险";
       return {...row,upsetWarning:{...raw,
         sourcePublish,publish:focus,detailOnly:!focus,displayTier,
+        warningDirection,alternativePick,
+        directionBasis:mergedDirectionBasis,
+        evidenceDomains:mergedEvidenceDomains,
+        directionalDomainCount,
+        directionPublicationEligible:!!warningDirection&&directionalDomainCount>=2,
+        note:directionConfirmed
+          ?"预警方向由澳客资金与至少一个独立赛前证据域同向确认"
+          :(raw.note??null),
         focusGate:{
           opposite_second:oppositeSecond,
           qualified_draw:qualifiedDraw,
           market_anomaly:marketAnomaly,
-          rule_version:"HJ38-RISK-LAYER-v1.2.6",
+          okooo_behavior_adverse:okoooAdverse,
+          okooo_behavior_strength:behavior.strength,
+          direction_confirmed:directionConfirmed||!!existingDirection,
+          rule_version:"HJ38-RISK-LAYER-v1.2.7",
           evaluated_at:freezeAt
         },
         marketSignals,
@@ -1075,7 +1195,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
           (servedPredictionEligible&&!formalStoreEligible?servedDq:formalDq),
         replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
         historyRewrite:false,
-        focusRuleVersion:"HJ38-RISK-LAYER-v1.2.6"
+        focusRuleVersion:"HJ38-RISK-LAYER-v1.2.7"
       }};
     });
   }catch(error){
@@ -1090,7 +1210,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(!generalCandidate)return row;
       return {...row,upsetWarning:{...raw,sourcePublish,publish:false,detailOnly:false,
         displayTier:null,publicationEligible:false,publicationReason:"RISK_LAYER_UNAVAILABLE",
-        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.2.6-FALLBACK"},
+        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.2.7-FALLBACK"},
         marketSignals:[]}};
     });
   }
@@ -1105,7 +1225,7 @@ function upsetStatsFor(rows:Record<string,unknown>[]){
   const focus=published.filter(r=>tierOf(r)==="重点风险").length;
   return {
     modelVersion:"HJ38-UPSET-v1.1.0",
-    riskLayerVersion:"HJ38-RISK-LAYER-v1.2.6",
+    riskLayerVersion:"HJ38-RISK-LAYER-v1.2.7",
     published:published.length,
     strong,focus,
     // Backward-compatible keys: high/medium now follow the public layered tier, not legacy risk_score bands.
@@ -2452,7 +2572,7 @@ Deno.serve(async (req: Request) => {
         ok:true,sync:"upset-warning",date:syncDate,
         modelVersion:data.modelVersion??null,revision:data.revision??null,
         upsetStats:upsetStatsFor(layered),
-        riskLayerVersion:"HJ38-RISK-LAYER-v1.2.6",
+        riskLayerVersion:"HJ38-RISK-LAYER-v1.2.7",
         ...result
       });
     } catch(error) {
