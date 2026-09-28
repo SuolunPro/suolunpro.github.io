@@ -1311,7 +1311,7 @@ function dailySelectionStatsFor(rows:Record<string,unknown>[]){
     supplement:supplement.length,
     total:core.length+supplement.length,
     frozenRiskLocked:rows.filter(r=>r.dailySelectionRiskLocked===true).length,
-    coldWarningLocked:rows.filter(r=>String(r.dailySelectionRiskLockReason??"")==="VIP_COLD_WARNING_PUBLISHED").length,
+    coldWarningLocked:rows.filter(r=>["COLD_WARNING_PUBLISHED","VIP_COLD_WARNING_PUBLISHED"].includes(String(r.dailySelectionRiskLockReason??""))).length,
     supplementAverageWilliamOdds:odds.length?Math.round(odds.reduce((a,b)=>a+b,0)/odds.length*1000)/1000:null
   };
 }
@@ -1333,6 +1333,38 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
   let tagged=highDrawTagged.map(row=>dailyCorePick(row)?{...row,dailySelectionTier:"CORE",dailySelectionLabel:"核心优选"}:{...row,dailySelectionTier:null,dailySelectionLabel:null});
   if(!rows.length||date<"2026-09-20")return tagged;
   try{
+    // Any published cold/upset warning becomes an immutable one-way exclusion for
+    // 今日优选 on that pool date. A later risk downgrade may update analysis, but it
+    // must never promote the match back into CORE or SUPPLEMENT.
+    const todayBjtForRiskLock=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"})
+      .format(new Date()).split("/").join("-");
+    if(date>="2026-09-28"&&date>=todayBjtForRiskLock){
+      const warningLocks=rows.flatMap(row=>{
+        const warning=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
+          ?row.upsetWarning as Record<string,unknown>:null;
+        const tier=String(warning?.displayTier??warning?.display_tier??"");
+        if(!(warning?.publish===true||tier==="重点风险"||tier==="强风险信号"))return [];
+        return [{
+          pool_date:date,
+          match_no:String(row.no??"").padStart(3,"0"),
+          lock_type:"UPSET_WARNING",
+          source:"PUBLIC_UPSET_WARNING",
+          source_payload:{
+            ruleVersion:"DAILY-COLD-EXCLUSION-v1.1-20260928",
+            displayTier:tier||null,
+            riskLevel:warning?.riskLevel??warning?.risk_level??null,
+            warningDirection:warning?.warningDirection??warning?.warning_direction??null,
+            marketSignals:Array.isArray(warning?.marketSignals)?warning.marketSignals:[]
+          }
+        }];
+      });
+      if(warningLocks.length){
+        const {error:warningLockError}=await db.from("soren_daily_selection_locks_v1")
+          .upsert(warningLocks,{onConflict:"pool_date,match_no,lock_type",ignoreDuplicates:true});
+        if(warningLockError)throw warningLockError;
+      }
+    }
+
     // Immutable one-way eligibility lock: if the first formal customer freeze was
     // already blocked by published/focus risk, later prematch risk downgrades may
     // update analysis but must never promote the match into CORE or SUPPLEMENT.
@@ -1340,7 +1372,8 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
       db.from("soren_sale_freezes_v1")
         .select("match_no,source_frozen_at,snapshot").eq("pool_date",date).limit(300),
       db.from("soren_daily_selection_locks_v1")
-        .select("match_no,locked_at").eq("pool_date",date).eq("lock_type","VIP_COLD_WARNING").limit(300),
+        .select("match_no,lock_type,locked_at").eq("pool_date",date)
+        .in("lock_type",["VIP_COLD_WARNING","UPSET_WARNING"]).limit(600),
     ]);
     if(saleFreezeError)throw saleFreezeError;
     if(coldLockError)throw coldLockError;
@@ -1357,18 +1390,22 @@ async function attachDailySupplementLayer(rows:Record<string,unknown>[],date:str
           freeze.source_frozen_at?String(freeze.source_frozen_at):null);
       }
     }
-    const coldLockByNo=new Map<string,string|null>();
+    const coldLockByNo=new Map<string,{lockedAt:string|null;lockType:string}>();
     for(const lock of coldLocks??[]){
-      coldLockByNo.set(String(lock.match_no??"").padStart(3,"0"),lock.locked_at?String(lock.locked_at):null);
+      const no=String(lock.match_no??"").padStart(3,"0");
+      const entry={lockedAt:lock.locked_at?String(lock.locked_at):null,lockType:String(lock.lock_type??"")};
+      const current=coldLockByNo.get(no);
+      if(!current||entry.lockType==="UPSET_WARNING")coldLockByNo.set(no,entry);
     }
     tagged=rows.map(row=>{
       const no=String(row.no??"").padStart(3,"0");
-      const coldLocked=coldLockByNo.has(no);
+      const coldLock=coldLockByNo.get(no);
+      const coldLocked=!!coldLock;
       const frozenLocked=frozenRiskLocks.has(no);
       const prepared=coldLocked?{...row,
         dailySelectionRiskLocked:true,
-        dailySelectionRiskLockReason:"VIP_COLD_WARNING_PUBLISHED",
-        dailySelectionRiskLockAt:coldLockByNo.get(no)??null}
+        dailySelectionRiskLockReason:coldLock?.lockType==="UPSET_WARNING"?"COLD_WARNING_PUBLISHED":"VIP_COLD_WARNING_PUBLISHED",
+        dailySelectionRiskLockAt:coldLock?.lockedAt??null}
         :frozenLocked?{...row,
           dailySelectionRiskLocked:true,
           dailySelectionRiskLockReason:"FORMAL_FREEZE_RISK_BLOCK",
