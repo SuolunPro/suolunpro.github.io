@@ -1264,6 +1264,8 @@
         el('p','','停售后开赛：工作日21:30、周末22:30前完成最终审核。'),
         el('p','','单次市场异动不会直接触发；轻微风险需持续异常或独立市场证据确认。'),
         el('p','','方向经多源确认后，才升级为正式冷门预警。'),
+        el('p','','若后续亚盘、市场与情报重新一致支持原方向，会标记为“风险回落”。'),
+        el('p','','已形成正式冷门预警或风险排除记录的场次，不因风险回落重新进入今日优选。'),
         el('p','','最终以停售/赛前冻结版本为准。')
       );
       page.append(info);
@@ -1302,13 +1304,16 @@
         const isHomeTop=row.model?.top1==='主胜';
         const tier=String(cold?.customerTier||'持续观察');
         const isFormal=tier==='正式冷门预警'&&cold?.vipPublish===true;
+        const isCooling=tier==='风险回落';
         const direction=isFormal
           ?(isHomeTop?'主队不胜':row.model?.top1==='客胜'?'客队不胜':String(cold?.customerDirection||cold?.unbeatenDirection||''))
-          :'方向待确认';
+          :isCooling
+            ?'原方向仍获支持'
+            :'方向待确认';
         const pickShort=x=>x==='主胜'?'主':x==='客胜'?'客':x==='平'?'平':String(x||'');
         const refs=Array.isArray(cold?.referencePicks)?cold.referencePicks:[];
         const refText=isFormal?refs.map(x=>pickShort(x?.pick)).filter(Boolean).join(' + '):'';
-        const badgeClass=tier==='轻微风险'?'light-risk':tier==='风险偏高'?'risk-high':'formal-cold';
+        const badgeClass=(tier==='轻微风险'||isCooling)?'light-risk':tier==='风险偏高'?'risk-high':'formal-cold';
 
         const card=el('article','card member-zone-regular-card');
         const head=el('div','card-head'),id=el('div','match-id');
@@ -1329,7 +1334,9 @@
         pick.append(el('div','member-zone-pick-label','预警方向'));
         pick.append(el('div','member-zone-pick-direction'+(isFormal?'':' pending'),direction));
         if(isFormal&&refText)pick.append(el('div','member-zone-pick-ref','参考：'+refText));
-        else pick.append(el('div','member-zone-pick-note',tier==='轻微风险'?'持续观察市场变化':'风险已升高，等待方向确认'));
+        else pick.append(el('div','member-zone-pick-note',
+          isCooling?'最新亚盘、市场与情报共同支持原方向，继续观察至冻结':
+          tier==='轻微风险'?'持续观察市场变化':'风险已升高，等待方向确认'));
         const tags=el('div','member-zone-pick-evidence');
         const evidence=Array.isArray(cold?.vipEvidence)&&cold.vipEvidence.length?cold.vipEvidence:
           (Array.isArray(cold?.evidence)?cold.evidence:[]);
