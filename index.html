@@ -367,6 +367,9 @@
 .member-zone-proof-prob{padding:6px 4px;border-radius:8px;background:#f6f7f8;text-align:center}
 .member-zone-proof-prob span{display:block;font-size:8px;color:#8b9299}
 .member-zone-proof-prob b{display:block;font-size:11px;color:#343a40;margin-top:2px}
+.member-zone-intel-list{margin:4px 0 0;padding-left:17px;color:#4f5962;font-size:9px;line-height:1.65}
+.member-zone-intel-list li{margin:4px 0}
+.member-zone-intel-state{font-size:9px;color:#8a929a;line-height:1.55;padding:2px 0}
 
 
 
@@ -1230,7 +1233,21 @@
     // object is unchanged; a successful changed API response gets a new object
     // and therefore a fresh render automatically.
     const memberZonePageCache=new WeakMap();
+    const memberIntelCache=new Map();
     let memberZoneFingerprint='',memberZoneRequest=null;
+
+    async function loadMemberIntelProof(date,no){
+      const key=String(date)+'|'+String(no).padStart(3,'0');
+      const cached=memberIntelCache.get(key);
+      if(cached&&Date.now()-cached.at<5*60*1000)return cached.data;
+      const qs=new URLSearchParams({view:'member-intel',date:String(date),no:String(no).padStart(3,'0')});
+      const r=await authorizedApiFetch(OKOOO_SHADOW_API+'?'+qs.toString(),{cache:'no-store',signal:timeoutSignal(10000)});
+      const j=await r.json().catch(()=>null);
+      if(!r.ok||j?.ok!==true)throw Error(j?.error||'情报暂不可用');
+      memberIntelCache.set(key,{at:Date.now(),data:j});
+      while(memberIntelCache.size>40)memberIntelCache.delete(memberIntelCache.keys().next().value);
+      return j;
+    }
     function renderMemberZone(){
       const box=$('content');box.replaceChildren(sectionHead('今日冷门识别','赛前市场动态识别'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
@@ -1253,6 +1270,7 @@
       if(state.memberZoneLoading){page.append(el('div','empty','','正在读取冷门识别…'));box.append(page);return}
       if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
       const rows=state.memberZone?.rows||[];
+      const zoneDate=state.memberZone?.date||memberZoneDate();
 
       const fmtPct=v=>Number.isFinite(Number(v))?Number(v).toFixed(1)+'%':'—';
       const fmtPp=v=>Number.isFinite(Number(v))?(Number(v)>=0?'+':'')+Number(v).toFixed(1)+'pp':'—';
@@ -1434,6 +1452,39 @@
             .forEach(x=>addLine(isec,String(x.side||'')+' '+String(x.type||'情报'),String(x.summary||'')));
           body.append(isec);
         }
+
+        // Full shadow intelligence is loaded only when the customer expands this match.
+        // The VIP endpoint is source-neutral: no vendor names, source URLs or external IDs.
+        const xsec=el('section','member-zone-proof-section');
+        xsec.append(el('div','member-zone-proof-title','情报 / 伤停重点'));
+        const xstate=el('div','member-zone-intel-state','展开后读取最新赛前情报');
+        xsec.append(xstate);
+        body.append(xsec);
+        let xloading=false,xloaded=false;
+        details.addEventListener('toggle',async()=>{
+          if(!details.open||xloading||xloaded)return;
+          xloading=true;xstate.textContent='正在读取赛前情报…';
+          try{
+            const data=await loadMemberIntelProof(zoneDate,row.no);
+            const intel=data?.intelligence||{};
+            const highlights=Array.isArray(intel.highlights)?intel.highlights.filter(Boolean).slice(0,3):[];
+            xsec.replaceChildren(el('div','member-zone-proof-title','情报 / 伤停重点'));
+            if(highlights.length){
+              addLine(xsec,'有效伤停/阵容',Number.isFinite(Number(intel.injuryCount))?String(intel.injuryCount)+' 条':'已收录');
+              const ul=el('ul','member-zone-intel-list');
+              highlights.forEach(x=>ul.append(el('li','',String(x))));
+              xsec.append(ul);
+              const flags=Array.isArray(intel.flags)?intel.flags.filter(Boolean).slice(0,3):[];
+              if(flags.length)addLine(xsec,'系统识别',flags.join(' · '));
+              if(intel.capturedAt)addLine(xsec,'情报更新',fmtStamp(intel.capturedAt));
+            }else{
+              xsec.append(el('div','member-zone-intel-state','本场暂未收录有效伤停摘要'));
+            }
+            xloaded=true;
+          }catch(error){
+            xstate.textContent='赛前情报暂未读取成功';
+          }finally{xloading=false}
+        });
 
         const cov=row.coverage||{},dsec=el('section','member-zone-proof-section');
         dsec.append(el('div','member-zone-proof-title','数据完整度'));
