@@ -4,6 +4,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.95.0';
 const sb=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false,autoRefreshToken:false}});
 const QAPI='https://qiulaile.vip/api';
 const ASIA4=['Bet365','皇冠','威廉希尔','12bet'];
+const OU4=['Bet365','皇冠','威廉希尔','澳门'];
 const K=20,HA=60,BASE=1500;
 const TEAM_ALIAS:Record<string,string>={
   'VPS瓦萨':'瓦萨','哥德堡盖斯':'盖斯','桑德菲杰':'桑纳菲','红星':'圣旺红星',
@@ -24,6 +25,7 @@ function odds3(v:any){const a=String(v||'').match(/[0-9]+\.[0-9]+/g)?.map(Number
 function hasPublishedJcOdds(m:any){return !!odds3(m?.spfSp)||!!odds3(m?.rqspfSp)}
 function split3(v:any){const a=String(v||'').trim().split(/\s+/);if(a.length<3)return null;const h=Number(a[0]),w=Number(a[a.length-1]),line=a.slice(1,-1).join(' ');return Number.isFinite(h)&&Number.isFinite(w)?{home:h,line,away:w}:null}
 function numericLine(v:any){const x=Number(String(v||'').trim());return Number.isFinite(x)?x:null}
+function numericTotalLine(v:any){const s=String(v||'').trim();const direct=Number(s);if(Number.isFinite(direct))return direct;const parts=s.split('/').map(Number);return parts.length===2&&parts.every(Number.isFinite)?(parts[0]+parts[1])/2:null}
 function norm(s:any){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\b(fc|cf|afc|as|sl|gd|fco|ff)\b/g,' ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()}
 function similar(a:string,b:string){const x=norm(a),y=norm(b);return !!x&&!!y&&(x===y||x.includes(y)||y.includes(x))}
 async function sha(s:string){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('')}
@@ -42,7 +44,7 @@ for(const m of pool){const mm=String(m.displayNo||'').match(/(\d{3})$/);const d=
 await health('jc_pool','ok',saleDate,pool.length,upserted,upserted,null,{source:'qiulaile',sale_rule:'upcoming_with_published_had_or_hhad_odds'});return {saleDate,pool,upserted,stale:(existing||[]).filter((e:any)=>!activeNos.has(String(e.match_no))).map((e:any)=>e.match_no)}}
 
 async function insertMarket(row:any){const {error}=await sb.from('soren_market_snapshots').upsert(row,{onConflict:'match_id,source_code,market_type,snapshot_type,source_hash',ignoreDuplicates:true});if(error)throw error}
-async function syncMarkets(explicit:string|null){const {saleDate,pool}=await sourcePool(explicit);const {data:matches,error}=await sb.from('soren_matches').select('*').eq('pool_date',saleDate);if(error)throw error;const map=new Map((matches||[]).filter((x:any)=>x?.source_status?.pool_status==='ACTIVE').map((x:any)=>[String(x.match_no),x]));const now=new Date().toISOString();let william=0,asiaPairs=0,had=0,hhad=0;const per:any[]=[];
+async function syncMarkets(explicit:string|null){const {saleDate,pool}=await sourcePool(explicit);const {data:matches,error}=await sb.from('soren_matches').select('*').eq('pool_date',saleDate);if(error)throw error;const map=new Map((matches||[]).filter((x:any)=>x?.source_status?.pool_status==='ACTIVE').map((x:any)=>[String(x.match_no),x]));const now=new Date().toISOString();let william=0,asiaPairs=0,ouPairs=0,had=0,hhad=0;const per:any[]=[];
 for(const sm of pool){const no=p3(String(sm.displayNo||'').match(/(\d{3})$/)?.[1]||0),m=map.get(no);if(!m)continue;const sourceId=String(sm.id);
  const hv=odds3(sm.spfSp);if(hv){const h=await sha(`sp|${m.id}|HAD|${hv.join('|')}`);await insertMarket({match_id:m.id,source_code:'qiulaile_sp_mirror',market_type:'HAD',snapshot_type:'current',home_value:hv[0],draw_value:hv[1],away_value:hv[2],line:null,data_quality:'verified_mirror',payload:{source_match_id:sourceId,raw:sm.spfSp},captured_at:now,source_hash:h});had++}
  const rv=odds3(sm.rqspfSp);if(rv){const ln=handicap(sm.rqspfSp);const h=await sha(`sp|${m.id}|HHAD|${ln}|${rv.join('|')}`);await insertMarket({match_id:m.id,source_code:'qiulaile_sp_mirror',market_type:'HHAD',snapshot_type:'current',home_value:rv[0],draw_value:rv[1],away_value:rv[2],line:ln,data_quality:'verified_mirror',payload:{source_match_id:sourceId,raw:sm.rqspfSp},captured_at:now,source_hash:h});hhad++}
@@ -50,8 +52,36 @@ for(const sm of pool){const no=p3(String(sm.displayNo||'').match(/(\d{3})$/)?.[1
  catch(e){per.push({match_no:no,william_error:String(e)})}
  try{const j=await gj(`${QAPI}/match/odds?matchId=${encodeURIComponent(sourceId)}&matchType=1&home=${encodeURIComponent(sm.home)}&away=${encodeURIComponent(sm.away)}`);const lines=Array.isArray(j?.lines)?j.lines:[];for(const name of ASIA4){const x=lines.find((q:any)=>q.market==='亚赔'&&String(q.company||'').toLowerCase()===name.toLowerCase());if(!x)continue;const ini=split3(x.initial),cur=split3(x.primary);if(!ini||!cur)continue;for(const [typ,v] of [['initial',ini],['current',cur]] as any[]){const h=await sha(`ah|${m.id}|${x.companyId??name}|${typ}|${v.home}|${v.line}|${v.away}|${x.time||''}`);await insertMarket({match_id:m.id,source_code:`zucaijia_asia4:${String(x.companyId??name)}`,market_type:'ASIAN_HANDICAP',snapshot_type:typ,line:numericLine(v.line),home_water:v.home,away_water:v.away,data_quality:'verified',payload:{source_match_id:sourceId,institution_name:name,institution_code:String(x.companyId??name),original_line:v.line,time:x.time||null},captured_at:now,source_hash:h})}asiaPairs++}}
  catch(e){per.push({match_no:no,asia_error:String(e)})}
+ try{
+   const j=await gj(`${QAPI}/match/odds?matchId=${encodeURIComponent(sourceId)}&matchType=2&home=${encodeURIComponent(sm.home)}&away=${encodeURIComponent(sm.away)}`);
+   const lines=Array.isArray(j?.lines)?j.lines:[];
+   for(const name of OU4){
+     const x=lines.find((q:any)=>q.market==='大小'&&String(q.company||'').toLowerCase()===name.toLowerCase());
+     if(!x)continue;
+     const ini=split3(x.initial),cur=split3(x.primary);
+     if(!ini||!cur)continue;
+     for(const [typ,v] of [['initial',ini],['current',cur]] as any[]){
+       const totalLine=numericTotalLine(v.line);
+       if(totalLine===null||totalLine<0.5||totalLine>7.5)continue;
+       const h=await sha(`ou|${m.id}|${x.companyId??name}|${typ}|${v.home}|${v.line}|${v.away}|${x.time||''}`);
+       await insertMarket({
+         match_id:m.id,source_code:`zucaijia_ou:${String(x.companyId??name)}`,
+         market_type:'OVER_UNDER',snapshot_type:typ,line:totalLine,
+         home_water:v.home,away_water:v.away,data_quality:'verified',
+         payload:{source_match_id:sourceId,institution_name:name,institution_code:String(x.companyId??name),original_line:v.line,over_water:v.home,under_water:v.away,time:x.time||null},
+         captured_at:now,source_hash:h
+       })
+     }
+     ouPairs++
+   }
+ }catch(e){per.push({match_no:no,ou_error:String(e)})}
 }
-await Promise.all([health('william',william===pool.length?'ok':william?'partial':'error',saleDate,pool.length,william,william,william===pool.length?null:`${william}/${pool.length}`),health('asia4',asiaPairs===pool.length*4?'ok':asiaPairs?'partial':'error',saleDate,pool.length*4,asiaPairs,asiaPairs,asiaPairs===pool.length*4?null:`${asiaPairs}/${pool.length*4}`),health('sporttery_sp','ok',saleDate,pool.length,hhad,hhad,null,{had_available:had,hhad_available:hhad})]);return {saleDate,matches:pool.length,william,asia_pairs:asiaPairs,asia_expected:pool.length*4,had,hhad,errors:per}}
+await Promise.all([
+ health('william',william===pool.length?'ok':william?'partial':'error',saleDate,pool.length,william,william,william===pool.length?null:`${william}/${pool.length}`),
+ health('asia4',asiaPairs===pool.length*4?'ok':asiaPairs?'partial':'error',saleDate,pool.length*4,asiaPairs,asiaPairs,asiaPairs===pool.length*4?null:`${asiaPairs}/${pool.length*4}`),
+ health('ou4',ouPairs===pool.length*4?'ok':ouPairs?'partial':'error',saleDate,pool.length*4,ouPairs,ouPairs,ouPairs===pool.length*4?null:`${ouPairs}/${pool.length*4}`,{institutions:OU4}),
+ health('sporttery_sp','ok',saleDate,pool.length,hhad,hhad,null,{had_available:had,hhad_available:hhad})
+]);return {saleDate,matches:pool.length,william,asia_pairs:asiaPairs,asia_expected:pool.length*4,ou_pairs:ouPairs,ou_expected:pool.length*4,had,hhad,errors:per}}
 
 function kickoffUtc(v:any){return new Date(v)}
 function prevSeason(s:string){if(/^\d{4}$/.test(s))return String(Number(s)-1);const m=s.match(/^(\d{4})\/(\d{4})$/);return m?(Number(m[1])-1)+'/'+m[1]:''}
