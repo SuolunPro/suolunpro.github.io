@@ -3367,37 +3367,73 @@
     function renderOkoooShadowPreview(holder,data){
       if(state.selected===null||!holder.isConnected)return;
       holder.replaceChildren();
-      const panel=reportSection('澳客影子预览');panel.classList.add('shadow-admin-preview');
+      const panel=reportSection('澳客市场影子观察');panel.classList.add('shadow-admin-preview');
       panel.querySelector('h3')?.append(el('span','shadow-admin-badge','仅管理员可见'));
-      const match=data?.match||{},market=data?.market,intel=data?.intelligence;
-      panel.append(el('p','report-sub',[match.no,match.home,match.away].filter(Boolean).join(' · ')+'。影子数据不参与公开预测或正式成绩。'));
-      if(market){
-        const marketText=market.status==='ok'&&Number(market.bookmakerCount)>0
-          ?'赔率采集成功 · '+market.bookmakerCount+' 家机构'
-          :market.status==='login_required'?'赔率源站要求登录，本次未取得有效赔率'
-          :'赔率状态：'+String(market.status||'未确认');
-        panel.append(el('div','shadow-admin-status',marketText));
-        const avg=market.average||{};
-        if([avg.home,avg.draw,avg.away].every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v)))){
-          const grid=el('div','report-grid');
-          [['主胜',avg.home],['平局',avg.draw],['客胜',avg.away]].forEach(([label,value])=>{
-            const cell=el('div','report-cell');cell.append(el('small','',String(label)),el('strong','',Number(value).toFixed(3)));grid.append(cell);
-          });
-          panel.append(grid);
+      const match=data?.match||{},market=data?.market,analysis=data?.analysis||null;
+      panel.append(el('p','report-sub',[match.no,match.home,match.away].filter(Boolean).join(' · ')+'。影子数据按采集窗口自动更新，不参与公开预测或正式成绩。'));
+
+      const fmtPct=v=>Number.isFinite(Number(v))?Number(v).toFixed(1)+'%':'—';
+      const fmtNum=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
+      const cleanText=v=>String(v||'').replace(/\\+["']?\s*\/>/g,'').replace(/<[^>]*>/g,'').trim();
+
+      if(analysis){
+        const level=String(analysis.level||'数据不足');
+        const status=el('div','shadow-admin-status');
+        status.append(el('b','',level),document.createTextNode(' · '+cleanText(analysis.summary||'暂无综合结论')));
+        panel.append(status);
+
+        const p=analysis.market_99?.probabilities_pct||{};
+        const pGrid=el('div','report-grid');
+        [['99家主胜',p.home],['99家平局',p.draw],['99家客胜',p.away]].forEach(([label,value])=>{
+          const cell=el('div','report-cell');cell.append(el('small','',String(label)),el('strong','',fmtPct(value)));pGrid.append(cell);
+        });
+        panel.append(pGrid);
+        reportLine(panel,'99家主方向',analysis.market_99?.top||'未确认');
+
+        const b=analysis.betfair||{},share=b.share_pct||{},heat=b.cold_heat||{},profit=b.profit_index||{};
+        const bGrid=el('div','report-grid');
+        [['必发主胜',share.home],['必发平局',share.draw],['必发客胜',share.away]].forEach(([label,value])=>{
+          const cell=el('div','report-cell');cell.append(el('small','',String(label)),el('strong','',fmtPct(value)));bGrid.append(cell);
+        });
+        panel.append(bGrid);
+        reportLine(panel,'必发资金主方向',b.top||'未确认');
+        reportLine(panel,'必发冷热 主 / 平 / 客',[fmtNum(heat.home),fmtNum(heat.draw),fmtNum(heat.away)].join(' / '));
+        reportLine(panel,'必发盈亏指数 主 / 平 / 客',[fmtNum(profit.home),fmtNum(profit.draw),fmtNum(profit.away)].join(' / '));
+
+        const k=analysis.kelly||{};
+        reportLine(panel,'凯利最低方向',(k.lowest_direction||'未确认')+(Number.isFinite(Number(k.lowest_value))?' · '+Number(k.lowest_value).toFixed(3):''));
+        reportLine(panel,'凯利完整机构',String(k.complete_count??0)+' 家');
+
+        const flags=Array.isArray(analysis.flags)?analysis.flags.map(cleanText).filter(Boolean):[];
+        if(flags.length){
+          panel.append(el('b','','系统识别要点'));
+          const list=el('ul','shadow-admin-list');[...new Set(flags)].slice(0,5).forEach(x=>list.append(el('li','',x)));panel.append(list);
         }
-        reportLine(panel,'赔率采集',market.capturedAt?fmtStamp(market.capturedAt):'时间未确认');
-      }else panel.append(el('div','shadow-admin-status','本场尚无澳客赔率影子记录。'));
-      if(intel){
-        const groups=[['主队情报',intel.homeItems],['客队情报',intel.awayItems],['伤停线索',intel.injuryItems]];
-        for(const [title,items] of groups){
-          const clean=Array.isArray(items)?[...new Set(items.map(x=>String(x||'').trim()).filter(Boolean))].slice(0,5):[];
-          if(!clean.length)continue;
-          panel.append(el('b','',String(title)));
-          const list=el('ul','shadow-admin-list');clean.forEach(item=>list.append(el('li','',item)));panel.append(list);
+
+        const intel=analysis.intelligence||{};
+        const hi=Array.isArray(intel.highlights)?intel.highlights.map(cleanText).filter(x=>x.length>=8):[];
+        if(hi.length){
+          panel.append(el('b','','情报 / 伤停重点'));
+          const list=el('ul','shadow-admin-list');[...new Set(hi)].slice(0,3).forEach(x=>list.append(el('li','',x)));panel.append(list);
+        }else{
+          panel.append(el('div','shadow-admin-status','本轮没有可用的有效情报摘要。'));
         }
-        reportLine(panel,'情报采集',intel.capturedAt?fmtStamp(intel.capturedAt):'时间未确认');
-      }else panel.append(el('div','shadow-admin-status','本场尚无澳客情报影子记录。'));
-      const source=shadowSourceLink(market?.sourceUrl||intel?.sourceUrl);if(source)panel.append(source);
+        reportLine(panel,'影子分析更新',analysis.capturedAt?fmtStamp(analysis.capturedAt):'时间未确认');
+      }else{
+        panel.append(el('div','shadow-admin-status','本场尚未生成自动影子分析，暂显示原始采集状态。'));
+        if(market){
+          const marketText=market.status==='ok'&&Number(market.bookmakerCount)>0
+            ?'赔率采集成功 · '+market.bookmakerCount+' 家机构'
+            :market.status==='login_required'?'完整欧赔页受登录限制，必发/交易数据仍可能可用'
+            :'赔率状态：'+String(market.status||'未确认');
+          panel.append(el('div','shadow-admin-status',marketText));
+        }
+      }
+
+      if(market?.average&&[market.average.home,market.average.draw,market.average.away].every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v)))){
+        reportLine(panel,'机构平均欧赔 主 / 平 / 客',[market.average.home,market.average.draw,market.average.away].map(v=>Number(v).toFixed(3)).join(' / '));
+      }
+      const source=shadowSourceLink(market?.sourceUrl||data?.intelligence?.sourceUrl);if(source)panel.append(source);
       holder.append(panel);
     }
     async function loadOkoooShadowPreview(row,holder){
