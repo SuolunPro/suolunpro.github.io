@@ -1343,6 +1343,37 @@
         addLine(psec,'让球模型',handicapText(row.model?.handicap));
         body.append(psec);
 
+        // Customer-facing summary of the useful shadow-observation layer.
+        // Keep source/vendor names and internal scoring thresholds private.
+        if(cold){
+          const gate=(cold.gate&&typeof cold.gate==='object')?cold.gate:{};
+          const ssec=el('section','member-zone-proof-section');
+          ssec.append(el('div','member-zone-proof-title','冷门观察'));
+          const riskLabel=String(cold.level||'').trim();
+          addLine(ssec,'风险状态',riskLabel==='高'?'风险偏高':riskLabel==='中'?'重点观察':riskLabel==='低'?'轻微风险':'持续观察');
+          const publishedDirection=cold.unbeatenDirection||cold.direction||null;
+          addLine(ssec,'方向状态',publishedDirection||'方向待确认');
+          if(row.behavior?.top1)addLine(ssec,'市场资金',(row.behavior.top1||'待确认')+' · '+(row.behavior.strength||'观察'));
+          addLine(ssec,'多源一致性',gate.stableDirection===true?'已形成确认':'方向待确认');
+          if(gate.asianRetreatSignal===true)addLine(ssec,'盘口变化','出现退盘信号');
+          else if(Array.isArray(row.asianHandicap)&&row.asianHandicap.length)addLine(ssec,'盘口变化','暂未见明显退盘');
+          if(row.intelligence)addLine(ssec,'赛前情报',(row.intelligence.impactSide||'中性')+' · '+(row.intelligence.impactLevel||'低'));
+          body.append(ssec);
+        }
+
+        if(row.behavior&&Array.isArray(row.behavior.avgProbability)){
+          const b=row.behavior,cons=el('section','member-zone-proof-section');
+          cons.append(el('div','member-zone-proof-title','99家机构观点'));
+          addLine(cons,'机构概率',memberPct3(b.avgProbability).join(' / '));
+          addLine(cons,'共识方向',b.top1||'待确认');
+          addLine(cons,'共识强度',b.strength||'待确认');
+          const relation=b.top1&&row.model?.top1?(b.top1===row.model.top1?'与九十刻度同向':'与九十刻度分歧'):'待确认';
+          addLine(cons,'方向关系',relation);
+          if(b.drawSignal===true)addLine(cons,'平局观察','平局信号增强');
+          if(b.overheat===true)addLine(cons,'市场热度','热度偏高，需继续观察');
+          body.append(cons);
+        }
+
         if(cold?.popularity){
           const pop=cold.popularity,popsec=el('section','member-zone-proof-section');
           popsec.append(el('div','member-zone-proof-title','人气—市场背离'));
