@@ -1388,8 +1388,13 @@
           addLine(ssec,'方向状态',cold.customerDirectionStatus||'方向待确认');
           if(row.behavior?.top1)addLine(ssec,'市场资金',(row.behavior.top1||'待确认')+' · '+(row.behavior.strength||'观察'));
           addLine(ssec,'多源一致性',gate.stableDirection===true?'已形成确认':'方向待确认');
-          if(gate.asianRetreatSignal===true)addLine(ssec,'盘口变化','出现退盘信号');
-          else if(Array.isArray(row.asianHandicap)&&row.asianHandicap.length)addLine(ssec,'盘口变化','暂未见明显退盘');
+          if(gate.asianState){
+            const asiaRelation=gate.asianSupportsTop===true?'支持原方向':gate.asianAdverseTop===true?'反向原方向':'分歧 / 中性';
+            const asiaCount=Number(gate.asianSources||0);
+            addLine(ssec,'亚盘共识',asiaRelation+' · '+String(gate.asianStrength||'观察')+(asiaCount?(' · '+asiaCount+'家'):''));
+          }else if(Array.isArray(row.asianHandicap)&&row.asianHandicap.length){
+            addLine(ssec,'亚盘共识','持续观察');
+          }
           if(row.intelligence)addLine(ssec,'赛前情报',(row.intelligence.impactSide||'中性')+' · '+(row.intelligence.impactLevel||'低'));
           else if(gate.shadowIntelligenceImpactSide){
             addLine(ssec,'赛前情报',String(gate.shadowIntelligenceImpactSide)+' · '+String(gate.shadowIntelligenceImpactLevel||'低'));
