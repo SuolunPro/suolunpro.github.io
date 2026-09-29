@@ -2252,9 +2252,17 @@
     function appendRiskStrip(card,row){
       if(row?.vipRiskAccessRestricted===true&&!vipDeepAccess()){
         if(row?.vipRiskLocked===true){
+          const publicLabel=String(row?.vipRiskPublicLabel||'风险信号');
+          const publicReason=String(row?.vipRiskPublicReason||'本场存在赛前风险变化');
+          const cls=publicLabel==='强风险信号'||publicLabel==='市场异动信号'?'strong':'focus';
+          const strip=el('div','risk-inline '+cls);
+          const main=el('div','risk-inline-main');
+          main.append(el('strong','',publicLabel),el('span','',publicReason));
+          strip.append(main);
           const locked=el('div','vip-inline-lock');
-          locked.append(el('b','','VIP风险信号已触发 🔒'),el('span','','本场存在赛前风险变化；尊贵月卡VIP可查看风险类型、让球保护方向及概率。'));
-          card.append(locked);
+          locked.append(el('b','','详细风险依据 🔒'),el('span','','方向、让球保护概率及市场/情报依据仅向尊贵月卡VIP开放。'));
+          strip.append(locked);
+          card.append(strip);
         }
         return;
       }
