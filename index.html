@@ -1309,7 +1309,9 @@
           ?(isHomeTop?'主队不胜':row.model?.top1==='客胜'?'客队不胜':String(cold?.customerDirection||cold?.unbeatenDirection||''))
           :isCooling
             ?'原方向仍获支持'
-            :'方向待确认';
+            :tier==='风险偏高'
+              ?'建议避开'
+              :'方向待确认';
         const pickShort=x=>x==='主胜'?'主':x==='客胜'?'客':x==='平'?'平':String(x||'');
         const refs=Array.isArray(cold?.referencePicks)?cold.referencePicks:[];
         const refText=isFormal?refs.map(x=>pickShort(x?.pick)).filter(Boolean).join(' + '):'';
@@ -1336,7 +1338,8 @@
         if(isFormal&&refText)pick.append(el('div','member-zone-pick-ref','参考：'+refText));
         else pick.append(el('div','member-zone-pick-note',
           isCooling?'最新亚盘、市场与情报共同支持原方向，继续观察至冻结':
-          tier==='轻微风险'?'持续观察市场变化':'风险已升高，等待方向确认'));
+          tier==='轻微风险'?'持续观察市场变化':
+          tier==='风险偏高'?'多源风险已升高但反向方向未形成，建议避开该场':'持续观察'));
         const tags=el('div','member-zone-pick-evidence');
         const evidence=Array.isArray(cold?.vipEvidence)&&cold.vipEvidence.length?cold.vipEvidence:
           (Array.isArray(cold?.evidence)?cold.evidence:[]);
