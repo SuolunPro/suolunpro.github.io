@@ -1233,11 +1233,12 @@
       const info=el('section','cold-warning-info');
       info.append(
         el('h3','','冷门预警说明'),
-        el('p','','冷门预警会随赛前市场变化持续更新。单次波动不会直接触发，需经过连续异常或多源确认后才发布；停售/赛前冻结后不再调整。'),
-        el('p','','建议在赛前2–4小时再次查看。随着比赛临近，赔率、盘口、资金热度及相关赛事情报仍可能变化，此阶段的数据通常更接近临场状态。'),
-        el('p','','冷门预警以停售前/赛前冻结版本为准。冻结后即使市场继续波动，也不会自动改写已发布的冷门方向，避免出现赛后回改。')
+        el('p','','冷门预警会随赛前市场变化持续更新。'),
+        el('p','','停售前开赛：以开球时间为准持续复核。'),
+        el('p','','停售后开赛：工作日21:30、周末22:30前完成最终审核。'),
+        el('p','','单次市场异动不会直接触发，需多项信号连续确认后才发布。'),
+        el('p','','最终以停售/赛前冻结版本为准。')
       );
-      info.append(el('div','cold-warning-info-foot','不同数据项的更新时间可能存在差异，请以页面显示的最新更新时间为准。'));
       page.append(info);
       if(state.memberZoneLoading){page.append(el('div','empty','','正在读取冷门识别…'));box.append(page);return}
       if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
