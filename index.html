@@ -1391,6 +1391,10 @@
           if(gate.asianRetreatSignal===true)addLine(ssec,'盘口变化','出现退盘信号');
           else if(Array.isArray(row.asianHandicap)&&row.asianHandicap.length)addLine(ssec,'盘口变化','暂未见明显退盘');
           if(row.intelligence)addLine(ssec,'赛前情报',(row.intelligence.impactSide||'中性')+' · '+(row.intelligence.impactLevel||'低'));
+          else if(gate.shadowIntelligenceImpactSide){
+            addLine(ssec,'赛前情报',String(gate.shadowIntelligenceImpactSide)+' · '+String(gate.shadowIntelligenceImpactLevel||'低'));
+            addLine(ssec,'与原Top1',gate.shadowIntelligenceAdverseTop===true?'反向':gate.shadowIntelligenceSupportsTop===true?'支持':'中性');
+          }
           body.append(ssec);
         }
 
@@ -1470,11 +1474,23 @@
             const intel=data?.intelligence||{};
             const highlights=Array.isArray(intel.highlights)?intel.highlights.filter(Boolean).slice(0,3):[];
             xsec.replaceChildren(el('div','member-zone-proof-title','情报 / 伤停重点'));
-            if(highlights.length){
+            if(highlights.length||intel.impactSide){
+              if(intel.impactSide)addLine(xsec,'情报结论',String(intel.impactSide)+(intel.impactLevel?(' · '+String(intel.impactLevel)):''));
+              if(intel.confidence)addLine(xsec,'归因置信度',String(intel.confidence));
+              if(intel.impactSide){
+                const top=String(row.model?.top1||'');
+                const side=String(intel.impactSide||'');
+                let relation='中性';
+                if((top==='主胜'&&side==='主队利空')||(top==='客胜'&&side==='客队利空'))relation='反向 · 进入冷门审计';
+                else if((top==='主胜'&&side==='客队利空')||(top==='客胜'&&side==='主队利空'))relation='支持原方向';
+                addLine(xsec,'与原Top1',relation);
+              }
               addLine(xsec,'有效伤停/阵容',Number.isFinite(Number(intel.injuryCount))?String(intel.injuryCount)+' 条':'已收录');
-              const ul=el('ul','member-zone-intel-list');
-              highlights.forEach(x=>ul.append(el('li','',String(x))));
-              xsec.append(ul);
+              if(highlights.length){
+                const ul=el('ul','member-zone-intel-list');
+                highlights.forEach(x=>ul.append(el('li','',String(x))));
+                xsec.append(ul);
+              }
               const flags=Array.isArray(intel.flags)?intel.flags.filter(Boolean).slice(0,3):[];
               if(flags.length)addLine(xsec,'系统识别',flags.join(' · '));
               if(intel.capturedAt)addLine(xsec,'情报更新',fmtStamp(intel.capturedAt));
