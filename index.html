@@ -1461,6 +1461,7 @@
         xsec.append(xstate);
         body.append(xsec);
         let xloading=false,xloaded=false;
+        let coverageFundsIntelValue=null;
         details.addEventListener('toggle',async()=>{
           if(!details.open||xloading||xloaded)return;
           xloading=true;xstate.textContent='正在读取赛前情报…';
@@ -1477,6 +1478,9 @@
               const flags=Array.isArray(intel.flags)?intel.flags.filter(Boolean).slice(0,3):[];
               if(flags.length)addLine(xsec,'系统识别',flags.join(' · '));
               if(intel.capturedAt)addLine(xsec,'情报更新',fmtStamp(intel.capturedAt));
+              if(coverageFundsIntelValue){
+                coverageFundsIntelValue.textContent=(cov.behavior===true?'✓':'—')+' / ✓';
+              }
             }else{
               xsec.append(el('div','member-zone-intel-state','本场暂未收录有效伤停摘要'));
             }
@@ -1490,7 +1494,11 @@
         dsec.append(el('div','member-zone-proof-title','数据完整度'));
         addLine(dsec,'九十刻度 / 威廉 / 体彩 / 亚盘',
           [cov.model,cov.william,cov.sporttery,cov.asian].map(v=>v===true?'✓':'—').join(' / '));
-        addLine(dsec,'资金 / 情报',[cov.behavior,cov.intelligence].map(v=>v===true?'✓':'—').join(' / '));
+        const fundsIntelLine=el('div','member-zone-proof-line');
+        fundsIntelLine.append(el('span','','资金 / 情报'));
+        coverageFundsIntelValue=el('b','',[cov.behavior,cov.intelligence].map(v=>v===true?'✓':'—').join(' / '));
+        fundsIntelLine.append(coverageFundsIntelValue);
+        dsec.append(fundsIntelLine);
         body.append(dsec);
 
 
