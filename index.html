@@ -3127,13 +3127,13 @@
       if(stories.length||meaningfulChange){
         const intel=reportSection('赛前情报与市场变化');
         stories.forEach(item=>{
-          const article=el('div','report-story'),title=el('a','report-story-link',String(item.title||'赛前报道').replace(/^\[小炮APP\]竞彩情报：/,''));
+          const article=el('div','report-story'),title=el('a','report-story-link',String(item.title||'赛前报道').replace(/^\[小炮APP\]竞彩情报：/,'').replace(/澳客|新浪小炮|小炮APP|小炮/g,'媒体'));
           title.href=item.url;title.target='_blank';title.rel='noopener noreferrer';
           const verifiedNotes=(Array.isArray(item.sections)?item.sections:[]).filter(x=>typeof x==='string'&&x.length>10&&x.length<65&&!/^(主队|客队)(有利|不利)$/.test(x)&&!/伤停|缺阵|需核实/.test(x)).slice(0,2);
           article.classList.add('report-insight-line');
           article.append(title);
           for(const note of verifiedNotes)article.append(el('p','report-sub',note));
-          article.append(el('small','','新浪赛前报道 · '+fmtStamp(item.publishedAt)+' · 媒体观点，点击标题查看原文'));intel.append(article);
+          article.append(el('small','','媒体赛前报道 · '+fmtStamp(item.publishedAt)+' · 媒体观点，点击标题查看原文'));intel.append(article);
         });
         if(meaningfulChange){
           const changed=el('div','report-story');
