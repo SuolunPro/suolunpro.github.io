@@ -2653,7 +2653,7 @@ async function paidMemberZone(
         const adverse=/伤退|伤停|伤缺|缺席|缺阵|停赛|受伤|无法出战|无缘出战|出战成疑|出场存疑|出战存疑|可能缺阵|可能缺席|伤疑|带伤|身体不适|未随队|无缘名单|多人缺席|多名重要球员缺席/.test(headline);
         if(adverse){
           const homeName=String(m.home_team??"").trim(),awayName=String(m.away_team??"").trim();
-          const adverseLevel=/主力|核心|头号|队长|门将|多人|多名重要球员/.test(headline)?"高":"中";
+          const adverseLevel=/主力|核心|头号|队长|门将|多人|多名重要球员|\d{1,2}人/.test(headline)?"高":"中";
           const headlineMentionsTeam=(name:string)=>{
             const clean=(v:string)=>String(v??"").replace(/足球俱乐部|俱乐部|football club|\\bfc\\b/gi,"")
               .replace(/[·•.\\-－—_()（）\\[\\]【】\\s]/g,"").trim();
