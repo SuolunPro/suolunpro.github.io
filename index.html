@@ -962,6 +962,46 @@
     .cold-daily-performance-label{font-size:12px;color:var(--muted,#666)}
     .cold-daily-performance-score{font-size:15px}
     .cold-daily-performance-pct{grid-column:2;font-size:12px;font-weight:700}
+
+    /* Cold warning readability v4 */
+    .cold-card-head{min-height:40px}
+    .cold-card-meta{gap:6px;font-size:11px}
+    .cold-card-league{font-size:12px}
+    .cold-card-badge{padding:4px 8px;font-size:11px}
+    .cold-card-match{grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);gap:7px;padding:12px 0 11px}
+    .cold-card-team.team{gap:8px}
+    .cold-card-team .crest{width:32px;height:32px;flex-basis:32px;font-size:10px}
+    .cold-card-team .crest.national-flag{font-size:20px}
+    .cold-card-team .team-name{font-size:15px;line-height:1.35}
+    .cold-card-vs{font-size:11px}
+    .cold-card-action{column-gap:10px;row-gap:7px;padding:11px 12px}
+    .cold-card-action-label{font-size:11px;font-weight:750}
+    .cold-card-action-value{font-size:18px;line-height:1.3}
+    .cold-card-chips{gap:6px;margin-top:1px}
+    .cold-card-chips span{padding:4px 8px;font-size:11px}
+    .cold-card-risk-summary{
+      display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:start;
+      margin-top:8px;padding:9px 10px;border-radius:9px;background:#fffaf1;border:1px solid #f1e7d2
+    }
+    .cold-card-risk-summary-label{
+      color:#9a6a26;font-size:11px;line-height:1.55;font-weight:850;white-space:nowrap
+    }
+    .cold-card-risk-summary-text{
+      color:#4f5459;font-size:12.5px;line-height:1.55;font-weight:650
+    }
+    .cold-card-result{min-height:37px;gap:9px;margin-top:8px}
+    .cold-card-score{font-size:15px}
+    .cold-card-result-text{font-size:11px}
+    .cold-card-v3 .member-zone-proof>summary{min-height:30px!important;font-size:11px!important}
+    @media(max-width:390px){
+      .cold-card-team .team-name{font-size:14px}
+      .cold-card-action-value{font-size:17px}
+      .cold-card-meta{font-size:10px}
+      .cold-card-league{font-size:11px}
+      .cold-card-badge{font-size:10px}
+      .cold-card-risk-summary-text{font-size:12px}
+      .cold-card-result-text{font-size:10.5px}
+    }
 </style>
 </head>
 <body>
@@ -1579,6 +1619,36 @@
         ['2026-09-27|008',['让胜','让平']],
         ['2026-09-29|012',['让胜','让平']]
       ]);
+      const cleanColdRiskText=v=>{
+        const s=String(v||'').trim();
+        if(!s)return '';
+        if(/HUR.*红灯/.test(s))return '热门稳定性不足';
+        if(/原始首选置信度偏低/.test(s))return '原Top1置信度偏低';
+        if(/原始首选概率低于50%/.test(s))return '原Top1优势不足';
+        if(/William.*升赔/.test(s))return '主流欧赔对原Top1支持减弱';
+        if(/竞彩HAD.*冲突/.test(s))return '官方SP与主流市场出现分歧';
+        if(/亚盘.*反向/.test(s))return '亚盘多机构与原Top1背离';
+        if(/市场.*反向/.test(s))return '市场综合方向与原Top1背离';
+        if(/情报.*反向|重要利空/.test(s))return '赛前情报对原Top1不利';
+        if(/人气过热/.test(s))return '人气偏热，市场支持不足';
+        return s.replace(/仅计风险，不生成方向/g,'').replace(/[，,;；]+$/,'').trim();
+      };
+      const buildColdRiskSummary=(row,cold,route)=>{
+        const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
+        const pop=(cold?.popularity&&typeof cold.popularity==='object')?cold.popularity:{};
+        const list=[];
+        const push=v=>{const t=cleanColdRiskText(v);if(t&&!list.includes(t))list.push(t)};
+        (Array.isArray(cold?.vipEvidence)?cold.vipEvidence:[]).forEach(push);
+        (Array.isArray(cold?.evidence)?cold.evidence:[]).forEach(push);
+        if(gate.asianAdverseTop===true)push('亚盘多机构与原Top1背离');
+        if(gate.shadowMarketAdverse===true)push('市场综合方向与原Top1背离');
+        if(gate.shadowIntelligenceAdverseTop===true)push('赛前情报对原Top1不利');
+        if(pop.divergence===true)push('人气偏热，市场支持不足');
+        if(pop.fundAnomaly===true)push('资金结构出现异常');
+        if(!list.length&&route?.displayReason)push(route.displayReason);
+        if(!list.length&&cold?.customerRiskScore>=4)push('多项赛前风险指标同时触发');
+        return list.slice(0,2).join(' · ');
+      };
       const validDailyHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
       const coldDailyPerformance={
         avoid:{label:'重点避开',hit:0,total:0},
@@ -1817,6 +1887,16 @@
         }
         if(chips.childNodes.length)action.append(chips);
         card.append(action);
+
+        const riskSummaryText=buildColdRiskSummary(row,cold,route);
+        if(riskSummaryText){
+          const riskSummary=el('div','cold-card-risk-summary');
+          riskSummary.append(
+            el('span','cold-card-risk-summary-label','风险摘要'),
+            el('span','cold-card-risk-summary-text',riskSummaryText)
+          );
+          card.append(riskSummary);
+        }
 
         const resultLine=el('div','cold-card-result');
         const scoreText=st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'));
