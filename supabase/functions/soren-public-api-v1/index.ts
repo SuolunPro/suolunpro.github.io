@@ -664,6 +664,49 @@ function buildHandicapStats(rows: Record<string,unknown>[]) {
 
 const legacySnapshots = {"2026-09-13":[{"date":"2026-09-13","no":"001","league":"日职联","home":"东京绿茵","away":"千叶市原","kickoff":"2026-09-13T09:00:00.000Z","ftTop1":"平","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-13T08:28:07.476Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"D"},{"date":"2026-09-13","no":"002","league":"日职乙","home":"仙台七夕","away":"札幌冈萨","kickoff":"2026-09-13T09:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-13T08:28:07.476Z","pregameVerified":true,"version":"3.2","resultVerified":false,"result":null},{"date":"2026-09-13","no":"003","league":"西甲","home":"塞尔塔","away":"马拉加","kickoff":"2026-09-13T12:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-13T10:19:02.068Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"D"},{"date":"2026-09-13","no":"004","league":"瑞典超","home":"哈马比","away":"布鲁马波","kickoff":"2026-09-13T12:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":-2,"handicap":"让负","frozenAt":"2026-09-13T10:19:02.068Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"H"},{"date":"2026-09-13","no":"005","league":"芬超","home":"库奥皮奥","away":"赫尔辛基","kickoff":"2026-09-13T12:00:00.000Z","ftTop1":"平","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-13T10:19:02.068Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"D"},{"date":"2026-09-13","no":"006","league":"荷甲","home":"海伦芬","away":"特尔斯达","kickoff":"2026-09-13T12:30:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-13T10:19:02.068Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"D"},{"date":"2026-09-13","no":"007","league":"意甲","home":"莱切","away":"蒙扎","kickoff":"2026-09-13T13:00:00.000Z","ftTop1":"平","second":"客胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-13T10:19:02.068Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"H"},{"date":"2026-09-13","no":"008","league":"法甲","home":"里尔","away":"特鲁瓦","kickoff":"2026-09-13T13:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-13T10:19:02.068Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"H"},{"date":"2026-09-13","no":"009","league":"德甲","home":"莱红牛","away":"汉堡","kickoff":"2026-09-13T13:30:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-13T13:15:20.346Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"H"},{"date":"2026-09-13","no":"010","league":"西甲","home":"莱万特","away":"巴萨","kickoff":"2026-09-13T14:15:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":2,"handicap":"让胜","frozenAt":"2026-09-13T13:15:20.346Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"A"},{"date":"2026-09-13","no":"011","league":"挪超","home":"汉坎","away":"莫尔德","kickoff":"2026-09-13T15:00:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":1,"handicap":"让负","frozenAt":"2026-09-13T13:15:20.346Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"A"},{"date":"2026-09-13","no":"012","league":"法甲","home":"勒芒","away":"朗斯","kickoff":"2026-09-13T15:15:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":1,"handicap":null,"frozenAt":"2026-09-13T13:15:20.346Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"D"},{"date":"2026-09-13","no":"013","league":"英超","home":"曼联","away":"曼城","kickoff":"2026-09-13T15:30:00.000Z","ftTop1":"客胜","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":1,"handicap":"让胜","frozenAt":"2026-09-13T13:15:20.346Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"A"},{"date":"2026-09-13","no":"014","league":"德甲","home":"埃沃斯堡","away":"拜仁","kickoff":"2026-09-13T15:30:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":2,"handicap":"让胜","frozenAt":"2026-09-13T13:15:20.346Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"A"},{"date":"2026-09-13","no":"015","league":"意甲","home":"那不勒斯","away":"博洛尼亚","kickoff":"2026-09-13T16:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"红","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"H"},{"date":"2026-09-13","no":"016","league":"西甲","home":"赫塔费","away":"拉科","kickoff":"2026-09-13T16:30:00.000Z","ftTop1":"平","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"D"},{"date":"2026-09-13","no":"017","league":"葡超","home":"本菲卡","away":"吉维森特","kickoff":"2026-09-13T17:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":-2,"handicap":"让负","frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"H"},{"date":"2026-09-13","no":"018","league":"荷甲","home":"埃因霍温","away":"鹿斯巴达","kickoff":"2026-09-13T18:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":-2,"handicap":"让负","frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"H"},{"date":"2026-09-13","no":"019","league":"意甲","home":"萨索洛","away":"尤文图斯","kickoff":"2026-09-13T18:45:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":1,"handicap":null,"frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"H"},{"date":"2026-09-13","no":"020","league":"法甲","home":"布雷斯特","away":"巴黎圣曼","kickoff":"2026-09-13T18:45:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-A"},"officialHandicap":2,"handicap":"让胜","frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"A"},{"date":"2026-09-13","no":"021","league":"西甲","home":"皇家社会","away":"马竞","kickoff":"2026-09-13T19:00:00.000Z","ftTop1":"客胜","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":1,"handicap":"让胜","frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"A"},{"date":"2026-09-13","no":"022","league":"葡超","home":"法马利康","away":"里斯本","kickoff":"2026-09-13T19:30:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":1,"handicap":"让胜","frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"D"},{"date":"2026-09-13","no":"023","league":"巴甲","home":"弗拉门戈","away":"科林蒂安","kickoff":"2026-09-13T20:30:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"H"},{"date":"2026-09-13","no":"024","league":"美职业","home":"芝加哥","away":"新英格兰","kickoff":"2026-09-13T21:30:00.000Z","ftTop1":"主胜","second":"客胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-13T15:42:01.787Z","pregameVerified":true,"version":"3.2","resultVerified":true,"result":"A"}],"2026-09-14":[{"date":"2026-09-14","no":"001","league":"亚运女足","home":"中国女","away":"中国香港女","kickoff":"2026-09-14T10:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":-4,"handicap":null,"frozenAt":"2026-09-14T07:42:00.447Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"002","league":"芬超","home":"国际图尔","away":"瓦萨","kickoff":"2026-09-14T15:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"003","league":"意甲","home":"科莫","away":"帕尔马","kickoff":"2026-09-14T16:30:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-A"},"officialHandicap":-2,"handicap":"让负","frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"004","league":"意甲","home":"都灵","away":"罗马","kickoff":"2026-09-14T16:30:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":1,"handicap":"让负","frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"A"},{"date":"2026-09-14","no":"005","league":"瑞典超","home":"佐加顿斯","away":"盖斯","kickoff":"2026-09-14T17:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"006","league":"挪超","home":"博德闪耀","away":"桑纳菲","kickoff":"2026-09-14T17:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":-2,"handicap":"让负","frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"007","league":"亚冠精英","home":"吉达国民","away":"塔什干棉农","kickoff":"2026-09-14T18:15:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":-2,"handicap":null,"frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"D"},{"date":"2026-09-14","no":"008","league":"意甲","home":"国际米兰","away":"乌迪内斯","kickoff":"2026-09-14T18:45:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-A"},"officialHandicap":-2,"handicap":"让负","frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"009","league":"法乙","home":"圣旺红星","away":"梅斯","kickoff":"2026-09-14T18:45:00.000Z","ftTop1":"平","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"010","league":"英超","home":"利兹联","away":"纽卡斯尔","kickoff":"2026-09-14T19:00:00.000Z","ftTop1":"平","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"011","league":"西甲","home":"比利亚雷","away":"贝蒂斯","kickoff":"2026-09-14T19:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"A"},{"date":"2026-09-14","no":"012","league":"葡超","home":"布拉加","away":"埃斯托里","kickoff":"2026-09-14T19:45:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-14T14:00:00.646Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"013","league":"亚运女足","home":"中国女","away":"中国香港女","kickoff":"2026-09-14T10:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":-4,"handicap":null,"frozenAt":"2026-09-14T07:42:00.447Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-14","no":"014","league":"亚运女足","home":"中国女","away":"中国香港女","kickoff":"2026-09-14T10:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":-4,"handicap":null,"frozenAt":"2026-09-14T07:42:00.447Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"}],"2026-09-15":[{"date":"2026-09-15","no":"001","league":"亚冠精英","home":"拉查布里府","away":"上海海港","kickoff":"2026-09-15T10:00:00.000Z","ftTop1":"客胜","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":1,"handicap":null,"frozenAt":"2026-09-15T08:00:03.033Z","pregameVerified":true,"version":"3.3","resultVerified":false,"result":null},{"date":"2026-09-15","no":"002","league":"亚冠精英","home":"大田市民","away":"京都","kickoff":"2026-09-15T10:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-15T08:00:03.033Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-15","no":"003","league":"亚运男足","home":"卡塔尔U23","away":"韩国U23","kickoff":"2026-09-15T10:30:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-A"},"officialHandicap":2,"handicap":null,"frozenAt":"2026-09-15T10:00:00.404Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"A"},{"date":"2026-09-15","no":"004","league":"亚冠精英","home":"柔佛","away":"布里兰","kickoff":"2026-09-15T12:15:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-15T12:00:00.396Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"D"},{"date":"2026-09-15","no":"005","league":"亚冠精英","home":"北京国安","away":"浦项制铁","kickoff":"2026-09-15T12:15:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-15T12:00:00.396Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-15","no":"006","league":"亚冠精英","home":"艾因","away":"利雅得胜利","kickoff":"2026-09-15T16:00:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":1,"handicap":null,"frozenAt":"2026-09-15T14:00:05.809Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-15","no":"007","league":"西甲","home":"巴列卡诺","away":"西班牙人","kickoff":"2026-09-15T17:00:00.000Z","ftTop1":"平","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-15T14:00:05.809Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-15","no":"008","league":"西甲","home":"阿拉维斯","away":"巴伦西亚","kickoff":"2026-09-15T18:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":null,"frozenAt":"2026-09-15T14:00:05.809Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"A"},{"date":"2026-09-15","no":"009","league":"荷甲","home":"阿贾克斯","away":"威廉二世","kickoff":"2026-09-15T18:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":-2,"handicap":"让负","frozenAt":"2026-09-15T14:00:05.809Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-15","no":"010","league":"英冠","home":"米堡","away":"米尔沃尔","kickoff":"2026-09-15T18:45:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-15T14:00:05.809Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"D"},{"date":"2026-09-15","no":"011","league":"英联杯","home":"利物浦","away":"热刺","kickoff":"2026-09-15T19:00:00.000Z","ftTop1":"主胜","second":"平","confidence":null,"risk":{"hur":"黄","dtr":"黄","dlr":"绿","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-15T14:00:05.809Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"},{"date":"2026-09-15","no":"012","league":"英联杯","home":"伊普斯维奇","away":"阿森纳","kickoff":"2026-09-15T19:00:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-A"},"officialHandicap":1,"handicap":"让负","frozenAt":"2026-09-15T14:00:05.809Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"A"},{"date":"2026-09-15","no":"013","league":"西甲","home":"埃尔切","away":"皇马","kickoff":"2026-09-15T19:30:00.000Z","ftTop1":"客胜","second":"平","confidence":null,"risk":{"hur":"绿","dtr":"绿","dlr":"绿","dq":"DQ-C"},"officialHandicap":2,"handicap":"让胜","frozenAt":"2026-09-15T14:00:05.809Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"A"},{"date":"2026-09-15","no":"014","league":"解放者杯","home":"普拉腾斯","away":"弗鲁米嫩","kickoff":"2026-09-15T22:00:00.000Z","ftTop1":"平","second":"主胜","confidence":null,"risk":{"hur":"红","dtr":"绿","dlr":"黄","dq":"DQ-A"},"officialHandicap":-1,"handicap":"让负","frozenAt":"2026-09-15T14:00:05.809Z","pregameVerified":true,"version":"3.3","resultVerified":true,"result":"H"}]};
 const upstream = "https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-console-v1";
+const shadowRiskApi = "https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-r9-discovery-test-v01";
+const shadowRiskCache=new Map<string,{at:number,rows:Map<string,any>}>();
+const shadowDir=(v:unknown)=>({"主胜":"H","平":"D","客胜":"A","H":"H","D":"D","A":"A"} as Record<string,string>)[String(v??"")]??null;
+const shadowConsensus=(snapshot:any)=>{
+  const market=snapshot?.market&&typeof snapshot.market==="object"?snapshot.market:{};
+  const dirs=[market.market99Top,market.betfairTop,market.kellyTop].map(shadowDir).filter(Boolean) as string[];
+  const counts=new Map<string,number>();
+  for(const d of dirs)counts.set(d,(counts.get(d)??0)+1);
+  const rank=[...counts.entries()].sort((a,b)=>b[1]-a[1]);
+  const top=rank[0]?.[1]>=2?rank[0][0]:null;
+  return {
+    top,
+    strength:rank[0]?.[1]>=3?"强":rank[0]?.[1]>=2?"中":"弱",
+    votes:{H:counts.get("H")??0,D:counts.get("D")??0,A:counts.get("A")??0},
+    anomalyPoints:Number.isFinite(Number(market.anomalyPoints))?Number(market.anomalyPoints):0,
+    flags:Array.isArray(market.flags)?market.flags.map((x:any)=>String(x)).slice(0,6):[],
+    kellyComplete:Number.isFinite(Number(market.kellyComplete))?Number(market.kellyComplete):0,
+  };
+};
+async function fetchShadowRiskMap(date:string,force=false):Promise<Map<string,any>>{
+  const todayBjt=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"})
+    .format(new Date()).split("/").join("-");
+  if(date<todayBjt)return new Map();
+  const cached=shadowRiskCache.get(date);
+  if(!force&&cached&&Date.now()-cached.at<45_000)return cached.rows;
+  try{
+    const serviceKey=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")??"";
+    if(!serviceKey)throw new Error("SERVICE_KEY_MISSING");
+    const response=await fetch(shadowRiskApi+"?view=risk-feed&date="+encodeURIComponent(date),{
+      headers:{"x-soren-bridge-token":serviceKey,accept:"application/json"},
+      signal:AbortSignal.timeout(8_000),
+    });
+    const data=await response.json().catch(()=>null);
+    if(!response.ok||data?.ok!==true||!Array.isArray(data?.rows))throw new Error("SHADOW_RISK_FEED_"+response.status);
+    const rows=new Map<string,any>();
+    for(const row of data.rows)rows.set(String(row?.no??"").padStart(3,"0"),row);
+    shadowRiskCache.set(date,{at:Date.now(),rows});
+    return rows;
+  }catch(error){
+    console.error("SHADOW_RISK_FEED_UNAVAILABLE",error);
+    return cached?.rows??new Map();
+  }
+}
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "content-type, authorization, apikey, x-soren-device",
@@ -676,8 +719,39 @@ const allowed = new Map([
   ["3.6", "3.6-draw-route-v0.1-20260918"],
   ["3.8", "3.8-bplus-single-double-v0.1-20260919"],
 ]);
+function sanitizePublicPayload(value:unknown):unknown{
+  if(typeof value==="string"){
+    return value
+      .replaceAll("\u6fb3\u5ba2","\u5e02\u573a")
+      .replaceAll("\u65b0\u6d6a\u5c0f\u70ae","\u5a92\u4f53")
+      .replaceAll("\u5c0f\u70aeAPP","\u5a92\u4f53")
+      .replaceAll("\u5c0f\u70ae","\u5a92\u4f53")
+      .replace(/okooo/gi,"market")
+      .replace(/sina[_ -]?xiaopao/gi,"media_intel")
+      .replace(/xiaopao/gi,"media");
+  }
+  if(Array.isArray(value))return value.map(sanitizePublicPayload);
+  if(value&&typeof value==="object"){
+    const out:Record<string,unknown>={};
+    for(const [key,raw] of Object.entries(value as Record<string,unknown>)){
+      if(key==="okoooMatchId")continue;
+      if(key==="sourceUrl"&&typeof raw==="string"&&(/okooo/i.test(raw)||/sina\.com\.cn/i.test(raw))){
+        out[key]=null;
+        continue;
+      }
+      const safeKey=key
+        .replace(/^okooo_behavior_/,"market_behavior_")
+        .replace(/okooo/gi,"market")
+        .replace(/sina[_-]?xiaopao/gi,"media_intel")
+        .replace(/xiaopao/gi,"media");
+      out[safeKey]=sanitizePublicPayload(raw);
+    }
+    return out;
+  }
+  return value;
+}
 const reply = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), { status, headers: cors });
+  new Response(JSON.stringify(sanitizePublicPayload(body)), { status, headers: cors });
 
 async function fetchPublicUpstream(view:string,date:string|null){
   const query=new URLSearchParams({public_hj38:"1",view});
@@ -818,6 +892,9 @@ function publicWarning(w:Record<string,unknown>){
     publicationReason:p.publication_reason??p.publicationReason??null,
     formalPredictionAt:p.formal_prediction_at??p.formalPredictionAt??null,
     formalPredictionDq:p.formal_prediction_dq??p.formalPredictionDq??null,
+    customerRouteSeed:
+      (p.customer_route_seed&&typeof p.customer_route_seed==="object")?p.customer_route_seed:
+      (p.customerRouteSeed&&typeof p.customerRouteSeed==="object"?p.customerRouteSeed:null),
     focusGate:(p.focus_gate&&typeof p.focus_gate==="object")?p.focus_gate:(p.focusGate&&typeof p.focusGate==="object"?p.focusGate:null),
     marketSignals:Array.isArray(p.market_signals)?p.market_signals:(Array.isArray(p.marketSignals)?p.marketSignals:[]),
     independentDrawProbability:Number.isFinite(Number(p.independent_draw_probability??p.independentDrawProbability))?Number(p.independent_draw_probability??p.independentDrawProbability):null,
@@ -846,6 +923,20 @@ function attachUpsetWarning(row:Record<string,unknown>,warnings:Map<string,Recor
   const w=exact??fallback;
   return w?{...row,upsetWarning:publicWarning(w)}:row;
 }
+function overlayLatestCurrentUpsetWarning(row:Record<string,unknown>,warnings:Map<string,Record<string,unknown>>){
+  const no=String(row.no??"").padStart(3,"0");
+  const w=warnings.get("LATEST|"+no);
+  if(!w)return row;
+  const next=publicWarning(w);
+  const rowTop=riskPick(row.ftTop1);
+  const warningTop=riskPick(next.originalTop1);
+  const kickoff=Date.parse(String(row.kickoff??""));
+  const prematchAt=Date.parse(String(next.prematchAt??""));
+  if(rowTop&&warningTop&&rowTop!==warningTop)return row;
+  if(Number.isFinite(kickoff)&&Number.isFinite(prematchAt)&&prematchAt>=kickoff)return row;
+  if(next.resultFieldsUsed===true||next.hurDirectionUsed===true)return row;
+  return {...row,upsetWarning:next};
+}
 
 const riskPick=(v:unknown)=>({"主胜":"H","平":"D","客胜":"A","3":"H","1":"D","0":"A","H":"H","D":"D","A":"A"}[String(v??"")]??null);
 const riskNum=(v:unknown)=>v===null||v===undefined||v===""?null:(Number.isFinite(Number(v))?Number(v):null);
@@ -856,9 +947,10 @@ function riskLine(v:unknown){
   if(!parts.length||parts.some(x=>!Number.isFinite(x)))return null;
   return sign*(parts.reduce((a,b)=>a+b,0)/parts.length);
 }
-async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
+async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,forceShadow=false):Promise<Record<string,unknown>[]>{
   if(date<"2026-09-20"||!rows.length)return rows;
   try{
+    const shadowRiskByNo=await fetchShadowRiskMap(date,forceShadow);
     const {data:matches,error:matchError}=await db.from("soren_matches")
       .select("id,match_no,kickoff_at,cutoff_at").eq("pool_date",date).limit(200);
     if(matchError)throw matchError;
@@ -872,9 +964,9 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
     if(!ids.length)return rows;
     const [{data:market,error:marketError},{data:features,error:featureError},{data:formalPredictions,error:predictionError},{data:riskLedger,error:riskLedgerError},{data:behaviors,error:behaviorError}]=await Promise.all([
       db.from("soren_market_snapshots")
-        .select("match_id,source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,data_quality,payload,captured_at,ingested_at")
+        .select("match_id,source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,home_water,away_water,data_quality,payload,captured_at,ingested_at")
         .in("match_id",ids)
-        .in("source_code",["zucaijia_william","zucaijia_asia4:1","qiulaile_sp_mirror"])
+        .in("source_code",["zucaijia_william","zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31","qiulaile_sp_mirror"])
         .in("market_type",["FT_1X2","ASIAN_HANDICAP","HAD"])
         .in("data_quality",["verified","verified_mirror"])
         .order("captured_at",{ascending:false}).limit(6000),
@@ -935,6 +1027,72 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
     };
     const latestMarket=(list:Record<string,unknown>[],source:string,type:string,snapshot:string,cut:number)=>
       list.find(x=>String(x.source_code)===source&&String(x.market_type)===type&&String(x.snapshot_type)===snapshot&&before(x,cut))??null;
+    const asianSources=["zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31"];
+    const asianAudit=(list:Record<string,unknown>[],top:string|null,cut:number)=>{
+      if(!top||!["H","A"].includes(top))return {
+        state:"中性",strength:"弱",evaluable:0,supportCount:0,adverseCount:0,
+        hardSupport:false,adverseQualified:false,details:[] as Record<string,unknown>[]
+      };
+      const details:Record<string,unknown>[]=[];
+      for(const source of asianSources){
+        const ini=latestMarket(list,source,"ASIAN_HANDICAP","initial",cut);
+        const cur=latestMarket(list,source,"ASIAN_HANDICAP","current",cut);
+        if(!ini||!cur)continue;
+        const ip=(ini.payload&&typeof ini.payload==="object"?ini.payload:{}) as Record<string,unknown>;
+        const cp=(cur.payload&&typeof cur.payload==="object"?cur.payload:{}) as Record<string,unknown>;
+        const il=riskLine(ip.original_line??ini.line),cl=riskLine(cp.original_line??cur.line);
+        const iw=riskNum(top==="H"?ini.home_water:ini.away_water);
+        const cw=riskNum(top==="H"?cur.home_water:cur.away_water);
+        const depthDelta=il!==null&&cl!==null?Math.abs(cl)-Math.abs(il):null;
+        const waterDelta=iw!==null&&cw!==null?cw-iw:null;
+        let support=0,adverse=0;
+        const reasons:string[]=[];
+        let lineMove="持盘";
+        if(depthDelta!==null&&depthDelta>=0.24){
+          support+=2;lineMove="升盘";reasons.push("让球加深");
+        }else if(depthDelta!==null&&depthDelta<=-0.24){
+          adverse+=2;lineMove="退盘";reasons.push("让球变浅");
+        }
+        if(waterDelta!==null&&waterDelta<=-0.06){
+          support+=1;reasons.push("Top1侧降水");
+        }else if(waterDelta!==null&&waterDelta>=0.06){
+          adverse+=1;reasons.push("Top1侧升水");
+        }
+        const state=support>adverse?"支持":adverse>support?"反向":"中性";
+        details.push({
+          source,
+          institution:String(cp.institution_name??ip.institution_name??source),
+          state,lineMove,
+          initialLine:il,currentLine:cl,depthDelta,
+          initialTopWater:iw,currentTopWater:cw,waterDelta,
+          supportScore:support,adverseScore:adverse,
+          reasons
+        });
+      }
+      const evaluable=details.length;
+      const supportRows=details.filter(x=>x.state==="支持");
+      const adverseRows=details.filter(x=>x.state==="反向");
+      const supportCount=supportRows.length,adverseCount=adverseRows.length;
+      const supportLineVotes=supportRows.filter(x=>x.lineMove==="升盘").length;
+      const adverseLineVotes=adverseRows.filter(x=>x.lineMove==="退盘").length;
+      let state="中性",strength="弱";
+      if(supportCount>=2&&supportCount>adverseCount){
+        state="支持";
+        strength=(supportCount>=3||(supportLineVotes>=2&&adverseCount===0))?"强":"中";
+      }else if(adverseCount>=2&&adverseCount>supportCount){
+        state="反向";
+        strength=(adverseCount>=3||(adverseLineVotes>=2&&supportCount===0))?"强":"中";
+      }
+      // Water-only consensus needs three institutions; two-institution directional
+      // evidence requires at least one actual line move.
+      const hardSupport=state==="支持"&&(
+        supportCount>=3||(supportCount>=2&&supportLineVotes>=1&&adverseCount===0)
+      );
+      const adverseQualified=state==="反向"&&(
+        adverseCount>=3||(adverseCount>=2&&adverseLineVotes>=1&&supportCount===0)
+      );
+      return {state,strength,evaluable,supportCount,adverseCount,hardSupport,adverseQualified,details};
+    };
     const latestScore=(list:Record<string,unknown>[],cut:number)=>
       list.find(x=>before(x,cut)&&String(x.feature_type).startsWith("SCORE_ENGINE"))??null;
     const latestBehavior=(list:Record<string,unknown>[],cut:number)=>
@@ -1011,14 +1169,75 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
 
       const sourcePublish=raw.publish===true;
       const rawScore=riskNum(raw.riskScore??raw.risk_score);
-      // Preserve meaningful broad-risk records in the detail page even when they
-      // do not qualify for a highlighted focus strip. Low-signal (0–2) rows stay quiet.
-      const generalCandidate=sourcePublish||(rawScore!==null&&rawScore>=3);
-      if(!generalCandidate)return row;
       const freezeAt=String(raw.prematchAt??raw.prematch_at??row.frozenAt??"");
       const cut=Date.parse(freezeAt);
       if(!Number.isFinite(cut)||!Number.isFinite(boundary)||cut>=boundary)return row;
       const top=riskPick(raw.originalTop1??raw.original_top1??row.ftTop1);
+      // Dual-entry audit:
+      // 1) the original broad-risk gate (published or score >= 3);
+      // 2) a live pre-sale market re-audit for low-score rows when verified
+      //    Okooo/Betfair behavior exists after the frozen model snapshot.
+      // This only grants AUDIT eligibility. It never grants publication by itself.
+      const currentBeijingDate=new Intl.DateTimeFormat("en-CA",{
+        timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"
+      }).format(new Date()).split("/").join("-");
+      const liveMarketAudit=date>=currentBeijingDate&&Date.now()<boundary;
+      const marketAuditCut=liveMarketAudit?Math.min(Date.now(),boundary-1):cut;
+      const shadowRisk=shadowRiskByNo.get(no)??null;
+      const shadowHistory=(Array.isArray(shadowRisk?.history)?shadowRisk.history:[]).filter((snap:any)=>{
+        const c=Date.parse(String(snap?.capturedAt??""));
+        return Number.isFinite(c)&&c<=marketAuditCut&&c<boundary;
+      }).slice(0,2);
+      const shadowLatest=shadowHistory[0]??null;
+      const shadowCurrent=shadowConsensus(shadowLatest);
+      const shadowPrevious=shadowConsensus(shadowHistory[1]??null);
+      const shadowLatestAt=Date.parse(String(shadowLatest?.capturedAt??""));
+      const shadowMarketAdverse=!!(
+        top&&shadowCurrent.top&&shadowCurrent.top!==top&&["中","强"].includes(String(shadowCurrent.strength))
+      );
+      const shadowMarketPersistentAdverse=!!(
+        shadowMarketAdverse&&shadowPrevious.top&&shadowPrevious.top===shadowCurrent.top&&
+        ["中","强"].includes(String(shadowPrevious.strength))
+      );
+      const shadowIntel=(shadowLatest?.intelligence&&typeof shadowLatest.intelligence==="object")?shadowLatest.intelligence:{};
+      const shadowInjuryCount=Number.isFinite(Number(shadowIntel?.injuryCount))?Number(shadowIntel.injuryCount):0;
+      const shadowIntelObserved=shadowInjuryCount>0||(Array.isArray(shadowIntel?.highlights)&&shadowIntel.highlights.length>0);
+      const shadowIntelImpactSide=String(shadowIntel?.impactSide??"");
+      const shadowIntelImpactLevel=String(shadowIntel?.impactLevel??"");
+      const shadowIntelConfidence=String(shadowIntel?.confidence??"");
+      const shadowIntelSemanticSummary=String(shadowIntel?.semanticSummary??"");
+      const shadowIntelSemanticQualified=["中","高"].includes(shadowIntelImpactLevel)&&["中","高"].includes(shadowIntelConfidence);
+      const shadowIntelAdverseTop=!!(
+        shadowIntelSemanticQualified&&top&&(
+          (top==="H"&&shadowIntelImpactSide==="主队利空")||
+          (top==="A"&&shadowIntelImpactSide==="客队利空")
+        )
+      );
+      const shadowIntelSupportsTop=!!(
+        shadowIntelSemanticQualified&&top&&(
+          (top==="H"&&shadowIntelImpactSide==="客队利空")||
+          (top==="A"&&shadowIntelImpactSide==="主队利空")
+        )
+      );
+      const shadowIntelAlert=shadowIntelAdverseTop;
+      const shadowMarketAnomaly=shadowCurrent.anomalyPoints>=2||
+        shadowCurrent.flags.some((x:string)=>/分歧|异常|极端|负值/.test(x));
+      const shadowPreviousAnomaly=shadowPrevious.anomalyPoints>=2||
+        shadowPrevious.flags.some((x:string)=>/分歧|异常|极端|负值/.test(x));
+      const shadowMarketPersistentAnomaly=!!(shadowMarketAnomaly&&shadowPreviousAnomaly&&shadowHistory.length>=2);
+      const liveShadowReauditEligible=liveMarketAudit&&!!shadowLatest&&Number.isFinite(shadowLatestAt)&&shadowLatestAt<=marketAuditCut;
+
+      const liveBehaviorRows=(behaviorById.get(id)??[]).filter(x=>{
+        const c=Date.parse(String(x.captured_at??""));
+        const k=Date.parse(String(x.kickoff_at??""));
+        const quality=String(x.source_quality??"");
+        return x.prematch_verified===true&&quality.includes("prematch")&&
+          Number.isFinite(c)&&c<=marketAuditCut&&c>cut&&(!Number.isFinite(k)||c<k);
+      });
+      const liveMarketReauditEligible=liveMarketAudit&&liveBehaviorRows.length>0;
+      const baseCandidate=sourcePublish||(rawScore!==null&&rawScore>=3);
+      const generalCandidate=baseCandidate||liveMarketReauditEligible||liveShadowReauditEligible;
+      if(!generalCandidate)return row;
       const rowFreeze=Date.parse(String(row.frozenAt??""));
       const rowTop=riskPick(row.ftTop1),rowSecond=riskPick(row.second);
       const rowRisk=(row.risk&&typeof row.risk==="object"?row.risk:{}) as Record<string,unknown>;
@@ -1050,7 +1269,12 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         rowTop===top&&rowSecond===second;
       const formalPredictionEligible=!historicalReplay&&(formalStoreEligible||servedPredictionEligible);
       const publicationEligible=historicalReplay?historicalEligible:formalPredictionEligible;
+      const list=marketById.get(id)??[];
+      const asian=asianAudit(list,top,marketAuditCut);
       if(!publicationEligible){
+        // Formal direction stays blocked under DQ-C/D or snapshot mismatch.
+        // Yellow/orange observation may still use verified live shadow evidence,
+        // but can never publish a concrete reverse direction from this branch.
         // A low-DQ snapshot may still contain a directly visible H/A split.
         // Keep that risk visible, but do not publish a concrete reverse direction.
         // Okooo may strengthen the RISK DISPLAY only here; DQ-C/D never gains a
@@ -1063,35 +1287,76 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
           top&&lowDqBehavior.top&&lowDqBehavior.top!==top&&
           ["中","强"].includes(String(lowDqBehavior.strength??""))
         );
-        const lowDqMarketAnomaly=lowDqFrozenMarketAnomaly||lowDqOkoooAdverse;
+        const lowDqMarketAnomaly=lowDqFrozenMarketAnomaly||lowDqOkoooAdverse||shadowMarketAdverse||shadowMarketAnomaly||asian.adverseQualified;
+        const lowRiskObservationEligible=!historicalReplay&&row.pregameVerified===true&&
+          rawScore!==null&&rawScore>=1&&rawScore<=2&&
+          Number.isFinite(rowFreeze)&&rowFreeze<boundary&&rowTop===top&&
+          (shadowMarketPersistentAnomaly||(shadowMarketAnomaly&&lowDqFrozenMarketAnomaly));
+        if(!baseCandidate&&!lowRiskObservationEligible)return row;
         const riskDisplayEligible=!historicalReplay&&row.pregameVerified===true&&
           Number.isFinite(rowFreeze)&&rowFreeze<boundary&&Number.isFinite(cut)&&Math.abs(rowFreeze-cut)<=300000&&
           rowTop===top&&oppositeSecond;
         const lowDqDisplayTier=riskDisplayEligible?(lowDqMarketAnomaly?"强风险信号":"重点风险"):null;
         const lowDqSignals:string[]=[];
         if(riskDisplayEligible&&lowDqFrozenMarketAnomaly)lowDqSignals.push("冻结风险依据存在市场反向变化");
-        if(riskDisplayEligible&&lowDqOkoooAdverse)lowDqSignals.push("澳客资金方向与原Top1相反");
+        if(riskDisplayEligible&&lowDqOkoooAdverse)lowDqSignals.push("市场资金方向与原Top1相反");
+        if(shadowMarketAdverse)lowDqSignals.push("市场影子综合方向与原Top1相反");
+        if(shadowMarketAnomaly)lowDqSignals.push("市场影子出现结构异常");
+        if(asian.adverseQualified)lowDqSignals.push("亚洲盘多机构反向原Top1");
         return {...row,upsetWarning:{...raw,
           sourcePublish,publish:riskDisplayEligible,detailOnly:false,displayTier:lowDqDisplayTier,
           publicationEligible:false,
           riskDisplayEligible,
           directionPublicationEligible:false,
           publicationReason:riskDisplayEligible?"RISK_SPLIT_VISIBLE_DIRECTION_BLOCKED_DQ":
-            (historicalReplay?"HISTORICAL_FREEZE_MISMATCH":"NO_MATCHING_FORMAL_PREDICTION"),
+            (lowRiskObservationEligible?"SHADOW_OBSERVATION_DIRECTION_BLOCKED_DQ":
+              (historicalReplay?"HISTORICAL_FREEZE_MISMATCH":"NO_MATCHING_FORMAL_PREDICTION")),
           replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
           historyRewrite:false,
           focusGate:{
             opposite_second:riskDisplayEligible&&oppositeSecond,
             qualified_draw:false,
             market_anomaly:riskDisplayEligible&&lowDqMarketAnomaly,
-            okooo_behavior_adverse:riskDisplayEligible&&lowDqOkoooAdverse,
-            okooo_behavior_strength:lowDqBehavior.strength,
-            rule_version:"HJ38-RISK-LAYER-v1.2.8",
-            evaluated_at:freezeAt
+            market_behavior_adverse:riskDisplayEligible&&(lowDqOkoooAdverse||shadowMarketAdverse),
+            market_behavior_strength:shadowMarketAdverse?shadowCurrent.strength:lowDqBehavior.strength,
+            asian_consensus_state:asian.state,
+            asian_consensus_strength:asian.strength,
+            asian_sources_evaluable:asian.evaluable,
+            asian_support_count:asian.supportCount,
+            asian_adverse_count:asian.adverseCount,
+            asian_supports_top:asian.hardSupport,
+            asian_adverse_top:asian.adverseQualified,
+            asian_details:asian.details,
+            shadow_feed_available:!!shadowLatest,
+            shadow_market_top:shadowCurrent.top?(shadowCurrent.top==="H"?"主胜":shadowCurrent.top==="D"?"平":"客胜"):null,
+            shadow_market_strength:shadowCurrent.strength,
+            shadow_market_adverse:shadowMarketAdverse,
+            shadow_market_persistent_adverse:shadowMarketPersistentAdverse,
+            shadow_market_anomaly:shadowMarketAnomaly,
+            shadow_market_persistent_anomaly:shadowMarketPersistentAnomaly,
+            shadow_market_votes:shadowCurrent.votes,
+            shadow_anomaly_points:shadowCurrent.anomalyPoints,
+            shadow_flags:shadowCurrent.flags,
+            shadow_kelly_complete:shadowCurrent.kellyComplete,
+            shadow_intelligence_observed:shadowIntelObserved,
+            shadow_intelligence_alert:shadowIntelAlert,
+            shadow_intelligence_adverse_top:shadowIntelAdverseTop,
+            shadow_intelligence_supports_top:shadowIntelSupportsTop,
+            shadow_intelligence_impact_side:shadowIntelImpactSide||null,
+            shadow_intelligence_impact_level:shadowIntelImpactLevel||null,
+            shadow_intelligence_confidence:shadowIntelConfidence||null,
+            shadow_intelligence_summary:shadowIntelSemanticSummary||null,
+            shadow_injury_count:shadowInjuryCount,
+            shadow_captured_at:shadowLatest?.capturedAt??null,
+            live_shadow_reaudit_eligible:liveShadowReauditEligible,
+            low_risk_reactivated:lowRiskObservationEligible,
+            direction_confirmed:false,
+            rule_version:"HJ38-RISK-LAYER-v1.3.2",
+            evaluated_at:new Date(marketAuditCut).toISOString()
           },
           marketSignals:[...new Set(lowDqSignals)],
           independentDrawProbability:null,
-          focusRuleVersion:"HJ38-RISK-LAYER-v1.2.8"
+          focusRuleVersion:"HJ38-RISK-LAYER-v1.3.2"
         }};
       }
 
@@ -1104,7 +1369,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         Number.isFinite(drawProb??NaN);
       const qualifiedDraw=second==="D"&&strictScore&&(drawProb??0)>=0.27;
 
-      const list=marketById.get(id)??[],signals:string[]=[];
+      const signals:string[]=[];
       // Preserve a market conflict already certified inside the same frozen upstream warning.
       // Count it only when William's original side equals the frozen Top1 and the lottery HAD side opposes it.
       const frozenRiskBasis=Array.isArray(raw.riskBasis)?raw.riskBasis:(Array.isArray(raw.risk_basis)?raw.risk_basis:[]);
@@ -1117,8 +1382,8 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
           break;
         }
       }
-      const wi=latestMarket(list,"zucaijia_william","FT_1X2","initial",cut);
-      const wc=latestMarket(list,"zucaijia_william","FT_1X2","current",cut);
+      const wi=latestMarket(list,"zucaijia_william","FT_1X2","initial",marketAuditCut);
+      const wc=latestMarket(list,"zucaijia_william","FT_1X2","current",marketAuditCut);
       let williamCurrentSide:string|null=null;
       if(wc){
         const wh=riskNum(wc.home_value),wd=riskNum(wc.draw_value),wa=riskNum(wc.away_value);
@@ -1132,16 +1397,9 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         const b=riskNum(top==="H"?wc.home_value:top==="A"?wc.away_value:wc.draw_value);
         if(a!==null&&b!==null&&b>a&&(b-a>=0.08||b/a>=1.05))signals.push("William热门方向升赔");
       }
-      const ai=latestMarket(list,"zucaijia_asia4:1","ASIAN_HANDICAP","initial",cut);
-      const ac=latestMarket(list,"zucaijia_asia4:1","ASIAN_HANDICAP","current",cut);
-      if(ai&&ac){
-        const api=(ai.payload&&typeof ai.payload==="object"?ai.payload:{}) as Record<string,unknown>;
-        const acp=(ac.payload&&typeof ac.payload==="object"?ac.payload:{}) as Record<string,unknown>;
-        const a=riskLine(api.original_line??ai.line),b=riskLine(acp.original_line??ac.line);
-        if(a!==null&&b!==null&&Math.abs(b)+0.24<=Math.abs(a))signals.push("亚洲盘退盘");
-      }
-      const si=latestMarket(list,"qiulaile_sp_mirror","HAD","initial",cut);
-      const sc=latestMarket(list,"qiulaile_sp_mirror","HAD","current",cut);
+      if(asian.adverseQualified)signals.push("亚洲盘多机构反向原Top1");
+      const si=latestMarket(list,"qiulaile_sp_mirror","HAD","initial",marketAuditCut);
+      const sc=latestMarket(list,"qiulaile_sp_mirror","HAD","current",marketAuditCut);
       let sportterySide:string|null=null;
       if(top&&sc){
         const sh=riskNum(sc.home_value),sd=riskNum(sc.draw_value),sa=riskNum(sc.away_value);
@@ -1160,24 +1418,58 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         }
       }
 
-      const behaviorRow=latestBehavior(behaviorById.get(id)??[],cut);
+      const behaviorRow=latestBehavior(behaviorById.get(id)??[],marketAuditCut);
       const behavior=behaviorDirection(behaviorRow);
+      const recentBehaviorDirections=(behaviorById.get(id)??[])
+        .filter(x=>{
+          const c=Date.parse(String(x.captured_at??""));
+          const k=Date.parse(String(x.kickoff_at??""));
+          const quality=String(x.source_quality??"");
+          return x.prematch_verified===true&&quality.includes("prematch")&&
+            Number.isFinite(c)&&c<=marketAuditCut&&(!Number.isFinite(k)||c<k);
+        })
+        .slice(0,2).map(x=>behaviorDirection(x));
+      const persistentOkoooAdverse=!!(top&&recentBehaviorDirections.length>=2&&
+        recentBehaviorDirections.every(x=>x.top!==null&&x.top!==top&&["中","强"].includes(String(x.strength??"")))&&
+        recentBehaviorDirections[0].top===recentBehaviorDirections[1].top);
       const okoooAdverse=!!(top&&behavior.top&&behavior.top!==top&&["中","强"].includes(String(behavior.strength??"")));
-      if(okoooAdverse)signals.push("澳客资金方向与原Top1相反");
+
+      // Production behavior + 99-house/Betfair/Kelly shadow data are ONE market domain.
+      // Never multiply correlated components into separate evidence domains.
+      const behaviorAdverseTop=okoooAdverse?behavior.top:null;
+      const shadowAdverseTop=shadowMarketAdverse?shadowCurrent.top:null;
+      const marketBehaviorConflict=!!(
+        behaviorAdverseTop&&shadowAdverseTop&&behaviorAdverseTop!==shadowAdverseTop
+      );
+      const marketBehaviorTop=marketBehaviorConflict?null:(behaviorAdverseTop??shadowAdverseTop);
+      const marketBehaviorAdverse=!!marketBehaviorTop;
+      const marketBehaviorPersistentAdverse=!!(
+        !marketBehaviorConflict&&marketBehaviorAdverse&&
+        (persistentOkoooAdverse||shadowMarketPersistentAdverse)
+      );
+      if(marketBehaviorAdverse)signals.push("市场综合方向与原Top1相反");
+      if(shadowMarketAnomaly)signals.push("市场影子出现结构异常");
 
       const rawDirectionBasis=Array.isArray(raw.directionBasis)?raw.directionBasis:
         (Array.isArray(raw.direction_basis)?raw.direction_basis:[]);
       const rawEvidenceDomains=Array.isArray(raw.evidenceDomains)?raw.evidenceDomains:
         (Array.isArray(raw.evidence_domains)?raw.evidence_domains:[]);
+      const normalizedRawDomains=rawEvidenceDomains.map(x=>{
+        const d=String(x);
+        return d==="okooo_market_behavior"?"market_behavior":d;
+      });
       const directionBasis:string[]=[...rawDirectionBasis.map(x=>String(x))];
       const directionDomains=new Set<string>(
-        rawEvidenceDomains.map(x=>String(x)).filter(x=>!["risk_head","market_strength"].includes(x))
+        normalizedRawDomains.filter(x=>!["risk_head","market_strength"].includes(x))
       );
       const resultLabel=(v:string|null)=>v==="H"?"主胜":v==="D"?"平":v==="A"?"客胜":null;
 
-      if(okoooAdverse&&behavior.top){
-        directionDomains.add("okooo_market_behavior");
-        directionBasis.push("澳客交易/指数资金方向"+String(resultLabel(behavior.top))+"，强度"+String(behavior.strength));
+      if(marketBehaviorAdverse&&marketBehaviorTop){
+        directionDomains.add("market_behavior");
+        directionBasis.push(
+          "市场综合资金/机构方向"+String(resultLabel(marketBehaviorTop))+
+          "，与原Top1相反"
+        );
       }
       if(top&&sportterySide&&sportterySide!==top){
         directionDomains.add("sporttery_market");
@@ -1187,30 +1479,52 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         directionDomains.add("william_market");
         directionBasis.push("William即时方向"+String(resultLabel(williamCurrentSide))+"与原Top1相反");
       }
+      if(top&&asian.adverseQualified&&["H","A"].includes(top)){
+        directionDomains.add("asian_market");
+        directionBasis.push("亚洲盘多机构一致反向原Top1（反向"+asian.adverseCount+"/"+asian.evaluable+"）");
+      }
       if(top&&qualifiedDraw&&top!=="D"){
         directionDomains.add("independent_model");
         directionBasis.push("独立比分模型平局概率达到方向确认阈值");
       }
+      if(shadowIntelAdverseTop){
+        directionDomains.add("shadow_intelligence");
+        directionBasis.push("赛前情报识别为"+shadowIntelImpactSide+" · "+shadowIntelImpactLevel+"，与原Top1构成反向证据");
+      }
 
       const existingDirection=String(raw.warningDirection??raw.warning_direction??"")||null;
+      const independentAgainstTop=[...directionDomains].filter(x=>x!=="market_behavior").length;
+      const lowRiskReactivated=!!(
+        !baseCandidate&&(liveMarketReauditEligible||liveShadowReauditEligible)&&(
+          marketBehaviorPersistentAdverse||
+          shadowMarketPersistentAnomaly||
+          (marketBehaviorAdverse&&independentAgainstTop>=1)||
+          (shadowMarketAnomaly&&independentAgainstTop>=1)
+        )
+      );
       const directionConfirmed=!!(
-        !existingDirection&&top&&["H","A"].includes(top)&&okoooAdverse&&directionDomains.size>=2
+        !existingDirection&&top&&["H","A"].includes(top)&&marketBehaviorAdverse&&directionDomains.size>=2&&
+        !asian.hardSupport
       );
       const warningDirection=existingDirection??(directionConfirmed?(top==="H"?"主队不胜":"客队不胜"):null);
       const alternativePick=raw.alternativePick??raw.alternative_pick??
-        (directionConfirmed&&behavior.top?resultLabel(behavior.top):null);
+        (directionConfirmed&&marketBehaviorTop?resultLabel(marketBehaviorTop):null);
       const directionalDomainCount=Math.max(
         Number(raw.directionalDomainCount??raw.directional_domain_count??0)||0,
         directionDomains.size
       );
       const mergedDirectionBasis=[...new Set(directionBasis.filter(Boolean))];
       const mergedEvidenceDomains=[...new Set([
-        ...rawEvidenceDomains.map(x=>String(x)),
-        ...directionDomains
+        ...normalizedRawDomains,
+        ...directionDomains,
+        ...(shadowIntelAlert?["shadow_intelligence"]:[])
       ])];
 
       const marketSignals=[...new Set(signals)],marketAnomaly=marketSignals.length>0;
-      const focus=oppositeSecond||qualifiedDraw||directionConfirmed||!!existingDirection;
+      if(!baseCandidate&&!lowRiskReactivated)return row;
+      const focus=baseCandidate
+        ?(oppositeSecond||qualifiedDraw||directionConfirmed||!!existingDirection)
+        :(lowRiskReactivated&&directionConfirmed);
       const displayTier=focus?((marketAnomaly||directionConfirmed||!!existingDirection)?"强风险信号":"重点风险"):"一般风险";
       return {...row,upsetWarning:{...raw,
         sourcePublish,publish:focus,detailOnly:!focus,displayTier,
@@ -1220,17 +1534,55 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
         directionalDomainCount,
         directionPublicationEligible:!!warningDirection&&directionalDomainCount>=2,
         note:directionConfirmed
-          ?"预警方向由澳客资金与至少一个独立赛前证据域同向确认"
-          :(raw.note??null),
+          ?(lowRiskReactivated
+            ?"低风险场由临场影子层重新激活，并由市场资金与至少一个独立赛前证据域同向确认"
+            :"预警方向由市场资金与至少一个独立赛前证据域同向确认")
+          :(lowRiskReactivated?"低风险场已被临场影子层重新送审，尚未达到方向发布门槛":(raw.note??null)),
         focusGate:{
           opposite_second:oppositeSecond,
           qualified_draw:qualifiedDraw,
           market_anomaly:marketAnomaly,
-          okooo_behavior_adverse:okoooAdverse,
-          okooo_behavior_strength:behavior.strength,
+          market_behavior_adverse:marketBehaviorAdverse,
+          market_behavior_strength:marketBehaviorAdverse?(shadowMarketAdverse?shadowCurrent.strength:behavior.strength):null,
+          market_behavior_persistent_adverse:marketBehaviorPersistentAdverse,
+          market_behavior_conflict:marketBehaviorConflict,
+          asian_consensus_state:asian.state,
+          asian_consensus_strength:asian.strength,
+          asian_sources_evaluable:asian.evaluable,
+          asian_support_count:asian.supportCount,
+          asian_adverse_count:asian.adverseCount,
+          asian_supports_top:asian.hardSupport,
+          asian_adverse_top:asian.adverseQualified,
+          asian_details:asian.details,
+          live_market_reaudit_eligible:liveMarketReauditEligible,
+          live_shadow_reaudit_eligible:liveShadowReauditEligible,
+          shadow_feed_available:!!shadowLatest,
+          shadow_market_top:shadowCurrent.top?resultLabel(shadowCurrent.top):null,
+          shadow_market_strength:shadowCurrent.strength,
+          shadow_market_adverse:shadowMarketAdverse,
+          shadow_market_persistent_adverse:shadowMarketPersistentAdverse,
+          shadow_market_anomaly:shadowMarketAnomaly,
+          shadow_market_persistent_anomaly:shadowMarketPersistentAnomaly,
+          shadow_market_votes:shadowCurrent.votes,
+          shadow_anomaly_points:shadowCurrent.anomalyPoints,
+          shadow_flags:shadowCurrent.flags,
+          shadow_kelly_complete:shadowCurrent.kellyComplete,
+          shadow_intelligence_observed:shadowIntelObserved,
+          shadow_intelligence_alert:shadowIntelAlert,
+          shadow_intelligence_adverse_top:shadowIntelAdverseTop,
+          shadow_intelligence_supports_top:shadowIntelSupportsTop,
+          shadow_intelligence_impact_side:shadowIntelImpactSide||null,
+          shadow_intelligence_impact_level:shadowIntelImpactLevel||null,
+          shadow_intelligence_confidence:shadowIntelConfidence||null,
+          shadow_intelligence_summary:shadowIntelSemanticSummary||null,
+          shadow_injury_count:shadowInjuryCount,
+          shadow_captured_at:shadowLatest?.capturedAt??null,
+          low_risk_reactivated:lowRiskReactivated,
           direction_confirmed:directionConfirmed||!!existingDirection,
-          rule_version:"HJ38-RISK-LAYER-v1.2.8",
-          evaluated_at:freezeAt
+          frozen_model_cut:freezeAt,
+          market_audit_cut:new Date(marketAuditCut).toISOString(),
+          rule_version:"HJ38-RISK-LAYER-v1.3.2",
+          evaluated_at:new Date(marketAuditCut).toISOString()
         },
         marketSignals,
         independentDrawProbability:strictScore?drawProb:null,
@@ -1243,7 +1595,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
           (servedPredictionEligible&&!formalStoreEligible?servedDq:formalDq),
         replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
         historyRewrite:false,
-        focusRuleVersion:"HJ38-RISK-LAYER-v1.2.8"
+        focusRuleVersion:"HJ38-RISK-LAYER-v1.3.2"
       }};
     });
   }catch(error){
@@ -1258,7 +1610,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string):Pr
       if(!generalCandidate)return row;
       return {...row,upsetWarning:{...raw,sourcePublish,publish:false,detailOnly:false,
         displayTier:null,publicationEligible:false,publicationReason:"RISK_LAYER_UNAVAILABLE",
-        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.2.8-FALLBACK"},
+        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.3.2-FALLBACK"},
         marketSignals:[]}};
     });
   }
@@ -1273,7 +1625,7 @@ function upsetStatsFor(rows:Record<string,unknown>[]){
   const focus=published.filter(r=>tierOf(r)==="重点风险").length;
   return {
     modelVersion:"HJ38-UPSET-v1.1.0",
-    riskLayerVersion:"HJ38-RISK-LAYER-v1.2.8",
+    riskLayerVersion:"HJ38-RISK-LAYER-v1.3.2",
     published:published.length,
     strong,focus,
     // Backward-compatible keys: high/medium now follow the public layered tier, not legacy risk_score bands.
@@ -1635,11 +1987,42 @@ function vipRiskSignalPresent(row:Record<string,unknown>){
 }
 function redactLiveVipRisk(row:Record<string,unknown>){
   const locked=vipRiskSignalPresent(row);
+  const raw=(row.upsetWarning&&typeof row.upsetWarning==="object"&&!Array.isArray(row.upsetWarning))
+    ?row.upsetWarning as Record<string,unknown>:{};
+  const drawRaw=Number(row.drawProbability??row.drawPct??row.draw_pct);
+  const drawPct=Number.isFinite(drawRaw)?(drawRaw<=1?drawRaw*100:drawRaw):null;
+  const official=Number(row.officialHandicap);
+  const first=String(row.handicapTop1??row.handicap??"").trim();
+  const second=String(row.handicapSecond??"").trim();
+  const p1=Number(row.handicapProbability??row.handicap_probability);
+  const p2=Number(row.handicapSecondProbability??row.handicap_second_probability);
+  const valid=(v:string)=>["让胜","让平","让负","HWIN","HDRAW","HLOSS"].includes(v);
+  const highDrawFallback=row.pregameVerified===true&&drawPct!==null&&drawPct>=29&&official===-1&&
+    valid(first)&&valid(second)&&Number.isFinite(p1)&&Number.isFinite(p2);
+  const rawTier=String(raw.displayTier??raw.display_tier??"");
+  const publicRiskLabel=(row.highDrawRisk===true||highDrawFallback)
+    ?"高平风险"
+    :row.marketDirectionAnomaly===true
+      ?"市场异动信号"
+      :["重点风险","强风险信号"].includes(rawTier)
+        ?rawTier
+        :raw.publish===true?"重点风险":null;
+  const publicRiskReason=publicRiskLabel==="高平风险"
+    ?"胜平负结构接近，平局风险偏高"
+    :publicRiskLabel==="市场异动信号"
+      ?"赛前市场方向出现异常变化"
+      :publicRiskLabel==="强风险信号"
+        ?"赛前多项风险证据达到强观察门槛"
+        :publicRiskLabel==="重点风险"
+          ?"赛前风险证据达到重点观察门槛"
+          :null;
   return {
     ...row,
     vipRiskAccessRestricted:true,
     vipRiskLocked:locked,
     vipRiskNotice:locked?"VIP风险信号已触发":null,
+    vipRiskPublicLabel:publicRiskLabel,
+    vipRiskPublicReason:publicRiskReason,
     highDrawRisk:false,
     highDrawRiskReason:null,
     marketDirectionAnomaly:false,
@@ -1702,7 +2085,7 @@ async function professionalReport(date:string,no:string){
     &&String(v.away_team)===String(match.away_team)
     &&v.quality==="attributed_prematch_article_pair_verified"
     &&/^https:\/\/sports\.sina\.com\.cn\/l\//.test(String(v.source_url||"")))
-    .map(v=>({source:"新浪小炮赛前情报（媒体观点，未独立核验）",
+    .map(v=>({source:"媒体赛前观点（未独立核验）",
       title:v.headline,url:v.source_url,publishedAt:v.published_at,fetchedAt:v.fetched_at,
       sections:Array.isArray(v.highlights)?v.highlights:[]}));
   const [{data:market,error:marketError},{data:predictions,error:predError},{data:features,error:featureError}]=await Promise.all([
@@ -1896,6 +2279,18 @@ async function serveFastArchiveBundle(date:string,view:string,vipActive=false):P
       verifiedResults
     ).map(attachScoreGoalReference);
 
+    // Current-day fast bundle keeps the frozen prediction itself, but overlays the
+    // separately precomputed latest prematch risk ledger. Past archive dates remain
+    // strictly frozen and are never rewritten by a later warning row.
+    const fastTodayBjt=new Intl.DateTimeFormat("en-CA",{
+      timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"
+    }).format(new Date()).split("/").join("-");
+    if(date===fastTodayBjt){
+      const latestWarnings=await loadUpsetWarningMap(date);
+      rows=rows.map(r=>overlayLatestCurrentUpsetWarning(r,latestWarnings));
+      rows=applyHighDrawRiskLayer(rows);
+    }
+
     const liveUnsettled=rows.some((r:Record<string,unknown>)=>r.resultVerified!==true&&r.matchStatus!=="POSTPONED");
     if(!vipActive&&liveUnsettled)rows=rows.map(redactLiveVipRisk);
 
@@ -1938,6 +2333,38 @@ function fair3(h:unknown,d:unknown,a:unknown){
 function cnResult(v:unknown){
   return ({H:"主胜",D:"平",A:"客胜","主胜":"主胜","平":"平","客胜":"客胜"} as Record<string,string>)[String(v??"")]??null;
 }
+
+function vipColdTimeGate(date:string,kickoffValue:unknown,cutoffValue:unknown=null){
+  const ruleActive=date>="2026-09-29";
+  const kickoff=Date.parse(String(kickoffValue??""));
+  const explicitCutoff=Date.parse(String(cutoffValue??""));
+  const probe=Date.parse(date+"T12:00:00+08:00");
+  const dow=Number.isFinite(probe)?new Date(probe).getUTCDay():1;
+  const weekend=dow===0||dow===6;
+  const fallbackCutoff=Date.parse(date+"T"+(weekend?"23":"22")+":00:00+08:00");
+  const saleDeadline=Number.isFinite(explicitCutoff)?explicitCutoff:fallbackCutoff;
+  const legacyBoundary=Number.isFinite(kickoff)
+    ?(Number.isFinite(explicitCutoff)&&explicitCutoff<kickoff?explicitCutoff:kickoff)
+    :Date.now();
+  if(!Number.isFinite(kickoff)||!Number.isFinite(saleDeadline)){
+    return {
+      active:ruleActive,stage:"UNVERIFIED",saleDeadline:legacyBoundary,
+      directionOpenAt:legacyBoundary,finalReviewAt:legacyBoundary,
+      freezeAt:legacyBoundary,legacyBoundary
+    };
+  }
+  const directionOpenAt=Math.min(kickoff-4*60*60*1000,saleDeadline-30*60*1000);
+  const finalReviewAt=Math.min(kickoff-90*60*1000,saleDeadline-30*60*1000);
+  const freezeAt=Math.min(kickoff-30*60*1000,saleDeadline-30*60*1000);
+  const now=Date.now();
+  const stage=now<directionOpenAt?"OBSERVE":
+    now<finalReviewAt?"DIRECTION_WINDOW":
+    now<freezeAt?"FINAL_REVIEW":"FROZEN";
+  return {active:ruleActive,stage,saleDeadline,directionOpenAt,finalReviewAt,freezeAt,legacyBoundary};
+}
+
+const paidMemberZoneResponseCache=new Map<string,{at:number,zone:any}>();
+
 async function paidMemberZone(
   date:string,
   runtimeRowsOverride:Record<string,unknown>[]|null=null,
@@ -1947,21 +2374,71 @@ async function paidMemberZone(
   if(runtimeRowsOverride){
     runtimeRows=runtimeRowsOverride;
   }else{
-    const upstreamData=await fetchPublicUpstream("today",date);
-    const expectedRevision=allowed.get(String(upstreamData?.modelVersion??""));
-    if(upstreamData?.ok!==true||!expectedRevision||upstreamData?.revision!==expectedRevision||!Array.isArray(upstreamData?.rows))
-      throw new Error("VIP_RUNTIME_UPSTREAM_INVALID");
+    // VIP customer reads should not pay the cross-project upstream cost on every tap.
+    // Prefer the already-frozen production bundle, then run the same customer risk layer.
+    // Fall back to the original upstream path only if the frozen bundle is unavailable.
+    let frozenRuntime:Record<string,unknown>[]|null=null;
+    try{
+      const {data:bundle,error:bundleError}=await db.rpc("soren_fast_archive_bundle_v2",{p_date:date});
+      if(!bundleError&&bundle&&typeof bundle==="object"&&!Array.isArray(bundle)){
+        const b=bundle as Record<string,unknown>;
+        const raw=Array.isArray(b.rows)?(b.rows as Record<string,unknown>[]):[];
+        const modelVersion=String(raw.find(r=>r.version)?.version??"");
+        if(raw.length&&allowed.get(modelVersion))frozenRuntime=raw;
+      }
+      if(bundleError)console.error("VIP_FAST_RUNTIME_BUNDLE_UNAVAILABLE",bundleError);
+    }catch(bundleError){
+      console.error("VIP_FAST_RUNTIME_BUNDLE_ERROR",bundleError);
+    }
+    // Secondary fast source for older locked dates whose archive bundle predates v2.
+    // These are immutable prematch sale freezes already stored in production.
+    if(!frozenRuntime?.length){
+      try{
+        const {data:freezeRows,error:freezeError}=await db.from("soren_sale_freezes_v1")
+          .select("match_no,snapshot,source_frozen_at")
+          .eq("pool_date",date)
+          .order("match_no",{ascending:true});
+        if(!freezeError&&Array.isArray(freezeRows)&&freezeRows.length){
+          const raw=freezeRows
+            .map((x:any)=>x?.snapshot)
+            .filter((x:any)=>x&&typeof x==="object"&&!Array.isArray(x)) as Record<string,unknown>[];
+          const modelVersion=String(raw.find((r:any)=>r?.version)?.version??"");
+          if(raw.length&&allowed.get(modelVersion))frozenRuntime=raw;
+        }
+        if(freezeError)console.error("VIP_SALE_FREEZE_RUNTIME_UNAVAILABLE",freezeError);
+      }catch(freezeError){
+        console.error("VIP_SALE_FREEZE_RUNTIME_ERROR",freezeError);
+      }
+    }
+    if(frozenRuntime?.length){
+      const cnToday=new Intl.DateTimeFormat("en-CA",{
+        timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"
+      }).format(new Date()).split("/").join("-");
+      // Historical frozen bundles already contain the immutable prematch upset warning.
+      // Do not rebuild the entire market/risk layer on every VIP history tap.
+      if(date<cnToday){
+        runtimeRows=applyHighDrawRiskLayer(frozenRuntime);
+      }else{
+        runtimeRows=await applyRiskFocusLayer(frozenRuntime,date);
+        runtimeRows=applyHighDrawRiskLayer(runtimeRows);
+      }
+    }else{
+      const upstreamData=await fetchPublicUpstream("today",date);
+      const expectedRevision=allowed.get(String(upstreamData?.modelVersion??""));
+      if(upstreamData?.ok!==true||!expectedRevision||upstreamData?.revision!==expectedRevision||!Array.isArray(upstreamData?.rows))
+        throw new Error("VIP_RUNTIME_UPSTREAM_INVALID");
 
-    const runtimeSource=(upstreamData.rows as Record<string,unknown>[])
-      .filter((row)=>String(row?.version??"")===String(upstreamData.modelVersion??"")&&row?.no&&row?.kickoff);
-    runtimeRows=await applySaleFreeze(runtimeSource,String(upstreamData.date??date),false);
-    runtimeRows=await applyRiskFocusLayer(runtimeRows,String(upstreamData.date??date));
-    runtimeRows=applyHighDrawRiskLayer(runtimeRows);
+      const runtimeSource=(upstreamData.rows as Record<string,unknown>[])
+        .filter((row)=>String(row?.version??"")===String(upstreamData.modelVersion??"")&&row?.no&&row?.kickoff);
+      runtimeRows=await applySaleFreeze(runtimeSource,String(upstreamData.date??date),false);
+      runtimeRows=await applyRiskFocusLayer(runtimeRows,String(upstreamData.date??date));
+      runtimeRows=applyHighDrawRiskLayer(runtimeRows);
+    }
   }
   const runtimeByNo=new Map<string,any>(runtimeRows.map((r:any)=>[String(r.no??"").padStart(3,"0"),r]));
 
   let matchQuery:any=db.from("soren_matches")
-    .select("id,pool_date,match_no,home_team,away_team,kickoff_at,league,is_world_cup")
+    .select("id,pool_date,match_no,home_team,away_team,kickoff_at,cutoff_at,league,is_world_cup")
     .eq("pool_date",date).eq("is_world_cup",false);
   if(onlyNos&&onlyNos.size)matchQuery=matchQuery.in("match_no",[...onlyNos]);
   const {data:matches,error:matchError}=await matchQuery.order("match_no",{ascending:true});
@@ -1970,13 +2447,9 @@ async function paidMemberZone(
   if(!list.length)return {date,rows:[]};
 
   const ids=list.map((m:any)=>Number(m.id));
-  const [{data:markets,error:marketError},{data:behaviors,error:behaviorError},{data:intelRows,error:intelError},{data:resultRows,error:resultError}]=await Promise.all([
-    db.from("soren_market_snapshots")
-      .select("match_id,source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,home_water,away_water,payload,captured_at,data_quality")
-      .in("match_id",ids)
-      .in("source_code",["zucaijia_william","qiulaile_sp_mirror","zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31"])
-      .in("market_type",["FT_1X2","HAD","HHAD","ASIAN_HANDICAP"])
-      .order("captured_at",{ascending:false}).limit(6000),
+  const [{data:markets,error:marketError},{data:recentDirectionMarkets,error:recentDirectionMarketError},{data:behaviors,error:behaviorError},{data:intelRows,error:intelError},{data:resultRows,error:resultError}]=await Promise.all([
+    db.rpc("soren_member_zone_markets_v1",{p_date:date}),
+    db.rpc("soren_vip_direction_recent_markets_v1",{p_date:date}),
     db.from("soren_market_behavior_v1")
       .select("match_id,match_no,okooo_match_id,exchange_scale,transaction_rows,index_rows,captured_at,kickoff_at,prematch_verified,source_quality")
       .eq("pool_date",date).in("match_id",ids).eq("prematch_verified",true).order("captured_at",{ascending:false}).limit(300),
@@ -1990,17 +2463,19 @@ async function paidMemberZone(
       .select("match_id,home_score,away_score,ft_result,handicap_result,result_source,verified,verified_at")
       .in("match_id",ids)
   ]);
-  if(marketError||behaviorError||intelError||resultError)throw marketError||behaviorError||intelError||resultError;
+  if(marketError||recentDirectionMarketError||behaviorError||intelError||resultError)
+    throw marketError||recentDirectionMarketError||behaviorError||intelError||resultError;
 
-  const marketBy=new Map<string,any>(),officialBy=new Map<number,any>(),asiaBy=new Map<number,any[]>(),behaviorBy=new Map<number,any>(),intelBy=new Map<number,any[]>(),resultBy=new Map<number,any>();
+  const marketBy=new Map<string,any>(),officialBy=new Map<number,any>(),asiaBy=new Map<number,any[]>(),behaviorBy=new Map<number,any>(),behaviorHistoryBy=new Map<number,any[]>(),intelBy=new Map<number,any[]>(),resultBy=new Map<number,any>();
   for(const r of resultRows??[])if(r.verified===true)resultBy.set(Number(r.match_id),r);
   const asiaSources=["zucaijia_asia4:1","zucaijia_asia4:11","zucaijia_asia4:18","zucaijia_asia4:31"];
   for(const m of list){
     const id=Number(m.id),kick=Date.parse(String(m.kickoff_at));
     const rt=runtimeByNo.get(String(m.match_no??"").padStart(3,"0"))??null;
-    const cutoffCandidate=Date.parse(String(rt?.saleCutoffAt??""));
-    const freezeBoundary=Number.isFinite(cutoffCandidate)&&cutoffCandidate<kick?cutoffCandidate:kick;
-    const pre=(markets??[]).filter((q:any)=>Number(q.match_id)===id&&Date.parse(String(q.captured_at))<freezeBoundary);
+    const cutoffValue=m.cutoff_at??rt?.saleCutoffAt??null;
+    const coldTiming=vipColdTimeGate(date,m.kickoff_at,cutoffValue);
+    const freezeBoundary=coldTiming.active?Math.min(kick,coldTiming.freezeAt):coldTiming.legacyBoundary;
+    const pre=(markets??[]).filter((q:any)=>Number(q.match_id)===id&&Date.parse(String(q.captured_at))<=freezeBoundary);
     for(const typ of ["initial","current"]){
       const x=pre.find((q:any)=>q.source_code==="zucaijia_william"&&q.market_type==="FT_1X2"&&q.snapshot_type===typ);
       if(x)marketBy.set(id+"|"+typ,x);
@@ -2030,8 +2505,14 @@ async function paidMemberZone(
       };
     }).filter(Boolean);
     if(asian.length)asiaBy.set(id,asian as any[]);
-    const b=(behaviors??[]).find((x:any)=>Number(x.match_id)===id&&x.prematch_verified===true&&Date.parse(String(x.captured_at))<freezeBoundary);
-    if(b)behaviorBy.set(id,b);
+    const behaviorHistory=(behaviors??[])
+      .filter((x:any)=>Number(x.match_id)===id&&x.prematch_verified===true&&Date.parse(String(x.captured_at))<=freezeBoundary)
+      .slice(0,2);
+    const b=behaviorHistory[0]??null;
+    if(b){
+      behaviorBy.set(id,b);
+      behaviorHistoryBy.set(id,behaviorHistory);
+    }
     const intel=(intelRows??[]).filter((x:any)=>{
       const fetched=Date.parse(String(x.fetched_at));
       const published=Date.parse(String(x.published_at??x.fetched_at));
@@ -2074,6 +2555,10 @@ async function paidMemberZone(
     const codes=Array.isArray(rt?.selectionCodes)?rt.selectionCodes.map((x:any)=>String(x)):[];
     const risk=(rt?.risk&&typeof rt.risk==="object"?rt.risk:{}) as Record<string,any>;
     const warning=(rt?.upsetWarning&&typeof rt.upsetWarning==="object"?rt.upsetWarning:{}) as Record<string,any>;
+    const runtimeFocusGate=(warning?.focusGate&&typeof warning.focusGate==="object"&&!Array.isArray(warning.focusGate))
+      ?warning.focusGate as Record<string,any>
+      :((warning?.focus_gate&&typeof warning.focus_gate==="object"&&!Array.isArray(warning.focus_gate))
+        ?warning.focus_gate as Record<string,any>:{});
     const hur=String(risk?.hur??"");
     const dtr=String(risk?.dtr??"");
     const dlr=String(risk?.dlr??"");
@@ -2111,7 +2596,7 @@ async function paidMemberZone(
       overheat=highHeat&&!priceSupport;
 
       behavior={
-        source:"澳客交易盈亏",okoooMatchId:b.okooo_match_id,capturedAt:b.captured_at,scale:b.exchange_scale,
+        source:"市场交易行为",capturedAt:b.captured_at,scale:b.exchange_scale,
         top1:behaviorTop,strength:behaviorStrength,
         doerPct:doer,betfairShare:bfShare,jcSavedShare:jcShare,avgProbability:avgProb,
         betfairHotCold:bfHot,jcHotCold:jcHot,
@@ -2169,10 +2654,21 @@ async function paidMemberZone(
         if(adverse){
           const homeName=String(m.home_team??"").trim(),awayName=String(m.away_team??"").trim();
           const adverseLevel=/主力|核心|头号|队长|门将|多人|多名重要球员/.test(headline)?"高":"中";
-          if(homeName&&headline.includes(homeName))normalizedIntel.push({
+          const headlineMentionsTeam=(name:string)=>{
+            const clean=(v:string)=>String(v??"").replace(/足球俱乐部|俱乐部|football club|\\bfc\\b/gi,"")
+              .replace(/[·•.\\-－—_()（）\\[\\]【】\\s]/g,"").trim();
+            const h=clean(headline),t=clean(name);
+            if(!h||!t)return false;
+            if(h.includes(t))return true;
+            const blocked=new Set(["足球","俱乐","联队","竞技","体育","球队","城市"]);
+            const aliases=[t.slice(-3),t.slice(-2),t.slice(0,3),t.slice(0,2)]
+              .filter((x,i,a)=>x.length>=2&&!blocked.has(x)&&a.indexOf(x)===i);
+            return aliases.some(x=>h.includes(x));
+          };
+          if(homeName&&headlineMentionsTeam(homeName))normalizedIntel.push({
             side:"主队",type:"伤停",level:adverseLevel,impact:"利空",summary:headline,source:"sina_xiaopao_attributed"
           });
-          if(awayName&&headline.includes(awayName))normalizedIntel.push({
+          if(awayName&&headlineMentionsTeam(awayName))normalizedIntel.push({
             side:"客队",type:"伤停",level:adverseLevel,impact:"利空",summary:headline,source:"sina_xiaopao_attributed"
           });
         }
@@ -2295,15 +2791,15 @@ async function paidMemberZone(
       :"赛前资金快照未冻结";
 
     const intelligence=intelRowsForMatch.length?{
-      source:intelRowsForMatch.length>1?"多源赛前情报":(intelRow?.source_code==="okooo_public_intel"?"澳客公开赛前情报":"新浪小炮赛前情报"),
-      sourceUrl:intelRow?.source_url??null,
+      source:intelRowsForMatch.length>1?"多源赛前情报":(intelRow?.source_code==="okooo_public_intel"?"公开赛前情报":"媒体赛前情报"),
+      sourceUrl:null,
       fetchedAt:intelRowsForMatch.map((x:any)=>x.fetched_at).filter(Boolean).sort().slice(-1)[0]??null,
       impactSide:intelImpactSide,
       impactLevel:intelImpactLevel,
       categories:intelCategories.slice(0,8),
       riskActivated:intelligenceRisk,
       riskReasons:intelligenceRiskReasons,
-      sources:[...new Set(intelRowsForMatch.map((x:any)=>String(x.source_code??"")).filter(Boolean))],
+      sources:["赛前情报"],
       formation:(primaryHighlights.formation&&typeof primaryHighlights.formation==="object")?primaryHighlights.formation:null,
       formationUrl:primaryHighlights.formation_url??null,
       note:"赛前多源情报归一化；中/高等级且明确利空当前首选一方时进入风险降级"
@@ -2362,6 +2858,18 @@ async function paidMemberZone(
     else if(marketConflict){coldEvidence.push("威廉方向与Top1分歧");coldDomains.push("market_odds");}
     if(modelRiskSignal){coldEvidence.push(displayTier==="强风险信号"?"强风险信号":"重点风险/HUR");coldDomains.push("risk_model");}
     if(drawUpsetSignal){coldEvidence.push("高平风险");coldDomains.push("draw_risk");}
+    if(runtimeFocusGate.shadow_market_adverse===true){
+      coldEvidence.push("市场影子综合方向反向");
+      if(!coldDomains.includes("market_behavior"))coldDomains.push("market_behavior");
+    }
+    if(runtimeFocusGate.asian_adverse_top===true){
+      coldEvidence.push("亚洲盘多机构反向");
+      coldDomains.push("asian_market");
+    }
+    if(runtimeFocusGate.shadow_intelligence_adverse_top===true){
+      coldEvidence.push("赛前情报利空当前Top1");
+      coldDomains.push("shadow_intelligence");
+    }
 
     const strongBehavior=popularityGap!==null&&popularityGap>=15&&topProfitIndex<=-15;
     let coldLevel="低";
@@ -2395,15 +2903,128 @@ async function paidMemberZone(
     // publish only when the opposite side's unbeaten direction is explicit.
     // Soft warnings/heat alone stay internal and do not clutter the VIP page.
     const warningSignals=Array.isArray(warning?.marketSignals)?warning.marketSignals.map((x:any)=>String(x)):[];
-    const asianRetreatSignal=warningSignals.some((x:string)=>/亚洲盘/.test(x)&&/退/.test(x));
+    const asianAdverseSignal=runtimeFocusGate.asian_adverse_top===true||
+      warningSignals.some((x:string)=>/亚洲盘/.test(x)&&(/反向|退盘/.test(x)));
+    const asianSupportSignal=runtimeFocusGate.asian_supports_top===true;
+    const asianRetreatSignal=asianAdverseSignal; // legacy alias for existing customer fields
     const verifiedBehaviorScale=String(b?.exchange_scale??"");
     const trustedBehaviorScale=["适中","较大"].includes(verifiedBehaviorScale);
     const hardMarketReverse=asianRetreatSignal&&(popularityDivergence||fundAnomaly);
     const hardRiskReverse=["重点风险","强风险信号"].includes(displayTier)&&fundAnomaly&&trustedBehaviorScale;
-    const vipPublish=["主胜","客胜"].includes(String(modelTop))&&(
+    const runtimeDirectionEligible=warning?.directionPublicationEligible===true&&!!warning?.warningDirection;
+    const vipRiskQualified=["主胜","客胜"].includes(String(modelTop))&&(
+      runtimeDirectionEligible||
       (intelligenceRisk&&hardMarketReverse)||
       (hardRiskReverse&&(intelligenceRisk||marketConflict||oddsAnomaly))
     );
+
+    const cutoffValueForDirection=m.cutoff_at??rt?.saleCutoffAt??null;
+    const coldTiming=vipColdTimeGate(date,m.kickoff_at,cutoffValueForDirection);
+    const oppositeSupports=(pick:any)=>{
+      const p=String(pick??"");
+      if(modelTop==="主胜")return p==="平"||p==="客胜";
+      if(modelTop==="客胜")return p==="主胜"||p==="平";
+      return false;
+    };
+    const recentFor=(source:string)=>(recentDirectionMarkets??[])
+      .filter((x:any)=>Number(x.match_id)===id&&String(x.source_code)===source)
+      .sort((a:any,b:any)=>Number(a.seq)-Number(b.seq))
+      .slice(0,2);
+    const mainChainState=(source:string)=>{
+      const xs=recentFor(source);
+      if(xs.length<2||topIdx<0)return {
+        source,state:"未确认",currentPick:null,previousPick:null,
+        probabilityDelta:null,currentProbability:null,previousProbability:null,
+        coldScore:0,counterScore:0,directional:false
+      };
+      const current=fair3(xs[0].home_value,xs[0].draw_value,xs[0].away_value);
+      const previous=fair3(xs[1].home_value,xs[1].draw_value,xs[1].away_value);
+      if(!current||!previous)return {
+        source,state:"未确认",currentPick:null,previousPick:null,
+        probabilityDelta:null,currentProbability:null,previousProbability:null,
+        coldScore:0,counterScore:0,directional:false
+      };
+      const currentPick=labels[maxIndex(current)];
+      const previousPick=labels[maxIndex(previous)];
+      const currentProbability=Number(current[topIdx]);
+      const previousProbability=Number(previous[topIdx]);
+      const probabilityDelta=Number((currentProbability-previousProbability).toFixed(2));
+      let state="稳定",coldScore=0,counterScore=1,directional=false;
+      if(currentPick!==modelTop&&previousPick!==modelTop){
+        state="反转确认";coldScore=2;counterScore=0;directional=true;
+      }else if(currentPick!==modelTop&&previousPick===modelTop){
+        state="反转待确认";coldScore=1;counterScore=0;directional=true;
+      }else if(currentPick===modelTop&&previousPick!==modelTop){
+        state="回正";coldScore=0;counterScore=2;directional=false;
+      }else if(probabilityDelta>=0.8){
+        state="增强";coldScore=0;counterScore=2;directional=false;
+      }else if(probabilityDelta<=-0.8){
+        state="减弱";coldScore=1;counterScore=0;directional=true;
+      }
+      return {
+        source,state,currentPick,previousPick,probabilityDelta,
+        currentProbability:Number(currentProbability.toFixed(2)),
+        previousProbability:Number(previousProbability.toFixed(2)),
+        currentOdds:[Number(xs[0].home_value),Number(xs[0].draw_value),Number(xs[0].away_value)],
+        previousOdds:[Number(xs[1].home_value),Number(xs[1].draw_value),Number(xs[1].away_value)],
+        coldScore,counterScore,directional
+      };
+    };
+    const behaviorTopForRecord=(br:any)=>{
+      const tr=Array.isArray(br?.transaction_rows)?br.transaction_rows:[];
+      const ix=Array.isArray(br?.index_rows)?br.index_rows:[];
+      const doer=toNums(tr,"doerPct"),bfShare=toNums(ix,"bfShare"),jcShare=toNums(ix,"jcSavedShare"),
+        avgProb=toNums(ix,"avgProb"),bfHot=toNums(ix,"bfHotCold"),jcHot=toNums(ix,"jcHotCold");
+      const score=[0,0,0];
+      const add=(arr:number[],w:number)=>{const k=maxIndex(arr);if(k>=0)score[k]+=w;};
+      add(avgProb,1);add(jcShare,2);add(doer,1);add(bfShare,br?.exchange_scale==="较小"?1:2);
+      const bh=maxIndex(bfHot),jh=maxIndex(jcHot);
+      if(bh>=0&&bfHot[bh]>=15)score[bh]+=br?.exchange_scale==="较小"?0.5:1;
+      if(jh>=0&&jcHot[jh]>=15)score[jh]+=1;
+      const rank=score.map((v:number,i:number)=>({i,v})).sort((a:any,c:any)=>c.v-a.v);
+      return rank[0]?.v>0?labels[rank[0].i]:null;
+    };
+    const behaviorHistory=behaviorHistoryBy.get(id)??[];
+    const stableBehaviorDomain=behaviorHistory.length>=2&&behaviorHistory.slice(0,2).every((br:any)=>
+      ["适中","较大"].includes(String(br?.exchange_scale??""))&&oppositeSupports(behaviorTopForRecord(br))
+    );
+    const shadowBehaviorDomain=runtimeFocusGate.shadow_market_adverse===true;
+    const shadowBehaviorPersistent=runtimeFocusGate.shadow_market_persistent_adverse===true;
+    const marketBehaviorDomain=stableBehaviorDomain||shadowBehaviorDomain;
+    const marketBehaviorPersistent=stableBehaviorDomain||shadowBehaviorPersistent||
+      runtimeFocusGate.market_behavior_persistent_adverse===true;
+    const williamState=mainChainState("zucaijia_william");
+    const sportteryState=mainChainState("qiulaile_sp_mirror");
+    const directionalDomains:string[]=[];
+    if(williamState.directional)directionalDomains.push("William");
+    if(sportteryState.directional)directionalDomains.push("SportterySP");
+    if(marketBehaviorDomain)directionalDomains.push("MarketBehavior");
+    if(asianAdverseSignal)directionalDomains.push("AsianMarket");
+    const directionalDomainCount=directionalDomains.length;
+    const directionalEvidenceScore=Number((
+      Number(williamState.coldScore||0)+
+      Number(sportteryState.coldScore||0)+
+      (marketBehaviorDomain?1:0)+
+      (asianAdverseSignal?1:0)
+    ).toFixed(1));
+    const mainChainCounterScore=Number((
+      Number(williamState.counterScore||0)+
+      Number(sportteryState.counterScore||0)+
+      (asianSupportSignal?2:0)
+    ).toFixed(1));
+    const mainChainHardVeto=(
+      ["回正","增强"].includes(String(williamState.state))&&
+      ["回正","增强","稳定"].includes(String(sportteryState.state))
+      ||
+      ["回正","增强"].includes(String(sportteryState.state))&&
+      ["回正","增强","稳定"].includes(String(williamState.state))
+    )||asianSupportSignal;
+    const mainChainCounterEvidence=mainChainCounterScore>=3;
+    const stableDirection=directionalDomainCount>=2&&directionalEvidenceScore>=2.5&&!mainChainHardVeto;
+    const timeGateOpen=!coldTiming.active||Date.now()>=coldTiming.directionOpenAt;
+    const vipPublish=coldTiming.active
+      ?(vipRiskQualified&&timeGateOpen&&stableDirection)
+      :vipRiskQualified;
     const vipUnbeatenDirection=vipPublish
       ?(modelTop==="主胜"?"客队不败":"主队不败")
       :null;
@@ -2415,9 +3036,154 @@ async function paidMemberZone(
     if(intelligenceRisk)vipEvidence.push("首选方重要利空");
     if(popularityDivergence)vipEvidence.push("人气过热");
     if(williamMove!==null&&williamMove<=-1.5)vipEvidence.push("William支持减弱");
-    if(asianRetreatSignal)vipEvidence.push("亚盘退盘");
+    if(asianAdverseSignal)vipEvidence.push("亚盘多机构反向");
+    else if(asianSupportSignal)vipEvidence.push("亚盘多机构支持原方向");
     if(["重点风险","强风险信号"].includes(displayTier))vipEvidence.push(displayTier);
     if(fundAnomaly)vipEvidence.push("资金结构异常");
+    if(runtimeFocusGate.shadow_market_adverse===true)vipEvidence.push("市场影子综合反向");
+    if(runtimeFocusGate.shadow_intelligence_adverse_top===true)vipEvidence.push("赛前情报反向");
+    else if(runtimeFocusGate.shadow_intelligence_supports_top===true)vipEvidence.push("赛前情报支持原方向");
+
+    // Customer-facing three-tier cold-risk display.
+    // 1–2 points: only visible after persistent market anomaly or a second independent market domain.
+    // >=3 points: visible as elevated risk even when direction is not confirmed.
+    // Formal warning: still requires the existing multi-source direction gate (vipPublish).
+    const customerRiskScoreRaw=Number(warning?.riskScore??warning?.risk_score);
+    const customerRiskScore=Number.isFinite(customerRiskScoreRaw)?customerRiskScoreRaw:0;
+    const customerWarningGate=runtimeFocusGate;
+    const independentMarketEvidenceCount=[
+      williamState.directional===true,
+      sportteryState.directional===true,
+      asianRetreatSignal===true
+    ].filter(Boolean).length;
+    const lowRiskMarketConfirmed=
+      customerWarningGate.low_risk_reactivated===true||
+      customerWarningGate.lowRiskReactivated===true||
+      marketBehaviorPersistent===true||
+      (marketBehaviorDomain===true&&independentMarketEvidenceCount>=1);
+
+    const shadowMarketSupportsTop=String(runtimeFocusGate.shadow_market_top??"")===String(modelTop??"")&&
+      ["中","强"].includes(String(runtimeFocusGate.shadow_market_strength??""))&&
+      runtimeFocusGate.shadow_market_adverse!==true;
+    const shadowIntelSupportsTop=runtimeFocusGate.shadow_intelligence_supports_top===true&&
+      runtimeFocusGate.shadow_intelligence_adverse_top!==true;
+    const williamHardReverse=["反转确认","反转待确认"].includes(String(williamState.state));
+    const sportteryHardReverse=["反转确认","反转待确认"].includes(String(sportteryState.state));
+    const noActiveReverse=
+      !runtimeDirectionEligible&&!vipPublish&&
+      !asianAdverseSignal&&!marketBehaviorDomain&&
+      !williamHardReverse&&!sportteryHardReverse&&
+      runtimeFocusGate.shadow_market_adverse!==true&&
+      runtimeFocusGate.shadow_intelligence_adverse_top!==true;
+    const riskCoolingQualified=customerRiskScore>=3&&
+      asianSupportSignal&&shadowMarketSupportsTop&&shadowIntelSupportsTop&&
+      noActiveReverse;
+    const riskCoolingSupportDomains=[
+      asianSupportSignal?"asian_market":null,
+      shadowMarketSupportsTop?"market_behavior":null,
+      shadowIntelSupportsTop?"shadow_intelligence":null
+    ].filter(Boolean);
+
+    // HJ3.8 customer cold-risk router v0.1 (2026-09-30).
+    // Strict avoid is forward-only: only a field frozen by the HJ3.8 v87
+    // executor may activate it. Old snapshots are never retro-promoted.
+    const customerRouteSeed=(warning?.customerRouteSeed&&typeof warning.customerRouteSeed==="object")
+      ?warning.customerRouteSeed as Record<string,unknown>:null;
+    const seededProb=Number(customerRouteSeed?.formal_top1_probability);
+    const customerConfidenceRaw=Number.isFinite(seededProb)?seededProb:Number(rt?.confidence);
+    const customerConfidence=Number.isFinite(customerConfidenceRaw)
+      ?(customerConfidenceRaw>1?customerConfidenceRaw/100:customerConfidenceRaw)
+      :null;
+    const customerDq=String(customerRouteSeed?.formal_prediction_dq??risk?.dq??"").toUpperCase();
+    const customerOppositeSecond=customerRouteSeed
+      ?customerRouteSeed.opposite_second===true
+      :(customerWarningGate.opposite_second===true||customerWarningGate.oppositeSecond===true);
+    const fallbackRiskPoolEligible=
+      warning?.publish===true&&
+      customerRiskScore>=4&&
+      customerOppositeSecond&&
+      ["主胜","客胜"].includes(modelTop);
+    const customerRiskPoolEligible=customerRouteSeed
+      ?customerRouteSeed.risk_pool_eligible===true
+      :fallbackRiskPoolEligible;
+    const customerStrictAvoidEligible=
+      customerRouteSeed?.strict_avoid_eligible===true&&customerRiskPoolEligible;
+    const validHandicapCustomerPick=(v:unknown)=>["让胜","让平","让负"].includes(String(v??""));
+    const customerHandicapPicks=[...new Set(
+      [handicapTop1,handicapSecond].filter(validHandicapCustomerPick).map(v=>String(v))
+    )];
+    const customerAvoidDirection=modelTop==="主胜"?"主队不胜":modelTop==="客胜"?"主队不败":null;
+    const customerAvoidPicks=modelTop==="主胜"?["平","客胜"]:modelTop==="客胜"?["主胜","平"]:[];
+    // Historical 2026-09-24 compatibility: these four rows were genuinely published
+    // pre-match risk records, but the old snapshot schema did not yet persist focusGate /
+    // opposite_second. Expose them to the customer history page only; the frontend labels
+    // them as historical handicap references and does not count them as post-09/30 formal results.
+    const historicalLegacy24Visible=
+      date==="2026-09-24"&&
+      ["002","004","006","007"].includes(no)&&
+      warning?.publish===true&&customerRiskScore>=4;
+    const historicalLegacy25Visible=
+      date==="2026-09-25"&&
+      ["008","013"].includes(no)&&
+      warning?.publish===true&&customerRiskScore>=4;
+    const historicalLegacyVisible=historicalLegacy24Visible||historicalLegacy25Visible;
+
+    const customerRouteType=(vipPublish||customerStrictAvoidEligible)
+      ?"FOCUS_AVOID"
+      :customerRiskPoolEligible&&customerHandicapPicks.length>=2
+        ?"HANDICAP_PROTECT"
+        :customerRiskPoolEligible
+          ?"RISK_OBSERVE"
+          :null;
+    const customerTier=customerRouteType==="FOCUS_AVOID"
+      ?"重点避开"
+      :customerRouteType==="HANDICAP_PROTECT"
+        ?"让球保护"
+        :customerRouteType==="RISK_OBSERVE"
+          ?"风险观察"
+          :historicalLegacy24Visible
+            ?"历史让球参考"
+            :historicalLegacy25Visible
+              ?"历史风险样本"
+              :null;
+    const customerVisible=customerRouteType!==null||historicalLegacyVisible;
+    const customerDirection=customerRouteType==="FOCUS_AVOID"
+      ?customerAvoidDirection
+      :customerRouteType==="HANDICAP_PROTECT"
+        ?customerHandicapPicks.join(" / ")
+        :null;
+    const customerDirectionStatus=customerRouteType==="FOCUS_AVOID"
+      ?customerAvoidDirection
+      :customerRouteType==="HANDICAP_PROTECT"
+        ?("主推 "+String(customerHandicapPicks[0]??"—")+" · 保护 "+String(customerHandicapPicks[1]??"—"))
+        :"继续观察";
+    const customerRoute={
+      ruleVersion:"HJ38-COLD-ROUTE-v0.1-20260930",
+      source:historicalLegacy24Visible?"LEGACY_20260924_PREMATCH_RISK":historicalLegacy25Visible?"LEGACY_20260925_PREMATCH_RISK":(customerRouteSeed?"FROZEN_HJ38_V87_SEED":(vipPublish?"VIP_FORMAL_DIRECTION":"LEGACY_NO_STRICT_SEED")),
+      type:customerRouteType,
+      label:customerTier,
+      visible:customerVisible,
+      riskPoolEligible:customerRiskPoolEligible,
+      strictAvoidEligible:customerStrictAvoidEligible,
+      originalTop1:modelTop,
+      top1Confidence:customerConfidence,
+      dq:customerDq||null,
+      riskScore:customerRiskScore,
+      oppositeSecond:customerOppositeSecond,
+      direction:customerDirection,
+      ftPicks:customerRouteType==="FOCUS_AVOID"?customerAvoidPicks:[],
+      handicapLine:customerRouteType==="HANDICAP_PROTECT"?officialHandicap:null,
+      handicapPicks:customerRouteType==="HANDICAP_PROTECT"?customerHandicapPicks:[],
+      handicapPrimary:customerRouteType==="HANDICAP_PROTECT"?(customerHandicapPicks[0]??null):null,
+      handicapProtection:customerRouteType==="HANDICAP_PROTECT"?(customerHandicapPicks[1]??null):null,
+      displayReason:customerRouteType==="FOCUS_AVOID"
+        ?"原Top1进入严格风险阀门，建议使用胜平负双选防范"
+        :customerRouteType==="HANDICAP_PROTECT"
+          ?"存在风险信号但未进入严格避开层，改用让球Top1+第二方向保护"
+          :customerRouteType==="RISK_OBSERVE"
+            ?"存在风险信号，但赛前未形成完整可发布的让球双选"
+            :null
+    };
 
     const coldRecognition={
       shadow:true,
@@ -2429,10 +3195,64 @@ async function paidMemberZone(
       evidenceDomains:[...new Set(coldDomains)],
       action:coldAction,
       vipPublish,
+      customerVisible,
+      customerTier,
+      customerRiskScore,
+      customerDirection,
+      customerDirectionStatus,
+      customerRoute,
       unbeatenDirection:vipUnbeatenDirection,
       referencePicks:vipReferencePicks,
-      vipEvidence:[...new Set(vipEvidence)].slice(0,4),
+      vipEvidence:[...new Set([
+        ...(riskCoolingQualified?["最新亚盘/市场/情报共同支持原方向"]:[]),
+        ...vipEvidence
+      ])].slice(0,4),
       gate:{
+        ruleVersion:coldTiming.active?"VIP-COLD-DIRECTION-v1.5-20260929":"VIP-COLD-DIRECTION-LEGACY",
+        stage:coldTiming.stage,
+        saleDeadline:new Date(coldTiming.saleDeadline).toISOString(),
+        directionOpenAt:new Date(coldTiming.directionOpenAt).toISOString(),
+        finalReviewAt:new Date(coldTiming.finalReviewAt).toISOString(),
+        freezeAt:new Date(coldTiming.freezeAt).toISOString(),
+        directionalDomains,
+        directionalDomainCount,
+        directionalEvidenceScore,
+        mainChainCounterScore,
+        mainChainCounterEvidence,
+        mainChainHardVeto,
+        williamState,
+        sportteryState,
+        stableDirection,
+        lowRiskMarketConfirmed,
+        riskCoolingQualified,
+        riskCoolingSupportDomains,
+        shadowMarketSupportsTop,
+        shadowIntelSupportsTop,
+        williamHardReverse,
+        sportteryHardReverse,
+        independentMarketEvidenceCount,
+        marketBehaviorDomain,
+        marketBehaviorPersistent,
+        shadowMarketAdverse:runtimeFocusGate.shadow_market_adverse===true,
+        shadowMarketPersistentAdverse:runtimeFocusGate.shadow_market_persistent_adverse===true,
+        shadowMarketTop:runtimeFocusGate.shadow_market_top??null,
+        shadowMarketStrength:runtimeFocusGate.shadow_market_strength??null,
+        asianState:runtimeFocusGate.asian_consensus_state??null,
+        asianStrength:runtimeFocusGate.asian_consensus_strength??null,
+        asianSources:Number(runtimeFocusGate.asian_sources_evaluable??0)||0,
+        asianSupportCount:Number(runtimeFocusGate.asian_support_count??0)||0,
+        asianAdverseCount:Number(runtimeFocusGate.asian_adverse_count??0)||0,
+        asianSupportsTop:runtimeFocusGate.asian_supports_top===true,
+        asianAdverseTop:runtimeFocusGate.asian_adverse_top===true,
+        shadowIntelligenceObserved:runtimeFocusGate.shadow_intelligence_observed===true,
+        shadowIntelligenceAlert:runtimeFocusGate.shadow_intelligence_alert===true,
+        shadowIntelligenceAdverseTop:runtimeFocusGate.shadow_intelligence_adverse_top===true,
+        shadowIntelligenceSupportsTop:runtimeFocusGate.shadow_intelligence_supports_top===true,
+        shadowIntelligenceImpactSide:runtimeFocusGate.shadow_intelligence_impact_side??null,
+        shadowIntelligenceImpactLevel:runtimeFocusGate.shadow_intelligence_impact_level??null,
+        shadowIntelligenceConfidence:runtimeFocusGate.shadow_intelligence_confidence??null,
+        shadowIntelligenceSummary:runtimeFocusGate.shadow_intelligence_summary??null,
+        shadowInjuryCount:Number(runtimeFocusGate.shadow_injury_count??0)||0,
         hardMarketReverse,
         hardRiskReverse,
         asianRetreatSignal,
@@ -2500,6 +3320,13 @@ async function paidMemberZone(
         evaluation={evaluable:false,hit:null,label:"赛果已核验",basis:mode==="PASS"?"PASS不计正式主评测":"无正式主结论"};
       }
     }
+    const customerRouteSettlement=resultRow?.verified===true?(
+      customerRouteType==="FOCUS_AVOID"&&modelTop&&ftActual
+        ?{evaluable:true,hit:ftActual!==modelTop,label:ftActual!==modelTop?"避开成功":"避开失败",basis:"重点避开"}
+        :customerRouteType==="HANDICAP_PROTECT"&&handicapActual&&customerHandicapPicks.length>=2
+          ?{evaluable:true,hit:customerHandicapPicks.includes(handicapActual),label:customerHandicapPicks.includes(handicapActual)?"让球保护命中":"让球保护未中",basis:"让球双选"}
+          :{evaluable:false,hit:null,label:"不计成绩",basis:customerRouteType==="RISK_OBSERVE"?"风险观察":"未进入客户风险路由"}
+    ):null;
     const coldSettlement=resultRow?.verified===true&&modelTop&&ftActual?{
       upsetOccurred:ftActual!==modelTop,
       riskEvaluable:["中","高"].includes(coldLevel),
@@ -2507,7 +3334,8 @@ async function paidMemberZone(
       directionEvaluable:!!coldDirection,
       directionHit:coldDirection?ftActual===coldDirection:null,
       vipDirectionEvaluable:vipPublish,
-      vipDirectionHit:vipPublish?ftActual!==modelTop:null
+      vipDirectionHit:vipPublish?ftActual!==modelTop:null,
+      customerRoute:customerRouteSettlement
     }:null;
     const settlement=resultRow?.verified===true?{
       verified:true,
@@ -2532,8 +3360,8 @@ async function paidMemberZone(
       william:!!(ini||cur),
       sporttery:!!(officialMarket.had||officialMarket.hhad),
       asian:Array.isArray(asianHandicap)&&asianHandicap.length>0,
-      behavior:!!behavior,
-      intelligence:!!intelligence
+      behavior:!!behavior||runtimeFocusGate.shadow_feed_available===true,
+      intelligence:!!intelligence||runtimeFocusGate.shadow_intelligence_observed===true
     };
     return {
       no,league:m.league??rt?.league??null,home:m.home_team,away:m.away_team,kickoff:m.kickoff_at,
@@ -2569,7 +3397,17 @@ async function paidMemberZone(
     };
   });
 
+  const visibleRows=rows.filter((r:any)=>r?.coldRecognition?.customerVisible===true);
   const vipRows=rows.filter((r:any)=>r?.coldRecognition?.vipPublish===true);
+  const focusAvoidRows=visibleRows.filter((r:any)=>r?.coldRecognition?.customerRoute?.type==="FOCUS_AVOID");
+  const handicapProtectRows=visibleRows.filter((r:any)=>r?.coldRecognition?.customerRoute?.type==="HANDICAP_PROTECT");
+  const riskObserveRows=visibleRows.filter((r:any)=>r?.coldRecognition?.customerRoute?.type==="RISK_OBSERVE");
+  const routeStats=(items:any[])=>{
+    const settled=items.filter((r:any)=>r?.settlement?.coldRecognition?.customerRoute?.evaluable===true);
+    const hits=settled.filter((r:any)=>r?.settlement?.coldRecognition?.customerRoute?.hit===true).length;
+    return {published:items.length,settled:settled.length,hits,misses:settled.length-hits,
+      hitRate:settled.length?Math.round(hits/settled.length*1000)/10:null};
+  };
   const todayBjt=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"})
     .format(new Date()).split("/").join("-");
   if(date>="2026-09-28"&&date>=todayBjt&&vipRows.length){
@@ -2580,6 +3418,10 @@ async function paidMemberZone(
       source:"MEMBER_ZONE_VIP_COLD",
       source_payload:{
         ruleVersion:"DAILY-COLD-EXCLUSION-v1.0-20260928",
+        directionRuleVersion:r?.coldRecognition?.gate?.ruleVersion??null,
+        directionStage:r?.coldRecognition?.gate?.stage??null,
+        directionalDomainCount:r?.coldRecognition?.gate?.directionalDomainCount??null,
+        directionalDomains:Array.isArray(r?.coldRecognition?.gate?.directionalDomains)?r.coldRecognition.gate.directionalDomains:[],
         unbeatenDirection:r?.coldRecognition?.unbeatenDirection??null,
         evidence:Array.isArray(r?.coldRecognition?.vipEvidence)?r.coldRecognition.vipEvidence:[],
       }
@@ -2591,10 +3433,20 @@ async function paidMemberZone(
   return {
     date,
     title:"尊贵月卡VIP · 今日冷门识别",
-    subtitle:"仅展示形成明确不败方向的高价值冷门候选",
+    subtitle:"重点避开 + 让球保护；无完整方向仅保留风险观察",
+    routeRuleVersion:"HJ38-COLD-ROUTE-v0.1-20260930",
     poolCount:rows.length,
-    publishedCount:vipRows.length,
-    rows:vipRows
+    publishedCount:visibleRows.length,
+    formalWarningCount:vipRows.length,
+    focusAvoidCount:focusAvoidRows.length,
+    handicapProtectCount:handicapProtectRows.length,
+    riskObservationCount:riskObserveRows.length,
+    observationCount:riskObserveRows.length,
+    stats:{
+      focusAvoid:routeStats(focusAvoidRows),
+      handicapProtect:routeStats(handicapProtectRows)
+    },
+    rows:visibleRows
   };
 }
 
@@ -2603,6 +3455,12 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "GET" && req.method !== "POST") return reply({ ok: false, error: "METHOD_NOT_ALLOWED" }, 405);
   if(req.method==="POST" && new URL(req.url).searchParams.get("action")!=="invite") return reply({ok:false,error:"METHOD_NOT_ALLOWED"},405);
   const requestUrl = new URL(req.url);
+  if (requestUrl.searchParams.get("view") === "shadow-bridge-auth") {
+    const token=req.headers.get("apikey")?.trim()??"";
+    const serviceKey=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")??"";
+    if(!serviceKey||token!==serviceKey)return reply({ok:false,error:"FORBIDDEN"},403);
+    return reply({ok:true,bridge:"shadow-risk-v1"});
+  }
   if (requestUrl.searchParams.get("health") === "team-logos") {
     try {
       const logos=await loadTeamLogoMap();
@@ -2652,13 +3510,13 @@ Deno.serve(async (req: Request) => {
       const expectedRevision=allowed.get(String(data?.modelVersion??""));
       if(data?.ok!==true||!expectedRevision||data?.revision!==expectedRevision||!Array.isArray(data?.rows))throw new Error("UPSTREAM_VALIDATION_FAILED");
       const syncDate=String(data.date??requestedDate??"");
-      const layered=await applyRiskFocusLayer(data.rows as Record<string,unknown>[],syncDate);
+      const layered=await applyRiskFocusLayer(data.rows as Record<string,unknown>[],syncDate,true);
       const result=await syncUpsetWarnings(layered,data);
       return reply({
         ok:true,sync:"upset-warning",date:syncDate,
         modelVersion:data.modelVersion??null,revision:data.revision??null,
         upsetStats:upsetStatsFor(layered),
-        riskLayerVersion:"HJ38-RISK-LAYER-v1.2.8",
+        riskLayerVersion:"HJ38-RISK-LAYER-v1.3.2",
         ...result
       });
     } catch(error) {
@@ -2749,22 +3607,42 @@ Deno.serve(async (req: Request) => {
       submittedInvite=String(payload?.inviteCode??"").trim().toUpperCase();
       if(!/^[A-F0-9]{10}$/.test(submittedInvite))return reply({ok:false,error:"INVALID_INVITE_CODE"},400);
     }
-    const {data:membership,error:membershipError}=await db.rpc("soren_member_status_v1",{
+    const membershipPromise=db.rpc("soren_member_status_v1",{
       p_user:String(user.id),p_invite_code:submittedInvite,
     });
+    const vipPromise=vipAccessStatus(String(user.id)).catch(e=>{
+      console.error("VIP_ACCESS_STATUS_UNAVAILABLE",e);
+      return {active:false,name:null,until:null};
+    });
+    const noticePromise=db.from("soren_account_notices_v1")
+      .select("code,title,message,severity,created_at,expires_at,active")
+      .eq("user_id",String(user.id)).eq("active",true)
+      .order("created_at",{ascending:false}).limit(1).maybeSingle()
+      .then(({data,error})=>{
+        if(error){console.error("ACCOUNT_NOTICE_UNAVAILABLE",error);return null;}
+        if(!data)return null;
+        const expiresAt=Date.parse(String(data.expires_at??""));
+        if(data.expires_at&&Number.isFinite(expiresAt)&&expiresAt<=Date.now())return null;
+        return {
+          code:String(data.code??"ACCOUNT_NOTICE"),
+          title:String(data.title??"账号提醒"),
+          message:String(data.message??""),
+          severity:["info","warning","critical"].includes(String(data.severity))?String(data.severity):"warning",
+          createdAt:data.created_at??null,
+        };
+      }).catch(e=>{console.error("ACCOUNT_NOTICE_READ_FAILED",e);return null;});
+    const [{data:membership,error:membershipError},vipAccess,accountNotice]=await Promise.all([membershipPromise,vipPromise,noticePromise]);
     if(membershipError||!membership||typeof membership!=="object"){
       console.error("MEMBER_STATUS_UNAVAILABLE",membershipError);
       return reply({ok:false,error:"MEMBERSHIP_STATUS_UNAVAILABLE"},503);
     }
     (membership as Record<string,unknown>).trialStatus=trialStatus;
-    let vipAccess:{active:boolean;name:string|null;until:any}={active:false,name:null,until:null};
-    try{vipAccess=await vipAccessStatus(String(user.id));}
-    catch(e){console.error("VIP_ACCESS_STATUS_UNAVAILABLE",e);}
     (membership as Record<string,unknown>).vipActive=vipAccess.active;
     (membership as Record<string,unknown>).vipName=vipAccess.name;
     (membership as Record<string,unknown>).vipUntil=vipAccess.until;
     (membership as Record<string,unknown>).paidActive=vipAccess.active;
     (membership as Record<string,unknown>).paidUntil=vipAccess.until;
+    (membership as Record<string,unknown>).accountNotice=accountNotice;
     if(redeeming){
       const accepted=["BOUND","ALREADY_BOUND"].includes(String(membership.inviteStatus??""));
       return reply({ok:accepted,membership,error:accepted?null:String(membership.inviteStatus??"INVITE_UNAVAILABLE")},accepted?200:400);
@@ -2789,12 +3667,30 @@ Deno.serve(async (req: Request) => {
       if(vipAccess.active!==true)return reply({ok:false,error:"VIP_MEMBERSHIP_REQUIRED",membership},403);
       try{
         const zoneDate=await latestKnownPoolDate(requestedDate);
-        return reply({ok:true,membership,zone:await paidMemberZone(zoneDate),updatedAt:new Date().toISOString()});
+        const now=Date.now();
+        const ttl=zoneDate<beijingToday?30*60*1000:20*1000;
+        const cached=paidMemberZoneResponseCache.get(zoneDate);
+        if(cached&&now-cached.at<ttl){
+          return reply({ok:true,membership,zone:cached.zone,cache:"HIT",updatedAt:new Date(cached.at).toISOString()});
+        }
+        const zone=await paidMemberZone(zoneDate);
+        paidMemberZoneResponseCache.set(zoneDate,{at:now,zone});
+        while(paidMemberZoneResponseCache.size>12){
+          paidMemberZoneResponseCache.delete(paidMemberZoneResponseCache.keys().next().value);
+        }
+        return reply({ok:true,membership,zone,cache:"MISS",updatedAt:new Date().toISOString()});
       }
       catch(error){console.error("MEMBER_ZONE_ERROR",error);return reply({ok:false,error:"MEMBER_ZONE_UNAVAILABLE"},502);}
     }
     if(membership.active!==true&&(!requestedDate||requestedDate>=beijingToday))
       return reply({ok:false,error:"MEMBERSHIP_REQUIRED",membership},403);
+
+    // Current-day customer pages use the same verified frozen bundle whenever it is complete.
+    // This avoids rebuilding the full risk/score/HTFT stack on every module switch.
+    if(requestUrl.searchParams.get("view")==="archive"&&requestedDate===beijingToday){
+      const fastResponse=await serveFastArchiveBundle(requestedDate,"archive",vipAccess.active===true);
+      if(fastResponse)return fastResponse;
+    }
 
     if(requestUrl.searchParams.get("view")==="market-trend"){
       const date=requestUrl.searchParams.get("date")??"";
@@ -3009,7 +3905,8 @@ Deno.serve(async (req: Request) => {
     rows=applyHighDrawRiskLayer(rows);
     rows=await attachDailySupplementLayer(rows,dynamicDate);
     rows=await attachLiveScoreGoals(rows,dynamicDate);
-        try {
+        let publishedHtftCache:Map<string,Record<string,unknown>>|null=null;
+    try {
       // Safe to invoke repeatedly: the producer inserts only future fixtures and never overwrites.
       if(!archiveReadOnly&&dynamicDate>="2026-09-25"){
         const {error:publishError}=await db.rpc("soren_publish_htft_top4_v1");
@@ -3023,6 +3920,7 @@ Deno.serve(async (req: Request) => {
           loadPublishedHTFTTop4(dynamicDate),
           loadHistoricalHTFTTop4(dynamicDate),
         ]);
+        publishedHtftCache=htftPublished;
         rows=rows
           .map((r:Record<string,unknown>)=>attachPublishedHTFTTop4(r,htftPublished,databaseResults))
           .map((r:Record<string,unknown>)=>attachHistoricalHTFTTop4(r,historicalHTFT,databaseResults));
@@ -3037,7 +3935,7 @@ Deno.serve(async (req: Request) => {
     // This prevents a valid original Top4 from disappearing because a later
     // dynamic score/market update is missing for one fixture.
     try{
-      const originalHtft=await loadPublishedHTFTTop4(dynamicDate);
+      const originalHtft=publishedHtftCache??await loadPublishedHTFTTop4(dynamicDate);
       rows=rows.map((r:Record<string,unknown>)=>
         r.htftTop4&&typeof r.htftTop4==="object"
           ?r
