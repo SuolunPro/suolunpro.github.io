@@ -1540,6 +1540,12 @@
         '2026-09-26|003','2026-09-26|006','2026-09-26|008','2026-09-26|013',
         '2026-09-27|009'
       ]);
+      const historicalHandicapReference24=new Map([
+        ['2026-09-24|002',['让负','让平']],
+        ['2026-09-24|004',['让负','让平']],
+        ['2026-09-24|006',['让负','让平']],
+        ['2026-09-24|007',['让负','让平']]
+      ]);
       const historicalHandicapSamples=new Set([
         '2026-09-25|013',
         '2026-09-26|002','2026-09-26|021','2026-09-26|023','2026-09-26|024','2026-09-26|025',
@@ -1590,7 +1596,9 @@
         const isFormal=cold?.vipPublish===true&&['主胜','客胜'].includes(String(row.model?.top1||''));
         const displayMode=historicalShadow
           ?'HIST_SHADOW'
-          :historicalHandicap
+          :historicalReference24
+            ?'HIST_REFERENCE'
+            :historicalHandicap
             ?'HIST_HANDICAP'
             :legacyHistorical
               ?'LEGACY'
@@ -1605,7 +1613,9 @@
           ?'重点避开'
           :displayMode==='HIST_SHADOW'
             ?'历史影子验证'
-            :displayMode==='HIST_HANDICAP'
+            :displayMode==='HIST_REFERENCE'
+              ?'历史让球参考'
+              :displayMode==='HIST_HANDICAP'
               ?(historicalHandicapReference?'历史让球参考':'让球保护')
               :displayMode==='HANDICAP_PROTECT'
                 ?'让球保护'
@@ -1616,7 +1626,9 @@
           ?(route?.direction||(isHomeTop?'主队不胜（平 / 客）':'主队不败（主 / 平）'))
           :displayMode==='HIST_SHADOW'
             ?(shadowIsHomeTop?'主队不胜（平 / 客）':'主队不败（主 / 平）')
-            :displayMode==='HIST_HANDICAP'
+            :displayMode==='HIST_REFERENCE'
+              ?historicalReferencePair.join(' + ')
+              :displayMode==='HIST_HANDICAP'
               ?([historicalHandicapPrimary,historicalHandicapCover].filter(Boolean).join(' + ')||'让球方向待恢复')
               :displayMode==='HANDICAP_PROTECT'
                 ?((Array.isArray(route?.handicapPicks)&&route.handicapPicks.length>=2)?route.handicapPicks.join(' + '):(handicapPrimary+' + '+handicapCover))
@@ -1630,7 +1642,7 @@
               ?(shadowIsHomeTop?'平 + 客':'主 + 平')
               :(isHomeTop?'平 + 客':'主 + 平')))
           :'';
-        const badgeClass=(displayMode==='FT_AVOID'||displayMode==='HIST_SHADOW')?'formal-cold':(displayMode==='HANDICAP_PROTECT'||displayMode==='HIST_HANDICAP')?'risk-high':'light-risk';
+        const badgeClass=(displayMode==='FT_AVOID'||displayMode==='HIST_SHADOW')?'formal-cold':(displayMode==='HANDICAP_PROTECT'||displayMode==='HIST_HANDICAP'||displayMode==='HIST_REFERENCE')?'risk-high':'light-risk';
 
         const card=el('article','card member-zone-regular-card cold-card-v3');
         const head=el('div','cold-card-head');
@@ -1674,6 +1686,9 @@
             ?(shadowIsHomeTop?['平','客胜']:['主胜','平'])
             :(Array.isArray(route?.ftPicks)&&route.ftPicks.length?route.ftPicks:(isHomeTop?['平','客胜']:['主胜','平']));
           picks.forEach((x,i)=>chips.append(el('span',i===0?'primary':'',String(x))));
+        }else if(displayMode==='HIST_REFERENCE'){
+          chips.append(el('span','primary','参考 '+historicalReferencePair[0]));
+          chips.append(el('span','','保护 '+historicalReferencePair[1]));
         }else if(displayMode==='HIST_HANDICAP'){
           if(historicalHandicapPrimary)chips.append(el('span','primary','主推 '+historicalHandicapPrimary));
           if(historicalHandicapCover)chips.append(el('span','','保护 '+historicalHandicapCover));
@@ -1707,6 +1722,13 @@
             resultLine.classList.add(avoidHit?'hit':'miss');
             resultLine.append(el('span','cold-card-result-text',
               (actual?actual+' · ':'')+(avoidHit?'✓ 避开成功':'× 避开失败')));
+          }else if(displayMode==='HIST_REFERENCE'){
+            const handicapActual=String(st.handicapResult||'');
+            const evaluable=validHandicap(handicapActual);
+            const protectHit=evaluable&&historicalReferencePair.includes(handicapActual);
+            if(evaluable)resultLine.classList.add(protectHit?'hit':'miss');
+            resultLine.append(el('span','cold-card-result-text',
+              evaluable?(handicapActual+' · '+(protectHit?'✓ 参考命中':'× 参考未中')):'让球赛果待核验'));
           }else if(displayMode==='HIST_HANDICAP'){
             const handicapActual=String(st.handicapResult||'');
             const evaluable=validHandicap(handicapActual)&&validHandicap(historicalHandicapPrimary)&&validHandicap(historicalHandicapCover);
@@ -1760,6 +1782,7 @@
           addLine(ssec,'风险状态',displayLabel);
           addLine(ssec,'方向状态',displayMode==='LEGACY'?'历史记录，不按新规则重算':direction);
           if(displayMode==='HIST_SHADOW')addLine(ssec,'验证口径','历史影子样本，不计入9月30日起正式新规则成绩');
+          if(displayMode==='HIST_REFERENCE')addLine(ssec,'历史让球参考来源','赛前冻结HHAD三项概率排序；当时正式让球结论为PASS，不计作正式推荐');
           if(displayMode==='HIST_HANDICAP')addLine(ssec,'让球Top2来源',
             historicalHandicapRecovered?'赛前冻结HHAD三项概率排序恢复（非赛后倒推）':'赛前快照直接冻结Top1 + 第二方向');
           if(displayMode==='HIST_HANDICAP')addLine(ssec,'验证口径',
