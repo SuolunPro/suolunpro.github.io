@@ -952,6 +952,16 @@
 
     .cold-card-action.hist_handicap{background:#fff9f4;border-color:#f0e5db}
     .cold-card-action.hist_handicap .cold-card-action-value{color:#a64a2c}
+
+    .cold-daily-performance{margin:10px 0 14px;padding:13px 14px;border:1px solid var(--line,#e8e8e8);border-radius:14px;background:var(--card,#fff)}
+    .cold-daily-performance-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .cold-daily-performance-head strong{font-size:15px;font-weight:800}
+    .cold-daily-performance-head span{font-size:12px;color:var(--muted,#7a7a7a)}
+    .cold-daily-performance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}
+    .cold-daily-performance-item{display:grid;grid-template-columns:1fr auto;gap:3px 10px;align-items:center;padding:9px 10px;border-radius:10px;background:rgba(127,127,127,.055)}
+    .cold-daily-performance-label{font-size:12px;color:var(--muted,#666)}
+    .cold-daily-performance-score{font-size:15px}
+    .cold-daily-performance-pct{grid-column:2;font-size:12px;font-weight:700}
 </style>
 </head>
 <body>
@@ -1568,6 +1578,96 @@
         ['2026-09-27|008',['让胜','让平']],
         ['2026-09-29|012',['让胜','让平']]
       ]);
+      const validDailyHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
+      const coldDailyPerformance={
+        avoid:{label:'重点避开',hit:0,total:0},
+        handicap:{label:'让球保护',hit:0,total:0},
+        reference:{label:'历史让球参考',hit:0,total:0}
+      };
+      for(const row of publishable){
+        const st=row.settlement||{};
+        if(st.verified!==true)continue;
+        const cold=row.coldRecognition||{};
+        const route=(cold.customerRoute&&typeof cold.customerRoute==='object')?cold.customerRoute:{};
+        const key=String(zoneDate)+'|'+String(row.no||'').padStart(3,'0');
+        const actualFt=String(st.ftResult||'');
+        const actualH=String(st.handicapResult||'');
+        const historicalShadow=historicalShadowAvoidSamples.has(key);
+        const historicalReference=historicalHandicapReferenceSamples.has(key);
+        const historicalHp=historicalHandicapSamples.has(key);
+        if(historicalShadow){
+          const top=String(cold.originalTop1||row.model?.top1||'');
+          const evaluable=['主胜','客胜'].includes(top)&&['主胜','平','客胜'].includes(actualFt);
+          if(evaluable){
+            coldDailyPerformance.avoid.total++;
+            const hit=top==='主胜'?['平','客胜'].includes(actualFt):['主胜','平'].includes(actualFt);
+            if(hit)coldDailyPerformance.avoid.hit++;
+          }
+          continue;
+        }
+        if(historicalReference){
+          const picks=recoveredHistoricalHandicapTop2.get(key)||[];
+          if(validDailyHandicap(actualH)&&picks.length>=2){
+            coldDailyPerformance.reference.total++;
+            if(picks.includes(actualH))coldDailyPerformance.reference.hit++;
+          }
+          continue;
+        }
+        if(historicalHp){
+          const hp=row.model?.handicap||{};
+          const recovered=recoveredHistoricalHandicapTop2.get(key)||null;
+          const p1=recovered?.[0]||(validDailyHandicap(hp.top1)?String(hp.top1):null);
+          const p2=recovered?.[1]||(validDailyHandicap(hp.second)&&String(hp.second)!==p1?String(hp.second):null);
+          if(validDailyHandicap(actualH)&&validDailyHandicap(p1)&&validDailyHandicap(p2)){
+            coldDailyPerformance.handicap.total++;
+            if([p1,p2].includes(actualH))coldDailyPerformance.handicap.hit++;
+          }
+          continue;
+        }
+        const routeType=String(route.type||'');
+        if(routeType==='FOCUS_AVOID'){
+          const top=String(route.originalTop1||cold.originalTop1||row.model?.top1||'');
+          const evaluable=['主胜','客胜'].includes(top)&&['主胜','平','客胜'].includes(actualFt);
+          if(evaluable){
+            coldDailyPerformance.avoid.total++;
+            const hit=top==='主胜'?['平','客胜'].includes(actualFt):['主胜','平'].includes(actualFt);
+            if(hit)coldDailyPerformance.avoid.hit++;
+          }
+        }else if(routeType==='HANDICAP_PROTECT'){
+          const hp=row.model?.handicap||{};
+          const picks=Array.isArray(route.handicapPicks)&&route.handicapPicks.length>=2
+            ?route.handicapPicks.filter(validDailyHandicap).slice(0,2)
+            :[hp.top1,hp.second].filter(validDailyHandicap).map(String).slice(0,2);
+          if(validDailyHandicap(actualH)&&picks.length>=2){
+            coldDailyPerformance.handicap.total++;
+            if(picks.includes(actualH))coldDailyPerformance.handicap.hit++;
+          }
+        }
+      }
+      const dailyStats=Object.values(coldDailyPerformance).filter(x=>x.total>0);
+      if(dailyStats.length){
+        const perf=el('section','cold-daily-performance');
+        const ph=el('div','cold-daily-performance-head');
+        ph.append(
+          el('strong','','当日表现'),
+          el('span','',dailyStats.reduce((n,x)=>n+x.total,0)+'场已结算')
+        );
+        perf.append(ph);
+        const grid=el('div','cold-daily-performance-grid');
+        dailyStats.forEach(x=>{
+          const pct=x.total?((x.hit/x.total)*100):0;
+          const item=el('div','cold-daily-performance-item');
+          item.append(
+            el('span','cold-daily-performance-label',x.label),
+            el('b','cold-daily-performance-score',x.hit+' / '+x.total),
+            el('span','cold-daily-performance-pct',pct.toFixed(1).replace(/\.0$/,'')+'%')
+          );
+          grid.append(item);
+        });
+        perf.append(grid);
+        page.append(perf);
+      }
+
       for(const row of publishable){
         const st=row.settlement||{},ftEv=st.ftEvaluation||null,hEv=st.handicapEvaluation||null;
         const cold=row.coldRecognition||null;
@@ -1587,6 +1687,8 @@
         const historicalHandicapReference=historicalHandicapReferenceSamples.has(sampleKey);
         const historicalHandicap=historicalHandicapSamples.has(sampleKey)||historicalHandicapReference;
         const recoveredHandicapPair=recoveredHistoricalHandicapTop2.get(sampleKey)||null;
+        const historicalReference24=historicalHandicapReference;
+        const historicalReferencePair=historicalHandicapReference?recoveredHandicapPair:null;
         const historicalHandicapPrimary=recoveredHandicapPair?.[0]||handicapPrimary;
         const historicalHandicapCover=recoveredHandicapPair?.[1]||handicapCover;
         const historicalHandicapRecovered=Array.isArray(recoveredHandicapPair);
@@ -1666,8 +1768,8 @@
         const action=el('div','cold-card-action '+displayMode.toLowerCase());
         const actionLabel=(displayMode==='FT_AVOID'||displayMode==='HIST_SHADOW')
           ?'防范方向'
-          :(displayMode==='HANDICAP_PROTECT'||displayMode==='HIST_HANDICAP')
-            ?(displayMode==='HIST_HANDICAP'&&historicalHandicapReference?'让球参考':'让球保护')
+          :(displayMode==='HANDICAP_PROTECT'||displayMode==='HIST_HANDICAP'||displayMode==='HIST_REFERENCE')
+            ?(displayMode==='HIST_REFERENCE'||(displayMode==='HIST_HANDICAP'&&historicalHandicapReference)?'让球参考':'让球保护')
             :displayMode==='LEGACY'
               ?'赛前风险'
               :'风险状态';
