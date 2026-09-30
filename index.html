@@ -2025,7 +2025,8 @@
           addLine(popsec,'冷热指数',fundNum(pop.heat));
           addLine(popsec,'盈亏指数',fundNum(pop.profitIndex));
           addLine(popsec,'William概率变化',fundPp(pop.williamProbabilityMove));
-          addLine(popsec,'识别结果',pop.divergence?'人气过热 / 市场支持不足':pop.fundAnomaly?'资金盈亏异常':'暂无强背离');
+          const hasFundSnapshot=[pop.marketProbability,pop.betfairShare,pop.sportterySavedShare,pop.gap,pop.heat,pop.profitIndex].some(hasMemberNumber);
+          addLine(popsec,'识别结果',hasFundSnapshot?(pop.divergence?'人气过热 / 市场支持不足':pop.fundAnomaly?'资金盈亏异常':'暂无强背离'):'资金数据未采集');
           body.append(popsec);
         }
 
@@ -2068,7 +2069,8 @@
         const inlineIntel=row.intelligence||null;
         const inlineCategories=Array.isArray(inlineIntel?.categories)?inlineIntel.categories.filter(Boolean):[];
         const inlineHighlights=inlineCategories.map(x=>String(x?.summary||'').trim()).filter(Boolean).slice(0,3);
-        if(inlineIntel&&(inlineHighlights.length||String(inlineIntel.impactSide||'').trim())){
+        const inlineImpact=String(inlineIntel?.impactSide||'').trim();
+        if(inlineIntel&&(inlineHighlights.length||(inlineImpact&&inlineImpact!=='中性'))){
           addLine(xsec,'情报结论',String(inlineIntel.impactSide||'中性')+' · '+String(inlineIntel.impactLevel||'低'));
           if(inlineIntel.alignment)addLine(xsec,'与原Top1',String(inlineIntel.alignment)==='反向'?'反向 · 进入冷门审计':String(inlineIntel.alignment)==='支持'?'支持原方向':'中性');
           addLine(xsec,'有效伤停/阵容',inlineHighlights.length?String(inlineHighlights.length)+' 条':'已收录');
