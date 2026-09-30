@@ -1672,6 +1672,12 @@
         const st=row.settlement||{},ftEv=st.ftEvaluation||null,hEv=st.handicapEvaluation||null;
         const cold=row.coldRecognition||null;
         const probs=Array.isArray(row.model?.probability)?row.model.probability:[null,null,null];
+        const ftProbByPick={主胜:Number(probs[0]),平:Number(probs[1]),客胜:Number(probs[2])};
+        const sortFtPicksByProb=picks=>[...picks].sort((a,b)=>{
+          const pa=Number.isFinite(ftProbByPick[a])?ftProbByPick[a]:-Infinity;
+          const pb=Number.isFinite(ftProbByPick[b])?ftProbByPick[b]:-Infinity;
+          return pb-pa;
+        });
         const isHomeTop=row.model?.top1==='主胜';
         const tier=String(cold?.customerTier||'持续观察');
         const isCooling=tier==='风险回落';
@@ -1738,11 +1744,13 @@
                 ?'历史赛前风险记录'
                 :(isCooling?'原方向仍获支持':'暂不发布方向');
         const refText=(displayMode==='FT_AVOID'||displayMode==='HIST_SHADOW')
-          ?(displayMode==='FT_AVOID'&&Array.isArray(route?.ftPicks)&&route.ftPicks.length
-            ?route.ftPicks.join(' + ')
-            :(displayMode==='HIST_SHADOW'
-              ?(shadowIsHomeTop?'平 + 客':'主 + 平')
-              :(isHomeTop?'平 + 客':'主 + 平')))
+          ?sortFtPicksByProb(
+            displayMode==='HIST_SHADOW'
+              ?(shadowIsHomeTop?['平','客胜']:['主胜','平'])
+              :(Array.isArray(route?.ftPicks)&&route.ftPicks.length
+                ?route.ftPicks
+                :(isHomeTop?['平','客胜']:['主胜','平']))
+          ).join(' + ')
           :'';
         const badgeClass=(displayMode==='FT_AVOID'||displayMode==='HIST_SHADOW')?'formal-cold':(displayMode==='HANDICAP_PROTECT'||displayMode==='HIST_HANDICAP'||displayMode==='HIST_REFERENCE')?'risk-high':'light-risk';
 
@@ -1784,9 +1792,11 @@
         );
         const chips=el('div','cold-card-chips');
         if(displayMode==='FT_AVOID'||displayMode==='HIST_SHADOW'){
-          const picks=displayMode==='HIST_SHADOW'
-            ?(shadowIsHomeTop?['平','客胜']:['主胜','平'])
-            :(Array.isArray(route?.ftPicks)&&route.ftPicks.length?route.ftPicks:(isHomeTop?['平','客胜']:['主胜','平']));
+          const picks=sortFtPicksByProb(
+            displayMode==='HIST_SHADOW'
+              ?(shadowIsHomeTop?['平','客胜']:['主胜','平'])
+              :(Array.isArray(route?.ftPicks)&&route.ftPicks.length?route.ftPicks:(isHomeTop?['平','客胜']:['主胜','平']))
+          );
           picks.forEach((x,i)=>chips.append(el('span',i===0?'primary':'',String(x))));
         }else if(displayMode==='HIST_REFERENCE'){
           chips.append(el('span','primary','参考 '+historicalReferencePair[0]));
