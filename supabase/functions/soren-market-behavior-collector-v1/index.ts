@@ -109,6 +109,23 @@ function uniqueMatchIds(html:string) {
   return out;
 }
 
+function parseScheduleRows(html:string) {
+  const out:any[]=[];
+  for (const raw of html.split('<div class="touzhu_1"')) {
+    const no=raw.match(/<span class="xulie"[^>]*>([0-9]{3})<\/span>/)?.[1];
+    const oid=raw.match(/id=["']match_([0-9]+)["']/)?.[1]??raw.match(/\/soccer\/match\/([0-9]+)\//)?.[1]??null;
+    if(!no||!oid)continue;
+    const kickoff=raw.match(/title=["']比赛时间:([^"']+)["']/)?.[1]??null;
+    const names=[...raw.matchAll(/class=["']zhum[^"']*["'][^>]*title=["']([^"']*)["'][^>]*>([^<]+)<\/div>/gi)]
+      .map(x=>({title:cellText(x[1]),text:cellText(x[2])})).filter(x=>x.title||x.text);
+    if(names.length<2)continue;
+    const home=names[0],away=names[names.length-1];
+    out.push({no,oid,kickoff,home:home.title||home.text,away:away.title||away.text,
+      homeVariants:[home.title,home.text].filter(Boolean),awayVariants:[away.title,away.text].filter(Boolean)});
+  }
+  return out;
+}
+
 function matchIdFromUrl(url:unknown) {
   const m = String(url ?? "").match(/\/soccer\/match\/(\d+)\//);
   return m?.[1] ?? null;
@@ -227,14 +244,18 @@ function parseBehavior(html:string, expectedHome:string, expectedAway:string) {
   };
 }
 
+let okoooCookieJar="";
 async function getHtml(url:string, timeout=15000) {
   let lastError:unknown=null;
   for(let attempt=0;attempt<3;attempt++){
     const controller = new AbortController();
     const timer = setTimeout(()=>controller.abort(), timeout);
     try {
-      const headers={...WEB_HEADERS,"referer":"https://www.okooo.com/jingcai/","cache-control":"no-cache"};
+      const headers={...WEB_HEADERS,"referer":"https://www.okooo.com/jingcai/","cache-control":"no-cache",
+        ...(okoooCookieJar?{"cookie":okoooCookieJar}:{})};
       const r = await fetch(url,{headers,signal:controller.signal,redirect:"follow"});
+      const setCookie=r.headers.get("set-cookie");
+      if(setCookie)okoooCookieJar=setCookie.split(",").map(x=>x.split(";")[0]).join("; ");
       if (!r.ok) {
         lastError=new Error("HTTP_"+r.status);
         if([403,405,408,425,429,500,502,503,504].includes(r.status)&&attempt<2){
@@ -317,23 +338,30 @@ Deno.serve(async (req:Request) => {
     }
 
     const dates=[...new Set(pool.map(m=>String(m.pool_date)))];
-    const scheduleIdsByDate=new Map<string,string[]>();
+    const scheduleRowsByDate=new Map<string,any[]>();
     for (const date of dates) {
       try {
         const html=await getHtml("https://www.okooo.com/jingcai/"+date+"/",15000);
-        scheduleIdsByDate.set(date,uniqueMatchIds(html));
+        scheduleRowsByDate.set(date,parseScheduleRows(html));
       } catch (e) {
-        scheduleIdsByDate.set(date,[]);
+        scheduleRowsByDate.set(date,[]);
         console.error("OKOOO_SCHEDULE_FETCH",date,String(e));
       }
     }
 
+    // Never map by ordinal position. Okooo list pages can contain stale or
+    // cross-date fixtures, which previously assigned an unrelated match ID.
     for (const date of dates) {
-      const dayMatches=pool.filter(m=>String(m.pool_date)===date).sort((a,b)=>String(a.match_no).localeCompare(String(b.match_no)));
-      const candidates=scheduleIdsByDate.get(date)??[];
-      for (let i=0;i<dayMatches.length;i++) {
-        const m=dayMatches[i];
-        if (!mapped.has(m.id) && candidates[i]) mapped.set(m.id,candidates[i]);
+      const dayMatches=pool.filter(m=>String(m.pool_date)===date);
+      const candidates=scheduleRowsByDate.get(date)??[];
+      for (const m of dayMatches) {
+        if(mapped.has(m.id))continue;
+        const sameNo=candidates.filter(x=>String(x.no).padStart(3,"0")===String(m.match_no).padStart(3,"0"));
+        const exact=sameNo.filter(x=>
+          (x.homeVariants??[x.home]).some((v:string)=>teamMatch(v,m.home_team)) &&
+          (x.awayVariants??[x.away]).some((v:string)=>teamMatch(v,m.away_team))
+        );
+        if(exact.length===1)mapped.set(m.id,String(exact[0].oid));
       }
     }
 
@@ -390,6 +418,40 @@ Deno.serve(async (req:Request) => {
       if(offset+2<pool.length)await new Promise(resolve=>setTimeout(resolve,350));
     }
 
+    // After fresh pre-match market behavior is stored, immediately re-audit
+    // the customer-facing upset layer for the affected pool dates. This is
+    // deliberately best-effort: collection success must not be rolled back
+    // if the downstream public API is temporarily unavailable.
+    const upsetReaudit:any[]=[];
+    if(results.length){
+      const projectUrl=Deno.env.get("SUPABASE_URL")!;
+      const serviceKey=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      for(const date of dates){
+        try{
+          const controller=new AbortController();
+          const timer=setTimeout(()=>controller.abort(),30000);
+          try{
+            const r=await fetch(
+              projectUrl+"/functions/v1/soren-public-api-v1?sync_upset=1&date="+encodeURIComponent(date),
+              {
+                method:"GET",
+                headers:{
+                  "apikey":serviceKey,
+                  "Authorization":"Bearer "+serviceKey,
+                  "Cache-Control":"no-cache"
+                },
+                signal:controller.signal
+              }
+            );
+            upsetReaudit.push({date,ok:r.ok,status:r.status});
+          }finally{clearTimeout(timer);}
+        }catch(e){
+          console.error("UPSET_REAUDIT_AFTER_MARKET_BEHAVIOR",date,String(e));
+          upsetReaudit.push({date,ok:false,status:null});
+        }
+      }
+    }
+
     return Response.json({
       ok:true,
       status:failures.length?"PARTIAL":"DONE",
@@ -402,7 +464,8 @@ Deno.serve(async (req:Request) => {
       skippedOrFailed:failures.length,
       sample:results.slice(0,12),
       issues:failures.slice(0,20),
-      policy:"pre-freeze only; verified cutoff when available, otherwise kickoff; exact teams + kickoff verification; no post-freeze backfill"
+      upsetReaudit,
+      policy:"pre-freeze only; verified cutoff when available, otherwise kickoff; exact teams + kickoff verification; no post-freeze backfill; successful fresh writes trigger best-effort upset re-audit"
     },{status:200,headers:{"Cache-Control":"no-store"}});
   } catch(error) {
     console.error("SOREN_MARKET_BEHAVIOR_COLLECTOR_ERROR",error);
