@@ -740,6 +740,118 @@
   @supports (content-visibility:auto){
     .cards>*{content-visibility:auto;contain-intrinsic-size:auto 420px}
   }
+
+    /* Cold warning compact card v2 · 2026-09-30
+       Layout-only redesign. No model/routing logic changes. */
+    .member-zone-page{gap:9px}
+    .cold-warning-info.compact{
+      margin:0 0 2px;padding:0 13px;border:1px solid #ececef;border-radius:12px;
+      background:#fff;color:#59616a
+    }
+    .cold-warning-info.compact>summary{
+      list-style:none;cursor:pointer;padding:11px 0;font-size:11px;font-weight:750;color:#555d66
+    }
+    .cold-warning-info.compact>summary::-webkit-details-marker{display:none}
+    .cold-warning-info.compact>summary:after{content:' ▾';float:right;color:#9aa0a6}
+    .cold-warning-info.compact[open]>summary:after{content:' ▴'}
+    .cold-warning-info-body{padding:0 0 9px;border-top:1px solid #f0f1f2}
+    .cold-warning-info.compact .cold-warning-info-body p{
+      margin:8px 0 0;font-size:10px;line-height:1.6;color:#777f87
+    }
+
+    .member-zone-regular-card{
+      padding:0 12px 9px;border:1px solid #ececef;border-radius:15px;
+      box-shadow:0 2px 10px #00000008;cursor:default
+    }
+    @supports (content-visibility:auto){
+      .member-zone-regular-card{contain-intrinsic-size:230px}
+    }
+    .member-zone-regular-card .card-head{
+      height:35px;border-bottom:1px solid #f1f2f3
+    }
+    .member-zone-regular-card .match-id{font-size:10px;color:#737980}
+    .member-zone-regular-card .match-id .league{font-size:11px;color:#40464d;font-weight:800}
+    .member-zone-regular-card .member-zone-badge{
+      padding:3px 7px;border-radius:7px;font-size:9px;font-weight:800
+    }
+
+    .member-zone-regular-card .fixture{
+      grid-template-columns:minmax(0,1fr) 28px;gap:5px;padding:9px 0 8px
+    }
+    .member-zone-regular-card .team-list{gap:5px}
+    .member-zone-regular-card .team{gap:7px}
+    .member-zone-regular-card .crest{
+      width:27px;height:27px;font-size:9px;box-shadow:inset 0 0 0 2px #ffffffd0,0 1px 2px #0001
+    }
+    .member-zone-regular-card .crest.national-flag{font-size:18px}
+    .member-zone-regular-card .team-name{
+      font-size:14px;font-weight:820;line-height:1.25
+    }
+    .member-zone-regular-card .fixture>.score{
+      text-align:center;font-size:10px;font-weight:800;color:#a8adb3
+    }
+    .member-zone-regular-card .fixture>.score span{display:none}
+
+    .member-zone-regular-card .member-zone-pick{
+      margin:0 0 7px;padding:10px 11px;border-radius:11px;text-align:left;
+      background:#fafafa;border:1px solid #ececef;box-shadow:none
+    }
+    .member-zone-regular-card .member-zone-pick-label{
+      font-size:9px;letter-spacing:0;color:#8a9097;font-weight:700
+    }
+    .member-zone-regular-card .member-zone-pick-direction{
+      margin-top:3px;font-size:20px;line-height:1.3;color:#b32d2f;font-weight:900
+    }
+    .member-zone-regular-card .member-zone-pick-direction.pending{
+      font-size:17px;color:#8a6a2d
+    }
+    .member-zone-regular-card .member-zone-pick-ref{
+      display:inline-flex;margin:6px 6px 0 0;padding:3px 7px;border-radius:7px;
+      background:#f1f2f4;color:#343a40;font-size:10px;font-weight:750
+    }
+    .member-zone-regular-card .member-zone-pick-note{
+      display:inline;font-size:9px;color:#92979d;margin-top:6px
+    }
+    .member-zone-regular-card .member-zone-pick-evidence{display:none}
+
+    .member-zone-regular-card .member-zone-result{
+      display:flex;align-items:center;gap:7px;margin:0;padding:8px 10px;border-radius:9px;
+      text-align:left;background:#f6f7f8;border:1px solid #eceef0
+    }
+    .member-zone-regular-card .member-zone-result small{
+      flex:none;display:inline;margin:0;font-size:9px;color:#93989e
+    }
+    .member-zone-regular-card .member-zone-result-score{
+      flex:none;font-size:15px;line-height:1;font-weight:900;color:#2f3439
+    }
+    .member-zone-regular-card .member-zone-result-meta{
+      min-width:0;margin:0;font-size:10px;line-height:1.35;font-weight:750;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#626970
+    }
+    .member-zone-regular-card .member-zone-result.hit{
+      background:#f1f8f3;border-color:#deebe1
+    }
+    .member-zone-regular-card .member-zone-result.miss{
+      background:#fff4f4;border-color:#efdddd
+    }
+    .member-zone-regular-card .member-zone-result.pending .member-zone-result-score{
+      font-size:11px;color:#858b91
+    }
+
+    .member-zone-regular-card .member-zone-proof{
+      margin-top:7px;padding-top:6px
+    }
+    .member-zone-regular-card .member-zone-proof>summary{
+      min-height:25px;display:flex;align-items:center;font-size:10px;color:#68717a
+    }
+    .member-zone-regular-card .member-zone-proof>summary:after{margin-left:3px}
+    @media(max-width:390px){
+      .member-zone-regular-card{padding-left:11px;padding-right:11px}
+      .member-zone-regular-card .team-name{font-size:13px}
+      .member-zone-regular-card .member-zone-pick-direction{font-size:18px}
+      .member-zone-regular-card .member-zone-result{gap:5px;padding-left:8px;padding-right:8px}
+      .member-zone-regular-card .member-zone-result-meta{font-size:9px}
+    }
 </style>
 </head>
 <body>
@@ -1256,17 +1368,15 @@
         if(cached){box.append(cached);return}
       }
       const page=el('div','member-zone-page');
-      const info=el('section','cold-warning-info');
-      info.append(
-        el('h3','','冷门预警说明'),
-        el('p','','冷门预警会随赛前市场变化持续更新，单次波动不会直接触发。'),
-        el('p','','重点避开：反向方向完成多源确认后，针对原胜平负Top1给出双选防范。'),
-        el('p','','让球保护：进入风险池但未达到重点避开时，如赛前已冻结让球Top1与第二方向，则展示“主推 + 保护”双选。'),
-        el('p','','风险观察：没有完整、可核验的赛前方向时只提示风险，不强行给方向。'),
-        el('p','','停售前开赛：以开球时间为准持续复核；停售后开赛：工作日21:30、周末22:30前完成最终审核。'),
-        el('p','','已形成冷门风险排除记录的场次，不因后续风险回落重新进入今日优选。'),
+      const info=el('details','cold-warning-info compact');
+      const infoSummary=el('summary','','冷门预警规则说明');
+      const infoBody=el('div','cold-warning-info-body');
+      infoBody.append(
+        el('p','','重点避开：对原胜平负Top1做双选防范；让球保护：使用赛前冻结的让球主推 + 保护方向。'),
+        el('p','','风险观察：没有完整可核验方向时只提示风险，不强行给方向。'),
         el('p','','所有方向只使用赛前冻结数据；赛果只用于结算，不反向改写推荐。')
       );
+      info.append(infoSummary,infoBody);
       page.append(info);
       if(state.memberZoneLoading){page.append(el('div','empty','','正在读取冷门识别…'));box.append(page);return}
       if(state.memberZoneError){page.append(el('div','empty','',state.memberZoneError));box.append(page);return}
@@ -1337,7 +1447,7 @@
 
         const pick=el('div','member-zone-pick');
         pick.append(el('div','member-zone-pick-label',
-          displayMode==='FT_AVOID'?'防范建议':displayMode==='HANDICAP_PROTECT'?'让球建议':'风险状态'));
+          displayMode==='FT_AVOID'?'防范方向':displayMode==='HANDICAP_PROTECT'?'保护方向':'风险状态'));
         pick.append(el('div','member-zone-pick-direction'+(displayMode==='OBSERVE'?' pending':''),direction));
         if(displayMode==='FT_AVOID'&&refText){
           pick.append(el('div','member-zone-pick-ref','双选保护：'+refText));
@@ -1361,7 +1471,7 @@
           if(displayMode==='FT_AVOID'){
             const avoidHit=isHomeTop?['平','客胜'].includes(actual):['主胜','平'].includes(actual);
             const resultBox=el('div','member-zone-result '+(avoidHit?'hit':'miss'));
-            resultBox.append(el('small','','同步赛果'));
+            resultBox.append(el('small','','赛果'));
             resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
             resultBox.append(el('div','member-zone-result-meta',(actual?actual+' · ':'')+(avoidHit?'✅ 避开成功':'❌ 避开失败')));
             card.append(resultBox);
@@ -1370,21 +1480,21 @@
             const protectHit=[handicapPrimary,handicapCover].includes(handicapActual);
             const evaluable=validHandicap(handicapActual);
             const resultBox=el('div','member-zone-result '+(evaluable?(protectHit?'hit':'miss'):''));
-            resultBox.append(el('small','','同步赛果'));
+            resultBox.append(el('small','','赛果'));
             resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
             resultBox.append(el('div','member-zone-result-meta',
               evaluable?(handicapActual+' · '+(protectHit?'✅ 让球保护命中':'❌ 让球保护未中')):'让球赛果待核验'));
             card.append(resultBox);
           }else{
             const resultBox=el('div','member-zone-result');
-            resultBox.append(el('small','','同步赛果'));
+            resultBox.append(el('small','','赛果'));
             resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
             resultBox.append(el('div','member-zone-result-meta',(actual?actual+' · ':'')+'风险观察已结算'));
             card.append(resultBox);
           }
         }else{
           const resultBox=el('div','member-zone-result pending');
-          resultBox.append(el('small','','同步赛果'));
+          resultBox.append(el('small','','赛果'));
           resultBox.append(el('div','member-zone-result-score','等待赛果'));
           card.append(resultBox);
         }
