@@ -2655,8 +2655,8 @@ async function paidMemberZone(
           const homeName=String(m.home_team??"").trim(),awayName=String(m.away_team??"").trim();
           const adverseLevel=/主力|核心|头号|队长|门将|多人|多名重要球员|\d{1,2}人/.test(headline)?"高":"中";
           const headlineMentionsTeam=(name:string)=>{
-            const clean=(v:string)=>String(v??"").replace(/足球俱乐部|俱乐部|football club|\\bfc\\b/gi,"")
-              .replace(/[·•.\\-－—_()（）\\[\\]【】\\s]/g,"").trim();
+            const clean=(v:string)=>String(v??"").replace(/足球俱乐部|俱乐部|football club/gi,"")
+              .replace(/[ ·•.－—_()（）【】_-]/g,"").trim();
             const h=clean(headline),t=clean(name);
             if(!h||!t)return false;
             if(h.includes(t))return true;
