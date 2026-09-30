@@ -1374,7 +1374,7 @@
       infoBody.append(
         el('p','','重点避开：对原胜平负Top1做双选防范；让球保护：使用赛前冻结的让球主推 + 保护方向。'),
         el('p','','风险观察：没有完整可核验方向时只提示风险，不强行给方向。'),
-        el('p','','所有方向只使用赛前冻结数据；赛果只用于结算，不反向改写推荐。')
+        el('p','','所有方向只使用赛前冻结数据；赛果只用于结算，不反向改写推荐。9月30日前未冻结新分流字段的历史记录，不用新规则重算成功/失败。')
       );
       info.append(infoSummary,infoBody);
       page.append(info);
@@ -1417,16 +1417,36 @@
         const hp=row.model?.handicap||{};
         const handicapPrimary=validHandicap(hp.top1)?String(hp.top1):null;
         const handicapCover=validHandicap(hp.second)&&String(hp.second)!==handicapPrimary?String(hp.second):null;
+        const route=(cold?.customerRoute&&typeof cold.customerRoute==='object')?cold.customerRoute:null;
+        const routeType=String(route?.type||'');
+        const routeSource=String(route?.source||'');
+        const legacyHistorical=String(zoneDate)<'2026-09-30'&&routeSource==='LEGACY_NO_STRICT_SEED';
         const isFormal=cold?.vipPublish===true&&['主胜','客胜'].includes(String(row.model?.top1||''));
-        const displayMode=isFormal?'FT_AVOID':(!isCooling&&handicapPrimary&&handicapCover?'HANDICAP_PROTECT':'OBSERVE');
-        const displayLabel=displayMode==='FT_AVOID'?'重点避开':displayMode==='HANDICAP_PROTECT'?'让球保护':'风险观察';
-        const direction=displayMode==='FT_AVOID'
-          ?(isHomeTop?'主队不胜（平 / 客）':'主队不败（主 / 平）')
+        const displayMode=legacyHistorical
+          ?'LEGACY'
+          :routeType==='FOCUS_AVOID'
+            ?'FT_AVOID'
+            :routeType==='HANDICAP_PROTECT'
+              ?'HANDICAP_PROTECT'
+              :routeType==='RISK_OBSERVE'
+                ?'OBSERVE'
+                :(isFormal?'FT_AVOID':(!isCooling&&handicapPrimary&&handicapCover?'HANDICAP_PROTECT':'OBSERVE'));
+        const displayLabel=displayMode==='FT_AVOID'
+          ?'重点避开'
           :displayMode==='HANDICAP_PROTECT'
-            ?(handicapPrimary+' + '+handicapCover)
-            :(isCooling?'原方向仍获支持':'暂不发布方向');
+            ?'让球保护'
+            :displayMode==='LEGACY'
+              ?'历史风险记录'
+              :'风险观察';
+        const direction=displayMode==='FT_AVOID'
+          ?(route?.direction||(isHomeTop?'主队不胜（平 / 客）':'主队不败（主 / 平）'))
+          :displayMode==='HANDICAP_PROTECT'
+            ?((Array.isArray(route?.handicapPicks)&&route.handicapPicks.length>=2)?route.handicapPicks.join(' + '):(handicapPrimary+' + '+handicapCover))
+            :displayMode==='LEGACY'
+              ?'旧规则样本，不按新规则重算'
+              :(isCooling?'原方向仍获支持':'暂不发布方向');
         const refText=displayMode==='FT_AVOID'
-          ?(isHomeTop?'平 + 客':'主 + 平')
+          ?(Array.isArray(route?.ftPicks)&&route.ftPicks.length?route.ftPicks.join(' + '):(isHomeTop?'平 + 客':'主 + 平'))
           :'';
         const badgeClass=displayMode==='FT_AVOID'?'formal-cold':displayMode==='HANDICAP_PROTECT'?'risk-high':'light-risk';
 
@@ -1457,7 +1477,9 @@
           pick.append(el('div','member-zone-pick-note','让球双选，任一方向命中即计保护成功'));
         }else{
           pick.append(el('div','member-zone-pick-note',
-            isCooling?'最新亚盘、市场与情报共同支持原方向，继续观察至冻结':'存在赛前风险，但当前没有完整可发布方向'));
+            displayMode==='LEGACY'
+              ?'该场属于规则上线前历史记录，仅保留赛前风险事实，不纳入9月30日起新分流命中统计'
+              :(isCooling?'最新亚盘、市场与情报共同支持原方向，继续观察至冻结':'存在赛前风险，但当前没有完整可发布方向')));
         }
         const tags=el('div','member-zone-pick-evidence');
         const evidence=Array.isArray(cold?.vipEvidence)&&cold.vipEvidence.length?cold.vipEvidence:
@@ -1468,7 +1490,13 @@
 
         if(st.verified){
           const actual=st.ftResult;
-          if(displayMode==='FT_AVOID'){
+          if(displayMode==='LEGACY'){
+            const resultBox=el('div','member-zone-result');
+            resultBox.append(el('small','','赛果'));
+            resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
+            resultBox.append(el('div','member-zone-result-meta','旧规则历史记录 · 不计新规则成功/失败'));
+            card.append(resultBox);
+          }else if(displayMode==='FT_AVOID'){
             const avoidHit=isHomeTop?['平','客胜'].includes(actual):['主胜','平'].includes(actual);
             const resultBox=el('div','member-zone-result '+(avoidHit?'hit':'miss'));
             resultBox.append(el('small','','赛果'));
@@ -1522,7 +1550,7 @@
           const ssec=el('section','member-zone-proof-section');
           ssec.append(el('div','member-zone-proof-title','冷门观察'));
           addLine(ssec,'风险状态',displayLabel);
-          addLine(ssec,'方向状态',direction);
+          addLine(ssec,'方向状态',displayMode==='LEGACY'?'历史记录，不按新规则重算':direction);
           if(displayMode==='HANDICAP_PROTECT')addLine(ssec,'让球主推 / 保护',handicapPrimary+' / '+handicapCover);
           if(row.behavior?.top1)addLine(ssec,'市场资金',(row.behavior.top1||'待确认')+' · '+(row.behavior.strength||'观察'));
           addLine(ssec,'多源一致性',gate.stableDirection===true?'已形成确认':'方向待确认');
