@@ -1484,6 +1484,7 @@
     // object is unchanged; a successful changed API response gets a new object
     // and therefore a fresh render automatically.
     const memberZonePageCache=new WeakMap();
+    const memberZoneDataCache=new Map();
     const memberIntelCache=new Map();
     let memberZoneFingerprint='',memberZoneRequest=null;
 
@@ -2051,6 +2052,20 @@
     async function loadMemberZone(silent=false){
       if(memberInfo?.vipActive!==true)return;
       const zoneDate=memberZoneDate();
+      const cacheTtl=zoneDate<beijingToday()?30*60*1000:20*1000;
+      const cachedZone=memberZoneDataCache.get(zoneDate);
+      if(cachedZone&&Date.now()-cachedZone.at<cacheTtl){
+        state.memberZone=cachedZone.zone;
+        if(cachedZone.membership)memberInfo=cachedZone.membership;
+        memberZoneFingerprint=cachedZone.fingerprint;
+        state.memberZoneLoading=false;
+        state.memberZoneError=null;
+        if(!silent){
+          if(state.tab==='memberzone')renderMemberZone();
+          else if(state.tab==='home'&&state.model==='cold')render();
+        }
+        return;
+      }
       // Deduplicate a foreground tap and a scheduled refresh for the same date.
       if(memberZoneRequest?.date===zoneDate){
         try{await memberZoneRequest.promise}finally{
@@ -2075,6 +2090,8 @@
           memberZoneFingerprint=fingerprint;
           changed=true;
         }
+        memberZoneDataCache.set(zoneDate,{at:Date.now(),zone:j.zone,membership:j.membership||memberInfo,fingerprint});
+        while(memberZoneDataCache.size>10)memberZoneDataCache.delete(memberZoneDataCache.keys().next().value);
         state.memberZoneError=null;
       })();
       memberZoneRequest={date:zoneDate,promise:request};
