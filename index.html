@@ -1547,7 +1547,14 @@
         '2026-09-28|002','2026-09-28|003','2026-09-28|004','2026-09-28|006','2026-09-28|008',
         '2026-09-29|012'
       ]);
+      const historicalHandicapReferenceSamples=new Set([
+        '2026-09-24|002','2026-09-24|004','2026-09-24|006','2026-09-24|007'
+      ]);
       const recoveredHistoricalHandicapTop2=new Map([
+        ['2026-09-24|002',['让负','让平']],
+        ['2026-09-24|004',['让负','让平']],
+        ['2026-09-24|006',['让负','让平']],
+        ['2026-09-24|007',['让负','让平']],
         ['2026-09-26|021',['让负','让平']],
         ['2026-09-26|023',['让负','让平']],
         ['2026-09-26|024',['让负','让胜']],
@@ -1571,7 +1578,8 @@
         const routeSource=String(route?.source||'');
         const sampleKey=String(zoneDate)+'|'+String(row.no||'').padStart(3,'0');
         const historicalShadow=historicalShadowAvoidSamples.has(sampleKey);
-        const historicalHandicap=historicalHandicapSamples.has(sampleKey);
+        const historicalHandicapReference=historicalHandicapReferenceSamples.has(sampleKey);
+        const historicalHandicap=historicalHandicapSamples.has(sampleKey)||historicalHandicapReference;
         const recoveredHandicapPair=recoveredHistoricalHandicapTop2.get(sampleKey)||null;
         const historicalHandicapPrimary=recoveredHandicapPair?.[0]||handicapPrimary;
         const historicalHandicapCover=recoveredHandicapPair?.[1]||handicapCover;
@@ -1598,7 +1606,7 @@
           :displayMode==='HIST_SHADOW'
             ?'历史影子验证'
             :displayMode==='HIST_HANDICAP'
-              ?'让球保护'
+              ?(historicalHandicapReference?'历史让球参考':'让球保护')
               :displayMode==='HANDICAP_PROTECT'
                 ?'让球保护'
               :displayMode==='LEGACY'
@@ -1647,7 +1655,7 @@
         const actionLabel=(displayMode==='FT_AVOID'||displayMode==='HIST_SHADOW')
           ?'防范方向'
           :(displayMode==='HANDICAP_PROTECT'||displayMode==='HIST_HANDICAP')
-            ?'让球保护'
+            ?(displayMode==='HIST_HANDICAP'&&historicalHandicapReference?'让球参考':'让球保护')
             :displayMode==='LEGACY'
               ?'赛前风险'
               :'风险状态';
@@ -1754,7 +1762,8 @@
           if(displayMode==='HIST_SHADOW')addLine(ssec,'验证口径','历史影子样本，不计入9月30日起正式新规则成绩');
           if(displayMode==='HIST_HANDICAP')addLine(ssec,'让球Top2来源',
             historicalHandicapRecovered?'赛前冻结HHAD三项概率排序恢复（非赛后倒推）':'赛前快照直接冻结Top1 + 第二方向');
-          if(displayMode==='HIST_HANDICAP')addLine(ssec,'验证口径','历史让球保护样本，不计入9月30日起正式新规则成绩');
+          if(displayMode==='HIST_HANDICAP')addLine(ssec,'验证口径',
+            historicalHandicapReference?'当时正式让球为PASS；仅展示赛前冻结概率恢复参考，不计正式成绩':'历史让球保护样本，不计入9月30日起正式新规则成绩');
           if(displayMode==='HANDICAP_PROTECT')addLine(ssec,'让球主推 / 保护',handicapPrimary+' / '+handicapCover);
           if(row.behavior?.top1)addLine(ssec,'市场资金',(row.behavior.top1||'待确认')+' · '+(row.behavior.strength||'观察'));
           addLine(ssec,'多源一致性',gate.stableDirection===true?'已形成确认':'方向待确认');
