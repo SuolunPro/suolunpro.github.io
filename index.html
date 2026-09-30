@@ -852,6 +852,103 @@
       .member-zone-regular-card .member-zone-result{gap:5px;padding-left:8px;padding-right:8px}
       .member-zone-regular-card .member-zone-result-meta{font-size:9px}
     }
+
+    /* Cold warning card v3 · 2026-09-30 — customer-facing minimal data card */
+    .member-zone-regular-card.cold-card-v3{
+      padding:0 12px 8px!important;
+      border:1px solid #e9ebee!important;
+      border-radius:14px!important;
+      background:#fff!important;
+      box-shadow:0 2px 8px #00000008!important;
+      overflow:hidden;
+      cursor:default
+    }
+    @supports (content-visibility:auto){
+      .member-zone-regular-card.cold-card-v3{contain-intrinsic-size:190px!important}
+    }
+    .cold-card-head{
+      min-height:34px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+      border-bottom:1px solid #f0f1f2
+    }
+    .cold-card-meta{
+      min-width:0;display:flex;align-items:center;gap:5px;color:#8a9097;font-size:9px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+    }
+    .cold-card-league{color:#3d444b;font-size:10px;font-weight:800}
+    .cold-card-badge{
+      flex:none;padding:3px 7px;border-radius:6px;background:#f2f3f5;color:#626970;
+      font-size:9px;font-weight:800
+    }
+    .cold-card-badge.formal-cold{background:#fcecee;color:#b32934}
+    .cold-card-badge.risk-high{background:#fff1e9;color:#a9502c}
+    .cold-card-badge.light-risk{background:#f2f3f5;color:#6b7279}
+
+    .cold-card-match{
+      display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);
+      align-items:center;gap:5px;padding:10px 0 9px
+    }
+    .cold-card-team.team{gap:6px;min-width:0}
+    .cold-card-team.away{flex-direction:row-reverse;text-align:right}
+    .cold-card-team .crest{
+      width:28px;height:28px;flex:0 0 28px;font-size:9px;
+      box-shadow:inset 0 0 0 2px #ffffffd8,0 1px 2px #0001
+    }
+    .cold-card-team .crest.national-flag{font-size:18px}
+    .cold-card-team .team-name{
+      font-size:13px;font-weight:850;line-height:1.25;white-space:normal;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical
+    }
+    .cold-card-vs{text-align:center;color:#afb4ba;font-size:9px;font-weight:800}
+
+    .cold-card-action{
+      display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;
+      column-gap:9px;row-gap:5px;padding:9px 10px;border-radius:9px;
+      background:#f7f8f9;border:1px solid #eceef0
+    }
+    .cold-card-action.ft_avoid{background:#fff6f6;border-color:#f1dddd}
+    .cold-card-action.handicap_protect{background:#fff9f4;border-color:#f0e5db}
+    .cold-card-action-label{
+      color:#8a9096;font-size:9px;font-weight:700;white-space:nowrap
+    }
+    .cold-card-action-value{
+      color:#272c31;font-size:16px;line-height:1.25;font-weight:900;text-align:right
+    }
+    .cold-card-action.ft_avoid .cold-card-action-value{color:#b52d36}
+    .cold-card-action.handicap_protect .cold-card-action-value{color:#a64a2c}
+    .cold-card-chips{
+      grid-column:1/-1;display:flex;justify-content:flex-end;gap:5px;flex-wrap:wrap
+    }
+    .cold-card-chips span{
+      padding:3px 6px;border-radius:6px;background:#fff;border:1px solid #e6e8eb;
+      color:#666d75;font-size:9px;font-weight:700
+    }
+    .cold-card-chips span.primary{color:#333940;border-color:#dfe2e5;font-weight:850}
+
+    .cold-card-result{
+      min-height:31px;display:flex;align-items:center;gap:8px;margin-top:6px;padding:0 2px;
+      color:#6e757c;border-top:1px solid #f1f2f3
+    }
+    .cold-card-score{font-size:13px;color:#30353a;font-weight:900;white-space:nowrap}
+    .cold-card-result-text{
+      min-width:0;font-size:9px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+    }
+    .cold-card-result.hit .cold-card-result-text{color:#2b7a47}
+    .cold-card-result.miss .cold-card-result-text{color:#b23d42}
+    .cold-card-result.pending{color:#9aa0a6}
+    .cold-card-result.pending .cold-card-score{color:#9aa0a6}
+
+    .cold-card-v3 .member-zone-proof{margin-top:0!important;padding-top:5px!important}
+    .cold-card-v3 .member-zone-proof>summary{
+      min-height:24px!important;font-size:9px!important;color:#7c838a!important
+    }
+    .cold-card-v3 .member-zone-proof-body{padding-top:4px!important}
+
+    @media(max-width:390px){
+      .cold-card-team .team-name{font-size:12px}
+      .cold-card-action-value{font-size:15px}
+      .cold-card-meta{font-size:8px}
+      .cold-card-league{font-size:9px}
+    }
 </style>
 </head>
 <body>
@@ -1450,82 +1547,92 @@
           :'';
         const badgeClass=displayMode==='FT_AVOID'?'formal-cold':displayMode==='HANDICAP_PROTECT'?'risk-high':'light-risk';
 
-        const card=el('article','card member-zone-regular-card');
-        const head=el('div','card-head'),id=el('div','match-id');
-        id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-        head.append(id,el('span','member-zone-badge '+badgeClass,displayLabel));
+        const card=el('article','card member-zone-regular-card cold-card-v3');
+        const head=el('div','cold-card-head');
+        const id=el('div','cold-card-meta');
+        id.append(
+          el('span','cold-card-league',safe(row.league)),
+          el('span','',fmtTime(row.kickoff)),
+          el('span','','· '+safe(row.no))
+        );
+        const cleanBadge=displayMode==='LEGACY'?'历史记录':displayLabel;
+        head.append(id,el('span','cold-card-badge '+badgeClass,cleanBadge));
         card.append(head);
 
-        // Reuse the same team/crest renderer as the normal match cards so names,
-        // logos and national-team flag fallbacks always stay in sync.
-        const fixture=el('div','fixture'),teams=el('div','team-list');
-        [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
-        const vs=el('div','score','VS');
-        vs.append(el('span','',displayLabel));
-        fixture.append(teams,vs);
-        card.append(fixture);
+        const matchline=el('div','cold-card-match');
+        const homeNode=teamNode(row.home,row.homeLogo),awayNode=teamNode(row.away,row.awayLogo);
+        homeNode.classList.add('cold-card-team','home');
+        awayNode.classList.add('cold-card-team','away');
+        matchline.append(homeNode,el('div','cold-card-vs','VS'),awayNode);
+        card.append(matchline);
 
-        const pick=el('div','member-zone-pick');
-        pick.append(el('div','member-zone-pick-label',
-          displayMode==='FT_AVOID'?'防范方向':displayMode==='HANDICAP_PROTECT'?'保护方向':'风险状态'));
-        pick.append(el('div','member-zone-pick-direction'+(displayMode==='OBSERVE'?' pending':''),direction));
-        if(displayMode==='FT_AVOID'&&refText){
-          pick.append(el('div','member-zone-pick-ref','双选保护：'+refText));
-          pick.append(el('div','member-zone-pick-note','原Top1建议降级处理'));
+        const action=el('div','cold-card-action '+displayMode.toLowerCase());
+        const actionLabel=displayMode==='FT_AVOID'
+          ?'防范方向'
+          :displayMode==='HANDICAP_PROTECT'
+            ?'让球保护'
+            :displayMode==='LEGACY'
+              ?'赛前风险'
+              :'风险状态';
+        const actionValue=displayMode==='LEGACY'
+          ?'风险已记录'
+          :displayMode==='OBSERVE'
+            ?'继续观察'
+            :direction;
+        action.append(
+          el('span','cold-card-action-label',actionLabel),
+          el('strong','cold-card-action-value',actionValue)
+        );
+        const chips=el('div','cold-card-chips');
+        if(displayMode==='FT_AVOID'){
+          const picks=Array.isArray(route?.ftPicks)&&route.ftPicks.length?route.ftPicks:
+            (isHomeTop?['平','客胜']:['主胜','平']);
+          picks.forEach((x,i)=>chips.append(el('span',i===0?'primary':'',String(x))));
         }else if(displayMode==='HANDICAP_PROTECT'){
-          pick.append(el('div','member-zone-pick-ref','主推：'+handicapPrimary+' ｜ 保护：'+handicapCover));
-          pick.append(el('div','member-zone-pick-note','让球双选，任一方向命中即计保护成功'));
+          const primary=(Array.isArray(route?.handicapPicks)&&route.handicapPicks[0])||handicapPrimary;
+          const cover=(Array.isArray(route?.handicapPicks)&&route.handicapPicks[1])||handicapCover;
+          if(primary)chips.append(el('span','primary','主推 '+primary));
+          if(cover)chips.append(el('span','','保护 '+cover));
+        }else if(displayMode==='LEGACY'){
+          chips.append(el('span','','历史赛前记录'));
         }else{
-          pick.append(el('div','member-zone-pick-note',
-            displayMode==='LEGACY'
-              ?'该场属于规则上线前历史记录，仅保留赛前风险事实，不纳入9月30日起新分流命中统计'
-              :(isCooling?'最新亚盘、市场与情报共同支持原方向，继续观察至冻结':'存在赛前风险，但当前没有完整可发布方向')));
+          chips.append(el('span','','等待更多赛前确认'));
         }
-        const tags=el('div','member-zone-pick-evidence');
-        const evidence=Array.isArray(cold?.vipEvidence)&&cold.vipEvidence.length?cold.vipEvidence:
-          (Array.isArray(cold?.evidence)?cold.evidence:[]);
-        evidence.slice(0,4).forEach(x=>tags.append(el('span','',String(x))));
-        if(tags.childNodes.length)pick.append(tags);
-        card.append(pick);
+        if(chips.childNodes.length)action.append(chips);
+        card.append(action);
 
+        const resultLine=el('div','cold-card-result');
+        const scoreText=st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'));
         if(st.verified){
           const actual=st.ftResult;
+          resultLine.append(el('b','cold-card-score',scoreText));
           if(displayMode==='LEGACY'){
-            const resultBox=el('div','member-zone-result');
-            resultBox.append(el('small','','赛果'));
-            resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
-            resultBox.append(el('div','member-zone-result-meta','旧规则历史记录 · 不计新规则成功/失败'));
-            card.append(resultBox);
+            resultLine.append(el('span','cold-card-result-text','已结算 · 历史记录'));
           }else if(displayMode==='FT_AVOID'){
             const avoidHit=isHomeTop?['平','客胜'].includes(actual):['主胜','平'].includes(actual);
-            const resultBox=el('div','member-zone-result '+(avoidHit?'hit':'miss'));
-            resultBox.append(el('small','','赛果'));
-            resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
-            resultBox.append(el('div','member-zone-result-meta',(actual?actual+' · ':'')+(avoidHit?'✅ 避开成功':'❌ 避开失败')));
-            card.append(resultBox);
+            resultLine.classList.add(avoidHit?'hit':'miss');
+            resultLine.append(el('span','cold-card-result-text',
+              (actual?actual+' · ':'')+(avoidHit?'✓ 避开成功':'× 避开失败')));
           }else if(displayMode==='HANDICAP_PROTECT'){
             const handicapActual=String(st.handicapResult||'');
-            const protectHit=[handicapPrimary,handicapCover].includes(handicapActual);
+            const primary=(Array.isArray(route?.handicapPicks)&&route.handicapPicks[0])||handicapPrimary;
+            const cover=(Array.isArray(route?.handicapPicks)&&route.handicapPicks[1])||handicapCover;
             const evaluable=validHandicap(handicapActual);
-            const resultBox=el('div','member-zone-result '+(evaluable?(protectHit?'hit':'miss'):''));
-            resultBox.append(el('small','','赛果'));
-            resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
-            resultBox.append(el('div','member-zone-result-meta',
-              evaluable?(handicapActual+' · '+(protectHit?'✅ 让球保护命中':'❌ 让球保护未中')):'让球赛果待核验'));
-            card.append(resultBox);
+            const protectHit=evaluable&&[primary,cover].includes(handicapActual);
+            if(evaluable)resultLine.classList.add(protectHit?'hit':'miss');
+            resultLine.append(el('span','cold-card-result-text',
+              evaluable?(handicapActual+' · '+(protectHit?'✓ 保护命中':'× 保护未中')):'让球赛果待核验'));
           }else{
-            const resultBox=el('div','member-zone-result');
-            resultBox.append(el('small','','赛果'));
-            resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
-            resultBox.append(el('div','member-zone-result-meta',(actual?actual+' · ':'')+'风险观察已结算'));
-            card.append(resultBox);
+            resultLine.append(el('span','cold-card-result-text',(actual?actual+' · ':'')+'已结算'));
           }
         }else{
-          const resultBox=el('div','member-zone-result pending');
-          resultBox.append(el('small','','赛果'));
-          resultBox.append(el('div','member-zone-result-score','等待赛果'));
-          card.append(resultBox);
+          resultLine.classList.add('pending');
+          resultLine.append(
+            el('b','cold-card-score','—'),
+            el('span','cold-card-result-text','等待赛果')
+          );
         }
+        card.append(resultLine);
 
         const details=el('details','member-zone-proof');
         details.append(el('summary','','查看依据'));
