@@ -1249,7 +1249,7 @@
       return j;
     }
     function renderMemberZone(){
-      const box=$('content');box.replaceChildren(sectionHead('今日冷门识别','赛前市场动态识别'));
+      const box=$('content');box.replaceChildren(sectionHead('冷门预警','重点避开 · 让球保护 · 风险观察'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
       if(!state.memberZoneLoading&&!state.memberZoneError&&state.memberZone){
         const cached=memberZonePageCache.get(state.memberZone);
@@ -1259,14 +1259,13 @@
       const info=el('section','cold-warning-info');
       info.append(
         el('h3','','冷门预警说明'),
-        el('p','','冷门预警会随赛前市场变化持续更新。'),
-        el('p','','停售前开赛：以开球时间为准持续复核。'),
-        el('p','','停售后开赛：工作日21:30、周末22:30前完成最终审核。'),
-        el('p','','单次市场异动不会直接触发；轻微风险需持续异常或独立市场证据确认。'),
-        el('p','','方向经多源确认后，才升级为正式冷门预警。'),
-        el('p','','若后续亚盘、市场与情报重新一致支持原方向，会标记为“风险回落”。'),
-        el('p','','已形成正式冷门预警或风险排除记录的场次，不因风险回落重新进入今日优选。'),
-        el('p','','最终以停售/赛前冻结版本为准。')
+        el('p','','冷门预警会随赛前市场变化持续更新，单次波动不会直接触发。'),
+        el('p','','重点避开：反向方向完成多源确认后，针对原胜平负Top1给出双选防范。'),
+        el('p','','让球保护：进入风险池但未达到重点避开时，如赛前已冻结让球Top1与第二方向，则展示“主推 + 保护”双选。'),
+        el('p','','风险观察：没有完整、可核验的赛前方向时只提示风险，不强行给方向。'),
+        el('p','','停售前开赛：以开球时间为准持续复核；停售后开赛：工作日21:30、周末22:30前完成最终审核。'),
+        el('p','','已形成冷门风险排除记录的场次，不因后续风险回落重新进入今日优选。'),
+        el('p','','所有方向只使用赛前冻结数据；赛果只用于结算，不反向改写推荐。')
       );
       page.append(info);
       if(state.memberZoneLoading){page.append(el('div','empty','','正在读取冷门识别…'));box.append(page);return}
@@ -1303,24 +1302,28 @@
         const probs=Array.isArray(row.model?.probability)?row.model.probability:[null,null,null];
         const isHomeTop=row.model?.top1==='主胜';
         const tier=String(cold?.customerTier||'持续观察');
-        const isFormal=tier==='正式冷门预警'&&cold?.vipPublish===true;
         const isCooling=tier==='风险回落';
-        const direction=isFormal
-          ?(isHomeTop?'主队不胜':row.model?.top1==='客胜'?'客队不胜':String(cold?.customerDirection||cold?.unbeatenDirection||''))
-          :isCooling
-            ?'原方向仍获支持'
-            :tier==='风险偏高'
-              ?'建议避开'
-              :'方向待确认';
-        const pickShort=x=>x==='主胜'?'主':x==='客胜'?'客':x==='平'?'平':String(x||'');
-        const refs=Array.isArray(cold?.referencePicks)?cold.referencePicks:[];
-        const refText=isFormal?refs.map(x=>pickShort(x?.pick)).filter(Boolean).join(' + '):'';
-        const badgeClass=(tier==='轻微风险'||isCooling)?'light-risk':tier==='风险偏高'?'risk-high':'formal-cold';
+        const validHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
+        const hp=row.model?.handicap||{};
+        const handicapPrimary=validHandicap(hp.top1)?String(hp.top1):null;
+        const handicapCover=validHandicap(hp.second)&&String(hp.second)!==handicapPrimary?String(hp.second):null;
+        const isFormal=cold?.vipPublish===true&&['主胜','客胜'].includes(String(row.model?.top1||''));
+        const displayMode=isFormal?'FT_AVOID':(!isCooling&&handicapPrimary&&handicapCover?'HANDICAP_PROTECT':'OBSERVE');
+        const displayLabel=displayMode==='FT_AVOID'?'重点避开':displayMode==='HANDICAP_PROTECT'?'让球保护':'风险观察';
+        const direction=displayMode==='FT_AVOID'
+          ?(isHomeTop?'主队不胜（平 / 客）':'主队不败（主 / 平）')
+          :displayMode==='HANDICAP_PROTECT'
+            ?(handicapPrimary+' + '+handicapCover)
+            :(isCooling?'原方向仍获支持':'暂不发布方向');
+        const refText=displayMode==='FT_AVOID'
+          ?(isHomeTop?'平 + 客':'主 + 平')
+          :'';
+        const badgeClass=displayMode==='FT_AVOID'?'formal-cold':displayMode==='HANDICAP_PROTECT'?'risk-high':'light-risk';
 
         const card=el('article','card member-zone-regular-card');
         const head=el('div','card-head'),id=el('div','match-id');
         id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-        head.append(id,el('span','member-zone-badge '+badgeClass,tier));
+        head.append(id,el('span','member-zone-badge '+badgeClass,displayLabel));
         card.append(head);
 
         // Reuse the same team/crest renderer as the normal match cards so names,
@@ -1328,18 +1331,24 @@
         const fixture=el('div','fixture'),teams=el('div','team-list');
         [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
         const vs=el('div','score','VS');
-        vs.append(el('span','',tier));
+        vs.append(el('span','',displayLabel));
         fixture.append(teams,vs);
         card.append(fixture);
 
         const pick=el('div','member-zone-pick');
-        pick.append(el('div','member-zone-pick-label','预警方向'));
-        pick.append(el('div','member-zone-pick-direction'+(isFormal?'':' pending'),direction));
-        if(isFormal&&refText)pick.append(el('div','member-zone-pick-ref','参考：'+refText));
-        else pick.append(el('div','member-zone-pick-note',
-          isCooling?'最新亚盘、市场与情报共同支持原方向，继续观察至冻结':
-          tier==='轻微风险'?'持续观察市场变化':
-          tier==='风险偏高'?'多源风险已升高但反向方向未形成，建议避开该场':'持续观察'));
+        pick.append(el('div','member-zone-pick-label',
+          displayMode==='FT_AVOID'?'防范建议':displayMode==='HANDICAP_PROTECT'?'让球建议':'风险状态'));
+        pick.append(el('div','member-zone-pick-direction'+(displayMode==='OBSERVE'?' pending':''),direction));
+        if(displayMode==='FT_AVOID'&&refText){
+          pick.append(el('div','member-zone-pick-ref','双选保护：'+refText));
+          pick.append(el('div','member-zone-pick-note','原Top1建议降级处理'));
+        }else if(displayMode==='HANDICAP_PROTECT'){
+          pick.append(el('div','member-zone-pick-ref','主推：'+handicapPrimary+' ｜ 保护：'+handicapCover));
+          pick.append(el('div','member-zone-pick-note','让球双选，任一方向命中即计保护成功'));
+        }else{
+          pick.append(el('div','member-zone-pick-note',
+            isCooling?'最新亚盘、市场与情报共同支持原方向，继续观察至冻结':'存在赛前风险，但当前没有完整可发布方向'));
+        }
         const tags=el('div','member-zone-pick-evidence');
         const evidence=Array.isArray(cold?.vipEvidence)&&cold.vipEvidence.length?cold.vipEvidence:
           (Array.isArray(cold?.evidence)?cold.evidence:[]);
@@ -1349,14 +1358,22 @@
 
         if(st.verified){
           const actual=st.ftResult;
-          if(isFormal){
-            const coldHit=st.coldRecognition?.vipDirectionEvaluable===true
-              ?st.coldRecognition?.vipDirectionHit===true
-              :(isHomeTop?['平','客胜'].includes(actual):['主胜','平'].includes(actual));
-            const resultBox=el('div','member-zone-result '+(coldHit?'hit':'miss'));
+          if(displayMode==='FT_AVOID'){
+            const avoidHit=isHomeTop?['平','客胜'].includes(actual):['主胜','平'].includes(actual);
+            const resultBox=el('div','member-zone-result '+(avoidHit?'hit':'miss'));
             resultBox.append(el('small','','同步赛果'));
             resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
-            resultBox.append(el('div','member-zone-result-meta',(actual?actual+' · ':'')+(coldHit?'✅ 冷门方向命中':'❌ 冷门方向未中')));
+            resultBox.append(el('div','member-zone-result-meta',(actual?actual+' · ':'')+(avoidHit?'✅ 避开成功':'❌ 避开失败')));
+            card.append(resultBox);
+          }else if(displayMode==='HANDICAP_PROTECT'){
+            const handicapActual=String(st.handicapResult||'');
+            const protectHit=[handicapPrimary,handicapCover].includes(handicapActual);
+            const evaluable=validHandicap(handicapActual);
+            const resultBox=el('div','member-zone-result '+(evaluable?(protectHit?'hit':'miss'):''));
+            resultBox.append(el('small','','同步赛果'));
+            resultBox.append(el('div','member-zone-result-score',st.score||((st.homeScore??'—')+' : '+(st.awayScore??'—'))));
+            resultBox.append(el('div','member-zone-result-meta',
+              evaluable?(handicapActual+' · '+(protectHit?'✅ 让球保护命中':'❌ 让球保护未中')):'让球赛果待核验'));
             card.append(resultBox);
           }else{
             const resultBox=el('div','member-zone-result');
@@ -1394,8 +1411,9 @@
           const gate=(cold.gate&&typeof cold.gate==='object')?cold.gate:{};
           const ssec=el('section','member-zone-proof-section');
           ssec.append(el('div','member-zone-proof-title','冷门观察'));
-          addLine(ssec,'风险状态',cold.customerTier||'持续观察');
-          addLine(ssec,'方向状态',cold.customerDirectionStatus||'方向待确认');
+          addLine(ssec,'风险状态',displayLabel);
+          addLine(ssec,'方向状态',direction);
+          if(displayMode==='HANDICAP_PROTECT')addLine(ssec,'让球主推 / 保护',handicapPrimary+' / '+handicapCover);
           if(row.behavior?.top1)addLine(ssec,'市场资金',(row.behavior.top1||'待确认')+' · '+(row.behavior.strength||'观察'));
           addLine(ssec,'多源一致性',gate.stableDirection===true?'已形成确认':'方向待确认');
           if(gate.asianState){
