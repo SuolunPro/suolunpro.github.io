@@ -1278,11 +1278,40 @@
         month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})}
       catch{return ''}
     }
+    function showAccountNotice(info){
+      const notice=info?.accountNotice;
+      if(!notice?.message||!authSession?.user?.id)return;
+      const seenKey='soren_account_notice_seen_v1:'+String(authSession.user.id)+':'+String(notice.code||'NOTICE')+':'+String(notice.createdAt||'');
+      try{if(sessionStorage.getItem(seenKey)==='1')return}catch{}
+      let shade=document.getElementById('accountNoticeShade');
+      if(shade)shade.remove();
+      shade=document.createElement('div');shade.id='accountNoticeShade';
+      shade.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(17,20,26,.72);display:grid;place-items:center;padding:22px;backdrop-filter:blur(3px)';
+      const card=document.createElement('section');
+      card.style.cssText='width:min(100%,390px);background:#fff;border-radius:18px;padding:20px 18px 16px;box-shadow:0 18px 55px #0005;border:1px solid #ead8b6;color:#272b31';
+      const badge=document.createElement('div');
+      badge.textContent='账号安全提醒';
+      badge.style.cssText='display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;background:#fff3dd;color:#9a5d13;font-size:11px;font-weight:800';
+      const title=document.createElement('h2');
+      title.textContent=String(notice.title||'邀请行为安全提醒');
+      title.style.cssText='margin:12px 0 8px;font-size:20px;line-height:1.35';
+      const msg=document.createElement('p');
+      msg.textContent=String(notice.message);
+      msg.style.cssText='margin:0;color:#525964;font-size:13px;line-height:1.8;white-space:pre-wrap';
+      const note=document.createElement('p');
+      note.textContent='如认为属于正常多人共用设备场景，可向管理员说明情况；平台将以人工复核结果为准。';
+      note.style.cssText='margin:12px 0 0;padding:10px 11px;border-radius:10px;background:#f6f7f9;color:#6e7480;font-size:11px;line-height:1.65';
+      const btn=document.createElement('button');
+      btn.type='button';btn.textContent='我已知悉';
+      btn.style.cssText='width:100%;margin-top:15px;border:0;border-radius:11px;background:#303846;color:#fff;min-height:44px;font-size:14px;font-weight:800';
+      btn.onclick=()=>{try{sessionStorage.setItem(seenKey,'1')}catch{}shade.remove()};
+      card.append(badge,title,msg,note,btn);shade.append(card);document.body.append(shade);
+    }
     async function membershipFetch(){
       const r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(9000)});
       const j=await r.json();
       if(!r.ok||j.ok!==true||!j.membership)throw Error('会员信息暂不可用，请稍后重试');
-      memberInfo=j.membership;saveMemberCache(memberInfo);return memberInfo;
+      memberInfo=j.membership;saveMemberCache(memberInfo);showAccountNotice(memberInfo);return memberInfo;
     }
     function isTransientConnectionError(error){
       return error instanceof TypeError||['AbortError','TimeoutError'].includes(error?.name)||
