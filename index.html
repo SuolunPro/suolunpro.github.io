@@ -2089,7 +2089,7 @@
           [cov.model,cov.william,cov.sporttery,cov.asian].map(v=>v===true?'✓':'—').join(' / '));
         const fundsIntelLine=el('div','member-zone-proof-line');
         fundsIntelLine.append(el('span','','资金 / 情报'));
-        coverageFundsIntelValue=el('b','',[cov.behavior,cov.intelligence].map(v=>v===true?'✓':'—').join(' / '));
+        const coverageFundsIntelValue=el('b','',[cov.behavior,cov.intelligence].map(v=>v===true?'✓':'—').join(' / '));
         fundsIntelLine.append(coverageFundsIntelValue);
         dsec.append(fundsIntelLine);
         body.append(dsec);
