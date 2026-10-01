@@ -4589,14 +4589,15 @@
       // Fast boot on mobile: a recently verified membership snapshot may paint
       // the app immediately. The authoritative membership endpoint is refreshed
       // in the background right after the UI becomes usable.
-      const bootCachedMembership=readMemberCache(10*60*1000);
+      const bootCachedMembership=readMemberCache(30*60*1000);
       if(bootCachedMembership){
         memberInfo=bootCachedMembership;usedCachedMembership=true;authBootRetryCount=0;
       }else try{
-        // Do not keep the whole website behind several serial 9s retries.
-        // One bounded foreground attempt is enough; later retries happen without
-        // trapping the user on the restore-login screen.
-        await membershipFetchWithRetry(1);
+        // Network handoffs on mobile Safari can briefly fail while the retained
+        // auth session is still valid. Retry the membership check before showing
+        // a blocking reconnect screen, so a single transient request cannot trap
+        // an otherwise healthy logged-in user.
+        await membershipFetchWithRetry(3);
         authBootRetryCount=0;
       }catch(error){
         if(!authSession?.access_token||error?.message==='LOGIN_REQUIRED'){showLoginGate('登录状态已过期，请重新登录');return}
@@ -4613,7 +4614,7 @@
       }
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
       if(usedCachedMembership){
-        setTimeout(()=>membershipFetch().then(()=>{
+        setTimeout(()=>membershipFetchWithRetry(2).then(()=>{
           authBootRetryCount=0;
           // If the authoritative membership state changed while the cached UI
           // was shown, rerender the current page without forcing a reload.
