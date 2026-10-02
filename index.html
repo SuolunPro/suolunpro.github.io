@@ -197,10 +197,9 @@
     @media(max-width:380px){.report-key-picks{gap:7px}.report-main-pick,.report-alt-pick{padding:10px}}
     .auth-remember{display:flex;align-items:center;gap:8px;font-size:12px;color:#64746a;margin:12px 0;line-height:1.5}.auth-remember input{width:16px;height:16px;flex:0 0 16px;accent-color:#2b7150}.auth-retry{max-width:420px;margin:10vh auto;padding:25px;line-height:1.8}
 
-  /* Beta membership and referrals: compact mobile-first panel */
+  /* Beta membership: compact mobile-first panel */
   .member-panel{margin:12px 0 0;padding:14px;border:1px solid #e6e6e6;border-radius:12px;background:#fff;line-height:1.7;font-size:12px}
   .member-panel h3{margin:0 0 7px;font-size:16px}.member-panel p{margin:6px 0;color:#666}
-  .member-code{font-size:20px;letter-spacing:2px;font-weight:800;color:#b92731}
   .member-panel input{display:block;width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:7px;font-size:14px}
   .member-panel button{background:#cb2b31;color:white;border:0;padding:9px 12px;border-radius:8px;margin:5px 6px 5px 0;font-size:13px}
   .member-panel button:disabled{opacity:.55}
@@ -252,18 +251,7 @@
   .profile-page .member-state h3{color:#f4d59b}
   .profile-page .member-state .member-muted{color:#dad3d0}
   .profile-page .member-deadline{font-size:17px;font-weight:750;color:#fff;line-height:1.5;margin:5px 0}
-  .profile-page .member-stage{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0 3px}
-  .profile-page .member-stage span{display:block;text-align:center;background:#f7f7f8;border-radius:9px;padding:9px 2px;border:1px solid #ececf0}
-  .profile-page .member-stage span.done{background:#fff4eb;border-color:#e5caa5}
-  .profile-page .member-stage b{display:block;font-size:13px;color:#30323a}
-  .profile-page .member-stage small{display:block;font-size:10px;color:#777d89;margin-top:2px}
-  .profile-page .member-count{font-weight:750;font-size:21px;color:#bd2a31}
-  .profile-page .member-code{font-size:22px;letter-spacing:2px}
-  .profile-page .member-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .profile-page .account-panel .member-actions button{margin:0;padding:11px 4px;min-height:42px}
-  .profile-page .member-more{border-top:1px solid #eee;margin-top:12px;padding-top:10px}
-  .profile-page .member-more>summary,.profile-page .profile-more>summary{cursor:pointer;color:#777e89;font-size:12px;line-height:1.8}
-  .profile-page .member-more p{margin:8px 0}
+  .profile-page .profile-more>summary{cursor:pointer;color:#777e89;font-size:12px;line-height:1.8}
   .profile-page .profile-more{margin:9px 0 16px;border-radius:13px;background:#fff;border:1px solid #eee;padding:12px 14px}
   .profile-page .profile-more .engine-intro{margin-top:11px;padding:0}
   .profile-page .profile-more .engine-intro h2{font-size:14px}
@@ -420,34 +408,6 @@
   .feedback-admin-actions button{flex:1;background:#323842;color:#fff}
   .feedback-admin-actions button:last-child{background:#c72b32}
   @media(max-width:360px){.feedback-page{padding:10px}.feedback-tabs button{font-size:11px;padding:8px 3px}}
-  /* 公测公告精简版：仅调整欢迎层，不触碰主站、登录和会员审核。 */
-  .welcome-screen.beta-active .welcome-fallback,.welcome-screen.beta-active .welcome-skip,.welcome-screen.beta-active .welcome-legal{display:none}
-  .beta-notice[hidden]{display:none!important}
-  .beta-notice{position:absolute;z-index:3;left:14px;right:14px;top:50%;transform:translateY(-50%);width:calc(100% - 28px);max-width:432px;max-height:calc(100dvh - 30px - env(safe-area-inset-top) - env(safe-area-inset-bottom));margin:auto;overflow-y:auto;overscroll-behavior:contain;color:#f8f8f8;background:rgba(16,18,22,.97);border:1px solid #5a4932;border-radius:20px;padding:18px 17px 16px;box-shadow:0 8px 44px #000b;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-  .beta-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .beta-tag{display:inline-block;padding:5px 10px;border-radius:30px;border:1px solid #77623c;color:#f4d18e;background:#3a3023;font-size:11px;font-weight:700}
-  .beta-close{flex:none;border:0;background:transparent;color:#c4c5ca;font-size:22px;line-height:1;min-width:36px;min-height:36px;cursor:pointer}
-  .beta-name{margin:5px 0 2px;font-size:24px;line-height:1.2;font-weight:850;letter-spacing:1px}
-  .beta-en{font-size:10px;letter-spacing:2px;color:#9e9fa4}
-  .beta-sub{margin:9px 0 4px;color:#efd295;font-size:15px;font-weight:750}
-  .beta-time{font-size:11px;color:#b8b8bf;margin:0 0 11px}
-  .beta-welcome{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 12px;border:1px solid #414650;background:#222730;border-radius:11px;margin-bottom:10px}
-  .beta-welcome span{color:#e4e5ea;font-size:13px}.beta-welcome strong{color:#f6d48e;font-size:16px;font-weight:850;white-space:nowrap}
-  .beta-reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 11px}
-  .beta-reward{border:1px solid #3f444c;background:#222730;border-radius:11px;padding:10px 9px}
-  .beta-reward small{display:block;color:#bcbec5;font-size:11px}
-  .beta-reward b{display:block;font-size:17px;margin-top:3px}
-  .beta-reward.top{border-color:#a9854d;background:#332d23}.beta-reward.top b,.beta-reward.top small{color:#f1d08d}
-  .beta-access{margin:0 0 9px;color:#e8d5ad;background:#312b22;border:1px solid #6b5838;border-radius:10px;padding:9px 10px;font-size:12px;line-height:1.5}
-  .beta-details{margin:0 0 10px;color:#c1c2c9;font-size:11px;line-height:1.6}
-  .beta-details summary{cursor:pointer;list-style:revert;padding:3px 0;color:#d7c29a;min-height:27px}
-  .beta-details p{margin:6px 0 0;color:#b8bac1}
-  .beta-actions{display:flex;flex-direction:column;gap:7px}
-  .beta-actions button{border:0;cursor:pointer;min-height:43px;border-radius:10px;font-size:13px;font-weight:750;padding:9px 8px}
-  #betaEnter{background:#c72b32;color:#fff}#betaInvite{background:#333947;border:1px solid #9d865b;color:#f6d48e}
-  .beta-disclaimer{font-size:10px;line-height:1.5;color:#9e9fa7;text-align:center;margin:9px 0 0}
-  @media(max-width:360px){.beta-notice{left:10px;right:10px;width:calc(100% - 20px);padding:13px 12px}.beta-name{font-size:22px}.beta-reward b{font-size:16px}.beta-welcome strong{font-size:13px}}
-
     /* Compact detail-only additions; never create home-list requests or charts. */
     .report-insight-compact{display:grid;gap:8px}
     .report-insight-line{background:#f8f8f8;border:1px solid #eeeeee;border-radius:10px;padding:9px 10px;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
@@ -1008,24 +968,6 @@
   <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="九十刻度欢迎页">
     <div class="welcome-poster">
       <div class="welcome-fallback"><strong>九十刻度</strong><small>NINETY MARK</small></div>
-      <section class="beta-notice" id="betaNotice" aria-label="九十刻度公测会员公告" hidden>
-        <div class="beta-head"><span class="beta-tag">公测 · 免费体验</span><button id="betaClose" class="beta-close" type="button" aria-label="关闭公告">×</button></div>
-        <div class="beta-name">九十刻度</div>
-        <div class="beta-en">NINETY MARK</div>
-        <div class="beta-sub">免费体验1天 · 邀请好友享更多</div>
-        <p class="beta-time">活动时间：9月23日—10月1日（北京时间）</p>
-        <div class="beta-welcome"><span>新用户注册</span><strong>免费领取1天会员</strong></div>
-        <div class="beta-reward-grid">
-          <div class="beta-reward"><small>有效邀请满1人</small><b>3天会员</b></div>
-          <div class="beta-reward"><small>有效邀请满5人</small><b>15天会员</b></div>
-          <div class="beta-reward"><small>有效邀请满10人</small><b>1个月会员</b></div>
-          <div class="beta-reward top"><small>有效邀请满20人 · 上限</small><b>2个月会员</b></div>
-        </div>
-        <p class="beta-access">当日赛事推荐仅对有效会员开放。</p>
-        <details class="beta-details"><summary>查看活动规则</summary><p>新用户按注册流程完成账户验证后领取1天体验会员；好友通过专属邀请码注册并符合活动条件，方计入有效邀请，部分邀请需审核。每位新用户仅能绑定一名邀请人。邀请奖励按最高档累计补足，满20人共获60天（1个月按30天计），各档不重复叠加，1天体验另计。9月23日已注册用户当天仍可查看内容；活动结束后不再新增邀请奖励。</p></details>
-        <div class="beta-actions"><button id="betaEnter" type="button">立即进入九十刻度</button><button id="betaInvite" type="button">查看我的邀请码</button></div>
-        <p class="beta-disclaimer">赛事数据仅供研究与交流，不构成投注建议。</p>
-      </section>
       <button id="welcomeSkip" class="welcome-skip" type="button">跳过 ›</button>
       <div class="welcome-legal">本站内容仅供数据研究与交流，不构成投注建议。<br>预测存在不确定性，请理性参考。</div>
     </div>
@@ -1036,18 +978,6 @@
       var skip=document.getElementById('welcomeSkip');
       if(!welcome||!skip)return;
       skip.addEventListener('click',function(){welcome.hidden=true;welcome.setAttribute('aria-hidden','true');});
-      var notice=document.getElementById('betaNotice');
-      var day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).split('/').join('-');
-      if(notice && day>='2026-09-23' && day<='2026-10-01'){notice.hidden=false;welcome.classList.add('beta-active');}
-      var enter=document.getElementById('betaEnter'),invite=document.getElementById('betaInvite');
-      var close=document.getElementById('betaClose');
-      if(close)close.addEventListener('click',function(){skip.click()});
-      if(enter)enter.addEventListener('click',function(){skip.click()});
-      if(invite)invite.addEventListener('click',function(){
-        try{sessionStorage.setItem('soren_welcome_invite_v1','1')}catch(e){}
-        skip.click();
-        if(typeof window.sorenGoInvite==='function')window.sorenGoInvite();
-      });
       // A failed poster load must never block access to match data.
       window.addEventListener('keydown',function(e){if(e.key==='Escape'&&!welcome.hidden)skip.click();});
     })();
@@ -1109,12 +1039,6 @@
     const AUTH_STORE='soren_auth_v2',LEGACY_AUTH_STORE='soren_auth';
     const MEMBER_CACHE_KEY='soren_member_cache_v1';
     let authSession=null,authPersistence='session',authRefreshPending=null,memberInfo=null;
-    const INVITE_KEY='soren_beta_invite_v1';
-    function savedInvite(){
-      const query=new URLSearchParams(location.search).get('ref');
-      if(query&&/^[a-f0-9]{10}$/i.test(query)){try{localStorage.setItem(INVITE_KEY,query.toUpperCase())}catch{}return query.toUpperCase()}
-      try{const value=localStorage.getItem(INVITE_KEY)||'';return /^[A-F0-9]{10}$/.test(value)?value:''}catch{return ''}
-    }
     const storageRead=(store,key)=>{try{return store.getItem(key)}catch{return null}};
     const storageWrite=(store,key,value)=>{try{store.setItem(key,value);return true}catch{return false}};
     const storageDelete=(store,key)=>{try{store.removeItem(key)}catch{}};
@@ -1278,7 +1202,7 @@
       update();wrap.append(input,button);
       return wrap;
     }
-    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(memberPanel());const settings=el('div','member-account');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,passwordInput(pass),rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value,...(type==='注册'?{data:{invite_code:savedInvite()}}:{})});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回九十刻度。'}catch(e){msg.textContent=e.message}};for(const name of ['注册','登录']){const b=el('button',name==='注册'?'':'secondary',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
+    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(memberPanel());const settings=el('div','member-account');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,passwordInput(pass),rememberLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}msg.textContent='处理中…';try{const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',{email:email.value.trim(),password:pass.value});if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回九十刻度。'}catch(e){msg.textContent=e.message}};for(const name of ['注册','登录']){const b=el('button',name==='注册'?'':'secondary',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
     async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id}),signal:timeoutSignal(6000)});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
     authSession=storedAuth();initVisits();
     async function recoverEmailConfirmationRedirect(){
@@ -1381,13 +1305,6 @@
       }
       throw lastError||Error('会员信息暂不可用，请稍后重试');
     }
-    async function redeemInvite(code){
-      const r=await authorizedApiFetch(API+'?action=invite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({inviteCode:code}),cache:'no-store'});
-      const j=await r.json();
-      if(j.membership)memberInfo=j.membership;
-      if(!r.ok||!j.ok)throw Error(({INVALID_CODE:'邀请码不存在',SELF_INVITE_FORBIDDEN:'不可填写自己的邀请码',ALREADY_BOUND:'已绑定邀请人',INVALID_INVITER:'邀请人账号不可用',INVALID_INVITE_CODE:'邀请码格式不正确'}[j.error])||'邀请码暂不可使用：仅限公测期间注册24小时内且尚未绑定邀请人的账户');
-      return memberInfo;
-    }
     function memberPanel(){
       const panel=el('section','member-panel');
       if(!memberInfo){const card=el('div','member-card');card.append(el('h3','','会员状态'),el('p','member-muted','正在核验会员状态…'));panel.append(card);return panel}
@@ -1407,7 +1324,7 @@
       purchaseHeader.append(el('span','member-purchase-eyebrow','九十刻度 · 会员中心'),
         el('span','member-beta-tag','公测期间'));
       purchaseCard.append(purchaseHeader,el('h3','','选择适合你的会员方案'),
-        el('p','member-muted','无需邀请好友，即可申请开通会员，查看完整赛事分析报告。'));
+        el('p','member-muted','可申请开通会员，查看完整赛事分析报告。'));
       const planGrid=el('div','member-plan-grid');
       const makePlan=(name,monthly,formal,features,premium=false)=>{
         const card=el('div','member-plan'+(premium?' member-plan-premium':''));
@@ -1457,45 +1374,7 @@
       service.append(contactRow,contactNote);
       purchaseCard.append(planGrid,explainer,service);
       panel.append(purchaseCard);
-      if(memberInfo.isAdmin===true){
-        const adminReview=el('button','','邀请审核后台');
-        adminReview.onclick=()=>{location.href='./review.html'};
-        stateCard.append(adminReview);
-      }
-      const inviteCard=el('div','member-card');
-      inviteCard.append(el('h3','','邀请好友 · 会员奖励'));
-      const count=Number(memberInfo.invitedCount||0),total=el('p','member-muted');
-      total.append(el('span','','有效邀请 '),el('span','member-count',String(count)),el('span','',' 人 · 待审核 '+String(Number(memberInfo.pendingInvites||0))+' 人'));
-      inviteCard.append(total);
-      const milestones=[[1,'3天'],[5,'15天'],[10,'1个月'],[20,'2个月']];
-      const stages=el('div','member-stage');
-      milestones.forEach(([threshold,award])=>{
-        const tile=el('span',count>=threshold?'done':'');
-        tile.append(el('b','',String(threshold)+'人'),el('small','',award));stages.append(tile);
-      });
-      inviteCard.append(stages);
-      const next=milestones.find(([n])=>count<n);
-      inviteCard.append(el('p','member-muted',next?'距离下一档还需 '+(next[0]-count)+' 名有效邀请。':'已达到本次活动邀请奖励上限。'));
-      inviteCard.append(el('p','member-muted','我的专属邀请码：'));
-      inviteCard.append(el('div','member-code',String(memberInfo.inviteCode||'未生成')));
-      if(memberInfo.inviteCode){
-        const link='https://suolunpro.github.io/?ref='+memberInfo.inviteCode,actions=el('div','member-actions');
-        const copy=el('button','','复制邀请链接');copy.onclick=async()=>{try{await navigator.clipboard.writeText(link);copy.textContent='已复制邀请链接'}catch{prompt('长按复制邀请链接',link)}};
-        const share=el('button','','分享给好友');share.onclick=async()=>{if(navigator.share){try{await navigator.share({title:'九十刻度 · 公测邀请',text:'九十刻度赛事数据公测，注册时填写邀请码 '+memberInfo.inviteCode,url:link})}catch{}}else copy.click()};
-        actions.append(copy,share);inviteCard.append(actions);
-      }
-      // Keep the invitation input visible without opening the optional activity rules.
-      const bindCard=el('div','member-card invite-bind-card');
-      const bindTitle=el('h3','','填写好友邀请码');
-      const bindHint=el('p','member-muted','填写好友邀请码后，即可参与邀请奖励活动。');
-      const code=el('input');code.placeholder='请输入好友邀请码（10位）';code.autocomplete='off';code.maxLength=10;code.value=savedInvite();code.setAttribute('aria-label','好友邀请码');
-      const submit=el('button','','确认绑定邀请码'),msg=el('p','member-muted','仅限注册24小时内、尚未绑定邀请人的新用户填写。');
-      submit.onclick=async()=>{submit.disabled=true;msg.textContent='正在核验…';try{await redeemInvite(code.value.trim().toUpperCase());msg.textContent=memberInfo?.inviteReviewStatus==='approved'?'邀请码绑定成功，已计入有效邀请':'邀请码已绑定，需审核后才计入有效邀请';panel.replaceWith(memberPanel());if(memberInfo?.active)beginAuthenticatedApp()}catch(e){msg.textContent=e.message}finally{submit.disabled=false}};
-      bindCard.append(bindTitle,bindHint,code,submit,msg);
-      const rules=el('details','member-more'),summary=el('summary','','查看活动规则');
-      rules.append(summary,el('p','member-muted','活动时间：9月23日—10月1日（北京时间）。活动期内新用户注册可领取1天公测体验。邀请好友注册并填写邀请码后，符合活动条件的邀请将计入有效邀请人数；累计有效邀请满1/5/10/20人，对应累计获得3天/15天/30天/60天会员时长，按档位补足差额，最高2个月。无效或不符合活动条件的邀请不计入奖励，待确认的邀请将在确认后更新人数和权益。'));
-      inviteCard.append(rules);
-      panel.append(bindCard,inviteCard);return panel;
+      return panel;
     }
     function renderMemberRequired(){
       const box=$('content');box.replaceChildren(sectionHead('会员专属数据','当天比赛推荐'));
@@ -1504,7 +1383,7 @@
       const browserUnavailable=trial==='DEVICE_REQUIRED'||trial==='CHECK_UNAVAILABLE';
       const p=el('section','member-panel');
       p.append(el('h3','',blocked?'新人体验资格暂不可领取':browserUnavailable?'新人体验资格暂不可核验':'会员有效期已结束'),
-        el('p','',blocked?'该浏览器的新人体验资格可能已被领取。账号仍可正常登录，已开通的会员权益不受影响；如有疑问请联系客服核实。':browserUnavailable?'请开启浏览器本地存储后重新登录；如果仍无法领取，请联系客服核实。':'当天比赛完整报告目前仅向有效会员开放。无需邀请好友，也可前往「我的」查看月卡开通说明与会员到期时间。'));
+        el('p','',blocked?'该浏览器的新人体验资格可能已被领取。账号仍可正常登录，已开通的会员权益不受影响；如有疑问请联系客服核实。':browserUnavailable?'请开启浏览器本地存储后重新登录；如果仍无法领取，请联系客服核实。':'当天比赛完整报告目前仅向有效会员开放。可前往「我的」查看月卡开通说明与会员到期时间。'));
       const b=el('button','','前往我的会员中心');b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};p.append(b);box.append(p);
     }
 
@@ -2192,11 +2071,10 @@
       const rememberLabel=document.createElement('label'),remember=document.createElement('input');
       rememberLabel.className='auth-remember';remember.type='checkbox';remember.checked=true;
       rememberLabel.append(remember,document.createTextNode('在此设备保持登录（共用设备请取消）'));
-      const invite=document.createElement('input');invite.placeholder='好友邀请码（非必填）';invite.maxLength=10;invite.autocomplete='off';invite.value=savedInvite();
       const captchaBox=document.createElement('div');captchaBox.style='margin:13px 0;min-height:66px';
       const captchaLabel=document.createElement('p');captchaLabel.style='font-size:12px;color:#666;margin:8px 0';
       captchaLabel.textContent='请先完成安全验证后，再注册、登录或申请重置密码。';
-      gate.append(email,passwordInput(pass),invite,rememberLabel,captchaLabel,captchaBox,msg);
+      gate.append(email,passwordInput(pass),rememberLabel,captchaLabel,captchaBox,msg);
       if(message)msg.textContent=message;
       let captchaToken='',captchaWidget=null;
       loadTurnstile().then(api=>{
@@ -2218,15 +2096,11 @@
           if(!email.value.trim()||!pass.value){msg.textContent='请填写邮箱和密码';return}
           if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}
           if(mode==='注册'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())){msg.textContent='请填写有效的邮箱地址，例如 name@example.com';return}
-          const inviteCode=invite.value.trim().toUpperCase();
-          if(mode==='注册'&&inviteCode&&!/^[A-F0-9]{10}$/.test(inviteCode)){msg.textContent='邀请码非必填；如填写，请输入10位有效邀请码';return}
           let token;try{token=takeToken()}catch(e){msg.textContent=e.message;return}
           btn.disabled=true;msg.textContent='处理中…';
           try{
-            if(mode==='注册'&&inviteCode)try{localStorage.setItem(INVITE_KEY,inviteCode)}catch{}
             const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{
-              email:email.value.trim(),password:pass.value,captcha_token:token,
-              ...(mode==='注册'?{data:{invite_code:inviteCode}}:{})
+              email:email.value.trim(),password:pass.value,captcha_token:token
             });
             if(data.access_token&&data.user)saveSession(data);
             else msg.textContent='注册申请已提交。如未自动登录，请点击「已有账号 · 登录」；如系统提示需要邮箱验证，请检查注册邮箱。';
@@ -2250,12 +2124,6 @@
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null,memberZone:null,memberZoneLoading:false,memberZoneError:null};
     const fullMemberAnalysis=()=>memberInfo?.active===true;
     const vipDeepAccess=()=>memberInfo?.vipActive===true;
-    window.sorenGoInvite=()=>{
-      if(!authSession?.access_token){showLoginGate('登录后可查看专属邀请码');return}
-      state.tab='profile';
-      document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));
-      render();
-    };
     const ARCHIVED_FOCUS={
       '2026-09-13':['002','006','008','009','020','022','023'],
       '2026-09-14':['003','008'],
@@ -4634,7 +4502,6 @@
           if(state.tab==='profile'||state.tab==='memberzone'||(state.tab==='home'&&state.model==='cold'))render();
         }).catch(()=>{}),1200);
       }
-      try{if(sessionStorage.getItem('soren_welcome_invite_v1')==='1'){sessionStorage.removeItem('soren_welcome_invite_v1');state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'))}}catch(e){}
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
       if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='九十刻度';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
