@@ -4448,7 +4448,7 @@
     }
     function rememberDay(d){
       if(!d||!d.date||!Array.isArray(d.rows))return;
-      const settled=fullySettledDay(d),signature=JSON.stringify(d.rows),known=dayContentVersions.get(d.date);
+      const settled=fullySettledDay(d),signature=JSON.stringify([d.rows,d.publicationStatus,d.analysisPending]),known=dayContentVersions.get(d.date);
       const version=known?.signature===signature?(known.version||1):(known?.version||0)+1;
       dayContentVersions.delete(d.date);dayContentVersions.set(d.date,{signature,version});
       while(dayContentVersions.size>20)dayContentVersions.delete(dayContentVersions.keys().next().value);
@@ -4477,7 +4477,7 @@
         if(!stored?.data||!Number.isFinite(Number(stored.at))||Date.now()-Number(stored.at)>ttl){
           sessionStorage.removeItem(ARCHIVE_SESSION_PREFIX+date);return null;
         }
-        const signature=JSON.stringify(stored.data.rows||[]),known=dayContentVersions.get(date);
+        const signature=JSON.stringify([stored.data.rows||[],stored.data.publicationStatus,stored.data.analysisPending]),known=dayContentVersions.get(date);
         const version=known?.signature===signature?(known.version||1):(known?.version||0)+1;
         dayContentVersions.delete(date);dayContentVersions.set(date,{signature,version});
         dayCache.set(date,{data:stored.data,at:Number(stored.at),settled,signature,version});
@@ -4542,7 +4542,7 @@
         if(requestId!==dateRequestId)return;
         if(state.baseDate&&date>state.baseDate&&(!d||d.date!==date||!Array.isArray(d.rows))){showUnopened(date);return}
         rememberDay(d);applyDay(d)
-      }catch(e){if(requestId!==dateRequestId)return;if(state.baseDate&&date>state.baseDate){showUnopened(date);return}$('content').replaceChildren(errorBox(e))}
+      }catch(e){if(requestId!==dateRequestId)return;$('content').replaceChildren(errorBox(e))}
     }
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='九十刻度';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
     let moduleRenderFrame=0;
