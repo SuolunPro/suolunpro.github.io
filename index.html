@@ -3091,6 +3091,10 @@
       if(!rows.length){box.append(empty(state.model==='upset'?'暂无可核验的赛前风险记录':state.model==='daily'?'今日暂无优选场次':'暂无已发布赛事',state.model==='upset'?'本日暂无通过重点风险门槛的赛前记录；一般风险仅保留在比赛详情中。':'当前没有符合筛选条件的赛事记录。'),notice());return}
       const grid=getModuleGrid(rows,history,'renderCards');box.append(grid,notice())
     }
+    function hasNoEvents(){return Array.isArray(state.today?.rows)&&state.today.rows.length===0}
+    function noEventsBox(){return state.today?.publicationStatus==='LOTTERY_CLOSED'
+      ?empty('休市期间，暂无竞彩赛事','10月5日恢复开售后自动更新')
+      :empty('暂无已发布赛事','当前没有符合筛选条件的赛事记录。')}
     function renderHome(){
       if(state.model==='cold'){
         if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
@@ -3099,6 +3103,9 @@
           if(!state.memberZoneLoading){loadMemberZone();return}
         }
         renderMemberZone();return
+      }
+      if(hasNoEvents()&&!state.unopenedDate){
+        $('content').replaceChildren(noEventsBox(),notice());return
       }
       if(state.unopenedDate){
         const box=$('content');box.replaceChildren();
@@ -4307,6 +4314,12 @@
       document.getElementById('htftStatsBreakdown')?.remove();
       document.getElementById('goalStatsBreakdown')?.remove();
       document.getElementById('scoreStatsBreakdown')?.remove();
+      if(hasNoEvents()&&!state.unopenedDate){
+        const labels=document.querySelectorAll('.metric span');
+        ['totalCount','pickCount','passCount'].forEach(id=>$(id).textContent='0');
+        ['赛事总数','已核验赛事','待核验赛事'].forEach((label,i)=>{if(labels[i])labels[i].textContent=label});
+        $('poolCount').textContent=state.selectedDate+' · 0场';return;
+      }
       if(state.today?.analysisPending===true){
         const rows=state.today.rows||[],labels=document.querySelectorAll('.metric span');
         $('totalCount').textContent=String(rows.length);
@@ -4407,7 +4420,7 @@
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
     function render(){closeDetail();const coldView=state.tab==='home'&&state.model==='cold';document.querySelector('.toolbar').hidden=state.tab==='profile'||state.tab==='memberzone'||coldView||(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday()));if(state.tab==='memberzone'){if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}renderMemberZone();return}if(memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday())){renderMemberRequired();return}if(state.tab!=='profile'&&!coldView)updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
-    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{}}
+    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('模型版本未通过公开校验');return j}finally{}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
@@ -4527,7 +4540,7 @@
       try{
         const d=await readDay(date);
         if(requestId!==dateRequestId)return;
-        if(state.baseDate&&date>state.baseDate&&(!d||d.date!==date||!Array.isArray(d.rows)||!d.rows.length)){showUnopened(date);return}
+        if(state.baseDate&&date>state.baseDate&&(!d||d.date!==date||!Array.isArray(d.rows))){showUnopened(date);return}
         rememberDay(d);applyDay(d)
       }catch(e){if(requestId!==dateRequestId)return;if(state.baseDate&&date>state.baseDate){showUnopened(date);return}$('content').replaceChildren(errorBox(e))}
     }
@@ -4632,11 +4645,10 @@
         state.baseDate=bootDay.date||today;applyDay(bootDay);scheduleHistoryPrefetch();
         readDay(today,true).then(d=>{
           state.baseDate=d.date||today;
-          if(d&&Array.isArray(d.rows)&&d.rows.length&&state.selectedDate===today)applyDay(d);
+          if(d&&Array.isArray(d.rows)&&state.selectedDate===today)applyDay(d);
         }).catch(e=>console.warn('今日正式数据后台同步暂不可用',e));
       }else readDay().then(d=>{
         state.baseDate=d.date||today;rememberDay(d);
-        if(!d||!Array.isArray(d.rows)||!d.rows.length){showUnopened(today);return}
         applyDay(d);scheduleHistoryPrefetch()
       }).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在连接正式接口…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
       }finally{authBootInFlight=false}
