@@ -356,37 +356,48 @@
       };
       const membershipPlan=makePlan('尊贵月卡VIP','29.9','59.9',
         ['1个会员账号','有效期内查看完整赛事报告','查看平台开放的会员历史数据','进入会员专区查看深度研究内容']);
-      const contactNote=el('p','member-muted member-purchase-help',
-        '联系客服开通尊贵月卡VIP｜微信：GoodLuck_H3。请提供已注册账号的邮箱；确认办理方式后由管理员人工开通。本页面不收款、不自动开通。');
+      const contactNote=el('p','member-muted member-purchase-help','勾选会员协议并提交申请后，将显示官方客服联系方式。');
       const vipConsentLabel=document.createElement('label'),vipConsent=document.createElement('input'),vipConsentText=document.createElement('span');
       vipConsentLabel.className='auth-remember member-vip-consent';vipConsent.type='checkbox';vipConsent.checked=false;
       vipConsentText.append(document.createTextNode('我已阅读并同意 '));
       const vipAgreement=document.createElement('a');vipAgreement.href='./legal.html#vip';vipAgreement.target='_blank';vipAgreement.rel='noopener';vipAgreement.textContent='《尊贵月卡VIP会员服务协议》';
-      vipConsentText.append(vipAgreement);
-      vipConsentLabel.append(vipConsent,vipConsentText);
-      const vipRisk=el('p','member-muted member-vip-risk','风险提示：平台提供足球赛事数据、概率模型及风险分析服务；预测存在不确定性，不构成收益承诺或确定性赛事结果。平台不提供、不接受、不代理投注服务。');
-      const membershipContact=el('button','member-plan-apply','复制尊贵月卡VIP申请');
+      vipConsentText.append(vipAgreement);vipConsentLabel.append(vipConsent,vipConsentText);
+      const vipRisk=el('p','member-muted member-vip-risk','足球数据、概率模型及风险分析服务；预测存在不确定性，不构成收益承诺。非自动续费。');
+      const membershipContact=el('button','member-plan-apply','申请开通VIP');
+      const service=el('div','member-purchase-service member-vip-service');
+      service.hidden=true;
+      const serviceTitle=el('strong','','开通申请已生成');
+      const serviceText=el('p','','请复制申请信息并添加官方客服。确认付款后由管理员人工开通，返回本页即可查看VIP有效期。');
+      const contactRow=el('div','member-contact-row'),copyWechat=el('button','member-wechat-copy','复制客服微信'),copyApply=el('button','member-wechat-copy','复制申请信息');
+      const wechatText=el('span','','官方客服：GoodLuck_H3');
+      let vipApplyMessage='';
+      copyWechat.onclick=async()=>{try{await navigator.clipboard.writeText('GoodLuck_H3');contactNote.textContent='客服微信已复制：GoodLuck_H3'}catch{window.prompt('请复制官方客服微信号','GoodLuck_H3')}};
+      copyApply.onclick=async()=>{try{await navigator.clipboard.writeText(vipApplyMessage);contactNote.textContent='VIP申请信息已复制，请发送给官方客服。'}catch{window.prompt('请复制VIP申请信息',vipApplyMessage)}};
+      contactRow.append(wechatText,copyWechat,copyApply);service.append(serviceTitle,serviceText,contactRow,contactNote);
       membershipContact.onclick=async()=>{
         if(!vipConsent.checked){contactNote.textContent='请先阅读并同意《尊贵月卡VIP会员服务协议》后再申请开通。';return}
-        const message='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession?.user?.email||'请填写注册邮箱')+'\\n方案：尊贵月卡VIP 29.9元/月（1个月）\\n会员协议版本：2026-10-05\\n用户已在页面勾选同意会员服务协议';
-        try{await navigator.clipboard.writeText(message);contactNote.textContent='申请内容已复制。请添加客服微信 GoodLuck_H3，发送申请内容，经确认后由管理员开通。'}
-        catch{window.prompt('请复制申请内容并发送至客服微信 GoodLuck_H3',message)}
+        membershipContact.disabled=true;membershipContact.textContent='正在生成申请…';
+        try{
+          await refreshAuthSession();
+          const consentRes=await fetch(AUTH_BASE+'/rest/v1/soren_vip_consents_v1',{
+            method:'POST',headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token,'Content-Type':'application/json',Prefer:'return=minimal'},
+            body:JSON.stringify({user_id:authSession.user.id,agreement_version:'2026-10-05',plan_code:'vip_monthly',price_cents:2990,duration_days:30,source:'vip_apply'}),
+            cache:'no-store',signal:timeoutSignal(10000)
+          });
+          if(!consentRes.ok)throw Error('CONSENT_SAVE_FAILED');
+          vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession?.user?.email||'')+'\\n方案：尊贵月卡VIP 29.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已在页面勾选同意会员服务协议';
+          service.hidden=false;membershipContact.hidden=true;vipConsentLabel.hidden=true;
+          contactNote.textContent='申请已生成。请复制客服微信和申请信息，联系官方客服办理。';
+        }catch(e){
+          membershipContact.disabled=false;membershipContact.textContent='申请开通VIP';
+          contactNote.textContent=e?.message==='LOGIN_REQUIRED'?'登录已过期，请重新登录后申请。':'申请暂未生成，请检查网络后重试。';
+        }
       };
       membershipPlan.append(vipRisk,vipConsentLabel,membershipContact);
       planGrid.append(membershipPlan);
       const explainer=el('div','member-beta-explainer');
-      explainer.append(el('strong','','会员活动说明'),
-        el('p','','活动结束后的价格为59.9元/月，生效日期和续费规则将提前公布。已开通会员在当前有效期内的权益不受后续价格调整影响。'));
-      const service=el('div','member-purchase-service');
-      service.append(el('strong','','联系官方客服开通'),
-        el('p','','当前尚未接入网站自助支付，请通过官方客服确认会员方案及开通方式。请勿向陌生账户转账。'));
-      const contactRow=el('div','member-contact-row'),copyWechat=el('button','member-wechat-copy','复制微信号');
-      copyWechat.onclick=async()=>{
-        try{await navigator.clipboard.writeText('GoodLuck_H3');contactNote.textContent='微信号已复制：GoodLuck_H3。请联系官方客服核实开通事宜。'}
-        catch{window.prompt('请复制官方客服微信号','GoodLuck_H3')}
-      };
-      contactRow.append(el('span','','微信：GoodLuck_H3'),copyWechat);
-      service.append(contactRow,contactNote);
+      explainer.append(el('strong','','开通流程'),
+        el('p','','① 确认29.9元/30天方案 → ② 阅读并同意会员协议 → ③ 申请后获取官方客服 → ④ 确认付款并人工开通。当前不自动续费。'));
       purchaseCard.append(planGrid,explainer,service);
       panel.append(purchaseCard);
       return panel;
