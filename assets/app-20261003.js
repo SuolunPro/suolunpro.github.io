@@ -265,8 +265,21 @@
       card.append(badge,title,msg,note,btn);shade.append(card);document.body.append(shade);
     }
     async function membershipFetch(){
-      const r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(9000)});
-      const j=await r.json();
+      // Some Android/MIUI browsers can deliver the server response after a
+      // short transport stall. Do not let an aggressive per-request abort race
+      // turn a successful 200 membership check into a blocking boot failure.
+      let r;
+      try{
+        r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(20000)});
+      }catch(error){
+        if(!isTransientConnectionError(error))throw error;
+        await new Promise(resolve=>setTimeout(resolve,700));
+        r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(30000)});
+      }
+      let j;
+      try{j=await r.json()}catch(error){
+        const err=Error('会员信息响应读取失败，请稍后重试');err.cause=error;throw err;
+      }
       if(!r.ok||j.ok!==true||!j.membership)throw Error('会员信息暂不可用，请稍后重试');
       memberInfo=j.membership;saveMemberCache(memberInfo);showAccountNotice(memberInfo);return memberInfo;
     }
