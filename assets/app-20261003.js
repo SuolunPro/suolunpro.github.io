@@ -356,44 +356,54 @@
       };
       const membershipPlan=makePlan('尊贵月卡VIP','29.9','59.9',
         ['1个会员账号','有效期内查看完整赛事报告','查看平台开放的会员历史数据','进入会员专区查看深度研究内容']);
-      const contactNote=el('p','member-muted member-purchase-help','勾选会员协议并提交申请后，将显示官方客服联系方式。');
-      const vipConsentLabel=document.createElement('label'),vipConsent=document.createElement('input'),vipConsentText=document.createElement('span');
-      vipConsentLabel.className='auth-remember member-vip-consent';vipConsent.type='checkbox';vipConsent.checked=false;
-      vipConsentText.append(document.createTextNode('我已阅读并同意 '));
-      const vipAgreement=document.createElement('a');vipAgreement.href='./legal.html#vip';vipAgreement.target='_blank';vipAgreement.rel='noopener';vipAgreement.textContent='《尊贵月卡VIP会员服务协议》';
-      vipConsentText.append(vipAgreement);vipConsentLabel.append(vipConsent,vipConsentText);
+      const contactNote=el('p','member-muted member-purchase-help','点击申请后确认会员协议，确认后才会显示官方客服联系方式。');
       const vipRisk=el('p','member-muted member-vip-risk','足球数据、概率模型及风险分析服务；预测存在不确定性，不构成收益承诺。非自动续费。');
       const membershipContact=el('button','member-plan-apply','申请开通VIP');
-      const service=el('div','member-purchase-service member-vip-service');
-      service.hidden=true;
+      const service=el('div','member-purchase-service member-vip-service');service.hidden=true;
       const serviceTitle=el('strong','','开通申请已生成');
       const serviceText=el('p','','请复制申请信息并添加官方客服。确认付款后由管理员人工开通，返回本页即可查看VIP有效期。');
       const contactRow=el('div','member-contact-row'),copyWechat=el('button','member-wechat-copy','复制客服微信'),copyApply=el('button','member-wechat-copy','复制申请信息');
-      const wechatText=el('span','','官方客服：GoodLuck_H3');
-      let vipApplyMessage='';
+      const wechatText=el('span','','官方客服：GoodLuck_H3');let vipApplyMessage='';
       copyWechat.onclick=async()=>{try{await navigator.clipboard.writeText('GoodLuck_H3');contactNote.textContent='客服微信已复制：GoodLuck_H3'}catch{window.prompt('请复制官方客服微信号','GoodLuck_H3')}};
       copyApply.onclick=async()=>{try{await navigator.clipboard.writeText(vipApplyMessage);contactNote.textContent='VIP申请信息已复制，请发送给官方客服。'}catch{window.prompt('请复制VIP申请信息',vipApplyMessage)}};
       contactRow.append(wechatText,copyWechat,copyApply);service.append(serviceTitle,serviceText,contactRow,contactNote);
-      membershipContact.onclick=async()=>{
-        if(!vipConsent.checked){contactNote.textContent='请先阅读并同意《尊贵月卡VIP会员服务协议》后再申请开通。';return}
-        membershipContact.disabled=true;membershipContact.textContent='正在生成申请…';
-        try{
-          await refreshAuthSession();
-          const consentRes=await fetch(AUTH_BASE+'/rest/v1/soren_vip_consents_v1',{
-            method:'POST',headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token,'Content-Type':'application/json',Prefer:'return=minimal'},
-            body:JSON.stringify({user_id:authSession.user.id,agreement_version:'2026-10-05',plan_code:'vip_monthly',price_cents:2990,duration_days:30,source:'vip_apply'}),
-            cache:'no-store',signal:timeoutSignal(10000)
-          });
-          if(!consentRes.ok)throw Error('CONSENT_SAVE_FAILED');
-          vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession?.user?.email||'')+'\\n方案：尊贵月卡VIP 29.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已在页面勾选同意会员服务协议';
-          service.hidden=false;membershipContact.hidden=true;vipConsentLabel.hidden=true;
-          contactNote.textContent='申请已生成。请复制客服微信和申请信息，联系官方客服办理。';
-        }catch(e){
-          membershipContact.disabled=false;membershipContact.textContent='申请开通VIP';
-          contactNote.textContent=e?.message==='LOGIN_REQUIRED'?'登录已过期，请重新登录后申请。':'申请暂未生成，请检查网络后重试。';
-        }
+
+      const openVipConsent=()=>{
+        const overlay=el('div','vip-consent-overlay'),dialog=el('div','vip-consent-dialog');
+        dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','开通尊贵月卡VIP');
+        const close=el('button','vip-consent-close','×');close.type='button';close.setAttribute('aria-label','关闭');
+        dialog.append(close,el('h3','','开通尊贵月卡VIP'),el('div','vip-consent-plan','¥29.9 / 30天 · 非自动续费'),
+          el('p','vip-consent-risk','九十刻度提供足球赛事数据、概率模型及风险分析服务。预测存在不确定性，不构成收益承诺。'));
+        const label=document.createElement('label'),check=document.createElement('input'),txt=document.createElement('span');
+        label.className='vip-consent-check';check.type='checkbox';
+        txt.append(document.createTextNode('我已阅读并同意 '));
+        const link=document.createElement('a');link.href='./legal.html#vip';link.target='_blank';link.rel='noopener';link.textContent='《尊贵月卡VIP会员服务协议》';
+        txt.append(link);label.append(check,txt);dialog.append(label);
+        const error=el('p','vip-consent-error',''),actions=el('div','vip-consent-actions'),cancel=el('button','secondary','取消'),confirm=el('button','','同意并继续');
+        confirm.disabled=true;check.onchange=()=>{confirm.disabled=!check.checked;error.textContent=''};
+        const dismiss=()=>overlay.remove();close.onclick=dismiss;cancel.onclick=dismiss;overlay.onclick=e=>{if(e.target===overlay)dismiss()};
+        confirm.onclick=async()=>{
+          if(!check.checked){error.textContent='请先勾选同意会员服务协议。';return}
+          confirm.disabled=true;cancel.disabled=true;confirm.textContent='正在生成申请…';error.textContent='';
+          try{
+            await refreshAuthSession();
+            const consentRes=await fetch(AUTH_BASE+'/rest/v1/soren_vip_consents_v1',{
+              method:'POST',headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token,'Content-Type':'application/json',Prefer:'return=minimal'},
+              body:JSON.stringify({user_id:authSession.user.id,agreement_version:'2026-10-05',plan_code:'vip_monthly',price_cents:2990,duration_days:30,source:'vip_apply'}),
+              cache:'no-store',signal:timeoutSignal(10000)
+            });
+            if(!consentRes.ok)throw Error('CONSENT_SAVE_FAILED');
+            vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession?.user?.email||'')+'\\n方案：尊贵月卡VIP 29.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已在页面勾选同意会员服务协议';
+            service.hidden=false;membershipContact.hidden=true;contactNote.textContent='申请已生成。请复制客服微信和申请信息，联系官方客服办理。';dismiss();
+          }catch(e){
+            confirm.disabled=false;cancel.disabled=false;confirm.textContent='同意并继续';
+            error.textContent=e?.message==='LOGIN_REQUIRED'?'登录已过期，请重新登录后申请。':'申请暂未生成，请检查网络后重试。';
+          }
+        };
+        actions.append(cancel,confirm);dialog.append(error,actions);overlay.append(dialog);document.body.append(overlay);check.focus();
       };
-      membershipPlan.append(vipRisk,vipConsentLabel,membershipContact);
+      membershipContact.onclick=openVipConsent;
+      membershipPlan.append(vipRisk,membershipContact);
       planGrid.append(membershipPlan);
       const explainer=el('div','member-beta-explainer');
       explainer.append(el('strong','','开通流程'),
