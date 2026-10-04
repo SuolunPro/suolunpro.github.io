@@ -16,7 +16,8 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           p = Path("index.html")
-          text = p.read_text(encoding="utf-8")
+          app = Path("assets/app-20261003.js")
+          text = p.read_text(encoding="utf-8") + "\n" + app.read_text(encoding="utf-8")
           required = [
               "dynamicScoreTop4",
               "dynamicHTFT",
