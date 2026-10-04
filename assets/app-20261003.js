@@ -182,7 +182,7 @@
       update();wrap.append(input,button);
       return wrap;
     }
-    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){wrap.append(memberPanel());const settings=el('div','member-account');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings);return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,passwordInput(pass),rememberLabel);const legalLabel=el('label','auth-remember'),legal=el('input'),legalText=el('span');legal.type='checkbox';legal.checked=false;legalText.append(document.createTextNode('我已阅读并同意 '));const terms=document.createElement('a');terms.href='./legal.html#terms';terms.target='_blank';terms.rel='noopener';terms.textContent='《用户服务协议》';const privacy=document.createElement('a');privacy.href='./legal.html#privacy';privacy.target='_blank';privacy.rel='noopener';privacy.textContent='《隐私政策》';legalText.append(terms,document.createTextNode(' 和 '),privacy);legalLabel.append(legal,legalText);wrap.append(legalLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}if(type==='注册'&&!legal.checked){msg.textContent='请先阅读并同意《用户服务协议》和《隐私政策》';return}msg.textContent='处理中…';try{const body={email:email.value.trim(),password:pass.value};if(type==='注册')body.data={legal_consent:true,terms_version:'2026-10-05',privacy_version:'2026-10-05',legal_consented_at:new Date().toISOString()};const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',body);if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回九十刻度。'}catch(e){msg.textContent=e.message}};for(const name of ['注册','登录']){const b=el('button',name==='注册'?'':'secondary',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
+    function accountPanel(){const wrap=el('div','account-panel'),title=el('h2','','会员中心'),msg=el('div','sub','');wrap.append(title,msg);if(authSession?.user){const settings=el('div','member-account member-account-primary');settings.append(el('span','','当前账户：'+authSession.user.email));const out=el('button','secondary','退出登录');out.onclick=()=>logoutAuth();settings.append(out);wrap.append(settings,memberPanel());return wrap}const email=el('input'),pass=el('input');email.type='email';email.autocomplete='email';email.placeholder='邮箱';pass.type='password';pass.autocomplete='current-password';pass.placeholder='密码（至少6位）';const rememberLabel=el('label','auth-remember'),remember=el('input');remember.type='checkbox';remember.checked=true;rememberLabel.append(remember,el('span','','在此设备保持登录（共用设备请取消）'));wrap.append(email,passwordInput(pass),rememberLabel);const legalLabel=el('label','auth-remember'),legal=el('input'),legalText=el('span');legal.type='checkbox';legal.checked=false;legalText.append(document.createTextNode('我已阅读并同意 '));const terms=document.createElement('a');terms.href='./legal.html#terms';terms.target='_blank';terms.rel='noopener';terms.textContent='《用户服务协议》';const privacy=document.createElement('a');privacy.href='./legal.html#privacy';privacy.target='_blank';privacy.rel='noopener';privacy.textContent='《隐私政策》';legalText.append(terms,document.createTextNode(' 和 '),privacy);legalLabel.append(legal,legalText);wrap.append(legalLabel);const run=async type=>{if(!email.value.trim()||!pass.value){msg.textContent='请输入邮箱和密码';return}if(type==='注册'&&!legal.checked){msg.textContent='请先阅读并同意《用户服务协议》和《隐私政策》';return}msg.textContent='处理中…';try{const body={email:email.value.trim(),password:pass.value};if(type==='注册')body.data={legal_consent:true,terms_version:'2026-10-05',privacy_version:'2026-10-05',legal_consented_at:new Date().toISOString()};const data=await authRequest(type==='注册'?'signup':'token?grant_type=password',body);if(data.access_token&&data.user){const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器不支持持久保存，下次可能需要重新登录';else msg.textContent='登录成功';location.reload()}else msg.textContent='注册申请已提交，请查收邮箱验证邮件后登录；点击最新验证链接将返回九十刻度。'}catch(e){msg.textContent=e.message}};for(const name of ['注册','登录']){const b=el('button',name==='注册'?'':'secondary',name);b.onclick=()=>run(name);wrap.append(b)}const reset=el('button','secondary','忘记密码');reset.onclick=async()=>{if(!email.value.trim()){msg.textContent='请先填写邮箱';return}try{await authRequest('recover',{email:email.value.trim()});msg.textContent='若邮箱已注册，请查收密码重置邮件'}catch(e){msg.textContent=e.message}};wrap.append(reset);return wrap}
     async function initVisits(){try{let id=localStorage.getItem('soren_visit_id');if(!id){id=crypto.randomUUID();localStorage.setItem('soren_visit_id',id)}const res=await fetch(AUTH_BASE+'/rest/v1/rpc/soren_record_visit_v1',{method:'POST',headers:{'apikey':AUTH_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_visitor:id}),signal:timeoutSignal(6000)});if(!res.ok)throw Error('counter');const n=Number(await res.json());document.getElementById('visitCount').textContent=(30000+n).toLocaleString('zh-CN')}catch(e){document.getElementById('visitCount').textContent='—'}}
     authSession=storedAuth();initVisits();
     async function recoverEmailConfirmationRedirect(){
@@ -2175,9 +2175,19 @@
     function renderProfile(){
       if(feedbackMode){renderFeedbackPage();return}
       const box=$('content');
-      box.replaceChildren(sectionHead('我的','会员中心'));
+      box.replaceChildren(sectionHead('我的','账号与会员'));
       const page=el('div','profile-page');
-      const entry=el('section','feedback-entry');
+      page.append(accountPanel());
+
+      const serviceCard=el('section','profile-service-card');
+      serviceCard.append(el('h3','','服务与协议'));
+      const serviceLinks=el('div','profile-service-links');
+      const terms=document.createElement('a');terms.href='./legal.html#terms';terms.target='_blank';terms.rel='noopener';terms.textContent='用户服务协议';
+      const privacy=document.createElement('a');privacy.href='./legal.html#privacy';privacy.target='_blank';privacy.rel='noopener';privacy.textContent='隐私政策';
+      const vip=document.createElement('a');vip.href='./legal.html#vip';vip.target='_blank';vip.rel='noopener';vip.textContent='VIP会员协议';
+      serviceLinks.append(terms,privacy,vip);serviceCard.append(serviceLinks);page.append(serviceCard);
+
+      const entry=el('section','feedback-entry profile-feedback-compact');
       entry.append(el('h3','','留言与建议'),el('p','','网站问题、功能建议或会员疑问，都可以在这里告诉我们。'));
       const actions=el('div','feedback-entry-actions'),write=el('button','','我要留言');
       write.type='button';write.onclick=()=>openFeedback('write');
@@ -2187,8 +2197,12 @@
         const admin=el('button','feedback-admin-open','客户留言管理');
         admin.type='button';admin.onclick=()=>openFeedback('admin');actions.append(admin);
       }
-      entry.append(actions);page.append(entry,accountPanel());
-      const updates=el('details','profile-more profile-changelog');
+      entry.append(actions);page.append(entry);
+
+      const more=el('details','profile-more profile-more-group');
+      more.append(el('summary','','更多'));
+      const moreBody=el('div','profile-more-body');
+      const updates=el('details','profile-more-inner profile-changelog');
       updates.append(el('summary','','网站更新日志'));
       const updateList=el('div','profile-changelog-list');
       [
@@ -2197,19 +2211,16 @@
         ['09/25','优化会员方案展示与人工开通流程'],
         ['09/25','补充9月19日至24日赛事球场与草皮资料']
       ].forEach(([day,description])=>{
-        const entry=el('div','profile-changelog-entry');
-        entry.append(el('span','',day),el('p','',description));
-        updateList.append(entry);
+        const item=el('div','profile-changelog-entry');
+        item.append(el('span','',day),el('p','',description));updateList.append(item);
       });
-      updates.append(updateList);page.append(updates);
-      const about=el('details','profile-more');
+      updates.append(updateList);
+      const about=el('details','profile-more-inner');
       about.append(el('summary','','关于九十刻度'));
       const intro=el('p','sub','九十刻度专注赛事数据整理与分析，提供赛前优选场次及赛后数据回顾。');
-      intro.style.cssText='margin:10px 0 5px;font-size:12px;line-height:1.8;color:#555';
       const note=el('p','sub','本站内容仅供数据研究与交流，不构成投注建议。');
-      note.style.cssText='margin:0 0 3px;font-size:11px;line-height:1.7;color:#888';
-      about.append(intro,note);
-      page.append(about);box.append(page);
+      about.append(intro,note);moreBody.append(updates,about);more.append(moreBody);page.append(more);
+      box.append(page);
     }
 
     // Only accept independently published, pre-kickoff goal inputs. Never infer them from final scores.
