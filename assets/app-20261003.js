@@ -1615,7 +1615,7 @@
         const marketShadow=goalSource?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
         const scoreBasedGoal=goalSource?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
         const full=fullMemberAnalysis();
-        goals.append(el('div','goals-inline-title',full?'泊松进球 · Top3':'泊松进球 · Top1'));
+        goals.append(el('div','goals-inline-title',full?'泊松进球 · Top3':'泊松进球 · 概率最高'));
         if(lambda===null){
           goals.append(el('p','goals-note','赛前进球参数未确认'));
         }else{
@@ -1627,7 +1627,7 @@
           const grid=el('div','goals-grid');
           (full?ranked.slice(0,3):ranked.slice(0,1)).forEach((item,i)=>{
             const cell=el('div','goal-cell');
-            cell.append(el('small','', 'Top'+(i+1)),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));
+            cell.append(el('small','',full?'Top'+(i+1):'最高概率'),el('b','',item.goals+'球'),el('small','',(item.p*100).toFixed(1)+'%'));
             grid.append(cell);
           });
           goals.append(grid);
@@ -1636,11 +1636,15 @@
             const actual=Number(row.resultHome)+Number(row.resultAway);
             const rank=ranked.slice(0,3).findIndex(item=>item.goals===actual);
             const goalHit=rank>=0;
-            const verdict=el('div','goals-inline-verdict '+(goalHit?'goals-inline-success':'goals-inline-fail'));
-            verdict.append(el('span','goals-inline-icon',full?(goalHit?'✓':'×'):(rank===0?'✓':'×')),
-              el('b','',full?(goalHit?'Top3覆盖成功':'Top3未覆盖'):(rank===0?'Top1命中':'Top1未中')),
-              el('span','','实际总进球 '+actual+'球'+(marketShadow?' · 动态参数版':goalsShadow?' · 原始参数参考':'')));
-            goals.append(verdict);
+            if(full){
+              const verdict=el('div','goals-inline-verdict '+(goalHit?'goals-inline-success':'goals-inline-fail'));
+              verdict.append(el('span','goals-inline-icon',goalHit?'✓':'×'),
+                el('b','',goalHit?'Top3覆盖成功':'Top3未覆盖'),
+                el('span','','实际总进球 '+actual+'球'+(marketShadow?' · 动态参数版':goalsShadow?' · 原始参数参考':'')));
+              goals.append(verdict);
+            }else{
+              goals.append(el('div','goals-inline-verdict','实际总进球 '+actual+'球'));
+            }
           }else goals.append(el('p','goals-note',full?'待评测 · 统计Top3覆盖':'等待赛果核验'));
         }
         c.append(goals);
@@ -2316,8 +2320,8 @@
       const scoreReference=g?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
       const panel=el('section','goals-panel');
       const heading=el('div','report-metric-title');
-      heading.append(el('h3','',full?'泊松进球 · Top3':'泊松进球 · Top1'),
-        metricHelp('总进球概率','展示赛前模型给出的总进球概率分布。预测概率不等于历史命中率；Top1、Top3会在赛果核验后分别评测。'));
+      heading.append(el('h3','',full?'泊松进球 · Top3':'泊松进球 · 概率最高'),
+        metricHelp('总进球概率',full?'展示赛前模型给出的总进球概率分布，并按Top3覆盖口径进行结果核对。':'展示赛前模型概率最高的总进球数；单点概率不作为公开成败评测口径。'));
       panel.append(heading);
       const lambda=g?publishedGoalLambda({...row,dynamicGoalPrediction:null,goalPrediction:g}):null;
       if(lambda===null){panel.append(el('p','goals-note','赛前总进球参数未确认，不计入本版统计。'));return panel}
@@ -2331,7 +2335,7 @@
       if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3及完整概率分布'));
       if(verified(row)&&hasScore(row)){
         const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
-        panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top1 '+(top1?'命中':'未中')+(full?' · Top3 '+(top3?'覆盖':'未覆盖'):'')));
+        panel.append(el('div','goals-verdict',full?('实际总进球 '+actual+'球 · Top3 '+(top3?'覆盖':'未覆盖')):('实际总进球 '+actual+'球')));
       }else panel.append(el('div','goals-verdict','等待赛果核验'));
       panel.append(el('p','goals-note','赛前数据已留存；赛果核验后每场只评测一次。'));
       return panel;
