@@ -1165,7 +1165,8 @@
       gate.append(accountHelp);
     }
     const state={today:null,history:null,tab:'home',filter:'jczq',model:'daily',selected:null,selectedDate:null,baseDate:null,unopenedDate:null,futureDate:null,memberZone:null,memberZoneLoading:false,memberZoneError:null};
-    const fullMemberAnalysis=()=>memberInfo?.active===true;
+    const publicSettledAccess=row=>verified(row)&&hasScore(row);
+    const fullMemberAnalysis=row=>memberInfo?.active===true||(row?publicSettledAccess(row):false);
     const vipDeepAccess=()=>memberInfo?.vipActive===true;
     const ARCHIVED_FOCUS={
       '2026-09-13':['002','006','008','009','020','022','023'],
@@ -1347,7 +1348,7 @@
     }
     function htftTop4Panel(row,selectedInfo){
       const info=selectedInfo===undefined?(row.dynamicHTFTPending?null:(row.dynamicHTFT??row.htftTop4)):selectedInfo;
-      const full=fullMemberAnalysis();
+      const full=fullMemberAnalysis(row);
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01';
       const historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
       const panel=reportSection(marketShadow?(full?'赛前动态半全场 · Top4预测':'赛前动态半全场 · Top1'):historical?(full?'半全场 Top4 · 历史补算':'半全场 Top1 · 历史补算'):(full?'半全场 Top4':'半全场 Top1'));
@@ -1476,7 +1477,7 @@
     }
     function scoreTop4Panel(row,selectedInfo){
       const simulation=selectedInfo===undefined?scoreSimulationInfo(row):null,panel=el('section','score-top4'),info=selectedInfo===undefined?(scoreInfo(row)||simulation):selectedInfo;
-      const full=fullMemberAnalysis();
+      const full=fullMemberAnalysis(row);
       const title=el('div','score-top4-title');
       const historical=info?.sourceKind==='HISTORICAL_BLIND_REPLAY';
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
@@ -1520,7 +1521,7 @@
       const info=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??row.htftTop4,marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01',historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
       const valid=info&&Array.isArray(info.picks)&&info.picks.length===4&&
         ['PUBLISHED_PREMATCH','HISTORICAL_POSTMATCH_RECONSTRUCTION','MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01'].includes(info.sourceKind);
-      const full=fullMemberAnalysis();
+      const full=fullMemberAnalysis(row);
       id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
       if(marketShadow)id.append(el('span','focus-label','赛前动态预测'));
       if(historical)id.append(el('span','focus-label','历史复算'));
@@ -1614,7 +1615,7 @@
         const goalsShadow=goalSource?.formalEligible===false;
         const marketShadow=goalSource?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
         const scoreBasedGoal=goalSource?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
-        const full=fullMemberAnalysis();
+        const full=fullMemberAnalysis(row);
         goals.append(el('div','goals-inline-title',full?'泊松进球 · Top3':'泊松进球 · 概率最高'));
         if(lambda===null){
           goals.append(el('p','goals-note','赛前进球参数未确认'));
@@ -1951,7 +1952,7 @@
     function moduleGridKey(rows,history,scope){
       const snapshot=dayCache.get(state.selectedDate)?.version||0;
       return [state.selectedDate||'',state.model,history?'history':'live',scope,
-        fullMemberAnalysis()?'member':'preview',vipDeepAccess()?'vip':'standard',snapshot,rows.length].join('|');
+        (memberInfo?.active===true||rows.every(publicSettledAccess))?'full':'preview',vipDeepAccess()?'vip':'standard',snapshot,rows.length].join('|');
     }
     function scheduleModuleGridBuild(grid){
       const meta=moduleGridBuildState.get(grid);
@@ -2321,7 +2322,7 @@
     function isFormalGoalPrediction(row){return row.goalPrediction?.formalEligible!==false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null}
     function goalPredictionPanel(row,selectedGoal){
       const g=selectedGoal===undefined?(row.dynamicGoalPrediction??row.goalPrediction):selectedGoal;
-      const full=fullMemberAnalysis();
+      const full=fullMemberAnalysis(row);
       const marketShadow=g?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
       const scoreReference=g?.sourceKind==='SCORE_TOP4_FROZEN_LAMBDA_REFERENCE';
       const panel=el('section','goals-panel');
@@ -3568,7 +3569,7 @@
       }
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
-      if(memberInfo?.active!==true){state.tab='profile';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));$('version').textContent='九十刻度';$('poolCount').textContent='会员专属数据';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();render();return}
+      if(memberInfo?.active!==true){state.tab='home';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));$('version').textContent='九十刻度';$('poolCount').textContent='历史赛事公开 · 当期会员专属';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();const historyDate=addDays(today,-1);selectDate(historyDate).catch(e=>console.warn('公开历史赛事加载失败',e));return}
       const bootDay=cachedDay(today,true);
       if(bootDay&&Array.isArray(bootDay.rows)&&bootDay.rows.length){
         // Paint the last successful active-day snapshot immediately after a
