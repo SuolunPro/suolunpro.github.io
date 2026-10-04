@@ -1505,10 +1505,10 @@
       const top4=actual!==null&&info.picks.some(p=>String(p.score)===actual);
       const cls=actual===null?'pending':top4?'success':'fail';
       const verdict=actual===null?'等待评测':!full
-        ?'实际比分 '+actual.replace('-',':')+' · Top1 '+(top1?'命中':'未中')
+        ?'实际比分 '+actual.replace('-',':')+' · Top1 · '+(top1?'评测成功':'评测失败')
         :historical
           ?'历史复算 · '+(top4?'Top4 · 评测成功':'Top4 · 评测失败')
-          :'实际比分 '+actual.replace('-',':')+' · Top1 '+(top1?'命中':'未中')+' · Top4 '+(top4?'覆盖':'未覆盖');
+          :'实际比分 '+actual.replace('-',':')+' · Top1 · '+(top1?'评测成功':'评测失败')+' · Top4 '+(top4?'覆盖':'未覆盖');
       panel.append(el('div','score-top4-verdict '+cls,verdict));
       if(marketShadow)panel.append(el('p','score-top4-note','赛前记录 · 赛果核验后计算Top1和Top4。'));
       else if(historical)panel.append(el('p','score-top4-note','本场为赛后依据赛前留存参数复算，不属于当时发布的赛前比分预测，不计入赛前版命中率。'));
@@ -1526,7 +1526,7 @@
       if(marketShadow)id.append(el('span','focus-label','赛前动态预测'));
       if(historical)id.append(el('span','focus-label','历史复算'));
       const done=valid&&['SUCCESS','FAILURE'].includes(info.settlementStatus);
-      const label=!valid?'数据待更新':marketShadow?(done?(info.settlementStatus==='SUCCESS'?'动态预测 · 评测成功':'动态预测 · 评测失败'):'赛前动态'):done?(historical?(info.settlementStatus==='SUCCESS'?'历史复算 · 评测成功':'历史复算 · 评测失败'):(info.settlementStatus==='SUCCESS'?'覆盖成功':'未覆盖')):'等待评测';
+      const label=!valid?'数据待更新':marketShadow?(done?(info.settlementStatus==='SUCCESS'?'动态预测 · 评测成功':'动态预测 · 评测失败'):'赛前动态'):done?(historical?(info.settlementStatus==='SUCCESS'?'历史复算 · 评测成功':'历史复算 · 评测失败'):(info.settlementStatus==='SUCCESS'?'评测成功':'评测失败')):'等待评测';
       head.append(id,el('span','status'+(done?(info.settlementStatus==='SUCCESS'?' verified':' fail'):'') ,label));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
@@ -1554,7 +1554,7 @@
         if(done){
           const top1Hit=String(info.picks?.[0]?.direction??'')===String(info.actual??'');
           panel.append(el('div','score-top4-verdict '+(full?(info.settlementStatus==='SUCCESS'?'success':'fail'):(top1Hit?'success':'fail')),
-            '实际半全场：'+safe(info.actual)+' · '+(full?(marketShadow?(info.settlementStatus==='SUCCESS'?'动态预测 · 评测成功':'动态预测 · 评测失败'):historical?(info.settlementStatus==='SUCCESS'?'历史复算 · 评测成功':'历史复算 · 评测失败'):(info.settlementStatus==='SUCCESS'?'Top4 · 评测成功':'Top4 · 评测失败')):'Top1 '+(top1Hit?'命中':'未中'))));
+            '实际半全场：'+safe(info.actual)+' · '+(full?(marketShadow?(info.settlementStatus==='SUCCESS'?'动态预测 · 评测成功':'动态预测 · 评测失败'):historical?(info.settlementStatus==='SUCCESS'?'历史复算 · 评测成功':'历史复算 · 评测失败'):(info.settlementStatus==='SUCCESS'?'Top4 · 评测成功':'Top4 · 评测失败')):'Top1 · '+(top1Hit?'评测成功':'评测失败'))));
         }
         else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
         panel.append(el('p','htft-list-meta',marketShadow?'动态赛前 · 更新于 '+fmtStamp(info.publishedAt)+' · 冻结进球参数＋赛前威廉希尔欧赔校准。':historical?'本场为赛后依据赛前留存参数复算，非当时发布的预测；不计入赛前战绩。':'原始赛前 · 冻结的进球参数计算，发布于 '+fmtStamp(info.publishedAt)+'。'));
@@ -2342,7 +2342,7 @@
       if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3及完整概率分布'));
       if(verified(row)&&hasScore(row)){
         const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
-        panel.append(el('div','goals-verdict',full?('实际总进球 '+actual+'球 · Top3 '+(top3?'覆盖':'未覆盖')):(top1?('✓ 最高概率 · 评测成功 · 实际总进球 '+actual+'球'):('实际总进球 '+actual+'球'))));
+        panel.append(el('div','goals-verdict',full?('实际总进球 '+actual+'球 · Top3 · '+(top3?'评测成功':'评测失败')):(top1?('✓ 最高概率 · 评测成功 · 实际总进球 '+actual+'球'):('实际总进球 '+actual+'球'))));
       }else panel.append(el('div','goals-verdict','等待评测'));
       panel.append(el('p','goals-note','赛前数据已留存；赛果核验后每场只评测一次。'));
       return panel;
