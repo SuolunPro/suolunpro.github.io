@@ -1643,7 +1643,13 @@
                 el('span','','实际总进球 '+actual+'球'+(marketShadow?' · 动态参数版':goalsShadow?' · 原始参数参考':'')));
               goals.append(verdict);
             }else{
-              goals.append(el('div','goals-inline-verdict','实际总进球 '+actual+'球'));
+              if(rank===0){
+                const verdict=el('div','goals-inline-verdict goals-inline-success');
+                verdict.append(el('span','goals-inline-icon','✓'),el('b','','最高概率命中'),el('span','','实际总进球 '+actual+'球'));
+                goals.append(verdict);
+              }else{
+                goals.append(el('div','goals-inline-verdict','实际总进球 '+actual+'球'));
+              }
             }
           }else goals.append(el('p','goals-note',full?'待评测 · 统计Top3覆盖':'等待赛果核验'));
         }
@@ -2335,7 +2341,7 @@
       if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3及完整概率分布'));
       if(verified(row)&&hasScore(row)){
         const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
-        panel.append(el('div','goals-verdict',full?('实际总进球 '+actual+'球 · Top3 '+(top3?'覆盖':'未覆盖')):('实际总进球 '+actual+'球')));
+        panel.append(el('div','goals-verdict',full?('实际总进球 '+actual+'球 · Top3 '+(top3?'覆盖':'未覆盖')):(top1?('✓ 最高概率命中 · 实际总进球 '+actual+'球'):('实际总进球 '+actual+'球'))));
       }else panel.append(el('div','goals-verdict','等待赛果核验'));
       panel.append(el('p','goals-note','赛前数据已留存；赛果核验后每场只评测一次。'));
       return panel;
