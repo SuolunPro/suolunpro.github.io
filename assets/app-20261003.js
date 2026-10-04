@@ -63,9 +63,26 @@
       const payload=body&&typeof body==='object'&&typeof body.captcha_token==='string'
         ? {...body,gotrue_meta_security:{...(body.gotrue_meta_security||{}),captcha_token:body.captcha_token}}:body;
       if(payload!==body)delete payload.captcha_token;
-      const res=await fetch(AUTH_BASE+'/auth/v1/'+authPath,{method:'POST',
-        headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(payload),cache:'no-store',signal:timeoutSignal(30000)});
-      const json=await res.json();
+      const authUrl=AUTH_BASE+'/auth/v1/'+authPath;
+      const isPasswordLogin=path==='token?grant_type=password';
+      const maxRetries=isPasswordLogin?2:(path==='signup'?1:0);
+      let res;
+      for(let attempt=0;;attempt++){
+        try{
+          res=await fetch(authUrl,{method:'POST',
+            headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(payload),cache:'no-store',signal:timeoutSignal(30000)});
+          break;
+        }catch(error){
+          // Retry transport failures only. HTTP/auth errors are handled below and are never retried.
+          if(attempt>=maxRetries){
+            const err=Error('当前网络连接认证服务失败，请切换网络后重试。');
+            err.code='AUTH_NETWORK_ERROR';err.cause=error;throw err;
+          }
+          await new Promise(resolve=>setTimeout(resolve,attempt===0?800:1500));
+        }
+      }
+      let json={};
+      try{json=await res.json()}catch(_){}
       if(!res.ok){const err=Error(json.msg||json.error_description||json.message||'请求失败');err.status=res.status;throw err}
       return json;
     }
