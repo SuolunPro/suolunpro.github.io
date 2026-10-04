@@ -1214,7 +1214,7 @@
       wdl:['九十刻度胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
       goals:['九十刻度泊松进球','基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'],
       score:['九十刻度比分矩阵','展示赛前冻结的4项比分与模型概率；赛后对照实际比分'],
-      htft:['九十刻度半全场','测试阶段 · 展示模型Top4半全场走势及概率，按日期核对实际覆盖情况'],
+      htft:['九十刻度半全场','测试阶段 · 展示模型Top3半全场走势及概率，按日期核对实际覆盖情况'],
       daily:['九十刻度今日优选','从当日赛事中筛选通过核心条件与风险过滤的关注场次'],
       upset:['九十刻度赛事风险观察','仅突出重点风险与强风险信号，一般风险保留在详情分析中'],
       cold:['九十刻度冷门预警','仅展示达到发布门槛且方向明确的冷门识别']
@@ -1266,7 +1266,7 @@
     };
     const handicapEvaluable=row=>verified(row)&&effectiveHandicapResult(row)!==null&&[row.handicapTop1,row.handicapSecond,row.handicap].some(validHandicapPick);
     function evaluationHit(row){
-      if(state.model==='htft')return (row.dynamicHTFTPending?row.htftTop4:(row.dynamicHTFT??row.htftTop4))?.settlementStatus==='SUCCESS';
+      if(state.model==='htft'){const h=row.dynamicHTFTPending?row.htftTop4:(row.dynamicHTFT??row.htftTop4);return !!(h&&Array.isArray(h.picks)&&String(h.actual??'')&&h.picks.slice(0,3).some(p=>String(p?.direction??'')===String(h.actual)));}
       if(state.model==='score')return scoreHit(row);
       if(state.model==='handicap')return handicapHit(row)||handicapChoiceHit(row,row.handicapTop1??row.handicap)||handicapChoiceHit(row,row.handicapSecond);
       if(state.model==='overview')return ftHit(row);
@@ -1285,9 +1285,8 @@
       if(state.model==='htft'){
         const h=row.dynamicHTFTPending?row.htftTop4:(row.dynamicHTFT??row.htftTop4),historical=h?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION',dynamic=h?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01';
         if(!h||!Array.isArray(h.picks)||h.picks.length!==4)return '半全场数据待确认';
-        if(h.settlementStatus==='SUCCESS')return historical?'历史复算 · 评测成功':dynamic?'动态预测 · 评测成功':'Top4 · 评测成功';
-        if(h.settlementStatus==='FAILURE')return historical?'历史复算 · 评测失败':dynamic?'动态预测 · 评测失败':'Top4 · 评测失败';
-        return historical?'历史复算 · 等待核验':'赛前Top4 · 等待评测';
+        if(h.settlementStatus==='SUCCESS'||h.settlementStatus==='FAILURE'){const hit=String(h.actual??'')&&h.picks.slice(0,3).some(p=>String(p?.direction??'')===String(h.actual));return historical?(hit?'历史复算 · 评测成功':'历史复算 · 评测失败'):dynamic?(hit?'动态预测 · 评测成功':'动态预测 · 评测失败'):(hit?'Top3 · 评测成功':'Top3 · 评测失败');}
+        return historical?'历史复算 · 等待核验':'赛前Top3 · 等待评测';
       }
       if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row))return verified(row)?'赛果已核验':'比分预测未发布';if(!x)return history?'未发布比分预测':'比分预测待确认';if(x.settlementStatus==='SUCCESS')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放一致':'评测成功';if(x.settlementStatus==='FAILURE')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放不一致':'评测失败';return '等待评测';}
       if(verified(row)){if(state.model==='goals')return hasScore(row)?'赛果已核验':'等待评测';if(state.model==='handicap'&&!handicapEvaluable(row))return [row.handicapTop1,row.handicapSecond,row.handicap].some(v=>String(v??'').trim().toUpperCase()==='PASS')?'未发布正式让球方向':'赛前让球预测未记录';return evaluationHit(row)?'评测成功':'评测失败';}
@@ -1351,7 +1350,7 @@
       const full=fullMemberAnalysis(row);
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01';
       const historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
-      const panel=reportSection(marketShadow?(full?'赛前动态半全场 · Top4预测':'赛前动态半全场 · Top1'):historical?(full?'半全场 Top4 · 历史补算':'半全场 Top1 · 历史补算'):(full?'半全场 Top4':'半全场 Top1'));
+      const panel=reportSection(marketShadow?(full?'赛前动态半全场 · Top3预测':'赛前动态半全场 · Top1'):historical?(full?'半全场 Top3 · 历史补算':'半全场 Top1 · 历史补算'):(full?'半全场 Top3':'半全场 Top1'));
       panel.classList.add('htft-top4-panel');
       const kickoff=Date.parse(String(row.kickoff??''));
       const frozen=Date.parse(String(info?.sourceFrozenAt??''));
@@ -1365,8 +1364,8 @@
           &&frozen<=published&&published<kickoff;
       if(!info||!Array.isArray(info.picks)||info.picks.length!==4||!Number.isFinite(kickoff)||!validTime){
         panel.append(el('p','report-empty',Date.now()<kickoff
-          ?'本场半全场四选数据待发布；仅在赛前参数和发布时间核验通过后展示。'
-          :'本场缺少可核验的半全场四选数据，无法补算；不会使用赛果倒推四选。'));
+          ?'本场半全场三选数据待发布；仅在赛前参数和发布时间核验通过后展示。'
+          :'本场缺少可核验的半全场三选数据，无法补算；不会使用赛果倒推三选。'));
         return panel;
       }
       const percentage=value=>{
@@ -1379,37 +1378,39 @@
         panel.append(el('p','htft-top4-flag','历史资料补算：开球后根据留存的开球前来源参数重新计算，不属于当时已发布的半全场预测；仅作历史回放对照，不计入正式赛前战绩。'));
       if(full){
         const summary=el('div','htft-top4-summary');
-        summary.append(el('small','','四选合计模型概率'),el('strong','',percentage(info.top4Probability)));
-        summary.append(el('div','htft-top4-note','覆盖九种半全场结果中的四种；合计概率不是历史命中率。'));
+        const top3Probability=info.picks.slice(0,3).reduce((n,p)=>n+(Number.isFinite(Number(p?.probability))?Number(p.probability):0),0);summary.append(el('small','','Top3合计模型概率'),el('strong','',percentage(top3Probability)));
+        summary.append(el('div','htft-top4-note','覆盖九种半全场结果中的三种；合计概率不是历史命中率。'));
         panel.append(summary);
       }
       const grid=el('div','htft-top4-grid');
-      (full?info.picks:info.picks.slice(0,1)).forEach((pick,i)=>{
+      (full?info.picks.slice(0,3):info.picks.slice(0,1)).forEach((pick,i)=>{
         const name=String(pick.direction??'');
-        const cell=el('div','htft-top4-pick'+(info.settlementStatus==='SUCCESS'&&name===info.actual?' is-hit':''));
+        const cell=el('div','htft-top4-pick'+(info.picks.slice(0,3).some(p=>String(p?.direction??'')===String(info.actual??''))&&name===info.actual?' is-hit':''));
         cell.append(el('small','','Top '+(i+1)),el('b','',name),el('span','htft-prob',percentage(pick.probability)));
         grid.append(cell);
       });
       panel.append(grid);
       if(full)reportLine(panel,'半场平局模型概率',percentage(info.htDrawProbability));
-      if(!full)panel.append(el('div','member-preview-lock','会员可查看完整Top4、合计概率与半场平局概率'));
+      if(!full)panel.append(el('div','member-preview-lock','会员可查看完整Top3、合计概率与半场平局概率'));
       if(info.lowGoalDrawAudit===true)
         panel.append(el('p','htft-top4-flag','低进球＋双方预期接近：半场平局已列入重点观察，四个方向仍按九项联合概率排序。'));
+      const top3Hit=String(info.actual??'')!==''&&info.picks.slice(0,3).some(p=>String(p?.direction??'')===String(info.actual));
+      const top3Settled=info.settlementStatus==='SUCCESS'||info.settlementStatus==='FAILURE';
       if(marketShadow){
-        if(info.settlementStatus==='SUCCESS'||info.settlementStatus==='FAILURE'){
-          const hit=info.settlementStatus==='SUCCESS';
+        if(top3Settled){
+          const hit=top3Hit;
           panel.append(el('div','score-top4-verdict '+(hit?'success':'fail'),
             (hit?'动态预测 · 评测成功':'动态预测 · 评测失败')+' · 实际半全场 '+safe(info.actual)+'（计入动态版战绩）'));
           if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+safe(info.halfScore)+'；全场按90分钟正式赛果。'));
         }else panel.append(el('div','score-top4-verdict pending',
           info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，暂不评测':'等待评测 · 暂未对照'));
       }
-      else if(info.settlementStatus==='SUCCESS'||info.settlementStatus==='FAILURE'){
-        const hit=info.settlementStatus==='SUCCESS';
+      else if(top3Settled){
+        const hit=top3Hit;
         const verdict=historical
           ?(hit?'历史回放一致 · 实际半全场 ':'历史回放不一致 · 实际半全场 ')+String(info.actual)
           :hit?'评测成功 · 实际半全场 '+String(info.actual):
-            '评测失败 · 实际半全场 '+String(info.actual)+' 未落在四选内';
+            '评测失败 · 实际半全场 '+String(info.actual)+' 未落在三选内';
         panel.append(el('div','score-top4-verdict '+(hit?'success':'fail'),verdict));
         if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+String(info.halfScore)+'；全场按90分钟正式赛果。'));
       }else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'
