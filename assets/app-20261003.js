@@ -1537,8 +1537,8 @@
       const panel=el('div','analysis');
       if(valid){
         const grid=el('div','htft-top4-grid');
-        (full?info.picks:info.picks.slice(0,1)).forEach((pick,i)=>{
-          const direction=String(pick.direction??''),prob=Number(pick.probability),hit=done&&info.settlementStatus==='SUCCESS'&&info.actual===direction;
+        (full?info.picks.slice(0,3):info.picks.slice(0,1)).forEach((pick,i)=>{
+          const direction=String(pick.direction??''),prob=Number(pick.probability),hit=done&&info.picks.slice(0,3).some(p=>String(p?.direction??'')===String(info.actual??''))&&info.actual===direction;
           const cell=el('div','htft-top4-pick'+(hit?' is-hit':''));
           cell.append(el('small','','Top'+(i+1)),el('b','',direction),el('span','htft-prob',pick.probability!==null&&pick.probability!==undefined&&Number.isFinite(prob)&&prob>=0&&prob<=1?(prob*100).toFixed(1)+'%':'—'));
           grid.append(cell);
@@ -1551,11 +1551,11 @@
           drawLine.append(el('span','','半场平局模型概率'),el('strong','',(htDraw*100).toFixed(1)+'%'));
           panel.append(drawLine);
         }
-        if(!full)panel.append(el('div','member-preview-lock','会员可查看完整Top4及概率分布'));
+        if(!full)panel.append(el('div','member-preview-lock','会员可查看完整Top3及概率分布'));
         if(done){
-          const top1Hit=String(info.picks?.[0]?.direction??'')===String(info.actual??'');
-          panel.append(el('div','score-top4-verdict '+(full?(info.settlementStatus==='SUCCESS'?'success':'fail'):(top1Hit?'success':'fail')),
-            '实际半全场：'+safe(info.actual)+' · '+(full?(marketShadow?(info.settlementStatus==='SUCCESS'?'动态预测 · 评测成功':'动态预测 · 评测失败'):historical?(info.settlementStatus==='SUCCESS'?'历史复算 · 评测成功':'历史复算 · 评测失败'):(info.settlementStatus==='SUCCESS'?'Top4 · 评测成功':'Top4 · 评测失败')):'Top1 · '+(top1Hit?'评测成功':'评测失败'))));
+          const top1Hit=String(info.picks?.[0]?.direction??'')===String(info.actual??''),top3Hit=info.picks.slice(0,3).some(p=>String(p?.direction??'')===String(info.actual??''));
+          panel.append(el('div','score-top4-verdict '+(full?(top3Hit?'success':'fail'):(top1Hit?'success':'fail')),
+            '实际半全场：'+safe(info.actual)+' · '+(full?(marketShadow?(top3Hit?'动态预测 · 评测成功':'动态预测 · 评测失败'):historical?(top3Hit?'历史复算 · 评测成功':'历史复算 · 评测失败'):(top3Hit?'Top3 · 评测成功':'Top3 · 评测失败')):'Top1 · '+(top1Hit?'评测成功':'评测失败'))));
         }
         else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
         panel.append(el('p','htft-list-meta',marketShadow?'动态赛前 · 更新于 '+fmtStamp(info.publishedAt)+' · 冻结进球参数＋赛前威廉希尔欧赔校准。':historical?'本场为赛后依据赛前留存参数复算，非当时发布的预测；不计入赛前战绩。':'原始赛前 · 冻结的进球参数计算，发布于 '+fmtStamp(info.publishedAt)+'。'));
