@@ -1024,21 +1024,15 @@
       const rememberLabel=document.createElement('label'),remember=document.createElement('input');
       rememberLabel.className='auth-remember';remember.type='checkbox';remember.checked=true;
       rememberLabel.append(remember,document.createTextNode('在此设备保持登录（共用设备请取消）'));
-      const captchaBox=document.createElement('div');captchaBox.style='margin:13px 0;min-height:66px';
+      const captchaBox=document.createElement('div');captchaBox.style='display:none';
       const captchaLabel=document.createElement('p');captchaLabel.style='font-size:12px;color:#666;margin:8px 0';
-      captchaLabel.textContent='请先完成安全验证后，再注册、登录或申请重置密码。';
+      captchaLabel.textContent='';captchaLabel.style.display='none';
       gate.append(email,passwordInput(pass),rememberLabel,captchaLabel,captchaBox,msg);
       if(message)msg.textContent=message;
       let captchaToken='',captchaWidget=null;
-      loadTurnstile().then(api=>{
-        if(!captchaBox.isConnected)return;
-        captchaWidget=api.render(captchaBox,{sitekey:TURNSTILE_SITE_KEY,
-          callback:token=>{captchaToken=token; if(msg.textContent==='请先完成安全验证')msg.textContent=''},
-          'expired-callback':()=>{captchaToken='';msg.textContent='安全验证已过期，请重新验证'},
-          'error-callback':()=>{captchaToken='';msg.textContent='安全验证未完成，请检查网络后重试'}});
-      }).catch(error=>{if(captchaBox.isConnected)msg.textContent=error.message});
-      const takeToken=()=>{if(!captchaToken)throw Error('请先完成安全验证');return captchaToken};
-      const resetCaptcha=()=>{captchaToken='';if(captchaWidget!==null&&window.turnstile)try{window.turnstile.reset(captchaWidget)}catch{}};
+      // Turnstile temporarily disabled for auth network diagnosis.
+      const takeToken=()=>'';
+      const resetCaptcha=()=>{};
       const saveSession=data=>{const persisted=saveAuthSession(data,remember.checked);if(remember.checked&&!persisted)msg.textContent='当前浏览器无法保存登录状态，下次可能需要重新登录';location.reload()};
       const mainActions=document.createElement('div');mainActions.className='auth-main-actions';
       for(const mode of ['注册','登录']){
@@ -1053,7 +1047,7 @@
           btn.disabled=true;msg.textContent='处理中…';
           try{
             const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{
-              email:email.value.trim(),password:pass.value,captcha_token:token
+              email:email.value.trim(),password:pass.value
             });
             if(data.access_token&&data.user)saveSession(data);
             else msg.textContent='注册申请已提交。如未自动登录，请点击「已有账号 · 登录」；如系统提示需要邮箱验证，请检查注册邮箱。';
@@ -1069,7 +1063,7 @@
         if(!email.value.trim()){msg.textContent='请先填写邮箱';return}
         let token;try{token=takeToken()}catch(e){msg.textContent=e.message;return}
         recover.disabled=true;
-        try{await authRequest('recover',{email:email.value.trim(),captcha_token:token});msg.textContent='已请求发送密码重置邮件；是否送达取决于邮件服务'}
+        try{await authRequest('recover',{email:email.value.trim()});msg.textContent='已请求发送密码重置邮件；是否送达取决于邮件服务'}
         catch(e){msg.textContent=e.message}finally{resetCaptcha();recover.disabled=false}
       };accountHelp.append(recover);
       gate.append(accountHelp);
