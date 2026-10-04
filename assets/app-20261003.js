@@ -380,37 +380,32 @@
         const close=el('button','vip-consent-close','×');close.type='button';close.setAttribute('aria-label','关闭');
         dialog.append(close,el('h3','','开通尊贵月卡VIP'),el('div','vip-consent-plan','¥29.9 / 30天 · 非自动续费'),
           el('p','vip-consent-risk','九十刻度提供足球赛事数据、概率模型及风险分析服务。预测存在不确定性，不构成收益承诺。'));
-        const label=document.createElement('label'),check=document.createElement('input'),txt=document.createElement('span');
-        label.className='vip-consent-check';check.type='checkbox';
-        txt.append(document.createTextNode('我已阅读并同意 '));
+        const agreement=el('p','vip-consent-agreement','点击下方按钮即表示您已阅读并同意 ');
         const link=document.createElement('a');link.href='./legal.html#vip';link.target='_blank';link.rel='noopener';link.textContent='《尊贵月卡VIP会员服务协议》';
-        txt.append(link);label.append(check,txt);dialog.append(label);
-        const status=el('p','vip-consent-error','勾选一次即可生成开通申请并显示官方客服。');
-        status.classList.add('vip-consent-hint');dialog.append(status);
-        const dismiss=()=>overlay.remove();close.onclick=dismiss;overlay.onclick=e=>{if(e.target===overlay)dismiss()};
+        agreement.append(link);dialog.append(agreement);
+        const status=el('p','vip-consent-error',''),actions=el('div','vip-consent-actions vip-consent-actions-single'),cancel=el('button','secondary','取消'),confirm=el('button','','我已阅读并同意 · 继续开通');
         let submitting=false;
-        const submitConsent=async()=>{
-          if(!check.checked||submitting)return;
-          submitting=true;check.disabled=true;close.disabled=true;status.textContent='正在生成申请…';
+        const dismiss=()=>{if(!submitting)overlay.remove()};close.onclick=dismiss;cancel.onclick=dismiss;overlay.onclick=e=>{if(e.target===overlay)dismiss()};
+        confirm.onclick=async()=>{
+          if(submitting)return;submitting=true;confirm.disabled=true;cancel.disabled=true;close.disabled=true;confirm.textContent='正在生成申请…';status.textContent='';
           try{
-            await refreshAuthSession();
+            if(!authSession?.access_token||!authSession?.user?.id)throw Error('LOGIN_REQUIRED');
             const consentRes=await fetch(AUTH_BASE+'/rest/v1/soren_vip_consents_v1',{
               method:'POST',headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token,'Content-Type':'application/json',Prefer:'return=minimal'},
               body:JSON.stringify({user_id:authSession.user.id,agreement_version:'2026-10-05',plan_code:'vip_monthly',price_cents:2990,duration_days:30,source:'vip_apply'}),
               cache:'no-store',signal:timeoutSignal(10000)
             });
+            if(consentRes.status===401)throw Error('LOGIN_REQUIRED');
             if(!consentRes.ok)throw Error('CONSENT_SAVE_FAILED');
-            vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession?.user?.email||'')+'\\n方案：尊贵月卡VIP 29.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已在页面勾选同意会员服务协议';
-            service.hidden=false;membershipContact.hidden=true;contactNote.textContent='申请已生成。请复制客服微信和申请信息，联系官方客服办理。';dismiss();
+            vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession.user.email||'')+'\\n方案：尊贵月卡VIP 29.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已主动确认同意会员服务协议';
+            service.hidden=false;membershipContact.hidden=true;contactNote.textContent='申请已生成。请复制客服微信和申请信息，联系官方客服办理。';overlay.remove();
             requestAnimationFrame(()=>service.scrollIntoView({behavior:'smooth',block:'nearest'}));
           }catch(e){
-            submitting=false;check.disabled=false;check.checked=false;close.disabled=false;
-            status.textContent=e?.message==='LOGIN_REQUIRED'?'登录已过期，请重新登录后申请。':'申请暂未生成，请检查网络后重新勾选。';
-            status.classList.remove('vip-consent-hint');
+            submitting=false;confirm.disabled=false;cancel.disabled=false;close.disabled=false;confirm.textContent='我已阅读并同意 · 继续开通';
+            status.textContent=e?.message==='LOGIN_REQUIRED'?'登录状态已失效，请重新登录后申请。':'申请暂未生成，请检查网络后重试。';
           }
         };
-        check.addEventListener('change',submitConsent);
-        overlay.append(dialog);document.body.append(overlay);
+        actions.append(cancel,confirm);dialog.append(status,actions);overlay.append(dialog);document.body.append(overlay);
       };
       membershipContact.onclick=openVipConsent;
       membershipPlan.append(vipRisk,membershipContact);
