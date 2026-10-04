@@ -49,8 +49,10 @@
     .htft-top4-summary{padding:12px;border-radius:10px;background:#edf5ef;margin-bottom:12px}
     .htft-top4-summary small{display:block;color:#567464;font-size:11px;margin-bottom:4px}
     .htft-top4-summary strong{font-size:25px;color:#236748;line-height:1.3}
-    .htft-top4-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-    .htft-top4-pick{padding:10px 12px;border:1px solid #dce8df;background:#f8fbf8;border-radius:10px;min-width:0}
+    .htft-top4-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .htft-top4-pick{padding:10px 8px;border:1px solid #dce8df;background:#f8fbf8;border-radius:10px;min-width:0;text-align:center}
+    .htft-top4-pick:first-child{padding-top:9px;padding-bottom:11px}
+    @media(max-width:390px){.htft-top4-grid{gap:6px}.htft-top4-pick{padding:9px 5px}.htft-top4-pick b{font-size:16px}.htft-top4-pick .htft-prob{font-size:12px}}
     .htft-top4-pick.is-hit{border-color:#31825e;background:#e8f5eb}
     .htft-top4-pick small{display:block;color:#697c6f;font-size:11px}
     .htft-top4-pick b{display:block;color:#22583d;font-size:17px;margin:4px 0}
