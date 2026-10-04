@@ -385,14 +385,13 @@
         txt.append(document.createTextNode('我已阅读并同意 '));
         const link=document.createElement('a');link.href='./legal.html#vip';link.target='_blank';link.rel='noopener';link.textContent='《尊贵月卡VIP会员服务协议》';
         txt.append(link);label.append(check,txt);dialog.append(label);
-        const error=el('p','vip-consent-error',''),actions=el('div','vip-consent-actions'),cancel=el('button','secondary','取消'),confirm=el('button','','同意并继续');
-        confirm.setAttribute('aria-disabled','true');confirm.classList.add('is-disabled');
-        const syncConsent=()=>{const ready=check.checked;confirm.setAttribute('aria-disabled',String(!ready));confirm.classList.toggle('is-disabled',!ready);if(ready)error.textContent=''};
-        check.addEventListener('input',syncConsent);check.addEventListener('change',syncConsent);
-        const dismiss=()=>overlay.remove();close.onclick=dismiss;cancel.onclick=dismiss;overlay.onclick=e=>{if(e.target===overlay)dismiss()};
-        confirm.onclick=async()=>{
-          if(!check.checked){error.textContent='请先勾选同意会员服务协议。';check.focus();return}
-          confirm.classList.add('is-disabled');confirm.setAttribute('aria-disabled','true');cancel.disabled=true;confirm.textContent='正在生成申请…';error.textContent='';
+        const status=el('p','vip-consent-error','勾选一次即可生成开通申请并显示官方客服。');
+        status.classList.add('vip-consent-hint');dialog.append(status);
+        const dismiss=()=>overlay.remove();close.onclick=dismiss;overlay.onclick=e=>{if(e.target===overlay)dismiss()};
+        let submitting=false;
+        const submitConsent=async()=>{
+          if(!check.checked||submitting)return;
+          submitting=true;check.disabled=true;close.disabled=true;status.textContent='正在生成申请…';
           try{
             await refreshAuthSession();
             const consentRes=await fetch(AUTH_BASE+'/rest/v1/soren_vip_consents_v1',{
@@ -403,12 +402,15 @@
             if(!consentRes.ok)throw Error('CONSENT_SAVE_FAILED');
             vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession?.user?.email||'')+'\\n方案：尊贵月卡VIP 29.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已在页面勾选同意会员服务协议';
             service.hidden=false;membershipContact.hidden=true;contactNote.textContent='申请已生成。请复制客服微信和申请信息，联系官方客服办理。';dismiss();
+            requestAnimationFrame(()=>service.scrollIntoView({behavior:'smooth',block:'nearest'}));
           }catch(e){
-            confirm.classList.remove('is-disabled');confirm.setAttribute('aria-disabled','false');cancel.disabled=false;confirm.textContent='同意并继续';
-            error.textContent=e?.message==='LOGIN_REQUIRED'?'登录已过期，请重新登录后申请。':'申请暂未生成，请检查网络后重试。';
+            submitting=false;check.disabled=false;check.checked=false;close.disabled=false;
+            status.textContent=e?.message==='LOGIN_REQUIRED'?'登录已过期，请重新登录后申请。':'申请暂未生成，请检查网络后重新勾选。';
+            status.classList.remove('vip-consent-hint');
           }
         };
-        actions.append(cancel,confirm);dialog.append(error,actions);overlay.append(dialog);document.body.append(overlay);check.focus();
+        check.addEventListener('change',submitConsent);
+        overlay.append(dialog);document.body.append(overlay);
       };
       membershipContact.onclick=openVipConsent;
       membershipPlan.append(vipRisk,membershipContact);
