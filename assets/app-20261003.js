@@ -64,7 +64,7 @@
         ? {...body,gotrue_meta_security:{...(body.gotrue_meta_security||{}),captcha_token:body.captcha_token}}:body;
       if(payload!==body)delete payload.captcha_token;
       const res=await fetch(AUTH_BASE+'/auth/v1/'+authPath,{method:'POST',
-        headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(payload),cache:'no-store',signal:timeoutSignal(10000)});
+        headers:{'Content-Type':'application/json','apikey':AUTH_KEY},body:JSON.stringify(payload),cache:'no-store',signal:timeoutSignal(30000)});
       const json=await res.json();
       if(!res.ok){const err=Error(json.msg||json.error_description||json.message||'请求失败');err.status=res.status;throw err}
       return json;
