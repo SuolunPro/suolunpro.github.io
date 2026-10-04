@@ -204,6 +204,17 @@
       return null;
     }
     const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
+    const CLIENT_DIAG_API=AUTH_BASE+'/functions/v1/soren-client-diag-v1';
+    const CLIENT_BUILD='20261004-membership-diag-v1';
+    function clientDiag(stage,details={}){
+      try{
+        const body=JSON.stringify({stage,version:CLIENT_BUILD,browserId:welcomeBrowserId(),
+          online:navigator.onLine!==false,...details});
+        // Diagnostic payload contains no email, password, token or membership data.
+        fetch(CLIENT_DIAG_API,{method:'POST',headers:{'Content-Type':'application/json'},
+          body,cache:'no-store',keepalive:true,signal:timeoutSignal(6000)}).catch(()=>{});
+      }catch{}
+    }
     const OKOOO_SHADOW_API='https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-r9-discovery-test-v01';
     // Feedback uses an isolated client-database Edge Function; existing membership API is unchanged.
     const FEEDBACK_API=AUTH_BASE+'/functions/v1/soren-feedback-api-v1';
@@ -265,6 +276,7 @@
       card.append(badge,title,msg,note,btn);shade.append(card);document.body.append(shade);
     }
     async function membershipFetch(){
+      const diagStarted=Date.now();clientDiag('membership_start',{attempt:1});
       // Some Android/MIUI browsers can deliver the server response after a
       // short transport stall. Do not let an aggressive per-request abort race
       // turn a successful 200 membership check into a blocking boot failure.
@@ -272,15 +284,27 @@
       try{
         r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(20000)});
       }catch(error){
+        clientDiag('membership_fetch_error',{attempt:1,elapsedMs:Date.now()-diagStarted,errorName:error?.name,errorMessage:error?.message});
         if(!isTransientConnectionError(error))throw error;
         await new Promise(resolve=>setTimeout(resolve,700));
-        r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(30000)});
+        clientDiag('membership_retry',{attempt:2,elapsedMs:Date.now()-diagStarted});
+        try{r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(30000)});}
+        catch(retryError){
+          clientDiag('membership_fetch_error',{attempt:2,elapsedMs:Date.now()-diagStarted,errorName:retryError?.name,errorMessage:retryError?.message});
+          throw retryError;
+        }
       }
+      clientDiag('membership_response',{attempt:1,elapsedMs:Date.now()-diagStarted,status:r.status});
       let j;
       try{j=await r.json()}catch(error){
+        clientDiag('membership_json_error',{elapsedMs:Date.now()-diagStarted,status:r.status,errorName:error?.name,errorMessage:error?.message});
         const err=Error('会员信息响应读取失败，请稍后重试');err.cause=error;throw err;
       }
-      if(!r.ok||j.ok!==true||!j.membership)throw Error('会员信息暂不可用，请稍后重试');
+      if(!r.ok||j.ok!==true||!j.membership){
+        clientDiag('membership_invalid_payload',{elapsedMs:Date.now()-diagStarted,status:r.status});
+        throw Error('会员信息暂不可用，请稍后重试');
+      }
+      clientDiag('membership_success',{elapsedMs:Date.now()-diagStarted,status:r.status});
       memberInfo=j.membership;saveMemberCache(memberInfo);showAccountNotice(memberInfo);return memberInfo;
     }
     function isTransientConnectionError(error){
