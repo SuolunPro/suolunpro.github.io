@@ -343,15 +343,21 @@
         el('p','member-muted','可申请开通会员，查看完整赛事分析报告。'));
       const planGrid=el('div','member-plan-grid');
       const makePlan=(name,monthly,formal,features)=>{
-        const card=el('div','member-plan');
+        const card=el('div','member-plan member-plan-promo');
         const top=el('div','member-plan-top');
-        top.append(el('h4','',name),el('span','member-plan-tag','个人使用'));
+        top.append(el('h4','',name),el('span','member-plan-tag member-plan-sale-tag','限时优惠'));
+        const priceBox=el('div','member-plan-price-box');
         const cost=el('div','member-plan-price');
-        cost.append(el('strong','','¥'+monthly),el('span','','/月'));
-        card.append(top,cost,el('div','member-plan-price-label','活动价'));
+        cost.append(el('strong','','¥'+monthly),el('span','','/30天'));
+        const saving=el('span','member-plan-saving','立省 ¥30');
+        priceBox.append(cost,saving);
+        const compare=el('div','member-plan-compare');
+        const original=document.createElement('span');original.className='member-plan-original';original.textContent='原价 ¥'+formal;
+        compare.append(original,el('span','member-plan-discount','约5折'));
+        card.append(top,priceBox,compare);
         const items=el('ul','member-plan-list');
         features.forEach(feature=>items.append(el('li','',feature)));
-        card.append(items,el('div','member-plan-future','活动结束后 ¥'+formal+'/月'));
+        card.append(items,el('div','member-plan-future','活动结束恢复 ¥'+formal+'/月'));
         return card;
       };
       const membershipPlan=makePlan('尊贵月卡VIP','29.9','59.9',
