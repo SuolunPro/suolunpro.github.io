@@ -989,3 +989,19 @@
  .profile-service-links{gap:5px}
  .profile-service-links a{font-size:10.5px;padding:7px 3px}
 }
+
+/* VIP consent modal */
+.vip-consent-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.48);backdrop-filter:blur(2px)}
+.vip-consent-dialog{position:relative;width:min(100%,380px);padding:22px 18px 18px;border-radius:18px;background:#fff;box-shadow:0 18px 55px rgba(15,23,42,.24)}
+.vip-consent-dialog h3{margin:0 32px 8px 0;font-size:18px;color:#20242b}
+.vip-consent-close{position:absolute;right:12px;top:10px;width:34px;height:34px;padding:0!important;margin:0!important;border:0!important;background:transparent!important;color:#667085!important;font-size:25px;line-height:34px}
+.vip-consent-plan{margin:0 0 12px;font-size:14px;font-weight:700;color:#c52b32}
+.vip-consent-risk{margin:0 0 14px;padding:10px 11px;border-radius:10px;background:#f7f8fa;color:#667085;font-size:11px;line-height:1.65}
+.vip-consent-check{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:start;margin:4px 0 12px;font-size:12px;line-height:1.65;color:#4b5563}
+.vip-consent-check input[type="checkbox"]{display:block!important;width:18px!important;height:18px!important;min-width:18px;margin:1px 0 0!important;padding:0!important;accent-color:#cb2b31}
+.vip-consent-check a{color:#315f9b;text-decoration:underline;text-underline-offset:2px}
+.vip-consent-error{min-height:18px;margin:0 0 5px;color:#b42318;font-size:11px}
+.vip-consent-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:8px}
+.vip-consent-actions button{width:100%;min-height:42px;margin:0!important}
+.vip-consent-actions button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:420px){.vip-consent-overlay{padding:14px}.vip-consent-dialog{padding:20px 15px 15px;border-radius:16px}}
