@@ -1081,7 +1081,13 @@
       const captchaBox=document.createElement('div');captchaBox.style='display:none';
       const captchaLabel=document.createElement('p');captchaLabel.style='font-size:12px;color:#666;margin:8px 0';
       captchaLabel.textContent='';captchaLabel.style.display='none';
-      gate.append(email,passwordInput(pass),rememberLabel,captchaLabel,captchaBox,msg);
+      const legalLabel=document.createElement('label'),legal=document.createElement('input'),legalText=document.createElement('span');
+      legalLabel.className='auth-remember';legal.type='checkbox';legal.checked=false;
+      legalText.append(document.createTextNode('我已阅读并同意 '));
+      const terms=document.createElement('a');terms.href='./legal.html#terms';terms.target='_blank';terms.rel='noopener';terms.textContent='《用户服务协议》';
+      const privacy=document.createElement('a');privacy.href='./legal.html#privacy';privacy.target='_blank';privacy.rel='noopener';privacy.textContent='《隐私政策》';
+      legalText.append(terms,document.createTextNode(' 和 '),privacy);legalLabel.append(legal,legalText);
+      gate.append(email,passwordInput(pass),rememberLabel,legalLabel,captchaLabel,captchaBox,msg);
       if(message)msg.textContent=message;
       let captchaToken='',captchaWidget=null;
       // Turnstile temporarily disabled for auth network diagnosis.
@@ -1097,11 +1103,13 @@
           if(!email.value.trim()||!pass.value){msg.textContent='请填写邮箱和密码';return}
           if(mode==='注册'&&pass.value.length<6){msg.textContent='密码至少6位';return}
           if(mode==='注册'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())){msg.textContent='请填写有效的邮箱地址，例如 name@example.com';return}
+          if(mode==='注册'&&!legal.checked){msg.textContent='请先阅读并同意《用户服务协议》和《隐私政策》';return}
           let token;try{token=takeToken()}catch(e){msg.textContent=e.message;return}
           btn.disabled=true;msg.textContent='处理中…';
           try{
             const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{
-              email:email.value.trim(),password:pass.value
+              email:email.value.trim(),password:pass.value,
+              ...(mode==='注册'?{data:{legal_consent:true,terms_version:'2026-10-05',privacy_version:'2026-10-05',legal_consented_at:new Date().toISOString()}}:{})
             });
             if(data.access_token&&data.user)saveSession(data);
             else msg.textContent='注册申请已提交。如未自动登录，请点击「已有账号 · 登录」；如系统提示需要邮箱验证，请检查注册邮箱。';
