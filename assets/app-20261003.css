@@ -965,3 +965,27 @@
 .site-legal-links{margin-top:10px;text-align:center;font-size:12px}
 .site-legal-links a{color:#667085;text-decoration:underline;text-underline-offset:2px}
 .site-legal-links span{color:#b0b5bd;margin:0 3px}
+
+/* Profile IA v2: account -> membership -> service -> feedback -> more */
+.profile-page{display:flex;flex-direction:column;gap:12px}
+.profile-page .account-panel{margin:0}
+.profile-page .account-panel>h2{margin:0 0 10px}
+.profile-page .member-account-primary{order:-1;margin:0 0 10px;padding:12px 14px;border-radius:12px;background:#fff;border:1px solid #e7e9ee}
+.profile-page .member-panel{display:flex;flex-direction:column;gap:10px}
+.profile-page .member-card{margin:0}
+.profile-service-card{padding:14px;background:#fff;border:1px solid #e7e9ee;border-radius:14px}
+.profile-service-card h3{margin:0 0 10px;font-size:14px}
+.profile-service-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.profile-service-links a{display:flex;align-items:center;justify-content:center;min-height:38px;padding:7px 5px;border-radius:9px;background:#f6f7f9;color:#4f5968;font-size:11px;text-align:center;text-decoration:none}
+.profile-page .profile-feedback-compact{margin:0;padding:14px;border-radius:14px}
+.profile-page .profile-feedback-compact h3{margin-top:0}
+.profile-page .profile-more-group{margin:0;border-radius:14px}
+.profile-more-body{padding:0 12px 10px}
+.profile-more-inner{border-top:1px solid #eef0f3}
+.profile-more-inner>summary{padding:12px 2px;font-size:12px;color:#667085;cursor:pointer}
+.profile-more-inner .sub{margin:0 2px 8px!important;font-size:11px!important;line-height:1.7!important;color:#667085!important}
+@media(max-width:420px){
+ .profile-page{gap:10px}
+ .profile-service-links{gap:5px}
+ .profile-service-links a{font-size:10.5px;padding:7px 3px}
+}
