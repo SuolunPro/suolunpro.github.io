@@ -2236,7 +2236,7 @@
       const about=el('details','profile-more-inner');
       about.append(el('summary','','关于九十刻度'));
       const intro=el('p','sub','九十刻度专注赛事数据整理与分析，提供赛前优选场次及赛后数据回顾。');
-      const note=el('p','sub','本站内容仅供数据研究与交流，不构成投注建议。');
+      const note=el('p','sub','模型结果为概率分析，赛事结果具有不确定性。');
       about.append(intro,note);moreBody.append(updates,about);more.append(moreBody);page.append(more);
       box.append(page);
     }
@@ -3214,7 +3214,7 @@
       if(reportHas(row.handicapFrozenAt))reportLine(audit,'让球冻结时间',fmtStamp(row.handicapFrozenAt));
       audit.append(el('p','report-sub','赛前预测、后续盘口和媒体消息采集时间可能不同；未确认数据不填造。'));
       c.append(audit);
-      c.append(el('div','report-disclaimer','赛事数据仅供研究参考，不构成投注建议或收益承诺。'));
+      c.append(el('div','report-disclaimer','模型结果为概率分析，赛事结果具有不确定性；平台不提供收益承诺。'));
       renderHeroWeather(row.environment??null);
       loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot,row,dataStatus,fallbackEnvironment:row.environment??null});
       if(okoooShadowSlot)loadOkoooShadowPreview(row,okoooShadowSlot);
