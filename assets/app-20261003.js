@@ -340,7 +340,7 @@
       purchaseHeader.append(el('span','member-purchase-eyebrow','九十刻度 · 会员中心'),
         el('span','member-beta-tag','活动期间'));
       purchaseCard.append(purchaseHeader,el('h3','','尊贵月卡VIP'),
-        el('p','member-muted','可申请开通会员，查看完整赛事分析报告。'));
+        el('p','member-muted','解锁九十刻度会员赛事数据、今日优选与风险分析功能。'));
       const planGrid=el('div','member-plan-grid');
       const makePlan=(name,monthly,formal,features)=>{
         const card=el('div','member-plan member-plan-promo');
@@ -361,7 +361,7 @@
         return card;
       };
       const membershipPlan=makePlan('尊贵月卡VIP','29.9','59.9',
-        ['1个会员账号','有效期内查看完整赛事报告','查看平台开放的会员历史数据','进入会员专区查看深度研究内容']);
+        ['解锁当日完整赛事数据与分析','查看「今日优选」筛选结果','查看胜平负、让球等会员赛事数据','使用已开放的冷门预警与风险保护功能']);
       const contactNote=el('p','member-muted member-purchase-help','点击申请后确认会员协议，确认后才会显示官方客服联系方式。');
       const vipRisk=el('p','member-muted member-vip-risk','足球数据、概率模型及风险分析服务；预测存在不确定性，不构成收益承诺。非自动续费。');
       const membershipContact=el('button','member-plan-apply','申请开通VIP');
