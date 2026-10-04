@@ -1005,3 +1005,16 @@
 .vip-consent-actions button{width:100%;min-height:42px;margin:0!important}
 .vip-consent-actions button:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:420px){.vip-consent-overlay{padding:14px}.vip-consent-dialog{padding:20px 15px 15px;border-radius:16px}}
+
+/* VIP promotional price hierarchy */
+.profile-page .member-plan-promo{position:relative;border:1px solid #f1c7c9;box-shadow:0 8px 24px rgba(196,42,49,.08)}
+.profile-page .member-plan-sale-tag{background:#fff0f0!important;color:#c52b32!important;border:1px solid #ffd4d6!important;font-weight:700}
+.profile-page .member-plan-price-box{display:flex;align-items:flex-end;flex-wrap:wrap;gap:9px;margin:10px 0 2px}
+.profile-page .member-plan-price-box .member-plan-price{margin:0}
+.profile-page .member-plan-price-box .member-plan-price strong{font-size:34px;line-height:1;color:#c52b32;letter-spacing:-1px}
+.profile-page .member-plan-price-box .member-plan-price span{font-size:12px;color:#667085;margin-left:4px}
+.profile-page .member-plan-saving{display:inline-flex;align-items:center;min-height:24px;padding:3px 8px;margin-bottom:1px;border-radius:999px;background:#c52b32;color:#fff;font-size:11px;font-weight:700}
+.profile-page .member-plan-compare{display:flex;align-items:center;gap:8px;margin:4px 0 11px;font-size:11px}
+.profile-page .member-plan-original{color:#98a2b3;text-decoration:line-through;text-decoration-thickness:1.5px}
+.profile-page .member-plan-discount{padding:2px 7px;border-radius:999px;background:#fff5e8;color:#b54708;font-weight:700}
+.profile-page .member-plan-promo .member-plan-future{font-weight:600;color:#667085}
