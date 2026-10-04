@@ -946,3 +946,10 @@
       .cold-card-risk-summary-text{font-size:12px}
       .cold-card-result-text{font-size:10.5px}
     }
+
+  /* VIP consent: dedicated mobile layout; do not inherit full-width member-panel input rules. */
+  .profile-page .member-plan .member-vip-risk{margin:10px 0 4px!important;padding:9px 10px;border-radius:8px;background:#f7f8fa;color:#667085!important;font-size:11px!important;line-height:1.65!important}
+  .profile-page .member-plan .member-vip-consent{display:grid;grid-template-columns:18px minmax(0,1fr);align-items:start;column-gap:8px;width:100%;margin:8px 0 2px;color:#596171;font-size:11px;line-height:1.65}
+  .profile-page .member-plan .member-vip-consent input[type="checkbox"]{display:block!important;width:18px!important;height:18px!important;min-width:18px;margin:1px 0 0!important;padding:0!important;border:1px solid #b7bdc7;border-radius:4px;accent-color:#cb2b31}
+  .profile-page .member-plan .member-vip-consent span{display:block;min-width:0;white-space:normal;word-break:normal;overflow-wrap:break-word}
+  .profile-page .member-plan .member-vip-consent a{display:inline;color:#315f9b;text-decoration:underline;text-underline-offset:2px;white-space:normal;word-break:keep-all}
