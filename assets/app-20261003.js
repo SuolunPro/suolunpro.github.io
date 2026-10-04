@@ -358,13 +358,21 @@
         ['1个会员账号','有效期内查看完整赛事报告','查看平台开放的会员历史数据','进入会员专区查看深度研究内容']);
       const contactNote=el('p','member-muted member-purchase-help',
         '联系客服开通尊贵月卡VIP｜微信：GoodLuck_H3。请提供已注册账号的邮箱；确认办理方式后由管理员人工开通。本页面不收款、不自动开通。');
+      const vipConsentLabel=document.createElement('label'),vipConsent=document.createElement('input'),vipConsentText=document.createElement('span');
+      vipConsentLabel.className='auth-remember member-vip-consent';vipConsent.type='checkbox';vipConsent.checked=false;
+      vipConsentText.append(document.createTextNode('我已阅读并同意 '));
+      const vipAgreement=document.createElement('a');vipAgreement.href='./legal.html#vip';vipAgreement.target='_blank';vipAgreement.rel='noopener';vipAgreement.textContent='《尊贵月卡VIP会员服务协议》';
+      vipConsentText.append(vipAgreement);
+      vipConsentLabel.append(vipConsent,vipConsentText);
+      const vipRisk=el('p','member-muted member-vip-risk','风险提示：平台提供足球赛事数据、概率模型及风险分析服务；预测存在不确定性，不构成收益承诺或确定性赛事结果。平台不提供、不接受、不代理投注服务。');
       const membershipContact=el('button','member-plan-apply','复制尊贵月卡VIP申请');
       membershipContact.onclick=async()=>{
-        const message='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession?.user?.email||'请填写注册邮箱')+'\\n方案：尊贵月卡VIP 29.9元/月（1个月）';
+        if(!vipConsent.checked){contactNote.textContent='请先阅读并同意《尊贵月卡VIP会员服务协议》后再申请开通。';return}
+        const message='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession?.user?.email||'请填写注册邮箱')+'\\n方案：尊贵月卡VIP 29.9元/月（1个月）\\n会员协议版本：2026-10-05\\n用户已在页面勾选同意会员服务协议';
         try{await navigator.clipboard.writeText(message);contactNote.textContent='申请内容已复制。请添加客服微信 GoodLuck_H3，发送申请内容，经确认后由管理员开通。'}
         catch{window.prompt('请复制申请内容并发送至客服微信 GoodLuck_H3',message)}
       };
-      membershipPlan.append(membershipContact);
+      membershipPlan.append(vipRisk,vipConsentLabel,membershipContact);
       planGrid.append(membershipPlan);
       const explainer=el('div','member-beta-explainer');
       explainer.append(el('strong','','会员活动说明'),
