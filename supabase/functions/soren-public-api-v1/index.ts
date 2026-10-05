@@ -58,7 +58,7 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string,readOnl
       const mutable=["resultVerified","result","resultHome","resultAway","resultScore",
         "resultSource","resultVerifiedAt","matchStatus","resultStatus","resultAt",
         "handicapResult","homeLogo","awayLogo","logoSource","venueName",
-        "venueCity","pitchSurface"];
+        "venueCity","pitchSurface","environment"];
       for(const key of mutable)if(Object.prototype.hasOwnProperty.call(row,key))output[key]=row[key];
       const hasResult=output.resultVerified===true;
       if(hasResult){
@@ -947,12 +947,70 @@ function riskLine(v:unknown){
   if(!parts.length||parts.some(x=>!Number.isFinite(x)))return null;
   return sign*(parts.reduce((a,b)=>a+b,0)/parts.length);
 }
+function directRiskIntelSummary(list:Record<string,unknown>[],home:unknown,away:unknown,cut:number,boundary:number){
+  const clean=(v:unknown)=>String(v??"").replace(/足球俱乐部|俱乐部|football club/gi,"")
+    .replace(/[ ·•.－—_()（）【】_-]/g,"").trim();
+  const headlineMentionsTeam=(headline:string,name:unknown)=>{
+    const h=clean(headline),t=clean(name);
+    if(!h||!t)return false;
+    if(h.includes(t))return true;
+    const blocked=new Set(["足球","俱乐","联队","竞技","体育","球队","城市"]);
+    const aliases=[t.slice(-3),t.slice(-2),t.slice(0,3),t.slice(0,2)]
+      .filter((x,i,a)=>x.length>=2&&!blocked.has(x)&&a.indexOf(x)===i);
+    return aliases.some(x=>h.includes(x));
+  };
+  const categories:any[]=[];
+  let newestAt:number|null=null;
+  for(const ir of list??[]){
+    const pub=Date.parse(String(ir.published_at??"")),fetchAt=Date.parse(String(ir.fetched_at??""));
+    if(!Number.isFinite(pub)||!Number.isFinite(fetchAt)||pub>=boundary||fetchAt>=boundary||pub>cut||fetchAt>cut)continue;
+    const quality=String(ir.quality??"");
+    if(!["okooo_public_prematch_observed","attributed_prematch_article_pair_verified"].includes(quality))continue;
+    newestAt=newestAt===null?fetchAt:Math.max(newestAt,fetchAt);
+    const hi=ir.highlights;
+    if(hi&&typeof hi==="object"&&!Array.isArray(hi)&&Array.isArray((hi as any).categories)){
+      for(const raw of (hi as any).categories){
+        if(!raw)continue;
+        categories.push({
+          side:String(raw.side??""),type:String(raw.type??"情报"),level:String(raw.level??"低"),
+          impact:String(raw.impact??"中性"),summary:String(raw.summary??ir.headline??""),
+          source:String(ir.source_code??"")
+        });
+      }
+    }
+    if(String(ir.source_code??"")==="sina_xiaopao_attributed"){
+      const headline=String(ir.headline??"").trim();
+      const adverse=/伤退|伤停|伤缺|缺席|缺阵|停赛|受伤|无法出战|无缘出战|出战成疑|出场存疑|出战存疑|可能缺阵|可能缺席|伤疑|带伤|身体不适|未随队|无缘名单|多人缺席|多名重要球员缺席/.test(headline);
+      if(adverse){
+        const level=/主力|核心|头号|队长|门将|多人|多名重要球员|\d{1,2}人/.test(headline)?"高":"中";
+        if(headlineMentionsTeam(headline,home))categories.push({side:"主队",type:"伤停",level,impact:"利空",summary:headline,source:"sina_xiaopao_attributed"});
+        if(headlineMentionsTeam(headline,away))categories.push({side:"客队",type:"伤停",level,impact:"利空",summary:headline,source:"sina_xiaopao_attributed"});
+      }
+    }
+  }
+  const seen=new Set<string>();
+  const uniq=categories.filter(x=>{const k=[x.side,x.type,x.level,x.impact,x.summary].join("|");if(seen.has(k))return false;seen.add(k);return true;});
+  const adverse=uniq.filter(x=>x.impact==="利空"&&["中","高"].includes(String(x.level)));
+  const homeAdverse=adverse.some(x=>x.side==="主队"),awayAdverse=adverse.some(x=>x.side==="客队");
+  const impactSide=homeAdverse&&awayAdverse?"双方利空":homeAdverse?"主队利空":awayAdverse?"客队利空":"";
+  const impactLevel=adverse.some(x=>x.level==="高")?"高":adverse.some(x=>x.level==="中")?"中":"低";
+  const summary=[...new Set(adverse.map(x=>String(x.summary??"")).filter(Boolean))].slice(0,2).join("；");
+  return {
+    observed:uniq.length>0,
+    impactSide,impactLevel,
+    confidence:adverse.length?"高":(uniq.length?"中":"低"),
+    semanticSummary:summary,
+    injuryCount:adverse.filter(x=>x.type==="伤停").length,
+    capturedAt:newestAt===null?null:new Date(newestAt).toISOString()
+  };
+}
+
 async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,forceShadow=false):Promise<Record<string,unknown>[]>{
   if(date<"2026-09-20"||!rows.length)return rows;
   try{
     const shadowRiskByNo=await fetchShadowRiskMap(date,forceShadow);
     const {data:matches,error:matchError}=await db.from("soren_matches")
-      .select("id,match_no,kickoff_at,cutoff_at").eq("pool_date",date).limit(200);
+      .select("id,match_no,home_team,away_team,kickoff_at,cutoff_at").eq("pool_date",date).limit(200);
     if(matchError)throw matchError;
     const matchByNo=new Map<string,Record<string,unknown>>();
     const ids:number[]=[];
@@ -962,7 +1020,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
       if(Number.isFinite(Number(m.id)))ids.push(Number(m.id));
     }
     if(!ids.length)return rows;
-    const [{data:market,error:marketError},{data:features,error:featureError},{data:formalPredictions,error:predictionError},{data:riskLedger,error:riskLedgerError},{data:behaviors,error:behaviorError}]=await Promise.all([
+    const [{data:market,error:marketError},{data:features,error:featureError},{data:formalPredictions,error:predictionError},{data:riskLedger,error:riskLedgerError},{data:behaviors,error:behaviorError},{data:riskIntelRows,error:riskIntelError}]=await Promise.all([
       db.from("soren_market_snapshots")
         .select("match_id,source_code,market_type,snapshot_type,home_value,draw_value,away_value,line,home_water,away_water,data_quality,payload,captured_at,ingested_at")
         .in("match_id",ids)
@@ -986,12 +1044,18 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
         .select("match_id,match_no,okooo_match_id,exchange_scale,transaction_rows,index_rows,captured_at,kickoff_at,prematch_verified,source_quality")
         .eq("pool_date",date).in("match_id",ids).eq("prematch_verified",true)
         .order("captured_at",{ascending:false}).limit(1200),
+      db.from("soren_intelligence_reports_v1")
+        .select("match_id,source_code,headline,published_at,fetched_at,quality,highlights")
+        .eq("pool_date",date).in("match_id",ids)
+        .in("quality",["okooo_public_prematch_observed","attributed_prematch_article_pair_verified"])
+        .order("fetched_at",{ascending:false}).limit(1200),
     ]);
     if(marketError)throw marketError;
     if(featureError)throw featureError;
     if(predictionError)throw predictionError;
     if(riskLedgerError)throw riskLedgerError;
     if(behaviorError)throw behaviorError;
+    if(riskIntelError)throw riskIntelError;
     const marketById=new Map<number,Record<string,unknown>[]>();
     for(const x of market??[]){
       const id=Number(x.match_id);if(!Number.isFinite(id))continue;
@@ -1020,6 +1084,12 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
       const id=Number(x.match_id);if(!Number.isFinite(id))continue;
       if(!behaviorById.has(id))behaviorById.set(id,[]);
       behaviorById.get(id)!.push(x as Record<string,unknown>);
+    }
+    const riskIntelById=new Map<number,Record<string,unknown>[]>();
+    for(const x of riskIntelRows??[]){
+      const id=Number(x.match_id);if(!Number.isFinite(id))continue;
+      if(!riskIntelById.has(id))riskIntelById.set(id,[]);
+      riskIntelById.get(id)!.push(x as Record<string,unknown>);
     }
     const before=(x:Record<string,unknown>,cut:number)=>{
       const c=Date.parse(String(x.captured_at??"")),i=Date.parse(String(x.ingested_at??x.captured_at??""));
@@ -1200,12 +1270,16 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
         ["中","强"].includes(String(shadowPrevious.strength))
       );
       const shadowIntel=(shadowLatest?.intelligence&&typeof shadowLatest.intelligence==="object")?shadowLatest.intelligence:{};
-      const shadowInjuryCount=Number.isFinite(Number(shadowIntel?.injuryCount))?Number(shadowIntel.injuryCount):0;
-      const shadowIntelObserved=shadowInjuryCount>0||(Array.isArray(shadowIntel?.highlights)&&shadowIntel.highlights.length>0);
-      const shadowIntelImpactSide=String(shadowIntel?.impactSide??"");
-      const shadowIntelImpactLevel=String(shadowIntel?.impactLevel??"");
-      const shadowIntelConfidence=String(shadowIntel?.confidence??"");
-      const shadowIntelSemanticSummary=String(shadowIntel?.semanticSummary??"");
+      const directIntel=directRiskIntelSummary(riskIntelById.get(id)??[],match.home_team,match.away_team,marketAuditCut,boundary);
+      const rawShadowInjuryCount=Number.isFinite(Number(shadowIntel?.injuryCount))?Number(shadowIntel.injuryCount):0;
+      const rawShadowObserved=rawShadowInjuryCount>0||(Array.isArray(shadowIntel?.highlights)&&shadowIntel.highlights.length>0);
+      const shadowInjuryCount=Math.max(rawShadowInjuryCount,Number(directIntel.injuryCount??0));
+      const shadowIntelObserved=rawShadowObserved||directIntel.observed===true;
+      const shadowIntelImpactSide=String(shadowIntel?.impactSide??"")||String(directIntel.impactSide??"");
+      const shadowIntelImpactLevel=String(shadowIntel?.impactLevel??"")||String(directIntel.impactLevel??"");
+      const shadowIntelConfidence=String(shadowIntel?.confidence??"")||String(directIntel.confidence??"");
+      const shadowIntelSemanticSummary=String(shadowIntel?.semanticSummary??"")||String(directIntel.semanticSummary??"");
+      const shadowIntelFallbackUsed=!rawShadowObserved&&directIntel.observed===true;
       const shadowIntelSemanticQualified=["中","高"].includes(shadowIntelImpactLevel)&&["中","高"].includes(shadowIntelConfidence);
       const shadowIntelAdverseTop=!!(
         shadowIntelSemanticQualified&&top&&(
@@ -1226,6 +1300,9 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
         shadowPrevious.flags.some((x:string)=>/分歧|异常|极端|负值/.test(x));
       const shadowMarketPersistentAnomaly=!!(shadowMarketAnomaly&&shadowPreviousAnomaly&&shadowHistory.length>=2);
       const liveShadowReauditEligible=liveMarketAudit&&!!shadowLatest&&Number.isFinite(shadowLatestAt)&&shadowLatestAt<=marketAuditCut;
+      const directIntelAt=Date.parse(String(directIntel.capturedAt??""));
+      const liveIntelReauditEligible=liveMarketAudit&&directIntel.observed===true&&
+        Number.isFinite(directIntelAt)&&directIntelAt<=marketAuditCut;
 
       const liveBehaviorRows=(behaviorById.get(id)??[]).filter(x=>{
         const c=Date.parse(String(x.captured_at??""));
@@ -1236,7 +1313,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
       });
       const liveMarketReauditEligible=liveMarketAudit&&liveBehaviorRows.length>0;
       const baseCandidate=sourcePublish||(rawScore!==null&&rawScore>=3);
-      const generalCandidate=baseCandidate||liveMarketReauditEligible||liveShadowReauditEligible;
+      const generalCandidate=baseCandidate||liveMarketReauditEligible||liveShadowReauditEligible||liveIntelReauditEligible;
       if(!generalCandidate)return row;
       const rowFreeze=Date.parse(String(row.frozenAt??""));
       const rowTop=riskPick(row.ftTop1),rowSecond=riskPick(row.second);
@@ -1347,16 +1424,17 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
             shadow_intelligence_confidence:shadowIntelConfidence||null,
             shadow_intelligence_summary:shadowIntelSemanticSummary||null,
             shadow_injury_count:shadowInjuryCount,
-            shadow_captured_at:shadowLatest?.capturedAt??null,
+            shadow_captured_at:shadowLatest?.capturedAt??directIntel.capturedAt??null,
+            shadow_analysis:shadowLatest?.analysis??null,
             live_shadow_reaudit_eligible:liveShadowReauditEligible,
             low_risk_reactivated:lowRiskObservationEligible,
             direction_confirmed:false,
-            rule_version:"HJ38-RISK-LAYER-v1.3.2",
+            rule_version:"HJ38-RISK-LAYER-v1.3.3",
             evaluated_at:new Date(marketAuditCut).toISOString()
           },
           marketSignals:[...new Set(lowDqSignals)],
           independentDrawProbability:null,
-          focusRuleVersion:"HJ38-RISK-LAYER-v1.3.2"
+          focusRuleVersion:"HJ38-RISK-LAYER-v1.3.3"
         }};
       }
 
@@ -1522,8 +1600,12 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
 
       const marketSignals=[...new Set(signals)],marketAnomaly=marketSignals.length>0;
       if(!baseCandidate&&!lowRiskReactivated)return row;
+      const supportiveOverride=!!(
+        baseCandidate&&oppositeSecond&&!qualifiedDraw&&!directionConfirmed&&!existingDirection&&
+        !marketBehaviorAdverse&&!marketAnomaly&&asian.hardSupport&&shadowIntelSupportsTop
+      );
       const focus=baseCandidate
-        ?(oppositeSecond||qualifiedDraw||directionConfirmed||!!existingDirection)
+        ?((oppositeSecond&&!supportiveOverride)||qualifiedDraw||directionConfirmed||!!existingDirection)
         :(lowRiskReactivated&&directionConfirmed);
       const displayTier=focus?((marketAnomaly||directionConfirmed||!!existingDirection)?"强风险信号":"重点风险"):"一般风险";
       return {...row,upsetWarning:{...raw,
@@ -1556,6 +1638,9 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
           asian_details:asian.details,
           live_market_reaudit_eligible:liveMarketReauditEligible,
           live_shadow_reaudit_eligible:liveShadowReauditEligible,
+          live_intelligence_reaudit_eligible:liveIntelReauditEligible,
+          intelligence_fallback_used:shadowIntelFallbackUsed,
+          supportive_override:supportiveOverride,
           shadow_feed_available:!!shadowLatest,
           shadow_market_top:shadowCurrent.top?resultLabel(shadowCurrent.top):null,
           shadow_market_strength:shadowCurrent.strength,
@@ -1576,12 +1661,13 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
           shadow_intelligence_confidence:shadowIntelConfidence||null,
           shadow_intelligence_summary:shadowIntelSemanticSummary||null,
           shadow_injury_count:shadowInjuryCount,
-          shadow_captured_at:shadowLatest?.capturedAt??null,
+          shadow_captured_at:shadowLatest?.capturedAt??directIntel.capturedAt??null,
+          shadow_analysis:shadowLatest?.analysis??null,
           low_risk_reactivated:lowRiskReactivated,
           direction_confirmed:directionConfirmed||!!existingDirection,
           frozen_model_cut:freezeAt,
           market_audit_cut:new Date(marketAuditCut).toISOString(),
-          rule_version:"HJ38-RISK-LAYER-v1.3.2",
+          rule_version:"HJ38-RISK-LAYER-v1.3.3",
           evaluated_at:new Date(marketAuditCut).toISOString()
         },
         marketSignals,
@@ -1595,7 +1681,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
           (servedPredictionEligible&&!formalStoreEligible?servedDq:formalDq),
         replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
         historyRewrite:false,
-        focusRuleVersion:"HJ38-RISK-LAYER-v1.3.2"
+        focusRuleVersion:"HJ38-RISK-LAYER-v1.3.3"
       }};
     });
   }catch(error){
@@ -1610,7 +1696,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
       if(!generalCandidate)return row;
       return {...row,upsetWarning:{...raw,sourcePublish,publish:false,detailOnly:false,
         displayTier:null,publicationEligible:false,publicationReason:"RISK_LAYER_UNAVAILABLE",
-        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.3.2-FALLBACK"},
+        focusGate:{opposite_second:false,qualified_draw:false,market_anomaly:false,rule_version:"HJ38-RISK-LAYER-v1.3.3-FALLBACK"},
         marketSignals:[]}};
     });
   }
@@ -1625,7 +1711,7 @@ function upsetStatsFor(rows:Record<string,unknown>[]){
   const focus=published.filter(r=>tierOf(r)==="重点风险").length;
   return {
     modelVersion:"HJ38-UPSET-v1.1.0",
-    riskLayerVersion:"HJ38-RISK-LAYER-v1.3.2",
+    riskLayerVersion:"HJ38-RISK-LAYER-v1.3.3",
     published:published.length,
     strong,focus,
     // Backward-compatible keys: high/medium now follow the public layered tier, not legacy risk_score bands.
@@ -3075,9 +3161,10 @@ async function paidMemberZone(
       !williamHardReverse&&!sportteryHardReverse&&
       runtimeFocusGate.shadow_market_adverse!==true&&
       runtimeFocusGate.shadow_intelligence_adverse_top!==true;
-    const riskCoolingQualified=customerRiskScore>=3&&
-      asianSupportSignal&&shadowMarketSupportsTop&&shadowIntelSupportsTop&&
-      noActiveReverse;
+    const riskCoolingQualified=customerRiskScore>=3&&(
+      customerWarningGate.supportive_override===true||
+      (asianSupportSignal&&shadowMarketSupportsTop&&shadowIntelSupportsTop&&noActiveReverse)
+    );
     const riskCoolingSupportDomains=[
       asianSupportSignal?"asian_market":null,
       shadowMarketSupportsTop?"market_behavior":null,
@@ -3103,11 +3190,12 @@ async function paidMemberZone(
       customerRiskScore>=4&&
       customerOppositeSecond&&
       ["主胜","客胜"].includes(modelTop);
-    const customerRiskPoolEligible=customerRouteSeed
+    const seededStrictAvoid=customerRouteSeed?.strict_avoid_eligible===true;
+    const customerRiskPoolEligibleBase=customerRouteSeed
       ?customerRouteSeed.risk_pool_eligible===true
       :fallbackRiskPoolEligible;
-    const customerStrictAvoidEligible=
-      customerRouteSeed?.strict_avoid_eligible===true&&customerRiskPoolEligible;
+    const customerRiskPoolEligible=customerRiskPoolEligibleBase&&!(riskCoolingQualified&&!seededStrictAvoid);
+    const customerStrictAvoidEligible=seededStrictAvoid&&customerRiskPoolEligible;
     const validHandicapCustomerPick=(v:unknown)=>["让胜","让平","让负"].includes(String(v??""));
     const customerHandicapPicks=[...new Set(
       [handicapTop1,handicapSecond].filter(validHandicapCustomerPick).map(v=>String(v))
@@ -3204,7 +3292,7 @@ async function paidMemberZone(
       unbeatenDirection:vipUnbeatenDirection,
       referencePicks:vipReferencePicks,
       vipEvidence:[...new Set([
-        ...(riskCoolingQualified?["最新亚盘/市场/情报共同支持原方向"]:[]),
+        ...(riskCoolingQualified?["最新独立证据共同支持原方向"]:[]),
         ...vipEvidence
       ])].slice(0,4),
       gate:{
@@ -3253,6 +3341,7 @@ async function paidMemberZone(
         shadowIntelligenceConfidence:runtimeFocusGate.shadow_intelligence_confidence??null,
         shadowIntelligenceSummary:runtimeFocusGate.shadow_intelligence_summary??null,
         shadowInjuryCount:Number(runtimeFocusGate.shadow_injury_count??0)||0,
+        shadowAnalysis:(runtimeFocusGate.shadow_analysis&&typeof runtimeFocusGate.shadow_analysis==="object")?runtimeFocusGate.shadow_analysis:null,
         hardMarketReverse,
         hardRiskReverse,
         asianRetreatSignal,
@@ -3455,6 +3544,11 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "GET" && req.method !== "POST") return reply({ ok: false, error: "METHOD_NOT_ALLOWED" }, 405);
   if(req.method==="POST" && new URL(req.url).searchParams.get("action")!=="invite") return reply({ok:false,error:"METHOD_NOT_ALLOWED"},405);
   const requestUrl = new URL(req.url);
+  // Referral campaign ended after 2026-10-01 (Asia/Shanghai).
+  // Keep historical referral/grant records intact, but permanently reject new redemption attempts.
+  if(req.method==="POST"&&requestUrl.searchParams.get("action")==="invite"){
+    return reply({ok:false,error:"INVITE_CAMPAIGN_ENDED",campaignActive:false,campaignEndsAt:"2026-10-01T16:00:00.000Z"},410);
+  }
   if (requestUrl.searchParams.get("view") === "shadow-bridge-auth") {
     const token=req.headers.get("apikey")?.trim()??"";
     const serviceKey=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")??"";
@@ -3507,6 +3601,18 @@ Deno.serve(async (req: Request) => {
       const response=await fetch(upstreamUrl,{headers:{accept:"application/json"},signal:AbortSignal.timeout(10_000)});
       if(!response.ok)throw new Error("UPSTREAM_"+response.status);
       const data=await response.json();
+      // No formal run yet is expected during the sales-day publication window.
+      // Treat it as a healthy pending state so scheduled upset sync never emits 502.
+      if(data?.ok===true&&Array.isArray(data?.rows)&&data.rows.length===0&&
+         (data?.modelVersion===null||data?.modelVersion===undefined||data?.revision===null||data?.revision===undefined)){
+        return reply({
+          ok:true,sync:"upset-warning",date:String(data?.date??requestedDate??""),
+          modelVersion:null,revision:null,
+          upsetStats:{modelVersion:"HJ38-UPSET-v1.1.0",published:0,high:0,medium:0,directionPublished:0,resultFieldsUsed:false,hurDirectionUsed:false},
+          riskLayerVersion:"HJ38-RISK-LAYER-v1.3.3",
+          synced:0,pendingPublication:true,publicationStatus:"WAITING_FORMAL_PUBLICATION"
+        });
+      }
       const expectedRevision=allowed.get(String(data?.modelVersion??""));
       if(data?.ok!==true||!expectedRevision||data?.revision!==expectedRevision||!Array.isArray(data?.rows))throw new Error("UPSTREAM_VALIDATION_FAILED");
       const syncDate=String(data.date??requestedDate??"");
@@ -3516,7 +3622,7 @@ Deno.serve(async (req: Request) => {
         ok:true,sync:"upset-warning",date:syncDate,
         modelVersion:data.modelVersion??null,revision:data.revision??null,
         upsetStats:upsetStatsFor(layered),
-        riskLayerVersion:"HJ38-RISK-LAYER-v1.3.2",
+        riskLayerVersion:"HJ38-RISK-LAYER-v1.3.3",
         ...result
       });
     } catch(error) {
@@ -3555,8 +3661,51 @@ Deno.serve(async (req: Request) => {
     return reply({ok:true,health:"handicap-backfill",revision:"handicap-history-backfill-v1.0-20260920",count:(data??[]).length,byDate});
   }
   try {
+    // China Sports Lottery National Day closure (2026-10-01 through 2026-10-04).
+    // Return a first-class normal closure state before auth/member checks so the
+    // customer UI never mistakes an official zero-fixture day for an API outage.
+    const closureView=requestUrl.searchParams.get("view")??"today";
+    const closureDate=requestUrl.searchParams.get("date");
+    if(["today","archive"].includes(closureView)&&closureDate&&closureDate>="2026-10-01"&&closureDate<="2026-10-04"){
+      return reply({
+        ok:true,view:closureView,date:closureDate,count:0,sourceCount:0,
+        model:"索伦引擎",modelVersion:null,revision:null,batchTime:null,dataTime:null,
+        pregameVerifiedCount:0,rows:[],
+        marketStatus:"LOTTERY_CLOSED",
+        publicationStatus:"LOTTERY_CLOSED",
+        publicationMessage:"国庆休市期间 · 暂无竞彩赛事",
+        publicationDetail:"中国体育彩票竞彩足球当前处于休市期，今日暂无官方在售赛事。",
+        resumeMessage:"10月5日恢复开售后，九十刻度将自动更新赛事数据。",
+        systemStatus:"NORMAL",updatedAt:new Date().toISOString()
+      });
+    }
+
     const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i,"").trim();
-    if (!token) return reply({ok:false,error:"LOGIN_REQUIRED"},401);
+
+    // A missing session must not turn an unpublished sales day into "Load failed".
+    // This branch exposes no match predictions or member data: it only reports the
+    // neutral publication state for an explicitly selected current/future date.
+    if(!token){
+      const publicView=requestUrl.searchParams.get("view")??"today";
+      const publicDate=requestUrl.searchParams.get("date");
+      const publicToday=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).split("/").join("-");
+      if(["today","archive"].includes(publicView)&&publicDate&&/^\d{4}-\d{2}-\d{2}$/.test(publicDate)&&publicDate>=publicToday){
+        try{
+          const upstreamState=await fetchPublicUpstream(publicView,publicDate);
+          if(upstreamState?.ok===true&&Array.isArray(upstreamState?.rows)&&upstreamState.rows.length===0){
+            return reply({
+              ok:true,view:publicView,date:publicDate,count:0,sourceCount:Number(upstreamState?.sourceCount??0),
+              model:"索伦引擎",modelVersion:null,revision:null,batchTime:null,dataTime:null,
+              pregameVerifiedCount:0,rows:[],
+              publicationStatus:"WAITING_FORMAL_PUBLICATION",
+              publicationMessage:"今日正式数据尚未发布，正在等待赛前数据核验。",
+              authRequiredForPublishedData:true,updatedAt:new Date().toISOString()
+            });
+          }
+        }catch(e){console.error("PUBLIC_PENDING_STATE_CHECK_FAILED",e)}
+      }
+      return reply({ok:false,error:"LOGIN_REQUIRED"},401);
+    }
     const auth = await fetch("https://ttydbcejxqxdkcfoizkj.supabase.co/auth/v1/user",{headers:{"apikey":Deno.env.get("SUPABASE_ANON_KEY")??"","Authorization":"Bearer "+token}});
     if (!auth.ok) return reply({ok:false,error:"LOGIN_REQUIRED"},401);
     const user = await auth.json();
@@ -3638,6 +3787,8 @@ Deno.serve(async (req: Request) => {
     }
     (membership as Record<string,unknown>).trialStatus=trialStatus;
     (membership as Record<string,unknown>).vipActive=vipAccess.active;
+    // Paid VIP is an active membership entitlement. Keep trial/referral activity, but never let it mask a valid paid VIP.
+    (membership as Record<string,unknown>).active=(membership as Record<string,unknown>).active===true||vipAccess.active===true;
     (membership as Record<string,unknown>).vipName=vipAccess.name;
     (membership as Record<string,unknown>).vipUntil=vipAccess.until;
     (membership as Record<string,unknown>).paidActive=vipAccess.active;
@@ -3725,9 +3876,10 @@ Deno.serve(async (req: Request) => {
     let date = url.searchParams.get("date");
     if (!["today", "history", "archive"].includes(view)) return reply({ ok: false, error: "INVALID_VIEW" }, 400);
     if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return reply({ ok: false, error: "INVALID_DATE" }, 400);
-    if(view==="archive"&&date&&date>=beijingToday){
-      date=await latestKnownPoolDate(date);
-    }
+    // Preserve the exact date selected by the customer. For today/future dates,
+    // an unpublished formal run is a healthy pending state, not a reason to
+    // silently fall back to an older sales pool.
+    // (Historical dates continue through the normal archive path.)
 
     const archivedScores: Record<string, {home:string;away:string;h:number;a:number}> = {"2026-09-13|001":{"home":"东京绿茵","away":"千叶市原","h":1,"a":1},"2026-09-13|003":{"home":"塞尔塔","away":"马拉加","h":1,"a":1},"2026-09-13|004":{"home":"哈马比","away":"布鲁马波","h":3,"a":1},"2026-09-13|005":{"home":"库奥皮奥","away":"赫尔辛基","h":0,"a":0},"2026-09-13|006":{"home":"海伦芬","away":"特尔斯达","h":0,"a":0},"2026-09-13|007":{"home":"莱切","away":"蒙扎","h":3,"a":2},"2026-09-13|008":{"home":"里尔","away":"特鲁瓦","h":2,"a":0},"2026-09-13|009":{"home":"莱红牛","away":"汉堡","h":5,"a":0},"2026-09-13|010":{"home":"莱万特","away":"巴萨","h":2,"a":4},"2026-09-13|011":{"home":"汉坎","away":"莫尔德","h":1,"a":5},"2026-09-13|012":{"home":"勒芒","away":"朗斯","h":2,"a":2},"2026-09-13|013":{"home":"曼联","away":"曼城","h":0,"a":1},"2026-09-13|014":{"home":"埃沃斯堡","away":"拜仁","h":1,"a":2},"2026-09-13|015":{"home":"那不勒斯","away":"博洛尼亚","h":1,"a":0},"2026-09-13|016":{"home":"赫塔费","away":"拉科","h":1,"a":1},"2026-09-13|017":{"home":"本菲卡","away":"吉维森特","h":3,"a":1},"2026-09-13|018":{"home":"埃因霍温","away":"鹿斯巴达","h":4,"a":1},"2026-09-13|019":{"home":"萨索洛","away":"尤文图斯","h":3,"a":2},"2026-09-13|020":{"home":"布雷斯特","away":"巴黎圣曼","h":0,"a":1},"2026-09-13|021":{"home":"皇家社会","away":"马竞","h":0,"a":3},"2026-09-13|022":{"home":"法马利康","away":"里斯本","h":1,"a":1},"2026-09-13|023":{"home":"弗拉门戈","away":"科林蒂安","h":2,"a":1},"2026-09-13|024":{"home":"芝加哥","away":"新英格兰","h":1,"a":2},"2026-09-13|04":{"home":"莱切","away":"蒙扎","h":3,"a":2},"2026-09-13|05":{"home":"那不勒斯","away":"博洛尼亚","h":1,"a":0},"2026-09-13|06":{"home":"萨索洛","away":"尤文图斯","h":3,"a":2},"2026-09-13|07":{"home":"莱万特","away":"巴塞罗那","h":2,"a":4},"2026-09-13|08":{"home":"赫塔费","away":"拉科鲁尼亚","h":1,"a":1},"2026-09-13|10":{"home":"里尔","away":"特鲁瓦","h":2,"a":0},"2026-09-13|11":{"home":"勒芒","away":"朗斯","h":2,"a":2},"2026-09-13|13":{"home":"阿罗卡","away":"圣克拉拉","h":1,"a":2},"2026-09-14|001":{"home":"中国女","away":"中国香港女","h":2,"a":1},"2026-09-14|002":{"home":"国际图尔","away":"瓦萨","h":1,"a":0},"2026-09-14|003":{"home":"科莫","away":"帕尔马","h":2,"a":1},"2026-09-14|004":{"home":"都灵","away":"罗马","h":0,"a":2},"2026-09-14|005":{"home":"佐加顿斯","away":"盖斯","h":2,"a":0},"2026-09-14|006":{"home":"博德闪耀","away":"桑纳菲","h":3,"a":2},"2026-09-14|007":{"home":"吉达国民","away":"塔什干棉农","h":1,"a":1},"2026-09-14|008":{"home":"国际米兰","away":"乌迪内斯","h":5,"a":3},"2026-09-14|009":{"home":"圣旺红星","away":"梅斯","h":1,"a":0},"2026-09-14|010":{"home":"利兹联","away":"纽卡斯尔","h":4,"a":1},"2026-09-14|011":{"home":"比利亚雷","away":"贝蒂斯","h":1,"a":2},"2026-09-14|012":{"home":"布拉加","away":"埃斯托里","h":1,"a":0},"2026-09-14|013":{"home":"中国女","away":"中国香港女","h":2,"a":1},"2026-09-14|014":{"home":"中国女","away":"中国香港女","h":2,"a":1},"2026-09-14|04":{"home":"都灵","away":"罗马","h":0,"a":2},"2026-09-14|05":{"home":"科莫","away":"帕尔马","h":2,"a":1},"2026-09-14|06":{"home":"国际米兰","away":"乌迪内斯","h":5,"a":3},"2026-09-14|08":{"home":"圣旺红星","away":"梅斯","h":1,"a":0},"2026-09-14|09":{"home":"里奥阿维","away":"阿马多拉","h":3,"a":3},"2026-09-14|10":{"home":"摩雷伦斯","away":"马里迪莫","h":3,"a":1},"2026-09-14|11":{"home":"布拉加","away":"埃斯托里尔","h":1,"a":0},"2026-09-14|12":{"home":"佐加顿斯","away":"哥德堡盖斯","h":2,"a":0},"2026-09-14|13":{"home":"天狼星","away":"代格福什","h":2,"a":0},"2026-09-15|002":{"home":"大田市民","away":"京都","h":1,"a":0},"2026-09-15|004":{"home":"柔佛","away":"布里兰","h":1,"a":1},"2026-09-15|005":{"home":"北京国安","away":"浦项制铁","h":3,"a":1},"2026-09-15|006":{"home":"艾因","away":"利雅得胜利","h":4,"a":0},"2026-09-15|007":{"home":"巴列卡诺","away":"西班牙人","h":2,"a":1},"2026-09-15|008":{"home":"阿拉维斯","away":"巴伦西亚","h":0,"a":1},"2026-09-15|009":{"home":"阿贾克斯","away":"威廉二世","h":5,"a":1},"2026-09-15|01":{"home":"北京国安","away":"浦项制铁","h":3,"a":1},"2026-09-15|010":{"home":"米堡","away":"米尔沃尔","h":2,"a":2},"2026-09-15|011":{"home":"利物浦","away":"热刺","h":3,"a":1},"2026-09-15|012":{"home":"伊普斯维奇","away":"阿森纳","h":2,"a":4},"2026-09-15|013":{"home":"埃尔切","away":"皇马","h":2,"a":3},"2026-09-15|014":{"home":"普拉腾斯","away":"弗鲁米嫩","h":2,"a":1},"2026-09-15|03":{"home":"艾因","away":"利雅得胜利","h":4,"a":0},"2026-09-15|05":{"home":"布里斯托城","away":"林肯城","h":0,"a":1},"2026-09-15|06":{"home":"米德尔斯堡","away":"米尔沃尔","h":2,"a":2},"2026-09-15|07":{"home":"西汉姆联","away":"富勒姆","h":2,"a":3},"2026-09-15|08":{"home":"伊普斯维奇","away":"阿森纳","h":2,"a":4},"2026-09-15|10":{"home":"巴列卡诺","away":"西班牙人","h":2,"a":1},"2026-09-15|11":{"home":"阿拉维斯","away":"巴伦西亚","h":0,"a":1},"2026-09-15|13":{"home":"阿贾克斯","away":"威廉二世","h":5,"a":1},"2026-09-16|001":{"home":"中国U23","away":"朝鲜U23","h":2,"a":1},"2026-09-16|002":{"home":"全北现代","away":"柏太阳神","h":2,"a":1},"2026-09-16|003":{"home":"日本U23","away":"中国香港U23","h":2,"a":0},"2026-09-16|004":{"home":"奥莫尼亚","away":"塞尔塔","h":1,"a":0},"2026-09-16|005":{"home":"拉科","away":"塞维利亚","h":0,"a":1},"2026-09-16|006":{"home":"马竞","away":"奥萨苏纳","h":4,"a":0},"2026-09-16|007":{"home":"AC米兰","away":"本菲卡","h":0,"a":2},"2026-09-16|008":{"home":"勒沃库森","away":"采列","h":2,"a":0},"2026-09-16|009":{"home":"桑德兰","away":"阿尔克马","h":1,"a":0},"2026-09-16|010":{"home":"格拉茨","away":"雷恩","h":0,"a":0},"2026-09-16|011":{"home":"安德莱赫特","away":"里昂","h":1,"a":2},"2026-09-16|012":{"home":"考文垂","away":"维拉","h":1,"a":3},"2026-09-16|013":{"home":"巴萨","away":"桑坦德","h":7,"a":2},"2026-09-16|015":{"home":"基多体大","away":"帕梅拉斯","h":3,"a":2},"2026-09-16|016":{"home":"博塔弗戈","away":"格雷米奥","h":3,"a":2},"2026-09-16|017":{"home":"科林蒂安","away":"拉普大学","h":0,"a":1},"2026-09-16|02":{"home":"奥莫尼亚","away":"塞尔塔","h":1,"a":0},"2026-09-16|03":{"home":"AC米兰","away":"本菲卡","h":0,"a":2},"2026-09-16|04":{"home":"安德莱赫特","away":"里昂","h":1,"a":2},"2026-09-16|05":{"home":"勒沃库森","away":"采列","h":2,"a":0},"2026-09-16|09":{"home":"埃弗顿","away":"狼队","h":1,"a":0},"2026-09-16|10":{"home":"考文垂","away":"阿斯顿维拉","h":1,"a":3},"2026-09-16|12":{"home":"拉科鲁尼亚","away":"塞维利亚","h":0,"a":1},"2026-09-17|003":{"home":"克里特","away":"霍芬海姆","h":2,"a":0},"2026-09-17|004":{"home":"贝蒂斯","away":"赫塔费","h":1,"a":0},"2026-09-17|005":{"home":"水晶宫","away":"波兹南","h":4,"a":0},"2026-09-17|006":{"home":"皇家社会","away":"伯恩茅斯","h":1,"a":2},"2026-09-17|007":{"home":"尤文图斯","away":"奈梅亨","h":5,"a":0},"2026-09-17|008":{"home":"贝西克塔","away":"马赛","h":4,"a":1},"2026-09-17|009":{"home":"利勒斯特","away":"托林斯","h":1,"a":2},"2026-09-17|010":{"home":"马拉加","away":"比利亚雷","h":1,"a":3},"2026-09-17|011":{"home":"弗拉门戈","away":"德尔瓦耶","h":1,"a":1}};
     const outcomeCode=(h:number,a:number)=>h>a?"H":h<a?"A":"D";
@@ -3861,6 +4013,27 @@ Deno.serve(async (req: Request) => {
       }
     }
     if(!data)data=await fetchPublicUpstream(view,date);
+
+    // A selected date can legitimately have no formal publication yet. Return
+    // a normal empty payload immediately instead of running the heavy enrichment
+    // chain or surfacing it to the UI as an interface failure.
+    if(data?.ok===true&&Array.isArray(data?.rows)&&data.rows.length===0){
+      const emptyRows:Record<string,unknown>[]=[];
+      return reply({
+        ok:true,view,date:data.date??date??null,count:0,model:"索伦引擎",
+        modelVersion:data.modelVersion??null,revision:data.revision??null,
+        batchTime:data.batchTime??null,dataTime:data.dataTime??null,
+        pregameVerifiedCount:0,
+        handicapStats:buildHandicapStats(emptyRows),
+        upsetStats:upsetStatsFor(emptyRows),
+        dailySelectionStats:dailySelectionStatsFor(emptyRows),
+        warningSync:{synced:0,readOnly:true,replayMode:"WAITING_FORMAL_PUBLICATION"},
+        publicationStatus:"WAITING_FORMAL_PUBLICATION",
+        publicationMessage:"今日正式数据尚未发布，正在等待赛前数据核验。",
+        updatedAt:new Date().toISOString(),
+        rows:emptyRows
+      });
+    }
 
     const verifiedResults: Record<string, Record<string, { result: string; score: string; source: string }>> = {
       "2026-09-17": {

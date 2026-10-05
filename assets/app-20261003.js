@@ -1057,17 +1057,19 @@
         const xsec=el('section','member-zone-proof-section');
         xsec.append(el('div','member-zone-proof-title','市场与情报同源依据'),el('div','member-zone-intel-state','展开后读取最新赛前影子分析…'));
         body.append(xsec);
+        const inlineShadow=(cold?.gate?.shadowAnalysis&&typeof cold.gate.shadowAnalysis==='object')?cold.gate.shadowAnalysis:null;
         let shadowProofLoaded=false;
         const loadShadowProof=async()=>{
           if(shadowProofLoaded)return;shadowProofLoaded=true;
           try{
-            const proof=await loadMemberIntelProof(zoneDate,row.no);
-            renderShadowAnalysisFields(xsec,proof?.analysis,{title:'市场与情报同源依据',top1:row.model?.top1,conclusion:displayLabel});
+            const analysis=inlineShadow||(await loadMemberIntelProof(zoneDate,row.no))?.analysis;
+            renderShadowAnalysisFields(xsec,analysis,{title:'市场与情报同源依据',top1:row.model?.top1,conclusion:displayLabel});
           }catch(error){
             shadowProofLoaded=false;
             xsec.replaceChildren(el('div','member-zone-proof-title','市场与情报同源依据'),el('div','member-zone-intel-state','同源依据读取失败，请稍后重试'));
           }
         };
+        if(inlineShadow)loadShadowProof();
         details.addEventListener('toggle',()=>{if(details.open)loadShadowProof()},{passive:true});
 
         const cov=row.coverage||{},dsec=el('section','member-zone-proof-section');
