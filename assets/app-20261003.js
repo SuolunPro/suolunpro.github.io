@@ -1764,7 +1764,14 @@
     function sectionHead(title,sub){const h=el('div','section-head');h.append(el('h2','',title),el('span','',sub));return h}
     function empty(title,text){const x=el('div','empty');x.append(el('b','',title),el('div','',text));return x}
     function notice(){return document.createDocumentFragment()}
+    function dailySelectionHardBlocked(row){
+      if(row?.dailySelectionRiskLocked===true||row?.vipRiskLocked===true||row?.highDrawRisk===true||row?.marketDirectionAnomaly===true)return true;
+      const warning=(row?.upsetWarning&&typeof row.upsetWarning==='object')?row.upsetWarning:null;
+      const tier=String(warning?.displayTier??warning?.display_tier??'');
+      return warning?.publish===true||tier==='重点风险'||tier==='强风险信号';
+    }
     function isFocus(row){
+      if(dailySelectionHardBlocked(row))return false;
       const archived=ARCHIVED_FOCUS[row.date],no=String(row.no??'').padStart(3,'0');
       if(Array.isArray(archived))return row.pregameVerified===true&&archived.includes(no);
       const dailyTier=String(row.dailySelectionTier??row.daily_selection_tier??'').trim().toUpperCase();
@@ -1780,7 +1787,7 @@
       return row.pregameVerified===true&&(explicit||marked||frozenFormal);
     }
     function isSupplement(row){
-      return row.pregameVerified===true&&String(row.dailySelectionTier??row.daily_selection_tier??'').toUpperCase()==='SUPPLEMENT';
+      return !dailySelectionHardBlocked(row)&&row.pregameVerified===true&&String(row.dailySelectionTier??row.daily_selection_tier??'').toUpperCase()==='SUPPLEMENT';
     }
     // Historical replay uses only evidence available at the original pre-kickoff freeze; HUR never determines direction and result fields are excluded.
     function upsetInfo(row){
