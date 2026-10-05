@@ -1097,11 +1097,33 @@
         :(state.baseDate||state.today?.date||state.selectedDate||beijingToday());
     }
 
+    function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_v1:'+String(date)}
+    function restoreMemberZoneSnapshot(date){
+      try{
+        const raw=localStorage.getItem(memberZoneStorageKey(date));
+        if(!raw)return false;
+        const x=JSON.parse(raw);
+        if(!x?.zone||x.zone.date!==date)return false;
+        // Active-day snapshots are only a fast first paint. The authoritative
+        // request still refreshes them in the background below.
+        const maxAge=date<beijingToday()?24*60*60*1000:6*60*60*1000;
+        if(Date.now()-Number(x.at||0)>maxAge)return false;
+        state.memberZone=x.zone;
+        memberZoneFingerprint=String(x.fingerprint||JSON.stringify(x.zone));
+        memberZoneDataCache.set(date,{at:Number(x.at||0),zone:x.zone,membership:memberInfo,fingerprint:memberZoneFingerprint});
+        return true;
+      }catch{return false}
+    }
+    function persistMemberZoneSnapshot(date,zone,fingerprint){
+      try{localStorage.setItem(memberZoneStorageKey(date),JSON.stringify({at:Date.now(),zone,fingerprint}))}catch{}
+    }
+
     async function loadMemberZone(silent=false){
       if(memberInfo?.vipActive!==true)return;
       const zoneDate=memberZoneDate();
       const cacheTtl=zoneDate<beijingToday()?30*60*1000:2*60*1000;
-      const cachedZone=memberZoneDataCache.get(zoneDate);
+      let cachedZone=memberZoneDataCache.get(zoneDate);
+      if(!cachedZone&&restoreMemberZoneSnapshot(zoneDate))cachedZone=memberZoneDataCache.get(zoneDate);
       if(cachedZone){
         // Stale-while-revalidate for the active cold-warning page: paint the last
         // successful payload immediately. Fresh entries need no network request;
@@ -1143,6 +1165,7 @@
           changed=true;
         }
         memberZoneDataCache.set(zoneDate,{at:Date.now(),zone:j.zone,membership:j.membership||memberInfo,fingerprint});
+        persistMemberZoneSnapshot(zoneDate,j.zone,fingerprint);
         while(memberZoneDataCache.size>10)memberZoneDataCache.delete(memberZoneDataCache.keys().next().value);
         state.memberZoneError=null;
       })();
