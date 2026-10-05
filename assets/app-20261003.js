@@ -962,7 +962,9 @@
             historicalHandicapReference?'当时正式让球为PASS；仅展示赛前冻结概率恢复参考，不计正式成绩':'历史让球保护样本，不计入9月30日起正式新规则成绩');
           if(displayMode==='HANDICAP_PROTECT')addLine(ssec,'让球主推 / 保护',handicapPrimary+' / '+handicapCover);
           if(row.behavior?.top1)addLine(ssec,'市场资金',(row.behavior.top1||'待确认')+' · '+(row.behavior.strength||'观察'));
-          addLine(ssec,'多源一致性',gate.stableDirection===true?'已形成确认':'方向待确认');
+          const unifiedRiskDirection=(cold.riskDirection&&typeof cold.riskDirection==='object')?cold.riskDirection:null;
+          const unifiedDirectionConfirmed=unifiedRiskDirection?.status==='CONFIRMED'&&!!unifiedRiskDirection?.direction;
+          addLine(ssec,'多源一致性',unifiedDirectionConfirmed?('已形成确认 · '+unifiedRiskDirection.direction):(gate.stableDirection===true?'已形成确认':'方向待确认'));
           const shadowFlags=Array.isArray(gate.shadow_flags)?gate.shadow_flags:(Array.isArray(gate.shadowFlags)?gate.shadowFlags:[]);
           const shadowVotes=(gate.shadow_market_votes&&typeof gate.shadow_market_votes==='object')?gate.shadow_market_votes:((gate.shadowMarketVotes&&typeof gate.shadowMarketVotes==='object')?gate.shadowMarketVotes:null);
           if(shadowVotes){
