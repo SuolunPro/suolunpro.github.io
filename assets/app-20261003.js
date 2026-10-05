@@ -440,6 +440,62 @@
     function memberPct3(v){return Array.isArray(v)?v.map(x=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))?Number(x).toFixed(1)+'%':'—'):['—','—','—']}
     function memberOdds3(v){return Array.isArray(v)?v.map(x=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))?Number(x).toFixed(2):'—').join(' / '):'—'}
     function memberSigned3(v){return Array.isArray(v)?v.map(x=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x))?(Number(x)>0?'+':'')+Number(x).toFixed(0):'—').join(' / '):'—'}
+    function normalizeShadowAnalysis(value){
+      const source=value?.analysis&&typeof value.analysis==='object'?value.analysis:(value&&typeof value==='object'?value:{});
+      const m99=source.market_99||source.market99||{},bf=source.betfair||{},kelly=source.kelly||{},intel=source.intelligence||{};
+      const number=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
+      const trio=v=>({home:number(v?.home),draw:number(v?.draw),away:number(v?.away)});
+      const clean=v=>String(v||'').replace(/\\+["']?\s*\/>/g,'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+      const cleanList=v=>Array.isArray(v)?[...new Set(v.map(clean).filter(Boolean))]:[];
+      const out={
+        market99:{probabilities:trio(m99.probabilities_pct||m99.probabilities),top:clean(m99.top)||null},
+        betfair:{share:trio(bf.share_pct||bf.share),top:clean(bf.top)||null,coldHeat:trio(bf.cold_heat||bf.coldHeat),profitIndex:trio(bf.profit_index||bf.profitIndex)},
+        kelly:{lowestDirection:clean(kelly.lowest_direction||kelly.lowestDirection)||null,lowestValue:number(kelly.lowest_value??kelly.lowestValue),completeCount:number(kelly.complete_count??kelly.completeCount)??0},
+        intelligence:{highlights:cleanList(intel.highlights).slice(0,3),injuryCount:number(intel.injury_count??intel.injuryCount)??0,impactSide:clean(intel.impact_side||intel.impactSide)||null,impactLevel:clean(intel.impact_level||intel.impactLevel)||null},
+        flags:cleanList(source.flags).slice(0,6),
+        capturedAt:source.capturedAt||source.captured_at||null
+      };
+      out.available=[...Object.values(out.market99.probabilities),...Object.values(out.betfair.share)].some(v=>v!==null)||
+        out.kelly.completeCount>0||out.intelligence.highlights.length>0||out.flags.length>0;
+      return out;
+    }
+    function shadowTop1Relation(analysis,top1){
+      const dir=v=>({H:'主胜',D:'平',A:'客胜','平局':'平','主胜':'主胜','平':'平','客胜':'客胜'})[String(v||'')]||null;
+      const top=dir(top1);if(!top)return '中性';
+      const dirs=[analysis.market99.top,analysis.betfair.top,analysis.kelly.lowestDirection].map(dir).filter(Boolean);
+      if(!dirs.length)return '中性';
+      const same=dirs.some(x=>x===top),opposite=dirs.filter(x=>x!==top);
+      if(same&&opposite.length)return '冲突';
+      if(same)return '支持原Top1';
+      return new Set(opposite).size===1?'反对原Top1':'冲突';
+    }
+    function renderShadowAnalysisFields(holder,value,options={}){
+      const a=normalizeShadowAnalysis(value),line=(wrap,label,val)=>{const x=el('div','member-zone-proof-line');x.append(el('span','',label),el('b','',String(val??'—')));wrap.append(x)};
+      holder.replaceChildren();
+      if(options.title)holder.append(el('div','member-zone-proof-title',options.title));
+      if(!a.available){holder.append(el('div','member-zone-intel-state','本场同源影子分析暂无可展示数据'));return a}
+      const pct=v=>v===null?'—':v.toFixed(1)+'%',num=(v,d=0)=>v===null?'—':v.toFixed(d);
+      if(options.top1){
+        line(holder,'与原Top1',shadowTop1Relation(a,options.top1));
+        if(options.conclusion)line(holder,'九十刻度结论',options.conclusion);
+      }
+      const pg=el('div','member-zone-proof-probs');
+      [['99家主胜',a.market99.probabilities.home],['99家平局',a.market99.probabilities.draw],['99家客胜',a.market99.probabilities.away]].forEach(([label,value])=>{const x=el('div','member-zone-proof-prob');x.append(el('span','',label),el('b','',pct(value)));pg.append(x)});
+      holder.append(pg);
+      line(holder,'99家主方向',a.market99.top||'待确认');
+      line(holder,'必发资金 主 / 平 / 客',[a.betfair.share.home,a.betfair.share.draw,a.betfair.share.away].map(pct).join(' / '));
+      line(holder,'必发资金主方向',a.betfair.top||'待确认');
+      line(holder,'必发冷热 主 / 平 / 客',[a.betfair.coldHeat.home,a.betfair.coldHeat.draw,a.betfair.coldHeat.away].map(v=>num(v)).join(' / '));
+      line(holder,'必发盈亏 主 / 平 / 客',[a.betfair.profitIndex.home,a.betfair.profitIndex.draw,a.betfair.profitIndex.away].map(v=>num(v)).join(' / '));
+      line(holder,'凯利最低方向',(a.kelly.lowestDirection||'待确认')+(a.kelly.lowestValue!==null?' · '+num(a.kelly.lowestValue,3):''));
+      line(holder,'凯利完整机构',a.kelly.completeCount+' 家');
+      if(a.flags.length){holder.append(el('b','','系统识别要点'));const ul=el('ul','member-zone-intel-list');a.flags.forEach(x=>ul.append(el('li','',x)));holder.append(ul)}
+      line(holder,'情报影响',(a.intelligence.impactSide||'中性')+' · '+(a.intelligence.impactLevel||'低'));
+      line(holder,'有效伤停/阵容',a.intelligence.injuryCount+' 条');
+      if(a.intelligence.highlights.length){const ul=el('ul','member-zone-intel-list');a.intelligence.highlights.forEach(x=>ul.append(el('li','',x)));holder.append(ul)}
+      line(holder,'影子分析更新',a.capturedAt?fmtStamp(a.capturedAt):'时间待确认');
+      return a;
+    }
     // Cold-warning cards are DOM-heavy. Reuse the exact page while its source
     // object is unchanged; a successful changed API response gets a new object
     // and therefore a fresh render automatically.
@@ -487,9 +543,9 @@
       const fmtPct=v=>hasMemberNumber(v)?Number(v).toFixed(1)+'%':'—';
       const fmtPp=v=>hasMemberNumber(v)?(Number(v)>=0?'+':'')+Number(v).toFixed(1)+'pp':'—';
       const fmtNum=v=>hasMemberNumber(v)?Number(v).toFixed(0):'—';
-      const fundPct=v=>hasMemberNumber(v)?fmtPct(v):'未采集';
-      const fundPp=v=>hasMemberNumber(v)?fmtPp(v):'未采集';
-      const fundNum=v=>hasMemberNumber(v)?fmtNum(v):'未采集';
+      const fundPct=v=>hasMemberNumber(v)?fmtPct(v):'—';
+      const fundPp=v=>hasMemberNumber(v)?fmtPp(v):'—';
+      const fundNum=v=>hasMemberNumber(v)?fmtNum(v):'—';
       const addLine=(wrap,label,value)=>{const x=el('div','member-zone-proof-line');x.append(el('span','',label),el('b','',String(value??'—')));wrap.append(x)};
       const handicapText=h=>{
         if(!h)return '未发布';
@@ -949,17 +1005,19 @@
 
         if(cold?.popularity){
           const pop=cold.popularity,popsec=el('section','member-zone-proof-section');
-          popsec.append(el('div','member-zone-proof-title','人气—市场背离'));
-          addLine(popsec,'市场概率',fundPct(pop.marketProbability));
-          addLine(popsec,'必发资金占比',fundPct(pop.betfairShare));
-          addLine(popsec,'竞彩保存资金占比',fundPct(pop.sportterySavedShare));
-          addLine(popsec,'人气溢价',fundPp(pop.gap));
-          addLine(popsec,'冷热指数',fundNum(pop.heat));
-          addLine(popsec,'盈亏指数',fundNum(pop.profitIndex));
-          addLine(popsec,'William概率变化',fundPp(pop.williamProbabilityMove));
           const hasFundSnapshot=[pop.marketProbability,pop.betfairShare,pop.sportterySavedShare,pop.gap,pop.heat,pop.profitIndex].some(hasMemberNumber);
-          addLine(popsec,'识别结果',hasFundSnapshot?(pop.divergence?'人气过热 / 市场支持不足':pop.fundAnomaly?'资金盈亏异常':'暂无强背离'):'资金数据未采集');
-          body.append(popsec);
+          if(hasFundSnapshot){
+            popsec.append(el('div','member-zone-proof-title','人气—市场背离'));
+            addLine(popsec,'市场概率',fundPct(pop.marketProbability));
+            addLine(popsec,'必发资金占比',fundPct(pop.betfairShare));
+            addLine(popsec,'竞彩保存资金占比',fundPct(pop.sportterySavedShare));
+            addLine(popsec,'人气溢价',fundPp(pop.gap));
+            addLine(popsec,'冷热指数',fundNum(pop.heat));
+            addLine(popsec,'盈亏指数',fundNum(pop.profitIndex));
+            addLine(popsec,'William概率变化',fundPp(pop.williamProbabilityMove));
+            addLine(popsec,'识别结果',pop.divergence?'人气过热 / 市场支持不足':pop.fundAnomaly?'资金盈亏异常':'暂无强背离');
+            body.append(popsec);
+          }
         }
 
         const msec=el('section','member-zone-proof-section');
@@ -994,33 +1052,23 @@
           body.append(isec);
         }
 
-        // Use the production normalized prematch intelligence already returned with this row.
-        // This avoids a second cross-project request and prevents valid injury news from appearing empty.
+        // Load the same saved analysis object used by the match-detail preview.
+        // The member endpoint returns only the customer-safe projection.
         const xsec=el('section','member-zone-proof-section');
-        xsec.append(el('div','member-zone-proof-title','情报 / 伤停重点'));
-        const inlineIntel=row.intelligence||null;
-        const inlineCategories=Array.isArray(inlineIntel?.categories)?inlineIntel.categories.filter(Boolean):[];
-        const inlineHighlights=inlineCategories.map(x=>String(x?.summary||'').trim()).filter(Boolean).slice(0,3);
-        const inlineImpact=String(inlineIntel?.impactSide||'').trim();
-        if(inlineIntel&&(inlineHighlights.length||(inlineImpact&&inlineImpact!=='中性'))){
-          addLine(xsec,'情报结论',String(inlineIntel.impactSide||'中性')+' · '+String(inlineIntel.impactLevel||'低'));
-          if(inlineIntel.alignment)addLine(xsec,'与原Top1',String(inlineIntel.alignment)==='反向'?'反向 · 进入冷门审计':String(inlineIntel.alignment)==='支持'?'支持原方向':'中性');
-          addLine(xsec,'有效伤停/阵容',inlineHighlights.length?String(inlineHighlights.length)+' 条':'已收录');
-          if(inlineHighlights.length){
-            const ul=el('ul','member-zone-intel-list');
-            inlineHighlights.forEach(x=>ul.append(el('li','',x)));
-            xsec.append(ul);
-          }
-          if(inlineIntel.fetchedAt)addLine(xsec,'情报更新',fmtStamp(inlineIntel.fetchedAt));
-        }else if(cold?.gate?.shadow_intelligence_observed===true){
-          const g=cold.gate;
-          addLine(xsec,'影子情报结论',String(g.shadow_intelligence_summary||'已完成赛前情报核验'));
-          addLine(xsec,'与原Top1',g.shadow_intelligence_adverse_top===true?'反向':g.shadow_intelligence_supports_top===true?'支持':'中性');
-          addLine(xsec,'有效伤停/阵容',Number(g.shadow_injury_count||0)>0?String(g.shadow_injury_count)+' 条':'未发现可确认条目');
-        }else{
-          xsec.append(el('div','member-zone-intel-state','本场暂未收录有效伤停摘要'));
-        }
+        xsec.append(el('div','member-zone-proof-title','市场与情报同源依据'),el('div','member-zone-intel-state','展开后读取最新赛前影子分析…'));
         body.append(xsec);
+        let shadowProofLoaded=false;
+        const loadShadowProof=async()=>{
+          if(shadowProofLoaded)return;shadowProofLoaded=true;
+          try{
+            const proof=await loadMemberIntelProof(zoneDate,row.no);
+            renderShadowAnalysisFields(xsec,proof?.analysis,{title:'市场与情报同源依据',top1:row.model?.top1,conclusion:displayLabel});
+          }catch(error){
+            shadowProofLoaded=false;
+            xsec.replaceChildren(el('div','member-zone-proof-title','市场与情报同源依据'),el('div','member-zone-intel-state','同源依据读取失败，请稍后重试'));
+          }
+        };
+        details.addEventListener('toggle',()=>{if(details.open)loadShadowProof()},{passive:true});
 
         const cov=row.coverage||{},dsec=el('section','member-zone-proof-section');
         dsec.append(el('div','member-zone-proof-title','数据完整度'));
@@ -3055,8 +3103,6 @@
       const match=data?.match||{},market=data?.market,analysis=data?.analysis||null;
       panel.append(el('p','report-sub',[match.no,match.home,match.away].filter(Boolean).join(' · ')+'。影子数据按采集窗口自动更新，不参与公开预测或正式成绩。'));
 
-      const fmtPct=v=>Number.isFinite(Number(v))?Number(v).toFixed(1)+'%':'—';
-      const fmtNum=(v,d=0)=>Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
       const cleanText=v=>String(v||'').replace(/\\+["']?\s*\/>/g,'').replace(/<[^>]*>/g,'').trim();
 
       if(analysis){
@@ -3064,44 +3110,9 @@
         const status=el('div','shadow-admin-status');
         status.append(el('b','',level),document.createTextNode(' · '+cleanText(analysis.summary||'暂无综合结论')));
         panel.append(status);
-
-        const p=analysis.market_99?.probabilities_pct||{};
-        const pGrid=el('div','report-grid');
-        [['99家主胜',p.home],['99家平局',p.draw],['99家客胜',p.away]].forEach(([label,value])=>{
-          const cell=el('div','report-cell');cell.append(el('small','',String(label)),el('strong','',fmtPct(value)));pGrid.append(cell);
-        });
-        panel.append(pGrid);
-        reportLine(panel,'99家主方向',analysis.market_99?.top||'未确认');
-
-        const b=analysis.betfair||{},share=b.share_pct||{},heat=b.cold_heat||{},profit=b.profit_index||{};
-        const bGrid=el('div','report-grid');
-        [['必发主胜',share.home],['必发平局',share.draw],['必发客胜',share.away]].forEach(([label,value])=>{
-          const cell=el('div','report-cell');cell.append(el('small','',String(label)),el('strong','',fmtPct(value)));bGrid.append(cell);
-        });
-        panel.append(bGrid);
-        reportLine(panel,'必发资金主方向',b.top||'未确认');
-        reportLine(panel,'必发冷热 主 / 平 / 客',[fmtNum(heat.home),fmtNum(heat.draw),fmtNum(heat.away)].join(' / '));
-        reportLine(panel,'必发盈亏指数 主 / 平 / 客',[fmtNum(profit.home),fmtNum(profit.draw),fmtNum(profit.away)].join(' / '));
-
-        const k=analysis.kelly||{};
-        reportLine(panel,'凯利最低方向',(k.lowest_direction||'未确认')+(Number.isFinite(Number(k.lowest_value))?' · '+Number(k.lowest_value).toFixed(3):''));
-        reportLine(panel,'凯利完整机构',String(k.complete_count??0)+' 家');
-
-        const flags=Array.isArray(analysis.flags)?analysis.flags.map(cleanText).filter(Boolean):[];
-        if(flags.length){
-          panel.append(el('b','','系统识别要点'));
-          const list=el('ul','shadow-admin-list');[...new Set(flags)].slice(0,5).forEach(x=>list.append(el('li','',x)));panel.append(list);
-        }
-
-        const intel=analysis.intelligence||{};
-        const hi=Array.isArray(intel.highlights)?intel.highlights.map(cleanText).filter(x=>x.length>=8):[];
-        if(hi.length){
-          panel.append(el('b','','情报 / 伤停重点'));
-          const list=el('ul','shadow-admin-list');[...new Set(hi)].slice(0,3).forEach(x=>list.append(el('li','',x)));panel.append(list);
-        }else{
-          panel.append(el('div','shadow-admin-status','本轮没有可用的有效情报摘要。'));
-        }
-        reportLine(panel,'影子分析更新',analysis.capturedAt?fmtStamp(analysis.capturedAt):'时间未确认');
+        const fields=el('section','member-zone-proof-section');
+        renderShadowAnalysisFields(fields,analysis);
+        panel.append(fields);
       }else{
         panel.append(el('div','shadow-admin-status','本场尚未生成自动影子分析，暂显示原始采集状态。'));
         if(market){
