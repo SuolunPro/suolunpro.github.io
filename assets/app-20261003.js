@@ -1755,13 +1755,13 @@
       }
       return {
         level,displayTier,
+        gate,
         score:Number.isFinite(Number(raw.riskScore??raw.risk_score))?Number(raw.riskScore??raw.risk_score):null,
         direction,alternativePick,
         reason:evidenceLines.length?evidenceLines.join('；'):'赛前风险证据已达到发布门槛',
         directionReason:directionBasis.slice(0,3).join('；'),
         evidenceLines,
         originalPick,oppositeSecond,qualifiedDraw,marketAnomaly,marketSignals,inlineReason,
-        gate,
         directionEligible,riskDisplayEligible,
         modelVersion,
         sourceModelVersion:raw.sourceModelVersion??raw.source_model_version??row.version??'未确认',
