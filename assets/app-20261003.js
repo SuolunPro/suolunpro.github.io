@@ -907,17 +907,17 @@
           if(displayMode==='HANDICAP_PROTECT')addLine(ssec,'让球主推 / 保护',handicapPrimary+' / '+handicapCover);
           if(row.behavior?.top1)addLine(ssec,'市场资金',(row.behavior.top1||'待确认')+' · '+(row.behavior.strength||'观察'));
           addLine(ssec,'多源一致性',gate.stableDirection===true?'已形成确认':'方向待确认');
-          const shadowFlags=Array.isArray(gate.shadow_flags)?gate.shadow_flags:[];
-          const shadowVotes=(gate.shadow_market_votes&&typeof gate.shadow_market_votes==='object')?gate.shadow_market_votes:null;
+          const shadowFlags=Array.isArray(gate.shadow_flags)?gate.shadow_flags:(Array.isArray(gate.shadowFlags)?gate.shadowFlags:[]);
+          const shadowVotes=(gate.shadow_market_votes&&typeof gate.shadow_market_votes==='object')?gate.shadow_market_votes:((gate.shadowMarketVotes&&typeof gate.shadowMarketVotes==='object')?gate.shadowMarketVotes:null);
           if(shadowVotes){
             const voteTop=[['主胜',Number(shadowVotes.H||0)],['平',Number(shadowVotes.D||0)],['客胜',Number(shadowVotes.A||0)]].sort((a,b)=>b[1]-a[1])[0];
-            addLine(ssec,'99家判断',voteTop[1]>0?(voteTop[0]+'占优 · '+(gate.shadow_market_anomaly===true?'与资金/市场存在分歧':'市场结构正常')):'待确认');
+            addLine(ssec,'99家判断',voteTop[1]>0?(voteTop[0]+'占优 · '+((gate.shadow_market_anomaly===true||gate.shadowMarketAnomaly===true)?'与资金/市场存在分歧':'市场结构正常')):'待确认');
           }
           if(shadowFlags.length)addLine(ssec,'资金判断',shadowFlags.slice(0,2).join('；'));
-          if(Number(gate.shadow_kelly_complete||0)>0)addLine(ssec,'凯利覆盖',String(gate.shadow_kelly_complete)+'家机构 · 已纳入交叉核验');
-          if(gate.shadow_intelligence_observed===true){
-            addLine(ssec,'影子情报判断',String(gate.shadow_intelligence_summary||'已完成赛前情报核验'));
-            if(Number(gate.shadow_injury_count||0)>0)addLine(ssec,'有效伤停/阵容',String(gate.shadow_injury_count)+'条');
+          if(Number(gate.shadow_kelly_complete??gate.shadowKellyComplete??0)>0)addLine(ssec,'凯利覆盖',String(gate.shadow_kelly_complete??gate.shadowKellyComplete)+'家机构 · 已纳入交叉核验');
+          if((gate.shadow_intelligence_observed===true||gate.shadowIntelligenceObserved===true)){
+            addLine(ssec,'影子情报判断',String(gate.shadow_intelligence_summary??gate.shadowIntelligenceSummary??'已完成赛前情报核验'));
+            if(Number(gate.shadow_injury_count??gate.shadowInjuryCount??0)>0)addLine(ssec,'有效伤停/阵容',String(gate.shadow_injury_count??gate.shadowInjuryCount)+'条');
           }
           if(gate.asianState){
             const asiaRelation=gate.asianSupportsTop===true?'支持原方向':gate.asianAdverseTop===true?'反向原方向':'分歧 / 中性';
