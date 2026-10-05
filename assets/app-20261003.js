@@ -3648,7 +3648,10 @@
         const previousDate=state.selectedDate;
         const previousVersion=dayContentVersions.get(previousDate)?.version||0;
         const followingLatest=previousDate===state.baseDate&&previousDate!==beijingToday();
-        const d=await readDay(followingLatest?undefined:previousDate);
+        // Foreground/interval refreshes always bypass the short active-day cache.
+        // The request itself is already de-duplicated, and cache:no-store plus the
+        // timestamp query ensures the newest lawful prematch version is displayed.
+        const d=await readDay(followingLatest?undefined:previousDate,true);
         // A manual date change while refreshing must win over an older response.
         if(state.selectedDate!==previousDate)return;
         if(followingLatest){state.baseDate=d.date;if(state.unopenedDate&&state.unopenedDate>d.date){buildDates();return}state.selectedDate=d.date;state.unopenedDate=null}else if(d.date!==previousDate)return;

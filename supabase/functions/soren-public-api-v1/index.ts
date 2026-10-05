@@ -8,21 +8,75 @@ const db = createClient(
 );
 const handicapName: Record<string,string> = { HWIN: "让胜", HDRAW: "让平", HLOSS: "让负" };
 
-/* A per-match customer-side freeze, independent of later mother-model refreshes.
-   Without verified official cutoff, lock the first valid published snapshot early.
-   Results and independent team/logo metadata remain live; prediction fields do not. */
+const ftCodeToName:Record<string,string>={H:"主胜",D:"平",A:"客胜"};
+const ftNameToCode:Record<string,string>={"主胜":"H","平":"D","客胜":"A","3":"H","1":"D","0":"A",H:"H",D:"D",A:"A"};
+function ftCode(value:unknown){return ftNameToCode[String(value??"")]??null;}
+function hasLeakedResultFields(row:Record<string,unknown>){
+  if(row.resultVerified===true)return true;
+  return ["result","resultHome","resultAway","resultScore","resultSource","resultVerifiedAt","top1Hit","coverageHit","handicapResult","handicapHit","handicapTop1Hit","handicapCoverageHit"]
+    .some(key=>row[key]!==null&&row[key]!==undefined&&row[key]!=="");
+}
+function rerankFtPrediction(row:Record<string,unknown>):Record<string,unknown>{
+  if(row.pregameVerified!==true||hasLeakedResultFields(row))return row;
+  const kickoff=Date.parse(String(row.kickoff??""));
+  const sourceAt=Date.parse(String(row.frozenAt??""));
+  if(!Number.isFinite(kickoff)||!Number.isFinite(sourceAt)||sourceAt>=kickoff)return row;
+  const probabilities=[
+    {code:"H",name:"主胜",value:Number(row.homeProbability??row.homePct??row.home_pct)},
+    {code:"D",name:"平",value:Number(row.drawProbability??row.drawPct??row.draw_pct)},
+    {code:"A",name:"客胜",value:Number(row.awayProbability??row.awayPct??row.away_pct)},
+  ];
+  if(!probabilities.every(x=>Number.isFinite(x.value)&&x.value>=0&&x.value<=100))return row;
+  const previous=[ftCode(row.ftTop1),ftCode(row.second),"H","D","A"].filter((v,i,a)=>v&&a.indexOf(v)===i) as string[];
+  const tieOrder=new Map(previous.map((code,index)=>[code,index]));
+  probabilities.sort((a,b)=>{
+    const delta=b.value-a.value;
+    return delta!==0?delta:(tieOrder.get(a.code)??9)-(tieOrder.get(b.code)??9);
+  });
+  const first=probabilities[0],second=probabilities[1];
+  const mode=String(row.mode??"").toUpperCase();
+  const selectionCodes=mode==="DOUBLE"?[first.code,second.code]:mode==="SINGLE"?[first.code]:row.selectionCodes;
+  const direction=mode==="DOUBLE"
+    ?(new Set([first.code,second.code]).has("H")&&new Set([first.code,second.code]).has("D")?"主队不败":
+      new Set([first.code,second.code]).has("D")&&new Set([first.code,second.code]).has("A")?"客队不败":"分胜负")
+    :mode==="SINGLE"?first.name:row.direction;
+  return {...row,ftTop1:first.name,second:second.name,confidence:first.value,
+    selectionCodes,direction,prematchRankingSource:"LATEST_VERIFIED_3_1_0_PROBABILITY",
+    prematchRanking:[first.code,second.code,probabilities[2].code]};
+}
+function validPrematchSnapshot(snapshot:Record<string,unknown>|null|undefined,fixture:Record<string,unknown>,sourceValue:unknown,capturedValue:unknown){
+  if(!snapshot||snapshot.pregameVerified!==true||hasLeakedResultFields(snapshot))return false;
+  const kickoff=Date.parse(String(fixture.kickoff_at??""));
+  const sourceAt=Date.parse(String(sourceValue??snapshot.frozenAt??""));
+  const capturedAt=Date.parse(String(capturedValue??sourceValue??snapshot.frozenAt??""));
+  const snapshotKickoff=Date.parse(String(snapshot.kickoff??""));
+  const probabilities=[snapshot.homeProbability??snapshot.homePct??snapshot.home_pct,
+    snapshot.drawProbability??snapshot.drawPct??snapshot.draw_pct,
+    snapshot.awayProbability??snapshot.awayPct??snapshot.away_pct];
+  return Number.isFinite(kickoff)&&Number.isFinite(sourceAt)&&Number.isFinite(capturedAt)&&
+    Number.isFinite(snapshotKickoff)&&sourceAt<kickoff&&capturedAt<kickoff&&
+    Math.abs(kickoff-snapshotKickoff)<120000&&
+    String(snapshot.date??"")===String(fixture.pool_date??"")&&
+    String(snapshot.home??"")===String(fixture.home_team??"")&&
+    String(snapshot.away??"")===String(fixture.away_team??"")&&
+    probabilities.every(v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v))&&Number(v)>=0&&Number(v)<=100);
+}
+
+/* Customer publication is live until kickoff. Every lawful prematch version is
+   archived, ranked by its latest 3/1/0 probabilities, and only the last version
+   captured before kickoff becomes immutable. Result fields are overlay-only. */
 async function applySaleFreeze(rows:Record<string,unknown>[],date:string,readOnly=false):Promise<Record<string,unknown>[]> {
   if(date<"2026-09-23")return rows; // historic data predating deployment: do not relabel as sale-verified.
+  const rankedRows=rows.map(rerankFtPrediction);
   let data:Record<string,unknown>[]=[];
   if(readOnly){
-    // Historical navigation must never create/refresh freezes. Reuse the already locked customer snapshot.
     const {data:stored,error:storedError}=await db.from("soren_sale_freezes_v1")
       .select("match_no,snapshot,source_frozen_at,captured_at,locked_at,lock_reason,cutoff_at")
       .eq("pool_date",date).order("match_no",{ascending:true});
     if(storedError)throw new Error("SALE_FREEZE_READ_UNAVAILABLE:"+String(storedError.message));
     data=(stored??[]).map((s:Record<string,unknown>)=>({
       no:String(s.match_no??"").padStart(3,"0"),
-      status:s.locked_at?String(s.lock_reason??"LOCKED"):(s.cutoff_at?"PRE_SALE_REFRESHABLE":"EARLY_LOCK_CUTOFF_UNVERIFIED"),
+      status:String(s.lock_reason??(s.locked_at?"LOCKED":"LIVE")),
       snapshot:s.snapshot??null,
       sourceFrozenAt:s.source_frozen_at??null,
       capturedAt:s.captured_at??null,
@@ -30,16 +84,21 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string,readOnl
       cutoffAt:s.cutoff_at??null,
     }));
   }else{
-    const captured=await db.rpc("soren_capture_sale_snapshots_v1",{p_date:date,p_rows:rows});
+    // Archive the ranked live version first, then let the database finalize any
+    // fixture whose kickoff has just passed. Both RPCs reject post-kickoff input.
+    const {error:captureError}=await db.rpc("soren_capture_prematch_updates_v1",{p_date:date,p_rows:rankedRows});
+    if(captureError)throw new Error("PREMATCH_CAPTURE_UNAVAILABLE:"+String(captureError.message));
+    const captured=await db.rpc("soren_capture_sale_snapshots_v1",{p_date:date,p_rows:rankedRows});
     if(captured.error||!Array.isArray(captured.data))throw new Error("SALE_FREEZE_UNAVAILABLE:"+String(captured.error?.message??"INVALID_RESPONSE"));
     data=captured.data as Record<string,unknown>[];
-    // Save immutable, time-verified model versions before each fixture's kickoff/cutoff.
-    const {error:captureError}=await db.rpc("soren_capture_prematch_updates_v1",{p_date:date,p_rows:rows});
-    if(captureError)throw new Error("PREMATCH_CAPTURE_UNAVAILABLE:"+String(captureError.message));
   }
+  const {data:fixtures,error:fixtureError}=await db.from("soren_matches")
+    .select("id,pool_date,match_no,home_team,away_team,kickoff_at").eq("pool_date",date).limit(200);
+  if(fixtureError)throw new Error("FIXTURE_FREEZE_UNAVAILABLE:"+String(fixtureError.message));
+  const fixtureByNo=new Map((fixtures??[]).map((x:Record<string,unknown>)=>[String(x.match_no??"").padStart(3,"0"),x]));
   const {data:updates,error:updatesError}=await db.from("soren_prematch_updates_v1")
     .select("match_no,source_frozen_at,captured_at,snapshot").eq("pool_date",date)
-    .order("source_frozen_at",{ascending:false}).limit(2500);
+    .order("source_frozen_at",{ascending:false}).order("captured_at",{ascending:false}).limit(2500);
   if(updatesError)throw new Error("PREMATCH_ARCHIVE_UNAVAILABLE:"+String(updatesError.message));
   const latestByNo=new Map<string,Record<string,unknown>>();
   for(const entry of updates??[]){
@@ -47,90 +106,57 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string,readOnl
     if(!latestByNo.has(key))latestByNo.set(key,entry as Record<string,unknown>);
   }
   const byNo=new Map(data.map((x:Record<string,unknown>)=>[String(x.no??""),x]));
-  const pick=(v:unknown)=>({"主胜":"H","平":"D","客胜":"A","3":"H","1":"D","0":"A","H":"H","D":"D","A":"A"}[String(v??"")]??null);
-  return rows.map(row=>{
-    const freeze=byNo.get(String(row.no??"").padStart(3,"0"));
-    const saved=freeze?.snapshot;
-    if(saved&&typeof saved==="object"&&!Array.isArray(saved)){
-      const original=saved as Record<string,unknown>;
-      // Only results, actual match status and presentation assets may change after locking.
-      const output:Record<string,unknown>={...original};
-      const mutable=["resultVerified","result","resultHome","resultAway","resultScore",
-        "resultSource","resultVerifiedAt","matchStatus","resultStatus","resultAt",
-        "handicapResult","homeLogo","awayLogo","logoSource","venueName",
-        "venueCity","pitchSurface","environment"];
+  const mutable=["resultVerified","result","resultHome","resultAway","resultScore",
+    "resultSource","resultVerifiedAt","matchStatus","resultStatus","resultAt",
+    "handicapResult","homeLogo","awayLogo","logoSource","venueName",
+    "venueCity","pitchSurface","environment"];
+  return rankedRows.map(row=>{
+    const no=String(row.no??"").padStart(3,"0");
+    const fixture=fixtureByNo.get(no);
+    const freeze=byNo.get(no);
+    const stored=latestByNo.get(no);
+    if(!fixture)return {...row,pregameVerified:false,saleFreezeStatus:"MATCH_NOT_VERIFIED"};
+    const kickoff=Date.parse(String(fixture.kickoff_at??""));
+    const archived=stored?.snapshot as Record<string,unknown>|undefined;
+    const liveSource=Date.parse(String(row.frozenAt??""));
+    const archivedSource=Date.parse(String(stored?.source_frozen_at??""));
+    const liveValid=validPrematchSnapshot(row,fixture,row.frozenAt,row.frozenAt);
+    const archiveValid=validPrematchSnapshot(archived,fixture,stored?.source_frozen_at,stored?.captured_at);
+    const beforeKickoff=Number.isFinite(kickoff)&&Date.now()<kickoff;
+    let candidate:Record<string,unknown>|null=null;
+    if(beforeKickoff){
+      candidate=archiveValid&&(!liveValid||archivedSource>=liveSource)?rerankFtPrediction(archived!):(liveValid?row:null);
+    }else{
+      const saved=freeze?.snapshot as Record<string,unknown>|undefined;
+      const savedValid=validPrematchSnapshot(saved,fixture,freeze?.sourceFrozenAt,freeze?.capturedAt);
+      const savedSource=Date.parse(String(freeze?.sourceFrozenAt??""));
+      candidate=archiveValid&&(!savedValid||archivedSource>=savedSource)?rerankFtPrediction(archived!):(savedValid?rerankFtPrediction(saved!):null);
+    }
+    if(candidate){
+      const output:Record<string,unknown>={...candidate};
       for(const key of mutable)if(Object.prototype.hasOwnProperty.call(row,key))output[key]=row[key];
-      const hasResult=output.resultVerified===true;
-      if(hasResult){
-        const actual=pick(output.result);
-        const first=pick(original.ftTop1),second=pick(original.second);
+      const actual=ftCode(output.result),first=ftCode(candidate.ftTop1),second=ftCode(candidate.second);
+      if(output.resultVerified===true){
         output.top1Hit=actual!==null&&first===actual;
         output.coverageHit=actual!==null&&(first===actual||second===actual);
-        const hp=String(original.handicapTop1??original.handicap??"");
-        output.handicapHit=["让胜","让平","让负"].includes(String(output.handicapResult??""))
-          ?hp===String(output.handicapResult):null;
+        const hp=String(candidate.handicapTop1??candidate.handicap??"");
+        output.handicapHit=["让胜","让平","让负"].includes(String(output.handicapResult??""))?hp===String(output.handicapResult):null;
       }else{output.top1Hit=null;output.coverageHit=null;output.handicapHit=null;}
-      output.saleFreezeStatus=freeze?.status??"UNKNOWN";
+      output.predictionState=beforeKickoff?"LIVE":"KICKOFF_LOCKED";
+      output.predictionView=beforeKickoff?"LATEST_VERIFIED_PREMATCH":"FINAL_PREMATCH_AT_KICKOFF";
+      output.prematchLastCapturedAt=stored?.captured_at??null;
+      output.saleFreezeStatus=beforeKickoff?"LIVE":"KICKOFF_FINAL";
       output.saleFreezeCapturedAt=freeze?.capturedAt??null;
-      output.saleFreezeLockedAt=freeze?.lockedAt??null;
-      output.saleCutoffAt=freeze?.cutoffAt??null;
-      // Serve exactly one latest VERIFIED pre-kickoff snapshot; historical
-      // official sale-time records in soren_sale_freezes_v1 remain untouched.
-      const stored=latestByNo.get(String(row.no??"").padStart(3,"0"));
-      const candidate=stored?.snapshot as Record<string,unknown>|undefined;
-      const sourceAt=Date.parse(String(stored?.source_frozen_at??""));
-      const capturedAt=Date.parse(String(stored?.captured_at??""));
-      const kick=Date.parse(String(original.kickoff??""));
-      const originalAt=Date.parse(String(original.frozenAt??""));
-      const candidateKick=Date.parse(String(candidate?.kickoff??""));
-      if(candidate&&candidate.pregameVerified===true&&
-         Number.isFinite(sourceAt)&&Number.isFinite(capturedAt)&&Number.isFinite(kick)&&
-         Number.isFinite(originalAt)&&Number.isFinite(candidateKick)&&
-         sourceAt>=originalAt&&sourceAt<kick&&capturedAt<kick&&
-         Math.abs(kick-candidateKick)<120000&&
-         String(candidate.home??"")===String(original.home??"")&&
-         String(candidate.away??"")===String(original.away??"")&&
-         String(candidate.date??"")===String(original.date??"")&&
-         [candidate.homeProbability,candidate.drawProbability,candidate.awayProbability]
-           .every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v))&&Number(v)>=0&&Number(v)<=100)){
-        const newest:Record<string,unknown>={...candidate};
-        for(const key of mutable)if(Object.prototype.hasOwnProperty.call(row,key))newest[key]=row[key];
-        if(newest.resultVerified===true){
-          const actual=pick(newest.result);
-          const first=pick(candidate.ftTop1),second=pick(candidate.second);
-          newest.top1Hit=actual!==null&&first===actual;
-          newest.coverageHit=actual!==null&&(first===actual||second===actual);
-          const hp=String(candidate.handicapTop1??candidate.handicap??"");
-          newest.handicapHit=["让胜","让平","让负"].includes(String(newest.handicapResult??""))
-            ?hp===String(newest.handicapResult):null;
-        }else{newest.top1Hit=null;newest.coverageHit=null;newest.handicapHit=null;}
-        newest.predictionView="LATEST_PREMATCH_ONLY";
-        newest.prematchLastCapturedAt=stored?.captured_at??null;
-        newest.originalFormalFrozenAt=original.frozenAt;
-        newest.saleFreezeStatus=freeze?.status??"UNKNOWN";
-        newest.saleFreezeCapturedAt=freeze?.capturedAt??null;
-        newest.saleFreezeLockedAt=freeze?.lockedAt??null;
-        newest.saleCutoffAt=freeze?.cutoffAt??null;
-        return settlePublishedScoreTop4(newest);
-      }
+      output.saleFreezeLockedAt=beforeKickoff?null:(freeze?.lockedAt??fixture.kickoff_at??null);
+      output.saleCutoffAt=fixture.kickoff_at??null;
       return settlePublishedScoreTop4(output);
     }
-    // Show an unpublished placeholder while the fixture is still upcoming; do not
-    // lock an empty/pending prediction or remove tomorrow's match from the day list.
-    if(Number.isFinite(Date.parse(String(row.kickoff??""))) &&
-       Date.now()<Date.parse(String(row.kickoff)) &&
-       !row.ftTop1 && freeze?.status==="CUTOFF_UNVERIFIED_NO_EARLY_SNAPSHOT")
-      return {...row,saleFreezeStatus:"PENDING_VALID_PUBLICATION",saleCutoffAt:null};
-    // A legacy match whose kickoff preceded this feature cannot be certified retroactively.
-    if(date==="2026-09-23"&&Number.isFinite(Date.parse(String(row.kickoff??"")))
-       &&Date.now()>=Date.parse(String(row.kickoff)))
-      return {...row,saleFreezeStatus:"LEGACY_SALE_CUTOFF_UNVERIFIED",saleCutoffAt:null};
-    // Missing pre-cutoff evidence: fail closed rather than display a post-sale new prediction.
+    if(beforeKickoff&&!row.ftTop1)return {...row,saleFreezeStatus:"PENDING_VALID_PUBLICATION",predictionState:"LIVE"};
     return {...row,pregameVerified:false,ftTop1:null,second:null,handicap:null,
       handicapTop1:null,handicapSecond:null,scoreTop4:null,goalPrediction:null,
       upsetWarning:null,confidence:null,probabilities:null,homePct:null,drawPct:null,
-      awayPct:null,saleFreezeStatus:String(freeze?.status??"UNVERIFIED"),
-      saleCutoffAt:freeze?.cutoffAt??null};
+      awayPct:null,saleFreezeStatus:beforeKickoff?"PENDING_VALID_PUBLICATION":"NO_VALID_PREMATCH_LOCK",
+      predictionState:beforeKickoff?"LIVE":"KICKOFF_LOCKED",saleCutoffAt:fixture.kickoff_at??null};
   });
 }
 
@@ -2304,6 +2330,12 @@ async function marketTrend(date:string,no:string){
 
 async function serveFastArchiveBundle(date:string,view:string,vipActive=false):Promise<Response|null>{
   try{
+    const todayBjt=new Intl.DateTimeFormat("en-CA",{
+      timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"
+    }).format(new Date()).split("/").join("-");
+    // Today's pool must pass through applySaleFreeze so upcoming fixtures remain
+    // live and re-ranked. The bundle is reserved for immutable past archives.
+    if(date>=todayBjt)return null;
     const {data:bundle,error}=await db.rpc("soren_fast_archive_bundle_v2",{p_date:date});
     if(error||!bundle||typeof bundle!=="object"||Array.isArray(bundle)){
       if(error)console.error("FAST_ARCHIVE_BUNDLE_UNAVAILABLE",error);
@@ -2460,11 +2492,14 @@ async function paidMemberZone(
   if(runtimeRowsOverride){
     runtimeRows=runtimeRowsOverride;
   }else{
+    const cnToday=new Intl.DateTimeFormat("en-CA",{
+      timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"
+    }).format(new Date()).split("/").join("-");
     // VIP customer reads should not pay the cross-project upstream cost on every tap.
-    // Prefer the already-frozen production bundle, then run the same customer risk layer.
-    // Fall back to the original upstream path only if the frozen bundle is unavailable.
+    // Frozen bundles are valid only for past dates. Current/future pools must use
+    // the newest lawful prematch publication and then pass through kickoff locking.
     let frozenRuntime:Record<string,unknown>[]|null=null;
-    try{
+    if(date<cnToday)try{
       const {data:bundle,error:bundleError}=await db.rpc("soren_fast_archive_bundle_v2",{p_date:date});
       if(!bundleError&&bundle&&typeof bundle==="object"&&!Array.isArray(bundle)){
         const b=bundle as Record<string,unknown>;
@@ -2478,7 +2513,7 @@ async function paidMemberZone(
     }
     // Secondary fast source for older locked dates whose archive bundle predates v2.
     // These are immutable prematch sale freezes already stored in production.
-    if(!frozenRuntime?.length){
+    if(date<cnToday&&!frozenRuntime?.length){
       try{
         const {data:freezeRows,error:freezeError}=await db.from("soren_sale_freezes_v1")
           .select("match_no,snapshot,source_frozen_at")
@@ -2497,9 +2532,6 @@ async function paidMemberZone(
       }
     }
     if(frozenRuntime?.length){
-      const cnToday=new Intl.DateTimeFormat("en-CA",{
-        timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"
-      }).format(new Date()).split("/").join("-");
       // Historical frozen bundles already contain the immutable prematch upset warning.
       // Do not rebuild the entire market/risk layer on every VIP history tap.
       if(date<cnToday){
