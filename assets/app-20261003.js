@@ -3419,7 +3419,18 @@
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
-    function displayLatestDate(){return beijingToday()}
+    function displayLatestDate(){return state.baseDate||beijingToday()}
+    function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)))}
+    async function resolveActivePool(){
+      const today=beijingToday(),previous=addDays(today,-1);
+      // A JCZQ sale day may run past Beijing midnight. The unfinished previous
+      // pool remains the customer home day until every fixture is settled.
+      try{
+        const prior=await readDay(previous);
+        if(hasUnsettledPool(prior))return prior;
+      }catch(e){console.warn('上一竞彩池状态核验暂不可用',e)}
+      return await readDay(today,true);
+    }
     function showUnopened(date){
       state.selectedDate=date;state.unopenedDate=date;state.futureDate=null;state.today={date,count:0,rows:[],modelVersion:state.today?.modelVersion||'3.8'};state.history={rows:[],count:0};
       $('poolCount').textContent=date+' · 数据待更新';$('totalCount').textContent='0';$('pickCount').textContent='0';$('passCount').textContent='0';
@@ -3632,16 +3643,9 @@
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
       if(memberInfo?.active!==true){state.tab='home';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));$('version').textContent='九十刻度';$('poolCount').textContent='历史赛事公开 · 当期会员专属';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();const historyDate=addDays(today,-1);selectDate(historyDate).catch(e=>console.warn('公开历史赛事加载失败',e));return}
-      const bootDay=cachedDay(today,true);
-      if(bootDay&&Array.isArray(bootDay.rows)&&bootDay.rows.length){
-        // Paint the last successful active-day snapshot immediately after a
-        // reload, then replace it with the newest authoritative payload.
-        state.baseDate=bootDay.date||today;applyDay(bootDay);scheduleHistoryPrefetch();
-        readDay(today,true).then(d=>{
-          state.baseDate=d.date||today;
-          if(d&&Array.isArray(d.rows)&&state.selectedDate===today)applyDay(d);
-        }).catch(e=>console.warn('今日正式数据后台同步暂不可用',e));
-      }else readDay().then(d=>{
+      // Resolve the active JCZQ pool, not the calendar date. After Beijing
+      // midnight an unfinished previous sale day must stay selected.
+      resolveActivePool().then(d=>{
         state.baseDate=d.date||today;rememberDay(d);
         applyDay(d);scheduleHistoryPrefetch()
       }).catch(e=>{$('version').textContent='数据未确认';$('poolCount').textContent='接口异常';const box=errorBox(e),retry=el('button','secondary','重新加载比赛');retry.onclick=()=>{box.replaceWith(empty('正在重新读取比赛','正在加载赛事数据…'));beginAuthenticatedApp()};box.append(retry);$('content').replaceChildren(box);buildDates()});
