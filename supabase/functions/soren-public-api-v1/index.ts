@@ -2483,6 +2483,37 @@ function vipColdTimeGate(date:string,kickoffValue:unknown,cutoffValue:unknown=nu
 
 const paidMemberZoneResponseCache=new Map<string,{at:number,zone:any}>();
 
+/* The live archive/sync path already persists every lawful prematch publication in
+   the customer project. VIP cold-warning reads should consume that local ledger
+   instead of blocking the page on a second cross-project mother-model request.
+   The upstream path remains a fallback only when the local ledger has not produced
+   a usable row yet. */
+async function loadLatestLocalPrematchRuntime(date:string):Promise<Record<string,unknown>[]|null>{
+  const {data,error}=await db.from("soren_prematch_updates_v1")
+    .select("match_no,source_frozen_at,captured_at,snapshot")
+    .eq("pool_date",date)
+    .order("source_frozen_at",{ascending:false})
+    .order("captured_at",{ascending:false})
+    .limit(2500);
+  if(error)throw new Error("VIP_LOCAL_PREMATCH_UNAVAILABLE:"+String(error.message));
+  const latest=new Map<string,Record<string,unknown>>();
+  for(const entry of data??[]){
+    const no=String(entry.match_no??"").padStart(3,"0");
+    if(latest.has(no))continue;
+    const snapshot=entry.snapshot as Record<string,unknown>|null;
+    if(!snapshot||snapshot.pregameVerified!==true||hasLeakedResultFields(snapshot))continue;
+    const kickoff=Date.parse(String(snapshot.kickoff??""));
+    const sourceAt=Date.parse(String(entry.source_frozen_at??snapshot.frozenAt??""));
+    const capturedAt=Date.parse(String(entry.captured_at??""));
+    if(!Number.isFinite(kickoff)||!Number.isFinite(sourceAt)||!Number.isFinite(capturedAt)||
+       sourceAt>=kickoff||capturedAt>=kickoff)continue;
+    latest.set(no,rerankFtPrediction(snapshot));
+  }
+  if(!latest.size)return null;
+  const warnings=await loadUpsetWarningMap(date);
+  return applyHighDrawRiskLayer([...latest.values()].map(row=>overlayLatestCurrentUpsetWarning(row,warnings)));
+}
+
 async function paidMemberZone(
   date:string,
   runtimeRowsOverride:Record<string,unknown>[]|null=null,
@@ -2496,9 +2527,14 @@ async function paidMemberZone(
       timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"
     }).format(new Date()).split("/").join("-");
     // VIP customer reads should not pay the cross-project upstream cost on every tap.
-    // Frozen bundles are valid only for past dates. Current/future pools must use
-    // the newest lawful prematch publication and then pass through kickoff locking.
+    // Past dates use immutable bundles; current/future dates use the local append-only
+    // prematch ledger, which is continuously populated by the live archive/sync path.
     let frozenRuntime:Record<string,unknown>[]|null=null;
+    if(date>=cnToday)try{
+      frozenRuntime=await loadLatestLocalPrematchRuntime(date);
+    }catch(localError){
+      console.error("VIP_LOCAL_PREMATCH_RUNTIME_ERROR",localError);
+    }
     if(date<cnToday)try{
       const {data:bundle,error:bundleError}=await db.rpc("soren_fast_archive_bundle_v2",{p_date:date});
       if(!bundleError&&bundle&&typeof bundle==="object"&&!Array.isArray(bundle)){
@@ -2536,10 +2572,7 @@ async function paidMemberZone(
       // Do not rebuild the entire market/risk layer on every VIP history tap.
       if(date<cnToday){
         runtimeRows=applyHighDrawRiskLayer(frozenRuntime);
-      }else{
-        runtimeRows=await applyRiskFocusLayer(frozenRuntime,date);
-        runtimeRows=applyHighDrawRiskLayer(runtimeRows);
-      }
+      }else runtimeRows=frozenRuntime;
     }else{
       const upstreamData=await fetchPublicUpstream("today",date);
       const expectedRevision=allowed.get(String(upstreamData?.modelVersion??""));
@@ -3851,7 +3884,7 @@ Deno.serve(async (req: Request) => {
       try{
         const zoneDate=await latestKnownPoolDate(requestedDate);
         const now=Date.now();
-        const ttl=zoneDate<beijingToday?30*60*1000:20*1000;
+        const ttl=zoneDate<beijingToday?30*60*1000:60*1000;
         const cached=paidMemberZoneResponseCache.get(zoneDate);
         if(cached&&now-cached.at<ttl){
           return reply({ok:true,membership,zone:cached.zone,cache:"HIT",updatedAt:new Date(cached.at).toISOString()});
