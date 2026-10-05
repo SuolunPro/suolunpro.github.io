@@ -1150,7 +1150,8 @@
       if(!silent){state.memberZoneLoading=true;state.memberZoneError=null;renderMemberZone()}
       let changed=false;
       const request=(async()=>{
-        const qs=new URLSearchParams({view:'member-zone',date:zoneDate,_:String(Date.now())});
+        // Cold list uses the lightweight projection; heavy proof stays lazy in member-intel.
+        const qs=new URLSearchParams({view:'cold-feed',date:zoneDate,_:String(Date.now())});
         const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),10000);let r;
         try{r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal})}
         finally{clearTimeout(timer)}
