@@ -1065,6 +1065,30 @@
           if(shadowProofLoaded)return;shadowProofLoaded=true;
           try{
             const analysis=inlineShadow||(await loadMemberIntelProof(zoneDate,row.no))?.analysis;
+            // Keep cold-feed first paint untouched. Only enrich the existing
+            // odds/funds section after the proof has been lazily opened.
+            const a=normalizeShadowAnalysis(analysis);
+            if(a.available){
+              const lines=[...msec.querySelectorAll('.member-zone-proof-line')];
+              const setLine=(label,value)=>{
+                const line=lines.find(x=>x.querySelector('span')?.textContent===label);
+                const b=line?.querySelector('b');if(b)b.textContent=value;
+              };
+              if(!row.conclusion?.marketConfirm&&a.market99.top)setLine('市场确认','99家机构 · '+a.market99.top);
+              if(!row.conclusion?.fundBehavior&&a.betfair.top)setLine('资金行为','必发资金 · '+a.betfair.top);
+              const williamFair=memberPct3(row.market?.currentFair);
+              if(!williamFair.some(v=>v!=='—'))setLine('威廉概率','William未确认');
+              const williamInitial=memberOdds3(row.market?.initialOdds),williamCurrent=memberOdds3(row.market?.currentOdds);
+              if(!williamInitial.some(v=>v!=='—')&&!williamCurrent.some(v=>v!=='—'))setLine('威廉 初盘→赛前','William未确认');
+              const appendLazyLine=(label,value)=>{
+                if([...msec.querySelectorAll('.member-zone-proof-line span')].some(x=>x.textContent===label))return;
+                addLine(msec,label,value);
+              };
+              appendLazyLine('99家概率',[a.market99.probabilities.home,a.market99.probabilities.draw,a.market99.probabilities.away].map(v=>v===null?'—':v.toFixed(1)+'%').join(' / '));
+              appendLazyLine('必发资金',[a.betfair.share.home,a.betfair.share.draw,a.betfair.share.away].map(v=>v===null?'—':v.toFixed(1)+'%').join(' / '));
+              appendLazyLine('必发冷热',[a.betfair.coldHeat.home,a.betfair.coldHeat.draw,a.betfair.coldHeat.away].map(v=>v===null?'—':v.toFixed(0)).join(' / '));
+              appendLazyLine('必发盈亏',[a.betfair.profitIndex.home,a.betfair.profitIndex.draw,a.betfair.profitIndex.away].map(v=>v===null?'—':v.toFixed(0)).join(' / '));
+            }
             renderShadowAnalysisFields(xsec,analysis,{title:'市场与情报同源依据',top1:row.model?.top1,conclusion:displayLabel});
           }catch(error){
             shadowProofLoaded=false;
