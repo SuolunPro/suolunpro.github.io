@@ -1484,8 +1484,8 @@
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
       const originalPrematch=!!info&&!simulation&&!historical&&!marketShadow;
       title.append(
-        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):marketShadow?(full?'动态赛前比分 · Top4':'动态赛前比分 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
-        el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow?'动态更新 '+fmtStamp(info.frozenAt):'原始冻结 '+fmtStamp(info.frozenAt))
+        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):marketShadow?(full?'最新比分预测 · Top4':'最新比分预测 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
+        el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow?'':'原始冻结 '+fmtStamp(info.frozenAt))
       );
       panel.append(title);
       if(!info){panel.append(el('p','score-top4-note','暂无比分预测 · 赛前参数未确认，不计入比分覆盖统计。'));return panel}
