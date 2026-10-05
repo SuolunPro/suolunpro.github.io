@@ -1100,9 +1100,12 @@
     async function loadMemberZone(silent=false){
       if(memberInfo?.vipActive!==true)return;
       const zoneDate=memberZoneDate();
-      const cacheTtl=zoneDate<beijingToday()?30*60*1000:20*1000;
+      const cacheTtl=zoneDate<beijingToday()?30*60*1000:2*60*1000;
       const cachedZone=memberZoneDataCache.get(zoneDate);
-      if(cachedZone&&Date.now()-cachedZone.at<cacheTtl){
+      if(cachedZone){
+        // Stale-while-revalidate for the active cold-warning page: paint the last
+        // successful payload immediately. Fresh entries need no network request;
+        // stale entries continue below and refresh silently without blocking UI.
         state.memberZone=cachedZone.zone;
         if(cachedZone.membership)memberInfo=cachedZone.membership;
         memberZoneFingerprint=cachedZone.fingerprint;
@@ -1112,7 +1115,8 @@
           if(state.tab==='memberzone')renderMemberZone();
           else if(state.tab==='home'&&state.model==='cold')render();
         }
-        return;
+        if(Date.now()-cachedZone.at<cacheTtl)return;
+        silent=true;
       }
       // Deduplicate a foreground tap and a scheduled refresh for the same date.
       if(memberZoneRequest?.date===zoneDate){
