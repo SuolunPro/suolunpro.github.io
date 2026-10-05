@@ -3430,13 +3430,24 @@
     function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)))}
     async function resolveActivePool(){
       const today=beijingToday(),previous=addDays(today,-1);
-      // A JCZQ sale day may run past Beijing midnight. The unfinished previous
-      // pool remains the customer home day until every fixture is settled.
+      // A JCZQ sale day may run past Beijing midnight. Prefer the unfinished
+      // previous pool, but never turn a transient current-day API failure into
+      // a blank homepage when we already have a valid previous pool snapshot.
+      let prior=null;
       try{
-        const prior=await readDay(previous);
+        prior=await readDay(previous);
         if(hasUnsettledPool(prior))return prior;
       }catch(e){console.warn('上一竞彩池状态核验暂不可用',e)}
-      return await readDay(today,true);
+      try{
+        return await readDay(today,true);
+      }catch(e){
+        const fallback=prior||cachedDay(previous,true);
+        if(fallback&&Array.isArray(fallback.rows)&&fallback.rows.length){
+          console.warn('今日竞彩池暂不可用，继续展示上一有效竞彩池',e);
+          return fallback;
+        }
+        throw e;
+      }
     }
     function showUnopened(date){
       state.selectedDate=date;state.unopenedDate=date;state.futureDate=null;state.today={date,count:0,rows:[],modelVersion:state.today?.modelVersion||'3.8'};state.history={rows:[],count:0};
