@@ -788,8 +788,17 @@ async function fetchPublicUpstream(view:string,date:string|null){
   });
   if(!response.ok)throw new Error("UPSTREAM_"+response.status);
   const data=await response.json();
+  // A newly opened sales day can legitimately exist before the mother model has
+  // published any formal rows. In that state modelVersion/revision are null by
+  // design, so validate the envelope/date and let the caller render a normal
+  // waiting/empty state. Keep strict model+revision validation for non-empty data.
+  if(data?.ok!==true||!Array.isArray(data?.rows))
+    throw new Error("UPSTREAM_VALIDATION_FAILED");
+  if(date&&data?.date&&String(data.date)!==date)
+    throw new Error("UPSTREAM_DATE_MISMATCH");
+  if(data.rows.length===0)return data;
   const expectedRevision=allowed.get(String(data?.modelVersion??""));
-  if(data?.ok!==true||!expectedRevision||data?.revision!==expectedRevision||!Array.isArray(data?.rows))
+  if(!expectedRevision||data?.revision!==expectedRevision)
     throw new Error("UPSTREAM_VALIDATION_FAILED");
   return data;
 }
@@ -2482,6 +2491,28 @@ function vipColdTimeGate(date:string,kickoffValue:unknown,cutoffValue:unknown=nu
 }
 
 const paidMemberZoneResponseCache=new Map<string,{at:number,zone:any}>();
+const paidColdFeedResponseCache=new Map<string,{at:number,zone:any}>();
+function coldFeedZone(zone:any){
+  const rows=(Array.isArray(zone?.rows)?zone.rows:[]).map((r:any)=>({
+    no:r.no,date:r.date,league:r.league,kickoff:r.kickoff,home:r.home,away:r.away,
+    homeLogo:r.homeLogo,awayLogo:r.awayLogo,matchStatus:r.matchStatus,
+    probabilities:r.probabilities,model:r.model,settlement:r.settlement,
+    coldRecognition:r.coldRecognition,
+    // Reuse the already-built member-zone proof. These are projections only:
+    // no second collection/query and no extra model run.
+    conclusion:r.conclusion,
+    market:r.market,
+    officialMarket:r.officialMarket,
+    asianHandicap:r.asianHandicap,
+    // Reuse formal intelligence first; if it is absent, expose the already-saved
+    // shadow intelligence from the same member-zone row. No recollection or second query.
+    shadowAnalysis:r?.coldRecognition?.gate?.shadowAnalysis??null,
+    intelligence:r.intelligence??null,
+    coverage:r.coverage?{model:r.coverage.model,william:r.coverage.william,sporttery:r.coverage.sporttery,
+      asian:r.coverage.asian,behavior:r.coverage.behavior,intelligence:r.coverage.intelligence}:null
+  }));
+  return {...zone,rows};
+}
 
 /* The live archive/sync path already persists every lawful prematch publication in
    the customer project. VIP cold-warning reads should consume that local ledger
@@ -3305,11 +3336,26 @@ async function paidMemberZone(
       :customerRouteType==="HANDICAP_PROTECT"
         ?customerHandicapPicks.join(" / ")
         :null;
-    const customerDirectionStatus=customerRouteType==="FOCUS_AVOID"
-      ?customerAvoidDirection
+    // Unified customer-facing risk direction: once the customer route has a confirmed
+    // defensive direction, every detail surface must consume the same value instead of
+    // falling back to the legacy warningDirection publication gate.
+    const customerDirectionStatus=customerDirection
+      ?customerDirection
       :customerRouteType==="HANDICAP_PROTECT"
         ?("主推 "+String(customerHandicapPicks[0]??"—")+" · 保护 "+String(customerHandicapPicks[1]??"—"))
-        :"继续观察";
+        :"方向待确认";
+    const riskDirection={
+      status:customerDirection?"CONFIRMED":"PENDING",
+      direction:customerDirection,
+      picks:customerRouteType==="FOCUS_AVOID"?customerAvoidPicks:
+        customerRouteType==="HANDICAP_PROTECT"?customerHandicapPicks:[],
+      originalTop1:modelTop,
+      basis:customerDirection
+        ?[...new Set([...(Array.isArray(vipEvidence)?vipEvidence:[]),...coldDirectionSupport])].slice(0,4)
+        :[...new Set(coldDirectionSupport)].slice(0,4),
+      source:"CUSTOMER_RISK_ROUTE",
+      updatedAt:new Date().toISOString()
+    };
     const customerRoute={
       ruleVersion:"HJ38-COLD-ROUTE-v0.1-20260930",
       source:historicalLegacy24Visible?"LEGACY_20260924_PREMATCH_RISK":historicalLegacy25Visible?"LEGACY_20260925_PREMATCH_RISK":(customerRouteSeed?"FROZEN_HJ38_V87_SEED":(vipPublish?"VIP_FORMAL_DIRECTION":"LEGACY_NO_STRICT_SEED")),
@@ -3353,6 +3399,7 @@ async function paidMemberZone(
       customerRiskScore,
       customerDirection,
       customerDirectionStatus,
+      riskDirection,
       customerRoute,
       unbeatenDirection:vipUnbeatenDirection,
       referencePicks:vipReferencePicks,
@@ -3879,6 +3926,23 @@ Deno.serve(async (req: Request) => {
       const active=(latest??[]).find((x:any)=>x?.source_status?.pool_status==="ACTIVE");
       return String(active?.pool_date??latest?.[0]?.pool_date??candidate??beijingToday);
     };
+    if(requestUrl.searchParams.get("view")==="cold-feed"){
+      if(vipAccess.active!==true)return reply({ok:false,error:"VIP_MEMBERSHIP_REQUIRED",membership},403);
+      try{
+        const zoneDate=await latestKnownPoolDate(requestedDate);
+        const now=Date.now();
+        const ttl=zoneDate<beijingToday?30*60*1000:60*1000;
+        const fast=paidColdFeedResponseCache.get(zoneDate);
+        if(fast&&now-fast.at<ttl)return reply({ok:true,membership,zone:fast.zone,cache:"HIT",updatedAt:new Date(fast.at).toISOString()});
+        const fullCached=paidMemberZoneResponseCache.get(zoneDate);
+        const fullZone=(fullCached&&now-fullCached.at<ttl)?fullCached.zone:await paidMemberZone(zoneDate);
+        if(!fullCached||now-fullCached.at>=ttl)paidMemberZoneResponseCache.set(zoneDate,{at:now,zone:fullZone});
+        const zone=coldFeedZone(fullZone);
+        paidColdFeedResponseCache.set(zoneDate,{at:now,zone});
+        while(paidColdFeedResponseCache.size>12)paidColdFeedResponseCache.delete(paidColdFeedResponseCache.keys().next().value);
+        return reply({ok:true,membership,zone,cache:"MISS",updatedAt:new Date().toISOString()});
+      }catch(error){console.error("COLD_FEED_ERROR",error);return reply({ok:false,error:"COLD_FEED_UNAVAILABLE"},502);}
+    }
     if(requestUrl.searchParams.get("view")==="member-zone"){
       if(vipAccess.active!==true)return reply({ok:false,error:"VIP_MEMBERSHIP_REQUIRED",membership},403);
       try{
