@@ -1023,11 +1023,23 @@
         }
 
         const msec=el('section','member-zone-proof-section');
-        msec.append(el('div','member-zone-proof-title','赔率与资金'));
-        addLine(msec,'市场确认',row.conclusion?.marketConfirm||'待确认');
-        addLine(msec,'资金行为',row.conclusion?.fundBehavior||'待确认');
-        addLine(msec,'威廉概率',memberPct3(row.market?.currentFair).join(' / '));
-        addLine(msec,'威廉 初盘→赛前',memberOdds3(row.market?.initialOdds)+' → '+memberOdds3(row.market?.currentOdds));
+        const renderMarketFunds=shadowValue=>{
+          const a=normalizeShadowAnalysis(shadowValue);
+          msec.replaceChildren(el('div','member-zone-proof-title','赔率与资金'));
+          const marketFallback=a.available&&a.market99.top?('99家机构 · '+a.market99.top):'待确认';
+          const fundFallback=a.available&&a.betfair.top?('必发资金 · '+a.betfair.top):'待确认';
+          addLine(msec,'市场确认',row.conclusion?.marketConfirm||marketFallback);
+          addLine(msec,'资金行为',row.conclusion?.fundBehavior||fundFallback);
+          const williamFair=memberPct3(row.market?.currentFair);
+          addLine(msec,'威廉概率',williamFair.some(v=>v!=='—')?williamFair.join(' / '):'William未确认');
+          const williamInitial=memberOdds3(row.market?.initialOdds),williamCurrent=memberOdds3(row.market?.currentOdds);
+          addLine(msec,'威廉 初盘→赛前',(williamInitial.some(v=>v!=='—')||williamCurrent.some(v=>v!=='—'))?(williamInitial.join(' / ')+' → '+williamCurrent.join(' / ')):'William未确认');
+          if(a.available){
+            addLine(msec,'99家概率',[a.market99.probabilities.home,a.market99.probabilities.draw,a.market99.probabilities.away].map(v=>v===null?'—':v.toFixed(1)+'%').join(' / '));
+            addLine(msec,'必发资金',[a.betfair.share.home,a.betfair.share.draw,a.betfair.share.away].map(v=>v===null?'—':v.toFixed(1)+'%').join(' / '));
+          }
+        };
+        renderMarketFunds(cold?.gate?.shadowAnalysis);
         if(row.officialMarket?.had)addLine(msec,'体彩胜平负SP',memberOdds3(row.officialMarket.had.odds));
         if(row.officialMarket?.hhad){
           const ln=row.officialMarket.hhad.line;
@@ -1065,6 +1077,7 @@
           if(shadowProofLoaded)return;shadowProofLoaded=true;
           try{
             const analysis=inlineShadow||(await loadMemberIntelProof(zoneDate,row.no))?.analysis;
+            renderMarketFunds(analysis);
             renderShadowAnalysisFields(xsec,analysis,{title:'市场与情报同源依据',top1:row.model?.top1,conclusion:displayLabel});
           }catch(error){
             shadowProofLoaded=false;
