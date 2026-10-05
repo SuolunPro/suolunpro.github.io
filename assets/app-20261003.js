@@ -907,6 +907,18 @@
           if(displayMode==='HANDICAP_PROTECT')addLine(ssec,'让球主推 / 保护',handicapPrimary+' / '+handicapCover);
           if(row.behavior?.top1)addLine(ssec,'市场资金',(row.behavior.top1||'待确认')+' · '+(row.behavior.strength||'观察'));
           addLine(ssec,'多源一致性',gate.stableDirection===true?'已形成确认':'方向待确认');
+          const shadowFlags=Array.isArray(gate.shadow_flags)?gate.shadow_flags:[];
+          const shadowVotes=(gate.shadow_market_votes&&typeof gate.shadow_market_votes==='object')?gate.shadow_market_votes:null;
+          if(shadowVotes){
+            const voteTop=[['主胜',Number(shadowVotes.H||0)],['平',Number(shadowVotes.D||0)],['客胜',Number(shadowVotes.A||0)]].sort((a,b)=>b[1]-a[1])[0];
+            addLine(ssec,'99家判断',voteTop[1]>0?(voteTop[0]+'占优 · '+(gate.shadow_market_anomaly===true?'与资金/市场存在分歧':'市场结构正常')):'待确认');
+          }
+          if(shadowFlags.length)addLine(ssec,'资金判断',shadowFlags.slice(0,2).join('；'));
+          if(Number(gate.shadow_kelly_complete||0)>0)addLine(ssec,'凯利覆盖',String(gate.shadow_kelly_complete)+'家机构 · 已纳入交叉核验');
+          if(gate.shadow_intelligence_observed===true){
+            addLine(ssec,'影子情报判断',String(gate.shadow_intelligence_summary||'已完成赛前情报核验'));
+            if(Number(gate.shadow_injury_count||0)>0)addLine(ssec,'有效伤停/阵容',String(gate.shadow_injury_count)+'条');
+          }
           if(gate.asianState){
             const asiaRelation=gate.asianSupportsTop===true?'支持原方向':gate.asianAdverseTop===true?'反向原方向':'分歧 / 中性';
             const asiaCount=Number(gate.asianSources||0);
@@ -1000,6 +1012,11 @@
             xsec.append(ul);
           }
           if(inlineIntel.fetchedAt)addLine(xsec,'情报更新',fmtStamp(inlineIntel.fetchedAt));
+        }else if(cold?.gate?.shadow_intelligence_observed===true){
+          const g=cold.gate;
+          addLine(xsec,'影子情报结论',String(g.shadow_intelligence_summary||'已完成赛前情报核验'));
+          addLine(xsec,'与原Top1',g.shadow_intelligence_adverse_top===true?'反向':g.shadow_intelligence_supports_top===true?'支持':'中性');
+          addLine(xsec,'有效伤停/阵容',Number(g.shadow_injury_count||0)>0?String(g.shadow_injury_count)+' 条':'未发现可确认条目');
         }else{
           xsec.append(el('div','member-zone-intel-state','本场暂未收录有效伤停摘要'));
         }
@@ -1744,6 +1761,7 @@
         directionReason:directionBasis.slice(0,3).join('；'),
         evidenceLines,
         originalPick,oppositeSecond,qualifiedDraw,marketAnomaly,marketSignals,inlineReason,
+        gate,
         directionEligible,riskDisplayEligible,
         modelVersion,
         sourceModelVersion:raw.sourceModelVersion??raw.source_model_version??row.version??'未确认',
