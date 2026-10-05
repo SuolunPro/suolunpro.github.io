@@ -1059,7 +1059,7 @@
         const xsec=el('section','member-zone-proof-section');
         xsec.append(el('div','member-zone-proof-title','市场与情报同源依据'),el('div','member-zone-intel-state','展开后读取最新赛前影子分析…'));
         body.append(xsec);
-        const inlineShadow=(cold?.gate?.shadowAnalysis&&typeof cold.gate.shadowAnalysis==='object')?cold.gate.shadowAnalysis:null;
+        const inlineShadow=(row?.shadowAnalysis&&typeof row.shadowAnalysis==='object')?row.shadowAnalysis:((cold?.gate?.shadowAnalysis&&typeof cold.gate.shadowAnalysis==='object')?cold.gate.shadowAnalysis:null);
         let shadowProofLoaded=false;
         const loadShadowProof=async()=>{
           if(shadowProofLoaded)return;shadowProofLoaded=true;
