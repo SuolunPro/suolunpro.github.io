@@ -2713,6 +2713,7 @@
       if(!hero||!anchor)return;
       anchor.replaceChildren();
       hero.querySelector('.report-venue-line')?.remove();
+      hero.querySelector('.report-env-impact-line')?.remove();
       // Missing cache entries must be visible as missing, not silently erase this section.
       const hasVenue=typeof environment?.venueName==='string'&&environment.venueName.trim().length>1;
       const num=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
