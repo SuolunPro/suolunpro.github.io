@@ -333,6 +333,13 @@
       stateCard.append(el('div','member-deadline',label));
       stateCard.append(el('div','member-muted',expires?'有效期至：'+expires+'（北京时间）':memberInfo.legacyGrace?'免费体验截至9月24日00:00（北京时间）':'有效会员可查看当日完整赛事数据与分析。'));
       panel.append(stateCard);
+      if(memberInfo.vipActive!==true){
+        const freeBenefit=el('div','member-free-benefit');
+        freeBenefit.append(el('div','member-free-benefit-title','注册用户 · 每日免费权益'),
+          el('strong','','每天可免费查看 2 场当日胜平负分析'),
+          el('p','','每日额度自动更新 · 无需开通会员'));
+        panel.append(freeBenefit);
+      }
       // The single membership plan is handled manually by customer service;
       // there is no self-service payment in the current backend.
       const purchaseCard=el('div','member-card member-purchase');
