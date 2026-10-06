@@ -21,7 +21,7 @@ as $function$
   );
 $function$;
 
-revoke all on function public.soren_archive_day_fully_started_v1(date) from public;
+revoke all on function public.soren_archive_day_fully_started_v1(date) from public, anon, authenticated;
 grant execute on function public.soren_archive_day_fully_started_v1(date) to service_role;
 
 do $patch$
