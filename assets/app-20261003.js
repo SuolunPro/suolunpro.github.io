@@ -2133,7 +2133,9 @@
         renderMemberZone();return
       }
       if(hasNoEvents()&&!state.unopenedDate){
-        $('content').replaceChildren(noEventsBox(),notice());return
+        const box=$('content');box.replaceChildren();
+        const updateTip=updateNotice();if(updateTip)box.append(updateTip);
+        box.append(noEventsBox(),notice());return
       }
       if(state.unopenedDate){
         const box=$('content');box.replaceChildren();
