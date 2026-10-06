@@ -3249,13 +3249,6 @@
         }else selection.append(el('span','','通过核心筛选'));
         summary.append(selection);
       }
-      const hasOfficial=row.officialHandicap!==null&&row.officialHandicap!==undefined&&row.officialHandicap!=='';
-      const handicap=[reportHas(row.handicapTop1)?row.handicapTop1:reportHas(row.handicap)?row.handicap:null,reportHas(row.handicapSecond)?row.handicapSecond:null].filter(Boolean);
-      const isTop5=String(row.handicapModelVersion??'').startsWith('HJ38-HHAD-TOP5-FT-MKT');
-      const handicapMarketOnly=row.handicapQualityEligible===false&&!isTop5;
-      if(hasOfficial||handicap.length)reportLine(summary,isTop5?'官方让球 / 综合双选':handicapMarketOnly?'官方让球 / 市场参考':'官方让球 / 让球方向',(hasOfficial?String(row.officialHandicap):'—')+' / '+(handicap.length?handicap.join('、'):'未发布'));
-      if(isTop5&&handicap.length)summary.append(el('p','report-sub','让球双选为赛前综合分析结果；双选表示覆盖两个方向，不代表确定赛果。'));
-      if(handicapMarketOnly&&handicap.length)summary.append(el('p','report-sub','让球方向来自市场概率排序，尚未通过模型让球数据质量审核，仅供统计参考。'));
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
       if([row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
         reportProbability(summary,'九十刻度赛前概率',['homeProbability','drawProbability','awayProbability'],row);
