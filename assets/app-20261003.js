@@ -3376,19 +3376,6 @@
         labels[0].textContent=dynamic.length?'动态赛前Top3 · 评测成功率':original.length?'原始赛前Top3 · 评测成功率':replay.length?'历史复算Top3 · 评测成功率':'半全场Top3 · 评测成功率';
         labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无Top3';
         $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 原始赛前 '+original.length+'场 · 动态赛前 '+dynamic.length+'场 · 历史复算 '+replay.length+'场';
-        const panel=el('div','htft-stats-breakdown');panel.id='htftStatsBreakdown';
-        const add=(title,entries,description)=>{
-          if(!entries.length&&title==='历史复算')return;const v=htftSummary(entries),group=el('section','htft-stats-group');
-          group.append(el('strong','',title));
-          const values=el('div','htft-stats-values');
-          values.append(el('span','','Top1 '+htftRate(v.top1,v.n)+'（'+v.top1+'/'+v.n+'）'),el('span','','Top3 '+htftRate(v.top3,v.n)+'（'+v.top3+'/'+v.n+'）'));
-          group.append(values,el('small','',description+' · 留存 '+v.total+'场，待核验 '+(v.total-v.n)+'场'));
-          panel.append(group);
-        };
-        add('原始赛前预测',original,'原始版单独统计');
-        add('动态赛前预测',dynamic,'动态版单独统计，每场取最后有效记录');
-        if(!original.length&&!dynamic.length)add('历史复算',replay,'赛后复算，不计赛前发布成绩');
-        const toolbar=$('poolCount').closest('.toolbar');if(toolbar&&panel.childElementCount)toolbar.append(panel);
         return;
       }
       if(state.model==='goals'){
