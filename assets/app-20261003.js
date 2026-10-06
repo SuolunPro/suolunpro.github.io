@@ -3342,7 +3342,7 @@
     }
     function htftSummary(items){
       const finished=items.filter(({info})=>['SUCCESS','FAILURE'].includes(info.settlementStatus)&&typeof info.actual==='string');
-      return {total:items.length,n:finished.length,top1:finished.filter(({info})=>info.picks[0]?.direction===info.actual).length,top4:finished.filter(({info})=>info.picks.some(p=>p?.direction===info.actual)).length};
+      return {total:items.length,n:finished.length,top1:finished.filter(({info})=>info.picks[0]?.direction===info.actual).length,top3:finished.filter(({info})=>info.picks.slice(0,3).some(p=>p?.direction===info.actual)).length};
     }
     function htftRate(h,n){return n?(100*h/n).toFixed(1)+'%':'—'}
     function updateMetrics(){
@@ -3369,18 +3369,18 @@
       if(state.model==='htft'){
         const rows=state.today?.rows||[],original=htftSample(rows,'original'),dynamic=htftSample(rows,'dynamic'),replay=htftSample(rows,'replay'),selected=dynamic.length?dynamic:original.length?original:replay;
         const stat=htftSummary(selected),labels=document.querySelectorAll('.metric span');
-        $('totalCount').textContent=htftRate(stat.top4,stat.n);
-        $('pickCount').textContent=stat.top4+'/'+stat.n;
+        $('totalCount').textContent=htftRate(stat.top3,stat.n);
+        $('pickCount').textContent=stat.top3+'/'+stat.n;
         $('passCount').textContent=(stat.total-stat.n)+' / '+(rows.length-stat.total);
-        labels[0].textContent=dynamic.length?'动态赛前Top4 · 评测成功率':original.length?'原始赛前Top4 · 评测成功率':replay.length?'历史复算Top4 · 评测成功率':'半全场Top4 · 评测成功率';
-        labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无Top4';
+        labels[0].textContent=dynamic.length?'动态赛前Top3 · 评测成功率':original.length?'原始赛前Top3 · 评测成功率':replay.length?'历史复算Top3 · 评测成功率':'半全场Top3 · 评测成功率';
+        labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无Top3';
         $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 原始赛前 '+original.length+'场 · 动态赛前 '+dynamic.length+'场 · 历史复算 '+replay.length+'场';
         const panel=el('div','htft-stats-breakdown');panel.id='htftStatsBreakdown';
         const add=(title,entries,description)=>{
           if(!entries.length&&title==='历史复算')return;const v=htftSummary(entries),group=el('section','htft-stats-group');
           group.append(el('strong','',title));
           const values=el('div','htft-stats-values');
-          values.append(el('span','','Top1 '+htftRate(v.top1,v.n)+'（'+v.top1+'/'+v.n+'）'),el('span','','Top4 '+htftRate(v.top4,v.n)+'（'+v.top4+'/'+v.n+'）'));
+          values.append(el('span','','Top1 '+htftRate(v.top1,v.n)+'（'+v.top1+'/'+v.n+'）'),el('span','','Top3 '+htftRate(v.top3,v.n)+'（'+v.top3+'/'+v.n+'）'));
           group.append(values,el('small','',description+' · 留存 '+v.total+'场，待核验 '+(v.total-v.n)+'场'));
           panel.append(group);
         };
