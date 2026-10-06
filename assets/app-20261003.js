@@ -3145,7 +3145,6 @@
       const analysis=rawAnalysis&&typeof rawAnalysis==='object'?rawAnalysis:null;
       const brandSafe=v=>String(v||'')
         .replace(/澳客/g,'市场数据')
-        .replace(/必发/g,'市场资金')
         .replace(/\\+["']?\s*\/>/g,'')
         .replace(/<[^>]*>/g,'').trim();
       panel.append(el('p','report-sub',[match.no,match.home,match.away].filter(Boolean).join(' · ')+'。市场与情报数据按采集窗口自动更新，仅作为赛前概率分析依据。'));
