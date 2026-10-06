@@ -532,12 +532,14 @@
       }
       const page=el('div','member-zone-page');
       const info=el('details','cold-warning-info compact');
-      const infoSummary=el('summary','','冷门预警规则说明');
+      const infoSummary=el('summary','','冷门预警更新说明');
       const infoBody=el('div','cold-warning-info-body');
       infoBody.append(
-        el('p','','预警会随最新赔率、资金、盘口及赛前情报动态更新，通常赛前4–5小时开始逐步趋于稳定，临场如出现重要变化仍可能调整；凌晨赛事以最后一次有效赛前更新为准。'),
-        el('p','','开球后立即冻结，不会根据赛果修改。'),
-        el('p','','点击「查看依据」可查看本场最新风险信号及判断依据。')
+        el('p','','每日冷门预警通常于北京时间12:00前后陆续发布。'),
+        el('p','','建议在赛前2–4小时再次查看。随着比赛临近，赔率、资金、盘口及赛前情报会持续变化，冷门预警通常会逐步趋于稳定。'),
+        el('p','','冷门预警以最后一次有效赛前版本为准。开球后立即冻结，不会根据赛果修改。'),
+        el('p','','不同数据项的更新时间可能存在差异，请以页面显示的最新更新时间为准。'),
+        el('p','','点击「查看依据」可查看本场赔率、资金、盘口及风险信号。')
       );
       info.append(infoSummary,infoBody);
       page.append(info);
