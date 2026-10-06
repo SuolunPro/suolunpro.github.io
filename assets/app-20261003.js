@@ -3718,11 +3718,38 @@
       await beginAuthenticatedApp();
     })();
     // Keep following the newest published match day without disrupting manual history browsing.
-    let syncInFlight=false;
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&authSession?.access_token){refreshAuthSession().then(()=>refreshPublishedData()).catch(e=>console.warn('会话续期暂不可用',e))}});
+    // One scheduler owns foreground data sync. Session refresh remains demand-driven inside
+    // authorizedApiFetch/refreshAuthSession, so a separate five-minute refresh loop is unnecessary.
+    let syncInFlight=false,smartRefreshInFlight=null,smartRefreshTimer=null,lastPublishedSyncAt=0;
+    const PUBLISHED_SYNC_MS=120000;
+    async function smartPublishedRefresh(force=false){
+      if(!authSession?.access_token||document.hidden)return;
+      if(!force&&lastPublishedSyncAt&&Date.now()-lastPublishedSyncAt<PUBLISHED_SYNC_MS)return;
+      if(smartRefreshInFlight)return smartRefreshInFlight;
+      smartRefreshInFlight=(async()=>{
+        try{
+          // refreshAuthSession is internally deduplicated and only rotates the token near expiry.
+          await refreshAuthSession();
+          await refreshPublishedData();
+          lastPublishedSyncAt=Date.now();
+        }catch(e){console.warn('赛前数据同步暂不可用',e)}
+        finally{smartRefreshInFlight=null}
+      })();
+      return smartRefreshInFlight;
+    }
+    function schedulePublishedRefresh(){
+      if(smartRefreshTimer)clearTimeout(smartRefreshTimer);
+      smartRefreshTimer=setTimeout(async()=>{
+        try{await smartPublishedRefresh()}finally{schedulePublishedRefresh()}
+      },PUBLISHED_SYNC_MS);
+    }
+    document.addEventListener('visibilitychange',()=>{
+      if(!document.hidden&&authSession?.access_token&&(!lastPublishedSyncAt||Date.now()-lastPublishedSyncAt>=PUBLISHED_SYNC_MS)){
+        smartPublishedRefresh().catch(e=>console.warn('前台恢复同步暂不可用',e));
+      }
+    });
     window.addEventListener('online',()=>{if(document.getElementById('loginGate')&&authSession?.access_token)beginAuthenticatedApp()});
-    setInterval(()=>{if(!document.hidden&&authSession?.access_token){refreshAuthSession().then(()=>refreshPublishedData()).catch(e=>console.warn('会话续期暂不可用',e))}},300000);
-    setInterval(()=>{if(!document.hidden&&authSession?.access_token)refreshPublishedData().catch(e=>console.warn('赛前数据同步暂不可用',e))},120000);
+    schedulePublishedRefresh();
     async function refreshPublishedData(){
       if((state.tab==='memberzone'||(state.tab==='home'&&state.model==='cold'))&&memberInfo?.vipActive===true){
         if(!state.memberZoneLoading)await loadMemberZone(true);
