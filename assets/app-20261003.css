@@ -1034,3 +1034,12 @@
 .welcome-legal{bottom:calc(3.2% + env(safe-area-inset-bottom));font-size:10.5px;line-height:1.75;color:#ffffff9c}
 .welcome-legal strong{font-size:11px;font-weight:500;letter-spacing:.08em;color:#ffffffe0}
 .welcome-legal span{color:#ffffff8f}
+
+
+/* VIP identity treatment: deep market + risk analysis */
+.report-section.vip-exclusive-card{position:relative;border:1.5px solid #c8a14a!important;background:linear-gradient(180deg,#fffdf7 0%,#fffaf0 100%)!important;box-shadow:0 7px 22px rgba(145,105,25,.10)!important}
+.report-section.vip-exclusive-card>h2,.report-section.vip-exclusive-card>h3{display:flex;align-items:center;gap:8px;color:#76591c!important;font-weight:800!important;letter-spacing:.01em}
+.vip-exclusive-badge{display:inline-flex;align-items:center;justify-content:center;min-height:22px;padding:2px 8px;border-radius:999px;background:linear-gradient(135deg,#9a741f,#d5b45a);color:#fff!important;font-size:10px!important;font-weight:800!important;letter-spacing:.04em;white-space:nowrap;box-shadow:0 2px 7px rgba(133,94,13,.18)}
+.report-section.vip-exclusive-card .member-preview-lock,.report-section.vip-exclusive-card .vip-inline-lock{border:1px solid rgba(190,145,45,.24);background:#fff9ea;color:#76591c;font-weight:650}
+.report-section.vip-risk-exclusive.report-detail-upset{border-color:#c8a14a!important}
+@media(max-width:420px){.report-section.vip-exclusive-card>h2,.report-section.vip-exclusive-card>h3{font-size:17px!important}.vip-exclusive-badge{font-size:9px!important;padding:2px 7px}}
