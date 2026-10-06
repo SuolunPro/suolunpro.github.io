@@ -429,10 +429,10 @@
     }
 
     function renderPaidMemberRequired(){
-      const box=$('content');box.replaceChildren(sectionHead('冷门预警','功能测试中'));
+      const box=$('content');box.replaceChildren(sectionHead('冷门预警','会员专享'));
       const p=el('section','member-zone-lock');
-      p.append(el('h3','','冷门预警暂未全面开放'),
-        el('p','','该功能仍在持续验证与稳定性测试中，暂未对所有账号开放。'));
+      p.append(el('h3','','冷门预警 · 会员专享'),
+        el('p','','该功能仅对尊贵月卡 VIP 会员开放。开通会员后，可查看冷门预警、风险依据及相关深度分析。'));
       const b=el('button','','查看会员方案');
       b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};
       p.append(b);box.append(p);
