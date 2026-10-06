@@ -531,7 +531,7 @@
         if(cached){box.append(cached);return}
       }
       const page=el('div','member-zone-page');
-      const info=el('details','cold-warning-info compact');
+      const info=el('details','cold-warning-info compact');info.open=true;
       const infoSummary=el('summary','','冷门预警更新说明');
       const infoBody=el('div','cold-warning-info-body');
       infoBody.append(
