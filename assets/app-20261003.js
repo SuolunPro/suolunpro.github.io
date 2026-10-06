@@ -3252,6 +3252,13 @@
         reportProbability(summary,'九十刻度赛前概率',['homeProbability','drawProbability','awayProbability'],row);
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub',(row.predictionView==='LATEST_PREMATCH_ONLY'?'最新赛前预测更新于 ':'赛前预测记录于 ')+fmtStamp(row.frozenAt)));
       c.append(summary);
+      let deepMarketSlot=null;
+      if(memberInfo?.vipActive===true){deepMarketSlot=el('div','report-professional');c.append(deepMarketSlot);}
+      else{
+        const deepMarketLock=reportSection('九十刻度 · 深度市场分析');
+        deepMarketLock.append(el('div','member-preview-lock','尊贵月卡VIP专享 · 解锁99家机构概率、必发资金/冷热/盈亏、凯利风险与赛事情报'));
+        c.append(deepMarketLock);
+      }
       const teamOverview=teamOverviewPanel(row);
       const attackDefense=renderAttackDefensePanel(row);
       if(teamOverview&&attackDefense){teamOverview.append(attackDefense);c.append(teamOverview);}
@@ -3280,13 +3287,6 @@
       }
       const professionalSlot=el('div','report-professional');c.append(professionalSlot);
       const advancedSlot=el('div','report-professional');c.append(advancedSlot);
-      let deepMarketSlot=null;
-      if(memberInfo?.vipActive===true){deepMarketSlot=el('div','report-professional');c.append(deepMarketSlot);}
-      else{
-        const deepMarketLock=reportSection('九十刻度 · 深度市场分析');
-        deepMarketLock.append(el('div','member-preview-lock','尊贵月卡VIP专享 · 解锁机构市场概率、资金分布、冷热、盈亏、凯利风险与赛事情报'));
-        c.append(deepMarketLock);
-      }
       if(verified(row)){
         const review=reportSection('赛后数据对照');
         reportLine(review,'90分钟赛果',resultName[row.result]||row.result);
