@@ -691,18 +691,21 @@
        Layout-only redesign. No model/routing logic changes. */
     .member-zone-page{gap:9px}
     .cold-warning-info.compact{
-      margin:0 0 2px;padding:0 13px;border:1px solid #ececef;border-radius:12px;
-      background:#fff;color:#59616a
+      margin:10px 16px;padding:12px 13px;border:1px solid #f1d9b0;border-radius:10px;
+      background:#fff8ec;color:#795726;font-size:12px;line-height:1.7
     }
     .cold-warning-info.compact>summary{
-      list-style:none;cursor:pointer;padding:11px 0;font-size:11px;font-weight:750;color:#555d66
+      list-style:none;cursor:pointer;padding:0;font-size:13px;font-weight:700;color:#654718
     }
     .cold-warning-info.compact>summary::-webkit-details-marker{display:none}
-    .cold-warning-info.compact>summary:after{content:' ▾';float:right;color:#9aa0a6}
+    .cold-warning-info.compact>summary:after{content:' ▾';float:right;color:#806c4c}
     .cold-warning-info.compact[open]>summary:after{content:' ▴'}
-    .cold-warning-info-body{padding:0 0 9px;border-top:1px solid #f0f1f2}
+    .cold-warning-info-body{padding:5px 0 0;border-top:0}
     .cold-warning-info.compact .cold-warning-info-body p{
-      margin:8px 0 0;font-size:10px;line-height:1.6;color:#777f87
+      margin:0 0 5px;font-size:12px;line-height:1.7;color:#795726
+    }
+    .cold-warning-info.compact .cold-warning-info-body p:last-child{
+      margin:7px 0 0;padding:7px 9px;background:#fffdf8;border-radius:7px;color:#806c4c
     }
 
     .member-zone-regular-card{
