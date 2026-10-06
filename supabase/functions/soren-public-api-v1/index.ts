@@ -1619,9 +1619,29 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
         !existingDirection&&top&&["H","A"].includes(top)&&marketBehaviorAdverse&&directionDomains.size>=2&&
         !asian.hardSupport
       );
-      const warningDirection=existingDirection??(directionConfirmed?(top==="H"?"主队不胜":"客队不胜"):null);
+
+      // Forward-only strict multi-frequency supplement. Existing four risk routes stay intact.
+      // A new direction is allowed only before the sale/kickoff boundary, with >=4 independent
+      // adverse domains and >=2 genuine market domains. Correlated shadow components remain one
+      // market domain above, so they cannot be stacked to manufacture a four-frequency trigger.
+      const strictMarketDomains=["market_behavior","sporttery_market","william_market","asian_market"]
+        .filter(x=>directionDomains.has(x));
+      const strictMultiFrequencyConfirmed=!!(
+        !existingDirection&&top&&["H","A"].includes(top)&&
+        Number.isFinite(boundary)&&Date.now()<boundary&&
+        directionDomains.size>=4&&strictMarketDomains.length>=2&&
+        !asian.hardSupport
+      );
+      if(strictMultiFrequencyConfirmed){
+        directionBasis.push(
+          "多频共振补漏：独立反热门证据"+directionDomains.size+
+          "频，其中真实市场证据"+strictMarketDomains.length+"频"
+        );
+      }
+      const newDirectionConfirmed=directionConfirmed||strictMultiFrequencyConfirmed;
+      const warningDirection=existingDirection??(newDirectionConfirmed?(top==="H"?"主队不胜":"客队不胜"):null);
       const alternativePick=raw.alternativePick??raw.alternative_pick??
-        (directionConfirmed&&marketBehaviorTop?resultLabel(marketBehaviorTop):null);
+        (newDirectionConfirmed&&marketBehaviorTop?resultLabel(marketBehaviorTop):null);
       const directionalDomainCount=Math.max(
         Number(raw.directionalDomainCount??raw.directional_domain_count??0)||0,
         directionDomains.size
@@ -1640,9 +1660,9 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
         !marketBehaviorAdverse&&!marketAnomaly&&asian.hardSupport&&shadowIntelSupportsTop
       );
       const focus=baseCandidate
-        ?((oppositeSecond&&!supportiveOverride)||qualifiedDraw||directionConfirmed||!!existingDirection)
-        :(lowRiskReactivated&&directionConfirmed);
-      const displayTier=focus?((marketAnomaly||directionConfirmed||!!existingDirection)?"强风险信号":"重点风险"):"一般风险";
+        ?((oppositeSecond&&!supportiveOverride)||qualifiedDraw||newDirectionConfirmed||!!existingDirection)
+        : (lowRiskReactivated&&newDirectionConfirmed);
+      const displayTier=focus?((marketAnomaly||newDirectionConfirmed||!!existingDirection)?"强风险信号":"重点风险"):"一般风险";
       return {...row,upsetWarning:{...raw,
         sourcePublish,publish:focus,detailOnly:!focus,displayTier,
         warningDirection,alternativePick,
@@ -1650,7 +1670,7 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
         evidenceDomains:mergedEvidenceDomains,
         directionalDomainCount,
         directionPublicationEligible:!!warningDirection&&directionalDomainCount>=2,
-        note:directionConfirmed
+        note:newDirectionConfirmed
           ?(lowRiskReactivated
             ?"低风险场由临场影子层重新激活，并由市场资金与至少一个独立赛前证据域同向确认"
             :"预警方向由市场资金与至少一个独立赛前证据域同向确认")
