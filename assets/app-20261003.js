@@ -3017,7 +3017,7 @@
     // Show only the warning tied to this match's verified pre-kickoff record.
     // Never infer a directional warning from the original Top1 or from final results.
     function detailUpsetWarningPanel(row){
-      const panel=reportSection('风险观察 · 赛前数据迹象');
+      const panel=reportSection('风险观察 · 赛前数据迹象');panel.classList.add('vip-exclusive-card','vip-risk-exclusive');panel.querySelector('h2,h3')?.append(el('span','vip-exclusive-badge','VIP专享'));
       if(row?.vipRiskAccessRestricted===true&&!vipDeepAccess()){
         panel.classList.add('report-detail-upset-empty');
         panel.append(el('p','vip-inline-lock',row?.vipRiskLocked===true?'VIP风险信号已触发 🔒 · 风险类型与保护方向仅向尊贵月卡VIP开放。':'深层风险审计仅向尊贵月卡VIP开放。'));
@@ -3139,7 +3139,7 @@
     function renderDeepMarketAnalysis(holder,data){
       if(state.selected===null||!holder.isConnected)return;
       holder.replaceChildren();
-      const panel=reportSection('九十刻度 · 深度市场分析');panel.classList.add('shadow-admin-preview');
+      const panel=reportSection('九十刻度 · 深度市场分析');panel.classList.add('shadow-admin-preview','vip-exclusive-card');panel.querySelector('h2,h3')?.append(el('span','vip-exclusive-badge','VIP专享'));
       const match=data?.match||{},market=data?.market;
       const rawAnalysis=data?.analysis||data?.proof||data?.marketAnalysis||data?.intelligence?.analysis||data||null;
       const analysis=rawAnalysis&&typeof rawAnalysis==='object'?rawAnalysis:null;
@@ -3256,6 +3256,7 @@
       if(memberInfo?.vipActive===true){deepMarketSlot=el('div','report-professional');c.append(deepMarketSlot);}
       else{
         const deepMarketLock=reportSection('九十刻度 · 深度市场分析');
+        deepMarketLock.classList.add('vip-exclusive-card','vip-exclusive-locked');deepMarketLock.querySelector('h2,h3')?.append(el('span','vip-exclusive-badge','VIP专享'));
         deepMarketLock.append(el('div','member-preview-lock','尊贵月卡VIP专享 · 解锁99家机构概率、必发资金/冷热/盈亏、凯利风险与赛事情报'));
         c.append(deepMarketLock);
       }
