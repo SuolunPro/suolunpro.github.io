@@ -2337,14 +2337,38 @@ async function marketTrend(date:string,no:string){
 }
 
 
+const currentLiveRefreshState=new Map<string,{at:number,promise:Promise<void>|null}>();
+function scheduleCurrentLiveRefresh(date:string){
+  const now=Date.now(),existing=currentLiveRefreshState.get(date);
+  if(existing&&(now-existing.at<45_000||existing.promise))return;
+  const promise=(async()=>{
+    const upstreamData=await fetchPublicUpstream("today",date);
+    if(upstreamData?.ok!==true||!Array.isArray(upstreamData.rows)||!upstreamData.rows.length)return;
+    const sourceRows=(upstreamData.rows as Record<string,unknown>[])
+      .filter(row=>String(row?.version??"")===String(upstreamData.modelVersion??"")&&row?.no&&row?.kickoff);
+    if(!sourceRows.length)return;
+    let refreshed=await applySaleFreeze(sourceRows,date,false);
+    refreshed=await applyRiskFocusLayer(refreshed,date);
+    refreshed=applyHighDrawRiskLayer(refreshed);
+    refreshed=await attachDailySupplementLayer(refreshed,date);
+    await syncUpsetWarnings(refreshed,upstreamData);
+  })().catch(error=>console.error("CURRENT_LIVE_BACKGROUND_REFRESH_ERROR",error)).finally(()=>{
+    const active=currentLiveRefreshState.get(date);
+    if(active?.promise===promise)currentLiveRefreshState.set(date,{at:Date.now(),promise:null});
+  });
+  currentLiveRefreshState.set(date,{at:now,promise});
+  EdgeRuntime.waitUntil(promise);
+}
+
 async function serveFastArchiveBundle(date:string,view:string,vipActive=false):Promise<Response|null>{
   try{
     const todayBjt=new Intl.DateTimeFormat("en-CA",{
       timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"
     }).format(new Date()).split("/").join("-");
-    // Today's pool must pass through applySaleFreeze so upcoming fixtures remain
-    // live and re-ranked. The bundle is reserved for immutable past archives.
-    if(date>=todayBjt)return null;
+    // Past pools are immutable. Today's bundle is built from the append-only latest
+    // prematch ledger and refreshed asynchronously so customer reads stay fast while
+    // lawful pre-kickoff probability changes continue to flow into the next response.
+    if(date>todayBjt)return null;
     const {data:bundle,error}=await db.rpc("soren_fast_archive_bundle_v2",{p_date:date});
     if(error||!bundle||typeof bundle!=="object"||Array.isArray(bundle)){
       if(error)console.error("FAST_ARCHIVE_BUNDLE_UNAVAILABLE",error);
@@ -2416,6 +2440,8 @@ async function serveFastArchiveBundle(date:string,view:string,vipActive=false):P
       const latestWarnings=await loadUpsetWarningMap(date);
       rows=rows.map(r=>overlayLatestCurrentUpsetWarning(r,latestWarnings));
       rows=applyHighDrawRiskLayer(rows);
+      rows=await attachDailySupplementLayer(rows,date);
+      scheduleCurrentLiveRefresh(date);
     }
 
     const liveUnsettled=rows.some((r:Record<string,unknown>)=>r.resultVerified!==true&&r.matchStatus!=="POSTPONED");

@@ -204,8 +204,15 @@
       return null;
     }
     const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
+    function customerApiUrl(params){
+      const qs=params instanceof URLSearchParams?new URLSearchParams(params):new URLSearchParams(params||{});
+      // The production database is in Mumbai. Running the data-heavy function in
+      // the same region avoids repeated inter-region round trips before first paint.
+      qs.set('forceFunctionRegion','ap-south-1');
+      return API+'?'+qs.toString();
+    }
     const CLIENT_DIAG_API=AUTH_BASE+'/functions/v1/soren-client-diag-v1';
-    const CLIENT_BUILD='20261004-membership-diag-v1';
+    const CLIENT_BUILD='20261006-fast-live-v1';
     function clientDiag(stage,details={}){
       try{
         const body=JSON.stringify({stage,version:CLIENT_BUILD,browserId:welcomeBrowserId(),
@@ -282,13 +289,13 @@
       // turn a successful 200 membership check into a blocking boot failure.
       let r;
       try{
-        r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(20000)});
+        r=await authorizedApiFetch(customerApiUrl({view:'membership'}),{cache:'no-store',signal:timeoutSignal(20000)});
       }catch(error){
         clientDiag('membership_fetch_error',{attempt:1,elapsedMs:Date.now()-diagStarted,errorName:error?.name,errorMessage:error?.message});
         if(!isTransientConnectionError(error))throw error;
         await new Promise(resolve=>setTimeout(resolve,700));
         clientDiag('membership_retry',{attempt:2,elapsedMs:Date.now()-diagStarted});
-        try{r=await authorizedApiFetch(API+'?view=membership',{cache:'no-store',signal:timeoutSignal(30000)});}
+        try{r=await authorizedApiFetch(customerApiUrl({view:'membership'}),{cache:'no-store',signal:timeoutSignal(30000)});}
         catch(retryError){
           clientDiag('membership_fetch_error',{attempt:2,elapsedMs:Date.now()-diagStarted,errorName:retryError?.name,errorMessage:retryError?.message});
           throw retryError;
@@ -1160,7 +1167,7 @@
         // Cold list uses the lightweight projection; heavy proof stays lazy in member-intel.
         const qs=new URLSearchParams({view:'cold-feed',date:zoneDate,_:String(Date.now())});
         const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),10000);let r;
-        try{r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal})}
+        try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal})}
         finally{clearTimeout(timer)}
         const j=await r.json();
         if(r.status===403&&j.error==='VIP_MEMBERSHIP_REQUIRED'){memberInfo=j.membership||memberInfo;throw Error('冷门预警暂未全面开放')}
@@ -2847,7 +2854,7 @@
         try{
           const params=new URLSearchParams({view:'market-trend',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
           const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);let response;
-          try{response=await authorizedApiFetch(API+'?'+params.toString(),{cache:'no-store',signal:ctrl.signal})}
+          try{response=await authorizedApiFetch(customerApiUrl(params),{cache:'no-store',signal:ctrl.signal})}
           finally{clearTimeout(timer)}
           if(!response.ok)throw Error('HTTP '+response.status);
           const data=await response.json();
@@ -3004,7 +3011,7 @@
       try{
         const params=new URLSearchParams({view:'report',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
         const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);let response;
-        try{response=await authorizedApiFetch(API+'?'+params.toString(),{cache:'no-store',signal:ctrl.signal})}
+        try{response=await authorizedApiFetch(customerApiUrl(params),{cache:'no-store',signal:ctrl.signal})}
         finally{clearTimeout(timer)}
         if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();
@@ -3454,7 +3461,7 @@
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
     function render(){closeDetail();const coldView=state.tab==='home'&&state.model==='cold';const currentNonMember=memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday());const freeFt=currentNonMember&&state.today?.freeDailyFt===true&&state.model==='overview';document.querySelector('.toolbar').hidden=state.tab==='profile'||state.tab==='memberzone'||coldView||(currentNonMember&&!freeFt);if(state.tab==='memberzone'){if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}renderMemberZone();return}if(currentNonMember&&!freeFt&&!(state.today?.rows||[]).every(r=>publicSettledAccess(r)||r.matchStatus==='POSTPONED')){renderMemberRequired();return}if(state.tab!=='profile'&&!coldView)updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
-    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(API+'?'+qs.toString(),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');return j}finally{}}
+    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');return j}finally{}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
@@ -3465,14 +3472,18 @@
       // A JCZQ sale day may run past Beijing midnight. Prefer the unfinished
       // previous pool, but never turn a transient current-day API failure into
       // a blank homepage when we already have a valid previous pool snapshot.
+      // Start today's read at the same time so a settled previous day never adds
+      // its full network latency in front of the current-day first paint.
+      const currentTask=readDay(today,true).then(data=>({data,error:null}),error=>({data:null,error}));
       let prior=null;
       try{
         prior=await readDay(previous);
         if(hasUnsettledPool(prior))return prior;
       }catch(e){console.warn('上一竞彩池状态核验暂不可用',e)}
-      try{
-        return await readDay(today,true);
-      }catch(e){
+      const current=await currentTask;
+      if(current.data)return current.data;
+      {
+        const e=current.error;
         const fallback=prior||cachedDay(previous,true);
         if(fallback&&Array.isArray(fallback.rows)&&fallback.rows.length){
           console.warn('今日竞彩池暂不可用，继续展示上一有效竞彩池',e);
@@ -3498,6 +3509,7 @@
     const dayCache=new Map(),dayRequests=new Map(),dayContentVersions=new Map();let dateRequestId=0,historyPrefetchStarted=false;
     const ARCHIVE_SESSION_PREFIX='soren-archive-v4:';
     const SETTLED_CACHE_TTL=12*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
+    function dayCacheScope(){return [authSession?.user?.id||'',memberInfo?.active===true?'1':'0',memberInfo?.vipActive===true?'1':'0'].join('|')}
     function fullySettledDay(d){
       return !!(d&&d.date&&d.date<beijingToday()&&Array.isArray(d.rows)&&d.rows.length&&
         d.rows.every(r=>verified(r)||r.matchStatus==='POSTPONED'));
@@ -3508,19 +3520,20 @@
       const version=known?.signature===signature?(known.version||1):(known?.version||0)+1;
       dayContentVersions.delete(d.date);dayContentVersions.set(d.date,{signature,version});
       while(dayContentVersions.size>20)dayContentVersions.delete(dayContentVersions.keys().next().value);
-      const entry={data:d,at:Date.now(),settled,signature,version};
+      const scope=dayCacheScope(),entry={data:d,at:Date.now(),settled,signature,version,scope};
       dayCache.delete(d.date);dayCache.set(d.date,entry);
       while(dayCache.size>7)dayCache.delete(dayCache.keys().next().value);
       // Persist both settled history and the latest active-day snapshot.
       // Active snapshots are only used for fast boot and are refreshed in the
       // background immediately, so they never replace authoritative live sync.
-      const persist=()=>{try{sessionStorage.setItem(ARCHIVE_SESSION_PREFIX+d.date,JSON.stringify({data:d,at:entry.at,settled}))}catch{}};
+      const persist=()=>{try{sessionStorage.setItem(ARCHIVE_SESSION_PREFIX+d.date,JSON.stringify({data:d,at:entry.at,settled,scope}))}catch{}};
       if('requestIdleCallback' in window)window.requestIdleCallback(persist,{timeout:5000});
       else setTimeout(persist,1200);
     }
     function cachedDay(date,allowStaleActive=false){
       const entry=dayCache.get(date);
       if(entry){
+        if(entry.scope!==dayCacheScope()){dayCache.delete(date);return null}
         const ttl=entry.settled?SETTLED_CACHE_TTL:(allowStaleActive?ACTIVE_BOOT_CACHE_TTL:ACTIVE_CACHE_TTL);
         if(Date.now()-entry.at<ttl)return entry.data;
         dayCache.delete(date);
@@ -3529,6 +3542,9 @@
         const raw=sessionStorage.getItem(ARCHIVE_SESSION_PREFIX+date);
         if(!raw)return null;
         const stored=JSON.parse(raw),settled=fullySettledDay(stored?.data);
+        if(stored?.scope!==dayCacheScope()){
+          sessionStorage.removeItem(ARCHIVE_SESSION_PREFIX+date);return null;
+        }
         const ttl=settled?SETTLED_CACHE_TTL:(allowStaleActive?ACTIVE_BOOT_CACHE_TTL:ACTIVE_CACHE_TTL);
         if(!stored?.data||!Number.isFinite(Number(stored.at))||Date.now()-Number(stored.at)>ttl){
           sessionStorage.removeItem(ARCHIVE_SESSION_PREFIX+date);return null;
@@ -3536,7 +3552,7 @@
         const signature=JSON.stringify([stored.data.rows||[],stored.data.publicationStatus,stored.data.analysisPending]),known=dayContentVersions.get(date);
         const version=known?.signature===signature?(known.version||1):(known?.version||0)+1;
         dayContentVersions.delete(date);dayContentVersions.set(date,{signature,version});
-        dayCache.set(date,{data:stored.data,at:Number(stored.at),settled,signature,version});
+        dayCache.set(date,{data:stored.data,at:Number(stored.at),settled,signature,version,scope:stored.scope});
         return stored.data;
       }catch{return null}
     }
@@ -3575,6 +3591,12 @@
       else setTimeout(start,3200);
     }
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
+    function paintCachedActivePool(today){
+      const previous=addDays(today,-1),prior=cachedDay(previous,true),current=cachedDay(today,true);
+      const cached=hasUnsettledPool(prior)?prior:current;
+      if(!cached||!Array.isArray(cached.rows))return false;
+      state.baseDate=cached.date||today;applyDay(cached);return true;
+    }
     async function selectDate(date){
       const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-14);
       if(date<earliest||date>displayLatestDate()){alert(state.model==='htft'?'半全场仅展示近15天可核验记录。':'仅展示最近15天的记录。');return}
@@ -3692,9 +3714,10 @@
       }
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
-      if(memberInfo?.active!==true){state.tab='home';state.model='overview';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));document.querySelectorAll('.model').forEach(n=>n.classList.toggle('active',n.dataset.model==='overview'));$('version').textContent='九十刻度';$('poolCount').textContent='每日免费2场胜平负';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();resolveActivePool().then(d=>{state.baseDate=d.date||today;rememberDay(d);applyDay(d)}).catch(e=>{$('content').replaceChildren(errorBox(e));buildDates()});return}
+      if(memberInfo?.active!==true){state.tab='home';state.model='overview';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));document.querySelectorAll('.model').forEach(n=>n.classList.toggle('active',n.dataset.model==='overview'));$('version').textContent='九十刻度';$('poolCount').textContent='每日免费2场胜平负';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();paintCachedActivePool(today);resolveActivePool().then(d=>{state.baseDate=d.date||today;rememberDay(d);applyDay(d)}).catch(e=>{$('content').replaceChildren(errorBox(e));buildDates()});return}
       // Resolve the active JCZQ pool, not the calendar date. After Beijing
       // midnight an unfinished previous sale day must stay selected.
+      paintCachedActivePool(today);
       resolveActivePool().then(d=>{
         state.baseDate=d.date||today;rememberDay(d);
         applyDay(d);scheduleHistoryPrefetch()
