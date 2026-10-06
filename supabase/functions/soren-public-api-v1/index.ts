@@ -2380,6 +2380,32 @@ function scheduleCurrentLiveRefresh(date:string){
   EdgeRuntime.waitUntil(promise);
 }
 
+const PREMATCH_FREEZE_GUARD_VERSION="KICKOFF_ARCHIVE_GUARD_V2";
+
+async function archiveDayFullyStarted(date:string):Promise<boolean>{
+  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))return false;
+  const {data,error}=await db.rpc("soren_archive_day_fully_started_v1",{p_date:date});
+  if(error)throw new Error("ARCHIVE_DAY_START_CHECK_UNAVAILABLE:"+String(error.message));
+  return data===true;
+}
+function overlayArchivePredictionState(rows:Record<string,unknown>[]):Record<string,unknown>[]{
+  const now=Date.now();
+  return rows.map(row=>{
+    if(row.matchStatus==="POSTPONED")return row;
+    const kickoff=Date.parse(String(row.kickoff??""));
+    if(!Number.isFinite(kickoff))return row;
+    const beforeKickoff=now<kickoff;
+    return {...row,
+      predictionState:beforeKickoff?"LIVE":"KICKOFF_LOCKED",
+      predictionView:beforeKickoff?"LATEST_VERIFIED_PREMATCH":"FINAL_PREMATCH_AT_KICKOFF",
+      saleFreezeStatus:beforeKickoff?"LIVE":"KICKOFF_FINAL",
+      saleFreezeLockedAt:beforeKickoff?null:(row.saleFreezeLockedAt??row.kickoff??null),
+      saleCutoffAt:row.saleCutoffAt??row.kickoff??null,
+      prematchFreezeGuard:PREMATCH_FREEZE_GUARD_VERSION,
+    };
+  });
+}
+
 async function serveFastArchiveBundle(date:string,view:string,vipActive=false):Promise<Response|null>{
   try{
     const todayBjt=new Intl.DateTimeFormat("en-CA",{
@@ -2389,6 +2415,9 @@ async function serveFastArchiveBundle(date:string,view:string,vipActive=false):P
     // prematch ledger and refreshed asynchronously so customer reads stay fast while
     // lawful pre-kickoff probability changes continue to flow into the next response.
     if(date>todayBjt)return null;
+    // A pool becomes eligible for archive only after every fixture has reached kickoff.
+    // This prevents a Beijing-midnight date rollover from reviving an early sale snapshot.
+    if(date<todayBjt&&!(await archiveDayFullyStarted(date)))return null;
     const {data:bundle,error}=await db.rpc("soren_fast_archive_bundle_v2",{p_date:date});
     if(error||!bundle||typeof bundle!=="object"||Array.isArray(bundle)){
       if(error)console.error("FAST_ARCHIVE_BUNDLE_UNAVAILABLE",error);
@@ -2464,6 +2493,7 @@ async function serveFastArchiveBundle(date:string,view:string,vipActive=false):P
       scheduleCurrentLiveRefresh(date);
     }
 
+    rows=overlayArchivePredictionState(rows);
     const liveUnsettled=rows.some((r:Record<string,unknown>)=>r.resultVerified!==true&&r.matchStatus!=="POSTPONED");
     if(!vipActive&&liveUnsettled)rows=rows.map(redactLiveVipRisk);
 
@@ -4089,7 +4119,7 @@ Deno.serve(async (req: Request) => {
     // Locked past pools can serve frozen pre-match analysis directly while still
     // overlaying verified results on every request. This keeps yesterday's unfinished
     // fixtures live without rebuilding the full analysis stack for the whole day.
-    const fastLockedArchive=view==="archive"&&!!date&&date<beijingToday&&date>="2026-09-23";
+    const fastLockedArchive=view==="archive"&&!!date&&date<beijingToday&&date>="2026-09-23"&&await archiveDayFullyStarted(date);
     if(fastLockedArchive){
       try{
         const {data:fastRows,error:fastError}=await db.rpc("soren_fast_locked_archive_rows_v1",{p_date:date});
@@ -4146,6 +4176,7 @@ Deno.serve(async (req: Request) => {
               console.error("FAST_ARCHIVE_HTFT_UNAVAILABLE",htftError);
             }
 
+            rows=overlayArchivePredictionState(rows);
             const liveUnsettled=rows.some((r:Record<string,unknown>)=>r.resultVerified!==true&&r.matchStatus!=="POSTPONED");
             if(vipAccess.active!==true&&liveUnsettled)rows=rows.map(redactLiveVipRisk);
             const handicapStats=buildHandicapStats(rows);
