@@ -3487,11 +3487,11 @@
         b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
     }
     // Historical days that are already fully settled are immutable for customer display.
-    // Keep settled snapshots across normal return visits for a week; active/unsettled days
+    // Keep settled snapshots across the full 15-day customer history window; active/unsettled days
     // retain their short TTLs so live prematch updates are never frozen by archive caching.
     const dayCache=new Map(),dayRequests=new Map(),dayContentVersions=new Map();let dateRequestId=0,historyPrefetchStarted=false;
     const ARCHIVE_SESSION_PREFIX='soren-archive-v4:';
-    const SETTLED_CACHE_TTL=7*24*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
+    const SETTLED_CACHE_TTL=15*24*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
     function dayCacheScope(){return [authSession?.user?.id||'',memberInfo?.active===true?'1':'0',memberInfo?.vipActive===true?'1':'0'].join('|')}
     function fullySettledDay(d){
       return !!(d&&d.date&&d.date<beijingToday()&&Array.isArray(d.rows)&&d.rows.length&&
