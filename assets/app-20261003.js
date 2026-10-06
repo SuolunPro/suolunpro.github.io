@@ -3457,7 +3457,7 @@
     function buildDates(){
       const days=['日','一','二','三','四','五','六'],box=$('dates'),latest=displayLatestDate();box.replaceChildren();
       box.classList.toggle('htft-dates',state.model==='htft');
-      const firstOffset=state.model==='htft'?Math.max(-14,Math.round((Date.parse('2026-09-19T00:00:00Z')-Date.parse(latest+'T00:00:00Z'))/86400000)):-6;
+      const firstOffset=state.model==='htft'?Math.max(-14,Math.round((Date.parse('2026-09-19T00:00:00Z')-Date.parse(latest+'T00:00:00Z'))/86400000)):-14;
       for(let offset=firstOffset;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
         b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
     }
@@ -3544,8 +3544,8 @@
     }
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
     async function selectDate(date){
-      const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-6);
-      if(date<earliest||date>displayLatestDate()){alert(state.model==='htft'?'半全场仅展示近15天可核验记录。':'仅展示最近7天的记录。');return}
+      const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-14);
+      if(date<earliest||date>displayLatestDate()){alert(state.model==='htft'?'半全场仅展示近15天可核验记录。':'仅展示最近15天的记录。');return}
       // Date navigation is an entry into match history, even when an expired member starts on "我的".
       // Switch tabs before the same-date shortcut or cached-day path; never change membership/report access.
       const wasOutsideHome=state.tab!=='home';
