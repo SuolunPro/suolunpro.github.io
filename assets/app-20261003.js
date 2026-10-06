@@ -3152,8 +3152,20 @@
         const normalized=normalizeShadowAnalysis(analysis);
         const explicitLevel=analysis.level||analysis.riskLevel||analysis.risk_level||analysis.conclusionLevel||analysis.conclusion_level;
         const explicitSummary=analysis.summary||analysis.conclusion||analysis.verdict||analysis.analysisSummary||analysis.analysis_summary;
-        const level=explicitLevel?brandSafe(explicitLevel):(normalized.available?'市场证据已采集':'数据不足');
-        const summary=explicitSummary?brandSafe(explicitSummary):(normalized.available?'已形成可展示的市场与情报证据，详见下方指标。':'暂无综合结论');
+        const derivedSummary=(()=>{
+          if(!normalized.available)return null;
+          const dirs=[normalized.market99.top,normalized.betfair.top].filter(Boolean);
+          const kelly=normalized.kelly.lowestDirection;
+          const same=dirs.length>=2&&dirs.every(x=>x===dirs[0]);
+          const fundMax=Math.max(...Object.values(normalized.betfair.share).filter(v=>v!==null));
+          if(same&&kelly&&kelly===dirs[0])return '多项市场指标同向，资金与凯利方向形成一致支持';
+          if(same&&Number.isFinite(fundMax)&&fundMax>=60)return '机构方向与必发资金同向，市场支持较集中';
+          if(dirs.length>=2&&new Set(dirs).size>1)return '机构概率与必发资金方向存在分歧，需重点关注市场背离';
+          if(normalized.flags.length)return normalized.flags.slice(0,2).join('；');
+          return '市场与情报证据已采集，当前以分项指标为主要参考';
+        })();
+        const level=explicitLevel?brandSafe(explicitLevel):(normalized.available?'证据已采集':'数据不足');
+        const summary=explicitSummary?brandSafe(explicitSummary):brandSafe(derivedSummary||'暂无综合结论');
         const status=el('div','shadow-admin-status');
         status.append(el('b','',level),document.createTextNode(' · '+summary));
         panel.append(status);
