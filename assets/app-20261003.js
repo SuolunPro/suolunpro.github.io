@@ -3140,16 +3140,27 @@
       if(state.selected===null||!holder.isConnected)return;
       holder.replaceChildren();
       const panel=reportSection('九十刻度 · 深度市场分析');panel.classList.add('shadow-admin-preview');
-      const match=data?.match||{},market=data?.market,analysis=data?.analysis||null;
+      const match=data?.match||{},market=data?.market;
+      const rawAnalysis=data?.analysis||data?.proof||data?.marketAnalysis||data?.intelligence?.analysis||data||null;
+      const analysis=rawAnalysis&&typeof rawAnalysis==='object'?rawAnalysis:null;
+      const brandSafe=v=>String(v||'')
+        .replace(/澳客/g,'市场数据')
+        .replace(/必发/g,'市场资金')
+        .replace(/\\+["']?\s*\/>/g,'')
+        .replace(/<[^>]*>/g,'').trim();
       panel.append(el('p','report-sub',[match.no,match.home,match.away].filter(Boolean).join(' · ')+'。市场与情报数据按采集窗口自动更新，仅作为赛前概率分析依据。'));
-      const cleanText=v=>String(v||'').replace(/\\+["']?\s*\/>/g,'').replace(/<[^>]*>/g,'').trim();
       if(analysis){
-        const level=String(analysis.level||'数据不足');
+        const normalized=normalizeShadowAnalysis(analysis);
+        const explicitLevel=analysis.level||analysis.riskLevel||analysis.risk_level||analysis.conclusionLevel||analysis.conclusion_level;
+        const explicitSummary=analysis.summary||analysis.conclusion||analysis.verdict||analysis.analysisSummary||analysis.analysis_summary;
+        const level=explicitLevel?brandSafe(explicitLevel):(normalized.available?'市场证据已采集':'数据不足');
+        const summary=explicitSummary?brandSafe(explicitSummary):(normalized.available?'已形成可展示的市场与情报证据，详见下方指标。':'暂无综合结论');
         const status=el('div','shadow-admin-status');
-        status.append(el('b','',level),document.createTextNode(' · '+cleanText(analysis.summary||'暂无综合结论')));
+        status.append(el('b','',level),document.createTextNode(' · '+summary));
         panel.append(status);
         const fields=el('section','member-zone-proof-section');
         renderShadowAnalysisFields(fields,analysis);
+        fields.querySelectorAll('li,b,span').forEach(node=>{if(node.childElementCount===0)node.textContent=brandSafe(node.textContent)});
         panel.append(fields);
       }else{
         panel.append(el('div','shadow-admin-status','本场深度市场分析暂无可展示数据。'));
