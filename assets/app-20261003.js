@@ -1816,13 +1816,13 @@
         (['H','A'].includes(originalCode)&&['H','A'].includes(secondCode)&&originalCode!==secondCode);
       const qualifiedDraw=gate?.qualified_draw===true;
       const marketAnomaly=gate?.market_anomaly===true;
+      const strongMarketReverseEntry=gate?.strong_market_reverse_entry===true;
       const marketSignals=Array.isArray(raw.marketSignals)?raw.marketSignals:
         (Array.isArray(raw.market_signals)?raw.market_signals:[]);
       const modelVersion=String(raw.modelVersion??raw.model_version??'HJ38-UPSET-v1.0.0');
-      // Do not rewrite older historical publications. For the 9/26 transition only,
-      // legacy v1.0 rows are visually narrowed by the verified opposite-second rule
-      // until the next v1.1 prematch freeze arrives.
-      if(!gate&&String(row.date??'')>='2026-09-26'&&!oppositeSecond)return null;
+      // The server is the single source of truth for warning publication.
+      // Client-side gate fields explain why a warning was published; they must not
+      // veto a server-published warning or future server-side entry routes.
       const displayTier=String(raw.displayTier??raw.display_tier??
         (gate?(level==='高'?'强风险信号':'重点风险'):
           String(row.date??'')>='2026-09-26'?'重点风险':level==='高'?'强风险信号':'重点风险'));
@@ -1835,12 +1835,13 @@
       if(!['主队不败','客队不败','平局风险'].includes(direction))direction='';
       let inlineReason='';
       if(displayTier==='强风险信号'){
-        const focusText=oppositeSecond&&qualifiedDraw?'胜负方向分歧 · 防平信号':oppositeSecond?'胜负方向分歧':'防平信号';
+        const focusText=strongMarketReverseEntry?'多源市场反向':oppositeSecond&&qualifiedDraw?'胜负方向分歧 · 防平信号':oppositeSecond?'胜负方向分歧':'防平信号';
         inlineReason=focusText+' · 市场反向变化';
       }else if(qualifiedDraw&&!oppositeSecond)inlineReason='独立进球模型提示平局风险';
       else if(oppositeSecond)inlineReason='胜负方向分歧';
       else inlineReason=basis[0]||'赛前风险证据达到重点观察门槛';
       const evidenceLines=[];
+      if(strongMarketReverseEntry)evidenceLines.push('多源赛前市场信号同时反向原首选');
       if(oppositeSecond)evidenceLines.push('首选与次选形成主/客胜方向分歧');
       if(qualifiedDraw)evidenceLines.push('严格赛前独立进球模型提示平局风险');
       if(marketAnomaly)evidenceLines.push('赛前市场异常：'+(marketSignals.slice(0,2).join('、')||'赔率或盘口出现反向变化'));
@@ -1857,7 +1858,7 @@
         reason:evidenceLines.length?evidenceLines.join('；'):'赛前风险证据已达到发布门槛',
         directionReason:directionBasis.slice(0,3).join('；'),
         evidenceLines,
-        originalPick,oppositeSecond,qualifiedDraw,marketAnomaly,marketSignals,inlineReason,
+        originalPick,oppositeSecond,strongMarketReverseEntry,qualifiedDraw,marketAnomaly,marketSignals,inlineReason,
         directionEligible,riskDisplayEligible,
         modelVersion,
         sourceModelVersion:raw.sourceModelVersion??raw.source_model_version??row.version??'未确认',
