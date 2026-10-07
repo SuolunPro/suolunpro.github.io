@@ -744,7 +744,7 @@
         const isHomeTop=row.model?.top1==='主胜';
         const liveRisk=(cold?.liveRiskState&&typeof cold.liveRiskState==='object')?cold.liveRiskState:null;
         const tier=String(cold?.customerTier||'持续观察');
-        const isCooling=tier==='风险回落'||liveRisk?.tier==='风险观察';
+        const isCooling=tier==='风险回落';
         const validHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
         const hp=row.model?.handicap||{};
         const handicapPrimary=validHandicap(hp.top1)?String(hp.top1):null;
