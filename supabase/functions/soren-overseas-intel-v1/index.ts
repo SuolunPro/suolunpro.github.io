@@ -7,7 +7,7 @@ const db = createClient(
   { auth: { persistSession: false, autoRefreshToken: false } },
 );
 
-const SOURCE = "overseas_gdelt_shadow_v1";
+const SOURCE = "overseas_search_shadow_v1";
 const USER_AGENT = "Mozilla/5.0 (compatible; SorenOverseasIntel/1.0)";
 const HOUR = 3600_000;
 
@@ -27,6 +27,29 @@ const COUNTRY_BY_LEAGUE: Record<string,string> = {
   "美职":"unitedstates",
   "瑞超":"sweden","挪超":"norway","丹超":"denmark",
   "比甲":"belgium","奥甲":"austria","瑞士超":"switzerland","土超":"turkey"
+};
+
+const GOOGLE_LOCALE_BY_COUNTRY: Record<string,{hl:string,gl:string,ceid:string}> = {
+  brazil:{hl:"pt-BR",gl:"BR",ceid:"BR:pt-419"},
+  finland:{hl:"fi",gl:"FI",ceid:"FI:fi"},
+  unitedkingdom:{hl:"en-GB",gl:"GB",ceid:"GB:en"},
+  spain:{hl:"es",gl:"ES",ceid:"ES:es"},
+  italy:{hl:"it",gl:"IT",ceid:"IT:it"},
+  germany:{hl:"de",gl:"DE",ceid:"DE:de"},
+  france:{hl:"fr",gl:"FR",ceid:"FR:fr"},
+  netherlands:{hl:"nl",gl:"NL",ceid:"NL:nl"},
+  portugal:{hl:"pt-PT",gl:"PT",ceid:"PT:pt-150"},
+  japan:{hl:"ja",gl:"JP",ceid:"JP:ja"},
+  southkorea:{hl:"ko",gl:"KR",ceid:"KR:ko"},
+  australia:{hl:"en-AU",gl:"AU",ceid:"AU:en"},
+  unitedstates:{hl:"en-US",gl:"US",ceid:"US:en"},
+  sweden:{hl:"sv",gl:"SE",ceid:"SE:sv"},
+  norway:{hl:"no",gl:"NO",ceid:"NO:no"},
+  denmark:{hl:"da",gl:"DK",ceid:"DK:da"},
+  belgium:{hl:"nl",gl:"BE",ceid:"BE:nl"},
+  austria:{hl:"de",gl:"AT",ceid:"AT:de"},
+  switzerland:{hl:"de",gl:"CH",ceid:"CH:de"},
+  turkey:{hl:"tr",gl:"TR",ceid:"TR:tr"}
 };
 
 const IMPORTANT = /(captain|key player|star|first[- ]choice|goalkeeper|keeper|top scorer|titular|capit[aã]o|goleiro|artilheiro|portero|capit[aá]n|gardien|torwart)/i;
@@ -99,6 +122,38 @@ function gdeltUrl(home:string,away:string,country:string|null){
   });
   return "https://api.gdeltproject.org/api/v2/doc/doc?"+p.toString();
 }
+function xmlDecode(s:string){
+  return s.replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g,"$1")
+    .replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'")
+    .replace(/&lt;/g,"<").replace(/&gt;/g,">").trim();
+}
+function googleNewsUrl(home:string,away:string,country:string|null){
+  const loc=GOOGLE_LOCALE_BY_COUNTRY[country??""]??{hl:"en-US",gl:"US",ceid:"US:en"};
+  const q=`"${home.replaceAll('"',"")}" "${away.replaceAll('"',"")}"`;
+  const p=new URLSearchParams({q,hl:loc.hl,gl:loc.gl,ceid:loc.ceid});
+  return "https://news.google.com/rss/search?"+p.toString();
+}
+function parseGoogleRss(xml:string,country:string|null){
+  const out:any[]=[];
+  for(const m of xml.matchAll(/<item>([\\s\\S]*?)<\\/item>/gi)){
+    const block=m[1];
+    const pick=(tag:string)=>{
+      const x=block.match(new RegExp("<"+tag+"(?:\\\\s[^>]*)?>([\\\\s\\\\S]*?)<\\\\/"+tag+">","i"));
+      return x?xmlDecode(x[1]):"";
+    };
+    const source=block.match(/<source(?:\\s+url="([^"]*)")?[^>]*>([\\s\\S]*?)<\\/source>/i);
+    const url=pick("link"), title=pick("title"), pub=pick("pubDate");
+    if(!url||!title)continue;
+    let domain="";
+    try{domain=source?.[1]?new URL(xmlDecode(source[1])).hostname:new URL(url).hostname}catch{}
+    out.push({
+      url,title,seendate:pub,domain,
+      sourcecountry:country??"",language:"",
+      rssSource:source?.[2]?xmlDecode(source[2]):""
+    });
+  }
+  return out;
+}
 
 Deno.serve(async(req:Request)=>{
   if(req.method!=="POST")return Response.json({ok:false,error:"METHOD_NOT_ALLOWED"},{status:405});
@@ -170,16 +225,27 @@ Deno.serve(async(req:Request)=>{
       const kickoff=Date.parse(String(m.kickoff_at));
       const country=COUNTRY_BY_LEAGUE[String(m.league)]??null;
       attemptsByDate.get(String(m.pool_date))![String(m.id)]=nowIso;
-      let articles:any[]=[];
+      let articles:any[]=[]; let feedSource="gdelt"; let firstError="";
       try{
         const r=await fetch(gdeltUrl(homeAlias,awayAlias,country),{
-          headers:{"user-agent":USER_AGENT,"accept":"application/json"},signal:AbortSignal.timeout(8000)
+          headers:{"user-agent":USER_AGENT,"accept":"application/json"},signal:AbortSignal.timeout(6500)
         });
         if(r.ok){
           const j=await r.json();
           articles=Array.isArray(j?.articles)?j.articles:[];
-        }else errors.push(String(m.match_no)+":GDELT_"+r.status);
-      }catch(e){errors.push(String(m.match_no)+":GDELT_FETCH")}
+        }else firstError="GDELT_"+r.status;
+      }catch{firstError="GDELT_FETCH"}
+      if(!articles.length){
+        feedSource="google_news_rss";
+        try{
+          const r=await fetch(googleNewsUrl(homeAlias,awayAlias,country),{
+            headers:{"user-agent":USER_AGENT,"accept":"application/rss+xml,application/xml,text/xml"},signal:AbortSignal.timeout(6500)
+          });
+          if(r.ok)articles=parseGoogleRss(await r.text(),country);
+          else firstError+=(firstError?"+":"")+"GNEWS_"+r.status;
+        }catch{firstError+=(firstError?"+":"")+"GNEWS_FETCH"}
+      }
+      if(!articles.length&&firstError)errors.push(String(m.match_no)+":"+firstError);
       let stored=0, classified=0;
       for(const a of articles.slice(0,5)){
         if(stored>=2)break;
@@ -220,14 +286,14 @@ Deno.serve(async(req:Request)=>{
         if(saveError)errors.push(String(m.match_no)+":SAVE_"+saveError.code);
         else {stored++; saved.push({no:m.match_no,headline:title,quality});}
       }
-      stats.push({no:m.match_no,articles:articles.length,classified,stored,country,homeAlias,awayAlias});
+      stats.push({no:m.match_no,articles:articles.length,classified,stored,country,feedSource,homeAlias,awayAlias});
     }
 
     for(const d of dates){
       const dateMatches=pool.filter((m:any)=>String(m.pool_date)===d);
       const dateStats=stats.filter((s:any)=>dateMatches.some((m:any)=>String(m.match_no)===String(s.no)));
       const details={
-        schema:"overseas_gdelt_shadow_health_v1",
+        schema:"overseas_search_shadow_health_v1",
         last_by_match:attemptsByDate.get(d)??{},
         due_processed:dateStats.length,
         stored:dateStats.reduce((n:number,x:any)=>n+Number(x.stored??0),0),
