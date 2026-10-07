@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九十刻度 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}.stat.primary{grid-column:1/-1;background:#172031;color:#fff;padding:20px}.stat.primary b{font-size:44px;color:#fff}.stat.primary small{font-size:12px;color:#c5d1e1;display:block;margin-top:4px}.section-title{font-size:16px;margin:18px 0 10px}.daily-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.daily-item{text-align:center;background:#f5f7f9;border-radius:8px;padding:8px 2px;font-size:12px}.daily-item strong{display:block;font-size:17px;margin-top:5px}.daily-item small{font-size:10px;color:#687386}.stat-caption{font-size:11px;line-height:1.6;color:#666;margin:10px 0 0}.statusline{font-size:12px;color:#687386;margin:10px 0}@media(max-width:390px){.daily-list{gap:3px}.daily-item{font-size:10px;padding:7px 1px}.daily-item strong{font-size:15px}}.admin-tool{margin-top:22px;padding-top:18px;border-top:1px solid #ececec}.secondary{background:#687386}.reset-note{margin:4px 0 10px;line-height:1.6}a{color:#b72129}</style></head><body><div class="wrap"><h1>九十刻度 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><div id="captcha" style="height:0;overflow:hidden"></div><button id="signIn" disabled>登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九十刻度 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}.stat.primary{grid-column:1/-1;background:#172031;color:#fff;padding:20px}.stat.primary b{font-size:44px;color:#fff}.stat.primary small{font-size:12px;color:#c5d1e1;display:block;margin-top:4px}.section-title{font-size:16px;margin:18px 0 10px}.daily-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.daily-item{text-align:center;background:#f5f7f9;border-radius:8px;padding:8px 2px;font-size:12px}.daily-item strong{display:block;font-size:17px;margin-top:5px}.daily-item small{font-size:10px;color:#687386}.stat-caption{font-size:11px;line-height:1.6;color:#666;margin:10px 0 0}.statusline{font-size:12px;color:#687386;margin:10px 0}@media(max-width:390px){.daily-list{gap:3px}.daily-item{font-size:10px;padding:7px 1px}.daily-item strong{font-size:15px}}.admin-tool{margin-top:22px;padding-top:18px;border-top:1px solid #ececec}.secondary{background:#687386}.reset-note{margin:4px 0 10px;line-height:1.6}a{color:#b72129}</style></head><body><div class="wrap"><h1>九十刻度 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><button id="signIn">登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden>
 <h2>注册人数概览</h2>
 <div class="grid">
 <div class="stat primary">累计注册账号<b id="total">—</b><small>Supabase 真实账号数 · 非访问次数</small></div>
@@ -30,10 +30,9 @@ const base="https://ttydbcejxqxdkcfoizkj.supabase.co";
 const key="sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa";
 const siteKey="0x4AAAAAAFBKndRZlD2qH4Km";
 const $=id=>document.getElementById(id);
-let token=null, captchaToken="",widgetId=null, captchaReady=false;
+let token=null;
 const showError=e=>{
   if(e==="Email not confirmed")return "当前账号尚未完成邮箱确认。如已关闭确认要求，请在 Supabase Auth 中检查该历史账号状态。";
-  if(e==="captcha protection: request disallowed (no captcha token found)")return "验证码令牌未提交，请刷新页面重新验证。";
   return e||"请求失败，请稍后重试";
 };
 function getSharedSession(){
@@ -122,43 +121,20 @@ async function showDashboard(accessToken){
  token=accessToken;await refresh();
  $("password").value="";$("login").hidden=true;$("dashboard").hidden=false;$("msg").textContent="";
 }
-function resetCaptcha(){
- captchaToken="";if(widgetId!==null&&window.turnstile)try{window.turnstile.reset(widgetId)}catch{}
-}
-function captchaComplete(value){captchaToken=value;$("signIn").disabled=false;$("msg").textContent=""}
-function captchaExpired(){captchaToken="";$("signIn").disabled=true;$("msg").textContent="安全验证已过期，请重新完成验证码"}
-function captchaFailed(){captchaToken="";$("signIn").disabled=true;$("msg").textContent="验证码暂不可用，请检查网络后重试"}
-function loadCaptcha(){
- const js=document.createElement("script");
- js.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
- js.async=true;
- js.onload=()=>{
-  if(!window.turnstile){captchaFailed();return}
-  captchaReady=true;
-  widgetId=window.turnstile.render($("captcha"),{
-   sitekey:siteKey,appearance:"interaction-only",callback:captchaComplete,
-   "expired-callback":captchaExpired,"error-callback":captchaFailed
-  });
- };
- js.onerror=captchaFailed;
- document.head.append(js);
-}
 $("signIn").onclick=async()=>{
  const btn=$("signIn");
- if(!captchaReady||!captchaToken){$("msg").textContent="请先完成安全验证码";return}
  if(!$("email").value.trim()||!$("password").value){$("msg").textContent="请填写邮箱和密码";return}
  btn.disabled=true;$("msg").textContent="正在验证…";
  try{
   const r=await fetch(base+"/auth/v1/token?grant_type=password",{
    method:"POST",headers:{apikey:key,"Content-Type":"application/json"},
-   body:JSON.stringify({email:$("email").value.trim(),password:$("password").value,
-     gotrue_meta_security:{captcha_token:captchaToken}}),
+   body:JSON.stringify({email:$("email").value.trim(),password:$("password").value}),
    cache:"no-store",signal:AbortSignal.timeout(12000)});
   const d=await r.json();
   if(!r.ok||!d.access_token)throw Error(d.msg||d.error_description||d.message||"登录未完成");
   await showDashboard(d.access_token);
  }catch(e){token=null;$("msg").textContent=showError(e.message)}
- finally{resetCaptcha();btn.disabled=false}
+ finally{btn.disabled=false}
 };
 $("refresh").onclick=async()=>{try{await refresh()}catch(e){alert(e.message)}};
 $("logout").onclick=()=>{
@@ -171,6 +147,6 @@ $("logout").onclick=()=>{
   try{await showDashboard(current.access_token);return}
   catch(e){token=null;$("msg").textContent="已检测到客户端登录，但统计页无法读取："+e.message}
  }
- loadCaptcha();
+ $("signIn").disabled=false;
 })();
 </script></body></html>
