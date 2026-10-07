@@ -19,6 +19,8 @@ const POS_RETURN=/(returns? to (?:training|the squad|action)|back in training|av
 const ROTATION=/(rested|rotation|rotated squad|poupado|rod[ií]zio|preservado|descanso|time misto|poupar)/i;
 const INTERNAL=/(unpaid wages?|salary arrears|wages? delayed|bonuses? unpaid|image rights.*(?:late|unpaid)|strike|boycott|internal crisis|disciplinary issue|sal[aá]rios? atrasados|direitos? de imagem.*atrasad|premia[cç][aã]o.*atrasad|greve|crise interna|problema disciplinar)/i;
 const COACH_PRESSURE=/(coach.*(?:sacked|dismissed|under pressure)|manager.*(?:sacked|dismissed|under pressure)|demitid[oa]|demiss[aã]o|t[eé]cnico.*pressionad|futuro.*(?:em jogo|incerto)|cargo.*(?:em jogo|amea[cç]ado))/i;
+const BROADCAST=/(onde vai passar|como assistir|assistir ao vivo|transmiss[aã]o ao vivo|hor[aá]rio e onde assistir)/i;
+const OPINION=/(colunistas?|comentaristas?|palpites?|opini[aã]o|debate|analisam|an[aá]lise dos comentaristas)/i;
 
 function decode(s:string){
   return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1")
@@ -89,7 +91,7 @@ function classify(text:string,side:"主队"|"客队"|"双方",title:string,domai
   if(NEG_INJURY.test(text))add("伤停","利空");
   if(ROTATION.test(text))add("轮换","利空");
   if(INTERNAL.test(text))add("内部","利空");
-  if(COACH_PRESSURE.test(text))add("帅位","利空");
+  if(COACH_PRESSURE.test(text)&&!OPINION.test(title))add("帅位","利空");
   if(POS_RETURN.test(text))add("复出","利好");
   return out;
 }
@@ -236,7 +238,12 @@ Deno.serve(async(req:Request)=>{
       const candidates=links.filter(x=>{
         const text=x.title+" "+x.url;
         return mentions(text,homeVars)||mentions(text,awayVars);
-      }).slice(0,8);
+      }).map(x=>{
+        const hard=NEG_INJURY.test(x.title)||POS_RETURN.test(x.title)||ROTATION.test(x.title)||INTERNAL.test(x.title);
+        const coach=COACH_PRESSURE.test(x.title)&&!OPINION.test(x.title);
+        const score=hard?10:coach?7:BROADCAST.test(x.title)?-10:OPINION.test(x.title)?-5:1;
+        return {...x,score};
+      }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,8);
 
       let stored=0,classified=0,bodyFetches=0;
       for(const a of candidates){
