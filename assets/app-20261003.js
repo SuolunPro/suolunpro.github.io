@@ -1896,7 +1896,22 @@
           const main=el('div','risk-inline-main');
           main.append(
             el('strong','','让球保护'),
-            el('span','',String(formalRoute.displayReason||'赛前风险路由已切换至让球保护'))
+            el('span','',(()=>{
+              const raw=row.upsetWarning??row.upset_warning;
+              const gate=(raw?.focusGate&&typeof raw.focusGate==='object')?raw.focusGate:
+                ((raw?.focus_gate&&typeof raw.focus_gate==='object')?raw.focus_gate:{});
+              const signals=Array.isArray(raw?.marketSignals)?raw.marketSignals:
+                (Array.isArray(raw?.market_signals)?raw.market_signals:[]);
+              const opposite=gate?.opposite_second===true;
+              const market=gate?.market_anomaly===true||gate?.market_behavior_adverse===true||signals.length>0;
+              const draw=gate?.qualified_draw===true;
+              if(opposite&&market)return '触发原因：胜负方向出现分歧，同时赛前市场出现反向变化，单一胜平负方向风险上升，因此启用让球保护。';
+              if(opposite&&draw)return '触发原因：胜负方向出现分歧，同时平局风险上升，单一胜平负方向稳定性不足，因此启用让球保护。';
+              if(opposite)return '触发原因：胜平负首选与次选出现明显方向分歧，单一胜平负方向稳定性不足，因此启用让球保护。';
+              if(market)return '触发原因：赛前市场出现反向变化，原胜平负方向风险上升，因此启用让球保护。';
+              if(draw)return '触发原因：赛前平局风险上升，单一胜平负方向稳定性不足，因此启用让球保护。';
+              return '触发原因：赛前风险结构发生变化，单一胜平负方向稳定性下降，因此启用让球保护。';
+            })())
           );
           strip.append(main);
           const had=el('div','risk-inline-handicap');
