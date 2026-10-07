@@ -925,6 +925,9 @@ function publicWarning(w:Record<string,unknown>){
       typeof p.publication_eligible==="boolean"?p.publication_eligible:
       typeof p.publicationEligible==="boolean"?p.publicationEligible:null,
     publicationReason:p.publication_reason??p.publicationReason??null,
+    riskDisplayEligible:
+      typeof p.risk_display_eligible==="boolean"?p.risk_display_eligible:
+      typeof p.riskDisplayEligible==="boolean"?p.riskDisplayEligible:null,
     formalPredictionAt:p.formal_prediction_at??p.formalPredictionAt??null,
     formalPredictionDq:p.formal_prediction_dq??p.formalPredictionDq??null,
     customerRouteSeed:
@@ -1405,9 +1408,19 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
           Number.isFinite(rowFreeze)&&rowFreeze<boundary&&rowTop===top&&
           (shadowMarketPersistentAnomaly||(shadowMarketAnomaly&&lowDqFrozenMarketAnomaly));
         if(!baseCandidate&&!lowRiskObservationEligible)return row;
+        // Second, narrow entry for a strong multi-source market reversal. This
+        // complements (never replaces) the original H/A opposite-second gate.
+        const topConfidenceRaw=riskNum(row.confidence);
+        const topConfidence=topConfidenceRaw===null?null:(topConfidenceRaw<=1?topConfidenceRaw*100:topConfidenceRaw);
+        const hurRed=lowDqBasis.some(v=>/HUR热门失手风险红灯/.test(String(v??"")));
+        const betfairStrongReverseOrDraw=shadowCurrent.flags.some((x:string)=>
+          /必发出现强反向资金|平局交易异常活跃/.test(x)
+        );
+        const strongMarketReverseEntry=hurRed&&topConfidence!==null&&topConfidence<50&&
+          asian.adverseQualified&&asian.adverseCount>=3&&betfairStrongReverseOrDraw;
         const riskDisplayEligible=!historicalReplay&&row.pregameVerified===true&&
           Number.isFinite(rowFreeze)&&rowFreeze<boundary&&Number.isFinite(cut)&&Math.abs(rowFreeze-cut)<=300000&&
-          rowTop===top&&oppositeSecond;
+          rowTop===top&&(oppositeSecond||strongMarketReverseEntry);
         const lowDqDisplayTier=riskDisplayEligible?(lowDqMarketAnomaly?"强风险信号":"重点风险"):null;
         const lowDqSignals:string[]=[];
         if(riskDisplayEligible&&lowDqFrozenMarketAnomaly)lowDqSignals.push("冻结风险依据存在市场反向变化");
@@ -1426,7 +1439,8 @@ async function applyRiskFocusLayer(rows:Record<string,unknown>[],date:string,for
           replayMode:historicalReplay?"STRICT_PREMATCH_LAYER_REPLAY":raw.replayMode??null,
           historyRewrite:false,
           focusGate:{
-            opposite_second:riskDisplayEligible&&oppositeSecond,
+            opposite_second:oppositeSecond,
+            strong_market_reverse_entry:strongMarketReverseEntry,
             qualified_draw:false,
             market_anomaly:riskDisplayEligible&&lowDqMarketAnomaly,
             market_behavior_adverse:riskDisplayEligible&&(lowDqOkoooAdverse||shadowMarketAdverse),
@@ -1809,6 +1823,26 @@ function applyHighDrawRiskLayer(rows:Record<string,unknown>[]):Record<string,unk
       highDrawRiskDrawProbability:drawPct,
       highDrawRiskVersion:"HIGH-DRAW-SHADOW-v0.1-20260927"
     };
+  });
+}
+
+async function attachWilliamMarketLayer(rows:Record<string,unknown>[],date:string):Promise<Record<string,unknown>[]>{
+  if(!rows.length)return rows;
+  const {data:fixtures,error:fixtureError}=await db.from("soren_matches").select("id,match_no,kickoff_at").eq("pool_date",date).limit(200);
+  if(fixtureError)throw new Error("WILLIAM_FIXTURE_UNAVAILABLE:"+String(fixtureError.message));
+  const byNo=new Map((fixtures??[]).map((x:Record<string,unknown>)=>[String(x.match_no??"").padStart(3,"0"),x]));
+  const ids=(fixtures??[]).map((x:Record<string,unknown>)=>Number(x.id)).filter(Number.isFinite); if(!ids.length)return rows;
+  const {data:markets,error:marketError}=await db.from("soren_market_snapshots").select("match_id,snapshot_type,home_value,draw_value,away_value,data_quality,captured_at,ingested_at").in("match_id",ids).eq("source_code","zucaijia_william").eq("market_type","FT_1X2").in("snapshot_type",["initial","current"]).in("data_quality",["verified","verified_mirror"]).order("captured_at",{ascending:false}).limit(2000);
+  if(marketError)throw new Error("WILLIAM_MARKET_UNAVAILABLE:"+String(marketError.message));
+  const grouped=new Map<number,Record<string,unknown>[]>();
+  for(const x of markets??[]){const id=Number(x.match_id);if(!Number.isFinite(id))continue;if(!grouped.has(id))grouped.set(id,[]);grouped.get(id)!.push(x as Record<string,unknown>);}
+  return rows.map(row=>{
+    const no=String(row.no??"").padStart(3,"0"),fixture=byNo.get(no);if(!fixture)return row;
+    const kickoff=Date.parse(String(fixture.kickoff_at??"")),cutoff=Math.min(Number.isFinite(kickoff)?kickoff:Infinity,Date.now()),list=grouped.get(Number(fixture.id))??[];
+    const pick=(kind:string)=>list.find(x=>{const a=Date.parse(String(x.captured_at??"")),b=Date.parse(String(x.ingested_at??x.captured_at??""));return String(x.snapshot_type)===kind&&Number.isFinite(a)&&Number.isFinite(b)&&a<cutoff&&b<cutoff;})??null;
+    const pack=(x:Record<string,unknown>|null)=>x?{home:riskNum(x.home_value),draw:riskNum(x.draw_value),away:riskNum(x.away_value),capturedAt:x.captured_at??null,dataQuality:x.data_quality??null}:null;
+    const initial=pick("initial"),current=pick("current");
+    return initial||current?{...row,williamMarket:{source:"William Hill",sourceCode:"zucaijia_william",initial:pack(initial),current:pack(current)},williamInitial:pack(initial),williamCurrent:pack(current),williamMarketStatus:"VERIFIED"}:{...row,williamMarket:null,williamMarketStatus:"UNCONFIRMED"};
   });
 }
 
@@ -2490,6 +2524,7 @@ async function serveFastArchiveBundle(date:string,view:string,vipActive=false):P
       rows=rows.map(r=>overlayLatestCurrentUpsetWarning(r,latestWarnings));
       rows=applyHighDrawRiskLayer(rows);
       rows=await attachDailySupplementLayer(rows,date);
+      rows=await attachWilliamMarketLayer(rows,date);
       scheduleCurrentLiveRefresh(date);
     }
 
@@ -3357,15 +3392,26 @@ async function paidMemberZone(
     const customerOppositeSecond=customerRouteSeed
       ?customerRouteSeed.opposite_second===true
       :(customerWarningGate.opposite_second===true||customerWarningGate.oppositeSecond===true);
-    const fallbackRiskPoolEligible=
+    // The formal warning ledger is the publication source of truth. Entry-route
+    // fields explain why a warning was published; they must not veto a published
+    // riskDisplayEligible warning (for example strong multi-source market reversal).
+    const formalRiskDisplayEligible=
+      warning?.riskDisplayEligible===true||warning?.risk_display_eligible===true;
+    // A formally published focus/strong warning is already the backend source of truth.
+    // Do not hide it from the customer cold feed merely because an older optional
+    // riskDisplayEligible field is absent on a newer matching prediction snapshot.
+    const formalPublishedRiskTier=
       warning?.publish===true&&
+      ["重点风险","强风险信号"].includes(displayTier)&&
       customerRiskScore>=4&&
-      customerOppositeSecond&&
       ["主胜","客胜"].includes(modelTop);
+    const fallbackRiskPoolEligible=formalPublishedRiskTier;
     const seededStrictAvoid=customerRouteSeed?.strict_avoid_eligible===true;
-    const customerRiskPoolEligibleBase=customerRouteSeed
-      ?customerRouteSeed.risk_pool_eligible===true
-      :fallbackRiskPoolEligible;
+    const customerRiskPoolEligibleBase=formalPublishedRiskTier
+      ?true
+      :customerRouteSeed
+        ?customerRouteSeed.risk_pool_eligible===true
+        :fallbackRiskPoolEligible;
     const customerRiskPoolEligible=customerRiskPoolEligibleBase&&!(riskCoolingQualified&&!seededStrictAvoid);
     const customerStrictAvoidEligible=seededStrictAvoid&&customerRiskPoolEligible;
     const validHandicapCustomerPick=(v:unknown)=>["让胜","让平","让负"].includes(String(v??""));
@@ -3388,7 +3434,12 @@ async function paidMemberZone(
       warning?.publish===true&&customerRiskScore>=4;
     const historicalLegacyVisible=historicalLegacy24Visible||historicalLegacy25Visible;
 
-    const customerRouteType=(vipPublish||customerStrictAvoidEligible)
+    // Never synthesize an FT opposite/unbeaten direction from risk alone.
+    // FOCUS_AVOID requires a formally published warning direction with independent directional evidence.
+    const formalWarningDirection=String(warning?.warningDirection??warning?.warning_direction??"").trim();
+    const formalDirectionalDomains=Number(warning?.directionalDomainCount??warning?.directional_domain_count??0);
+    const formalDirectionConfirmed=Boolean(formalWarningDirection)&&formalDirectionalDomains>=1;
+    const customerRouteType=((vipPublish||customerStrictAvoidEligible)&&formalDirectionConfirmed)
       ?"FOCUS_AVOID"
       :customerRiskPoolEligible&&customerHandicapPicks.length>=2
         ?"HANDICAP_PROTECT"
@@ -4162,6 +4213,7 @@ Deno.serve(async (req: Request) => {
             // Rebuild just this thin layer; do not rerun the full risk/model pipeline.
             rows=applyHighDrawRiskLayer(rows);
             rows=await attachDailySupplementLayer(rows,date);
+      rows=await attachWilliamMarketLayer(rows,date);
 
             try{
               const [htftPublished,historicalHTFT]=await Promise.all([
@@ -4283,6 +4335,7 @@ Deno.serve(async (req: Request) => {
     rows=await applyRiskFocusLayer(rows,dynamicDate);
     rows=applyHighDrawRiskLayer(rows);
     rows=await attachDailySupplementLayer(rows,dynamicDate);
+    rows=await attachWilliamMarketLayer(rows,dynamicDate);
     rows=await attachLiveScoreGoals(rows,dynamicDate);
         let publishedHtftCache:Map<string,Record<string,unknown>>|null=null;
     try {
