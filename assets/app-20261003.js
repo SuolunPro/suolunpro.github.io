@@ -3262,9 +3262,23 @@
       holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
       try{
         const params=new URLSearchParams({view:'member-intel',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
-        const response=await authorizedApiFetch(OKOOO_SHADOW_API+'?'+params.toString(),{cache:'no-store',signal:timeoutSignal(12000)});
-        const data=await response.json().catch(()=>null);
-        if(!response.ok||data?.ok!==true)throw Error(String(data?.error||'HTTP '+response.status));
+        const url=OKOOO_SHADOW_API+'?'+params.toString();
+        let response,data;
+        // This VIP panel reads a cross-project member endpoint. Mobile Safari can
+        // occasionally abort the first CORS request during foreground/cache transitions,
+        // while the endpoint itself is healthy. Retry once before showing the fallback.
+        for(let attempt=0;attempt<2;attempt++){
+          try{
+            response=await authorizedApiFetch(url,{cache:'no-store',signal:timeoutSignal(20000)});
+            data=await response.json().catch(()=>null);
+            if(response.ok&&data?.ok===true)break;
+            if(response.status===401||response.status===403)break;
+          }catch(error){
+            if(attempt===1)throw error;
+          }
+          if(attempt===0)await new Promise(resolve=>setTimeout(resolve,350));
+        }
+        if(!response?.ok||data?.ok!==true)throw Error(String(data?.error||'HTTP '+(response?.status||0)));
         if(state.selected!==row||memberInfo?.vipActive!==true)return;
         okoooShadowCache.set(key,{token:authSession.access_token,at:Date.now(),data});
         while(okoooShadowCache.size>20)okoooShadowCache.delete(okoooShadowCache.keys().next().value);
