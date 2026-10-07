@@ -3277,18 +3277,24 @@
       if(memberInfo?.vipActive!==true||!authSession?.access_token)return;
       const key=String(row.date||state.selectedDate)+'|'+String(row.no).padStart(3,'0');
       const cached=okoooShadowCache.get(key);
-      if(cached&&cached.token===authSession.access_token&&Date.now()-cached.at<2*60*1000){renderDeepMarketAnalysis(holder,cached.data);return}
-      holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
+      const usableCached=cached&&cached.token===authSession.access_token&&cached.data?.ok===true;
+      // Keep the last verified payload visible while a refresh happens. A transient
+      // cross-project/CORS failure must not blank an already valid VIP analysis.
+      if(usableCached){
+        renderDeepMarketAnalysis(holder,cached.data);
+        if(Date.now()-cached.at<2*60*1000)return;
+      }else{
+        holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
+      }
       try{
         const params=new URLSearchParams({view:'member-intel',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
         const url=OKOOO_SHADOW_API+'?'+params.toString();
         let response,data;
-        // This VIP panel reads a cross-project member endpoint. Mobile Safari can
-        // occasionally abort the first CORS request during foreground/cache transitions,
-        // while the endpoint itself is healthy. Retry once before showing the fallback.
+        // Mobile Safari can occasionally abort the first cross-project request.
+        // Retry once, but never replace a verified cached panel with an error state.
         for(let attempt=0;attempt<2;attempt++){
           try{
-            response=await authorizedApiFetch(url,{cache:'no-store',signal:timeoutSignal(20000)});
+            response=await authorizedApiFetch(url,{cache:'no-store',signal:timeoutSignal(12000)});
             data=await response.json().catch(()=>null);
             if(response.ok&&data?.ok===true)break;
             if(response.status===401||response.status===403)break;
@@ -3303,7 +3309,11 @@
         while(okoooShadowCache.size>20)okoooShadowCache.delete(okoooShadowCache.keys().next().value);
         renderDeepMarketAnalysis(holder,data);
       }catch(error){
-        if(state.selected===row&&holder.isConnected)holder.replaceChildren(el('p','report-loading','深度市场分析暂不可用，请稍后重试'));
+        if(state.selected!==row||!holder.isConnected)return;
+        // Stale-while-refresh: preserve the most recent verified analysis instead
+        // of flashing "temporarily unavailable" during transient endpoint failures.
+        if(usableCached)renderDeepMarketAnalysis(holder,cached.data);
+        else holder.replaceChildren(el('p','report-loading','深度市场分析暂不可用，请稍后重试'));
       }
     }
     function openDetail(row,history){
