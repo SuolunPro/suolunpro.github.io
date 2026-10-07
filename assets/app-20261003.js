@@ -881,12 +881,15 @@
         if(chips.childNodes.length)action.append(chips);
         card.append(action);
 
+        const liveRisk=(cold?.liveRiskState&&typeof cold.liveRiskState==='object')?cold.liveRiskState:
+          ((route?.liveRiskState&&typeof route.liveRiskState==='object')?route.liveRiskState:null);
         const riskSummaryText=buildColdRiskSummary(row,cold,route);
         if(riskSummaryText){
           const riskSummary=el('div','cold-card-risk-summary');
           riskSummary.append(
             el('span','cold-card-risk-summary-label','风险摘要'),
-            el('span','cold-card-risk-summary-text',riskSummaryText)
+            el('span','cold-card-risk-summary-text',
+              (liveRisk?.dynamic===true&&liveRisk?.tier?String(liveRisk.tier)+' · ':'')+riskSummaryText)
           );
           card.append(riskSummary);
         }
