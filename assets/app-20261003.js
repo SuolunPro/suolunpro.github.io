@@ -623,7 +623,7 @@
         return s.replace(/仅计风险，不生成方向/g,'').replace(/[，,;；]+$/,'').trim();
       };
       const buildColdRiskSummary=(row,cold,route)=>{
-const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
+        const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
         const pop=(cold?.popularity&&typeof cold.popularity==='object')?cold.popularity:{};
         const list=[];
         const push=v=>{const t=cleanColdRiskText(v);if(t&&!list.includes(t))list.push(t)};
@@ -739,7 +739,6 @@ const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
           return pb-pa;
         });
         const isHomeTop=row.model?.top1==='主胜';
-        const liveRisk=(cold?.liveRiskState&&typeof cold.liveRiskState==='object')?cold.liveRiskState:null;
         const tier=String(cold?.customerTier||'持续观察');
         const isCooling=tier==='风险回落';
         const validHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
@@ -878,7 +877,7 @@ const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
         if(chips.childNodes.length)action.append(chips);
         card.append(action);
 
-const riskSummaryText=buildColdRiskSummary(row,cold,route);
+        const riskSummaryText=buildColdRiskSummary(row,cold,route);
         if(riskSummaryText){
           const riskSummary=el('div','cold-card-risk-summary');
           riskSummary.append(
@@ -3519,23 +3518,26 @@ const riskSummaryText=buildColdRiskSummary(row,cold,route);
     function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)))}
     async function resolveActivePool(){
       const today=beijingToday(),previous=addDays(today,-1);
-      // Fast boot: never block first paint on two archive requests. Reuse a recent
-      // active snapshot immediately and let the normal smart refresh revalidate it.
-      const cachedPrevious=cachedDay(previous,true);
-      const cachedCurrent=cachedDay(today,true);
-      if(hasUnsettledPool(cachedPrevious))return cachedPrevious;
-      if(cachedCurrent&&Array.isArray(cachedCurrent.rows)&&cachedCurrent.rows.length)return cachedCurrent;
-
-      // No usable boot snapshot: read today first. Only fall back to yesterday when
-      // today's pool is unavailable. This removes the old parallel today+yesterday
-      // startup fan-out that could leave mobile Safari on the loading skeleton.
+      // A JCZQ sale day may run past Beijing midnight. Prefer the unfinished
+      // previous pool, but never turn a transient current-day API failure into
+      // a blank homepage when we already have a valid previous pool snapshot.
+      // Start today's read at the same time so a settled previous day never adds
+      // its full network latency in front of the current-day first paint.
+      const currentTask=readDay(today,true).then(data=>({data,error:null}),error=>({data:null,error}));
+      let prior=null;
       try{
-        return await readDay(today);
-      }catch(e){
-        try{
-          const prior=await readDay(previous);
-          if(prior&&Array.isArray(prior.rows)&&prior.rows.length)return prior;
-        }catch(priorError){console.warn('上一竞彩池状态核验暂不可用',priorError)}
+        prior=await readDay(previous);
+        if(hasUnsettledPool(prior))return prior;
+      }catch(e){console.warn('上一竞彩池状态核验暂不可用',e)}
+      const current=await currentTask;
+      if(current.data)return current.data;
+      {
+        const e=current.error;
+        const fallback=prior||cachedDay(previous,true);
+        if(fallback&&Array.isArray(fallback.rows)&&fallback.rows.length){
+          console.warn('今日竞彩池暂不可用，继续展示上一有效竞彩池',e);
+          return fallback;
+        }
         throw e;
       }
     }
