@@ -624,6 +624,7 @@
       };
       const buildColdRiskSummary=(row,cold,route)=>{
         const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
+        if(currentMarketRiskCooling(gate))return '最新亚盘多机构支持原方向 · 当前风险已回落';
         const pop=(cold?.popularity&&typeof cold.popularity==='object')?cold.popularity:{};
         const list=[];
         const push=v=>{const t=cleanColdRiskText(v);if(t&&!list.includes(t))list.push(t)};
@@ -740,7 +741,7 @@
         });
         const isHomeTop=row.model?.top1==='主胜';
         const tier=String(cold?.customerTier||'持续观察');
-        const isCooling=tier==='风险回落';
+        const isCooling=tier==='风险回落'||currentMarketRiskCooling(cold?.gate);
         const validHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
         const hp=row.model?.handicap||{};
         const handicapPrimary=validHandicap(hp.top1)?String(hp.top1):null;
@@ -770,6 +771,8 @@
             ?'HIST_HANDICAP'
             :legacyHistorical
               ?'LEGACY'
+              :isCooling
+                ?'OBSERVE'
               :routeType==='FOCUS_AVOID'
                 ?'FT_AVOID'
                 :routeType==='HANDICAP_PROTECT'
@@ -1287,6 +1290,15 @@
     const safe=v=>{if(v===null||v===undefined||v==='')return '未确认';const s=String(v);return s==='PASS'?'未确认':s.replace(/PASS/g,'未确认')};
     const resultName={H:'主胜',D:'平',A:'客胜'},pickCode={'主胜':'H','平':'D','客胜':'A'};
     const normalizeResult=v=>({H:'H',D:'D',A:'A','3':'H','1':'D','0':'A','主胜':'H','平':'D','客胜':'A'}[String(v??'')]||null);
+    const currentMarketRiskCooling=gate=>{
+      if(!gate||typeof gate!=='object')return false;
+      const supportCount=Number(gate.asianSupportCount??gate.asian_support_count??0);
+      const asianSupports=gate.asianSupportsTop===true||gate.asian_supports_top===true;
+      const asianAdverse=gate.asianAdverseTop===true||gate.asian_adverse_top===true;
+      const shadowAdverse=gate.shadowMarketAdverse===true||gate.shadow_market_adverse===true;
+      const intelAdverse=gate.shadowIntelligenceAdverseTop===true||gate.shadow_intelligence_adverse_top===true;
+      return asianSupports&&supportCount>=2&&!asianAdverse&&!shadowAdverse&&!intelAdverse;
+    };
     const verified=row=>row.resultVerified===true&&normalizeResult(row.result)!==null;
     const hasScore=row=>verified(row)&&row.resultHome!==null&&row.resultHome!==undefined&&row.resultHome!==''&&row.resultAway!==null&&row.resultAway!==undefined&&row.resultAway!==''&&Number.isFinite(Number(row.resultHome))&&Number.isFinite(Number(row.resultAway));
     const scoreline=row=>hasScore(row)?Number(row.resultHome)+' : '+Number(row.resultAway):'未确认';
@@ -1823,7 +1835,8 @@
       // The server is the single source of truth for warning publication.
       // Client-side gate fields explain why a warning was published; they must not
       // veto a server-published warning or future server-side entry routes.
-      const displayTier=String(raw.displayTier??raw.display_tier??
+      const liveCooling=currentMarketRiskCooling(gate);
+      const displayTier=liveCooling?'风险观察':String(raw.displayTier??raw.display_tier??
         (gate?(level==='高'?'强风险信号':'重点风险'):
           String(row.date??'')>='2026-09-26'?'重点风险':level==='高'?'强风险信号':'重点风险'));
       const directionEligible=raw.directionPublicationEligible!==false&&raw.direction_publication_eligible!==false;
@@ -1834,21 +1847,26 @@
       else if(direction==='平局不稳'&&alternativePick==='客胜')direction='客队不败';
       if(!['主队不败','客队不败','平局风险'].includes(direction))direction='';
       let inlineReason='';
-      if(displayTier==='强风险信号'){
+      if(liveCooling){
+        inlineReason='最新亚盘多机构支持原方向，风险已回落';
+      }else if(displayTier==='强风险信号'){
         const focusText=strongMarketReverseEntry?'多源市场反向':oppositeSecond&&qualifiedDraw?'胜负方向分歧 · 防平信号':oppositeSecond?'胜负方向分歧':'防平信号';
         inlineReason=focusText+' · 市场反向变化';
       }else if(qualifiedDraw&&!oppositeSecond)inlineReason='独立进球模型提示平局风险';
       else if(oppositeSecond)inlineReason='胜负方向分歧';
       else inlineReason=basis[0]||'赛前风险证据达到重点观察门槛';
       const evidenceLines=[];
-      if(strongMarketReverseEntry)evidenceLines.push('多源赛前市场信号同时反向原首选');
-      if(oppositeSecond)evidenceLines.push('首选与次选形成主/客胜方向分歧');
-      if(qualifiedDraw)evidenceLines.push('严格赛前独立进球模型提示平局风险');
-      if(marketAnomaly)evidenceLines.push('赛前市场异常：'+(marketSignals.slice(0,2).join('、')||'赔率或盘口出现反向变化'));
-      for(const item of basis){
-        const value=String(item??'').trim();
-        if(evidenceLines.length>=3)break;
-        if(value&&!evidenceLines.includes(value))evidenceLines.push(value);
+      if(liveCooling)evidenceLines.push('最新亚盘多机构支持原方向，当前未见市场或情报反向确认');
+      else if(strongMarketReverseEntry)evidenceLines.push('多源赛前市场信号同时反向原首选');
+      if(!liveCooling){
+        if(oppositeSecond)evidenceLines.push('首选与次选形成主/客胜方向分歧');
+        if(qualifiedDraw)evidenceLines.push('严格赛前独立进球模型提示平局风险');
+        if(marketAnomaly)evidenceLines.push('赛前市场异常：'+(marketSignals.slice(0,2).join('、')||'赔率或盘口出现反向变化'));
+        for(const item of basis){
+          const value=String(item??'').trim();
+          if(evidenceLines.length>=3)break;
+          if(value&&!evidenceLines.includes(value))evidenceLines.push(value);
+        }
       }
       return {
         level,displayTier,
@@ -1858,7 +1876,7 @@
         reason:evidenceLines.length?evidenceLines.join('；'):'赛前风险证据已达到发布门槛',
         directionReason:directionBasis.slice(0,3).join('；'),
         evidenceLines,
-        originalPick,oppositeSecond,strongMarketReverseEntry,qualifiedDraw,marketAnomaly,marketSignals,inlineReason,
+        originalPick,oppositeSecond,strongMarketReverseEntry,qualifiedDraw,marketAnomaly,marketSignals,inlineReason,liveCooling,
         directionEligible,riskDisplayEligible,
         modelVersion,
         sourceModelVersion:raw.sourceModelVersion??raw.source_model_version??row.version??'未确认',
@@ -2045,7 +2063,7 @@
         gap!==null&&gap<=6&&
         hadPct!==null&&hadPct>=58;
 
-      if(info.oppositeSecond===true&&validHandicapPick(handicapPick)&&hadPct!==null){
+      if(info.liveCooling!==true&&info.oppositeSecond===true&&validHandicapPick(handicapPick)&&hadPct!==null){
         const had=el('div','risk-inline-handicap'+(strongHandicap?' strong-handicap':''));
 
         const official=Number(row.officialHandicap);
@@ -2095,7 +2113,7 @@
       fixture.append(team(home,row.homeLogo??row.home_logo??row.homeTeamLogo,'home'),el('div','upset-score',String(score).replace('-',':')),team(away,row.awayLogo??row.away_logo??row.awayTeamLogo,'away'));
       const main=el('div','upset-main'),indexPanel=el('div','upset-panel'),directionPanel=el('div','upset-panel');
       indexPanel.append(el('div','upset-value risk-level'+(info.displayTier==='强风险信号'?' high':''),info.displayTier),el('div','upset-label',info.score===null?'分值待确认':Number(info.score).toFixed(1)+'分'));
-      directionPanel.append(el('div','upset-value direction',info.direction||(info.qualifiedDraw?'平局风险':'首选失手风险')),el('div','upset-label','风险类型'));
+      directionPanel.append(el('div','upset-value direction',info.liveCooling?'原方向获支持':(info.direction||(info.qualifiedDraw?'平局风险':'首选失手风险'))),el('div','upset-label','风险类型'));
       main.append(indexPanel,directionPanel);
       const evidence=el('details','upset-evidence'),summary=el('summary','','查看分析依据');
       evidence.append(summary,
