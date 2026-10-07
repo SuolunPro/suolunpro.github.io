@@ -9,23 +9,24 @@ const db=createClient(
 
 const HEALTH_SOURCE="overseas_direct_shadow_v1";
 const REPORT_SOURCE="overseas_uol_shadow_v1";
-const UOL_FOOTBALL_RSS="https://esporte.uol.com.br/futebol/ultimas/index.xml";
-const USER_AGENT="Mozilla/5.0 (compatible; SorenOverseasIntel/1.2)";
+const UOL_LATEST="https://www.uol.com.br/esporte/futebol/ultimas/";
+const USER_AGENT="Mozilla/5.0 (compatible; SorenOverseasIntel/1.3)";
 const HOUR=3600_000;
 
 const IMPORTANT=/(captain|key player|star|first[- ]choice|goalkeeper|keeper|top scorer|titular|capit[aã]o|goleiro|artilheiro|portero|capit[aá]n)/i;
-const NEG_INJURY=/(injur(?:y|ed|ies)|ruled out|will miss|fitness doubt|doubtful|illness|absence|absent|suspend(?:ed|ed)|suspension|les[aã]o|lesionado|desfalque|suspenso|n[aã]o viajou|contus[aã]o|d[uú]vida para o jogo|fora do jogo|fora da partida)/i;
-const POS_RETURN=/(returns? to (?:training|the squad|action)|back in training|available again|declared fit|recovered|cleared to play|retorna aos treinos|volta aos treinos|fica [àa] disposi[cç][aã]o|recuperado|refor[cç]o para|retorno ao time|volta ao time)/i;
+const NEG_INJURY=/(injur(?:y|ed|ies)|ruled out|will miss|fitness doubt|doubtful|illness|absence|absent|suspend(?:ed|ed)|suspension|les[aã]o|lesionado|desfalque|suspenso|n[aã]o viajou|contus[aã]o|d[uú]vida para o jogo|fora do jogo|fora da partida|não joga|nao joga|vetado)/i;
+const POS_RETURN=/(returns? to (?:training|the squad|action)|back in training|available again|declared fit|recovered|cleared to play|retorna aos treinos|volta aos treinos|fica [àa] disposi[cç][aã]o|recuperado|refor[cç]o para|retorno ao time|volta ao time|liberado para jogar)/i;
 const ROTATION=/(rested|rotation|rotated squad|poupado|rod[ií]zio|preservado|descanso|time misto|poupar)/i;
 const INTERNAL=/(unpaid wages?|salary arrears|wages? delayed|bonuses? unpaid|image rights.*(?:late|unpaid)|strike|boycott|internal crisis|disciplinary issue|sal[aá]rios? atrasados|direitos? de imagem.*atrasad|premia[cç][aã]o.*atrasad|greve|crise interna|problema disciplinar)/i;
 
-function xmlDecode(s:string){
+function decode(s:string){
   return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1")
     .replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'")
-    .replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n))).trim();
+    .replace(/&lt;/g,"<").replace(/&gt;/g,">")
+    .replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n))).trim();
 }
 function stripTags(s:string){
-  return xmlDecode(s).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ")
+  return decode(s).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi," ")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi," ")
     .replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
 }
@@ -45,9 +46,10 @@ function teamVariants(name:string){
   if(last.length>=5&&!["gama","janeiro","paranaense"].includes(last))out.add(last);
   if(n.includes("bragantino"))out.add("bragantino");
   if(n.includes("athletico paranaense")){out.add("athletico");out.add("athletico pr");}
-  if(n.includes("atletico mg"))out.add("atletico mg");
+  if(n.includes("atletico mg")){out.add("atletico mg");out.add("galo");}
   if(n.includes("botafogo"))out.add("botafogo");
   if(n.includes("vasco da gama"))out.add("vasco");
+  if(n.includes("internacional"))out.add("inter");
   return [...out];
 }
 function mentions(text:string,variants:string[]){
@@ -61,7 +63,6 @@ function detectSide(text:string,homeVars:string[],awayVars:string[]):"主队"|"�
   if(h<0&&a<0)return null;
   if(h>=0&&a<0)return "主队";
   if(a>=0&&h<0)return "客队";
-  if(Math.min(h,a)<100&&Math.abs(h-a)>8)return h<a?"主队":"客队";
   return "双方";
 }
 function classify(text:string,side:"主队"|"客队"|"双方",title:string,domain:string){
@@ -93,29 +94,45 @@ async function getText(url:string,timeoutMs:number){
   const c=new AbortController(),timer=setTimeout(()=>c.abort(),timeoutMs);
   try{
     const r=await fetch(url,{
-      headers:{"user-agent":USER_AGENT,"accept":"application/rss+xml,application/xml,text/xml,text/html;q=0.8"},
+      headers:{"user-agent":USER_AGENT,"accept":"text/html,application/xhtml+xml;q=0.9,*/*;q=0.5"},
       signal:c.signal,redirect:"follow"
     });
-    if(!r.ok)return {ok:false,status:r.status,text:""};
-    return {ok:true,status:r.status,text:(await r.text()).slice(0,500_000)};
-  }catch{return {ok:false,status:0,text:""}}
+    if(!r.ok)return {ok:false,status:r.status,text:"",finalUrl:r.url};
+    return {ok:true,status:r.status,text:(await r.text()).slice(0,1_200_000),finalUrl:r.url};
+  }catch{return {ok:false,status:0,text:"",finalUrl:url}}
   finally{clearTimeout(timer)}
 }
-function parseRss(xml:string){
-  const out:any[]=[];
-  for(const m of xml.matchAll(/<item>([\s\S]*?)<\/item>/gi)){
-    const block=m[1];
-    const pick=(tag:string)=>{
-      const x=block.match(new RegExp("<"+tag.replace(":","\\:")+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/"+tag.replace(":","\\:")+">","i"));
-      return x?xmlDecode(x[1]):"";
-    };
-    const link=pick("link"),title=stripTags(pick("title")),pub=pick("pubDate");
-    const desc=stripTags(pick("description")+" "+pick("content:encoded"));
-    const published=Date.parse(pub);
-    if(!link||!title||!Number.isFinite(published))continue;
-    out.push({url:link,title,description:desc,published,domain:"uol.com.br"});
+function parseLatest(html:string){
+  const byUrl=new Map<string,{url:string,title:string}>();
+  const re=/<a\b([^>]*?)href=(["'])(https?:\/\/(?:www\.)?uol\.com\.br\/esporte\/[^"'<>]+?\.ghtm(?:\?[^"'<>]*)?)\2([^>]*)>([\s\S]*?)<\/a>/gi;
+  for(const m of html.matchAll(re)){
+    const url=decode(m[3]).split("#")[0];
+    let title=stripTags(m[5]);
+    if(title.length<8){
+      const attrs=(m[1]??"")+" "+(m[4]??"");
+      const t=attrs.match(/\b(?:title|aria-label)=(["'])([\s\S]*?)\1/i);
+      if(t)title=decode(t[2]);
+    }
+    if(!title){
+      try{title=new URL(url).pathname.split("/").pop()?.replace(/\.ghtm$/,"").replace(/-/g," ")??""}catch{}
+    }
+    if(!byUrl.has(url)||title.length>(byUrl.get(url)?.title.length??0))byUrl.set(url,{url,title});
   }
-  return out;
+  return [...byUrl.values()].slice(0,80);
+}
+function extractPublished(html:string){
+  const patterns=[
+    /"datePublished"\s*:\s*"([^"]+)"/i,
+    /property=(["'])article:published_time\1\s+content=(["'])([^"']+)\2/i,
+    /content=(["'])([^"']+)\1\s+property=(["'])article:published_time\3/i
+  ];
+  for(const re of patterns){
+    const m=html.match(re);
+    const raw=m?(m[3]??m[2]??m[1]):"";
+    const t=Date.parse(raw);
+    if(Number.isFinite(t))return t;
+  }
+  return NaN;
 }
 
 Deno.serve(async(req:Request)=>{
@@ -126,7 +143,7 @@ Deno.serve(async(req:Request)=>{
   if(authError||authorized!==true)return Response.json({ok:false,error:"UNAUTHORIZED"},{status:401});
 
   let body:any={};try{body=await req.json()}catch{}
-  const maxMatches=Math.max(1,Math.min(12,Number(body?.max_matches??8)));
+  const maxMatches=Math.max(1,Math.min(10,Number(body?.max_matches??6)));
   const nowMs=Date.now(),nowIso=new Date(nowMs).toISOString();
 
   try{
@@ -169,38 +186,40 @@ Deno.serve(async(req:Request)=>{
       ok:true,status:"THROTTLED_OR_UNSUPPORTED",source:HEALTH_SOURCE,candidateMatches:pool.length
     });
 
-    const feed=await getText(UOL_FOOTBALL_RSS,6000);
+    const listPage=await getText(UOL_LATEST,6500);
     const errors:string[]=[],saved:any[]=[],stats:any[]=[];
-    if(!feed.ok)errors.push("UOL_RSS_"+feed.status);
-    const articles=feed.ok?parseRss(feed.text):[];
+    if(!listPage.ok)errors.push("UOL_LATEST_"+listPage.status);
+    const links=listPage.ok?parseLatest(listPage.text):[];
+    const pageCache=new Map<string,{ok:boolean,status:number,text:string,finalUrl:string}>();
 
     for(const m of due){
       lastByMatch[String(m.id)]=nowIso;
       const homeAlias=aliasMap.get(String(m.home_team))!,awayAlias=aliasMap.get(String(m.away_team))!;
       const homeVars=teamVariants(homeAlias),awayVars=teamVariants(awayAlias);
       const kickoff=Date.parse(String(m.kickoff_at));
-      const relevant=articles.filter((x:any)=>{
-        if(x.published>=kickoff||x.published>nowMs||x.published<nowMs-72*HOUR)return false;
-        const text=x.title+" "+x.description;
+      const candidates=links.filter(x=>{
+        const text=x.title+" "+x.url;
         return mentions(text,homeVars)||mentions(text,awayVars);
-      }).slice(0,12);
+      }).slice(0,8);
 
       let stored=0,classified=0,bodyFetches=0;
-      for(const a of relevant){
-        if(stored>=3)break;
-        let evidence=(a.title+" "+a.description).slice(0,50_000);
-        let side=detectSide(evidence,homeVars,awayVars);
-        let categories=side?classify(evidence,side,a.title,a.domain):[];
-
-        if(!categories.length&&bodyFetches<2){
-          bodyFetches++;
-          const page=await getText(a.url,3500);
-          if(page.ok){
-            evidence=(evidence+" "+stripTags(page.text)).slice(0,100_000);
-            side=detectSide(evidence,homeVars,awayVars);
-            categories=side?classify(evidence,side,a.title,a.domain):[];
-          }
+      for(const a of candidates){
+        if(stored>=3||bodyFetches>=3)break;
+        bodyFetches++;
+        let page=pageCache.get(a.url);
+        if(!page){
+          page=await getText(a.url,4000);
+          pageCache.set(a.url,page);
         }
+        if(!page.ok)continue;
+        const published=extractPublished(page.text);
+        if(!Number.isFinite(published)||published>=kickoff||published>nowMs||published<nowMs-72*HOUR)continue;
+
+        const evidence=(a.title+" "+stripTags(page.text)).slice(0,120_000);
+        const titleSide=detectSide(a.title,homeVars,awayVars);
+        const side=titleSide??detectSide(evidence,homeVars,awayVars);
+        if(!side)continue;
+        const categories=classify(evidence,side,a.title,"uol.com.br");
         if(!categories.length)continue;
         classified++;
 
@@ -213,19 +232,19 @@ Deno.serve(async(req:Request)=>{
         const {error:saveError}=await db.from("soren_intelligence_reports_v1").upsert({
           match_id:m.id,pool_date:m.pool_date,match_no:m.match_no,home_team:m.home_team,away_team:m.away_team,
           source_code:REPORT_SOURCE,source_url:a.url,headline:a.title,
-          published_at:new Date(a.published).toISOString(),fetched_at:nowIso,
+          published_at:new Date(published).toISOString(),fetched_at:nowIso,
           quality:"overseas_local_media_shadow",highlights
         },{onConflict:"match_id,source_url",ignoreDuplicates:true});
         if(saveError)errors.push(String(m.match_no)+":SAVE_"+saveError.code);
-        else{stored++;saved.push({no:m.match_no,headline:a.title,benefit:highlights.benefit_side});}
+        else{stored++;saved.push({no:m.match_no,headline:a.title,benefit:highlights.benefit_side,published:new Date(published).toISOString()});}
       }
-      stats.push({no:m.match_no,relevant:relevant.length,classified,stored,bodyFetches,homeAlias,awayAlias});
+      stats.push({no:m.match_no,candidates:candidates.length,classified,stored,bodyFetches,homeAlias,awayAlias});
     }
 
     const healthDetails={
-      schema:"overseas_direct_shadow_health_v1",
-      last_by_match:lastByMatch,supported:["巴甲","巴乙"],feed:"UOL football RSS",
-      feed_items:articles.length,processed:due.length,stored:saved.length,errors:errors.slice(0,12)
+      schema:"overseas_direct_shadow_health_v2",
+      last_by_match:lastByMatch,supported:["巴甲","巴乙"],feed:"UOL football latest HTML",
+      list_links:links.length,processed:due.length,stored:saved.length,errors:errors.slice(0,12)
     };
     const {error:healthError}=await db.from("soren_source_health").upsert({
       source_code:HEALTH_SOURCE,pool_date:String(due[0]?.pool_date??""),
@@ -237,7 +256,7 @@ Deno.serve(async(req:Request)=>{
 
     return Response.json({
       ok:errors.length===0,status:errors.length?"PARTIAL":"DONE",source:HEALTH_SOURCE,
-      processed:due.length,feedItems:articles.length,stored:saved.length,
+      processed:due.length,listLinks:links.length,stored:saved.length,
       sample:saved.slice(0,8),stats,errors:errors.slice(0,12),
       policy:"shadow_only_no_public_api_no_prediction_change"
     },{status:errors.length?207:200,headers:{"Cache-Control":"no-store"}});
