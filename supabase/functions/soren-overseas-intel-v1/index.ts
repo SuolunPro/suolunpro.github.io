@@ -10,7 +10,7 @@ const db=createClient(
 const HEALTH_SOURCE="overseas_direct_shadow_v1";
 const REPORT_SOURCE="overseas_uol_shadow_v1";
 const UOL_STREAM="https://www.uol.com.br/esporte/noticias/v1/";
-const USER_AGENT="Mozilla/5.0 (compatible; SorenOverseasIntel/1.4)";
+const USER_AGENT="Mozilla/5.0 (compatible; SorenOverseasIntel/1.5)";
 const HOUR=3600_000;
 
 const IMPORTANT=/(captain|key player|star|first[- ]choice|goalkeeper|keeper|top scorer|titular|capit[aã]o|goleiro|artilheiro|portero|capit[aá]n)/i;
@@ -211,16 +211,7 @@ Deno.serve(async(req:Request)=>{
     const errors:string[]=[],saved:any[]=[],stats:any[]=[];
     const first=await getText(UOL_STREAM,6500);
     if(!first.ok)errors.push("UOL_STREAM_"+first.status);
-    const streamPages:string[]=[];
-    if(first.ok)streamPages.push(first.text);
-    if(first.ok){
-      const next=extractNextToken(first.text);
-      if(next){
-        const second=await getText(UOL_STREAM+"?next="+encodeURIComponent(next),5500);
-        if(second.ok)streamPages.push(second.text);
-        else errors.push("UOL_STREAM_PAGE2_"+second.status);
-      }
-    }
+    const streamPages:string[]=first.ok?[first.text]:[];
     const linkMap=new Map<string,{url:string,title:string}>();
     for(const html of streamPages){
       for(const a of parseLatest(html)){
