@@ -1109,7 +1109,7 @@
         :(state.baseDate||state.today?.date||state.selectedDate||beijingToday());
     }
 
-    function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_v3_coldhist:'+String(date)}
+    function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_v4_coldroute:'+String(date)}
     function restoreMemberZoneSnapshot(date){
       try{
         const raw=localStorage.getItem(memberZoneStorageKey(date));

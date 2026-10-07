@@ -3496,13 +3496,12 @@ async function paidMemberZone(
     const formalWarningDirection=String(warning?.warningDirection??warning?.warning_direction??"").trim();
     const formalDirectionalDomains=Number(warning?.directionalDomainCount??warning?.directional_domain_count??0);
     const formalDirectionConfirmed=Boolean(formalWarningDirection)&&formalDirectionalDomains>=1;
-    const verifiedHistoricalDirectionalPublication=
-      warning?.historicalPrematchPublicationVerified===true&&
-      warning?.directionPublicationEligible===true&&warning?.publish===true&&
-      formalDirectionalDomains>=2&&
-      (modelTop==="主胜"?formalWarningDirection==="主队不胜":
-       modelTop==="客胜"?formalWarningDirection==="客队不胜":false);
-    const customerRouteType=((vipPublish||customerStrictAvoidEligible||verifiedHistoricalDirectionalPublication)&&formalDirectionConfirmed)
+    // Historical warning recovery restores only a warning record, not a new
+    // customer recommendation. Do not retroactively promote a pre-kickoff
+    // HANDICAP_PROTECT route to FOCUS_AVOID without a frozen strict-avoid seed.
+    const historyRecoveredOnly=warning?.historicalPrematchPublicationVerified===true;
+    const allowHistoricalStrictAvoid=!historyRecoveredOnly||seededStrictAvoid;
+    const customerRouteType=(allowHistoricalStrictAvoid&&(vipPublish||customerStrictAvoidEligible)&&formalDirectionConfirmed)
       ?"FOCUS_AVOID"
       :customerRiskPoolEligible&&customerHandicapPicks.length>=2
         ?"HANDICAP_PROTECT"
@@ -3553,7 +3552,7 @@ async function paidMemberZone(
       label:customerTier,
       visible:customerVisible,
       riskPoolEligible:customerRiskPoolEligible,
-      strictAvoidEligible:customerStrictAvoidEligible||verifiedHistoricalDirectionalPublication,
+      strictAvoidEligible:customerStrictAvoidEligible,
       originalTop1:modelTop,
       top1Confidence:customerConfidence,
       dq:customerDq||null,
