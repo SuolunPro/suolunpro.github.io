@@ -1883,6 +1883,48 @@
         }
         return;
       }
+      // Formal customer routing is decided once upstream from the frozen prematch snapshot.
+      // FT cards must display that decision directly instead of re-deriving handicap protection
+      // from DQ/risk fields, otherwise different customer surfaces can disagree.
+      const formalRoute=(row?.coldRoute&&typeof row.coldRoute==='object')?row.coldRoute:null;
+      if(formalRoute?.visible===true&&String(formalRoute.type||'')==='HANDICAP_PROTECT'){
+        const routePicks=(Array.isArray(formalRoute.picks)?formalRoute.picks:
+          Array.isArray(formalRoute.handicapPicks)?formalRoute.handicapPicks:[])
+          .map(v=>String(v||'')).filter(validHandicapPick).slice(0,2);
+        if(routePicks.length>=2){
+          const strip=el('div','risk-inline focus');
+          const main=el('div','risk-inline-main');
+          main.append(
+            el('strong','','让球保护'),
+            el('span','',String(formalRoute.displayReason||'赛前风险路由已切换至让球保护'))
+          );
+          strip.append(main);
+          const had=el('div','risk-inline-handicap');
+          const officialRaw=Number(formalRoute.officialHandicap??formalRoute.handicapLine??row.officialHandicap);
+          const officialText=Number.isFinite(officialRaw)
+            ?'主队 '+(officialRaw>0?'+':'')+(Number.isInteger(officialRaw)?officialRaw:officialRaw.toFixed(2).replace(/0+$/,'').replace(/\.$/,''))
+            :'未确认';
+          const officialLine=el('div','risk-inline-handicap-line');
+          officialLine.append(el('strong','','官方让球'),el('span','',officialText));had.append(officialLine);
+          const p1=Number(row.handicapProbability??row.handicap_probability);
+          const p2=Number(row.handicapSecondProbability??row.handicap_second_probability);
+          const frozen1=String(row.handicapTop1??row.handicap??'');
+          const frozen2=String(row.handicapSecond??'');
+          const pctFor=pick=>pick===frozen1&&Number.isFinite(p1)?p1:pick===frozen2&&Number.isFinite(p2)?p2:null;
+          const result=verified(row)?String(effectiveHandicapResult(row)||''):null;
+          const picksLine=el('div','risk-inline-handicap-line');
+          picksLine.append(el('strong','','让球保护'));
+          const picks=el('div','risk-inline-handicap-picks');
+          routePicks.forEach((pick,i)=>{
+            if(i)picks.append(el('span','risk-inline-handicap-sep',' + '));
+            const pct=pctFor(pick);
+            const txt=(i===0?'主推 ':'保护 ')+pick+(pct!==null?' '+probability(pct):'')+(result===pick?' ✅':'');
+            picks.append(el('span','risk-inline-handicap-pick'+(result===pick?' hit':''),txt));
+          });
+          picksLine.append(picks);had.append(picksLine);strip.append(had);card.append(strip);
+          return;
+        }
+      }
       const highDrawFallback=(()=>{
         const draw=Number(row.drawProbability??row.drawPct??row.draw_pct);
         const drawPct=Number.isFinite(draw)?(draw<=1?draw*100:draw):null;
