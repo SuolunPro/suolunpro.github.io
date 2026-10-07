@@ -3327,6 +3327,87 @@
         else holder.replaceChildren(el('p','report-loading','深度市场分析暂不可用，请稍后重试'));
       }
     }
+    const adminOverseasIntelCache=new Map();
+    function renderAdminOverseasIntel(holder,data){
+      const panel=reportSection('海外情报雷达');
+      panel.classList.add('admin-intel-card');
+      const title=panel.querySelector('h2,h3');
+      if(title)title.append(el('span','admin-intel-badge','管理员'));
+      const health=data?.health??null;
+      const status=health?.status==='ok'?'运行正常':health?.status==='partial'?'部分源异常':health?.status==='testing'?'测试中':'状态待确认';
+      const head=el('div','admin-intel-status');
+      head.append(el('strong','',status));
+      if(health?.lastAttemptAt)head.append(el('span','','最近扫描 '+fmtStamp(health.lastAttemptAt)));
+      if(Array.isArray(health?.supported)&&health.supported.length)head.append(el('span','','当前覆盖 '+health.supported.join(' / ')));
+      panel.append(head);
+      const items=Array.isArray(data?.items)?data.items:[];
+      if(!items.length){
+        panel.append(el('div','admin-intel-empty','目前没有通过硬情报门槛的新增海外信息。系统不会为了凑内容写入评论、转播页或泛讨论。'));
+        holder.replaceChildren(panel);return;
+      }
+      const list=el('div','admin-intel-list');
+      for(const item of items){
+        const card=el('article','admin-intel-item');
+        const top=el('div','admin-intel-item-head');
+        const direction=item?.benefitSide&&item.benefitSide!=='不明确'?String(item.benefitSide)+'受益':'方向待确认';
+        top.append(el('strong','',direction),el('span','',String(item?.sourceName||item?.originDomain||'海外当地媒体')));
+        card.append(top,el('div','admin-intel-title',String(item?.headline||'海外赛前情报')));
+        const cats=Array.isArray(item?.categories)?item.categories:[];
+        if(cats.length){
+          const tags=el('div','admin-intel-tags');
+          for(const cat of cats.slice(0,6)){
+            const txt=[cat?.side,cat?.type,cat?.impact,cat?.level?cat.level+'级':''].filter(Boolean).join(' · ');
+            if(txt)tags.append(el('span','',txt));
+          }
+          if(tags.childNodes.length)card.append(tags);
+        }
+        const meta=el('div','admin-intel-meta');
+        if(item?.publishedAt)meta.append(el('span','','发布时间 '+fmtStamp(item.publishedAt)));
+        if(item?.fetchedAt)meta.append(el('span','','抓取时间 '+fmtStamp(item.fetchedAt)));
+        card.append(meta);
+        if(item?.sourceUrl&&/^https?:\/\//i.test(String(item.sourceUrl))){
+          const a=document.createElement('a');a.className='admin-intel-link';a.href=String(item.sourceUrl);
+          a.target='_blank';a.rel='noopener noreferrer';a.textContent='查看原文 ↗';card.append(a);
+        }
+        list.append(card);
+      }
+      panel.append(list);
+      if(health?.lastError)panel.append(el('p','report-sub','最近源异常：'+String(health.lastError)));
+      holder.replaceChildren(panel);
+    }
+    async function loadAdminOverseasIntel(row,holder){
+      if(memberInfo?.isAdmin!==true||!holder)return;
+      const date=String(row?.date??row?.poolDate??row?.pool_date??state.selectedDate??state.today?.date??'');
+      const no=String(row?.no??row?.matchNo??row?.match_no??'').padStart(3,'0');
+      const waiting=reportSection('海外情报雷达');
+      waiting.classList.add('admin-intel-card');
+      waiting.querySelector('h2,h3')?.append(el('span','admin-intel-badge','管理员'));
+      waiting.append(el('p','report-loading','正在读取后台海外情报…'));
+      holder.replaceChildren(waiting);
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{3}$/.test(no)){
+        waiting.querySelector('.report-loading').textContent='比赛标识未确认，暂无法读取海外情报。';return;
+      }
+      const key=date+'|'+no,cached=adminOverseasIntelCache.get(key);
+      if(cached&&Date.now()-cached.at<120000){renderAdminOverseasIntel(holder,cached.data);return}
+      try{
+        const qs=new URLSearchParams({view:'admin-overseas-intel',date,no});
+        const res=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:timeoutSignal(12000)});
+        const data=await res.json().catch(()=>null);
+        if(!res.ok||data?.ok!==true)throw Error(String(data?.error||'HTTP '+res.status));
+        if(state.selected!==row||!holder.isConnected)return;
+        adminOverseasIntelCache.set(key,{at:Date.now(),data});
+        while(adminOverseasIntelCache.size>20)adminOverseasIntelCache.delete(adminOverseasIntelCache.keys().next().value);
+        renderAdminOverseasIntel(holder,data);
+      }catch(error){
+        if(state.selected!==row||!holder.isConnected)return;
+        const panel=reportSection('海外情报雷达');
+        panel.classList.add('admin-intel-card');
+        panel.querySelector('h2,h3')?.append(el('span','admin-intel-badge','管理员'));
+        panel.append(el('p','report-loading',error?.message==='ADMIN_REQUIRED'?'当前账号没有管理员权限':'海外情报暂时读取失败，不影响正式预测与客户页面'));
+        holder.replaceChildren(panel);
+      }
+    }
+
     function openDetail(row,history){
       state.selected=row;$('main').classList.add('hide');$('detail').classList.add('show');
       const c=$('detailCard');c.replaceChildren();
@@ -3373,6 +3454,8 @@
         deepMarketLock.append(el('div','member-preview-lock','尊贵月卡VIP专享 · 解锁99家机构概率、必发资金/冷热/盈亏、凯利风险与赛事情报'));
         c.append(deepMarketLock);
       }
+      let adminIntelSlot=null;
+      if(memberInfo?.isAdmin===true){adminIntelSlot=el('div','report-professional admin-intel-slot');c.append(adminIntelSlot);}
       const teamOverview=teamOverviewPanel(row);
       const attackDefense=renderAttackDefensePanel(row);
       if(teamOverview&&attackDefense){teamOverview.append(attackDefense);c.append(teamOverview);}
@@ -3435,6 +3518,7 @@
       renderHeroWeather(row.environment??null);
       loadProfessionalDetail(row,professionalSlot,{summary,audit,advancedSlot,row,dataStatus,fallbackEnvironment:row.environment??null});
       if(deepMarketSlot)loadDeepMarketAnalysis(row,deepMarketSlot);
+      if(adminIntelSlot)loadAdminOverseasIntel(row,adminIntelSlot);
       window.scrollTo({top:0,behavior:'instant'});
     }
     function closeDetail(){$('detail').classList.remove('show');$('main').classList.remove('hide');state.selected=null}
