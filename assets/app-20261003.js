@@ -3325,7 +3325,9 @@
       else {if(teamOverview)c.append(teamOverview);if(attackDefense)c.append(attackDefense);}
       if(state.model==='htft')c.append(htftVersionPanel(row));
       else if(state.model!=='score')c.append(htftTop4Panel(row));
-      c.append(detailUpsetWarningPanel(row));
+      // Risk observation detail card is intentionally hidden from match detail.
+      // Risk data and model logic remain intact; customer risk communication stays in
+      // the dedicated cold-warning and formal protection surfaces.
       if(state.model==='score'){
         c.append(scoreTop4Panel(row,scoreVersionInfo(row,'dynamic')??scoreVersionInfo(row,'original')??undefined));
         if(publishedGoalLambda(row)!==null){const goals=reportDisclosure('展开泊松总进球');goals.append(goalPredictionPanel(row));c.append(goals);}
