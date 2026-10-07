@@ -20,7 +20,7 @@ const ROTATION=/(rested|rotation|rotated squad|poupado|rod[ií]zio|preservado|de
 const INTERNAL=/(unpaid wages?|salary arrears|wages? delayed|bonuses? unpaid|image rights.*(?:late|unpaid)|strike|boycott|internal crisis|disciplinary issue|sal[aá]rios? atrasados|direitos? de imagem.*atrasad|premia[cç][aã]o.*atrasad|greve|crise interna|problema disciplinar)/i;
 const COACH_PRESSURE=/(coach.*(?:sacked|dismissed|under pressure)|manager.*(?:sacked|dismissed|under pressure)|demitid[oa]|demiss[aã]o|t[eé]cnico.*pressionad|futuro.*(?:em jogo|incerto)|cargo.*(?:em jogo|amea[cç]ado))/i;
 const BROADCAST=/(onde vai passar|como assistir|assistir ao vivo|transmiss[aã]o ao vivo|hor[aá]rio e onde assistir)/i;
-const OPINION=/(colunistas?|comentaristas?|palpites?|opini[aã]o|debate|analisam|an[aá]lise dos comentaristas)/i;
+const OPINION=/(colunistas?|comentaristas?|palpites?|opini[aã]o|debate|analisam|an[aá]lise dos comentaristas|casagrande:|lavieri:|mauro cezar:|pvc:|tironi:|samir:|arnaldo:|bira:|acho que|aposta em|diz colunista)/i;
 
 function decode(s:string){
   return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1")
