@@ -1051,3 +1051,23 @@
 .member-free-benefit-title{margin-bottom:5px;color:#25834b;font-size:11px;font-weight:800}
 .member-free-benefit strong{display:block;color:#26362d;font-size:14px;line-height:1.55}
 .member-free-benefit p{margin:4px 0 0;color:#738078;font-size:11px}
+
+
+/* Admin-only overseas intelligence radar. Read-only, detail-page only. */
+.admin-intel-slot{min-height:0}
+.admin-intel-card{border:1px solid rgba(32,79,138,.18);background:linear-gradient(180deg,#fbfdff 0%,#fff 100%)}
+.admin-intel-card h2,.admin-intel-card h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.admin-intel-badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;background:#1f2937;color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em}
+.admin-intel-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 12px;color:#667085;font-size:12px}
+.admin-intel-status strong{color:#1f2937}
+.admin-intel-empty{padding:12px 13px;border-radius:10px;background:#f7f8fa;color:#596273;font-size:13px;line-height:1.65}
+.admin-intel-list{display:grid;gap:10px}
+.admin-intel-item{padding:12px 13px;border:1px solid #e8ebf0;border-radius:12px;background:#fff}
+.admin-intel-item-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:12px;color:#667085}
+.admin-intel-item-head strong{color:#1f2937;font-size:13px}
+.admin-intel-title{font-size:14px;line-height:1.55;font-weight:650;color:#20252d}
+.admin-intel-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.admin-intel-tags span{padding:3px 7px;border-radius:999px;background:#f3f5f8;color:#4d5968;font-size:11px}
+.admin-intel-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;color:#8993a3;font-size:11px}
+.admin-intel-link{display:inline-flex;margin-top:9px;font-size:12px;font-weight:650;text-decoration:none}
+@media(max-width:640px){.admin-intel-item-head{align-items:flex-start;flex-direction:column;gap:3px}.admin-intel-meta{display:grid;gap:3px}}
