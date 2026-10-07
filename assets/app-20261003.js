@@ -623,10 +623,7 @@
         return s.replace(/仅计风险，不生成方向/g,'').replace(/[，,;；]+$/,'').trim();
       };
       const buildColdRiskSummary=(row,cold,route)=>{
-        const live=(cold?.liveRiskState&&typeof cold.liveRiskState==='object')?cold.liveRiskState:
-          ((route?.liveRiskState&&typeof route.liveRiskState==='object')?route.liveRiskState:null);
-        if(live?.dynamic===true&&live.summary)return String(live.summary);
-        const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
+const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
         const pop=(cold?.popularity&&typeof cold.popularity==='object')?cold.popularity:{};
         const list=[];
         const push=v=>{const t=cleanColdRiskText(v);if(t&&!list.includes(t))list.push(t)};
@@ -881,15 +878,12 @@
         if(chips.childNodes.length)action.append(chips);
         card.append(action);
 
-        const liveRisk=(cold?.liveRiskState&&typeof cold.liveRiskState==='object')?cold.liveRiskState:
-          ((route?.liveRiskState&&typeof route.liveRiskState==='object')?route.liveRiskState:null);
-        const riskSummaryText=buildColdRiskSummary(row,cold,route);
+const riskSummaryText=buildColdRiskSummary(row,cold,route);
         if(riskSummaryText){
           const riskSummary=el('div','cold-card-risk-summary');
           riskSummary.append(
             el('span','cold-card-risk-summary-label','风险摘要'),
-            el('span','cold-card-risk-summary-text',
-              (liveRisk?.dynamic===true&&liveRisk?.tier?String(liveRisk.tier)+' · ':'')+riskSummaryText)
+            el('span','cold-card-risk-summary-text',riskSummaryText)
           );
           card.append(riskSummary);
         }
