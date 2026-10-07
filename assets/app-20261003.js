@@ -1146,7 +1146,7 @@
           if(state.tab==='memberzone')renderMemberZone();
           else if(state.tab==='home'&&state.model==='cold')render();
         }
-        if(Date.now()-cachedZone.at<cacheTtl)return;
+        if(zoneDate<beijingToday()&&Date.now()-cachedZone.at<cacheTtl)return;
         silent=true;
       }
       // Deduplicate a foreground tap and a scheduled refresh for the same date.
