@@ -3221,7 +3221,7 @@
         const link=el('a','','查看澳客原页');link.href=parsed.href;link.target='_blank';link.rel='noopener noreferrer';return link;
       }catch{return null}
     }
-    function renderDeepMarketAnalysis(holder,data){
+    function renderDeepMarketAnalysis(holder,data,row=state.selected){
       if(state.selected===null||!holder.isConnected)return;
       holder.replaceChildren();
       const panel=reportSection('九十刻度 · 深度市场分析');panel.classList.add('shadow-admin-preview','vip-exclusive-card');panel.querySelector('h2,h3')?.append(el('span','vip-exclusive-badge','VIP专享'));
@@ -3271,6 +3271,17 @@
       if(market?.average&&[market.average.home,market.average.draw,market.average.away].every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v)))){
         reportLine(panel,'机构平均欧赔 主 / 平 / 客',[market.average.home,market.average.draw,market.average.away].map(v=>Number(v).toFixed(3)).join(' / '));
       }
+      // William stays on the already-loaded formal match payload. Do not add a
+      // second API request here: this keeps the VIP panel fast and gives William
+      // one production source of truth.
+      const williamInitial=row?.market?.initialOdds;
+      const williamCurrent=row?.market?.currentOdds;
+      if(Array.isArray(williamInitial)||Array.isArray(williamCurrent)){
+        reportLine(panel,'威廉 初盘→赛前',memberOdds3(williamInitial)+' → '+memberOdds3(williamCurrent));
+      }
+      if(Array.isArray(row?.market?.currentFair)){
+        reportLine(panel,'威廉概率',memberPct3(row.market.currentFair).join(' / '));
+      }
       holder.append(panel);
     }
     async function loadDeepMarketAnalysis(row,holder){
@@ -3281,7 +3292,7 @@
       // Keep the last verified payload visible while a refresh happens. A transient
       // cross-project/CORS failure must not blank an already valid VIP analysis.
       if(usableCached){
-        renderDeepMarketAnalysis(holder,cached.data);
+        renderDeepMarketAnalysis(holder,cached.data,row);
         if(Date.now()-cached.at<2*60*1000)return;
       }else{
         holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
@@ -3307,12 +3318,12 @@
         if(state.selected!==row||memberInfo?.vipActive!==true)return;
         okoooShadowCache.set(key,{token:authSession.access_token,at:Date.now(),data});
         while(okoooShadowCache.size>20)okoooShadowCache.delete(okoooShadowCache.keys().next().value);
-        renderDeepMarketAnalysis(holder,data);
+        renderDeepMarketAnalysis(holder,data,row);
       }catch(error){
         if(state.selected!==row||!holder.isConnected)return;
         // Stale-while-refresh: preserve the most recent verified analysis instead
         // of flashing "temporarily unavailable" during transient endpoint failures.
-        if(usableCached)renderDeepMarketAnalysis(holder,cached.data);
+        if(usableCached)renderDeepMarketAnalysis(holder,cached.data,row);
         else holder.replaceChildren(el('p','report-loading','深度市场分析暂不可用，请稍后重试'));
       }
     }
