@@ -2656,6 +2656,63 @@ async function loadLatestLocalPrematchRuntime(date:string):Promise<Record<string
   return applyHighDrawRiskLayer([...latest.values()].map(row=>overlayLatestCurrentUpsetWarning(row,warnings)));
 }
 
+
+// Read only authenticated pre-kickoff warning publications to reconcile stale
+// historical sale/archive snapshots. This is an indexed, bounded history read;
+// no collectors, model updates, result fields or live frontend paths are changed.
+async function restoreHistoricalPublishedColdWarnings(
+  date:string,
+  runtimeRows:Record<string,unknown>[]
+):Promise<Record<string,unknown>[]>{
+  const missing=runtimeRows.filter((row:any)=>row?.pregameVerified===true&&row?.upsetWarning?.publish!==true);
+  if(date<"2026-10-07"||!missing.length)return runtimeRows;
+  const nos=[...new Set(missing.map((row:any)=>String(row.no??"").padStart(3,"0")))];
+  try{
+    const {data,error}=await db.from("soren_upset_warnings_v1")
+      .select("match_no,source_frozen_at,synced_at,source_model_version,source_revision,warning_model_version,risk_level,risk_score,original_top1,warning_direction,alternative_pick,risk_basis,direction_basis,evidence_domains,directional_domain_count,result_fields_used,hur_direction_used,source_payload")
+      .eq("pool_date",date)
+      .in("match_no",nos)
+      .filter("source_payload->>publish","eq","true")
+      .order("source_frozen_at",{ascending:false})
+      .limit(600);
+    if(error)throw error;
+    const published=new Map<string,Record<string,unknown>>();
+    const missingByNo=new Map(missing.map((row:any)=>[String(row.no??"").padStart(3,"0"),row]));
+    for(const raw of data??[]){
+      const w=raw as Record<string,any>;
+      const no=String(w.match_no??"").padStart(3,"0");
+      if(published.has(no))continue;
+      const row=missingByNo.get(no) as Record<string,any>|undefined;
+      if(!row||w.result_fields_used===true||w.hur_direction_used===true)continue;
+      const p=(w.source_payload&&typeof w.source_payload==="object")?w.source_payload as Record<string,any>:{};
+      if(p.publish!==true||(p.publicationEligible!==true&&p.publication_eligible!==true))continue;
+      const kickoffAt=Date.parse(String(row.kickoff??""));
+      const snapshotAt=Date.parse(String(row.frozenAt??""));
+      const warningAt=Date.parse(String(w.source_frozen_at??""));
+      const publishedAt=Date.parse(String(w.synced_at??""));
+      if(![kickoffAt,snapshotAt,warningAt,publishedAt].every(Number.isFinite)||
+        !(warningAt<=snapshotAt&&snapshotAt<kickoffAt&&warningAt<=publishedAt&&publishedAt<kickoffAt))continue;
+      if(riskPick(w.original_top1)!==riskPick(row.ftTop1))continue;
+      const confirmed=publicWarning(w);
+      if(confirmed.publish!==true)continue;
+      published.set(no,{
+        ...confirmed,
+        historicalPrematchPublicationVerified:true,
+        historicalPublicationSyncedAt:w.synced_at,
+        directionPublicationEligible:p.directionPublicationEligible===true||p.direction_publication_eligible===true
+      });
+    }
+    return runtimeRows.map((row:any)=>{
+      const no=String(row.no??"").padStart(3,"0");
+      return row?.upsetWarning?.publish===true||!published.has(no)
+        ?row:{...row,upsetWarning:published.get(no)};
+    });
+  }catch(error){
+    console.error("HISTORICAL_PREMATCH_WARNING_READ_FAILED",error);
+    return runtimeRows;
+  }
+}
+
 async function paidMemberZone(
   date:string,
   runtimeRowsOverride:Record<string,unknown>[]|null=null,
@@ -2713,7 +2770,7 @@ async function paidMemberZone(
       // Historical frozen bundles already contain the immutable prematch upset warning.
       // Do not rebuild the entire market/risk layer on every VIP history tap.
       if(date<cnToday){
-        runtimeRows=applyHighDrawRiskLayer(frozenRuntime);
+        runtimeRows=applyHighDrawRiskLayer(await restoreHistoricalPublishedColdWarnings(date,frozenRuntime));
       }else runtimeRows=frozenRuntime;
     }else{
       const upstreamData=await fetchPublicUpstream("today",date);
@@ -3439,7 +3496,13 @@ async function paidMemberZone(
     const formalWarningDirection=String(warning?.warningDirection??warning?.warning_direction??"").trim();
     const formalDirectionalDomains=Number(warning?.directionalDomainCount??warning?.directional_domain_count??0);
     const formalDirectionConfirmed=Boolean(formalWarningDirection)&&formalDirectionalDomains>=1;
-    const customerRouteType=((vipPublish||customerStrictAvoidEligible)&&formalDirectionConfirmed)
+    const verifiedHistoricalDirectionalPublication=
+      warning?.historicalPrematchPublicationVerified===true&&
+      warning?.directionPublicationEligible===true&&warning?.publish===true&&
+      formalDirectionalDomains>=2&&
+      (modelTop==="主胜"?formalWarningDirection==="主队不胜":
+       modelTop==="客胜"?formalWarningDirection==="客队不胜":false);
+    const customerRouteType=((vipPublish||customerStrictAvoidEligible||verifiedHistoricalDirectionalPublication)&&formalDirectionConfirmed)
       ?"FOCUS_AVOID"
       :customerRiskPoolEligible&&customerHandicapPicks.length>=2
         ?"HANDICAP_PROTECT"
@@ -3490,7 +3553,7 @@ async function paidMemberZone(
       label:customerTier,
       visible:customerVisible,
       riskPoolEligible:customerRiskPoolEligible,
-      strictAvoidEligible:customerStrictAvoidEligible,
+      strictAvoidEligible:customerStrictAvoidEligible||verifiedHistoricalDirectionalPublication,
       originalTop1:modelTop,
       top1Confidence:customerConfidence,
       dq:customerDq||null,
