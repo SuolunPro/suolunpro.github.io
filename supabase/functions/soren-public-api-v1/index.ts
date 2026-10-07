@@ -4038,6 +4038,68 @@ Deno.serve(async (req: Request) => {
       return reply({ok:accepted,membership,error:accepted?null:String(membership.inviteStatus??"INVITE_UNAVAILABLE")},accepted?200:400);
     }
     if(requestUrl.searchParams.get("view")==="membership")return reply({ok:true,membership});
+    if(requestUrl.searchParams.get("view")==="admin-overseas-intel"){
+      if((membership as Record<string,unknown>).isAdmin!==true)return reply({ok:false,error:"ADMIN_REQUIRED"},403);
+      const intelDate=String(requestUrl.searchParams.get("date")??"");
+      const intelNo=String(requestUrl.searchParams.get("no")??"").padStart(3,"0");
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(intelDate)||!/^\d{3}$/.test(intelNo))
+        return reply({ok:false,error:"INVALID_MATCH"},400);
+      try{
+        const {data:intelMatch,error:intelMatchError}=await db.from("soren_matches")
+          .select("id,pool_date,match_no,home_team,away_team,kickoff_at,league,is_world_cup")
+          .eq("pool_date",intelDate).eq("match_no",intelNo).eq("is_world_cup",false)
+          .limit(1).maybeSingle();
+        if(intelMatchError)throw intelMatchError;
+        if(!intelMatch)return reply({ok:false,error:"MATCH_NOT_FOUND"},404);
+        const [{data:intelRows,error:intelRowsError},{data:intelHealth,error:intelHealthError}]=await Promise.all([
+          db.from("soren_intelligence_reports_v1")
+            .select("source_code,source_url,headline,published_at,fetched_at,quality,highlights")
+            .eq("match_id",Number(intelMatch.id))
+            .like("source_code","overseas_%")
+            .lt("published_at",intelMatch.kickoff_at)
+            .lt("fetched_at",intelMatch.kickoff_at)
+            .order("published_at",{ascending:false}).limit(20),
+          db.from("soren_source_health")
+            .select("source_code,status,pool_date,captured,verified,last_attempt_at,last_success_at,last_error,details,updated_at")
+            .eq("source_code","overseas_direct_shadow_v1").maybeSingle()
+        ]);
+        if(intelRowsError)throw intelRowsError;
+        if(intelHealthError)console.error("ADMIN_OVERSEAS_HEALTH_UNAVAILABLE",intelHealthError);
+        const items=(intelRows??[]).map((x:any)=>{
+          const hi=x?.highlights&&typeof x.highlights==="object"?x.highlights:{};
+          const categories=Array.isArray(hi.categories)?hi.categories.slice(0,8).map((c:any)=>({
+            side:String(c?.side??""),type:String(c?.type??"情报"),
+            level:String(c?.level??""),impact:String(c?.impact??""),
+            summary:String(c?.summary??"").slice(0,240),
+            domain:String(c?.domain??"")
+          })):[];
+          return {
+            sourceCode:String(x.source_code??""),sourceUrl:String(x.source_url??""),
+            headline:String(x.headline??"").slice(0,300),
+            publishedAt:x.published_at??null,fetchedAt:x.fetched_at??null,
+            quality:String(x.quality??""),benefitSide:String(hi.benefit_side??"不明确"),
+            sourceCountry:String(hi.sourceCountry??""),sourceName:String(hi.sourceName??""),
+            originDomain:String(hi.originDomain??""),categories
+          };
+        });
+        const health=intelHealth?{
+          status:String((intelHealth as any).status??"unknown"),
+          lastAttemptAt:(intelHealth as any).last_attempt_at??null,
+          lastSuccessAt:(intelHealth as any).last_success_at??null,
+          lastError:(intelHealth as any).last_error??null,
+          supported:Array.isArray((intelHealth as any)?.details?.supported)?(intelHealth as any).details.supported:[],
+          feed:String((intelHealth as any)?.details?.feed??""),
+          updatedAt:(intelHealth as any).updated_at??null
+        }:null;
+        return reply({ok:true,match:{
+          date:intelMatch.pool_date,no:intelMatch.match_no,league:intelMatch.league,
+          home:intelMatch.home_team,away:intelMatch.away_team,kickoff:intelMatch.kickoff_at
+        },items,health});
+      }catch(error){
+        console.error("ADMIN_OVERSEAS_INTEL_ERROR",error);
+        return reply({ok:false,error:"ADMIN_OVERSEAS_INTEL_UNAVAILABLE"},502);
+      }
+    }
     const beijingToday=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).split("/").join("-");
     const requestedDate=requestUrl.searchParams.get("date");
     const latestKnownPoolDate=async(candidate:string|null)=>{
