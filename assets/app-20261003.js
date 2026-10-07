@@ -2113,7 +2113,7 @@
       scheduleModuleGridBuild(grid);
       return grid;
     }
-    function currentTitle(){return {overview:'今日竞足',handicap:'全场让球',wdl:'胜平负',goals:'泊松进球',score:'比分Top4',htft:'半全场Top4',daily:'今日优选',upset:'风险观察'}[state.model]||'今日竞足'}
+    function currentTitle(){return {overview:'今日竞足',handicap:'全场让球',wdl:'胜平负',goals:'泊松进球',score:'比分Top4',htft:'半全场Top3',daily:'今日优选',upset:'风险观察'}[state.model]||'今日竞足'}
 
     function engineBanner(){const b=el('button','engine-banner');b.type='button';b.append(el('strong','','九十刻度 · 多维赛事数据分析'),el('small','','结合球队表现、市场赔率、比赛进球分布与风险信息，提供结构化赛事数据报告'));const tags=el('div','engine-tags');['市场赔率','球队实力','独立概率','风险审计'].forEach(t=>tags.append(el('span','',t)));b.append(tags);b.onclick=()=>{state.tab='profile';document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='profile'));render()};return b}
     function updateNotice(){if(state.tab!=='home'||!['daily','overview','handicap','htft','score','goals'].includes(state.model))return null;const p=el('div','');p.style.cssText='margin:10px 16px;padding:12px 13px;background:#fff8ec;border:1px solid #f1d9b0;border-radius:10px;color:#795726;font-size:12px;line-height:1.7';const heading=el('strong','','赛事数据更新说明');heading.style.cssText='display:block;color:#654718;font-size:13px;margin-bottom:5px';const main=el('div','','每日赛事分析通常于北京时间12:00前后陆续发布。');main.style.cssText='margin-bottom:5px';const detail=el('div','','建议在赛前2–4小时再次查看。随着比赛临近，赔率、盘口及相关赛事数据会持续变化，这一阶段的数据通常更接近临场状态。');detail.style.cssText='margin-bottom:5px';const freeze=el('div','','模型预测以赛前确认版本为准。后续即使赔率或盘口发生变化，也不会自动改写已经发布的预测结果，避免出现赛后回改。');freeze.style.cssText='margin-bottom:7px';const foot=el('div','','不同数据项的更新时间可能存在差异，请以页面显示的最新更新时间为准。');foot.style.cssText='padding:7px 9px;background:#fffdf8;border-radius:7px;color:#806c4c';p.append(heading,main,detail,freeze,foot);return p}
@@ -3361,7 +3361,7 @@
         return;
       }
       if(state.model==='htft'){
-        const rows=state.today?.rows||[],original=htftSample(rows,'original'),dynamic=htftSample(rows,'dynamic'),replay=htftSample(rows,'replay'),selected=dynamic.length?dynamic:original.length?original:replay;
+        const rows=state.today?.rows||[],original=htftSample(rows,'original'),dynamic=htftSample(rows,'dynamic'),replay=htftSample(rows,'replay'),selected=dynamic.length?[...dynamic,...original.filter(o=>!dynamic.some(d=>d.row===o.row))]:original.length?original:replay;
         const stat=htftSummary(selected),labels=document.querySelectorAll('.metric span');
         $('totalCount').textContent=htftRate(stat.top3,stat.n);
         $('pickCount').textContent=stat.top3+'/'+stat.n;
