@@ -123,26 +123,26 @@ function gdeltUrl(home:string,away:string,country:string|null){
   return "https://api.gdeltproject.org/api/v2/doc/doc?"+p.toString();
 }
 function xmlDecode(s:string){
-  return s.replace(new RegExp("<!\\\\[CDATA\\\\[([\\\\s\\\\S]*?)\\\\]\\\\]>","g"),"$1")
-    .replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'")
+  return s.replace(new RegExp("<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>","g"),"$1")
+    .replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"\'")
     .replace(/&lt;/g,"<").replace(/&gt;/g,">").trim();
 }
 function googleNewsUrl(home:string,away:string,country:string|null){
   const loc=GOOGLE_LOCALE_BY_COUNTRY[country??""]??{hl:"en-US",gl:"US",ceid:"US:en"};
-  const q=\`"\${home.replaceAll('"',"")}" "\${away.replaceAll('"',"")}"\`;
+  const q='"' + home.replaceAll('"',"") + '" "' + away.replaceAll('"',"") + '"';
   const p=new URLSearchParams({q,hl:loc.hl,gl:loc.gl,ceid:loc.ceid});
   return "https://news.google.com/rss/search?"+p.toString();
 }
 function parseGoogleRss(xml:string,country:string|null){
   const out:any[]=[];
-  const itemRe=new RegExp("<item>([\\\\s\\\\S]*?)</item>","gi");
+  const itemRe=new RegExp("<item>([\\s\\S]*?)</item>","gi");
   for(const m of xml.matchAll(itemRe)){
     const block=m[1];
     const pick=(tag:string)=>{
-      const x=block.match(new RegExp("<"+tag+"(?:\\\\s[^>]*)?>([\\\\s\\\\S]*?)</"+tag+">","i"));
+      const x=block.match(new RegExp("<"+tag+"(?:\\s[^>]*)?>([\\s\\S]*?)</"+tag+">","i"));
       return x?xmlDecode(x[1]):"";
     };
-    const source=block.match(new RegExp('<source(?:\\\\s+url="([^"]*)")?[^>]*>([\\\\s\\\\S]*?)</source>','i'));
+    const source=block.match(new RegExp('<source(?:\\s+url="([^"]*)")?[^>]*>([\\s\\S]*?)</source>','i'));
     const url=pick("link"), title=pick("title"), pub=pick("pubDate");
     if(!url||!title)continue;
     let domain="";
