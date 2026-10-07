@@ -3525,26 +3525,23 @@
     function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)))}
     async function resolveActivePool(){
       const today=beijingToday(),previous=addDays(today,-1);
-      // A JCZQ sale day may run past Beijing midnight. Prefer the unfinished
-      // previous pool, but never turn a transient current-day API failure into
-      // a blank homepage when we already have a valid previous pool snapshot.
-      // Start today's read at the same time so a settled previous day never adds
-      // its full network latency in front of the current-day first paint.
-      const currentTask=readDay(today,true).then(data=>({data,error:null}),error=>({data:null,error}));
-      let prior=null;
+      // Fast boot: never block first paint on two archive requests. Reuse a recent
+      // active snapshot immediately and let the normal smart refresh revalidate it.
+      const cachedPrevious=cachedDay(previous,true);
+      const cachedCurrent=cachedDay(today,true);
+      if(hasUnsettledPool(cachedPrevious))return cachedPrevious;
+      if(cachedCurrent&&Array.isArray(cachedCurrent.rows)&&cachedCurrent.rows.length)return cachedCurrent;
+
+      // No usable boot snapshot: read today first. Only fall back to yesterday when
+      // today's pool is unavailable. This removes the old parallel today+yesterday
+      // startup fan-out that could leave mobile Safari on the loading skeleton.
       try{
-        prior=await readDay(previous);
-        if(hasUnsettledPool(prior))return prior;
-      }catch(e){console.warn('上一竞彩池状态核验暂不可用',e)}
-      const current=await currentTask;
-      if(current.data)return current.data;
-      {
-        const e=current.error;
-        const fallback=prior||cachedDay(previous,true);
-        if(fallback&&Array.isArray(fallback.rows)&&fallback.rows.length){
-          console.warn('今日竞彩池暂不可用，继续展示上一有效竞彩池',e);
-          return fallback;
-        }
+        return await readDay(today);
+      }catch(e){
+        try{
+          const prior=await readDay(previous);
+          if(prior&&Array.isArray(prior.rows)&&prior.rows.length)return prior;
+        }catch(priorError){console.warn('上一竞彩池状态核验暂不可用',priorError)}
         throw e;
       }
     }
