@@ -9,8 +9,8 @@ const db=createClient(
 
 const HEALTH_SOURCE="overseas_direct_shadow_v1";
 const REPORT_SOURCE="overseas_uol_shadow_v1";
-const UOL_LATEST="https://www.uol.com.br/esporte/futebol/ultimas/";
-const USER_AGENT="Mozilla/5.0 (compatible; SorenOverseasIntel/1.3)";
+const UOL_STREAM="https://www.uol.com.br/esporte/noticias/v1/";
+const USER_AGENT="Mozilla/5.0 (compatible; SorenOverseasIntel/1.4)";
 const HOUR=3600_000;
 
 const IMPORTANT=/(captain|key player|star|first[- ]choice|goalkeeper|keeper|top scorer|titular|capit[aã]o|goleiro|artilheiro|portero|capit[aá]n)/i;
@@ -18,6 +18,7 @@ const NEG_INJURY=/(injur(?:y|ed|ies)|ruled out|will miss|fitness doubt|doubtful|
 const POS_RETURN=/(returns? to (?:training|the squad|action)|back in training|available again|declared fit|recovered|cleared to play|retorna aos treinos|volta aos treinos|fica [àa] disposi[cç][aã]o|recuperado|refor[cç]o para|retorno ao time|volta ao time|liberado para jogar)/i;
 const ROTATION=/(rested|rotation|rotated squad|poupado|rod[ií]zio|preservado|descanso|time misto|poupar)/i;
 const INTERNAL=/(unpaid wages?|salary arrears|wages? delayed|bonuses? unpaid|image rights.*(?:late|unpaid)|strike|boycott|internal crisis|disciplinary issue|sal[aá]rios? atrasados|direitos? de imagem.*atrasad|premia[cç][aã]o.*atrasad|greve|crise interna|problema disciplinar)/i;
+const COACH_PRESSURE=/(coach.*(?:sacked|dismissed|under pressure)|manager.*(?:sacked|dismissed|under pressure)|demitid[oa]|demiss[aã]o|t[eé]cnico.*pressionad|futuro.*(?:em jogo|incerto)|cargo.*(?:em jogo|amea[cç]ado))/i;
 
 function decode(s:string){
   return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1")
@@ -58,12 +59,26 @@ function mentions(text:string,variants:string[]){
 }
 function detectSide(text:string,homeVars:string[],awayVars:string[]):"主队"|"客队"|"双方"|null{
   const n=norm(text);
-  const h=homeVars.map(v=>n.indexOf(v)).filter(i=>i>=0).sort((a,b)=>a-b)[0]??-1;
-  const a=awayVars.map(v=>n.indexOf(v)).filter(i=>i>=0).sort((x,y)=>x-y)[0]??-1;
-  if(h<0&&a<0)return null;
-  if(h>=0&&a<0)return "主队";
-  if(a>=0&&h<0)return "客队";
-  return "双方";
+  const hPos=homeVars.flatMap(v=>{const out:number[]=[];let i=n.indexOf(v);while(i>=0){out.push(i);i=n.indexOf(v,i+1)}return out});
+  const aPos=awayVars.flatMap(v=>{const out:number[]=[];let i=n.indexOf(v);while(i>=0){out.push(i);i=n.indexOf(v,i+1)}return out});
+  if(!hPos.length&&!aPos.length)return null;
+  if(hPos.length&&!aPos.length)return "主队";
+  if(aPos.length&&!hPos.length)return "客队";
+  const signals=["desfalque","lesao","suspens","fora do jogo","fora da partida","poupad","retorn","volta ao time","recuperad","salario","atrasad","demit","demissao","pressionad"];
+  let best:{side:"主队"|"客队",d:number}|null=null;
+  for(const s of signals){
+    let p=n.indexOf(s);
+    while(p>=0){
+      const hd=Math.min(...hPos.map(x=>Math.abs(x-p)));
+      const ad=Math.min(...aPos.map(x=>Math.abs(x-p)));
+      if(hd!==ad){
+        const cand={side:(hd<ad?"主队":"客队") as "主队"|"客队",d:Math.min(hd,ad)};
+        if(cand.d<=180&&(!best||cand.d<best.d))best=cand;
+      }
+      p=n.indexOf(s,p+1);
+    }
+  }
+  return best?.side??"双方";
 }
 function classify(text:string,side:"主队"|"客队"|"双方",title:string,domain:string){
   const out:any[]=[];
@@ -74,6 +89,7 @@ function classify(text:string,side:"主队"|"客队"|"双方",title:string,domai
   if(NEG_INJURY.test(text))add("伤停","利空");
   if(ROTATION.test(text))add("轮换","利空");
   if(INTERNAL.test(text))add("内部","利空");
+  if(COACH_PRESSURE.test(text))add("帅位","利空");
   if(POS_RETURN.test(text))add("复出","利好");
   return out;
 }
@@ -101,6 +117,10 @@ async function getText(url:string,timeoutMs:number){
     return {ok:true,status:r.status,text:(await r.text()).slice(0,1_200_000),finalUrl:r.url};
   }catch{return {ok:false,status:0,text:"",finalUrl:url}}
   finally{clearTimeout(timer)}
+}
+function extractNextToken(html:string){
+  const m=html.match(/[?&]next=([A-Za-z0-9]+)/i);
+  return m?.[1]??null;
 }
 function parseLatest(html:string){
   const byUrl=new Map<string,{url:string,title:string}>();
@@ -186,10 +206,26 @@ Deno.serve(async(req:Request)=>{
       ok:true,status:"THROTTLED_OR_UNSUPPORTED",source:HEALTH_SOURCE,candidateMatches:pool.length
     });
 
-    const listPage=await getText(UOL_LATEST,6500);
     const errors:string[]=[],saved:any[]=[],stats:any[]=[];
-    if(!listPage.ok)errors.push("UOL_LATEST_"+listPage.status);
-    const links=listPage.ok?parseLatest(listPage.text):[];
+    const first=await getText(UOL_STREAM,6500);
+    if(!first.ok)errors.push("UOL_STREAM_"+first.status);
+    const streamPages:string[]=[];
+    if(first.ok)streamPages.push(first.text);
+    if(first.ok){
+      const next=extractNextToken(first.text);
+      if(next){
+        const second=await getText(UOL_STREAM+"?next="+encodeURIComponent(next),5500);
+        if(second.ok)streamPages.push(second.text);
+        else errors.push("UOL_STREAM_PAGE2_"+second.status);
+      }
+    }
+    const linkMap=new Map<string,{url:string,title:string}>();
+    for(const html of streamPages){
+      for(const a of parseLatest(html)){
+        if(!linkMap.has(a.url)||(a.title.length>(linkMap.get(a.url)?.title.length??0)))linkMap.set(a.url,a);
+      }
+    }
+    const links=[...linkMap.values()].slice(0,80);
     const pageCache=new Map<string,{ok:boolean,status:number,text:string,finalUrl:string}>();
 
     for(const m of due){
@@ -242,9 +278,9 @@ Deno.serve(async(req:Request)=>{
     }
 
     const healthDetails={
-      schema:"overseas_direct_shadow_health_v2",
-      last_by_match:lastByMatch,supported:["巴甲","巴乙"],feed:"UOL football latest HTML",
-      list_links:links.length,processed:due.length,stored:saved.length,errors:errors.slice(0,12)
+      schema:"overseas_direct_shadow_health_v3",
+      last_by_match:lastByMatch,supported:["巴甲","巴乙"],feed:"UOL esporte noticias v1",
+      stream_pages:streamPages.length,list_links:links.length,processed:due.length,stored:saved.length,errors:errors.slice(0,12)
     };
     const {error:healthError}=await db.from("soren_source_health").upsert({
       source_code:HEALTH_SOURCE,pool_date:String(due[0]?.pool_date??""),
@@ -256,7 +292,7 @@ Deno.serve(async(req:Request)=>{
 
     return Response.json({
       ok:errors.length===0,status:errors.length?"PARTIAL":"DONE",source:HEALTH_SOURCE,
-      processed:due.length,listLinks:links.length,stored:saved.length,
+      processed:due.length,streamPages:streamPages.length,listLinks:links.length,stored:saved.length,
       sample:saved.slice(0,8),stats,errors:errors.slice(0,12),
       policy:"shadow_only_no_public_api_no_prediction_change"
     },{status:errors.length?207:200,headers:{"Cache-Control":"no-store"}});
