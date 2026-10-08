@@ -315,8 +315,11 @@
       memberInfo=j.membership;saveMemberCache(memberInfo);showAccountNotice(memberInfo);return memberInfo;
     }
     function isTransientConnectionError(error){
-      return error instanceof TypeError||['AbortError','TimeoutError'].includes(error?.name)||
-        /network|fetch|timeout|load failed|temporarily|会员信息暂不可用|SESSION_REFRESH_RETRY|HTTP 5\d\d/i.test(String(error?.message||error||''));
+      // The auth transport layer reports a Chinese network error with code
+      // AUTH_NETWORK_ERROR. Treat it as transient, never as a hard membership denial.
+      return error?.code==='AUTH_NETWORK_ERROR'||error instanceof TypeError||
+        ['AbortError','TimeoutError'].includes(error?.name)||
+        /network|fetch|timeout|load failed|temporarily|网络连接|认证服务失败|会员信息暂不可用|SESSION_REFRESH_RETRY|HTTP 5\d\d/i.test(String(error?.message||error||''));
     }
     async function membershipFetchWithRetry(attempts=4){
       let lastError=null;
@@ -3885,8 +3888,7 @@
       for(let attempt=0;attempt<2;attempt++){
         try{return await verifiedAuthToken()}catch(error){
           if(!authSession?.access_token||error.message==='LOGIN_REQUIRED')throw error;
-          const temporary=error instanceof TypeError||['AbortError','TimeoutError'].includes(error.name)||
-            /network|fetch|timeout|temporarily|SESSION_REFRESH_RETRY|HTTP 5\d\d/i.test(String(error.message||''));
+          const temporary=isTransientConnectionError(error);
           if(!temporary||attempt===1)throw error;
           await new Promise(resolve=>setTimeout(resolve,600));
         }
