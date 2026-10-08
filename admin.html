@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九十刻度 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}.stat.primary{grid-column:1/-1;background:#172031;color:#fff;padding:20px}.stat.primary b{font-size:44px;color:#fff}.stat.primary small{font-size:12px;color:#c5d1e1;display:block;margin-top:4px}.section-title{font-size:16px;margin:18px 0 10px}.daily-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.daily-item{text-align:center;background:#f5f7f9;border-radius:8px;padding:8px 2px;font-size:12px}.daily-item strong{display:block;font-size:17px;margin-top:5px}.daily-item small{font-size:10px;color:#687386}.stat-caption{font-size:11px;line-height:1.6;color:#666;margin:10px 0 0}.statusline{font-size:12px;color:#687386;margin:10px 0}@media(max-width:390px){.daily-list{gap:3px}.daily-item{font-size:10px;padding:7px 1px}.daily-item strong{font-size:15px}}.admin-tool{margin-top:22px;padding-top:18px;border-top:1px solid #ececec}.secondary{background:#687386}.reset-note{margin:4px 0 10px;line-height:1.6}a{color:#b72129}</style></head><body><div class="wrap"><h1>九十刻度 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><button id="signIn">登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九十刻度 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}.stat.primary{grid-column:1/-1;background:#172031;color:#fff;padding:20px}.stat.primary b{font-size:44px;color:#fff}.stat.primary small{font-size:12px;color:#c5d1e1;display:block;margin-top:4px}.section-title{font-size:16px;margin:18px 0 10px}.daily-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.daily-item{text-align:center;background:#f5f7f9;border-radius:8px;padding:8px 2px;font-size:12px}.daily-item strong{display:block;font-size:17px;margin-top:5px}.daily-item small{font-size:10px;color:#687386}.stat-caption{font-size:11px;line-height:1.6;color:#666;margin:10px 0 0}.statusline{font-size:12px;color:#687386;margin:10px 0}@media(max-width:390px){.daily-list{gap:3px}.daily-item{font-size:10px;padding:7px 1px}.daily-item strong{font-size:15px}}.admin-tool{margin-top:22px;padding-top:18px;border-top:1px solid #ececec}.secondary{background:#687386}.reset-note{margin:4px 0 10px;line-height:1.6}.final-intel-results{margin-top:16px}.final-intel-row{background:#f8fafc;border:1px solid #e7ebf0;border-radius:12px;padding:14px;margin:12px 0}.final-intel-row h4{font-size:15px;margin:0 0 8px}.final-intel-row p{line-height:1.55;margin:8px 0}.final-intel-row details{border-top:1px solid #e0e5eb;padding-top:9px;margin-top:9px}.final-intel-row summary{font-size:13px;cursor:pointer;color:#394d68}.final-intel-pick{display:inline-block;font-weight:800;padding:8px 12px;border-radius:9px;background:#e6f4ea;color:#1d6338}.final-intel-pick.pass{background:#fff0e0;color:#8c5713}.final-intel-pick.single{background:#e6f4ea;color:#1d6338}a{color:#b72129}</style></head><body><div class="wrap"><h1>九十刻度 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><button id="signIn">登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden>
 <h2>注册人数概览</h2>
 <div class="grid">
 <div class="stat primary">累计注册账号<b id="total">—</b><small>Supabase 真实账号数 · 非访问次数</small></div>
@@ -22,6 +22,14 @@
 <button id="toggleResetPassword" class="secondary" type="button">显示密码</button>
 <button id="resetUserPassword" type="button">确认重置密码</button>
 <p id="resetMsg" class="muted"></p>
+</div>
+<div class="admin-tool" id="finalIntelArea">
+<h3 class="section-title">最终识别 · 管理员影子测试</h3>
+<p class="muted reset-note">独立于客户首页。仅手动点击才会请求联合识别结果，每场最多展示一个方向或PASS；当前让球与胜平负横向校准仍在测试中，不影响正式预测。</p>
+<label class="muted" for="finalIntelDate">竞彩日期（北京时间）</label>
+<input id="finalIntelDate" type="date" aria-label="最终识别竞彩日期">
+<button type="button" id="finalIntelOpen">查看最终识别</button>
+<div id="finalIntelOutput" class="final-intel-results" hidden></div>
 </div>
 <p class="statusline" id="updated">等待更新…</p>
 <button id="refresh">刷新统计</button><button id="logout">退出</button>
@@ -136,9 +144,34 @@ $("signIn").onclick=async()=>{
  }catch(e){token=null;$("msg").textContent=showError(e.message)}
  finally{btn.disabled=false}
 };
+let finalIntelScript=null;
+const beijingDate=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).replace(/\\//g,"-");
+$("finalIntelDate").value=beijingDate();
+$("finalIntelOpen").onclick=async()=>{
+ if(!token||$("dashboard").hidden)return;
+ const button=$("finalIntelOpen"),holder=$("finalIntelOutput"),authorizedToken=token;
+ holder.hidden=false;button.disabled=true;
+ try{
+  if(!finalIntelScript){
+   finalIntelScript=new Promise((resolve,reject)=>{
+    const script=document.createElement("script");
+    script.src="./assets/admin-final-stats-v1.js?v=20261008-adminstats-lazy-v1";
+    script.onload=()=>resolve();script.onerror=()=>reject(Error("管理员联合识别脚本加载失败"));
+    document.head.append(script);
+   }).catch(e=>{finalIntelScript=null;throw e});
+  }
+  await finalIntelScript;
+  if(!token||token!==authorizedToken||$("dashboard").hidden)return;
+  await window.haoAdminFinalRender({
+   holder,token:authorizedToken,date:$("finalIntelDate").value,
+   isAuthorized:()=>token===authorizedToken&&!$("dashboard").hidden
+  });
+ }catch(e){if(token===authorizedToken){holder.replaceChildren();const p=document.createElement("p");p.className="muted";p.textContent=e.message||"暂时无法打开最终识别";holder.append(p)}}
+ finally{button.disabled=false}
+};
 $("refresh").onclick=async()=>{try{await refresh()}catch(e){alert(e.message)}};
 $("logout").onclick=()=>{
- token=null;$("dashboard").hidden=true;$("login").hidden=false;$("resetPassword").value="";$("resetPassword2").value="";$("resetMsg").textContent="";$("msg").textContent="已退出当前管理员统计页面";
+ token=null;$("dashboard").hidden=true;$("login").hidden=false;$("resetPassword").value="";$("resetPassword2").value="";$("resetMsg").textContent="";$("finalIntelOutput").hidden=true;$("finalIntelOutput").replaceChildren();$("msg").textContent="已退出当前管理员统计页面";
 };
 (async()=>{
  const current=getSharedSession();
