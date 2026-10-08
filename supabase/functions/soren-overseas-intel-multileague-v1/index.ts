@@ -173,13 +173,15 @@ const RSS_CATALOG:Record<string,{name:string,url:string,locale:string}> = {
   espn:{name:"ESPN Soccer",url:"https://www.espn.com/espn/rss/soccer/news",locale:"international"},
   japan:{name:"Soccer King",url:"https://www.soccer-king.jp/feed",locale:"japan"},
   korea:{name:"Footballist",url:"https://www.footballist.co.kr/rss/allArticle.xml",locale:"korea"},
-  dutch:{name:"Voetbal International",url:"https://www.vi.nl/rss",locale:"netherlands"}
+  dutch:{name:"Voetbal International",url:"https://www.vi.nl/rss",locale:"netherlands"},
+  finland:{name:"SuomiFutis",url:"https://www.suomifutis.com/feed/",locale:"finland"}
 };
 function feedKeysForLeague(v:unknown):string[]{
   const league=String(v??"");
   if(/日职|日联|天皇杯|日本|亚运/.test(league))return ["japan","espn"];
   if(/韩|韩国|K联|K2/.test(league))return ["korea","espn"];
   if(/荷/.test(league))return ["dutch","espn"];
+  if(/芬/.test(league))return ["finland","espn"];
   if(/巴甲|巴乙|巴西/.test(league))return ["espn"];
   return ["espn","bbc"];
 }
@@ -270,7 +272,7 @@ Deno.serve(async(req:Request)=>{
       // All valid non-World-Cup JCZQ leagues enter the same bounded queue.
       const kick=Date.parse(String(m.kickoff_at)),mins=(kick-nowMs)/60_000;
       const last=Date.parse(lastByMatch[String(m.id)]??"");
-      return mins>0&&(!Number.isFinite(last)||(nowMs-last)>=dueMs(mins));
+      return mins>0&&(body?.force_rescan===true||!Number.isFinite(last)||(nowMs-last)>=dueMs(mins));
     }).slice(0,maxMatches);
 
     if(!due.length)return Response.json({
