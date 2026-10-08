@@ -63,7 +63,7 @@ Deno.serve(async(req)=>{
     const ids=pool.map((m:any)=>Number(m.id));
     // Four bounded reads; never call collectors or recalculate the mother model.
     const [pr,ir,mr,wr]=await Promise.all([
-      db.from("soren_predictions").select("match_id,ft_top1,ft_second,confidence,dq,recommendation_action,handicap_pick,frozen_at,created_at")
+      db.from("soren_predictions").select("match_id,ft_top1,ft_second,confidence,dq,recommendation_action,handicap_pick,source_snapshot,frozen_at,created_at")
         .in("match_id",ids).order("frozen_at",{ascending:false}).limit(300),
       db.from("soren_intelligence_reports_v1")
         .select("match_id,source_code,source_url,headline,published_at,fetched_at,quality,highlights")
@@ -134,11 +134,25 @@ Deno.serve(async(req)=>{
         status="市场单线支持";description="威廉赔率走势支持Top1，但海外可靠事实消息不足，无法称为多方共识。";
       }
       if(!pred){status="待确认";description="当前未取得合法赛前正式预测，不能生成识别方向。";}
+      const hcSnap=pred?.source_snapshot&&typeof pred.source_snapshot==="object"?pred.source_snapshot:{};
+      const hcProb=Number(hcSnap.handicapProbability),hcAt=hcSnap.handicapFrozenAt??null;
+      const handicap={
+        pick:text(hcSnap.handicapTop1??pred?.handicap_pick??""),
+        officialLine:hcSnap.officialHandicap??null,
+        probability:Number.isFinite(hcProb)&&hcProb>0&&hcProb<=100?hcProb:null,
+        sourceKind:text(hcSnap.handicapSourceKind)||"未确认",
+        qualityEligible:hcSnap.handicapQualityEligible===true||hcSnap.handicapQualityEligible==="true",
+        frozenAt:hcAt,
+        originalVerified:text(hcSnap.handicapSourceKind)==="ORIGINAL_PREMATCH"
+          &&validBefore(hcAt,deadline,now),
+        risk:hcSnap.risk&&typeof hcSnap.risk==="object"
+          ?{hur:text(hcSnap.risk.hur),dtr:text(hcSnap.risk.dtr),dlr:text(hcSnap.risk.dlr),dq:text(hcSnap.risk.dq)}:null
+      };
       return {
         no:m.match_no,league:m.league,home:m.home_team,away:m.away_team,kickoff:m.kickoff_at,
         top1:pred?dirLabel(pred.ft_top1):"未确认",
         second:pred?dirLabel(pred.ft_second):"未确认",
-        confidence:pred?.confidence??null,action:pred?.recommendation_action??null,
+        confidence:pred?.confidence??null,dq:pred?.dq??"未确认",action:pred?.recommendation_action??null,handicap,
         status,description,lean:lean||"未确认",
         market:{direction:market,initial:initial?{home:initial.home_value,draw:initial.draw_value,away:initial.away_value,at:initial.captured_at}:null,
           current:current?{home:current.home_value,draw:current.draw_value,away:current.away_value,at:current.captured_at}:null},
