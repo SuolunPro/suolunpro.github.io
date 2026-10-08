@@ -3871,16 +3871,34 @@
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'){const target=state.baseDate||beijingToday();if(state.selectedDate!==target){selectDate(target);return}}if(state.tab==='memberzone'&&memberInfo?.vipActive===true&&!state.memberZoneLoading){const d=memberZoneDate();if(!state.memberZone||state.memberZone.date!==d){loadMemberZone();return}}render()});
     $('back').onclick=closeDetail;
+    // Bounded recovery for Wi-Fi routes which transiently fail to reach Auth.
+    // Do not poll while the page is in the background or without a saved session.
+    let authGateRecoverTimer=null;
     function showAuthRetry(message,working=false){
+      if(authGateRecoverTimer){clearTimeout(authGateRecoverTimer);authGateRecoverTimer=null}
       document.querySelector('.app').style.display='none';document.querySelector('.bottom').style.display='none';
       const gate=document.getElementById('loginGate')||document.createElement('div');
       gate.id='loginGate';gate.className='account-panel auth-retry';
-      gate.replaceChildren(el('h2','','九十刻度'),el('p','',message||'正在核验登录状态，请检查网络后重试'));
+      const transient=message==='网络连接有波动，请点击重新连接。';
+      gate.dataset.autoRecover=transient?'1':'0';
+      gate.replaceChildren(el('h2','','九十刻度'),el('p','',
+        transient?'网络连接有波动，正在尝试自动恢复，也可以点击重新连接。':message||'正在核验登录状态，请检查网络后重试'));
       if(!working){
         const retry=el('button','','重新连接');
         // Re-check the retained session in place; do not reload or discard member credentials.
-        retry.onclick=()=>{retry.disabled=true;retry.textContent='正在重试…';beginAuthenticatedApp()};
+        retry.onclick=()=>{if(authGateRecoverTimer)clearTimeout(authGateRecoverTimer);authGateRecoverTimer=null;retry.disabled=true;retry.textContent='正在重试…';beginAuthenticatedApp()};
         gate.append(retry);
+        // The existing boot already retries membership requests. Only two
+        // delayed recovery attempts follow, so a bad Wi-Fi route cannot cause
+        // unbounded requests or slow down the rest of the site.
+        if(transient&&authSession?.access_token&&authBootRetryCount<=2){
+          const delay=authBootRetryCount===1?10000:30000;
+          authGateRecoverTimer=setTimeout(()=>{
+            authGateRecoverTimer=null;
+            if(!document.hidden&&gate.isConnected&&gate.dataset.autoRecover==='1'&&authSession?.access_token)
+              beginAuthenticatedApp();
+          },delay);
+        }
       }
       if(!gate.isConnected)document.body.append(gate);
     }
@@ -3991,7 +4009,11 @@
         smartPublishedRefresh().catch(e=>console.warn('前台恢复同步暂不可用',e));
       }
     });
-    window.addEventListener('online',()=>{if(document.getElementById('loginGate')&&authSession?.access_token)beginAuthenticatedApp()});
+    window.addEventListener('online',()=>{if(document.getElementById('loginGate')?.dataset?.autoRecover==='1'&&authSession?.access_token)beginAuthenticatedApp()});
+    document.addEventListener('visibilitychange',()=>{
+      if(!document.hidden&&document.getElementById('loginGate')?.dataset?.autoRecover==='1'&&authSession?.access_token)
+        beginAuthenticatedApp();
+    });
     schedulePublishedRefresh();
     async function refreshPublishedData(){
       if((state.tab==='memberzone'||(state.tab==='home'&&state.model==='cold'))&&memberInfo?.vipActive===true){
