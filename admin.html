@@ -145,7 +145,7 @@ $("signIn").onclick=async()=>{
  finally{btn.disabled=false}
 };
 let finalIntelScript=null;
-const beijingDate=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).replace(/\\//g,"-");
+const beijingDate=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).split("/").join("-");
 $("finalIntelDate").value=beijingDate();
 $("finalIntelOpen").onclick=async()=>{
  if(!token||$("dashboard").hidden)return;
