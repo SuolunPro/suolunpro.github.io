@@ -3328,21 +3328,67 @@
       }
     }
     const adminOverseasIntelCache=new Map();
-    function renderAdminOverseasIntel(holder,data){
+    function renderAdminOverseasIntel(holder,data,row){
+      // Read-only, administrator-side shadow assessment. No model change,
+      // no artificial win probabilities and no results-dependent inputs.
+      const items=Array.isArray(data?.items)?data.items:[];
+      const league=String(data?.match?.league??row?.league??'');
+      const top1=String(row?.ftTop1??row?.ft_top1??'');
+      const evidence={主队:0,客队:0},domains=new Set(),notes=[];
+      const uniqueStories=new Set();
+      for(const item of items){
+        const storyKey=String(item?.sourceUrl??item?.headline??'');
+        if(uniqueStories.has(storyKey))continue;
+        uniqueStories.add(storyKey);
+        domains.add(String(item?.originDomain||item?.sourceName||item?.sourceCode||'未标明来源'));
+        const side=String(item?.benefitSide??'');
+        if(side==='主队'||side==='客队')evidence[side]++;
+        const tags=Array.isArray(item?.categories)?item.categories:[];
+        const main=tags.find(x=>x?.level==='高'&&x?.summary&&x?.impact!=='待确认');
+        if(main&&notes.length<3)notes.push(String(main?.side??'')+String(main?.type??'情报')+'：'+String(main.summary).slice(0,95));
+      }
+      const direction=evidence.主队>0&&evidence.客队>0
+        ?'双方均有利好/利空，尚无单边一致方向'
+        :evidence.主队>0?'情报偏向主队受益'
+        :evidence.客队>0?'情报偏向客队受益'
+        :'未形成明确单边情报倾向';
+      const leaning=evidence.主队>0&&evidence.客队===0?'主队'
+        :evidence.客队>0&&evidence.主队===0?'客队':null;
+      const base=top1==='主胜'?'主队':top1==='客胜'?'客队':null;
+      const aligned=leaning&&base
+        ?(leaning===base?'与九十刻度Top1同向，但不得据此提高正式信心'
+           :'与九十刻度Top1存在反向证据，建议管理员复核市场与首发')
+        :top1==='平'?'模型Top1为平局，新闻不能直接验证平局概率'
+        :top1?'与九十刻度Top1（'+top1+'）对照：情报暂无明确单边方向'
+        :'九十刻度Top1暂未确认，不得判断同向或背离';
       const panel=reportSection('海外情报雷达');
       panel.classList.add('admin-intel-card');
       const title=panel.querySelector('h2,h3');
       if(title)title.append(el('span','admin-intel-badge','管理员'));
       const health=data?.health??null;
-      const status=health?.status==='ok'?'巴西资讯专线正常':health?.status==='partial'?'巴西专线部分源异常':health?.status==='testing'?'巴西专线测试中':'巴西专线状态待确认';
+      const status=health?.status==='ok'?'海外后台轮巡正常':health?.status==='partial'?'部分海外源异常':health?.status==='testing'?'海外源测试中':'海外状态待确认';
       const head=el('div','admin-intel-status');
       head.append(el('strong','','竞彩全池海外情报 · 管理员'));
       head.append(el('span','','跨联赛后台轮巡已启用，只有合格报道才会展示'));
       if(health?.lastAttemptAt)head.append(el('span','',status+' · '+fmtStamp(health.lastAttemptAt)));
       panel.append(head);
-      const items=Array.isArray(data?.items)?data.items:[];
+      const scan=String(health?.scanStatus??'NOT_SCANNED');
+      if(items.length){
+        const brief=el('article','admin-intel-item');
+        brief.append(el('strong','','影子分析结论（'+(league||'赛事')+'）'));
+        brief.append(el('p','report-sub','有效海外报道 '+items.length+' 条 · 来源 '+domains.size+' 个 · '+direction));
+        brief.append(el('p','report-sub',aligned));
+        if(notes.length)brief.append(el('p','report-sub','关键事实：'+notes.join('；')));
+        brief.append(el('p','report-sub','仅管理员研究用；只提供复核信号，不直接改变胜平负、冷门预警或让球方向。'));
+        panel.append(brief);
+      }
       if(!items.length){
-        panel.append(el('div','admin-intel-empty','本场暂未发现符合赛前时效和硬情报条件的海外报道。后台会按竞彩全池分批检索；信息不足时不编造。'));
+        const emptyText=scan==='NO_HARD_NEWS'
+          ?'本场已自动检索，暂无通过硬情报门槛的报道。'
+          :scan==='FEED_UNAVAILABLE'
+            ?'本场海外媒体源暂时异常，后台会继续重试。'
+            :'本场暂未形成有效海外报道；若未完成扫描，后台将排队检索。';
+        panel.append(el('div','admin-intel-empty',emptyText));
         holder.replaceChildren(panel);return;
       }
       const list=el('div','admin-intel-list');
@@ -3351,7 +3397,11 @@
         const top=el('div','admin-intel-item-head');
         const direction=item?.benefitSide&&item.benefitSide!=='不明确'?String(item.benefitSide)+'受益':'方向待确认';
         top.append(el('strong','',direction),el('span','',String(item?.sourceName||item?.originDomain||'海外当地媒体')));
+        const grade=item?.sourceGrade?(' · 来源'+String(item.sourceGrade)+'级'):'';
+        top.append(el('span','',grade));
         card.append(top,el('div','admin-intel-title',String(item?.headline||'海外赛前情报')));
+        if(item?.summaryZh)card.append(el('p','report-sub','中文要点：'+String(item.summaryZh)));
+        else card.append(el('p','report-sub','仅有原文标题/分类，暂未核验完整中文摘要，不作详细推断。'));
         const cats=Array.isArray(item?.categories)?item.categories:[];
         if(cats.length){
           const tags=el('div','admin-intel-tags');
@@ -3388,7 +3438,7 @@
         waiting.querySelector('.report-loading').textContent='比赛标识未确认，暂无法读取海外情报。';return;
       }
       const key=date+'|'+no,cached=adminOverseasIntelCache.get(key);
-      if(cached&&Date.now()-cached.at<120000){renderAdminOverseasIntel(holder,cached.data);return}
+      if(cached&&Date.now()-cached.at<120000){renderAdminOverseasIntel(holder,cached.data,row);return}
       try{
         const qs=new URLSearchParams({view:'admin-overseas-intel',date,no});
         const res=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:timeoutSignal(12000)});
@@ -3397,7 +3447,7 @@
         if(state.selected!==row||!holder.isConnected)return;
         adminOverseasIntelCache.set(key,{at:Date.now(),data});
         while(adminOverseasIntelCache.size>20)adminOverseasIntelCache.delete(adminOverseasIntelCache.keys().next().value);
-        renderAdminOverseasIntel(holder,data);
+        renderAdminOverseasIntel(holder,data,row);
       }catch(error){
         if(state.selected!==row||!holder.isConnected)return;
         const panel=reportSection('海外情报雷达');

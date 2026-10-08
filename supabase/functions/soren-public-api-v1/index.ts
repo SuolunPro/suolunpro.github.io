@@ -4123,7 +4123,7 @@ Deno.serve(async (req: Request) => {
             .order("published_at",{ascending:false}).limit(20),
           db.from("soren_source_health")
             .select("source_code,status,pool_date,captured,verified,last_attempt_at,last_success_at,last_error,details,updated_at")
-            .eq("source_code","overseas_direct_shadow_v1").maybeSingle()
+            .eq("source_code","overseas_multileague_shadow_v1").maybeSingle()
         ]);
         if(intelRowsError)throw intelRowsError;
         if(intelHealthError)console.error("ADMIN_OVERSEAS_HEALTH_UNAVAILABLE",intelHealthError);
@@ -4140,6 +4140,8 @@ Deno.serve(async (req: Request) => {
             headline:String(x.headline??"").slice(0,300),
             publishedAt:x.published_at??null,fetchedAt:x.fetched_at??null,
             quality:String(x.quality??""),benefitSide:String(hi.benefit_side??"不明确"),
+            summaryZh:String(hi.summary_zh??"").slice(0,700),
+            sourceGrade:String(hi.source_grade??"").slice(0,16),
             sourceCountry:String(hi.sourceCountry??""),sourceName:String(hi.sourceName??""),
             originDomain:String(hi.originDomain??""),categories
           };
@@ -4151,6 +4153,8 @@ Deno.serve(async (req: Request) => {
           lastError:(intelHealth as any).last_error??null,
           supported:Array.isArray((intelHealth as any)?.details?.supported)?(intelHealth as any).details.supported:[],
           feed:String((intelHealth as any)?.details?.feed??""),
+          scanStatus:String((intelHealth as any)?.details?.scan_by_match?.[intelDate+"|"+intelNo]?.status??"NOT_SCANNED"),
+          scanAt:(intelHealth as any)?.details?.scan_by_match?.[intelDate+"|"+intelNo]?.scannedAt??null,
           updatedAt:(intelHealth as any).updated_at??null
         }:null;
         return reply({ok:true,match:{
