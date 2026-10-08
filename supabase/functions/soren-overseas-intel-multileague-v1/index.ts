@@ -174,7 +174,6 @@ const RSS_CATALOG:Record<string,{name:string,url:string,locale:string}> = {
   japan:{name:"Soccer King",url:"https://www.soccer-king.jp/feed",locale:"japan"},
   korea:{name:"Footballist",url:"https://www.footballist.co.kr/rss/allArticle.xml",locale:"korea"},
   dutch:{name:"Voetbal International",url:"https://www.vi.nl/rss",locale:"netherlands"},
-  finland:{name:"SuomiFutis",url:"https://www.suomifutis.com/feed/",locale:"finland"},
   finland2:{name:"Ilta-Sanomat Sport",url:"https://www.is.fi/rss/urheilu.xml",locale:"finland"},
   finland3:{name:"Iltalehti Sport",url:"https://www.iltalehti.fi/rss/urheilu.xml",locale:"finland"}
 };
@@ -183,7 +182,7 @@ function feedKeysForLeague(v:unknown):string[]{
   if(/日职|日联|天皇杯|日本|亚运/.test(league))return ["japan","espn"];
   if(/韩|韩国|K联|K2/.test(league))return ["korea","espn"];
   if(/荷/.test(league))return ["dutch","espn"];
-  if(/芬/.test(league))return ["finland","finland2","finland3","espn"];
+  if(/芬/.test(league))return ["finland2","finland3","espn"];
   if(/巴甲|巴乙|巴西/.test(league))return ["espn"];
   return ["espn","bbc"];
 }
