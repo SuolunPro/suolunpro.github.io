@@ -23,8 +23,17 @@
 <button id="resetUserPassword" type="button">确认重置密码</button>
 <p id="resetMsg" class="muted"></p>
 </div>
+<div class="admin-tool" id="gptFinalArea">
+<h3 class="section-title">GPT 最终结论 · 管理员专用</h3>
+<p class="muted reset-note">预留GPT自动分析结果展示：单选优先、允许任意两种胜平负/让球方向组合，最多两项。只读取后台已写入的赛前结论，不在打开页面时调用GPT，也不触碰客户首页。</p>
+<p id="gptFinalSetup" class="statusline">当前状态：结果库已准备；自动生成尚未启用（待配置OpenAI API与后台调度）。</p>
+<label class="muted" for="gptFinalDate">竞彩日期（北京时间）</label>
+<input id="gptFinalDate" type="date" aria-label="GPT最终结论竞彩日期">
+<button type="button" id="gptFinalOpen">读取GPT最终结论</button>
+<div id="gptFinalOutput" class="final-intel-results" hidden aria-live="polite"></div>
+</div>
 <div class="admin-tool" id="finalIntelArea">
-<h3 class="section-title">最终识别 · 管理员影子测试</h3>
+<h3 class="section-title">规则联合识别 · 原有测试版</h3>
 <p class="muted reset-note">独立于客户首页。仅手动点击才会请求联合识别结果，每场最多展示一个方向或PASS；当前让球与胜平负横向校准仍在测试中，不影响正式预测。</p>
 <label class="muted" for="finalIntelDate">竞彩日期（北京时间）</label>
 <input id="finalIntelDate" type="date" aria-label="最终识别竞彩日期">
@@ -147,6 +156,65 @@ $("signIn").onclick=async()=>{
 let finalIntelScript=null;
 const beijingDate=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()).split("/").join("-");
 $("finalIntelDate").value=beijingDate();
+// A separate lightweight reader for archived GPT decisions. Never invokes a model.
+$("gptFinalDate").value=beijingDate();
+$("gptFinalOpen").onclick=async()=>{
+ if(!token||$("dashboard").hidden)return;
+ const button=$("gptFinalOpen"),holder=$("gptFinalOutput"),stamp=token;
+ const date=$("gptFinalDate").value;
+ holder.hidden=false;button.disabled=true;
+ holder.replaceChildren();
+ const status=document.createElement("p");status.className="muted";status.textContent="正在读取后台已入库的GPT赛前结论…";holder.append(status);
+ let timer=null;
+ try{
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))throw Error("请选择正确的竞彩日期");
+  const controller=new AbortController();
+  timer=setTimeout(()=>controller.abort(),9000);
+  const response=await fetch(base+"/rest/v1/rpc/soren_admin_gpt_final_read_v1",{
+   method:"POST",headers:{apikey:key,Authorization:"Bearer "+stamp,"Content-Type":"application/json"},
+   body:JSON.stringify({p_date:date}),cache:"no-store",signal:controller.signal
+  });
+  if(!response.ok)throw Error(response.status===401||response.status===403?"管理员权限或会话校验失败":"后台结论读取失败：HTTP "+response.status);
+  const data=await response.json();
+  if(!data||data.ok!==true)throw Error("后台结论尚不可用");
+  if(stamp!==token||$("dashboard").hidden)return;
+  holder.replaceChildren();
+  const rows=Array.isArray(data.rows)?data.rows:[];
+  if(rows.length===0){
+   const empty=document.createElement("p");empty.className="muted";
+   empty.textContent="该日期暂无已入库的GPT赛前结论。当前自动分析尚未启用；不会伪装成已经生成的预测。";
+   holder.append(empty);return;
+  }
+  for(const row of rows.slice(0,40)){
+   const card=document.createElement("article");card.className="final-intel-row";
+   const head=document.createElement("h4");
+   head.textContent=String(row.no||"")+" · GPT最终结论";
+   const picks=Array.isArray(row.picks)?row.picks.filter(x=>typeof x==="string").slice(0,2):[];
+   const label=document.createElement("div");
+   label.className="final-intel-pick "+(row.mode==="PASS"?"pass":"single");
+   label.textContent=row.mode==="PASS"?"PASS":picks.join(" / ")||"待确认";
+   const summary=document.createElement("p");summary.className="muted";summary.textContent=String(row.summary||"暂无分析说明").slice(0,1100);
+   const stampInfo=document.createElement("p");stampInfo.className="muted";
+   stampInfo.textContent="模型 "+String(row.model||"未确认")+" · 赛前生成 "+
+     (row.generatedAt?new Date(row.generatedAt).toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false}):"待确认")+
+     " · 数据质量 "+String(row.quality||"未确认");
+   const details=document.createElement("details");
+   const title=document.createElement("summary");title.textContent="查看支持/反对依据与证据来源";
+   const body=document.createElement("pre");
+   body.style.cssText="white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.65 inherit";
+   body.textContent=JSON.stringify({rationale:row.rationale||{},sources:row.sources||[],sourceSnapshotAt:row.snapshotAt||null},null,2).slice(0,4200);
+   details.append(title,body);card.append(head,label,summary,stampInfo,details);holder.append(card);
+  }
+ }catch(e){
+  if(stamp===token&&!$("dashboard").hidden){
+   holder.replaceChildren();
+   const error=document.createElement("p");error.className="muted";
+   error.textContent="读取失败："+String(e?.name==="AbortError"?"请求超时，请稍后再试":e?.message||e);
+   holder.append(error);
+  }
+ }finally{if(timer)clearTimeout(timer);button.disabled=false}
+};
+
 $("finalIntelOpen").onclick=async()=>{
  if(!token||$("dashboard").hidden)return;
  const button=$("finalIntelOpen"),holder=$("finalIntelOutput"),authorizedToken=token;
@@ -171,7 +239,7 @@ $("finalIntelOpen").onclick=async()=>{
 };
 $("refresh").onclick=async()=>{try{await refresh()}catch(e){alert(e.message)}};
 $("logout").onclick=()=>{
- token=null;$("dashboard").hidden=true;$("login").hidden=false;$("resetPassword").value="";$("resetPassword2").value="";$("resetMsg").textContent="";$("finalIntelOutput").hidden=true;$("finalIntelOutput").replaceChildren();$("msg").textContent="已退出当前管理员统计页面";
+ token=null;$("dashboard").hidden=true;$("login").hidden=false;$("resetPassword").value="";$("resetPassword2").value="";$("resetMsg").textContent="";$("finalIntelOutput").hidden=true;$("finalIntelOutput").replaceChildren();$("gptFinalOutput").hidden=true;$("gptFinalOutput").replaceChildren();$("msg").textContent="已退出当前管理员统计页面";
 };
 (async()=>{
  const current=getSharedSession();
