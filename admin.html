@@ -32,6 +32,14 @@
 <button type="button" id="gptFinalOpen">读取GPT最终结论</button>
 <div id="gptFinalOutput" class="final-intel-results" hidden aria-live="polite"></div>
 </div>
+<div class="admin-tool" id="gptScoreArea">
+<h3 class="section-title">GPT 独立终判 · 战绩验证</h3>
+<p class="muted reset-note">只按已核验的90分钟赛果自动结算。独立v2与早期辅助试跑严格分开：累计命中率只统计停售前冻结的独立v2，旧版即使命中也不计入正式成绩。胜平负与让球按当场体彩官方让球数分别核算，双选同时显示首选与至少中一项。</p>
+<label class="muted" for="gptScoreDate">查询竞彩日期（北京时间）</label>
+<input id="gptScoreDate" type="date" aria-label="GPT战绩查询日期">
+<button type="button" id="gptScoreOpen">查看GPT战绩</button>
+<div id="gptScoreOutput" class="final-intel-results" hidden aria-live="polite"></div>
+</div>
 <div class="admin-tool" id="finalIntelArea">
 <h3 class="section-title">规则联合识别 · 原有测试版</h3>
 <p class="muted reset-note">独立于客户首页。仅手动点击才会请求联合识别结果，每场最多展示一个方向或PASS；当前让球与胜平负横向校准仍在测试中，不影响正式预测。</p>
@@ -158,6 +166,86 @@ const beijingDate=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Shanghai",
 $("finalIntelDate").value=beijingDate();
 // A separate lightweight reader for archived GPT decisions. Never invokes a model.
 $("gptFinalDate").value=beijingDate();
+// Scoreboard reads stored results through a standalone admin-only RPC. Never computes on client data.
+$("gptScoreDate").value=beijingDate();
+$("gptScoreOpen").onclick=async()=>{
+ if(!token||$("dashboard").hidden)return;
+ const button=$("gptScoreOpen"),holder=$("gptScoreOutput"),stamp=token;
+ const date=$("gptScoreDate").value;
+ button.disabled=true;holder.hidden=false;holder.replaceChildren();
+ const p=document.createElement("p");p.className="muted";p.textContent="正在核验GPT赛前冻结记录与已验证的90分钟赛果…";holder.append(p);
+ try{
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))throw Error("请选择正确的竞彩日期");
+  const r=await fetch(base+"/rest/v1/rpc/soren_admin_gpt_scorecard_v1",{
+   method:"POST",
+   headers:{apikey:key,Authorization:"Bearer "+stamp,"Content-Type":"application/json"},
+   body:JSON.stringify({p_date:date}),cache:"no-store",signal:AbortSignal.timeout(11000)
+  });
+  if(!r.ok)throw Error(r.status===401||r.status===403?"管理员登录状态或权限校验失败":"战绩读取失败：HTTP "+r.status);
+  const data=await r.json();
+  if(!data?.ok)throw Error("结算信息格式异常");
+  if(stamp!==token||$("dashboard").hidden)return;
+  holder.replaceChildren();
+  const add=(tag,content,cls,container=holder)=>{
+   const el=document.createElement(tag);
+   if(cls)el.className=cls;
+   el.textContent=String(content);
+   container.append(el);return el;
+  };
+  const count=(n)=>Number(n||0);
+  const ratio=(hit,settled)=>count(settled)?count(hit)+"/"+count(settled)+"（"+(count(hit)*100/count(settled)).toFixed(1)+"%）":"—（暂无已结算样本）";
+  const showStats=(title,s)=>{
+   const box=document.createElement("div");box.className="final-intel-row";holder.append(box);
+   add("h4",title,"",box);
+   add("p","合格独立v2："+count(s?.records)+" 场　单选："+count(s?.single_count)+"　双选："+count(s?.double_count)+"　PASS："+count(s?.pass_count),"",box);
+   add("p","已核验："+count(s?.settled)+"　待核验："+count(s?.pending)+"　赛果冲突："+count(s?.conflicts),"",box);
+   add("p","单选命中："+ratio(s?.single_hit,s?.single_settled),"",box);
+   add("p","双选至少中一项："+ratio(s?.double_hit,s?.double_settled),"",box);
+   add("p","GPT首选命中："+ratio(s?.first_hit,s?.settled),"",box);
+   const mother=count(s?.mother_compared);
+   add("p",mother?"对比母模型：共同有效样本"+mother+"，原Top1中"+count(s?.mother_hit)+"；GPT改对"+count(s?.gpt_improved)+" / 改错"+count(s?.gpt_worsened):"母模型可比样本：尚无（不强行计算改对/改错）","muted",box);
+  };
+  showStats("近90天 · 独立v2累计战绩",data.overall90d||{});
+  showStats(date+" · 当日独立v2战绩",data.daily||{});
+  add("p","说明：只有严格独立v2、真实停售边界内的赛前记录和已核验比分才进入命中率。当前未取得逐场官方停售时间时，审慎采用北京时间21:30作为临时最晚界限（遇更早真实停售应进一步收紧）。双选覆盖率不等于单注命中率；跨市场方向可同时成立。","muted");
+  const rows=Array.isArray(data.rows)?data.rows:[];
+  if(!rows.length){add("p","该日期尚无可展示的GPT历史赛前记录。","muted");return}
+  add("h4","逐场结算明细");
+  for(const row of rows.slice(0,50)){
+   const box=document.createElement("article");box.className="final-intel-row";holder.append(box);
+   add("h4",String(row.no||"")+"　"+String(row.home||"")+" VS "+String(row.away||""),"",box);
+   const independent=row.eligible===true;
+   add("p",independent?"✅ GPT独立终判v2 · 计入合格样本":"⚠️ 辅助试跑或超过业务截止 · 不计正式战绩","muted",box);
+   add("div",row.mode==="PASS"?"PASS":(Array.isArray(row.picks)?row.picks.join(" / "):"待确认"),"final-intel-pick",box);
+   const state=row.settlement;
+   let report="等待官方赛果核验";
+   if(state==="CONFLICT")report="赛果冲突，暂停结算";
+   if(state==="SETTLED"){
+     const trialPrefix=independent?"":"仅供试跑对照｜";
+     report=trialPrefix+String(row.score||"—")+"（胜平负："+String(row.ft||"未知")+
+       "，官方让球"+(row.handicap===null?"未确认":String(row.handicap))+
+       "："+String(row.handicapResult||"未知")+"）"+
+       (row.mode==="PASS"?"｜PASS不计命中":row.anyHit===true?"｜至少一项命中":"｜均未命中")+
+       (row.mode==="DOUBLE"?(row.firstHit===true?"｜首选命中":"｜首选未中"):"");
+   }
+   add("p",report,independent&&row.anyHit===true&&state==="SETTLED"?"":"muted",box);
+   add("p","记录："+(row.generatedAt?new Date(row.generatedAt).toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false}):"—")+
+      "　赛果来源："+String(row.source||"待核验"),"muted",box);
+   if(independent&&row.motherTop1){
+      add("p","同截止口径母模型Top1："+row.motherTop1+
+        (state==="SETTLED"?(row.motherHit===true?"（命中）":"（未中）"):""),"muted",box);
+   }
+  }
+ }catch(e){
+  if(stamp===token&&!$("dashboard").hidden){
+   holder.replaceChildren();
+   const p=document.createElement("p");p.className="muted";
+   p.textContent="读取战绩失败："+(e?.name==="TimeoutError"?"查询超时":String(e?.message||e));
+   holder.append(p);
+  }
+ }finally{button.disabled=false}
+};
+
 $("gptFinalOpen").onclick=async()=>{
  if(!token||$("dashboard").hidden)return;
  const button=$("gptFinalOpen"),holder=$("gptFinalOutput"),stamp=token;
@@ -245,7 +333,7 @@ $("finalIntelOpen").onclick=async()=>{
 };
 $("refresh").onclick=async()=>{try{await refresh()}catch(e){alert(e.message)}};
 $("logout").onclick=()=>{
- token=null;$("dashboard").hidden=true;$("login").hidden=false;$("resetPassword").value="";$("resetPassword2").value="";$("resetMsg").textContent="";$("finalIntelOutput").hidden=true;$("finalIntelOutput").replaceChildren();$("gptFinalOutput").hidden=true;$("gptFinalOutput").replaceChildren();$("msg").textContent="已退出当前管理员统计页面";
+ token=null;$("dashboard").hidden=true;$("login").hidden=false;$("resetPassword").value="";$("resetPassword2").value="";$("resetMsg").textContent="";$("finalIntelOutput").hidden=true;$("finalIntelOutput").replaceChildren();$("gptFinalOutput").hidden=true;$("gptFinalOutput").replaceChildren();$("gptScoreOutput").hidden=true;$("gptScoreOutput").replaceChildren();$("msg").textContent="已退出当前管理员统计页面";
 };
 (async()=>{
  const current=getSharedSession();
