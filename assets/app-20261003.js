@@ -3334,15 +3334,15 @@
       const title=panel.querySelector('h2,h3');
       if(title)title.append(el('span','admin-intel-badge','管理员'));
       const health=data?.health??null;
-      const status=health?.status==='ok'?'运行正常':health?.status==='partial'?'部分源异常':health?.status==='testing'?'测试中':'状态待确认';
+      const status=health?.status==='ok'?'巴西资讯专线正常':health?.status==='partial'?'巴西专线部分源异常':health?.status==='testing'?'巴西专线测试中':'巴西专线状态待确认';
       const head=el('div','admin-intel-status');
-      head.append(el('strong','',status));
-      if(health?.lastAttemptAt)head.append(el('span','','最近扫描 '+fmtStamp(health.lastAttemptAt)));
-      if(Array.isArray(health?.supported)&&health.supported.length)head.append(el('span','','当前覆盖 '+health.supported.join(' / ')));
+      head.append(el('strong','','竞彩全池海外情报 · 管理员'));
+      head.append(el('span','','跨联赛后台轮巡已启用，只有合格报道才会展示'));
+      if(health?.lastAttemptAt)head.append(el('span','',status+' · '+fmtStamp(health.lastAttemptAt)));
       panel.append(head);
       const items=Array.isArray(data?.items)?data.items:[];
       if(!items.length){
-        panel.append(el('div','admin-intel-empty','目前没有通过硬情报门槛的新增海外信息。系统不会为了凑内容写入评论、转播页或泛讨论。'));
+        panel.append(el('div','admin-intel-empty','本场暂未发现符合赛前时效和硬情报条件的海外报道。后台会按竞彩全池分批检索；信息不足时不编造。'));
         holder.replaceChildren(panel);return;
       }
       const list=el('div','admin-intel-list');
