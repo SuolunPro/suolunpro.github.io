@@ -155,7 +155,7 @@ $("finalIntelOpen").onclick=async()=>{
   if(!finalIntelScript){
    finalIntelScript=new Promise((resolve,reject)=>{
     const script=document.createElement("script");
-    script.src="./assets/admin-final-stats-v1.js?v=20261008-adminstats-lazy-v1";
+    script.src="./assets/admin-final-stats-v1.js?v=20261008-adminstats-deepmarket-v2";
     script.onload=()=>resolve();script.onerror=()=>reject(Error("管理员联合识别脚本加载失败"));
     document.head.append(script);
    }).catch(e=>{finalIntelScript=null;throw e});
