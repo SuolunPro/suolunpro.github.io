@@ -24,9 +24,9 @@
 <p id="resetMsg" class="muted"></p>
 </div>
 <div class="admin-tool" id="gptFinalArea">
-<h3 class="section-title">GPT 最终结论 · 管理员专用</h3>
-<p class="muted reset-note">预留GPT自动分析结果展示：单选优先、允许任意两种胜平负/让球方向组合，最多两项。只读取后台已写入的赛前结论，不在打开页面时调用GPT，也不触碰客户首页。</p>
-<p id="gptFinalSetup" class="statusline">当前状态：结果库已准备；自动生成尚未启用（待配置OpenAI API与后台调度）。</p>
+<h3 class="section-title">GPT 独立终判 · 管理员影子测试</h3>
+<p class="muted reset-note">独立终判v2：先不看九十刻度Top1，根据真实赛前市场、国内外情报独立研判六个方向，再与母模型交叉审计。单选优先，必要时双选（最多2项），证据不足PASS。旧版辅助结果与独立版必须分开统计。只读取后台记录，不在此页面现场调用GPT。</p>
+<p id="gptFinalSetup" class="statusline">当前状态：ChatGPT定时独立分析任务已设置；是否成功生成并入库，以实际赛前记录为准。早期5条辅助试跑不属于独立研判。</p>
 <label class="muted" for="gptFinalDate">竞彩日期（北京时间）</label>
 <input id="gptFinalDate" type="date" aria-label="GPT最终结论竞彩日期">
 <button type="button" id="gptFinalOpen">读取GPT最终结论</button>
@@ -193,6 +193,12 @@ $("gptFinalOpen").onclick=async()=>{
    const label=document.createElement("div");
    label.className="final-intel-pick "+(row.mode==="PASS"?"pass":"single");
    label.textContent=row.mode==="PASS"?"PASS":picks.join(" / ")||"待确认";
+   const runVersion=String(row.version||"");
+   const independence=document.createElement("p");independence.className="muted";
+   independence.style.fontWeight="700";
+   independence.textContent=runVersion==="gpt_final_independent_v2"
+     ?"✅ GPT 独立研判 v2（先独立分析，后对照母模型）"
+     :"⚠️ 旧版辅助试跑：根据九十刻度已有方向筛选，不能作为GPT独立预测成绩";
    const summary=document.createElement("p");summary.className="muted";summary.textContent=String(row.summary||"暂无分析说明").slice(0,1100);
    const stampInfo=document.createElement("p");stampInfo.className="muted";
    stampInfo.textContent="模型 "+String(row.model||"未确认")+" · 赛前生成 "+
@@ -203,7 +209,7 @@ $("gptFinalOpen").onclick=async()=>{
    const body=document.createElement("pre");
    body.style.cssText="white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.65 inherit";
    body.textContent=JSON.stringify({rationale:row.rationale||{},sources:row.sources||[],sourceSnapshotAt:row.snapshotAt||null},null,2).slice(0,4200);
-   details.append(title,body);card.append(head,label,summary,stampInfo,details);holder.append(card);
+   details.append(title,body);card.append(head,label,independence,summary,stampInfo,details);holder.append(card);
   }
  }catch(e){
   if(stamp===token&&!$("dashboard").hidden){
