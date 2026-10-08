@@ -56,6 +56,13 @@
     open=false;requestId++;
     document.body.classList.remove("admin-final-open");
     button.classList.remove("active");
+    const previous=(typeof state!=="undefined"&&state.model)?String(state.model):"daily";
+    document.querySelectorAll(".model").forEach(x=>x.classList.toggle("active",x!==button&&x.dataset.model===previous));
+    if(typeof modelCopy!=="undefined"&&modelCopy[previous]){
+      const title=document.getElementById("modelTitle"),desc=document.getElementById("modelDesc");
+      if(title)title.textContent=modelCopy[previous][0];
+      if(desc)desc.textContent=modelCopy[previous][1];
+    }
     board.replaceChildren();
   }
   function show(data){
