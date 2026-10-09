@@ -54,6 +54,31 @@
       setTimeout(()=>controller.abort(),ms);
       return controller.signal;
     }
+    function authErrorMessage(path,json,status){
+      const code=String(json?.code||json?.error_code||'').toLowerCase();
+      const raw=String(json?.msg||json?.error_description||json?.message||json?.error||'').toLowerCase();
+      const has=(...terms)=>terms.some(term=>code.includes(term)||raw.includes(term));
+      if(status===429||has('over_request_rate_limit','email_rate_limit_exceeded','too many requests','rate limit')){
+        return '操作过于频繁，请稍后再试。';
+      }
+      if(path==='signup'&&has('user_already_exists','user already registered','user already exists')){
+        return '该邮箱已注册，请点击「已有账号 · 登录」；忘记密码可使用下方「忘记密码」。';
+      }
+      if(path==='token?grant_type=password'){
+        if(has('email_not_confirmed','email not confirmed'))return '邮箱尚未验证，请先检查邮箱中的验证邮件。';
+        if(has('invalid_credentials','invalid login credentials','invalid grant','email or password')){
+          return '邮箱或密码不正确，请检查后重试；忘记密码可使用下方「忘记密码」。';
+        }
+      }
+      if(path==='signup'&&has('weak_password','password too weak','password should be at least')){
+        return '密码强度不足，请使用至少6位且更复杂的密码。';
+      }
+      if(status>=500)return '认证服务暂时繁忙，请稍后重试。';
+      if(path==='signup')return '注册失败，请检查邮箱及密码后重试。';
+      if(path==='recover')return '密码重置申请失败，请稍后重试。';
+      if(path==='token?grant_type=password')return '登录失败，请检查输入信息后重试。';
+      return '身份验证暂时失败，请稍后重试。';
+    }
     async function authRequest(path,body){
       // Supabase Auth uses redirect_to to route email confirmations back to this website.
       const redirectUrl=location.origin+location.pathname;
@@ -83,7 +108,7 @@
       }
       let json={};
       try{json=await res.json()}catch(_){}
-      if(!res.ok){const err=Error(json.msg||json.error_description||json.message||'请求失败');err.status=res.status;throw err}
+      if(!res.ok){const err=Error(authErrorMessage(path,json,res.status));err.status=res.status;err.code=json.code||json.error_code||'';throw err}
       return json;
     }
     async function refreshAuthSession(force=false){
@@ -1234,6 +1259,9 @@
       const privacy=document.createElement('a');privacy.href='./legal.html#privacy';privacy.target='_blank';privacy.rel='noopener';privacy.textContent='《隐私政策》';
       legalText.append(terms,document.createTextNode(' 和 '),privacy);legalLabel.append(legal,legalText);
       gate.append(email,passwordInput(pass),rememberLabel,legalLabel,captchaLabel,captchaBox,msg);
+      msg.setAttribute('role','status');
+      msg.setAttribute('aria-live','polite');
+      for(const input of [email,pass])input.addEventListener('input',()=>{if(msg.textContent!=='处理中…')msg.textContent=''});
       if(message)msg.textContent=message;
       let captchaToken='',captchaWidget=null;
       // Turnstile temporarily disabled for auth network diagnosis.
@@ -1251,7 +1279,8 @@
           if(mode==='注册'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())){msg.textContent='请填写有效的邮箱地址，例如 name@example.com';return}
           if(mode==='注册'&&!legal.checked){msg.textContent='请先阅读并同意《用户服务协议》和《隐私政策》';return}
           let token;try{token=takeToken()}catch(e){msg.textContent=e.message;return}
-          btn.disabled=true;msg.textContent='处理中…';
+          const actionButtons=[...mainActions.querySelectorAll('button')];
+          actionButtons.forEach(button=>button.disabled=true);msg.textContent='处理中…';
           try{
             const data=await authRequest(mode==='注册'?'signup':'token?grant_type=password',{
               email:email.value.trim(),password:pass.value,
@@ -1259,7 +1288,7 @@
             });
             if(data.access_token&&data.user)saveSession(data);
             else msg.textContent='注册申请已提交。如未自动登录，请点击「已有账号 · 登录」；如系统提示需要邮箱验证，请检查注册邮箱。';
-          }catch(e){msg.textContent=e.message}finally{resetCaptcha();btn.disabled=false}
+          }catch(e){msg.textContent=e.message}finally{resetCaptcha();actionButtons.forEach(button=>button.disabled=false)}
         };mainActions.append(btn);
       }
       gate.append(mainActions);
