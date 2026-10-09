@@ -1309,6 +1309,7 @@
     const publicSettledAccess=row=>verified(row)&&hasScore(row);
     const fullMemberAnalysis=row=>memberInfo?.active===true||(row?publicSettledAccess(row):false);
     const vipDeepAccess=()=>memberInfo?.vipActive===true;
+    const paidHandicapAccess=()=>memberInfo?.vipActive===true;
     const ARCHIVED_FOCUS={
       '2026-09-13':['002','006','008','009','020','022','023'],
       '2026-09-14':['003','008'],
@@ -2240,6 +2241,16 @@
       ?empty('休市期间，暂无竞彩赛事','10月5日恢复开售后自动更新')
       :empty('暂无已发布赛事','当前没有符合筛选条件的赛事记录。')}
     function renderHome(){
+      // Keep live handicap picks exclusive to paid monthly VIP; free users see settled matches.
+      if(state.model==='handicap'&&!paidHandicapAccess()){
+        const finished=(state.today?.rows||[]).filter(publicSettledAccess);
+        const box=$('content');
+        box.replaceChildren(sectionHead('全场让球 · 已完赛','已核验赛果免费查看'));
+        if(finished.length)box.append(getModuleGrid(finished,false,'handicap-public-finished'));
+        else box.append(empty('暂无已结算的让球比赛','当日未结算比赛的让球预测仅尊贵月卡VIP可查看。'));
+        box.append(el('div','member-preview-lock','尊贵月卡VIP可查看未结算比赛的让球首选、次选；普通用户可查看历史及已核验赛果。'));
+        return;
+      }
       if(state.model==='cold'){
         if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
         const d=memberZoneDate();
@@ -3714,7 +3725,7 @@
       const coverage=state.model==='goals'?' · 独立正式预测 '+rows.filter(isFormalGoalPrediction).length+'场 · 泊松参考 '+rows.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null).length+'场 · 正式已评测 '+formalGoals.length+'场 · 参考已评测 '+referenceGoals.length+'场':state.model==='handicap'?' · 让球有效评测 '+evaluable.length+'/'+settled.length+'场 · 缺失 '+Math.max(0,rows.length-evaluable.length)+'场':'';
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
-    function render(){closeDetail();const coldView=state.tab==='home'&&state.model==='cold';const currentNonMember=memberInfo?.active===false&&state.tab!=='profile'&&(!state.selectedDate||state.selectedDate>=beijingToday());document.querySelector('.toolbar').hidden=state.tab==='profile'||state.tab==='memberzone'||coldView||currentNonMember;if(state.tab==='memberzone'){if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}renderMemberZone();return}if(currentNonMember){renderMemberRequired();return}if(state.tab!=='profile'&&!coldView)updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
+    function render(){closeDetail();const coldView=state.tab==='home'&&state.model==='cold';const publicHandicapView=['home','history'].includes(state.tab)&&state.model==='handicap'&&!paidHandicapAccess();const currentNonMember=memberInfo?.active===false&&state.tab!=='profile'&&!publicHandicapView&&(!state.selectedDate||state.selectedDate>=beijingToday());document.querySelector('.toolbar').hidden=state.tab==='profile'||state.tab==='memberzone'||coldView||currentNonMember;if(state.tab==='memberzone'){if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}renderMemberZone();return}if(currentNonMember){renderMemberRequired();return}if(state.tab!=='profile'&&!coldView)updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
     async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');return j}finally{}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
@@ -3819,9 +3830,10 @@
       const target=date||beijingToday();
       const cached=force?null:cachedDay(target);
       if(cached)return Promise.resolve(cached);
-      const key=target;
+      const dataView=state.model==='handicap'&&!paidHandicapAccess()&&target>=beijingToday()?'history':'archive';
+      const key=target+'|'+dataView;
       if(dayRequests.has(key))return dayRequests.get(key);
-      const request=load('archive',target).then(d=>{rememberDay(d);return d}).finally(()=>{if(dayRequests.get(key)===request)dayRequests.delete(key)});
+      const request=load(dataView,target).then(d=>{rememberDay(d);return d}).finally(()=>{if(dayRequests.get(key)===request)dayRequests.delete(key)});
       dayRequests.set(key,request);return request;
     }
     function scheduleHistoryPrefetch(){
@@ -3868,7 +3880,7 @@
       if(cached){applyDay(cached);return}
       state.selectedDate=date;buildDates();
       // Historical daily coverage is public to expired members; today's paywall remains unchanged.
-      document.querySelector('.toolbar').hidden=memberInfo?.active===false&&date>=beijingToday();
+      document.querySelector('.toolbar').hidden=memberInfo?.active===false&&date>=beijingToday()&&!(state.model==='handicap'&&!paidHandicapAccess());
       $('content').replaceChildren(empty('正在读取 '+date,'核对当日正式版本与赛前冻结记录。'));
       try{
         const d=await readDay(date);
@@ -3895,7 +3907,17 @@
       document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));
       [$('modelTitle').textContent,$('modelDesc').textContent]=modelCopy[state.model];
       if((previous==='htft')!==(next==='htft'))buildDates();
-      scheduleModuleRender(next)
+      scheduleModuleRender(next);
+      // A non-VIP can load today's verified finished matches without revealing live predictions.
+      if(next==='handicap'&&!paidHandicapAccess()&&state.selectedDate>=beijingToday()&&(!state.today||!Array.isArray(state.today.rows)||!state.today.rows.length)){
+        const target=state.selectedDate;
+        $('content').replaceChildren(empty('正在读取已结算比赛','仅显示已核验赛果。'));
+        readDay(target,true).then(d=>{
+          if(state.model==='handicap'&&state.selectedDate===target)applyDay(d);
+        }).catch(e=>{
+          if(state.model==='handicap'&&state.selectedDate===target)$('content').replaceChildren(errorBox(e));
+        });
+      }
     });
     document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;render()});
     document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.tab=b.dataset.tab;if(state.tab==='profile')feedbackMode=null;if(state.tab==='home'){const target=state.baseDate||beijingToday();if(state.selectedDate!==target){selectDate(target);return}}if(state.tab==='memberzone'&&memberInfo?.vipActive===true&&!state.memberZoneLoading){const d=memberZoneDate();if(!state.memberZone||state.memberZone.date!==d){loadMemberZone();return}}render()});
