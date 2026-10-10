@@ -997,7 +997,7 @@
           resultLine.classList.add('pending');
           resultLine.append(
             el('b','cold-card-score','—'),
-            el('span','cold-card-result-text','等待评测')
+            el('span','cold-card-result-text',(String(zoneDate)==='2026-10-10'&&String(row.no??'').padStart(3,'0')==='006')?'比赛中断｜待官方处理':'等待评测')
           );
         }
         card.append(resultLine);
@@ -1463,7 +1463,14 @@
       const away=String(row?.away??row?.awayTeam??'');
       return !verified(row)&&no==='019'&&day==='2026-09-26'&&home==='纽约红牛'&&away==='圣路易斯城';
     }
+    // 2026-10-10/006 is suspended; no final score or grading until official resolution.
+    function interruptedMatch(row){
+      const day=String(row?.date??row?.poolDate??row?.pool_date??'');
+      const no=String(row?.no??row?.matchNo??row?.match_no??'').padStart(3,'0');
+      return day==='2026-10-10'&&no==='006'&&!verified(row);
+    }
     function statusText(row,history){
+      if(interruptedMatch(row))return '比赛中断｜待官方处理';
       if(row?.analysisPending===true)return '赛前分析待发布';
       if(state.model==='htft'){
         const h=row.dynamicHTFTPending?row.htftTop4:(row.dynamicHTFT??row.htftTop4),historical=h?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION',dynamic=h?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01';
@@ -1476,7 +1483,7 @@
       if(postponedMatch(row))return '赛事延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待评测';if(state.model==='daily')return '等待评测';
       return '赛前冻结'
     }
-    function statusClass(row,history){if(postponedMatch(row))return 'status pass';if(state.model==='htft'){const h=row.dynamicHTFTPending?row.htftTop4:(row.dynamicHTFT??row.htftTop4);return 'status '+(h?.settlementStatus==='SUCCESS'?'verified':h?.settlementStatus==='FAILURE'?'fail':'');}if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':state.model==='handicap'&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
+    function statusClass(row,history){if(interruptedMatch(row))return 'status pass';if(postponedMatch(row))return 'status pass';if(state.model==='htft'){const h=row.dynamicHTFTPending?row.htftTop4:(row.dynamicHTFT??row.htftTop4);return 'status '+(h?.settlementStatus==='SUCCESS'?'verified':h?.settlementStatus==='FAILURE'?'fail':'');}if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':state.model==='handicap'&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
     function moduleData(row){
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球首选',handicapChoice(row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapChoice(row.handicapSecond,row.handicapSecondProbability)]];
       if(state.model==='wdl')return [['主胜',ftProbability(row,'H')],['平局',ftProbability(row,'D')],['客胜',ftProbability(row,'A')]];
