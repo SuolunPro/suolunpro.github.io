@@ -1776,13 +1776,83 @@
       else c.append(head,fixture,scoreTop4Panel(row));
       c.setAttribute('role','button');c.tabIndex=0;c.onclick=()=>openDetail(row,history);c.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(row,history)}};return c
     }
+
+    // Lightweight, client-side let-draw protection. No network requests and no changes
+    // to the frozen handicap Top1/Top2 or formal model settlement.
+    // Start only with kickoffs after rollout, never retroactively publish old alerts.
+    const HANDICAP_DRAW_PROTECT_START=Date.parse('2026-10-10T13:00:00Z');
+    function handicapDrawProtection(row){
+      if(row?.pregameVerified!==true||row?.analysisPending===true)return null;
+      const kickoff=Date.parse(String(row.kickoff??''));
+      const handicapAt=Date.parse(String(row.handicapFrozenAt??row.frozenAt??''));
+      if(!Number.isFinite(kickoff)||kickoff<HANDICAP_DRAW_PROTECT_START||
+         !Number.isFinite(handicapAt)||handicapAt>=kickoff)return null;
+      const first=String(row.handicapTop1??'').trim();
+      const second=String(row.handicapSecond??'').trim();
+      if(!['让胜','让负'].includes(first)||!['让胜','让平','让负'].includes(second)||first===second)return null;
+      if(row.officialHandicap===null||row.officialHandicap===undefined||row.officialHandicap==='')return null;
+      const line=Number(row.officialHandicap);
+      if(!Number.isInteger(line))return null;
+      const scores=scoreVersionInfo(row,'dynamic');
+      const goals=goalVersionInfo(row,'dynamic');
+      if(!scores||!goals||!scores.sourceLiveScoreId||
+         String(scores.sourceLiveScoreId)!==String(goals.sourceLiveScoreId)||
+         String(scores.frozenAt)!==String(goals.frozenAt)||
+         String(scores.marketAt)!==String(goals.marketAt))return null;
+      const topGoal=goalRanks(goals)[0]?.goals;
+      if(!Number.isInteger(topGoal))return null;
+      const scoreAligned=scores.picks.slice(0,3).some(p=>{
+        const home=Number(p.home),away=Number(p.away);
+        return Number.isInteger(home)&&Number.isInteger(away)&&
+          home+line===away&&home+away===topGoal;
+      });
+      const p1=Number(row.handicapProbability),p2=Number(row.handicapSecondProbability);
+      const drawProbability=100-p1-p2;
+      const deepSupplement=second!=='让平'&&Math.abs(line)>=2&&
+        row.handicapProbability!=null&&row.handicapSecondProbability!=null&&
+        Number.isFinite(p1)&&Number.isFinite(p2)&&
+        p1>=0&&p2>=0&&drawProbability>=22&&drawProbability<=100;
+      if(!((second==='让平'&&scoreAligned)||deepSupplement))return null;
+      return {first,second:'让平',updatedAt:scores.frozenAt};
+    }
+    function handicapDrawProtectionVerdict(row,advice){
+      if(!verified(row)||!hasScore(row))return null;
+      const actual=effectiveHandicapResult(row);
+      if(!actual)return null;
+      return actual==='让平'?'✅ 双选命中（让平保护）':
+        actual===advice.first?'✅ 双选命中（原方向）':'❌ 双选未中';
+    }
+    function handicapDrawProtectionPanel(row,compact=false){
+      if(!paidHandicapAccess()&&!publicSettledAccess(row))return null;
+      const advice=handicapDrawProtection(row);
+      if(!advice)return null;
+      const result=handicapDrawProtectionVerdict(row,advice);
+      const card=el('section','handicap-draw-protect'+(compact?' compact':''));
+      card.style.cssText=compact
+        ?'margin:10px 14px 2px;padding:9px 11px;border:1px solid #f1d5a9;border-radius:9px;background:#fffbf2;font-size:13px;line-height:1.6'
+        :'margin:12px 0;padding:14px;border:1px solid #ebce9a;border-radius:12px;background:#fffbf2;line-height:1.7';
+      const headline=el('strong','','🟠 让平双选保护');
+      headline.style.cssText='display:block;color:#9e5e10;font-size:14px;margin-bottom:3px';
+      const choices=el('div','','建议双选：'+advice.first+' ＋ 让平');
+      choices.style.cssText='font-weight:700;color:#3a3832';
+      const foot=el('div','',result||'综合赛前数据，建议增加让平保护。');
+      foot.style.cssText='font-size:12px;color:'+(result?(result.startsWith('✅')?'#24764a':'#af3333'):'#85735b')+';margin-top:5px';
+      card.append(headline,choices,foot);
+      if(!compact){
+        const stamped=el('small','','赛前更新：'+fmtStamp(advice.updatedAt));
+        stamped.style.cssText='display:block;color:#95816b;margin-top:4px';
+        card.append(stamped);
+      }
+      return card;
+    }
+
     function matchCard(row,history=false){
       if(state.model==='htft')return htftCard(row,history);
       if(state.model==='score')return scoreCard(row,history);
       const c=el('article','card');
       const head=el('div','card-head');
       const id=el('div','match-id');id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-      if(state.model==='daily'&&row?.analysisPending!==true){const supplementary=isSupplement(row)&&!isFocus(row);id.append(el('span','focus-label '+(supplementary?'supplement':'core'),supplementary?'精选补充':'核心优选'));}if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',String(row.handicapSourceLabel).includes('Top5新方案赛前冻结')?'赛前预测':row.handicapSourceLabel));head.append(id,el('span',statusClass(row,history),statusText(row,history)));
+      if(state.model==='daily'&&row?.analysisPending!==true){const supplementary=isSupplement(row)&&!isFocus(row);id.append(el('span','focus-label '+(supplementary?'supplement':'core'),supplementary?'精选补充':'核心优选'));}if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',String(row.handicapSourceLabel).includes('Top5新方案赛前冻结')?'赛前预测':row.handicapSourceLabel));if(state.model==='handicap'&&(paidHandicapAccess()||publicSettledAccess(row))&&handicapDrawProtection(row)){const tag=el('span','focus-label','🟠 让平保护');tag.style.cssText='background:#fff3dd;color:#9e5e10;border:1px solid #edd0a2';id.append(tag)}head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
       const settled=verified(row),outcome=safe(resultName[row.result]||row.result),score=el('div','score',settled?(hasScore(row)?scoreline(row):'比分待核验'):'VS');score.append(el('span','',settled?(hasScore(row)?outcome+' · 正式赛果':'比分待核验'):postponedMatch(row)?'赛事延期':'官方让球 '+(row.officialHandicap==null?'待确认':String(row.officialHandicap))));
@@ -1790,6 +1860,7 @@
       const analysis=el('div','analysis'),values=state.model==='goals'?[]:moduleData(row),triplet=el('div','triplet'+(values.length===2?' pair':values.length===6?' six-grid':''));
       values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d);return}const hit=directionHit(row,k,v),isHandicap=state.model==='handicap',d=el('div','datum'+(verified(row)&&!isHandicap?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));if(hit&&!isHandicap)d.append(el('span','hit-check','✓'));triplet.append(d)});
       analysis.append(triplet);
+      if(state.model==='handicap'){const drawPanel=handicapDrawProtectionPanel(row,true);if(drawPanel)analysis.append(drawPanel);}
       if(state.model==='goals')c.append(head,fixture);else c.append(head,fixture,analysis);
       // Show Poisson goals on the match list itself, immediately after the FT 1X2 block.
       if(state.model==='goals'){
@@ -3571,6 +3642,7 @@
         reportProbability(summary,'九十刻度赛前概率',['homeProbability','drawProbability','awayProbability'],row);
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub',(row.predictionView==='LATEST_PREMATCH_ONLY'?'最新赛前预测更新于 ':'赛前预测记录于 ')+fmtStamp(row.frozenAt)));
       c.append(summary);
+      if(state.model==='handicap'){const drawPanel=handicapDrawProtectionPanel(row);if(drawPanel)c.append(drawPanel);}
       let deepMarketSlot=null;
       if(memberInfo?.vipActive===true){deepMarketSlot=el('div','report-professional');c.append(deepMarketSlot);}
       else{
