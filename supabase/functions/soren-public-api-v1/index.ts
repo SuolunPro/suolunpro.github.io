@@ -44,6 +44,26 @@ function rerankFtPrediction(row:Record<string,unknown>):Record<string,unknown>{
     selectionCodes,direction,prematchRankingSource:"LATEST_VERIFIED_3_1_0_PROBABILITY",
     prematchRanking:[first.code,second.code,probabilities[2].code]};
 }
+type TeamAliasIds=Map<string,Set<number>>;
+function buildTeamAliasIds(rows:Record<string,unknown>[]):TeamAliasIds{
+  const out:TeamAliasIds=new Map();
+  for(const row of rows){
+    const name=String(row.jc_team??"");
+    const id=Number(row.fotmob_team_id);
+    if(!name||!Number.isFinite(id))continue;
+    if(!out.has(name))out.set(name,new Set());
+    out.get(name)!.add(id);
+  }
+  return out;
+}
+function sameVerifiedTeamIdentity(a:unknown,b:unknown,aliases:TeamAliasIds){
+  const left=String(a??""),right=String(b??"");
+  if(left===right)return true;
+  const leftIds=aliases.get(left),rightIds=aliases.get(right);
+  if(!leftIds||!rightIds)return false;
+  for(const id of leftIds)if(rightIds.has(id))return true;
+  return false;
+}
 function validPrematchSnapshot(snapshot:Record<string,unknown>|null|undefined,fixture:Record<string,unknown>,sourceValue:unknown,capturedValue:unknown){
   if(!snapshot||snapshot.pregameVerified!==true||hasLeakedResultFields(snapshot))return false;
   const kickoff=Date.parse(String(fixture.kickoff_at??""));
@@ -67,7 +87,37 @@ function validPrematchSnapshot(snapshot:Record<string,unknown>|null|undefined,fi
    captured before kickoff becomes immutable. Result fields are overlay-only. */
 async function applySaleFreeze(rows:Record<string,unknown>[],date:string,readOnly=false):Promise<Record<string,unknown>[]> {
   if(date<"2026-09-23")return rows; // historic data predating deployment: do not relabel as sale-verified.
-  const rankedRows=rows.map(rerankFtPrediction);
+  let rankedRows=rows.map(rerankFtPrediction);
+  const {data:fixtures,error:fixtureError}=await db.from("soren_matches")
+    .select("id,pool_date,match_no,home_team,away_team,kickoff_at").eq("pool_date",date).limit(200);
+  if(fixtureError)throw new Error("FIXTURE_FREEZE_UNAVAILABLE:"+String(fixtureError.message));
+  const fixtureByNo=new Map((fixtures??[]).map((x:Record<string,unknown>)=>[String(x.match_no??"").padStart(3,"0"),x]));
+  const identityNames=new Set<string>();
+  for(const row of rankedRows){
+    const fixture=fixtureByNo.get(String(row.no??"").padStart(3,"0"));
+    if(!fixture)continue;
+    const names=[row.home,row.away,fixture.home_team,fixture.away_team].map(x=>String(x??"")).filter(Boolean);
+    if(String(row.home??"")!==String(fixture.home_team??"")||String(row.away??"")!==String(fixture.away_team??""))
+      for(const name of names)identityNames.add(name);
+  }
+  if(identityNames.size){
+    const {data:aliasRows,error:aliasError}=await db.from("soren_team_alias_fotmob")
+      .select("jc_team,fotmob_team_id").in("jc_team",[...identityNames]);
+    if(aliasError)throw new Error("TEAM_ALIAS_READ_UNAVAILABLE:"+String(aliasError.message));
+    const aliases=buildTeamAliasIds((aliasRows??[]) as Record<string,unknown>[]);
+    rankedRows=rankedRows.map(row=>{
+      const fixture=fixtureByNo.get(String(row.no??"").padStart(3,"0"));
+      if(!fixture)return row;
+      const sourceHome=String(row.home??""),sourceAway=String(row.away??"");
+      const fixtureHome=String(fixture.home_team??""),fixtureAway=String(fixture.away_team??"");
+      if(!sameVerifiedTeamIdentity(sourceHome,fixtureHome,aliases)||
+         !sameVerifiedTeamIdentity(sourceAway,fixtureAway,aliases))return row;
+      if(sourceHome===fixtureHome&&sourceAway===fixtureAway)return row;
+      return {...row,home:fixtureHome,away:fixtureAway,
+        sourceFixtureNames:{home:sourceHome,away:sourceAway},
+        fixtureIdentityVerifiedBy:"soren_team_alias_fotmob"};
+    });
+  }
   let data:Record<string,unknown>[]=[];
   if(readOnly){
     const {data:stored,error:storedError}=await db.from("soren_sale_freezes_v1")
@@ -92,10 +142,6 @@ async function applySaleFreeze(rows:Record<string,unknown>[],date:string,readOnl
     if(captured.error||!Array.isArray(captured.data))throw new Error("SALE_FREEZE_UNAVAILABLE:"+String(captured.error?.message??"INVALID_RESPONSE"));
     data=captured.data as Record<string,unknown>[];
   }
-  const {data:fixtures,error:fixtureError}=await db.from("soren_matches")
-    .select("id,pool_date,match_no,home_team,away_team,kickoff_at").eq("pool_date",date).limit(200);
-  if(fixtureError)throw new Error("FIXTURE_FREEZE_UNAVAILABLE:"+String(fixtureError.message));
-  const fixtureByNo=new Map((fixtures??[]).map((x:Record<string,unknown>)=>[String(x.match_no??"").padStart(3,"0"),x]));
   const {data:updates,error:updatesError}=await db.from("soren_prematch_updates_v1")
     .select("match_no,source_frozen_at,captured_at,snapshot").eq("pool_date",date)
     .order("source_frozen_at",{ascending:false}).order("captured_at",{ascending:false}).limit(2500);
@@ -2193,6 +2239,14 @@ function redactLiveVipRisk(row:Record<string,unknown>){
           :null;
   return {
     ...row,
+    // Verified matches stay public; unsettled handicap tips require paid VIP.
+    ...(row.resultVerified===true?{}:{
+      handicap:null,handicapTop1:null,handicapSecond:null,
+      handicapProbability:null,handicapSecondProbability:null,
+      handicapEligible:false,handicapAnalysis:null,
+      handicapModelVersion:null,handicapSourceLabel:null,handicapSourceKind:null,
+      handicapTop1Hit:null,handicapCoverageHit:null,handicapHit:null,
+    }),
     vipRiskAccessRestricted:true,
     vipRiskLocked:locked,
     vipRiskNotice:locked?"VIP风险信号已触发":null,
@@ -3475,6 +3529,10 @@ async function paidMemberZone(
     const customerHandicapPicks=[...new Set(
       [handicapTop1,handicapSecond].filter(validHandicapCustomerPick).map(v=>String(v))
     )];
+    const validFtCustomerPick=(v:unknown)=>["主胜","平","客胜"].includes(String(v??""));
+    const customerFtTop2Picks=[...new Set(
+      [modelTop,secondTop].filter(validFtCustomerPick).map(v=>String(v))
+    )];
     const customerAvoidDirection=modelTop==="主胜"?"主队不胜":modelTop==="客胜"?"主队不败":null;
     const customerAvoidPicks=modelTop==="主胜"?["平","客胜"]:modelTop==="客胜"?["主胜","平"]:[];
     // Historical 2026-09-24 compatibility: these four rows were genuinely published
@@ -3503,15 +3561,15 @@ async function paidMemberZone(
     const allowHistoricalStrictAvoid=!historyRecoveredOnly||seededStrictAvoid;
     const customerRouteType=(allowHistoricalStrictAvoid&&(vipPublish||customerStrictAvoidEligible)&&formalDirectionConfirmed)
       ?"FOCUS_AVOID"
-      :customerRiskPoolEligible&&customerHandicapPicks.length>=2
-        ?"HANDICAP_PROTECT"
+      :customerRiskPoolEligible&&customerFtTop2Picks.length>=2
+        ?"FT_TOP2_PROTECT"
         :customerRiskPoolEligible
           ?"RISK_OBSERVE"
           :null;
     const customerTier=customerRouteType==="FOCUS_AVOID"
       ?"重点避开"
-      :customerRouteType==="HANDICAP_PROTECT"
-        ?"让球保护"
+      :customerRouteType==="FT_TOP2_PROTECT"
+        ?"原Top2双选保护"
         :customerRouteType==="RISK_OBSERVE"
           ?"风险观察"
           :historicalLegacy24Visible
@@ -3522,22 +3580,22 @@ async function paidMemberZone(
     const customerVisible=customerRouteType!==null||historicalLegacyVisible;
     const customerDirection=customerRouteType==="FOCUS_AVOID"
       ?customerAvoidDirection
-      :customerRouteType==="HANDICAP_PROTECT"
-        ?customerHandicapPicks.join(" / ")
+      :customerRouteType==="FT_TOP2_PROTECT"
+        ?customerFtTop2Picks.join(" / ")
         :null;
     // Unified customer-facing risk direction: once the customer route has a confirmed
     // defensive direction, every detail surface must consume the same value instead of
     // falling back to the legacy warningDirection publication gate.
-    const customerDirectionStatus=customerDirection
+    const customerDirectionStatus=customerRouteType==="FOCUS_AVOID"&&customerDirection
       ?customerDirection
-      :customerRouteType==="HANDICAP_PROTECT"
-        ?("主推 "+String(customerHandicapPicks[0]??"—")+" · 保护 "+String(customerHandicapPicks[1]??"—"))
+      :customerRouteType==="FT_TOP2_PROTECT"
+        ?"风险已确认 · 反向方向待确认"
         :"方向待确认";
     const riskDirection={
-      status:customerDirection?"CONFIRMED":"PENDING",
-      direction:customerDirection,
+      status:customerRouteType==="FOCUS_AVOID"&&customerDirection?"CONFIRMED":"PENDING",
+      direction:customerRouteType==="FOCUS_AVOID"?customerDirection:null,
       picks:customerRouteType==="FOCUS_AVOID"?customerAvoidPicks:
-        customerRouteType==="HANDICAP_PROTECT"?customerHandicapPicks:[],
+        customerRouteType==="FT_TOP2_PROTECT"?customerFtTop2Picks:[],
       originalTop1:modelTop,
       basis:customerDirection
         ?[...new Set([...(Array.isArray(vipEvidence)?vipEvidence:[]),...coldDirectionSupport])].slice(0,4)
@@ -3546,7 +3604,7 @@ async function paidMemberZone(
       updatedAt:new Date().toISOString()
     };
     const customerRoute={
-      ruleVersion:"HJ38-COLD-ROUTE-v0.1-20260930",
+      ruleVersion:"HJ38-COLD-ROUTE-v0.2-20261010",
       source:historicalLegacy24Visible?"LEGACY_20260924_PREMATCH_RISK":historicalLegacy25Visible?"LEGACY_20260925_PREMATCH_RISK":(customerRouteSeed?"FROZEN_HJ38_V87_SEED":(vipPublish?"VIP_FORMAL_DIRECTION":"LEGACY_NO_STRICT_SEED")),
       type:customerRouteType,
       label:customerTier,
@@ -3559,17 +3617,20 @@ async function paidMemberZone(
       riskScore:customerRiskScore,
       oppositeSecond:customerOppositeSecond,
       direction:customerDirection,
-      ftPicks:customerRouteType==="FOCUS_AVOID"?customerAvoidPicks:[],
-      handicapLine:customerRouteType==="HANDICAP_PROTECT"?officialHandicap:null,
-      handicapPicks:customerRouteType==="HANDICAP_PROTECT"?customerHandicapPicks:[],
-      handicapPrimary:customerRouteType==="HANDICAP_PROTECT"?(customerHandicapPicks[0]??null):null,
-      handicapProtection:customerRouteType==="HANDICAP_PROTECT"?(customerHandicapPicks[1]??null):null,
+      ftPicks:customerRouteType==="FOCUS_AVOID"?customerAvoidPicks:
+        customerRouteType==="FT_TOP2_PROTECT"?customerFtTop2Picks:[],
+      ftPrimary:customerRouteType==="FT_TOP2_PROTECT"?(customerFtTop2Picks[0]??null):null,
+      ftProtection:customerRouteType==="FT_TOP2_PROTECT"?(customerFtTop2Picks[1]??null):null,
+      handicapLine:null,
+      handicapPicks:[],
+      handicapPrimary:null,
+      handicapProtection:null,
       displayReason:customerRouteType==="FOCUS_AVOID"
-        ?"原Top1进入严格风险阀门，建议使用胜平负双选防范"
-        :customerRouteType==="HANDICAP_PROTECT"
-          ?"存在风险信号但未进入严格避开层，改用让球Top1+第二方向保护"
+        ?"原Top1进入严格风险阀门，建议使用主队不胜或主队不败防范"
+        :customerRouteType==="FT_TOP2_PROTECT"
+          ?"原胜平负首选存在风险，但当前赛前证据尚不足以确认主队不胜或主队不败。本场保留原胜平负Top1＋Top2双选，不转入让球保护。"
           :customerRouteType==="RISK_OBSERVE"
-            ?"存在风险信号，但赛前未形成完整可发布的让球双选"
+            ?"存在风险信号，但赛前未形成完整可发布的胜平负Top2"
             :null
     };
 
@@ -3713,8 +3774,8 @@ async function paidMemberZone(
     const customerRouteSettlement=resultRow?.verified===true?(
       customerRouteType==="FOCUS_AVOID"&&modelTop&&ftActual
         ?{evaluable:true,hit:ftActual!==modelTop,label:ftActual!==modelTop?"避开成功":"避开失败",basis:"重点避开"}
-        :customerRouteType==="HANDICAP_PROTECT"&&handicapActual&&customerHandicapPicks.length>=2
-          ?{evaluable:true,hit:customerHandicapPicks.includes(handicapActual),label:customerHandicapPicks.includes(handicapActual)?"让球保护命中":"让球保护未中",basis:"让球双选"}
+        :customerRouteType==="FT_TOP2_PROTECT"&&ftActual&&customerFtTop2Picks.length>=2
+          ?{evaluable:true,hit:customerFtTop2Picks.includes(ftActual),label:customerFtTop2Picks.includes(ftActual)?"原Top2双选命中":"原Top2双选未中",basis:"胜平负Top2"}
           :{evaluable:false,hit:null,label:"不计成绩",basis:customerRouteType==="RISK_OBSERVE"?"风险观察":"未进入客户风险路由"}
     ):null;
     const coldSettlement=resultRow?.verified===true&&modelTop&&ftActual?{
@@ -3790,6 +3851,7 @@ async function paidMemberZone(
   const visibleRows=rows.filter((r:any)=>r?.coldRecognition?.customerVisible===true);
   const vipRows=rows.filter((r:any)=>r?.coldRecognition?.vipPublish===true);
   const focusAvoidRows=visibleRows.filter((r:any)=>r?.coldRecognition?.customerRoute?.type==="FOCUS_AVOID");
+  const ftTop2ProtectRows=visibleRows.filter((r:any)=>r?.coldRecognition?.customerRoute?.type==="FT_TOP2_PROTECT");
   const handicapProtectRows=visibleRows.filter((r:any)=>r?.coldRecognition?.customerRoute?.type==="HANDICAP_PROTECT");
   const riskObserveRows=visibleRows.filter((r:any)=>r?.coldRecognition?.customerRoute?.type==="RISK_OBSERVE");
   const routeStats=(items:any[])=>{
@@ -3823,17 +3885,19 @@ async function paidMemberZone(
   return {
     date,
     title:"尊贵月卡VIP · 今日冷门识别",
-    subtitle:"重点避开 + 让球保护；无完整方向仅保留风险观察",
-    routeRuleVersion:"HJ38-COLD-ROUTE-v0.1-20260930",
+    subtitle:"方向确认：主队不胜 / 主队不败；方向待确认：原Top2双选",
+    routeRuleVersion:"HJ38-COLD-ROUTE-v0.2-20261010",
     poolCount:rows.length,
     publishedCount:visibleRows.length,
     formalWarningCount:vipRows.length,
     focusAvoidCount:focusAvoidRows.length,
+    ftTop2ProtectCount:ftTop2ProtectRows.length,
     handicapProtectCount:handicapProtectRows.length,
     riskObservationCount:riskObserveRows.length,
     observationCount:riskObserveRows.length,
     stats:{
       focusAvoid:routeStats(focusAvoidRows),
+      ftTop2Protect:routeStats(ftTop2ProtectRows),
       handicapProtect:routeStats(handicapProtectRows)
     },
     rows:visibleRows
@@ -3917,7 +3981,13 @@ Deno.serve(async (req: Request) => {
       const expectedRevision=allowed.get(String(data?.modelVersion??""));
       if(data?.ok!==true||!expectedRevision||data?.revision!==expectedRevision||!Array.isArray(data?.rows))throw new Error("UPSTREAM_VALIDATION_FAILED");
       const syncDate=String(data.date??requestedDate??"");
-      const layered=await applyRiskFocusLayer(data.rows as Record<string,unknown>[],syncDate,true);
+      // The scheduled sync must publish the latest lawful prematch model before
+      // rebuilding warnings. Customer reads must never be the trigger that
+      // advances the append-only prematch ledger.
+      const sourceRows=(data.rows as Record<string,unknown>[])
+        .filter(row=>String(row?.version??"")===String(data.modelVersion??"")&&row?.no&&row?.kickoff);
+      const published=await applySaleFreeze(sourceRows,syncDate,false);
+      const layered=await applyRiskFocusLayer(published,syncDate,true);
       const result=await syncUpsetWarnings(layered,data);
       return reply({
         ok:true,sync:"upset-warning",date:syncDate,
@@ -4216,6 +4286,21 @@ Deno.serve(async (req: Request) => {
         return reply({ok:true,membership,zone,cache:"MISS",updatedAt:new Date().toISOString()});
       }
       catch(error){console.error("MEMBER_ZONE_ERROR",error);return reply({ok:false,error:"MEMBER_ZONE_UNAVAILABLE"},502);}
+    }
+    // Verified, completed matches remain available to non-VIPs on the sale day.
+    // This read-only branch never returns unsettled or live match predictions.
+    if(requestUrl.searchParams.get("view")==="history"&&requestedDate===beijingToday&&vipAccess.active!==true){
+      const finishedBundle=await serveFastArchiveBundle(requestedDate,"history",false);
+      if(!finishedBundle)return reply({ok:false,error:"FINISHED_HISTORY_NOT_READY"},503);
+      const finishedBody=await finishedBundle.json();
+      if(finishedBody?.ok!==true||!Array.isArray(finishedBody.rows))
+        return reply({ok:false,error:"FINISHED_HISTORY_NOT_READY"},503);
+      const settledRows=finishedBody.rows.filter((row:Record<string,unknown>)=>
+        row.resultVerified===true&&row.resultHome!==null&&row.resultHome!==undefined&&
+        row.resultAway!==null&&row.resultAway!==undefined&&
+        Number.isFinite(Number(row.resultHome))&&Number.isFinite(Number(row.resultAway)));
+      return reply({...finishedBody,view:"history",count:settledRows.length,
+        handicapStats:buildHandicapStats(settledRows),rows:settledRows});
     }
     if(membership.active!==true&&(!requestedDate||requestedDate>=beijingToday))
       return reply({ok:false,error:"MEMBERSHIP_REQUIRED",membership},403);
