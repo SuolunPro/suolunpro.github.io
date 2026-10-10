@@ -1781,7 +1781,46 @@
     // to the frozen handicap Top1/Top2 or formal model settlement.
     // Start only with kickoffs after rollout, never retroactively publish old alerts.
     const HANDICAP_DRAW_PROTECT_START=Date.parse('2026-10-10T13:00:00Z');
-    function handicapDrawProtection(row){
+    // Independently re-check an already eligible pre-kickoff protection signal
+    // using the latest *verified* prematch William quote already in the API row.
+    // The historical score/goal source is a research shadow, not a formal forecast.
+    // Do not create alerts from a market-only signal, alter Top1/Top2 or backfill post-kickoff data.
+    const handicapDrawProtectCache=new WeakMap();
+    function handicapDrawMarketTop3(lambda,homeOdds,awayOdds){
+      if(!Number.isFinite(lambda)||lambda<=0||lambda>15||
+         !Number.isFinite(homeOdds)||!Number.isFinite(awayOdds)||
+         homeOdds<=1||awayOdds<=1||homeOdds>100||awayOdds>100)return null;
+      const target=awayOdds/(homeOdds+awayOdds);
+      const factorialProbs=(rate)=>{
+        const probs=[Math.exp(-rate)];
+        for(let i=1;i<=12;i++)probs.push(probs[i-1]*rate/i);
+        return probs;
+      };
+      const homeConditional=(h,a)=>{
+        const ph=factorialProbs(h),pa=factorialProbs(a);
+        let win=0,loss=0;
+        for(let i=0;i<=12;i++)for(let j=0;j<=12;j++){
+          if(i>j)win+=ph[i]*pa[j];
+          else if(i<j)loss+=ph[i]*pa[j];
+        }
+        return win+loss>0?win/(win+loss):0.5;
+      };
+      let lo=0.00001,hi=lambda-0.00001;
+      for(let i=0;i<34;i++){
+        const mid=(lo+hi)/2;
+        if(homeConditional(mid,lambda-mid)<target)lo=mid;
+        else hi=mid;
+      }
+      const lh=(lo+hi)/2,la=lambda-lh;
+      const ph=factorialProbs(lh),pa=factorialProbs(la);
+      const scores=[];
+      for(let h=0;h<=8;h++)for(let a=0;a<=8;a++)
+        scores.push({home:h,away:a,probability:ph[h]*pa[a]});
+      scores.sort((a,b)=>b.probability-a.probability||
+        a.home+a.away-b.home-b.away||a.home-b.home||a.away-b.away);
+      return scores.slice(0,3);
+    }
+    function calculateHandicapDrawProtection(row){
       if(row?.pregameVerified!==true||row?.analysisPending===true)return null;
       const kickoff=Date.parse(String(row.kickoff??''));
       const handicapAt=Date.parse(String(row.handicapFrozenAt??row.frozenAt??''));
@@ -1799,21 +1838,51 @@
          String(scores.sourceLiveScoreId)!==String(goals.sourceLiveScoreId)||
          String(scores.frozenAt)!==String(goals.frozenAt)||
          String(scores.marketAt)!==String(goals.marketAt))return null;
-      const topGoal=goalRanks(goals)[0]?.goals;
-      if(!Number.isInteger(topGoal))return null;
-      const scoreAligned=scores.picks.slice(0,3).some(p=>{
-        const home=Number(p.home),away=Number(p.away);
-        return Number.isInteger(home)&&Number.isInteger(away)&&
-          home+line===away&&home+away===topGoal;
-      });
+      const goalTop=goalRanks(goals)[0]?.goals;
+      if(!Number.isInteger(goalTop))return null;
+      const scoreLetdraw=p=>Number.isInteger(Number(p.home))&&Number.isInteger(Number(p.away))&&
+        Number(p.home)+line===Number(p.away);
+      const originalAligned=scores.picks.slice(0,3).some(p=>
+        scoreLetdraw(p)&&Number(p.home)+Number(p.away)===goalTop);
       const p1=Number(row.handicapProbability),p2=Number(row.handicapSecondProbability);
-      const drawProbability=100-p1-p2;
       const deepSupplement=second!=='让平'&&Math.abs(line)>=2&&
         row.handicapProbability!=null&&row.handicapSecondProbability!=null&&
         Number.isFinite(p1)&&Number.isFinite(p2)&&
-        p1>=0&&p2>=0&&drawProbability>=22&&drawProbability<=100;
-      if(!((second==='让平'&&scoreAligned)||deepSupplement))return null;
-      return {first,second:'让平',updatedAt:scores.frozenAt};
+        p1>=0&&p2>=0&&100-p1-p2>=22&&100-p1-p2<=100;
+      // Require a genuine original signal before market revalidation. Do not invent
+      // extra triggers solely because a later quote moves a model's score ranking.
+      if(!((second==='让平'&&originalAligned)||deepSupplement))return null;
+      const quote=row.williamMarket?.current??row.williamCurrent??null;
+      const marketAt=Date.parse(String(scores.marketAt??''));
+      const quoteAt=Date.parse(String(quote?.capturedAt??''));
+      if(!quote||!['verified','verified_mirror'].includes(String(quote.dataQuality??''))||
+         !Number.isFinite(marketAt)||!Number.isFinite(quoteAt)||
+         quoteAt<marketAt||quoteAt>=kickoff||quoteAt>Date.now())return null;
+      const home=Number(quote.home),draw=Number(quote.draw),away=Number(quote.away);
+      if(quote.home==null||quote.draw==null||quote.away==null||
+         ![home,draw,away].every(x=>Number.isFinite(x)&&x>1&&x<=100))return null;
+      const lambdaHome=Number(goals.lambdaHome),lambdaAway=Number(goals.lambdaAway);
+      if(goals.lambdaHome==null||goals.lambdaAway==null||
+         !Number.isFinite(lambdaHome)||!Number.isFinite(lambdaAway)||
+         lambdaHome<0.2||lambdaAway<0.2||lambdaHome>3.8||lambdaAway>3.8)return null;
+      const reranked=handicapDrawMarketTop3(lambdaHome+lambdaAway,home,away);
+      if(!reranked)return null;
+      // Regular protection: the same handicapped-draw score still fits the leading
+      // total-goals outcome. Deep-handicap supplement: retain only when latest
+      // odds-derived score Top3 still explicitly contains the exact-margin outcome.
+      const confirmed=second==='让平'
+        ?reranked.some(p=>scoreLetdraw(p)&&p.home+p.away===goalTop)
+        :deepSupplement&&reranked.some(scoreLetdraw);
+      if(!confirmed)return null;
+      return {first,second:'让平',updatedAt:quote.capturedAt,
+        sourceScoreAt:scores.frozenAt,marketReviewAt:quote.capturedAt};
+    }
+    function handicapDrawProtection(row){
+      if(!row||typeof row!=='object')return null;
+      if(handicapDrawProtectCache.has(row))return handicapDrawProtectCache.get(row);
+      const result=calculateHandicapDrawProtection(row);
+      handicapDrawProtectCache.set(row,result);
+      return result;
     }
     function handicapDrawProtectionVerdict(row,advice){
       if(!verified(row)||!hasScore(row))return null;
