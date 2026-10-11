@@ -153,7 +153,10 @@ Deno.serve(async req => {
   if (internal.length < 32) return response({ ok: false, error: "UNAUTHORIZED" }, 401);
   const { data: authorized, error: authError } = await db.rpc("soren_intel_authorized", { p_key: internal });
   if (authError || authorized !== true) return response({ ok: false, error: "UNAUTHORIZED" }, 401);
-  if (!Deno.env.get("OPENAI_API_KEY"))
+  const payload = await req.json().catch(() => ({}));
+  const dryRun = payload?.dry_run === true;
+  const keyConfigured = Boolean(Deno.env.get("OPENAI_API_KEY"));
+  if (!keyConfigured && !dryRun)
     return response({ ok: false, error: "OPENAI_API_KEY_NOT_CONFIGURED", model, shadow_only: true }, 503);
   try {
     const now = Date.now();
@@ -175,6 +178,24 @@ Deno.serve(async req => {
     const seen = new Set((existing || []).map((v: any) => v.pool_date + "|" + v.match_no));
     const missing = candidates.filter(m => !seen.has(m.pool_date + "|" + m.match_no));
     const batch = missing.slice(0, 3);
+    if (dryRun) {
+      const evidenceChecks = [];
+      for (const m of batch) {
+        try {
+          const e = await getEvidence(m, now, saleDeadline(m));
+          evidenceChecks.push({ no: m.match_no, quality: e.quality,
+            hasWilliam: Boolean(e.evidence.william.current),
+            evidenceAt: e.snapshotAt });
+        } catch (error) {
+          evidenceChecks.push({ no: m.match_no,
+            error: short(error instanceof Error ? error.message : String(error), 120) });
+        }
+      }
+      return response({ ok: true, dry_run: true, shadow_only: true, model,
+        openai_key_configured: keyConfigured, in_scope: candidates.length,
+        already_saved: candidates.length - missing.length,
+        missing_before_run: missing.length, evidenceChecks, writes: 0 });
+    }
     const successes: string[] = [], errors: string[] = [];
     for (const m of batch) {
       try {
