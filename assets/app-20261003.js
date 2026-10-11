@@ -586,7 +586,7 @@
     }
     function renderColdV2History(){
       const box=$('content');
-      box.replaceChildren(sectionHead('冷门预警 2.0','历史数据验证 · 主队不胜 / 主队不败'));
+      box.replaceChildren(sectionHead('冷门预警 2.0 · 历史战绩','历史赛前数据验证 · 主队不胜 / 主队不败'));
       const uid=String(authSession?.user?.id??'');
       const hasData=!!(coldV2History?.ok&&coldV2HistoryUser===uid);
       const current=hasData&&Date.now()-coldV2HistoryAt<5*60*1000;
@@ -605,12 +605,12 @@
       const page=el('div','member-zone-page abc20-page');
       const panel=el('section','abc20-report');
       const mainHead=el('div','abc20-report-head');
-      mainHead.append(el('span','abc20-eyebrow','冷门预警 2.0 · 历史数据验证'),
+      mainHead.append(el('span','abc20-eyebrow','冷门预警 2.0 · 历史规则战绩'),
         el('span','abc20-range','2026.09.28 — 10.11'));
       panel.append(mainHead);
       const main=el('div','abc20-report-main');
       const primary=el('div','abc20-primary');
-      primary.append(el('span','abc20-primary-label','历史方向覆盖率'),
+      primary.append(el('span','abc20-primary-label','历史规则覆盖率'),
         el('strong','abc20-primary-value',stats.rate===null||stats.rate===undefined?'—':String(stats.rate)+'%'));
       const sample=el('div','abc20-sample');
       sample.append(el('strong','',String(stats.hits??0)+' / '+String(stats.settled??0)),el('span','','已核验'));
