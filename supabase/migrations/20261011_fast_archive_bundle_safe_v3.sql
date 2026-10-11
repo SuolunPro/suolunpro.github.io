@@ -155,7 +155,7 @@ select case
   )
   else null
 end;
-$function$
+$function$;
 
 -- Restrict direct execution; customer access remains protected by the existing API gate.
 REVOKE ALL ON FUNCTION public.soren_fast_archive_bundle_safe_v3(date) FROM PUBLIC, anon, authenticated;
