@@ -597,7 +597,8 @@
       const publishable=rows.filter(row=>row?.coldRecognition?.customerVisible===true);
 
       if(!publishable.length){
-        const empty=el('div','empty','','今日暂无达到展示门槛的冷门风险');
+        const abcOnly=String(state.memberZone?.routeRuleVersion??'').startsWith('ABC-');
+        const empty=el('div','empty','',abcOnly?'当前暂无通过ABC审核的重点避开。必发资金未确认的比赛不会强制发布。':'今日暂无达到展示门槛的冷门风险');
         page.append(empty);
         if(state.memberZone)memberZonePageCache.set(state.memberZone,page);
         box.append(page);return;
