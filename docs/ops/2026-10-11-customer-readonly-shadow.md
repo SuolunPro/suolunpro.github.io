@@ -7,7 +7,8 @@
 - 主接口 `soren-public-api-v1` 的普通 GET 分支会通过 `applySaleFreeze(..., false)` 运行 `soren_capture_prematch_updates_v1` 和 `soren_capture_sale_snapshots_v1`，末段还同步 `soren_publish_htft_top4_v1` 与 `syncUpsetWarnings`。后台写入阻塞读取是已经定位的架构风险，但原始性能触发源尚需 EXPLAIN 和定时任务追踪。
 - 定时 `sync_upset=1`（cron job 10）已有独立写入链路，每 10 分钟更新当天和次日；这**不足以直接承诺客户所需的赛前及时性**，先测试写入覆盖/延迟再规划更高频生产者。
 - `soren_publish_htft_top4_v1` 独立 cron job 29 当前为停用状态，因此若主接口改为只读，必须为半全场补齐可靠的独立发布途径。
-- 2026-10-11 已核验源纪录：当前（检查时）`soren_matches` 28 场，其中 024 尚未发现冻结及赛前归档。故不能宣称 28/28 已具备读写分离资格，更不能倒填无来源的预测。
+- 读库检查（2026-10-11，北京时间约 13:17）：10月9日 12/12 有归档和冻结，10月10日 30 场中 29 场有归档和冻结（**020 曼联 vs 热刺**缺失，且已开球），10月11日 28 场中 27 场有归档和冻结（**024 卡利亚里 vs 尤文图斯**缺失，尚未开球），10月12日 9/9 有归档和冻结。缺失场次的源状态均为 ACTIVE；不能补猜、假定无赛事或以比赛结果倒填。
+- 今天未开球的场次有 24 场最新归档时间晚于冻结表所存来源时间。影子读取必须使用经校验的最新赛前归档，而不是复用旧冻结方向；正式切换还须验证生产者及时刷新冻结存档。
 
 ## 影子构建
 `soren-readonly-shadow-v1/index.ts`：独立 Edge Function 设计稿，仅能在配置至少 32 字符的 `SOREN_SHADOW_READ_KEY` 后，用对应请求头 `x-soren-shadow-key` 查询指定的 `date`。未配置、未授权均拒绝。固定从 `soren_matches`、`soren_prematch_updates_v1`、`soren_sale_freezes_v1` 读取，不调用 RPC、写 SQL 或计时任务，不读取用户会话/会员资料，不接入现有前端。**尚未部署**。
