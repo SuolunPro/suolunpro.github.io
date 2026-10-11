@@ -551,21 +551,10 @@
       while(memberIntelCache.size>40)memberIntelCache.delete(memberIntelCache.keys().next().value);
       return j;
     }
-    // Historical ABC rule research is never part of the public customer bundle.
-    // Legacy dates predate formal ABC-v2 rollout; show no synthetic v2 publications.
-    const coldV2LegacyDate=date=>String(date||"")<"2026-10-12";
-    function renderColdV2LegacyArchive(){
-      const box=$('content');
-      box.replaceChildren(sectionHead('冷门预警 2.0','赛前重点避开 · 主队不胜 / 主队不败'));
-      const panel=el('div','empty');
-      panel.append(el('b','','该日期暂无2.0正式预警记录'),
-        el('div','','冷门预警2.0从10月12日起启用；可选择此后的日期查看正式发布记录及赛果。'));
-      box.append(panel);
-    }
     function renderMemberZone(){
-      const box=$('content');box.replaceChildren(sectionHead('冷门预警 2.0','重点避开 · 主队不胜 / 主队不败'));
+      const historicalCold=memberZoneDate()<"2026-10-12";
+      const box=$('content');box.replaceChildren(sectionHead(historicalCold?'冷门预警 · 历史记录':'冷门预警 2.0',historicalCold?'历史正式预警及赛果':'重点避开 · 主队不胜 / 主队不败'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
-      if(coldV2LegacyDate(memberZoneDate())){renderColdV2LegacyArchive();return}
       if(!state.memberZoneLoading&&!state.memberZoneError&&state.memberZone){
         const cached=memberZonePageCache.get(state.memberZone);
         if(cached){box.append(cached);return}
@@ -2447,7 +2436,6 @@
       if(state.model==='cold'){
         if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
         const d=memberZoneDate();
-        if(coldV2LegacyDate(d)){renderMemberZone();return}
         if(!state.memberZone||state.memberZone.date!==d){
           if(!state.memberZoneLoading){loadMemberZone();return}
         }
