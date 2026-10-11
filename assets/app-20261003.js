@@ -552,7 +552,7 @@
       return j;
     }
     function renderMemberZone(){
-      const box=$('content');box.replaceChildren(sectionHead('冷门预警','方向确认：主队不胜 / 主队不败 · 方向待确认：原Top2双选'));
+      const box=$('content');box.replaceChildren(sectionHead('冷门预警',String(state.memberZone?.routeRuleVersion??'').startsWith('ABC-')?'重点避开：主队不胜 / 主队不败':'方向确认：主队不胜 / 主队不败 · 方向待确认：原Top2双选'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
       if(!state.memberZoneLoading&&!state.memberZoneError&&state.memberZone){
         const cached=memberZonePageCache.get(state.memberZone);
@@ -778,7 +778,8 @@
         });
         const isHomeTop=row.model?.top1==='主胜';
         const tier=String(cold?.customerTier||'持续观察');
-        const isCooling=tier==='风险回落'||currentMarketRiskCooling(cold?.gate);
+        const abcPublished=String(cold?.customerRoute?.source??'')==='ABC_COLD_V2_PREMATCH'&&String(cold?.customerRoute?.type??'')==='FOCUS_AVOID';
+        const isCooling=!abcPublished&&(tier==='风险回落'||currentMarketRiskCooling(cold?.gate));
         const validHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
         const hp=row.model?.handicap||{};
         const handicapPrimary=validHandicap(hp.top1)?String(hp.top1):null;
