@@ -3914,26 +3914,30 @@
     function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)&&!(r.pregameVerified!==true&&r.saleFreezeStatus==='NO_VALID_PREMATCH_LOCK')))}
     async function resolveActivePool(){
       const today=beijingToday(),previous=addDays(today,-1);
-      // A JCZQ sale day may run past Beijing midnight. Prefer the unfinished
-      // previous pool, but never turn a transient current-day API failure into
-      // a blank homepage when we already have a valid previous pool snapshot.
-      // Start today's read at the same time so a settled previous day never adds
-      // its full network latency in front of the current-day first paint.
-      const currentTask=readDay(today,true).then(data=>({data,error:null}),error=>({data:null,error}));
-      let prior=null;
+      // Always start from Beijing today when today's verified customer envelope is available.
+      // An unsettled fixture from yesterday must not hijack the homepage.
+      // The prior date remains selectable and its results continue to refresh on view.
       try{
-        prior=await readDay(previous);
-        if(hasUnsettledPool(prior))return prior;
-      }catch(e){console.warn('上一竞彩池状态核验暂不可用',e)}
-      const current=await currentTask;
-      if(current.data)return current.data;
-      {
-        const e=current.error;
-        const fallback=prior||cachedDay(previous,true);
-        if(fallback&&Array.isArray(fallback.rows)&&fallback.rows.length){
-          console.warn('今日竞彩池暂不可用，继续展示上一有效竞彩池',e);
-          return fallback;
+        const current=await readDay(today,true);
+        if(current?.date===today&&Array.isArray(current.rows))return current;
+        throw Error('TODAY_POOL_INVALID');
+      }catch(e){
+        // Only on a real current-date failure may the client fall back to cached
+        // today or yesterday; never turn a still-open yesterday into a default.
+        const currentCache=cachedDay(today,true);
+        if(currentCache?.date===today&&Array.isArray(currentCache.rows))return currentCache;
+        const previousCache=cachedDay(previous,true);
+        if(previousCache&&Array.isArray(previousCache.rows)&&previousCache.rows.length){
+          console.warn('今日竞彩池暂不可用，展示上一可用比赛记录',e);
+          return previousCache;
         }
+        try{
+          const prior=await readDay(previous);
+          if(prior&&Array.isArray(prior.rows)&&prior.rows.length){
+            console.warn('今日竞彩池暂不可用，显示昨日记录',e);
+            return prior;
+          }
+        }catch(priorError){console.warn('上一竞彩池读取也不可用',priorError)}
         throw e;
       }
     }
@@ -4039,10 +4043,10 @@
     }
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
     function paintCachedActivePool(today){
-      const previous=addDays(today,-1),prior=cachedDay(previous,true),current=cachedDay(today,true);
-      const cached=hasUnsettledPool(prior)?prior:current;
-      if(!cached||!Array.isArray(cached.rows))return false;
-      state.baseDate=cached.date||today;applyDay(cached);return true;
+      // Prevent last night's session snapshot from painting yesterday first.
+      const current=cachedDay(today,true);
+      if(!current||current.date!==today||!Array.isArray(current.rows))return false;
+      state.baseDate=today;applyDay(current);return true;
     }
     async function selectDate(date){
       const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-14);
