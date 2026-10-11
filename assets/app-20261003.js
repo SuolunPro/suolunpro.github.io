@@ -551,9 +551,92 @@
       while(memberIntelCache.size>40)memberIntelCache.delete(memberIntelCache.keys().next().value);
       return j;
     }
+    // Fixed, auditable ABC 2.0 replay sample from verified prematch freeze
+    // and market snapshots (25 Sep–11 Oct 2026). Historical model simulations
+    // are shown separately from actual customer-published alerts.
+    const abc20ReplayRows=[
+      ['2026-09-28','004','土耳其','意大利','客胜','A','客胜'],
+      ['2026-09-28','008','北爱尔兰','匈牙利','客胜','A','平'],
+      ['2026-09-29','003','藤枝MYFC','大阪樱花','客胜','A','客胜'],
+      ['2026-10-06','003','哈萨克','法罗群岛','主胜','B','平'],
+      ['2026-10-07','002','巴西国际','科林蒂安','主胜','B','主胜'],
+      ['2026-10-09','001','仁川联','浦项制铁','主胜','C','主胜'],
+      ['2026-10-09','011','马拉加','西班牙人','客胜','B','平'],
+      ['2026-10-10','001','大阪樱花','横滨水手','主胜','A','平'],
+      ['2026-10-10','003','金泉尚武','FC安养','主胜','C','客胜'],
+      ['2026-10-10','006','巴列卡诺','毕尔巴鄂','客胜','B',null],
+      ['2026-10-10','007','热那亚','佛罗伦萨','客胜','B','主胜'],
+      ['2026-10-10','013','伊普斯维奇','富勒姆','客胜','A','主胜'],
+      ['2026-10-11','005','科莫','罗马','主胜','A','平'],
+      ['2026-10-11','010','腓特烈斯塔','特罗姆瑟','客胜','A','平'],
+      ['2026-10-11','012','水晶宫','诺丁汉','客胜','A','主胜']
+    ];
+    const abc20FundingByDate={
+      '2026-09-25':[0,13],'2026-09-26':[0,25],
+      '2026-09-27':[6,9],'2026-09-28':[8,8],
+      '2026-09-29':[11,15],'2026-09-30':[1,3],
+      '2026-10-05':[0,7],'2026-10-06':[1,12],
+      '2026-10-07':[3,6],'2026-10-08':[4,6],
+      '2026-10-09':[9,12],'2026-10-10':[23,30],
+      '2026-10-11':[24,28]
+    };
+    const abc20IsReplayDate=date=>date>='2026-09-25'&&date<='2026-10-11';
+    const abc20ReplayHit=r=>r[6]!==null&&r[6]!==r[4];
+    function abc20ReplaySummary(){
+      const complete=abc20ReplayRows.filter(r=>r[6]!==null),wins=complete.filter(abc20ReplayHit);
+      const panel=el('section','abc20-backtest-overview');
+      panel.style.cssText='margin:12px 16px;padding:14px 16px;background:#fff;border:1px solid #e7dfdf;border-radius:12px;line-height:1.7';
+      const title=el('strong','','冷门预警2.0 · 历史回测战绩');
+      title.style.cssText='display:block;font-size:15px;color:#242424;margin-bottom:6px';
+      const score=el('div','',wins.length+' / '+complete.length+'　·　'+(100*wins.length/complete.length).toFixed(1)+'%');
+      score.style.cssText='font-size:24px;font-weight:800;color:#d72b30;line-height:1.4';
+      const caption=el('div','', '9月25日—10月11日｜触发'+abc20ReplayRows.length+'场，已核验'+complete.length+'场，待核验'+(abc20ReplayRows.length-complete.length)+'场');
+      caption.style.cssText='font-size:12px;color:#666;margin-top:4px';
+      const note=el('div','','根据当时可获得的赛前冻结数据复核，非旧版当日正式发布战绩；缺必发资金数据的比赛不计入。');
+      note.style.cssText='font-size:11px;color:#777;margin-top:6px';
+      panel.append(title,score,caption,note);return panel;
+    }
+    function renderAbc20ReplayDate(date){
+      const box=$('content');box.replaceChildren(sectionHead('冷门预警2.0','历史规则回测 · 主队不胜 / 主队不败'));
+      const page=el('div','member-zone-page');page.append(abc20ReplaySummary());
+      const matches=abc20ReplayRows.filter(r=>r[0]===date),cov=abc20FundingByDate[date]||null;
+      const hd=el('section','');
+      hd.style.cssText='padding:12px 16px 7px;font-weight:700;font-size:14px;color:#303030';
+      hd.textContent=date+' · 通过ABC审核 '+matches.length+' 场';
+      page.append(hd);
+      if(cov){
+        const cover=el('p','','赛前有效必发资金覆盖：'+cov[0]+'/'+cov[1]+'场');
+        cover.style.cssText='font-size:12px;color:#777;margin:0 16px 12px';
+        page.append(cover);
+      }
+      if(!matches.length){
+        const msg=(cov&&cov[0]===0)
+          ?'当日缺少有效赛前必发资金记录，无法确认ABC方向。'
+          :'当日未发现符合ABC条件的重点避开；数据未覆盖场次不等于没有风险。';
+        page.append(el('div','empty','',msg));box.append(page);return;
+      }
+      for(const r of matches){
+        const [day,no,home,away,top,channel,result]=r;
+        const direction=top==='主胜'?'主队不胜':'主队不败';
+        const status=result===null?'⏳ 待核验':(abc20ReplayHit(r)?'✅ 预警成功':'❌ 预警失败');
+        const card=el('article','');
+        card.style.cssText='margin:10px 16px;padding:15px 16px;background:#fff;border:1px solid #ebe5e5;border-radius:12px;line-height:1.7';
+        const fixture=el('strong','',no+'　'+home+' vs '+away);
+        fixture.style.cssText='display:block;font-size:15px;color:#252525';
+        const pick=el('div','', '🔴 重点避开 · '+direction);
+        pick.style.cssText='color:#c72329;font-weight:800;font-size:16px;margin-top:5px';
+        const settle=el('div','',status+(result===null?'':' · 90分钟赛果：'+result));
+        settle.style.cssText='font-size:13px;color:#555;margin-top:5px';
+        const original=el('div','','赛前原Top1：'+top+' · ABC验证通道：'+channel);
+        original.style.cssText='font-size:11px;color:#777;margin-top:5px';
+        card.append(fixture,pick,settle,original);page.append(card);
+      }
+      box.append(page);
+    }
     function renderMemberZone(){
       const box=$('content');box.replaceChildren(sectionHead('冷门预警',String(state.memberZone?.routeRuleVersion??'').startsWith('ABC-')?'重点避开：主队不胜 / 主队不败':'方向确认：主队不胜 / 主队不败 · 方向待确认：原Top2双选'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
+      if(abc20IsReplayDate(memberZoneDate())){renderAbc20ReplayDate(memberZoneDate());return}
       if(!state.memberZoneLoading&&!state.memberZoneError&&state.memberZone){
         const cached=memberZonePageCache.get(state.memberZone);
         if(cached){box.append(cached);return}
@@ -2435,6 +2518,7 @@
       if(state.model==='cold'){
         if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
         const d=memberZoneDate();
+        if(abc20IsReplayDate(d)){renderMemberZone();return}
         if(!state.memberZone||state.memberZone.date!==d){
           if(!state.memberZoneLoading){loadMemberZone();return}
         }
