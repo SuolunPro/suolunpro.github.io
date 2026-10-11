@@ -55,3 +55,9 @@ test("missing locked snapshot blocks rollout",()=>{
  const f={...update(),locked_at:m.kickoff_at,snapshot:snap({pregameVerified:false})};
  assert.equal(choosePrematchShadow(m,[update()],f,after).status,"INVALID_LOCKED_SNAPSHOT");
 });
+
+test("probability ties preserve original verified 3/1/0 order",()=>{
+ const entry=update(undefined,{snapshot:snap({homeProbability:40,drawProbability:20,awayProbability:40,ftTop1:"客胜",second:"主胜"})});
+ const out=choosePrematchShadow(m,[entry],null,before);
+ assert.equal(out.ftTop1,"客胜");assert.equal(out.ftTop2,"主胜");
+});
