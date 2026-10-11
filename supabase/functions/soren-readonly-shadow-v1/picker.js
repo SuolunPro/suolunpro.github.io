@@ -27,7 +27,13 @@ function project(snapshot) {
     {pick:"主胜",p:prob("homeProbability","homePct","home_pct")},
     {pick:"平",p:prob("drawProbability","drawPct","draw_pct")},
     {pick:"客胜",p:prob("awayProbability","awayPct","away_pct")}
-  ].sort((a,b)=>b.p-a.p);
+  ];
+  // Match current formal reranker: probability ties preserve verified prematch order.
+  const ordered=[snapshot.ftTop1,snapshot.second,"主胜","平","客胜"]
+    .map(v=>String(v??"")).map(v=>({"3":"主胜","1":"平","0":"客胜",H:"主胜",D:"平",A:"客胜"}[v]??v))
+    .filter((v,i,a)=>["主胜","平","客胜"].includes(v)&&a.indexOf(v)===i);
+  const tieOrder=new Map(ordered.map((v,i)=>[v,i]));
+  values.sort((a,b)=>b.p-a.p||(tieOrder.get(a.pick)??9)-(tieOrder.get(b.pick)??9));
   return {
     modelVersion:String(snapshot.version??""),
     ftTop1:values[0].pick, ftTop2:values[1].pick,
