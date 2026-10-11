@@ -59,6 +59,6 @@
 - `soren_fast_locked_archive_rows_safe_v2`先复用原v1；若v1拒绝全日（如10/10的29/30缺口），且全池均已开球，再使用v3行集。验证10/9旧新行集字节等价、10/10返回30场、未全池开球的10/11仍拒绝历史快路径。
 - 正式Edge Function `soren-public-api-v1`先部署v218（今日快速读取v3、缺失行不可评测/伪装锁定），再部署v219（历史日期切换safe_v2）。原v217及v218源码均备份于本分支 `backups/`，最终v219代码见 `supabase/functions/soren-public-api-v1-hotfix-2/index.ts`。
 - 已更新GitHub `main` 的前端JS `hasUnsettledPool`：当昨日仅存在 `pregameVerified=false` 且 `NO_VALID_PREMATCH_LOCK` 的场次时不再因此滞留昨日池；如昨日存在合法预测但未结算比赛，仍继续实时关注。同步更新 `index.html` 静态资源版本参数防止旧JS缓存。
-- v3已与合法原始赛前归档比较：10/9、10/10、10/11合计69个合法赛前预测的FT Top1/Top2、3方向概率及让球首选没有发现差异；缺失2场没有赛前预测方向、比分或冷门信号冒充。SQL权限读回与函数元数据均通过；最终Edge v219状态ACTIVE，verify_jwt属性沿用现有false（原函数自带会员认证），未修改会员权限逻辑。
+- v3已与合法原始赛前归档比较：10/9、10/10、10/11合计68个合法赛前预测的FT Top1/Top2、3方向概率及让球首选没有发现差异；缺失2场没有赛前预测方向、比分或冷门信号冒充。SQL权限读回与函数元数据均通过；最终Edge v219状态ACTIVE，verify_jwt属性沿用现有false（原函数自带会员认证），未修改会员权限逻辑。
 - 验证限制：因没有用户登录凭据，无法从外部模拟VIP真实数据接口并测量手机首屏P95；只完成SQL对照/源码/权限/边缘函数匿名401冒烟测试，真实客户端性能仍待刷新验证。不能宣称已完全解决所有类型的慢查询；超过1场缺失仍回退原安全逻辑。
 - 回退：若客户数据/冷门风险/会员权限异常，先从分支 `backups/soren-public-api-v1-live-v217-20261011.ts` 以相同verify_jwt=false重新部署原生产API；静态JS/HTML可按GitHub main前两次提交的父版本恢复。新增v3/v2只读函数无需立即删除，不会主动影响原接口。严禁回填不存在的赛前预测。
