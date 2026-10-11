@@ -3911,7 +3911,7 @@
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
     function displayLatestDate(){const today=beijingToday();return state.baseDate&&state.baseDate>today?state.baseDate:today}
-    function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)))}
+    function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)&&!(r.pregameVerified!==true&&r.saleFreezeStatus==='NO_VALID_PREMATCH_LOCK')))}
     async function resolveActivePool(){
       const today=beijingToday(),previous=addDays(today,-1);
       // A JCZQ sale day may run past Beijing midnight. Prefer the unfinished
