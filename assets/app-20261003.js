@@ -551,132 +551,21 @@
       while(memberIntelCache.size>40)memberIntelCache.delete(memberIntelCache.keys().next().value);
       return j;
     }
-    // Fixed, auditable ABC 2.0 replay sample from verified prematch freeze
-    // and market snapshots (25 Sep–11 Oct 2026). Historical model simulations
-    // are shown separately from actual customer-published alerts.
-    const abc20ReplayRows=[
-      ['2026-09-28','004','土耳其','意大利','客胜','A','客胜'],
-      ['2026-09-28','008','北爱尔兰','匈牙利','客胜','A','平'],
-      ['2026-09-29','003','藤枝MYFC','大阪樱花','客胜','A','客胜'],
-      ['2026-10-06','003','哈萨克','法罗群岛','主胜','B','平'],
-      ['2026-10-07','002','巴西国际','科林蒂安','主胜','B','主胜'],
-      ['2026-10-09','001','仁川联','浦项制铁','主胜','C','主胜'],
-      ['2026-10-09','011','马拉加','西班牙人','客胜','B','平'],
-      ['2026-10-10','001','大阪樱花','横滨水手','主胜','A','平'],
-      ['2026-10-10','003','金泉尚武','FC安养','主胜','C','客胜'],
-      ['2026-10-10','006','巴列卡诺','毕尔巴鄂','客胜','B',null],
-      ['2026-10-10','007','热那亚','佛罗伦萨','客胜','B','主胜'],
-      ['2026-10-10','013','伊普斯维奇','富勒姆','客胜','A','主胜'],
-      ['2026-10-11','005','科莫','罗马','主胜','A','平'],
-      ['2026-10-11','010','腓特烈斯塔','特罗姆瑟','客胜','A','平'],
-      ['2026-10-11','012','水晶宫','诺丁汉','客胜','A','主胜']
-    ];
-    const abc20FundingByDate={
-      '2026-09-25':[0,13],'2026-09-26':[0,25],
-      '2026-09-27':[6,9],'2026-09-28':[8,8],
-      '2026-09-29':[11,15],'2026-09-30':[1,3],
-      '2026-10-05':[0,7],'2026-10-06':[1,12],
-      '2026-10-07':[3,6],'2026-10-08':[4,6],
-      '2026-10-09':[9,12],'2026-10-10':[23,30],
-      '2026-10-11':[24,28]
-    };
-    const abc20IsReplayDate=date=>date>='2026-09-25'&&date<='2026-10-11';
-    const abc20ReplayHit=r=>r[6]!==null&&r[6]!==r[4];
-    function abc20ReplaySummary(){
-      const complete=abc20ReplayRows.filter(r=>r[6]!==null);
-      const hits=complete.filter(abc20ReplayHit).length;
-      const misses=complete.length-hits;
-      const rate=complete.length?(100*hits/complete.length).toFixed(1)+'%':'—';
-      const panel=el('section','abc20-report');
-      const head=el('div','abc20-report-head');
-      head.append(
-        el('span','abc20-eyebrow','历史规则验证'),
-        el('span','abc20-range','2026.09.25 — 10.11')
-      );
-      const main=el('div','abc20-report-main');
-      const metric=el('div','abc20-primary');
-      metric.append(el('span','abc20-primary-label','方向覆盖率'),el('strong','abc20-primary-value',rate));
-      const sub=el('div','abc20-sample');
-      sub.append(el('strong','',hits+' / '+complete.length),el('span','','已核验场次'));
-      main.append(metric,sub);
-      const stats=el('div','abc20-stat-grid');
-      for(const [label,num] of [
-        ['筛选场次',abc20ReplayRows.length],
-        ['方向覆盖',hits],
-        ['未覆盖',misses],
-        ['待核验',abc20ReplayRows.length-complete.length]
-      ]){
-        const item=el('div','abc20-stat');
-        item.append(el('strong','',String(num)),el('span','',label));
-        stats.append(item);
-      }
-      const foot=el('div','abc20-method');
-      foot.append(el('span','abc20-method-mark','统计说明'),
-        el('span','', '依照2.0规则，以历史赛前可获得的数据复算；并非当日实际发布记录。缺少有效资金证据的比赛不参与评测。'));
-      panel.append(head,main,stats,foot);
-      return panel;
-    }
-    function renderAbc20ReplayDate(date){
+    // Historical ABC rule research is never part of the public customer bundle.
+    // Legacy dates predate formal ABC-v2 rollout; show no synthetic v2 publications.
+    const coldV2LegacyDate=date=>String(date||"")<"2026-10-12";
+    function renderColdV2LegacyArchive(){
       const box=$('content');
-      box.replaceChildren(sectionHead('冷门预警 2.0','历史规则验证 · 胜平负风险方向'));
-      const page=el('div','member-zone-page abc20-page');
-      page.append(abc20ReplaySummary());
-      const matches=abc20ReplayRows.filter(r=>r[0]===date);
-      const complete=matches.filter(r=>r[6]!==null);
-      const cov=abc20FundingByDate[date]||null;
-      const dateHeader=el('div','abc20-date-head');
-      const dateInfo=el('div','abc20-date-info');
-      const dateText=date.slice(5,7)+'月'+date.slice(8,10)+'日';
-      dateInfo.append(el('h3','',dateText),el('span','','本日筛选记录'));
-      dateHeader.append(dateInfo,el('span','abc20-date-count',matches.length+' 场'));
-      page.append(dateHeader);
-      if(cov){
-        const coverage=el('div','abc20-coverage');
-        coverage.append(el('span','','赛前资金数据覆盖'),el('strong','',cov[0]+' / '+cov[1]+' 场'));
-        page.append(coverage);
-      }
-      if(!matches.length){
-        const msg=(cov&&cov[0]===0)
-          ?'本日缺少可核验的赛前资金数据，暂无有效回溯样本。'
-          :'本日没有符合2.0筛选条件的记录；未覆盖的比赛不代表不存在风险。';
-        const blank=el('div','abc20-empty');
-        blank.append(el('strong','','暂无符合条件的记录'),el('p','',msg));
-        page.append(blank);box.append(page);return;
-      }
-      const list=el('div','abc20-match-list');
-      for(const r of matches){
-        const [,no,home,away,top,,result]=r;
-        const direction=top==='主胜'?'主队不胜':'主队不败';
-        const hit=result!==null&&abc20ReplayHit(r);
-        const statusClass=result===null?'pending':hit?'hit':'miss';
-        const statusText=result===null?'待赛果核验':hit?'回测命中':'回测未中';
-        const card=el('article','abc20-match');
-        const title=el('div','abc20-match-title');
-        const fixture=el('div','abc20-fixture');
-        fixture.append(el('span','abc20-match-no',no),el('strong','abc20-teams',home+'  —  '+away));
-        title.append(fixture,el('span','abc20-status '+statusClass,statusText));
-        const primary=el('div','abc20-direction');
-        primary.append(el('span','', '风险方向'),el('strong','',direction));
-        const comparison=el('div','abc20-comparison');
-        const base=el('div','abc20-comparison-item');
-        base.append(el('span','','赛前模型首选'),el('strong','',top));
-        const actual=el('div','abc20-comparison-item');
-        actual.append(el('span','','实际赛果（90分钟）'),el('strong','',result===null?'待核验':result));
-        comparison.append(base,actual);
-        card.append(title,primary,comparison);list.append(card);
-      }
-      page.append(list);
-      if(matches.length!==complete.length){
-        const pending=el('p','abc20-pending-note','本日仍有 '+(matches.length-complete.length)+' 场未完成赛果核验，不参与当前命中率计算。');
-        page.append(pending);
-      }
-      box.append(page);
+      box.replaceChildren(sectionHead('冷门预警 2.0','赛前重点避开 · 主队不胜 / 主队不败'));
+      const panel=el('div','empty');
+      panel.append(el('b','','该日期暂无2.0正式预警记录'),
+        el('div','','冷门预警2.0从10月12日起启用；可选择此后的日期查看正式发布记录及赛果。'));
+      box.append(panel);
     }
-
     function renderMemberZone(){
-      const box=$('content');box.replaceChildren(sectionHead('冷门预警',String(state.memberZone?.routeRuleVersion??'').startsWith('ABC-')?'重点避开：主队不胜 / 主队不败':'方向确认：主队不胜 / 主队不败 · 方向待确认：原Top2双选'));
+      const box=$('content');box.replaceChildren(sectionHead('冷门预警 2.0','重点避开 · 主队不胜 / 主队不败'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
-      if(abc20IsReplayDate(memberZoneDate())){renderAbc20ReplayDate(memberZoneDate());return}
+      if(coldV2LegacyDate(memberZoneDate())){renderColdV2LegacyArchive();return}
       if(!state.memberZoneLoading&&!state.memberZoneError&&state.memberZone){
         const cached=memberZonePageCache.get(state.memberZone);
         if(cached){box.append(cached);return}
@@ -2558,7 +2447,7 @@
       if(state.model==='cold'){
         if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
         const d=memberZoneDate();
-        if(abc20IsReplayDate(d)){renderMemberZone();return}
+        if(coldV2LegacyDate(d)){renderMemberZone();return}
         if(!state.memberZone||state.memberZone.date!==d){
           if(!state.memberZoneLoading){loadMemberZone();return}
         }
@@ -2738,8 +2627,79 @@
         }
       })();
     }
+    // Isolated administrator console. Historical ABC research is obtained only
+    // after server-side admin authorization; no replay fixtures or outcomes in JS.
+    let adminAbcPanelOpen=false,adminAbcPanelData=null,adminAbcPanelError=null,adminAbcPanelLoading=false;
+    const ADMIN_ABC_REPLAY_API=AUTH_BASE+'/functions/v1/soren-admin-abc-backtest-v1';
+    function renderAdminAbc20(){
+      if(memberInfo?.isAdmin!==true){adminAbcPanelOpen=false;renderProfile();return}
+      const box=$('content');
+      box.replaceChildren(sectionHead('内部研究','冷门预警 2.0 · 管理员'));
+      const page=el('div','profile-page');
+      const back=el('button','feedback-back','‹ 返回会员中心');
+      back.type='button';back.onclick=()=>{adminAbcPanelOpen=false;renderProfile()};
+      page.append(back);
+      if(adminAbcPanelLoading){page.append(empty('正在读取内部研究数据','只读取经管理员权限校验的历史赛前验证记录。'));box.append(page);return}
+      if(adminAbcPanelError){page.append(empty('研究数据暂不可用',adminAbcPanelError));box.append(page);return}
+      const data=adminAbcPanelData;
+      if(!data?.ok){page.append(empty('暂无研究资料','请稍后重新进入后台。'));box.append(page);return}
+      const st=data.stats||{},items=Array.isArray(data.rows)?data.rows:[];
+      const summary=el('section','abc20-report');
+      summary.append(el('div','abc20-eyebrow','内部历史规则复核 · 非客户发布战绩'));
+      const main=el('div','abc20-report-main');
+      const rate=el('div','abc20-primary');
+      rate.append(el('span','abc20-primary-label','赛前模拟方向覆盖率'),
+        el('strong','abc20-primary-value',st.rate===null?'—':String(st.rate)+'%'));
+      const sample=el('div','abc20-sample');sample.append(el('strong','',String(st.hits)+' / '+String(st.settled)),el('span','','已核验'));
+      main.append(rate,sample);summary.append(main);
+      const grid=el('div','abc20-stat-grid');
+      for(const [label,value] of [['触发',st.total],['成功',st.hits],['失败',st.misses],['待核验',st.pending]]){
+        const col=el('div','abc20-stat');
+        col.append(el('strong','',String(value??'—')),el('span','',label));
+        grid.append(col);
+      }
+      summary.append(grid,el('p','abc20-method','按历史赛前冻结数据复算；与正式发布战绩严格分离。'));
+      page.append(summary);
+      const byChannel=data.byChannel||{};
+      const ch=el('div','abc20-coverage');
+      ch.append(el('span','','内部通道分布'),
+        el('strong','',['A','B','C'].map(c=>c+': '+(byChannel[c]?.hits??0)+'/'+(byChannel[c]?.settled??0)).join(' · ')));
+      page.append(ch);
+      const list=el('div','abc20-match-list');
+      for(const r of items){
+        const card=el('article','abc20-match');
+        const header=el('div','abc20-match-title'),fixture=el('div','abc20-fixture');
+        fixture.append(el('span','abc20-match-no',String(r.date).slice(5)+' · '+r.no),
+          el('strong','abc20-teams',String(r.home)+' — '+String(r.away)));
+        header.append(fixture,el('span','abc20-status '+(r.hit===null?'pending':r.hit?'hit':'miss'),
+          r.hit===null?'待核验':r.hit?'模拟成功':'模拟失败'));
+        const pick=el('div','abc20-direction');
+        pick.append(el('span','','模拟防范方向'),el('strong','',String(r.direction)));
+        const ref=el('div','abc20-comparison');
+        for(const [label,value] of [['原Top1',r.top1],['实际赛果',r.result??'待核验'],['内部通道',r.channel]]){
+          const item=el('div','abc20-comparison-item');
+          item.append(el('span','',label),el('strong','',String(value)));
+          ref.append(item);
+        }
+        card.append(header,pick,ref);list.append(card);
+      }
+      page.append(list);box.append(page);
+    }
+    async function openAdminAbc20(){
+      if(memberInfo?.isAdmin!==true)return;
+      adminAbcPanelOpen=true;adminAbcPanelError=null;adminAbcPanelLoading=true;
+      renderAdminAbc20();
+      try{
+        const response=await authorizedApiFetch(ADMIN_ABC_REPLAY_API,{cache:'no-store',signal:timeoutSignal(12000)});
+        const data=await response.json();
+        if(!response.ok||data?.ok!==true)throw Error(data?.error||'服务暂不可用');
+        adminAbcPanelData=data;
+      }catch(e){adminAbcPanelError='无法读取研究记录：'+String(e?.message||e)}
+      finally{adminAbcPanelLoading=false;if(adminAbcPanelOpen)renderAdminAbc20()}
+    }
     function renderProfile(){
       if(feedbackMode){renderFeedbackPage();return}
+      if(adminAbcPanelOpen){renderAdminAbc20();return}
       const box=$('content');
       box.replaceChildren(sectionHead('我的','账号与会员'));
       const page=el('div','profile-page');
@@ -2764,6 +2724,14 @@
         admin.type='button';admin.onclick=()=>openFeedback('admin');actions.append(admin);
       }
       entry.append(actions);page.append(entry);
+      if(memberInfo?.isAdmin===true){
+        const research=el('section','feedback-entry profile-feedback-compact');
+        research.append(el('h3','','模型研究 · 管理员'),
+          el('p','','赛前规则复核及验证记录，仅后台可见。'));
+        const btn=el('button','feedback-admin-open','查看冷门预警2.0研究');
+        btn.type='button';btn.onclick=()=>openAdminAbc20();
+        research.append(btn);page.append(research);
+      }
 
       const more=el('details','profile-more profile-more-group');
       more.append(el('summary','','更多'));
