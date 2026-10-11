@@ -553,7 +553,7 @@
     }
     function renderMemberZone(){
       const historicalCold=memberZoneDate()<"2026-10-12";
-      const box=$('content');box.replaceChildren(sectionHead(historicalCold?'冷门预警 · 历史记录':'冷门预警 2.0',historicalCold?'历史正式预警及赛果':'重点避开 · 主队不胜 / 主队不败'));
+      const box=$('content');box.replaceChildren(sectionHead(historicalCold?'冷门预警 · 历史记录':'冷门预警 2.0',historicalCold?'历史预警记录及赛果':'重点避开 · 主队不胜 / 主队不败'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
       if(!state.memberZoneLoading&&!state.memberZoneError&&state.memberZone){
         const cached=memberZonePageCache.get(state.memberZone);
