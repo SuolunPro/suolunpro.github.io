@@ -551,10 +551,122 @@
       while(memberIntelCache.size>40)memberIntelCache.delete(memberIntelCache.keys().next().value);
       return j;
     }
+    // Historic 2.0 model validation is obtained through a separate VIP-only
+    // read endpoint. It is never labeled as a contemporaneously published tip.
+    const COLD_V2_HISTORY_API=AUTH_BASE+'/functions/v1/soren-cold-history-v2';
+    const isColdV2HistoryDate=date=>String(date||'')>='2026-09-28'&&String(date||'')<='2026-10-11';
+    let coldV2History=null,coldV2HistoryUser=null,coldV2HistoryAt=0;
+    let coldV2HistoryPromise=null,coldV2HistoryError=null;
+    async function loadColdV2History(){
+      if(memberInfo?.vipActive!==true)return;
+      const uid=String(authSession?.user?.id??'');
+      if(!uid)return;
+      if(coldV2History&&coldV2HistoryUser===uid&&Date.now()-coldV2HistoryAt<5*60*1000)return;
+      if(coldV2HistoryPromise)return coldV2HistoryPromise;
+      coldV2HistoryError=null;
+      const task=(async()=>{
+        try{
+          const response=await authorizedApiFetch(COLD_V2_HISTORY_API,{
+            cache:'no-store',signal:timeoutSignal(15000)});
+          const data=await response.json();
+          if(!response.ok||data?.ok!==true||!Array.isArray(data.rows))throw Error(
+            data?.error==='VIP_REQUIRED'?'会员权限不足':'历史资料暂不可用');
+          if(uid!==String(authSession?.user?.id??''))return;
+          coldV2History=data;coldV2HistoryAt=Date.now();coldV2HistoryUser=uid;coldV2HistoryError=null;
+        }catch(error){
+          if(uid===String(authSession?.user?.id??''))coldV2HistoryError=String(error?.message||'读取失败');
+        }finally{
+          if(uid===String(authSession?.user?.id??'')&&
+             (state.tab==='memberzone'||(state.tab==='home'&&state.model==='cold'))&&
+             isColdV2HistoryDate(memberZoneDate()))renderMemberZone();
+        }
+      })();
+      coldV2HistoryPromise=task;
+      try{await task}finally{if(coldV2HistoryPromise===task)coldV2HistoryPromise=null}
+    }
+    function renderColdV2History(){
+      const box=$('content');
+      box.replaceChildren(sectionHead('冷门预警 2.0','历史数据验证 · 主队不胜 / 主队不败'));
+      const uid=String(authSession?.user?.id??'');
+      const hasData=!!(coldV2History?.ok&&coldV2HistoryUser===uid);
+      const current=hasData&&Date.now()-coldV2HistoryAt<5*60*1000;
+      if(!hasData){
+        if(!coldV2HistoryPromise&&!coldV2HistoryError)void loadColdV2History();
+        if(coldV2HistoryError){
+          const boxError=empty('历史记录暂不可用','请稍后重试，正式预警功能不受影响。');
+          const retry=el('button','secondary','重新加载');
+          retry.onclick=()=>{coldV2HistoryError=null;renderColdV2History()};
+          box.append(boxError,retry);
+        }else box.append(empty('正在读取历史数据','正在核对赛前记录与已核验赛果。'));
+        return;
+      }
+      if(!current&&!coldV2HistoryPromise)void loadColdV2History();
+      const data=coldV2History,stats=data.stats||{},rows=data.rows||[];
+      const page=el('div','member-zone-page abc20-page');
+      const panel=el('section','abc20-report');
+      const mainHead=el('div','abc20-report-head');
+      mainHead.append(el('span','abc20-eyebrow','冷门预警 2.0 · 历史数据验证'),
+        el('span','abc20-range','2026.09.28 — 10.11'));
+      panel.append(mainHead);
+      const main=el('div','abc20-report-main');
+      const primary=el('div','abc20-primary');
+      primary.append(el('span','abc20-primary-label','历史方向覆盖率'),
+        el('strong','abc20-primary-value',stats.rate===null||stats.rate===undefined?'—':String(stats.rate)+'%'));
+      const sample=el('div','abc20-sample');
+      sample.append(el('strong','',String(stats.hits??0)+' / '+String(stats.settled??0)),el('span','','已核验'));
+      main.append(primary,sample);panel.append(main);
+      const statGrid=el('div','abc20-stat-grid');
+      for(const [label,n] of [
+        ['筛选场次',stats.total],['覆盖成功',stats.hits],
+        ['未覆盖',stats.misses],['待核验',stats.pending]
+      ]){
+        const item=el('div','abc20-stat');
+        item.append(el('strong','',String(n??'—')),el('span','',label));statGrid.append(item);
+      }
+      panel.append(statGrid);
+      panel.append(el('div','abc20-method','依据历史赛前存档数据进行规则验证，非当期实际发布记录。'));
+      page.append(panel);
+      const date=memberZoneDate(),display=date.slice(5,7)+'月'+date.slice(8,10)+'日';
+      const items=rows.filter(r=>r.date===date);
+      const dateHead=el('div','abc20-date-head');
+      const di=el('div','abc20-date-info');
+      di.append(el('h3','',display),el('span','','历史数据记录'));
+      dateHead.append(di,el('span','abc20-date-count',items.length+' 场'));
+      page.append(dateHead);
+      if(!items.length){
+        const placeholder=el('div','abc20-empty');
+        placeholder.append(el('strong','','当日无有效筛选记录'),
+          el('p','','该日期未出现符合2.0规则的可验证记录；数据不足的比赛不计入。'));
+        page.append(placeholder);box.append(page);return;
+      }
+      const list=el('div','abc20-match-list');
+      for(const row of items){
+        const hit=row.hit,card=el('article','abc20-match');
+        const title=el('div','abc20-match-title'),fixture=el('div','abc20-fixture');
+        fixture.append(el('span','abc20-match-no',String(row.no||'')),
+          el('strong','abc20-teams',String(row.home||'')+' — '+String(row.away||'')));
+        title.append(fixture,el('span','abc20-status '+(hit===null?'pending':hit?'hit':'miss'),
+          hit===null?'待核验':hit?'方向覆盖':'未覆盖'));
+        const risk=el('div','abc20-direction');
+        risk.append(el('span','','风险方向'),el('strong','',String(row.direction||'—')));
+        const compare=el('div','abc20-comparison');
+        for(const [label,value] of [
+          ['赛前模型首选',row.originalTop1],
+          ['90分钟赛果',row.result??'待核验']
+        ]){
+          const entry=el('div','abc20-comparison-item');
+          entry.append(el('span','',label),el('strong','',String(value??'—')));
+          compare.append(entry);
+        }
+        card.append(title,risk,compare);list.append(card);
+      }
+      page.append(list);box.append(page);
+    }
     function renderMemberZone(){
       const historicalCold=memberZoneDate()<"2026-10-12";
       const box=$('content');box.replaceChildren(sectionHead(historicalCold?'冷门预警 · 历史记录':'冷门预警 2.0',historicalCold?'历史预警记录及赛果':'重点避开 · 主队不胜 / 主队不败'));
       if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
+      if(isColdV2HistoryDate(memberZoneDate())){renderColdV2History();return}
       if(!state.memberZoneLoading&&!state.memberZoneError&&state.memberZone){
         const cached=memberZonePageCache.get(state.memberZone);
         if(cached){box.append(cached);return}
@@ -2436,6 +2548,7 @@
       if(state.model==='cold'){
         if(memberInfo?.vipActive!==true){renderPaidMemberRequired();return}
         const d=memberZoneDate();
+        if(isColdV2HistoryDate(d)){renderMemberZone();return}
         if(!state.memberZone||state.memberZone.date!==d){
           if(!state.memberZoneLoading){loadMemberZone();return}
         }
