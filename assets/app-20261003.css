@@ -1071,3 +1071,63 @@
 .admin-intel-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;color:#8993a3;font-size:11px}
 .admin-intel-link{display:inline-flex;margin-top:9px;font-size:12px;font-weight:650;text-decoration:none}
 @media(max-width:640px){.admin-intel-item-head{align-items:flex-start;flex-direction:column;gap:3px}.admin-intel-meta{display:grid;gap:3px}}
+
+
+/* ABC cold-risk historical replay: restrained, audit-first customer presentation. */
+.abc20-page{gap:0;min-width:0}
+.abc20-report{margin:8px 0 24px;padding:18px 18px 15px;background:#fff;border:1px solid #e6e7ea;border-radius:14px;box-shadow:0 2px 9px rgba(15,23,42,.025)}
+.abc20-report-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.abc20-eyebrow{font-size:12px;font-weight:700;color:#333b46;letter-spacing:.02em}
+.abc20-range{font-size:11px;color:#7e8591;font-variant-numeric:tabular-nums}
+.abc20-report-main{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:19px 0 16px}
+.abc20-primary{display:flex;flex-direction:column;gap:2px;min-width:0}
+.abc20-primary-label{font-size:12px;color:#717785}
+.abc20-primary-value{font-size:35px;line-height:1.25;letter-spacing:-.04em;color:#252c35;font-weight:780;font-variant-numeric:tabular-nums}
+.abc20-sample{display:flex;flex-direction:column;gap:3px;text-align:right;align-items:flex-end;flex:none}
+.abc20-sample strong{font-size:20px;font-weight:730;color:#434b57;font-variant-numeric:tabular-nums}
+.abc20-sample span{font-size:11px;color:#8a909b}
+.abc20-stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:12px 6px;background:#f7f8fa;border-radius:10px}
+.abc20-stat{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.abc20-stat:not(:first-child){border-left:1px solid #e5e7eb}
+.abc20-stat strong{font-size:17px;font-weight:730;color:#303844;font-variant-numeric:tabular-nums}
+.abc20-stat span{font-size:10px;color:#7f8792;white-space:nowrap}
+.abc20-method{display:flex;align-items:baseline;gap:8px;margin-top:13px;font-size:10.5px;line-height:1.75;color:#87909b}
+.abc20-method-mark{color:#626d7a;font-size:10px;font-weight:700;flex:none}
+.abc20-date-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 3px;margin-bottom:8px}
+.abc20-date-info{display:flex;align-items:baseline;gap:10px;min-width:0}
+.abc20-date-info h3{margin:0;font-size:16px;line-height:1.5;font-weight:760;color:#242b34}
+.abc20-date-info span{font-size:11px;color:#9299a3}
+.abc20-date-count{padding:5px 9px;border-radius:8px;background:#f0f2f5;color:#525c6a;white-space:nowrap;font-size:11px;font-weight:680}
+.abc20-coverage{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 3px 12px;color:#939aa3;font-size:11px}
+.abc20-coverage strong{font-weight:600;color:#74808d;font-variant-numeric:tabular-nums}
+.abc20-match-list{display:grid;gap:10px;margin-bottom:6px}
+.abc20-match{background:#fff;border:1px solid #e9ebef;border-radius:12px;padding:14px 15px 13px;min-width:0;box-shadow:0 2px 8px rgba(20,35,60,.025)}
+.abc20-match-title{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;margin-bottom:13px}
+.abc20-fixture{display:flex;align-items:flex-start;gap:9px;min-width:0;flex:1}
+.abc20-match-no{font-size:12px;line-height:1.65;flex:none;color:#87919d;font-weight:750;font-variant-numeric:tabular-nums}
+.abc20-teams{font-size:14px;line-height:1.6;color:#222933;font-weight:730;overflow-wrap:anywhere}
+.abc20-status{flex:none;border-radius:6px;padding:4px 7px;font-size:10.5px;line-height:1.45;font-weight:700;white-space:nowrap}
+.abc20-status.hit{color:#19714c;background:#eaf5ef}
+.abc20-status.miss{color:#a0514e;background:#f9eeed}
+.abc20-status.pending{color:#6d7786;background:#f1f2f5}
+.abc20-direction{display:flex;align-items:baseline;gap:13px;border-left:3px solid #ca353c;padding:7px 0 7px 11px;margin-bottom:12px}
+.abc20-direction span{font-size:11px;color:#77818e;white-space:nowrap}
+.abc20-direction strong{font-size:17px;font-weight:770;color:#b92531;letter-spacing:.01em}
+.abc20-comparison{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#f7f8fa;border-radius:8px;padding:10px 12px}
+.abc20-comparison-item{display:flex;flex-direction:column;gap:3px;min-width:0}
+.abc20-comparison-item span{font-size:10px;color:#9299a2;line-height:1.5}
+.abc20-comparison-item strong{font-size:12px;color:#3d4550;font-weight:700}
+.abc20-empty{padding:23px 16px;border:1px solid #e9ebef;background:#fff;border-radius:12px;text-align:center}
+.abc20-empty strong{display:block;font-size:14px;color:#414853}
+.abc20-empty p{margin:7px 0 0;color:#9299a4;line-height:1.75;font-size:12px}
+.abc20-pending-note{margin:11px 3px;color:#7c8794;font-size:11px;line-height:1.7}
+@media(max-width:380px){
+  .abc20-report{padding:16px 14px 13px}
+  .abc20-primary-value{font-size:32px}
+  .abc20-sample strong{font-size:18px}
+  .abc20-stat span{font-size:9px}
+  .abc20-match{padding:13px 12px}
+  .abc20-teams{font-size:13px}
+  .abc20-status{font-size:10px}
+  .abc20-date-info span{display:none}
+}
