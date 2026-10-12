@@ -750,36 +750,66 @@
         ['2026-09-27|008',['让胜','让平']],
         ['2026-09-29|012',['让胜','让平']]
       ]);
+      // One deterministic, data-driven summary for every match and refresh.
+      // Evidence SUPPORTING original Top1 is counter-evidence, never a reason to avoid it.
+      // Keep unsupported/free-form labels out of the two-line customer headline.
       const cleanColdRiskText=v=>{
-        const s=String(v||'').trim();
-        if(!s)return '';
-        if(/HUR.*红灯/.test(s))return '热门稳定性不足';
-        if(/原始首选置信度偏低/.test(s))return '原Top1置信度偏低';
-        if(/原始首选概率低于50%/.test(s))return '原Top1优势不足';
-        if(/William.*升赔/.test(s))return '主流欧赔对原Top1支持减弱';
+        const s=String(v??'').trim();
+        if(!s||/^(重点风险|强风险信号|风险观察)$/.test(s))return '';
+        if(/支持原方向|支持原Top1|支持当前Top1|原方向获支持|风险已回落|最新独立证据共同支持/.test(s))return '';
+        if(/亚盘.*反向|亚洲盘.*反向/.test(s))return '亚盘多机构与原首选背离';
+        if(/市场.*反向|市场.*背离|市场.*分歧|威廉方向与Top1分歧/.test(s))return '市场方向与原首选出现分歧';
+        if(/情报.*反向|情报.*利空|首选方.*利空|重要利空/.test(s))return '赛前情报不利于原首选';
+        if(/William.*支持减弱|William.*升赔/.test(s))return '主流欧赔支持原首选的力度减弱';
         if(/竞彩HAD.*冲突/.test(s))return '官方SP与主流市场出现分歧';
-        if(/亚盘.*反向/.test(s))return '亚盘多机构与原Top1背离';
-        if(/市场.*反向/.test(s))return '市场综合方向与原Top1背离';
-        if(/情报.*反向|重要利空/.test(s))return '赛前情报对原Top1不利';
-        if(/人气过热/.test(s))return '人气偏热，市场支持不足';
-        return s.replace(/仅计风险，不生成方向/g,'').replace(/[，,;；]+$/,'').trim();
+        if(/高平风险|平局风险|防平信号/.test(s))return '独立指标提示平局风险';
+        if(/必发.*异常|资金结构.*异常|盈亏结构.*异常/.test(s))return '资金结构出现异常';
+        if(/人气.*过热|人气.*市场背离/.test(s))return '市场热度与实际支持出现背离';
+        if(/赔率市场异动/.test(s))return '赛前赔率出现异常变化';
+        if(/HUR.*红灯|热门失手风险|原始首选置信度偏低|原始首选概率低于50%|重点风险\/HUR/.test(s))return '原首选稳定性不足';
+        return '';
       };
       const buildColdRiskSummary=(row,cold,route)=>{
         const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
-        if(currentMarketRiskCooling(gate))return '最新亚盘多机构支持原方向 · 当前风险已回落';
         const pop=(cold?.popularity&&typeof cold.popularity==='object')?cold.popularity:{};
-        const list=[];
-        const push=v=>{const t=cleanColdRiskText(v);if(t&&!list.includes(t))list.push(t)};
-        (Array.isArray(cold?.vipEvidence)?cold.vipEvidence:[]).forEach(push);
-        (Array.isArray(cold?.evidence)?cold.evidence:[]).forEach(push);
-        if(gate.asianAdverseTop===true)push('亚盘多机构与原Top1背离');
-        if(gate.shadowMarketAdverse===true)push('市场综合方向与原Top1背离');
-        if(gate.shadowIntelligenceAdverseTop===true)push('赛前情报对原Top1不利');
-        if(pop.divergence===true)push('人气偏热，市场支持不足');
-        if(pop.fundAnomaly===true)push('资金结构出现异常');
-        if(!list.length&&route?.displayReason)push(route.displayReason);
-        if(!list.length&&cold?.customerRiskScore>=4)push('多项赛前风险指标同时触发');
-        return list.slice(0,2).join(' · ');
+        const original=String(route?.originalTop1??cold?.originalTop1??row?.model?.top1??'');
+        const found=new Map();
+        const add=(text,rank)=>{if(!text)return;const current=found.get(text);if(current===undefined||rank>current)found.set(text,rank)};
+        // Strongest source: typed signals in the same refreshed feed.
+        const marketTop=String(gate.shadowMarketTop??'');
+        if(marketTop==='平'&&original&&original!=='平')add('市场资金/机构提示平局分歧',95);
+        else if(['主胜','客胜'].includes(marketTop)&&original&&marketTop!==original)add('市场资金/机构与原首选背离',94);
+        if(gate.shadowMarketAdverse===true)add('市场方向与原首选出现分歧',88);
+        if(gate.asianAdverseTop===true)add('亚盘多机构与原首选背离',86);
+        if(gate.shadowIntelligenceAdverseTop===true)add('赛前情报不利于原首选',84);
+        if(pop.fundAnomaly===true)add('资金结构出现异常',72);
+        if(pop.divergence===true)add('市场热度与实际支持出现背离',66);
+        // Confirmed adverse evidence only: do not promote positive or generic badges
+        // to an apparent justification for the defensive direction.
+        const raw=[
+          ...(Array.isArray(cold?.vipEvidence)?cold.vipEvidence:[]),
+          ...(Array.isArray(cold?.evidence)?cold.evidence:[]),
+          ...(Array.isArray(cold?.directionSupport)?cold.directionSupport:[])
+        ];
+        for(const value of raw){
+          const text=cleanColdRiskText(value);
+          if(!text)continue;
+          if(text==='亚盘多机构与原首选背离'&&gate.asianSupportsTop===true&&gate.asianAdverseTop!==true)continue;
+          if(text==='赛前情报不利于原首选'&&gate.shadowIntelligenceSupportsTop===true&&gate.shadowIntelligenceAdverseTop!==true)continue;
+          if(text==='市场方向与原首选出现分歧'&&marketTop===original&&!gate.shadowMarketAdverse)continue;
+          const rank=text.includes('平局')?80:text.includes('原首选稳定性不足')?18:54;
+          add(text,rank);
+        }
+        const confidence=Number(route?.top1Confidence);
+        if(route?.top1Confidence!=null&&Number.isFinite(confidence)&&confidence>0&&
+           (confidence<0.5||(confidence>=1&&confidence<50)))add('原首选胜出优势不足',22);
+        // This is a risk summary, not an inventory of all indicators.
+        // Opposing, supportive evidence remains visible under 查看依据.
+        const prioritized=[...found.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+        if(prioritized.length)return prioritized.slice(0,2).join(' · ');
+        if(currentMarketRiskCooling(gate))
+          return route?.type==='FOCUS_AVOID'?'最新市场支持原首选，防范依据需复核':'最新市场支持原首选，风险正在观察';
+        return '赛前存在风险信号，具体反向依据待核验';
       };
       const validDailyHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
       const coldDailyPerformance={
