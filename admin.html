@@ -238,7 +238,7 @@ async function loadDualShadow(){
  const btn=$("dualShadowLoad"),s=$("dualShadowStatus"),sum=$("dualShadowStats"),list=$("dualShadowList");
  const date=$("dualShadowDate").value,stamp=token;
  if(!stamp||$("dashboard").hidden){s.textContent="请先验证管理员身份";return}
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||date<"2026-10-13"||date>beijingDate()){s.textContent="请选择2026-10-13至今天的有效日期";return}
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<"2026-10-13"||date>beijingDate()){s.textContent="请选择2026-10-13至今天的有效日期";return}
  btn.disabled=true;s.textContent="读取已冻结影子记录中…";sum.hidden=true;list.hidden=true;sum.replaceChildren();list.replaceChildren();
  try{
   const rsp=await fetch(base+"/rest/v1/rpc/soren_admin_dual_strategy_shadow_v01",{
