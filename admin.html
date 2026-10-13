@@ -33,10 +33,11 @@
 
 <div class="admin-tool" id="dualShadowArea">
 <h3 class="section-title">🧪 双策略影子实验室</h3>
-<p class="muted">仅管理员可见｜稳健版与激进版并行比较。此处只展示已保存的真实赛前影子记录，不修改原始预测、今日优选或客户推荐。</p>
-<p class="dual-warning">当前为影子研究版本，尚未开启每日自动保存。历史无记录时显示“暂无记录”，不会事后补造推荐。</p>
+<p class="muted">仅管理员可见｜稳健版与激进版并行比较，不修改原始预测、今日优选或客户推荐。</p>
+<div><button id="dualShadowHistory" type="button">📊 历史回测</button><button id="dualShadowLive" class="secondary" type="button">📈 赛前影子战绩</button></div>
+<p class="dual-warning" id="dualShadowNote">历史回测：2026-09-23至2026-10-12，采用真实赛前冻结数据按当前试验规则事后计算。不是当时发布的正式推荐，也不能当成独立前瞻命中率。</p>
 <label class="muted" for="dualShadowDate">竞彩日期（北京时间）</label>
-<input type="date" id="dualShadowDate" min="2026-10-13" aria-label="选择双策略影子日期">
+<input type="date" id="dualShadowDate" min="2026-09-23" max="2026-10-12" aria-label="选择双策略影子日期">
 <button id="dualShadowLoad" type="button">查看稳健版 / 激进版</button>
 <p id="dualShadowStatus" class="statusline" aria-live="polite">请选择日期，手动加载，不占用客户接口。</p>
 <div id="dualShadowStats" class="dual-overview" hidden></div>
@@ -228,7 +229,24 @@ async function loadGptResults(){
 }
 $("gptUnifiedLoad").onclick=loadGptResults;
 
-$("dualShadowDate").value=beijingDate();
+let dualViewMode="history";
+$("dualShadowDate").value="2026-10-12";
+function dualSetMode(mode){
+ dualViewMode=mode;
+ $("dualShadowHistory").className=mode==="history"?"":"secondary";
+ $("dualShadowLive").className=mode==="live"?"":"secondary";
+ $("dualShadowDate").min=mode==="history"?"2026-09-23":"2026-10-13";
+ $("dualShadowDate").max=mode==="history"?"2026-10-12":beijingDate();
+ $("dualShadowDate").value=mode==="history"?"2026-10-12":beijingDate();
+ $("dualShadowNote").textContent=mode==="history"
+  ?"历史回测：2026-09-23至2026-10-12，使用真实赛前冻结资料按新试验规则重建，不是当时实际发布的推荐；不可作为独立前瞻成绩。"
+  :"真实影子：仅展示自2026-10-13以后在开球前实际保存的记录。每30分钟低频捕获；部分早期场次可能缺少记录。";
+ $("dualShadowStatus").textContent="请选择日期后点击查看。两套策略互不影响客户网站。";
+ $("dualShadowStats").replaceChildren();$("dualShadowStats").hidden=true;
+ $("dualShadowList").replaceChildren();$("dualShadowList").hidden=true;
+}
+$("dualShadowHistory").onclick=()=>dualSetMode("history");
+$("dualShadowLive").onclick=()=>dualSetMode("live");
 const dualFmt=(n,d)=>Number(d)>0?Number(n)+"/"+Number(d)+"（"+(100*Number(n)/Number(d)).toFixed(1)+"%）":"尚无结算";
 function dualMake(tag,clazz,content){
  const el=document.createElement(tag);if(clazz)el.className=clazz;
@@ -238,10 +256,14 @@ async function loadDualShadow(){
  const btn=$("dualShadowLoad"),s=$("dualShadowStatus"),sum=$("dualShadowStats"),list=$("dualShadowList");
  const date=$("dualShadowDate").value,stamp=token;
  if(!stamp||$("dashboard").hidden){s.textContent="请先验证管理员身份";return}
- if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<"2026-10-13"||date>beijingDate()){s.textContent="请选择2026-10-13至今天的有效日期";return}
- btn.disabled=true;s.textContent="读取已冻结影子记录中…";sum.hidden=true;list.hidden=true;sum.replaceChildren();list.replaceChildren();
+ const dateLower=dualViewMode==="history"?"2026-09-23":"2026-10-13";
+ const dateUpper=dualViewMode==="history"?"2026-10-12":beijingDate();
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<dateLower||date>dateUpper){s.textContent="请选择当前模式允许的有效日期";return}
+ btn.disabled=true;s.textContent=dualViewMode==="history"?"读取已保存的历史规则回测…":"读取已冻结影子记录中…";sum.hidden=true;list.hidden=true;sum.replaceChildren();list.replaceChildren();
  try{
-  const rsp=await fetch(base+"/rest/v1/rpc/soren_admin_dual_strategy_shadow_v01",{
+  const rpc=dualViewMode==="history"?"soren_admin_dual_strategy_history_v01":"soren_admin_dual_strategy_shadow_v01";
+  const historyMode=dualViewMode==="history";
+  const rsp=await fetch(base+"/rest/v1/rpc/"+rpc,{
    method:"POST",headers:{apikey:key,Authorization:"Bearer "+stamp,"Content-Type":"application/json"},
    body:JSON.stringify({p_date:date}),cache:"no-store",signal:AbortSignal.timeout(9000)
   });
@@ -250,16 +272,19 @@ async function loadDualShadow(){
   if(d?.ok!==true)throw Error("后台没有返回有效影子记录");
   if(stamp!==token||$("dashboard").hidden)return;
   const rows=Array.isArray(d.rows)?d.rows:[];
-  if(!rows.length){s.textContent="该日期暂无已保存的赛前影子策略；不会根据赛果事后补生成。";return}
-  s.textContent=date+"｜共 "+(new Set(rows.map(x=>String(x.no)))).size+" 场、"+rows.length+" 条策略记录（影子研究，非正式推荐）";
+  if(!rows.length){s.textContent=historyMode?"该日期没有可核验的历史赛前回测记录。":"该日期暂无实际开球前保存的影子策略。";return}
+  s.textContent=date+"｜"+(historyMode?"历史回测":"实际影子记录")+"｜共 "+(new Set(rows.map(x=>String(x.no)))).size+" 场、"+rows.length+" 条策略（非正式客户推荐）";
   for(const [value,label] of [["STEADY","🟢 稳健版"],["AGGRESSIVE","🔵 激进版"]]){
-   const stat=(Array.isArray(d.stats)?d.stats:[]).find(x=>x.strategy===value)||{};
+   const todayStat=(Array.isArray(d.stats)?d.stats:[]).find(x=>x.strategy===value)||{};
+   const stat=(historyMode?d.overall:d.stats);
+   const finalStat=(Array.isArray(stat)?stat:[]).find(x=>x.strategy===value)||todayStat;
    const box=dualMake("div","dual-stat");
    box.append(dualMake("strong","",label));
-   box.append(dualMake("div","","已存档："+Number(stat.total||0)+"场｜待结算："+Number(stat.pending||0)+"｜冲突："+Number(stat.conflict||0)));
-   box.append(dualMake("small","","胜平负单选："+dualFmt(stat.ft_single_hit,stat.ft_single_settled)));
-   box.append(dualMake("small","","让球单选："+dualFmt(stat.handicap_single_hit,stat.handicap_single_settled)));
-   box.append(dualMake("small","","胜平负双选覆盖："+dualFmt(stat.ft_double_hit,stat.ft_double_settled)));
+   box.append(dualMake("div","",(historyMode?"历史总计":"已存档")+"："+Number(finalStat.total||0)+"场｜已核验："+Number(finalStat.settled||0)+"｜待结算："+Number(finalStat.pending||0)+"｜冲突："+Number(finalStat.conflict||0)));
+   if(historyMode)box.append(dualMake("small","","所选日期："+Number(todayStat.total||0)+"场（只展示当天详情）"));
+   box.append(dualMake("small","","胜平负单选："+dualFmt(finalStat.ft_single_hit,finalStat.ft_single_settled)));
+   box.append(dualMake("small","","让球单选："+dualFmt(finalStat.handicap_single_hit,finalStat.handicap_single_settled)));
+   box.append(dualMake("small","","胜平负双选覆盖："+dualFmt(finalStat.ft_double_hit,finalStat.ft_double_settled)));
    sum.append(box);
   }
   sum.hidden=false;
@@ -290,7 +315,7 @@ async function loadDualShadow(){
    }
    card.append(cols);
    const dateText=String(first.frozenAt||"");
-   if(dateText){const dt=new Date(dateText);card.append(dualMake("div","dual-stamp","数据冻结："+(Number.isNaN(dt.getTime())?dateText:dt.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false}))+"（北京时间）"))}
+   if(dateText){const dt=new Date(dateText);card.append(dualMake("div","dual-stamp",(historyMode?"原始赛前快照：":"数据冻结：")+(Number.isNaN(dt.getTime())?dateText:dt.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false}))+"（北京时间）"))}
    list.append(card);
   }
   list.hidden=false;
