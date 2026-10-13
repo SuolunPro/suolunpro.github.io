@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九十刻度 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}.stat.primary{grid-column:1/-1;background:#172031;color:#fff;padding:20px}.stat.primary b{font-size:44px;color:#fff}.stat.primary small{font-size:12px;color:#c5d1e1;display:block;margin-top:4px}.section-title{font-size:16px;margin:18px 0 10px}.daily-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.daily-item{text-align:center;background:#f5f7f9;border-radius:8px;padding:8px 2px;font-size:12px}.daily-item strong{display:block;font-size:17px;margin-top:5px}.daily-item small{font-size:10px;color:#687386}.stat-caption{font-size:11px;line-height:1.6;color:#666;margin:10px 0 0}.statusline{font-size:12px;color:#687386;margin:10px 0}@media(max-width:390px){.daily-list{gap:3px}.daily-item{font-size:10px;padding:7px 1px}.daily-item strong{font-size:15px}}.admin-tool{margin-top:22px;padding-top:18px;border-top:1px solid #ececec}.secondary{background:#687386}.reset-note{margin:4px 0 10px;line-height:1.6}.final-intel-results{margin-top:16px}.final-intel-row{background:#f8fafc;border:1px solid #e7ebf0;border-radius:12px;padding:14px;margin:12px 0}.final-intel-row h4{font-size:15px;margin:0 0 8px}.final-intel-row p{line-height:1.55;margin:8px 0}.final-intel-row details{border-top:1px solid #e0e5eb;padding-top:9px;margin-top:9px}.final-intel-row summary{font-size:13px;cursor:pointer;color:#394d68}.final-intel-pick{display:inline-block;font-weight:800;padding:8px 12px;border-radius:9px;background:#e6f4ea;color:#1d6338}.final-intel-pick.pass{background:#fff0e0;color:#8c5713}.final-intel-pick.single{background:#e6f4ea;color:#1d6338}a{color:#b72129}.gpt-one-row{background:#f8fafc;border:1px solid #e7ebf0;border-radius:11px;margin:10px 0;padding:13px}.gpt-one-head{font-weight:700;font-size:14px;margin-bottom:9px}.gpt-one-main{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}.gpt-one-pred{font-size:16px}.gpt-one-verdict{font-size:14px}.gpt-one-verdict.hit{color:#18834d}.gpt-one-verdict.miss{color:#bd3030}.gpt-one-verdict.neutral{color:#7b8493}.gpt-one-foot{font-size:12px;margin:6px 0 0;line-height:1.5}</style></head><body><div class="wrap"><h1>九十刻度 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><button id="signIn">登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九十刻度 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}.stat.primary{grid-column:1/-1;background:#172031;color:#fff;padding:20px}.stat.primary b{font-size:44px;color:#fff}.stat.primary small{font-size:12px;color:#c5d1e1;display:block;margin-top:4px}.section-title{font-size:16px;margin:18px 0 10px}.daily-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.daily-item{text-align:center;background:#f5f7f9;border-radius:8px;padding:8px 2px;font-size:12px}.daily-item strong{display:block;font-size:17px;margin-top:5px}.daily-item small{font-size:10px;color:#687386}.stat-caption{font-size:11px;line-height:1.6;color:#666;margin:10px 0 0}.statusline{font-size:12px;color:#687386;margin:10px 0}@media(max-width:390px){.daily-list{gap:3px}.daily-item{font-size:10px;padding:7px 1px}.daily-item strong{font-size:15px}}.admin-tool{margin-top:22px;padding-top:18px;border-top:1px solid #ececec}.secondary{background:#687386}.reset-note{margin:4px 0 10px;line-height:1.6}.final-intel-results{margin-top:16px}.final-intel-row{background:#f8fafc;border:1px solid #e7ebf0;border-radius:12px;padding:14px;margin:12px 0}.final-intel-row h4{font-size:15px;margin:0 0 8px}.final-intel-row p{line-height:1.55;margin:8px 0}.final-intel-row details{border-top:1px solid #e0e5eb;padding-top:9px;margin-top:9px}.final-intel-row summary{font-size:13px;cursor:pointer;color:#394d68}.final-intel-pick{display:inline-block;font-weight:800;padding:8px 12px;border-radius:9px;background:#e6f4ea;color:#1d6338}.final-intel-pick.pass{background:#fff0e0;color:#8c5713}.final-intel-pick.single{background:#e6f4ea;color:#1d6338}a{color:#b72129}.gpt-one-row{background:#f8fafc;border:1px solid #e7ebf0;border-radius:11px;margin:10px 0;padding:13px}.gpt-one-head{font-weight:700;font-size:14px;margin-bottom:9px}.gpt-one-main{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}.gpt-one-pred{font-size:16px}.gpt-one-verdict{font-size:14px}.gpt-one-verdict.hit{color:#18834d}.gpt-one-verdict.miss{color:#bd3030}.gpt-one-verdict.neutral{color:#7b8493}.gpt-one-foot{font-size:12px;margin:6px 0 0;line-height:1.5}.dual-wrap{margin-top:14px}.dual-overview{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 0}.dual-stat{background:#f6f8fb;border-radius:10px;border:1px solid #e8edf3;padding:12px;line-height:1.6;font-size:13px}.dual-stat strong{display:block;font-size:16px;color:#182638}.dual-stat small{color:#64748b}.dual-row{background:#f8fafc;border:1px solid #e8edf3;border-radius:12px;padding:13px;margin:10px 0}.dual-row h4{margin:0 0 9px;font-size:14px}.dual-columns{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dual-cell{border-radius:9px;background:#edf6f0;padding:9px;min-width:0;font-size:13px}.dual-cell.aggressive{background:#ebf2ff}.dual-cell b{display:block;color:#1c3650;line-height:1.6;overflow-wrap:anywhere}.dual-cell small{font-size:11px;color:#627286;display:block;line-height:1.6;margin-top:3px}.dual-stamp{font-size:11px;color:#7b8795;margin-top:6px}.dual-warning{font-size:12px;background:#fff8e8;padding:10px;border-radius:8px;color:#795a19;line-height:1.6}@media(max-width:430px){.dual-overview{gap:6px}.dual-stat{padding:9px}.dual-columns{gap:5px}.dual-cell{padding:8px}.dual-cell b{font-size:12px}}</style></head><body><div class="wrap"><h1>九十刻度 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><button id="signIn">登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden>
 <h2>注册人数概览</h2>
 <div class="grid">
 <div class="stat primary">累计注册账号<b id="total">—</b><small>Supabase 真实账号数 · 非访问次数</small></div>
@@ -29,6 +29,18 @@
 <input type="date" id="gptUnifiedDate" aria-label="选择竞彩日期">
 <button type="button" id="gptUnifiedLoad">查看预测与赛果</button>
 <div id="gptUnifiedList" class="final-intel-results" hidden aria-live="polite"></div>
+</div>
+
+<div class="admin-tool" id="dualShadowArea">
+<h3 class="section-title">🧪 双策略影子实验室</h3>
+<p class="muted">仅管理员可见｜稳健版与激进版并行比较。此处只展示已保存的真实赛前影子记录，不修改原始预测、今日优选或客户推荐。</p>
+<p class="dual-warning">当前为影子研究版本，尚未开启每日自动保存。历史无记录时显示“暂无记录”，不会事后补造推荐。</p>
+<label class="muted" for="dualShadowDate">竞彩日期（北京时间）</label>
+<input type="date" id="dualShadowDate" min="2026-10-13" aria-label="选择双策略影子日期">
+<button id="dualShadowLoad" type="button">查看稳健版 / 激进版</button>
+<p id="dualShadowStatus" class="statusline" aria-live="polite">请选择日期，手动加载，不占用客户接口。</p>
+<div id="dualShadowStats" class="dual-overview" hidden></div>
+<div id="dualShadowList" class="dual-wrap" hidden aria-live="polite"></div>
 </div>
 <p class="statusline" id="updated">等待更新…</p>
 <button id="refresh">刷新统计</button><button id="logout">退出</button>
@@ -215,6 +227,77 @@ async function loadGptResults(){
  }finally{button.disabled=false}
 }
 $("gptUnifiedLoad").onclick=loadGptResults;
+
+$("dualShadowDate").value=beijingDate();
+const dualFmt=(n,d)=>Number(d)>0?Number(n)+"/"+Number(d)+"（"+(100*Number(n)/Number(d)).toFixed(1)+"%）":"尚无结算";
+function dualMake(tag,clazz,content){
+ const el=document.createElement(tag);if(clazz)el.className=clazz;
+ if(content!=null)el.textContent=String(content);return el;
+}
+async function loadDualShadow(){
+ const btn=$("dualShadowLoad"),s=$("dualShadowStatus"),sum=$("dualShadowStats"),list=$("dualShadowList");
+ const date=$("dualShadowDate").value,stamp=token;
+ if(!stamp||$("dashboard").hidden){s.textContent="请先验证管理员身份";return}
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||date<"2026-10-13"||date>beijingDate()){s.textContent="请选择2026-10-13至今天的有效日期";return}
+ btn.disabled=true;s.textContent="读取已冻结影子记录中…";sum.hidden=true;list.hidden=true;sum.replaceChildren();list.replaceChildren();
+ try{
+  const rsp=await fetch(base+"/rest/v1/rpc/soren_admin_dual_strategy_shadow_v01",{
+   method:"POST",headers:{apikey:key,Authorization:"Bearer "+stamp,"Content-Type":"application/json"},
+   body:JSON.stringify({p_date:date}),cache:"no-store",signal:AbortSignal.timeout(9000)
+  });
+  if(!rsp.ok)throw Error(rsp.status===401||rsp.status===403?"管理员权限或登录会话失效":"影子数据读取失败：HTTP "+rsp.status);
+  const d=await rsp.json();
+  if(d?.ok!==true)throw Error("后台没有返回有效影子记录");
+  if(stamp!==token||$("dashboard").hidden)return;
+  const rows=Array.isArray(d.rows)?d.rows:[];
+  if(!rows.length){s.textContent="该日期暂无已保存的赛前影子策略；不会根据赛果事后补生成。";return}
+  s.textContent=date+"｜共 "+(new Set(rows.map(x=>String(x.no)))).size+" 场、"+rows.length+" 条策略记录（影子研究，非正式推荐）";
+  for(const [value,label] of [["STEADY","🟢 稳健版"],["AGGRESSIVE","🔵 激进版"]]){
+   const stat=(Array.isArray(d.stats)?d.stats:[]).find(x=>x.strategy===value)||{};
+   const box=dualMake("div","dual-stat");
+   box.append(dualMake("strong","",label));
+   box.append(dualMake("div","","已存档："+Number(stat.total||0)+"场｜待结算："+Number(stat.pending||0)+"｜冲突："+Number(stat.conflict||0)));
+   box.append(dualMake("small","","胜平负单选："+dualFmt(stat.ft_single_hit,stat.ft_single_settled)));
+   box.append(dualMake("small","","让球单选："+dualFmt(stat.handicap_single_hit,stat.handicap_single_settled)));
+   box.append(dualMake("small","","胜平负双选覆盖："+dualFmt(stat.ft_double_hit,stat.ft_double_settled)));
+   sum.append(box);
+  }
+  sum.hidden=false;
+  const matchMap=new Map();
+  for(const row of rows){
+   const no=String(row.no||"");if(!matchMap.has(no))matchMap.set(no,[]);
+   matchMap.get(no).push(row);
+  }
+  const items=[...matchMap.entries()].sort((a,b)=>a[0].localeCompare(b[0],"zh",{numeric:true}));
+  for(const [no,group] of items){
+   const first=group[0],card=dualMake("article","dual-row");
+   card.append(dualMake("h4","",no+"　"+String(first.home||"")+" VS "+String(first.away||"")));
+   const cols=dualMake("div","dual-columns");
+   for(const [code,title] of [["STEADY","稳健版"],["AGGRESSIVE","激进版"]]){
+    const one=group.find(z=>z.strategy===code),cell=dualMake("div","dual-cell"+(code==="AGGRESSIVE"?" aggressive":""));
+    cell.append(dualMake("small","",title));
+    if(!one){cell.append(dualMake("b","","未存档"));cols.append(cell);continue}
+    const market=one.market==="HANDICAP_1X2"?"让球胜平负"+(Number(one.handicap)>0?"+":"")+String(one.handicap??""):"胜平负";
+    const picks=Array.isArray(one.picks)?one.picks.join("＋"):"—";
+    cell.append(dualMake("b","",market+"："+picks));
+    cell.append(dualMake("small","",one.type==="DOUBLE"?"双选":one.type==="SINGLE"?"单选":"待确认"));
+    let verdict=one.settlement==="CONFLICT"?"赛果冲突｜暂停计入":one.settlement!=="SETTLED"?"待结算":one.hit===true?"✅ 命中":"❌ 未中";
+    cell.append(dualMake("small","",verdict+(one.score?"｜90分钟 "+one.score:"")));
+    const rk=one.risk&&typeof one.risk==="object"?one.risk:{};
+    const flags=[rk.dq||"",rk.hur?"HUR-"+rk.hur:"",rk.dtr?"DTR-"+rk.dtr:"",rk.formal_upset_warning?"冷门风险":""].filter(Boolean).join(" · ");
+    if(flags)cell.append(dualMake("small","",flags));
+    cols.append(cell);
+   }
+   card.append(cols);
+   const dateText=String(first.frozenAt||"");
+   if(dateText){const dt=new Date(dateText);card.append(dualMake("div","dual-stamp","数据冻结："+(Number.isNaN(dt.getTime())?dateText:dt.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false}))+"（北京时间）"))}
+   list.append(card);
+  }
+  list.hidden=false;
+ }catch(e){if(stamp===token&&!$("dashboard").hidden)s.textContent="读取失败："+String(e?.message||e)}
+ finally{btn.disabled=false}
+}
+$("dualShadowLoad").onclick=loadDualShadow;
 $("refresh").onclick=async()=>{try{await refresh()}catch(e){alert(e.message)}};
 $("logout").onclick=()=>{
  token=null;$("dashboard").hidden=true;$("login").hidden=false;$("resetPassword").value="";$("resetPassword2").value="";$("resetMsg").textContent="";$("gptUnifiedList").hidden=true;$("gptUnifiedList").replaceChildren();$("msg").textContent="已退出当前管理员统计页面";
