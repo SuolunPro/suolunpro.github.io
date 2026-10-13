@@ -254,7 +254,7 @@ async function loadDualShadow(){
  const date=$("dualShadowDate").value,stamp=token,mode=dualViewMode;
  if(!stamp||$("dashboard").hidden){status.textContent="请先验证管理员身份";return}
  const min=mode==="history"?"2026-09-23":"2026-10-13",max=mode==="history"?"2026-10-12":beijingDate();
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||date<min||date>max){status.textContent="请选择允许的日期";return}
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<min||date>max){status.textContent="请选择允许的日期";return}
  btn.disabled=true;status.textContent="读取严格赛前资料重建结果…";sum.hidden=true;list.hidden=true;sum.replaceChildren();list.replaceChildren();
  try{
   const res=await fetch(base+"/rest/v1/rpc/soren_admin_unified_research_v01",{
