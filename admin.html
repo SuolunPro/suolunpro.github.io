@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九十刻度 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}.stat.primary{grid-column:1/-1;background:#172031;color:#fff;padding:20px}.stat.primary b{font-size:44px;color:#fff}.stat.primary small{font-size:12px;color:#c5d1e1;display:block;margin-top:4px}.section-title{font-size:16px;margin:18px 0 10px}.daily-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.daily-item{text-align:center;background:#f5f7f9;border-radius:8px;padding:8px 2px;font-size:12px}.daily-item strong{display:block;font-size:17px;margin-top:5px}.daily-item small{font-size:10px;color:#687386}.stat-caption{font-size:11px;line-height:1.6;color:#666;margin:10px 0 0}.statusline{font-size:12px;color:#687386;margin:10px 0}@media(max-width:390px){.daily-list{gap:3px}.daily-item{font-size:10px;padding:7px 1px}.daily-item strong{font-size:15px}}.admin-tool{margin-top:22px;padding-top:18px;border-top:1px solid #ececec}.secondary{background:#687386}.reset-note{margin:4px 0 10px;line-height:1.6}.final-intel-results{margin-top:16px}.final-intel-row{background:#f8fafc;border:1px solid #e7ebf0;border-radius:12px;padding:14px;margin:12px 0}.final-intel-row h4{font-size:15px;margin:0 0 8px}.final-intel-row p{line-height:1.55;margin:8px 0}.final-intel-row details{border-top:1px solid #e0e5eb;padding-top:9px;margin-top:9px}.final-intel-row summary{font-size:13px;cursor:pointer;color:#394d68}.final-intel-pick{display:inline-block;font-weight:800;padding:8px 12px;border-radius:9px;background:#e6f4ea;color:#1d6338}.final-intel-pick.pass{background:#fff0e0;color:#8c5713}.final-intel-pick.single{background:#e6f4ea;color:#1d6338}a{color:#b72129}.gpt-one-row{background:#f8fafc;border:1px solid #e7ebf0;border-radius:11px;margin:10px 0;padding:13px}.gpt-one-head{font-weight:700;font-size:14px;margin-bottom:9px}.gpt-one-main{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}.gpt-one-pred{font-size:16px}.gpt-one-verdict{font-size:14px}.gpt-one-verdict.hit{color:#18834d}.gpt-one-verdict.miss{color:#bd3030}.gpt-one-verdict.neutral{color:#7b8493}.gpt-one-foot{font-size:12px;margin:6px 0 0;line-height:1.5}.dual-wrap{margin-top:14px}.dual-overview{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 0}.dual-stat{background:#f6f8fb;border-radius:10px;border:1px solid #e8edf3;padding:12px;line-height:1.6;font-size:13px}.dual-stat strong{display:block;font-size:16px;color:#182638}.dual-stat small{color:#64748b}.dual-row{background:#f8fafc;border:1px solid #e8edf3;border-radius:12px;padding:13px;margin:10px 0}.dual-row h4{margin:0 0 9px;font-size:14px}.dual-columns{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dual-cell{border-radius:9px;background:#edf6f0;padding:9px;min-width:0;font-size:13px}.dual-cell.aggressive{background:#ebf2ff}.dual-cell b{display:block;color:#1c3650;line-height:1.6;overflow-wrap:anywhere}.dual-cell small{font-size:11px;color:#627286;display:block;line-height:1.6;margin-top:3px}.dual-stamp{font-size:11px;color:#7b8795;margin-top:6px}.dual-warning{font-size:12px;background:#fff8e8;padding:10px;border-radius:8px;color:#795a19;line-height:1.6}@media(max-width:430px){.dual-overview{gap:6px}.dual-stat{padding:9px}.dual-columns{gap:5px}.dual-cell{padding:8px}.dual-cell b{font-size:12px}}</style></head><body><div class="wrap"><h1>九十刻度 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><button id="signIn">登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九十刻度 · 管理员统计</title><style>body{margin:0;background:#f5f5f5;font:15px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#242424}.wrap{max-width:650px;margin:35px auto;padding:20px}h1{font-size:23px}.panel{background:white;border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 12px #00000009}input{box-sizing:border-box;width:100%;padding:13px;margin:7px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}button{background:#cf2930;color:#fff;border:0;border-radius:8px;padding:12px 18px;margin:8px 8px 0 0;cursor:pointer}.muted{color:#777;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stat{background:#f7f7f7;border-radius:9px;padding:15px}.stat b{font-size:26px;display:block;margin-top:8px}.stat.primary{grid-column:1/-1;background:#172031;color:#fff;padding:20px}.stat.primary b{font-size:44px;color:#fff}.stat.primary small{font-size:12px;color:#c5d1e1;display:block;margin-top:4px}.section-title{font-size:16px;margin:18px 0 10px}.daily-list{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.daily-item{text-align:center;background:#f5f7f9;border-radius:8px;padding:8px 2px;font-size:12px}.daily-item strong{display:block;font-size:17px;margin-top:5px}.daily-item small{font-size:10px;color:#687386}.stat-caption{font-size:11px;line-height:1.6;color:#666;margin:10px 0 0}.statusline{font-size:12px;color:#687386;margin:10px 0}@media(max-width:390px){.daily-list{gap:3px}.daily-item{font-size:10px;padding:7px 1px}.daily-item strong{font-size:15px}}.admin-tool{margin-top:22px;padding-top:18px;border-top:1px solid #ececec}.secondary{background:#687386}.reset-note{margin:4px 0 10px;line-height:1.6}.final-intel-results{margin-top:16px}.final-intel-row{background:#f8fafc;border:1px solid #e7ebf0;border-radius:12px;padding:14px;margin:12px 0}.final-intel-row h4{font-size:15px;margin:0 0 8px}.final-intel-row p{line-height:1.55;margin:8px 0}.final-intel-row details{border-top:1px solid #e0e5eb;padding-top:9px;margin-top:9px}.final-intel-row summary{font-size:13px;cursor:pointer;color:#394d68}.final-intel-pick{display:inline-block;font-weight:800;padding:8px 12px;border-radius:9px;background:#e6f4ea;color:#1d6338}.final-intel-pick.pass{background:#fff0e0;color:#8c5713}.final-intel-pick.single{background:#e6f4ea;color:#1d6338}a{color:#b72129}.gpt-one-row{background:#f8fafc;border:1px solid #e7ebf0;border-radius:11px;margin:10px 0;padding:13px}.gpt-one-head{font-weight:700;font-size:14px;margin-bottom:9px}.gpt-one-main{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}.gpt-one-pred{font-size:16px}.gpt-one-verdict{font-size:14px}.gpt-one-verdict.hit{color:#18834d}.gpt-one-verdict.miss{color:#bd3030}.gpt-one-verdict.neutral{color:#7b8493}.gpt-one-foot{font-size:12px;margin:6px 0 0;line-height:1.5}.dual-wrap{margin-top:14px}.dual-overview{display:grid;grid-template-columns:1fr;gap:10px;margin:13px 0}.dual-stat{background:#f6f8fb;border-radius:10px;border:1px solid #e8edf3;padding:12px;line-height:1.6;font-size:13px}.dual-stat strong{display:block;font-size:16px;color:#182638}.dual-stat small{color:#64748b}.dual-row{background:#f8fafc;border:1px solid #e8edf3;border-radius:12px;padding:13px;margin:10px 0}.dual-row h4{margin:0 0 9px;font-size:14px}.dual-columns{display:grid;grid-template-columns:1fr 1fr;gap:9px}.dual-cell{border-radius:9px;background:#edf6f0;padding:9px;min-width:0;font-size:13px}.dual-cell.aggressive{background:#ebf2ff}.dual-cell b{display:block;color:#1c3650;line-height:1.6;overflow-wrap:anywhere}.dual-cell small{font-size:11px;color:#627286;display:block;line-height:1.6;margin-top:3px}.dual-stamp{font-size:11px;color:#7b8795;margin-top:6px}.dual-warning{font-size:12px;background:#fff8e8;padding:10px;border-radius:8px;color:#795a19;line-height:1.6}@media(max-width:430px){.dual-overview{gap:6px}.dual-stat{padding:9px}.dual-columns{gap:5px}.dual-cell{padding:8px}.dual-cell b{font-size:12px}}</style></head><body><div class="wrap"><h1>九十刻度 · 管理员统计</h1><p class="muted">仅限已授权管理员。普通会员无法读取会员统计。</p><section id="login" class="panel"><h2>管理员登录</h2><input id="email" type="email" autocomplete="email" placeholder="管理员邮箱"><input id="password" type="password" autocomplete="current-password" placeholder="密码"><button id="signIn">登录并查看统计</button><p id="msg" class="muted"></p></section><section id="dashboard" class="panel" hidden>
 <h2>注册人数概览</h2>
 <div class="grid">
 <div class="stat primary">累计注册账号<b id="total">—</b><small>Supabase 真实账号数 · 非访问次数</small></div>
@@ -32,14 +32,14 @@
 </div>
 
 <div class="admin-tool" id="dualShadowArea">
-<h3 class="section-title">🧪 双策略影子实验室</h3>
-<p class="muted">仅管理员可见｜稳健版与激进版并行比较，不修改原始预测、今日优选或客户推荐。</p>
-<div><button id="dualShadowHistory" type="button">📊 历史回测</button><button id="dualShadowLive" class="secondary" type="button">📈 赛前影子战绩</button></div>
-<p class="dual-warning" id="dualShadowNote">历史回测：2026-09-23至2026-10-12，采用真实赛前冻结数据按当前试验规则事后计算。不是当时发布的正式推荐，也不能当成独立前瞻命中率。</p>
+<h3 class="section-title">🧪 综合智能分流 · 研究版</h3>
+<p class="muted">管理员专用的单一分流模块。原稳健版、激进版已从此页面撤下。仅复用已有赛前快照，未修改模型、今日优选、客户推荐或自动采集。</p>
+<div><button id="dualShadowHistory" type="button">📊 历史重建</button><button id="dualShadowLive" class="secondary" type="button">📈 赛前影子归档</button></div>
+<p class="dual-warning" id="dualShadowNote">当前是可核验条件下的部分重建版，不是旧ABCDE完整规则。历史研究记录“193场／让球30场23中／综合162中”尚未逐场独立复现，禁止直接当作本站新方案历史成绩。</p>
 <label class="muted" for="dualShadowDate">竞彩日期（北京时间）</label>
-<input type="date" id="dualShadowDate" min="2026-09-23" max="2026-10-12" aria-label="选择双策略影子日期">
-<button id="dualShadowLoad" type="button">查看稳健版 / 激进版</button>
-<p id="dualShadowStatus" class="statusline" aria-live="polite">请选择日期，手动加载，不占用客户接口。</p>
+<input type="date" id="dualShadowDate" min="2026-09-23" max="2026-10-12" aria-label="选择综合分流日期">
+<button id="dualShadowLoad" type="button">查看综合分流结果</button>
+<p id="dualShadowStatus" class="statusline" aria-live="polite">选择日期，手动加载影子研究结果。</p>
 <div id="dualShadowStats" class="dual-overview" hidden></div>
 <div id="dualShadowList" class="dual-wrap" hidden aria-live="polite"></div>
 </div>
@@ -239,87 +239,70 @@ function dualSetMode(mode){
  $("dualShadowDate").max=mode==="history"?"2026-10-12":beijingDate();
  $("dualShadowDate").value=mode==="history"?"2026-10-12":beijingDate();
  $("dualShadowNote").textContent=mode==="history"
-  ?"历史回测：2026-09-23至2026-10-12，使用真实赛前冻结资料按新试验规则重建，不是当时实际发布的推荐；不可作为独立前瞻成绩。"
-  :"真实影子：仅展示自2026-10-13以后在开球前实际保存的记录。每30分钟低频捕获；部分早期场次可能缺少记录。";
- $("dualShadowStatus").textContent="请选择日期后点击查看。两套策略互不影响客户网站。";
+  ?"历史重建：2026-09-23—2026-10-12，仅使用赛前冻结数据按当前可证规则回放。旧综合方案30场23中、162场覆盖尚未复现；本页成绩仅属于部分规则验证版。"
+  :"赛前影子归档：复用2026-10-13后已存的赛前影子原始快照进行当前部分规则重算。非本方案当时发布的前瞻推荐，也不改写旧记录。";
+ $("dualShadowStatus").textContent="请选择日期并手动查看。";
  $("dualShadowStats").replaceChildren();$("dualShadowStats").hidden=true;
  $("dualShadowList").replaceChildren();$("dualShadowList").hidden=true;
 }
 $("dualShadowHistory").onclick=()=>dualSetMode("history");
 $("dualShadowLive").onclick=()=>dualSetMode("live");
-const dualFmt=(n,d)=>Number(d)>0?Number(n)+"/"+Number(d)+"（"+(100*Number(n)/Number(d)).toFixed(1)+"%）":"尚无结算";
-function dualMake(tag,clazz,content){
- const el=document.createElement(tag);if(clazz)el.className=clazz;
- if(content!=null)el.textContent=String(content);return el;
-}
+const dualFmt=(n,d)=>Number(d)>0?Number(n)+"/"+Number(d)+"（"+(100*Number(n)/Number(d)).toFixed(1)+"%）":"暂无已核验样本";
+function dualMake(tag,clazz,content){const el=document.createElement(tag);if(clazz)el.className=clazz;if(content!=null)el.textContent=String(content);return el}
 async function loadDualShadow(){
- const btn=$("dualShadowLoad"),s=$("dualShadowStatus"),sum=$("dualShadowStats"),list=$("dualShadowList");
- const date=$("dualShadowDate").value,stamp=token;
- if(!stamp||$("dashboard").hidden){s.textContent="请先验证管理员身份";return}
- const dateLower=dualViewMode==="history"?"2026-09-23":"2026-10-13";
- const dateUpper=dualViewMode==="history"?"2026-10-12":beijingDate();
- if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<dateLower||date>dateUpper){s.textContent="请选择当前模式允许的有效日期";return}
- btn.disabled=true;s.textContent=dualViewMode==="history"?"读取已保存的历史规则回测…":"读取已冻结影子记录中…";sum.hidden=true;list.hidden=true;sum.replaceChildren();list.replaceChildren();
+ const btn=$("dualShadowLoad"),status=$("dualShadowStatus"),sum=$("dualShadowStats"),list=$("dualShadowList");
+ const date=$("dualShadowDate").value,stamp=token,mode=dualViewMode;
+ if(!stamp||$("dashboard").hidden){status.textContent="请先验证管理员身份";return}
+ const min=mode==="history"?"2026-09-23":"2026-10-13",max=mode==="history"?"2026-10-12":beijingDate();
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||date<min||date>max){status.textContent="请选择允许的日期";return}
+ btn.disabled=true;status.textContent="读取严格赛前资料重建结果…";sum.hidden=true;list.hidden=true;sum.replaceChildren();list.replaceChildren();
  try{
-  const rpc=dualViewMode==="history"?"soren_admin_dual_strategy_history_v01":"soren_admin_dual_strategy_shadow_v01";
-  const historyMode=dualViewMode==="history";
-  const rsp=await fetch(base+"/rest/v1/rpc/"+rpc,{
-   method:"POST",headers:{apikey:key,Authorization:"Bearer "+stamp,"Content-Type":"application/json"},
-   body:JSON.stringify({p_date:date}),cache:"no-store",signal:AbortSignal.timeout(9000)
+  const res=await fetch(base+"/rest/v1/rpc/soren_admin_unified_research_v01",{
+    method:"POST",headers:{apikey:key,Authorization:"Bearer "+stamp,"Content-Type":"application/json"},
+    body:JSON.stringify({p_date:date,p_mode:mode}),cache:"no-store",signal:AbortSignal.timeout(9000)
   });
-  if(!rsp.ok)throw Error(rsp.status===401||rsp.status===403?"管理员权限或登录会话失效":"影子数据读取失败：HTTP "+rsp.status);
-  const d=await rsp.json();
-  if(d?.ok!==true)throw Error("后台没有返回有效影子记录");
+  if(!res.ok)throw Error(res.status===401||res.status===403?"管理员权限或登录会话失效":"历史重建读取失败 HTTP "+res.status);
+  const d=await res.json();
+  if(!d||d.ok!==true||d.reconstructionVerified!==false)throw Error("没有取得可信的研究版结果");
   if(stamp!==token||$("dashboard").hidden)return;
   const rows=Array.isArray(d.rows)?d.rows:[];
-  if(!rows.length){s.textContent=historyMode?"该日期没有可核验的历史赛前回测记录。":"该日期暂无实际开球前保存的影子策略。";return}
-  s.textContent=date+"｜"+(historyMode?"历史回测":"实际影子记录")+"｜共 "+(new Set(rows.map(x=>String(x.no)))).size+" 场、"+rows.length+" 条策略（非正式客户推荐）";
-  for(const [value,label] of [["STEADY","🟢 稳健版"],["AGGRESSIVE","🔵 激进版"]]){
-   const todayStat=(Array.isArray(d.stats)?d.stats:[]).find(x=>x.strategy===value)||{};
-   const stat=(historyMode?d.overall:d.stats);
-   const finalStat=(Array.isArray(stat)?stat:[]).find(x=>x.strategy===value)||todayStat;
-   const box=dualMake("div","dual-stat");
-   box.append(dualMake("strong","",label));
-   box.append(dualMake("div","",(historyMode?"历史总计":"已存档")+"："+Number(finalStat.total||0)+"场｜已核验："+Number(finalStat.settled||0)+"｜待结算："+Number(finalStat.pending||0)+"｜冲突："+Number(finalStat.conflict||0)));
-   if(historyMode)box.append(dualMake("small","","所选日期："+Number(todayStat.total||0)+"场（只展示当天详情）"));
-   box.append(dualMake("small","","胜平负单选："+dualFmt(finalStat.ft_single_hit,finalStat.ft_single_settled)));
-   box.append(dualMake("small","","让球单选："+dualFmt(finalStat.handicap_single_hit,finalStat.handicap_single_settled)));
-   box.append(dualMake("small","","胜平负双选覆盖："+dualFmt(finalStat.ft_double_hit,finalStat.ft_double_settled)));
-   sum.append(box);
-  }
-  sum.hidden=false;
-  const matchMap=new Map();
-  for(const row of rows){
-   const no=String(row.no||"");if(!matchMap.has(no))matchMap.set(no,[]);
-   matchMap.get(no).push(row);
-  }
-  const items=[...matchMap.entries()].sort((a,b)=>a[0].localeCompare(b[0],"zh",{numeric:true}));
-  for(const [no,group] of items){
-   const first=group[0],card=dualMake("article","dual-row");
-   card.append(dualMake("h4","",no+"　"+String(first.home||"")+" VS "+String(first.away||"")));
-   const cols=dualMake("div","dual-columns");
-   for(const [code,title] of [["STEADY","稳健版"],["AGGRESSIVE","激进版"]]){
-    const one=group.find(z=>z.strategy===code),cell=dualMake("div","dual-cell"+(code==="AGGRESSIVE"?" aggressive":""));
-    cell.append(dualMake("small","",title));
-    if(!one){cell.append(dualMake("b","","未存档"));cols.append(cell);continue}
-    const market=one.market==="HANDICAP_1X2"?"让球胜平负"+(Number(one.handicap)>0?"+":"")+String(one.handicap??""):"胜平负";
-    const picks=Array.isArray(one.picks)?one.picks.join("＋"):"—";
-    cell.append(dualMake("b","",market+"："+picks));
-    cell.append(dualMake("small","",one.type==="DOUBLE"?"双选":one.type==="SINGLE"?"单选":"待确认"));
-    let verdict=one.settlement==="CONFLICT"?"赛果冲突｜暂停计入":one.settlement!=="SETTLED"?"待结算":one.hit===true?"✅ 命中":"❌ 未中";
-    cell.append(dualMake("small","",verdict+(one.score?"｜90分钟 "+one.score:"")));
-    const rk=one.risk&&typeof one.risk==="object"?one.risk:{};
-    const flags=[rk.dq||"",rk.hur?"HUR-"+rk.hur:"",rk.dtr?"DTR-"+rk.dtr:"",rk.formal_upset_warning?"冷门风险":""].filter(Boolean).join(" · ");
-    if(flags)cell.append(dualMake("small","",flags));
-    cols.append(cell);
+  const statSet=mode==="history"?d.overall:d.stats;
+  const stat=(Array.isArray(statSet)?statSet:[])[0]||{};
+  const count=rows.length;
+  status.textContent=date+"｜"+(mode==="history"?"历史研究回放":"赛前归档重算")+"｜"+count+"场｜部分规则，非旧ABCDE完整方案";
+  const box=dualMake("div","dual-stat");
+  box.append(dualMake("strong","","综合智能分流 · 部分规则"));
+  box.append(dualMake("div","","统计总计："+Number(stat.total||0)+"场｜核验："+Number(stat.settled||0)+"｜待结算："+Number(stat.pending||0)+"｜冲突："+Number(stat.conflict||0)));
+  box.append(dualMake("small","","胜平负单选："+Number(stat.ft_single||0)+"场｜"+dualFmt(stat.ft_single_hit,stat.ft_single_settled)));
+  box.append(dualMake("small","","让球单选："+Number(stat.handicap_single||0)+"场｜"+dualFmt(stat.handicap_single_hit,stat.handicap_single_settled)));
+  box.append(dualMake("small","","胜平负双选覆盖："+Number(stat.ft_double||0)+"场｜"+dualFmt(stat.ft_double_hit,stat.ft_double_settled)));
+  const overallHit=Number(stat.ft_single_hit||0)+Number(stat.handicap_single_hit||0)+Number(stat.ft_double_hit||0);
+  box.append(dualMake("small","","当前可核验综合覆盖："+dualFmt(overallHit,stat.settled)));
+  box.append(dualMake("small","","特别说明：ABCDE A—D及E1/E2尚无可独立复核的完整源链，本版禁止将宽泛冷门预警直接切换成让球。"));
+  sum.append(box);sum.hidden=false;
+  if(!rows.length){list.append(dualMake("p","muted","该日期尚无符合防倒灌检查的赛前快照。"));list.hidden=false;return}
+  const sorted=rows.slice().sort((a,b)=>String(a.no||"").localeCompare(String(b.no||""),"zh",{numeric:true}));
+  for(const row of sorted){
+   const card=dualMake("article","dual-row"),no=String(row.no||"");
+   card.append(dualMake("h4","",no+"　"+String(row.home||"")+" VS "+String(row.away||"")));
+   const market=row.market==="HANDICAP_1X2"?"让球胜平负"+(Number(row.handicap)>0?"+":"")+String(row.handicap??""):"胜平负";
+   const picks=Array.isArray(row.picks)?row.picks.join("＋"):"—";
+   card.append(dualMake("strong","",row.type==="REVIEW"?"待审核":market+"："+picks));
+   const verdict=row.settlement==="CONFLICT"?"赛果冲突｜暂不计入":row.settlement!=="SETTLED"?"待结算":row.hit===true?"✅ 命中":"❌ 未中";
+   card.append(dualMake("p","muted",(row.type==="DOUBLE"?"双选":row.type==="SINGLE"?"单选":"数据待确认")+"｜"+verdict+(row.score?"｜90分钟 "+row.score:"")));
+   const rk=row.risk&&typeof row.risk==="object"?row.risk:{};
+   card.append(dualMake("p","muted",[
+       rk.dq||"DQ未确认",rk.hur?"HUR-"+rk.hur:"",rk.dtr?"DTR-"+rk.dtr:"",
+       rk.decision==="HANDICAP_SINGLE"?"低置信度特例":""
+     ].filter(Boolean).join(" · ")));
+   if(row.frozenAt){
+    const tm=new Date(row.frozenAt);
+    card.append(dualMake("div","dual-stamp","原始赛前快照："+(Number.isNaN(tm.getTime())?String(row.frozenAt):tm.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false}))+"（北京时间）"));
    }
-   card.append(cols);
-   const dateText=String(first.frozenAt||"");
-   if(dateText){const dt=new Date(dateText);card.append(dualMake("div","dual-stamp",(historyMode?"原始赛前快照：":"数据冻结：")+(Number.isNaN(dt.getTime())?dateText:dt.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false}))+"（北京时间）"))}
    list.append(card);
   }
   list.hidden=false;
- }catch(e){if(stamp===token&&!$("dashboard").hidden)s.textContent="读取失败："+String(e?.message||e)}
+ }catch(e){if(stamp===token&&!$("dashboard").hidden)status.textContent="读取失败："+String(e?.message||e)}
  finally{btn.disabled=false}
 }
 $("dualShadowLoad").onclick=loadDualShadow;
