@@ -3696,6 +3696,9 @@
       panel.append(el('p','report-sub',[match.no,match.home,match.away].filter(Boolean).join(' · ')+'。市场与情报数据按采集窗口自动更新，仅作为赛前概率分析依据。'));
       if(analysis){
         const normalized=normalizeShadowAnalysis(analysis);
+        const betfairComplete=['home','draw','away'].every(k=>normalized.betfair.share[k]!==null);
+        const exchange=market?.exchange&&typeof market.exchange==='object'?market.exchange:{};
+        const sourceBetfairBlank=!betfairComplete&&exchange?.diagnostic?.reason==='source_betfair_cells_blank';
         const explicitLevel=analysis.level||analysis.riskLevel||analysis.risk_level||analysis.conclusionLevel||analysis.conclusion_level;
         const explicitSummary=analysis.summary||analysis.conclusion||analysis.verdict||analysis.analysisSummary||analysis.analysis_summary;
         const derivedSummary=(()=>{
@@ -3708,9 +3711,9 @@
           if(same&&Number.isFinite(fundMax)&&fundMax>=60)return '机构方向与必发资金同向，市场支持较集中';
           if(dirs.length>=2&&new Set(dirs).size>1)return '机构概率与必发资金方向存在分歧，需重点关注市场背离';
           if(normalized.flags.length)return normalized.flags.slice(0,2).join('；');
-          return '市场与情报证据已采集，当前以分项指标为主要参考';
+          return betfairComplete?'市场与情报证据已采集，当前以分项指标为主要参考':'机构赔率与情报可参考，必发资金尚未确认';
         })();
-        const level=explicitLevel?brandSafe(explicitLevel):(normalized.available?'证据已采集':'数据不足');
+        const level=!betfairComplete&&normalized.available?'机构数据已采集 · 必发待确认':(explicitLevel?brandSafe(explicitLevel):(normalized.available?'证据已采集':'数据不足'));
         const summary=explicitSummary?brandSafe(explicitSummary):brandSafe(derivedSummary||'暂无综合结论');
         const status=el('div','shadow-admin-status');
         status.append(el('b','',level),document.createTextNode(' · '+summary));
@@ -3719,6 +3722,28 @@
         renderShadowAnalysisFields(fields,analysis);
         fields.querySelectorAll('li,b,span').forEach(node=>{if(node.childElementCount===0)node.textContent=brandSafe(node.textContent)});
         panel.append(fields);
+        if(!betfairComplete){
+          panel.append(el('div','shadow-admin-status',sourceBetfairBlank
+            ?'必发原站的交易量及交易比例栏为空，资金方向、必发冷热和盈亏均未确认；不能用机构概率代替。'
+            :'必发资金数据不完整或尚未验证，不参与资金方向结论。'));
+          // Independent market reference is allowed only for a verified prematch
+          // snapshot. Never silently substitute this data for missing Betfair.
+          const src=exchange?.selections;
+          const srcAt=Date.parse(String(market?.capturedAt||''));
+          const kick=Date.parse(String(row?.kickoff||''));
+          const prematch=Number.isFinite(srcAt)&&Number.isFinite(kick)&&srcAt<kick;
+          const trio=key=>['home','draw','away'].map(k=>{
+            const v=src?.[k]?.[key];
+            return v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
+          });
+          const jcShare=trio('jc_share_pct'),jcHeat=trio('jc_cold_heat'),jcProfit=trio('jc_profit_index');
+          if(prematch&&jcShare.every(v=>v!==null)){
+            reportLine(panel,'竞彩侧交易比例（非必发）',jcShare.map(v=>v.toFixed(1)+'%').join(' / '));
+            if(jcHeat.every(v=>v!==null))reportLine(panel,'竞彩侧冷热（非必发）',jcHeat.map(v=>v.toFixed(0)).join(' / '));
+            if(jcProfit.every(v=>v!==null))reportLine(panel,'竞彩侧盈亏指数（非必发）',jcProfit.map(v=>v.toFixed(0)).join(' / '));
+            panel.append(el('p','report-sub','以上为另一组赛前市场参考数据，不代表必发真实成交，亦不替代正式模型判断。'));
+          }
+        }
       }else{
         panel.append(el('div','shadow-admin-status','本场深度市场分析暂无可展示数据。'));
         if(market){
