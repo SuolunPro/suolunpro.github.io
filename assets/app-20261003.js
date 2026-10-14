@@ -807,8 +807,8 @@
         // Opposing, supportive evidence remains visible under 查看依据.
         const prioritized=[...found.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
         if(prioritized.length)return prioritized.slice(0,2).join(' · ');
-        if(currentMarketRiskCooling(gate))
-          return route?.type==='FOCUS_AVOID'?'最新市场支持原首选，防范依据需复核':'最新市场支持原首选，风险正在观察';
+        if(asianSupportOnlyEvidence(gate))
+          return '部分亚盘支持原首选；整体市场及预警风险仍需复核';
         return '赛前存在风险信号，具体反向依据待核验';
       };
       const validDailyHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
@@ -923,7 +923,8 @@
         const isHomeTop=row.model?.top1==='主胜';
         const tier=String(cold?.customerTier||'持续观察');
         const abcPublished=String(cold?.customerRoute?.source??'')==='ABC_COLD_V2_PREMATCH'&&String(cold?.customerRoute?.type??'')==='FOCUS_AVOID';
-        const isCooling=!abcPublished&&(tier==='风险回落'||currentMarketRiskCooling(cold?.gate));
+        // The server-published state is authoritative; never clear a cold warning from Asian support alone.
+        const isCooling=!abcPublished&&tier==='风险回落';
         const validHandicap=x=>['让胜','让平','让负'].includes(String(x||''));
         const hp=row.model?.handicap||{};
         const handicapPrimary=validHandicap(hp.top1)?String(hp.top1):null;
@@ -1500,14 +1501,13 @@
     const safe=v=>{if(v===null||v===undefined||v==='')return '未确认';const s=String(v);return s==='PASS'?'未确认':s.replace(/PASS/g,'未确认')};
     const resultName={H:'主胜',D:'平',A:'客胜'},pickCode={'主胜':'H','平':'D','客胜':'A'};
     const normalizeResult=v=>({H:'H',D:'D',A:'A','3':'H','1':'D','0':'A','主胜':'H','平':'D','客胜':'A'}[String(v??'')]||null);
-    const currentMarketRiskCooling=gate=>{
+    // Partial Asian support is not evidence that an already-published risk has cleared.
+    const asianSupportOnlyEvidence=gate=>{
       if(!gate||typeof gate!=='object')return false;
       const supportCount=Number(gate.asianSupportCount??gate.asian_support_count??0);
       const asianSupports=gate.asianSupportsTop===true||gate.asian_supports_top===true;
       const asianAdverse=gate.asianAdverseTop===true||gate.asian_adverse_top===true;
-      const shadowAdverse=gate.shadowMarketAdverse===true||gate.shadow_market_adverse===true;
-      const intelAdverse=gate.shadowIntelligenceAdverseTop===true||gate.shadow_intelligence_adverse_top===true;
-      return asianSupports&&supportCount>=2&&!asianAdverse&&!shadowAdverse&&!intelAdverse;
+      return asianSupports&&supportCount>=2&&!asianAdverse;
     };
     const verified=row=>row.resultVerified===true&&normalizeResult(row.result)!==null;
     const hasScore=row=>verified(row)&&row.resultHome!==null&&row.resultHome!==undefined&&row.resultHome!==''&&row.resultAway!==null&&row.resultAway!==undefined&&row.resultAway!==''&&Number.isFinite(Number(row.resultHome))&&Number.isFinite(Number(row.resultAway));
@@ -2206,8 +2206,10 @@
       // The server is the single source of truth for warning publication.
       // Client-side gate fields explain why a warning was published; they must not
       // veto a server-published warning or future server-side entry routes.
-      const liveCooling=currentMarketRiskCooling(gate);
-      const displayTier=liveCooling?'风险观察':String(raw.displayTier??raw.display_tier??
+      // Preserve the published pre-match tier. Asian support alone cannot cancel it.
+      const asianSupportOnly=asianSupportOnlyEvidence(gate);
+      const liveCooling=false; // compatibility field for display components; no local risk clearance.
+      const displayTier=String(raw.displayTier??raw.display_tier??
         (gate?(level==='高'?'强风险信号':'重点风险'):
           String(row.date??'')>='2026-09-26'?'重点风险':level==='高'?'强风险信号':'重点风险'));
       const directionEligible=raw.directionPublicationEligible!==false&&raw.direction_publication_eligible!==false;
@@ -2217,27 +2219,26 @@
       else if(direction==='平局不稳'&&alternativePick==='主胜')direction='主队不败';
       else if(direction==='平局不稳'&&alternativePick==='客胜')direction='客队不败';
       if(!['主队不败','客队不败','平局风险'].includes(direction))direction='';
+      const verifiedMarketAdverse=strongMarketReverseEntry||
+        gate?.market_behavior_adverse===true||gate?.shadow_market_adverse===true||
+        gate?.asian_adverse_top===true;
       let inlineReason='';
-      if(liveCooling){
-        inlineReason='最新亚盘多机构支持原方向，风险已回落';
-      }else if(displayTier==='强风险信号'){
-        const focusText=strongMarketReverseEntry?'多源市场反向':oppositeSecond&&qualifiedDraw?'胜负方向分歧 · 防平信号':oppositeSecond?'胜负方向分歧':'防平信号';
-        inlineReason=focusText+' · 市场反向变化';
-      }else if(qualifiedDraw&&!oppositeSecond)inlineReason='独立进球模型提示平局风险';
-      else if(oppositeSecond)inlineReason='胜负方向分歧';
-      else inlineReason=basis[0]||'赛前风险证据达到重点观察门槛';
+      if(verifiedMarketAdverse)inlineReason='赛前市场出现不利于原首选的信号，预警仍需关注';
+      else if(marketAnomaly)inlineReason='赛前市场存在异常迹象，预警仍需关注';
+      else if(qualifiedDraw)inlineReason='独立进球模型提示平局风险';
+      else if(asianSupportOnly)inlineReason='部分亚盘支持原首选，不能据此认定风险解除';
+      else if(oppositeSecond)inlineReason='模型原首选仍存在不确定性，保持风险关注';
+      else inlineReason='赛前风险依据已记录，仍需综合市场与情报复核';
       const evidenceLines=[];
-      if(liveCooling)evidenceLines.push('最新亚盘多机构支持原方向，当前未见市场或情报反向确认');
-      else if(strongMarketReverseEntry)evidenceLines.push('多源赛前市场信号同时反向原首选');
-      if(!liveCooling){
-        if(oppositeSecond)evidenceLines.push('首选与次选形成主/客胜方向分歧');
-        if(qualifiedDraw)evidenceLines.push('严格赛前独立进球模型提示平局风险');
-        if(marketAnomaly)evidenceLines.push('赛前市场异常：'+(marketSignals.slice(0,2).join('、')||'赔率或盘口出现反向变化'));
-        for(const item of basis){
-          const value=String(item??'').trim();
-          if(evidenceLines.length>=3)break;
-          if(value&&!evidenceLines.includes(value))evidenceLines.push(value);
-        }
+      if(verifiedMarketAdverse)evidenceLines.push('赛前风险审计记录市场对原首选的不利信号');
+      if(marketAnomaly)evidenceLines.push('赛前市场异常：'+(marketSignals.slice(0,2).join('、')||'市场指标异常，具体方向待核验'));
+      if(qualifiedDraw)evidenceLines.push('严格赛前独立进球模型提示平局风险');
+      if(asianSupportOnly)evidenceLines.push('部分亚盘支持原首选；不能代替资金、凯利及情报交叉核验，也不自动解除预警');
+      if(oppositeSecond)evidenceLines.push('原始首选与次选分别为主胜、客胜两方向；此排序本身不构成独立反向证据');
+      for(const item of basis){
+        const value=String(item??'').trim();
+        if(evidenceLines.length>=3)break;
+        if(value&&!evidenceLines.includes(value))evidenceLines.push(value);
       }
       return {
         level,displayTier,
@@ -2290,17 +2291,22 @@
               const raw=row.upsetWarning??row.upset_warning;
               const gate=(raw?.focusGate&&typeof raw.focusGate==='object')?raw.focusGate:
                 ((raw?.focus_gate&&typeof raw.focus_gate==='object')?raw.focus_gate:{});
-              const signals=Array.isArray(raw?.marketSignals)?raw.marketSignals:
-                (Array.isArray(raw?.market_signals)?raw.market_signals:[]);
-              const opposite=gate?.opposite_second===true;
-              const market=gate?.market_anomaly===true||gate?.market_behavior_adverse===true||signals.length>0;
+              // A Top1/Top2 H/A pair is ordinary probability ranking, never itself market divergence.
+              const marketAdverse=gate?.market_behavior_adverse===true||
+                gate?.shadow_market_adverse===true||gate?.asian_adverse_top===true||
+                gate?.strong_market_reverse_entry===true;
+              const marketAnomaly=gate?.market_anomaly===true;
               const draw=gate?.qualified_draw===true;
-              if(opposite&&market)return '触发原因：胜负方向出现分歧，同时赛前市场出现反向变化，单一胜平负方向风险上升，因此启用让球保护。';
-              if(opposite&&draw)return '触发原因：胜负方向出现分歧，同时平局风险上升，单一胜平负方向稳定性不足，因此启用让球保护。';
-              if(opposite)return '触发原因：胜平负首选与次选出现明显方向分歧，单一胜平负方向稳定性不足，因此启用让球保护。';
-              if(market)return '触发原因：赛前市场出现反向变化，原胜平负方向风险上升，因此启用让球保护。';
-              if(draw)return '触发原因：赛前平局风险上升，单一胜平负方向稳定性不足，因此启用让球保护。';
-              return '触发原因：赛前风险结构发生变化，单一胜平负方向稳定性下降，因此启用让球保护。';
+              const confidenceRaw=row.confidence;
+              const confidenceNum=confidenceRaw==null||confidenceRaw===''?NaN:Number(confidenceRaw);
+              const confidencePct=Number.isFinite(confidenceNum)&&confidenceNum>=0&&confidenceNum<=100
+                ?(confidenceNum<=1?confidenceNum*100:confidenceNum):null;
+              if(marketAdverse&&draw)return '保护依据：赛前市场审计记录对原首选的不利信号，独立模型也提示平局风险；按已发布方案展示两个让球方向。';
+              if(marketAdverse)return '保护依据：赛前市场审计记录对原首选的不利信号；按已发布方案展示两个让球方向。';
+              if(draw)return '保护依据：赛前独立模型提示平局风险；按已发布方案展示两个让球方向。';
+              if(marketAnomaly)return '保护说明：赛前市场存在待复核的异常信号；按已发布方案展示两个让球方向，尚不能判定市场已反向。';
+              if(confidencePct!==null&&confidencePct<50)return '保护说明：原胜平负首选概率不足50%，按赛前已发布方案展示两个让球方向；尚无已确认的独立市场反向依据。';
+              return '保护说明：按赛前已发布方案展示两个让球方向。胜平负Top1和Top2不同只是概率排序，不能单凭此认定市场反向或风险上升。';
             })())
           );
           strip.append(main);
