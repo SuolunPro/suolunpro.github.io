@@ -1278,11 +1278,25 @@
         xsec.append(el('div','member-zone-proof-title','九十刻度 · 深度市场依据'),el('div','member-zone-intel-state','展开后读取最新赛前深度分析…'));
         body.append(xsec);
         const inlineShadow=(row?.shadowAnalysis&&typeof row.shadowAnalysis==='object')?row.shadowAnalysis:((cold?.gate?.shadowAnalysis&&typeof cold.gate.shadowAnalysis==='object')?cold.gate.shadowAnalysis:null);
+        // VIP cold proof must be no later than the official pool-day sale close.
+        // Never fall back to the collector's latest after-sale analysis.
+        const poolWeekday=new Date(zoneDate+'T12:00:00+08:00').getUTCDay();
+        const poolSaleMs=Date.parse(zoneDate+'T'+([0,6].includes(poolWeekday)?'23':'22')+':00:00+08:00');
+        const proofKickoffMs=Date.parse(String(row.kickoff||''));
+        const proofFreezeMs=Number.isFinite(proofKickoffMs)?Math.min(poolSaleMs,proofKickoffMs):poolSaleMs;
+        const saleClosed=Number.isFinite(proofFreezeMs)&&Date.now()>=proofFreezeMs;
+        const inlineCapturedMs=Date.parse(String(inlineShadow?.capturedAt??inlineShadow?.captured_at??''));
+        const frozenInline=inlineShadow&&(!saleClosed||(Number.isFinite(inlineCapturedMs)&&inlineCapturedMs<proofFreezeMs))?inlineShadow:null;
         let shadowProofLoaded=false;
         const loadShadowProof=async()=>{
           if(shadowProofLoaded)return;shadowProofLoaded=true;
           try{
-            const analysis=inlineShadow||(await loadMemberIntelProof(zoneDate,row.no))?.analysis;
+            if(saleClosed&&!frozenInline){
+              xsec.replaceChildren(el('div','member-zone-proof-title','九十刻度 · 深度市场依据'),
+                el('div','member-zone-intel-state','停售前分析快照未确认，已停止停售后刷新。'));
+              return;
+            }
+            const analysis=frozenInline||(await loadMemberIntelProof(zoneDate,row.no))?.analysis;
             renderShadowAnalysisFields(xsec,analysis,{title:'九十刻度 · 深度市场依据',top1:row.model?.top1,conclusion:displayLabel});
           }catch(error){
             shadowProofLoaded=false;
