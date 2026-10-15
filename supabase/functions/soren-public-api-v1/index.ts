@@ -1996,8 +1996,23 @@ async function attachWilliamMarketLayer(rows:Record<string,unknown>[],date:strin
   if(fixtureError)throw new Error("WILLIAM_FIXTURE_UNAVAILABLE:"+String(fixtureError.message));
   const byNo=new Map((fixtures??[]).map((x:Record<string,unknown>)=>[String(x.match_no??"").padStart(3,"0"),x]));
   const ids=(fixtures??[]).map((x:Record<string,unknown>)=>Number(x.id)).filter(Number.isFinite); if(!ids.length)return rows;
-  const {data:markets,error:marketError}=await db.from("soren_market_snapshots").select("match_id,snapshot_type,home_value,draw_value,away_value,data_quality,captured_at,ingested_at").in("match_id",ids).eq("source_code","zucaijia_william").eq("market_type","FT_1X2").in("snapshot_type",["initial","current"]).in("data_quality",["verified","verified_mirror"]).order("captured_at",{ascending:false}).limit(2000);
+  // Source-qualified offering routing. Match eligibility must come from the
+  // verified JC HAD/HHAD snapshots, never inferred from missing FT predictions,
+  // market maker odds, or a numeric handicap alone.
+  const [williamQuery,offerQuery]=await Promise.all([
+    db.from("soren_market_snapshots").select("match_id,snapshot_type,home_value,draw_value,away_value,data_quality,captured_at,ingested_at").in("match_id",ids).eq("source_code","zucaijia_william").eq("market_type","FT_1X2").in("snapshot_type",["initial","current"]).in("data_quality",["verified","verified_mirror"]).order("captured_at",{ascending:false}).limit(2000),
+    db.from("soren_market_snapshots").select("match_id,market_type,home_value,draw_value,away_value,line,captured_at,ingested_at").in("match_id",ids).eq("source_code","qiulaile_sp_mirror").in("market_type",["HAD","HHAD"]).eq("data_quality","verified_mirror").order("captured_at",{ascending:false}).limit(4000),
+  ]);
+  const {data:markets,error:marketError}=williamQuery;
   if(marketError)throw new Error("WILLIAM_MARKET_UNAVAILABLE:"+String(marketError.message));
+  if(offerQuery.error)console.error("JC_OFFER_ROUTING_UNAVAILABLE",offerQuery.error.message);
+  const offersById=new Map<number,Record<string,unknown>[]>();
+  for(const entry of offerQuery.data??[]){
+    const id=Number(entry.match_id);
+    if(!Number.isFinite(id))continue;
+    if(!offersById.has(id))offersById.set(id,[]);
+    offersById.get(id)!.push(entry as Record<string,unknown>);
+  }
   const grouped=new Map<number,Record<string,unknown>[]>();
   for(const x of markets??[]){const id=Number(x.match_id);if(!Number.isFinite(id))continue;if(!grouped.has(id))grouped.set(id,[]);grouped.get(id)!.push(x as Record<string,unknown>);}
   return rows.map(row=>{
@@ -2006,7 +2021,22 @@ async function attachWilliamMarketLayer(rows:Record<string,unknown>[],date:strin
     const pick=(kind:string)=>list.find(x=>{const a=Date.parse(String(x.captured_at??"")),b=Date.parse(String(x.ingested_at??x.captured_at??""));return String(x.snapshot_type)===kind&&Number.isFinite(a)&&Number.isFinite(b)&&a<cutoff&&b<cutoff;})??null;
     const pack=(x:Record<string,unknown>|null)=>x?{home:riskNum(x.home_value),draw:riskNum(x.draw_value),away:riskNum(x.away_value),capturedAt:x.captured_at??null,dataQuality:x.data_quality??null}:null;
     const initial=pick("initial"),current=pick("current");
-    return initial||current?{...row,williamMarket:{source:"William Hill",sourceCode:"zucaijia_william",initial:pack(initial),current:pack(current)},williamInitial:pack(initial),williamCurrent:pack(current),williamMarketStatus:"VERIFIED"}:{...row,williamMarket:null,williamMarketStatus:"UNCONFIRMED"};
+    const quoted=(marketType:string)=>((offersById.get(Number(fixture.id))??[]).find(x=>{
+      const at=Date.parse(String(x.captured_at??"")),ingested=Date.parse(String(x.ingested_at??x.captured_at??""));
+      const odds=[x.home_value,x.draw_value,x.away_value].map(Number);
+      if(String(x.market_type)!==marketType||!Number.isFinite(at)||!Number.isFinite(ingested)
+        ||at>=cutoff||ingested>=cutoff||!odds.every(n=>Number.isFinite(n)&&n>1&&n<1000))return false;
+      if(marketType==="HHAD")return Number.isInteger(Number(x.line))&&Number(x.line)===Number(row.officialHandicap);
+      return true;
+    }))??null;
+    const officialSpf=quoted("HAD"),officialHhad=quoted("HHAD");
+    const marketRoute=offerQuery.error?"UNCONFIRMED":officialHhad&&!officialSpf?"HANDICAP_ONLY":
+      officialSpf&&officialHhad?"BOTH":officialSpf?"FT_ONLY":"UNCONFIRMED";
+    const routeMeta={marketRoute,
+      offeredMarketsVerified:marketRoute!=="UNCONFIRMED",
+      jcSpfOffered:!!officialSpf,jcHhadOffered:!!officialHhad,
+      marketOfferSource:marketRoute==="UNCONFIRMED"?null:"qiulaile_sp_mirror"};
+    return initial||current?{...row,...routeMeta,williamMarket:{source:"William Hill",sourceCode:"zucaijia_william",initial:pack(initial),current:pack(current)},williamInitial:pack(initial),williamCurrent:pack(current),williamMarketStatus:"VERIFIED"}:{...row,...routeMeta,williamMarket:null,williamMarketStatus:"UNCONFIRMED"};
   });
 }
 
