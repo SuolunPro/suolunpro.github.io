@@ -3502,11 +3502,22 @@ async function paidMemberZone(
       summary+=` 赛前情报确认${adverseSide}存在${adverseLevel}等级利空${detail}。该信息与当前${modelTop}方向构成反向校验，已纳入风险降级，但不单独反转方向。`;
     }
 
+    // A shadow feed may contain valid 99-house/Kelly/intelligence data but no
+    // complete Betfair 1/X/2 money snapshot. Do not count feed presence as
+    // verified funding coverage (e.g. 2026-10-15 #014).
+    const shadowFundingSource=(runtimeFocusGate.shadowAnalysis??runtimeFocusGate.shadow_analysis) as Record<string,any>|undefined;
+    const shadowFunding=shadowFundingSource?.betfair??{};
+    const shadowFundingShare=shadowFunding.share_pct??shadowFunding.share??{};
+    const fundingValues=["home","draw","away"].map((k)=>shadowFundingShare?.[k]);
+    const verifiedShadowFunds=typeof shadowFunding.top==="string"&&shadowFunding.top.trim().length>0&&
+      fundingValues.every((x)=>x!==null&&x!==undefined&&x!==""&&Number.isFinite(Number(x))&&Number(x)>=0&&Number(x)<=100)&&
+      Math.abs(fundingValues.reduce((sum:number,x:any)=>sum+Number(x),0)-100)<=1.5;
     const fundBehavior=behavior
       ?(overheat?(behaviorTop??"热门方向")+"过热":
         drawSignal&&behaviorTop!=="平"?(behaviorTop??"资金")+"占优，平局资金偏热":
         (behaviorTop??"方向未定")+" · "+(behaviorStrength??"弱")+"确认")
-      :"赛前资金快照未冻结";
+      :verifiedShadowFunds?"影子资金三方向已核验，正式资金快照待同步":
+        runtimeFocusGate.shadow_feed_available===true?"资金数据不完整，三方向未通过核验":"赛前资金数据未确认";
 
     const intelligence=intelRowsForMatch.length?{
       source:intelRowsForMatch.length>1?"多源赛前情报":(intelRow?.source_code==="okooo_public_intel"?"公开赛前情报":"媒体赛前情报"),
@@ -4356,7 +4367,7 @@ async function paidMemberZone(
       william:!!(ini||cur),
       sporttery:!!(officialMarket.had||officialMarket.hhad),
       asian:Array.isArray(asianHandicap)&&asianHandicap.length>0,
-      behavior:!!behavior||runtimeFocusGate.shadow_feed_available===true,
+      behavior:!!behavior||verifiedShadowFunds,
       intelligence:!!intelligence||runtimeFocusGate.shadow_intelligence_observed===true
     };
     return {
