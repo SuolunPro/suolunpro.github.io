@@ -1607,10 +1607,19 @@
       return margin>0?'让胜':margin<0?'让负':'让平';
     };
     const handicapEvaluable=row=>verified(row)&&effectiveHandicapResult(row)!==null&&[row.handicapTop1,row.handicapSecond,row.handicap].some(validHandicapPick);
+    // A match with no official SPF offer must display its verified handicap
+    // publication rather than an unavailable FT forecast. This is a display
+    // route only: it does not alter FT model predictions, historical FT stats,
+    // today's selection tiers, or the VIP entitlement boundary.
+    const handicapOnlyView=row=>row?.marketRoute==='HANDICAP_ONLY'&&['wdl','overview'].includes(state.model);
+    const handicapDisplayChoice=(row,pick,prob)=>{
+      if(!paidHandicapAccess()&&!publicSettledAccess(row))return '尊贵月卡VIP可见';
+      return handicapChoice(pick,prob);
+    };
     function evaluationHit(row){
       if(state.model==='htft'){const h=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??row.htftTop4;return htftTop3Hit(h);}
       if(state.model==='score')return scoreHit(row);
-      if(state.model==='handicap')return handicapHit(row)||handicapChoiceHit(row,row.handicapTop1??row.handicap)||handicapChoiceHit(row,row.handicapSecond);
+      if(state.model==='handicap'||handicapOnlyView(row))return handicapHit(row)||handicapChoiceHit(row,row.handicapTop1??row.handicap)||handicapChoiceHit(row,row.handicapSecond);
       if(state.model==='overview')return ftHit(row);
       return ftHit(row)
     }
@@ -1643,19 +1652,23 @@
         return historical?'历史复算Top3 · 等待核验':'半全场Top3 · 等待核验';
       }
       if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row))return verified(row)?'赛果已核验':'比分预测未发布';if(!x)return history?'未发布比分预测':'比分预测待确认';if(x.settlementStatus==='SUCCESS')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放一致':'评测成功';if(x.settlementStatus==='FAILURE')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放不一致':'评测失败';return '等待评测';}
-      if(verified(row)){if(state.model==='goals')return hasScore(row)?'赛果已核验':'等待评测';if(state.model==='handicap'&&!handicapEvaluable(row))return [row.handicapTop1,row.handicapSecond,row.handicap].some(v=>String(v??'').trim().toUpperCase()==='PASS')?'未发布正式让球方向':'赛前让球预测未记录';return evaluationHit(row)?'评测成功':'评测失败';}
+      if(verified(row)){if(state.model==='goals')return hasScore(row)?'赛果已核验':'等待评测';if((state.model==='handicap'||handicapOnlyView(row))&&!handicapEvaluable(row))return [row.handicapTop1,row.handicapSecond,row.handicap].some(v=>String(v??'').trim().toUpperCase()==='PASS')?'未发布正式让球方向':'赛前让球预测未记录';return evaluationHit(row)?'评测成功':'评测失败';}
       if(postponedMatch(row))return '赛事延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待评测';if(state.model==='daily')return '等待评测';
       if(row.predictionState==='LIVE'&&Date.now()<Date.parse(String(row.kickoff||'')))return '赛前更新中';
       return '赛前冻结'
     }
-    function statusClass(row,history){if(interruptedMatch(row))return 'status pass';if(postponedMatch(row))return 'status pass';if(state.model==='htft'){const h=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??row.htftTop4;return 'status '+(htftSettled(h)?(htftTop3Hit(h)?'verified':'fail'):'');}if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':state.model==='handicap'&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
+    function statusClass(row,history){if(interruptedMatch(row))return 'status pass';if(postponedMatch(row))return 'status pass';if(state.model==='htft'){const h=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??row.htftTop4;return 'status '+(htftSettled(h)?(htftTop3Hit(h)?'verified':'fail'):'');}if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':(state.model==='handicap'||handicapOnlyView(row))&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
     function moduleData(row){
+      if(handicapOnlyView(row))return [['官方让球',row.officialHandicap],['让球首选',handicapDisplayChoice(row,row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapDisplayChoice(row,row.handicapSecond,row.handicapSecondProbability)]];
       if(state.model==='handicap')return [['官方让球',row.officialHandicap],['让球首选',handicapChoice(row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapChoice(row.handicapSecond,row.handicapSecondProbability)]];
       if(state.model==='wdl')return [['主胜',ftProbability(row,'H')],['平局',ftProbability(row,'D')],['客胜',ftProbability(row,'A')]];
       if(state.model==='daily'){const pct=pick=>{const code=normalizeResult(pick);return code?ftProbability(row,code):'—'};return [['胜平负首选',safe(row.ftTop1)+' · '+pct(row.ftTop1)],['胜平负次选',safe(row.second)+' · '+pct(row.second)]];}
       return [['胜平负首选',safe(row.ftTop1)+' · '+(normalizeResult(row.ftTop1)?ftProbability(row,normalizeResult(row.ftTop1)):'—')],['胜平负次选',safe(row.second)+' · '+(normalizeResult(row.second)?ftProbability(row,normalizeResult(row.second)):'—')]];
     }
     function adviceText(row){
+      if(handicapOnlyView(row))return paidHandicapAccess()||publicSettledAccess(row)
+        ?'本场仅开放让球胜平负：'+safe(row.handicapTop1??row.handicap)+' / '+safe(row.handicapSecond)
+        :'本场仅开放让球胜平负 · 让球预测VIP专享';
       if(state.model==='handicap'){const first=safe(row.handicapTop1??row.handicap),second=safe(row.handicapSecond);return first==='未确认'?'让球分析：'+([row.handicapTop1,row.handicapSecond,row.handicap].some(v=>String(v??'').trim().toUpperCase()==='PASS')?'未发布正式方向':'数据待确认'):'让球分析：'+first+(second==='未确认'?'':' / '+second)}
       if(state.model==='wdl')return '胜平负分析：'+safe(row.ftTop1)+' / '+safe(row.second);
       if(state.model==='daily')return '模型参考：'+safe(row.ftTop1)+' / '+safe(row.second);
@@ -2102,13 +2115,14 @@
       const c=el('article','card');
       const head=el('div','card-head');
       const id=el('div','match-id');id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-      if(state.model==='daily'&&row?.analysisPending!==true){const supplementary=isSupplement(row)&&!isFocus(row);id.append(el('span','focus-label '+(supplementary?'supplement':'core'),supplementary?'精选补充':'核心优选'));}if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',String(row.handicapSourceLabel).includes('Top5新方案赛前冻结')?'赛前预测':row.handicapSourceLabel));if(state.model==='handicap'&&(paidHandicapAccess()||publicSettledAccess(row))&&handicapDrawProtection(row)){const tag=el('span','focus-label','🟠 让平保护');tag.style.cssText='background:#fff3dd;color:#9e5e10;border:1px solid #edd0a2';id.append(tag)}head.append(id,el('span',statusClass(row,history),statusText(row,history)));
+      if(state.model==='daily'&&row?.analysisPending!==true){const supplementary=isSupplement(row)&&!isFocus(row);id.append(el('span','focus-label '+(supplementary?'supplement':'core'),supplementary?'精选补充':'核心优选'));}if(handicapOnlyView(row))id.append(el('span','focus-label','仅开让球 · 自动切换'));
+      if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',String(row.handicapSourceLabel).includes('Top5新方案赛前冻结')?'赛前预测':row.handicapSourceLabel));if(state.model==='handicap'&&(paidHandicapAccess()||publicSettledAccess(row))&&handicapDrawProtection(row)){const tag=el('span','focus-label','🟠 让平保护');tag.style.cssText='background:#fff3dd;color:#9e5e10;border:1px solid #edd0a2';id.append(tag)}head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
       const settled=verified(row),outcome=safe(resultName[row.result]||row.result),score=el('div','score',settled?(hasScore(row)?scoreline(row):'比分待核验'):'VS');score.append(el('span','',settled?(hasScore(row)?outcome+' · 正式赛果':'比分待核验'):postponedMatch(row)?'赛事延期':'官方让球 '+(row.officialHandicap==null?'待确认':String(row.officialHandicap))));
       fixture.append(teams,score);
       const analysis=el('div','analysis'),values=state.model==='goals'?[]:moduleData(row),triplet=el('div','triplet'+(values.length===2?' pair':values.length===6?' six-grid':''));
-      values.forEach(([k,v],i)=>{if(state.model==='wdl'){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d);return}const hit=directionHit(row,k,v),isHandicap=state.model==='handicap',d=el('div','datum'+(verified(row)&&!isHandicap?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));if(hit&&!isHandicap)d.append(el('span','hit-check','✓'));triplet.append(d)});
+      values.forEach(([k,v],i)=>{if(state.model==='wdl'&&!handicapOnlyView(row)){const code=['H','D','A'][i],top=normalizeResult(row.ftTop1)===code,second=normalizeResult(row.second)===code,hit=verified(row)&&normalizeResult(row.result)===code&&(top||second),actual=verified(row)&&normalizeResult(row.result)===code;const d=el('div','datum wdl-prob'+(top||second?' wdl-pick':'')+(actual?' wdl-actual':'')+(hit?' hit':''));d.append(el('span','',k),el('b','',safe(v)),el('span','',top?'首选':second?'次选':actual?'实际赛果':'　'));if(hit)d.append(el('span','hit-check','✓'));triplet.append(d);return}const hit=directionHit(row,k,v),isHandicap=state.model==='handicap'||handicapOnlyView(row),d=el('div','datum'+(verified(row)&&!isHandicap?(hit?' hit':' miss'):(i===0?' primary':'')));d.append(el('span','',k),el('b','',safe(v)));if(hit&&!isHandicap)d.append(el('span','hit-check','✓'));triplet.append(d)});
       analysis.append(triplet);
       if(state.model==='handicap'){const drawPanel=handicapDrawProtectionPanel(row,true);if(drawPanel)analysis.append(drawPanel);}
       if(state.model==='goals')c.append(head,fixture);else c.append(head,fixture,analysis);
@@ -3983,9 +3997,21 @@
       summary.classList.add('report-core-summary');
       const choices=el('div','report-key-picks');
       const first=el('div','report-main-pick');
-      first.append(el('small','','胜平负首选'),el('strong','',reportHas(row.ftTop1)?String(row.ftTop1):'赛前分析更新中'));
-      choices.append(first);
-      if(reportHas(row.second)){const second=el('div','report-alt-pick');second.append(el('small','','胜平负次选'),el('strong','',String(row.second)));choices.append(second)}
+      const handicapRoute=handicapOnlyView(row);
+      if(handicapRoute){
+        const permitted=paidHandicapAccess()||publicSettledAccess(row);
+        const h1=permitted?safe(row.handicapTop1??row.handicap):'尊贵月卡VIP可见';
+        const h2=permitted?safe(row.handicapSecond):'尊贵月卡VIP可见';
+        first.append(el('small','','让球首选 · 主队 '+(Number(row.officialHandicap)>0?'+':'')+String(row.officialHandicap)),el('strong','',h1));
+        choices.append(first);
+        const second=el('div','report-alt-pick');
+        second.append(el('small','','让球次选'),el('strong','',h2));choices.append(second);
+        summary.append(el('p','report-sub','竞彩本场未开放普通胜平负，仅开放让球胜平负；已自动切换到让球预测，不计入胜平负Top1成绩。'));
+      }else{
+        first.append(el('small','','胜平负首选'),el('strong','',reportHas(row.ftTop1)?String(row.ftTop1):'赛前分析更新中'));
+        choices.append(first);
+        if(reportHas(row.second)){const second=el('div','report-alt-pick');second.append(el('small','','胜平负次选'),el('strong','',String(row.second)));choices.append(second)}
+      }
       summary.append(choices);
       if(state.model==='daily'){
         const supplement=isSupplement(row)&&!isFocus(row);
@@ -3999,7 +4025,7 @@
         summary.append(selection);
       }
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
-      if([row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
+      if(!handicapRoute&&[row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
         reportProbability(summary,'九十刻度赛前概率',['homeProbability','drawProbability','awayProbability'],row);
       if(reportHas(row.frozenAt))summary.append(el('p','report-sub',(row.predictionView==='LATEST_PREMATCH_ONLY'?'最新赛前预测更新于 ':'赛前预测记录于 ')+fmtStamp(row.frozenAt)));
       c.append(summary);
