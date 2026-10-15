@@ -777,7 +777,35 @@ function settleTop5Handicap(row:Record<string,unknown>):Record<string,unknown>{
   const gateActive=Number.isFinite(kickoff)&&kickoff>HHAD_TOP1_PUBLICATION_GATE_V1.effectiveKickoff;
   const isTop5=String(row.handicapModelVersion??'').startsWith('HJ38-HHAD-TOP5-FT-MKT');
   if(gateActive){
-    if(!isTop5)return handicapPublicationPass(row,"TOP5_INPUT_UNVERIFIED_OR_LEGACY_FALLBACK");
+    // A fixture may have only the officially offered handicap market (no FT 1X2).
+    // Do not suppress an independently verified, time-locked prematch handicap
+    // merely because the FT-dependent Top5 blend was inapplicable.
+    const noFtOffer=Boolean(row.pass===true&&!ftCode(row.ftTop1)&&!ftCode(row.second));
+    const frozen=Date.parse(String(row.frozenAt??""));
+    const hcap=Number(row.officialHandicap);
+    const first=String(row.handicapTop1??row.handicap??"");
+    const second=String(row.handicapSecond??"");
+    const p1Source=Number(row.handicapProbability),p2Source=Number(row.handicapSecondProbability);
+    const verifiedHhadOnly=noFtOffer&&row.pregameVerified===true&&
+      row.handicapEligible===true&&row.handicapQualityEligible===true&&
+      String(row.handicapProbabilitySource??"")==="模型净胜球概率"&&
+      String(row.handicapAnalysis??"").includes("多源赛前一致性核验")&&
+      Number.isFinite(frozen)&&frozen<kickoff&&
+      Number.isInteger(hcap)&&hcap!==0&&Math.abs(hcap)<=5&&
+      ["让胜","让平","让负"].includes(first)&&
+      ["让胜","让平","让负"].includes(second)&&first!==second&&
+      Number.isFinite(p1Source)&&p1Source>0&&p1Source<=100&&
+      Number.isFinite(p2Source)&&p2Source>=0&&p2Source<=100&&
+      p1Source+p2Source<=100.1;
+    if(!isTop5&&!verifiedHhadOnly)
+      return handicapPublicationPass(row,"TOP5_INPUT_UNVERIFIED_OR_LEGACY_FALLBACK");
+    if(verifiedHhadOnly){
+      row={...row,handicapDecision:"PUBLISH",handicapPassReason:null,
+        handicapSourceKind:"ORIGINAL_PREMATCH",
+        handicapSourceLabel:"独立赛前让球模型",
+        handicapPublicationRuleVersion:"HJ38-HHAD-INDEPENDENT-PREMATCH-v1.0",
+        handicapMinTop1Probability:null};
+    }
     const p1=Number(row.handicapProbability);
     // Top1 probability is a ranking score, not a validated publication threshold.
     // Preserve legitimate pregame Top1/Top2 regardless of confidence; recommendation filtering is separate.
