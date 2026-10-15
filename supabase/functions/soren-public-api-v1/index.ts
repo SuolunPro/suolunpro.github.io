@@ -806,14 +806,16 @@ function settleTop5Handicap(row:Record<string,unknown>):Record<string,unknown>{
         handicapPublicationRuleVersion:"HJ38-HHAD-INDEPENDENT-PREMATCH-v1.0",
         handicapMinTop1Probability:null};
     }
-    const p1=Number(row.handicapProbability);
-    // Top1 probability is a ranking score, not a validated publication threshold.
-    // Preserve legitimate pregame Top1/Top2 regardless of confidence; recommendation filtering is separate.
-    if(!Number.isFinite(p1)) return handicapPublicationPass(row,"TOP5_PROBABILITY_MISSING");
-    row={...row,handicapDecision:"PUBLISH",
-      handicapPassReason:null,
-      handicapPublicationRuleVersion:HHAD_TOP1_PUBLICATION_GATE_V1.ruleVersion,
-      handicapMinTop1Probability:HHAD_TOP1_PUBLICATION_GATE_V1.minTop1Probability};
+    if(!verifiedHhadOnly){
+      const p1=Number(row.handicapProbability);
+      // Top1 score is not a validated hit-rate threshold. Keep independent
+      // handicap publication metadata separate from the Top5 gate.
+      if(!Number.isFinite(p1))return handicapPublicationPass(row,"TOP5_PROBABILITY_MISSING");
+      row={...row,handicapDecision:"PUBLISH",
+        handicapPassReason:null,
+        handicapPublicationRuleVersion:HHAD_TOP1_PUBLICATION_GATE_V1.ruleVersion,
+        handicapMinTop1Probability:HHAD_TOP1_PUBLICATION_GATE_V1.minTop1Probability};
+    }
   }else if(!isTop5)return row;
   const actual=String(row.handicapResult??'');
   const known=['让胜','让平','让负'].includes(actual);
