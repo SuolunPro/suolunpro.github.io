@@ -73,13 +73,20 @@ function validPrematchSnapshot(snapshot:Record<string,unknown>|null|undefined,fi
   const probabilities=[snapshot.homeProbability??snapshot.homePct??snapshot.home_pct,
     snapshot.drawProbability??snapshot.drawPct??snapshot.draw_pct,
     snapshot.awayProbability??snapshot.awayPct??snapshot.away_pct];
+  const validFt=ftCode(snapshot.ftTop1)!==null&&
+    probabilities.every(v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v))&&Number(v)>=0&&Number(v)<=100);
+  const handicapFirst=String(snapshot.handicapTop1??snapshot.handicap??"");
+  const handicapSecond=String(snapshot.handicapSecond??"");
+  const validHandicapOnly=ftCode(snapshot.ftTop1)===null&&ftCode(snapshot.second)===null&&
+    ["让胜","让平","让负"].includes(handicapFirst)&&
+    (handicapSecond===""||(["让胜","让平","让负"].includes(handicapSecond)&&handicapSecond!==handicapFirst));
   return Number.isFinite(kickoff)&&Number.isFinite(sourceAt)&&Number.isFinite(capturedAt)&&
     Number.isFinite(snapshotKickoff)&&sourceAt<kickoff&&capturedAt<kickoff&&
     Math.abs(kickoff-snapshotKickoff)<120000&&
     String(snapshot.date??"")===String(fixture.pool_date??"")&&
     String(snapshot.home??"")===String(fixture.home_team??"")&&
     String(snapshot.away??"")===String(fixture.away_team??"")&&
-    probabilities.every(v=>v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v))&&Number(v)>=0&&Number(v)<=100);
+    (validFt||validHandicapOnly);
 }
 
 /* Customer publication is live until kickoff. Every lawful prematch version is
@@ -2953,6 +2960,23 @@ function vipColdTimeGate(date:string,kickoffValue:unknown,cutoffValue:unknown=nu
 
 const paidMemberZoneResponseCache=new Map<string,{at:number,zone:any}>();
 const paidColdFeedResponseCache=new Map<string,{at:number,zone:any}>();
+// A previous sales date can still contain matches played this morning.
+// Keep VIP result caches short while a visible cold-warning fixture awaits a
+// verified 90-minute score; settled archives retain the long cache.
+function vipColdResponseTtl(date:string,today:string,zone:any,now:number):number{
+  const shortTtl=60*1000,longTtl=30*60*1000;
+  if(date>=today)return shortTtl;
+  const recentBoundary=new Intl.DateTimeFormat("en-CA",{
+    timeZone:"Asia/Shanghai",year:"numeric",month:"2-digit",day:"2-digit"
+  }).format(new Date(now-3*24*60*60*1000)).split("/").join("-");
+  if(date<recentBoundary)return longTtl;
+  const pending=(Array.isArray(zone?.rows)?zone.rows:[]).some((row:any)=>{
+    if(row?.settlement?.verified===true)return false;
+    const kickoff=Date.parse(String(row?.kickoff??""));
+    return Number.isFinite(kickoff)&&kickoff<=now+6*60*60*1000;
+  });
+  return pending?shortTtl:longTtl;
+}
 function coldFeedZone(zone:any){
   const rows=(Array.isArray(zone?.rows)?zone.rows:[]).map((r:any)=>({
     no:r.no,date:r.date,league:r.league,kickoff:r.kickoff,home:r.home,away:r.away,
@@ -4251,7 +4275,12 @@ async function paidMemberZone(
         shadowAnalysis:(()=>{
           const a=(runtimeFocusGate.shadow_analysis&&typeof runtimeFocusGate.shadow_analysis==="object")?runtimeFocusGate.shadow_analysis:null;
           const at=Date.parse(String(a?.capturedAt??a?.captured_at??""));
-          return a&&Number.isFinite(at)&&Number.isFinite(freezeBoundary)&&at<freezeBoundary?a:null;
+          if(!a||!Number.isFinite(at)||!Number.isFinite(freezeBoundary)||at>=freezeBoundary)return null;
+          const b=a.betfair??{},share=b.share_pct??b.share??{};
+          const shares=["home","draw","away"].map(k=>share[k]);
+          const fundsOk=!!b.top&&shares.every(x=>x!==null&&x!==undefined&&x!==""&&Number.isFinite(Number(x))&&Number(x)>=0&&Number(x)<=100)&&
+            Math.abs(shares.reduce((sum:number,x:any)=>sum+Number(x),0)-100)<=1.5;
+          return fundsOk?a:{...a,flags:[...new Set([...(Array.isArray(a.flags)?a.flags:[]),"数据质量：必发三方向资金未齐，资金方向不参与判断"])]};
         })(),
         coldEntryChannels:coldChannels,
         bridgeReview,
@@ -4833,12 +4862,14 @@ Deno.serve(async (req: Request) => {
       try{
         const zoneDate=await latestKnownPoolDate(requestedDate);
         const now=Date.now();
-        const ttl=zoneDate<beijingToday?30*60*1000:60*1000;
         const fast=paidColdFeedResponseCache.get(zoneDate);
-        if(fast&&now-fast.at<ttl)return reply({ok:true,membership,zone:fast.zone,cache:"HIT",updatedAt:new Date(fast.at).toISOString()});
+        const fastTtl=vipColdResponseTtl(zoneDate,beijingToday,fast?.zone,now);
+        if(fast&&now-fast.at<fastTtl)return reply({ok:true,membership,zone:fast.zone,cache:"HIT",updatedAt:new Date(fast.at).toISOString()});
         const fullCached=paidMemberZoneResponseCache.get(zoneDate);
-        const fullZone=(fullCached&&now-fullCached.at<ttl)?fullCached.zone:await paidMemberZone(zoneDate);
-        if(!fullCached||now-fullCached.at>=ttl)paidMemberZoneResponseCache.set(zoneDate,{at:now,zone:fullZone});
+        const fullTtl=vipColdResponseTtl(zoneDate,beijingToday,fullCached?.zone,now);
+        const fullValid=!!fullCached&&now-fullCached.at<fullTtl;
+        const fullZone=fullValid?fullCached!.zone:await paidMemberZone(zoneDate);
+        if(!fullValid)paidMemberZoneResponseCache.set(zoneDate,{at:now,zone:fullZone});
         const zone=coldFeedZone(fullZone);
         paidColdFeedResponseCache.set(zoneDate,{at:now,zone});
         while(paidColdFeedResponseCache.size>12)paidColdFeedResponseCache.delete(paidColdFeedResponseCache.keys().next().value);
@@ -4850,8 +4881,8 @@ Deno.serve(async (req: Request) => {
       try{
         const zoneDate=await latestKnownPoolDate(requestedDate);
         const now=Date.now();
-        const ttl=zoneDate<beijingToday?30*60*1000:60*1000;
         const cached=paidMemberZoneResponseCache.get(zoneDate);
+        const ttl=vipColdResponseTtl(zoneDate,beijingToday,cached?.zone,now);
         if(cached&&now-cached.at<ttl){
           return reply({ok:true,membership,zone:cached.zone,cache:"HIT",updatedAt:new Date(cached.at).toISOString()});
         }
