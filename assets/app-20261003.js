@@ -1350,12 +1350,25 @@
       try{localStorage.setItem(memberZoneStorageKey(date),JSON.stringify({at:Date.now(),zone,fingerprint}))}catch{}
     }
 
+    // A match played after Beijing midnight may belong to yesterday's lottery
+    // sales pool. Until its score is verified, never treat that pool as a
+    // completed archive with a 30-minute cached settlement.
+    function coldResultRefreshTtl(zoneDate,zone){
+      if(zoneDate>=beijingToday())return 2*60*1000;
+      if(zoneDate<addDays(beijingToday(),-3))return 30*60*1000;
+      const pending=(Array.isArray(zone?.rows)?zone.rows:[]).some(row=>{
+        if(row?.settlement?.verified===true)return false;
+        const kickoff=Date.parse(String(row?.kickoff??''));
+        return Number.isFinite(kickoff)&&kickoff<=Date.now()+6*60*60*1000;
+      });
+      return pending?60*1000:30*60*1000;
+    }
     async function loadMemberZone(silent=false){
       if(memberInfo?.vipActive!==true)return;
       const zoneDate=memberZoneDate();
-      const cacheTtl=zoneDate<beijingToday()?30*60*1000:2*60*1000;
       let cachedZone=memberZoneDataCache.get(zoneDate);
       if(!cachedZone&&restoreMemberZoneSnapshot(zoneDate))cachedZone=memberZoneDataCache.get(zoneDate);
+      const cacheTtl=coldResultRefreshTtl(zoneDate,cachedZone?.zone);
       if(cachedZone){
         // Stale-while-revalidate for the active cold-warning page: paint the last
         // successful payload immediately. Fresh entries need no network request;
