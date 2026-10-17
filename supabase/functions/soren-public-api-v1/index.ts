@@ -759,10 +759,10 @@ function attachTeamFormH2h(row:Record<string,unknown>,forms:Map<string,Record<st
  return {...row,teamFormH2h:{verified:true,capturedAt:s.captured_at,home,away,h2h,
   source:"FotMob赛前球队历史比赛与直接交锋",definition:"最近6场独立球队战绩与直接交锋分别统计；非本场预测概率"}};
 }
-const HHAD_TOP1_PUBLICATION_GATE_V1={
+// A quality/time validity gate only: no hard probability cutoff for handicap Top1.
+const HHAD_PREMATCH_DATA_GATE_V2={
   effectiveKickoff:Date.parse("2026-10-14T15:30:00.000Z"),
-  minTop1Probability:50,
-  ruleVersion:"HJ38-HHAD-TOP1-GATE-v1.0.0"
+  ruleVersion:"HJ38-HHAD-PREMATCH-DATA-GATE-v2.0.0"
 };
 function handicapPublicationPass(row:Record<string,unknown>,reason:string):Record<string,unknown>{
   return {...row,
@@ -770,18 +770,18 @@ function handicapPublicationPass(row:Record<string,unknown>,reason:string):Recor
     handicapProbability:null,handicapSecondProbability:null,
     handicapEligible:false,handicapQualityEligible:false,
     handicapDecision:"PASS",handicapPassReason:reason,
-    handicapPublicationRuleVersion:HHAD_TOP1_PUBLICATION_GATE_V1.ruleVersion,
-    handicapMinTop1Probability:HHAD_TOP1_PUBLICATION_GATE_V1.minTop1Probability,
+    handicapPublicationRuleVersion:HHAD_PREMATCH_DATA_GATE_V2.ruleVersion,
+    handicapMinTop1Probability:null,
     handicapSourceLabel:"让球PASS",
-    handicapAnalysis:reason==="TOP5_PROBABILITY_BELOW_50"
-      ?"Top5首选概率低于50%，本场让球PASS"
+    handicapAnalysis:reason==="TOP5_PROBABILITY_MISSING"
+      ?"Top5首选概率缺失，暂无法发布让球预测"
       :"Top5赛前输入未通过冻结时点核验，旧回退链不再对外发布",
     handicapTop1Hit:null,handicapCoverageHit:null,handicapHit:null
   };
 }
 function settleTop5Handicap(row:Record<string,unknown>):Record<string,unknown>{
   const kickoff=Date.parse(String(row.kickoff??""));
-  const gateActive=Number.isFinite(kickoff)&&kickoff>HHAD_TOP1_PUBLICATION_GATE_V1.effectiveKickoff;
+  const gateActive=Number.isFinite(kickoff)&&kickoff>HHAD_PREMATCH_DATA_GATE_V2.effectiveKickoff;
   const isTop5=String(row.handicapModelVersion??'').startsWith('HJ38-HHAD-TOP5-FT-MKT');
   if(gateActive){
     // A fixture may have only the officially offered handicap market (no FT 1X2).
@@ -820,8 +820,8 @@ function settleTop5Handicap(row:Record<string,unknown>):Record<string,unknown>{
       if(!Number.isFinite(p1))return handicapPublicationPass(row,"TOP5_PROBABILITY_MISSING");
       row={...row,handicapDecision:"PUBLISH",
         handicapPassReason:null,
-        handicapPublicationRuleVersion:HHAD_TOP1_PUBLICATION_GATE_V1.ruleVersion,
-        handicapMinTop1Probability:HHAD_TOP1_PUBLICATION_GATE_V1.minTop1Probability};
+        handicapPublicationRuleVersion:HHAD_PREMATCH_DATA_GATE_V2.ruleVersion,
+        handicapMinTop1Probability:null};
     }
   }else if(!isTop5)return row;
   const actual=String(row.handicapResult??'');
