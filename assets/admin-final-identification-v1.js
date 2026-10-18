@@ -138,10 +138,10 @@
     loading=true;const own=++requestId;
     if(!board.children.length||force)board.replaceChildren(el("div","admin-final-intro","正在核验管理员联合情报…"));
     try{
-      const api="https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-admin-final-identification-v1?date="+encodeURIComponent(date);
+      const api="https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-admin-final-identification-v1?date="+encodeURIComponent(date);
       const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
       let res;
-      try{res=await authorizedApiFetch(api,{cache:"no-store",signal:ctrl.signal,headers:{apikey:"sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa"}})}
+      try{res=await authorizedApiFetch(api,{cache:"no-store",signal:ctrl.signal,headers:{apikey:"sb_publishable_94kSLoSqua2oF4T0C-qBmA_t3jlZ4h7"}})}
       finally{clearTimeout(timer)}
       const payload=await res.json().catch(()=>null);
       if(!res.ok||payload?.ok!==true)throw Error(res.status===403?"当前账户无管理员权限":String(payload?.error||"HTTP "+res.status));
