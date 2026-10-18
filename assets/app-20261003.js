@@ -1,4 +1,5 @@
-    const AUTH_BASE='https://ttydbcejxqxdkcfoizkj.supabase.co';const AUTH_KEY='sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa';
+    const SHADOW_MODE=true; // Singapore shadow: preserve production DOM, CSS and business flows.
+    const AUTH_BASE='https://zssourkgabcxibggwhqm.supabase.co';const AUTH_KEY='sb_publishable_94kSLoSqua2oF4T0C-qBmA_t3jlZ4h7';
     const AUTH_STORE='soren_auth_v2',LEGACY_AUTH_STORE='soren_auth';
     const MEMBER_CACHE_KEY='soren_member_cache_v1';
     let authSession=null,authPersistence='session',authRefreshPending=null,memberInfo=null;
@@ -171,7 +172,7 @@
     async function authorizedApiFetch(url,options={}){
       if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
       await refreshAuthSession();
-      const welcomeHeader=url.startsWith('https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1')
+      const welcomeHeader=url.startsWith('https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-public-api-v1')
         ?{'X-Soren-Device':welcomeBrowserId()}:{};
       const request=()=>fetch(url,{...options,headers:{...(options.headers||{}),...welcomeHeader,Authorization:'Bearer '+authSession.access_token}});
       let response=await request();
@@ -228,12 +229,12 @@
       history.replaceState(null,'',location.pathname+location.search);
       return null;
     }
-    const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
+    const API='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-public-api-v1';
     function customerApiUrl(params){
       const qs=params instanceof URLSearchParams?new URLSearchParams(params):new URLSearchParams(params||{});
       // The production database is in Mumbai. Running the data-heavy function in
       // the same region avoids repeated inter-region round trips before first paint.
-      qs.set('forceFunctionRegion','ap-south-1');
+      qs.set('forceFunctionRegion','ap-southeast-1');
       return API+'?'+qs.toString();
     }
     const CLIENT_DIAG_API=AUTH_BASE+'/functions/v1/soren-client-diag-v1';
@@ -247,7 +248,7 @@
           body,cache:'no-store',keepalive:true,signal:timeoutSignal(6000)}).catch(()=>{});
       }catch{}
     }
-    const OKOOO_SHADOW_API='https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-r9-discovery-test-v01';
+    const OKOOO_SHADOW_API='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-member-intel-v1';
     // Feedback uses an isolated client-database Edge Function; existing membership API is unchanged.
     const FEEDBACK_API=AUTH_BASE+'/functions/v1/soren-feedback-api-v1';
     let feedbackMode=null,feedbackFilter='all',feedbackDraft={category:'功能建议',content:''};
@@ -442,7 +443,7 @@
         };
         actions.append(cancel,confirm);dialog.append(status,actions);overlay.append(dialog);document.body.append(overlay);
       };
-      membershipContact.onclick=openVipConsent;
+      membershipContact.onclick=()=>SHADOW_MODE?alert('新加坡影子环境不接受 VIP 开通申请'):openVipConsent();
       membershipPlan.append(vipRisk,membershipContact);
       planGrid.append(membershipPlan);
       const explainer=el('div','member-beta-explainer');
