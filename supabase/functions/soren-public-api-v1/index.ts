@@ -41,8 +41,8 @@ function adaptRow(m:any,date:string){
   const goals=out(m,"total_goals"), htft=out(m,"htft_top3");
   const fRank=Array.isArray(f?.top3)?f.top3:[];
   const hRank=Array.isArray(h?.top3)?h.top3:[];
-  const ftReady=f?.status==="READY" && fRank.length>=2;
-  const hadReady=h?.status==="READY" && hRank.length>=2;
+  const ftReady=Boolean(formal(m,"ft")&&f?.status==="READY"&&fRank.length>=2);
+  const hadReady=Boolean(formal(m,"handicap")&&h?.status==="READY"&&hRank.length>=2);
   const hasVerifiedPrematch=["ft","handicap","daily_selection","upset_warning","score_top3","htft_top3","total_goals"].some(k=>formal(m,k));
   const vr=m?.result?.verified===true;
   const rh=vr?Number(m.result?.home??m.result?.home_score):null;
@@ -128,7 +128,7 @@ Deno.serve(async(req:Request)=>{
     const history=date<currentBjt();
     const matches=vip?all:history?
       all.map((m:any)=>({...m,outputs:Object.fromEntries(Object.entries(m.outputs||{}).filter(([k])=>k!=="upset_warning"))})):
-      all.map((m:any,i:number)=>({...m,outputs:i<2&&m.outputs?.ft?{ft:m.outputs.ft}:{} }));
+      all.map((m:any)=>({...m,outputs:all.filter((x:any)=>x.outputs?.ft).slice(0,2).some((x:any)=>x.match_key===m.match_key)?{ft:m.outputs.ft}:{}}));
     const rows=matches.map((m:any)=>adaptRow(m,date));
     if(view==="cold-feed"||view==="member-zone"){
       if(!vip)return reply({ok:false,error:"VIP_REQUIRED"},403);
