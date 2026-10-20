@@ -23,7 +23,9 @@ jobs:
               "dynamicHTFT",
               "赛前动态预测",
               "原始赛前预测",
-              "最新比分预测 · Top4",
+              "动态赛前比分预测",
+              "https://zssourkgabcxibggwhqm.supabase.co",
+              "soren_auth_sg_cutover_v1",
               "原始赛前比分 · Top4",
               "新版规则历史回放",
               "raw.publicationEligible===false",
@@ -37,6 +39,8 @@ jobs:
               "0—2分：低风险｜3—6分：中风险｜7分及以上：高风险",
           ]
           present_forbidden = [x for x in forbidden if x in text]
+          if "https://ttydbcejxqxdkcfoizkj.supabase.co" in text or "https://tqlibowvnwfkaseqqvvp.supabase.co" in text:
+              raise SystemExit("Failover guard: an old database endpoint remains in the public application.")
           if missing:
               raise SystemExit("Missing critical markers: " + " | ".join(missing))
           if present_forbidden:
