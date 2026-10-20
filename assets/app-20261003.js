@@ -1161,7 +1161,7 @@
             const top2Hit=evaluable&&picks.includes(actual);
             if(evaluable)resultLine.classList.add(top2Hit?'hit':'miss');
             resultLine.append(el('span','cold-card-result-text',
-              evaluable?(actual+' · '+(top2Hit?'✓ 双选命中':'× 双选未中')):'胜平负赛果待核验'));
+              evaluable?(actual+' · '+(top2Hit?'✓ Top2 评测成功':'× Top2 评测失败')):'胜平负赛果待核验'));
           }else if(displayMode==='HANDICAP_PROTECT'){
             const handicapActual=String(st.handicapResult||'');
             const primary=(Array.isArray(route?.handicapPicks)&&route.handicapPicks[0])||handicapPrimary;
@@ -1684,6 +1684,35 @@
       if(!paidHandicapAccess()&&!publicSettledAccess(row))return '尊贵月卡VIP可见';
       return handicapChoice(pick,prob);
     };
+    // A published Top2 is one evaluation: either frozen selection matching the
+    // independently verified 90-minute result => 评测成功. Top1 statistics stay separate.
+    // Refuse to grade a missing second direction as Top2 or promote SG shadow data.
+    function top2Evaluation(row,market){
+      if(!verified(row))return null;
+      const handicap=market==='handicap',settlement=row?.settlement||{};
+      const moduleName=handicap?'让球':'胜平负';
+      const primary=handicap?String(row.handicapTop1||'').trim():String(row.ftTop1||'').trim();
+      const secondary=handicap?String(row.handicapSecond||'').trim():String(row.second||'').trim();
+      const valid=handicap?validHandicapPick:[v=>['主胜','平','平局','客胜'].includes(v)][0];
+      const top2Published=valid(primary)&&valid(secondary)&&primary!==secondary;
+      if(settlement.verified===true&&row.pregameVerified===true){
+        if(!handicap&&top2Published&&['SUCCESS','FAILURE'].includes(settlement.ftTop2Status))
+          return {status:settlement.ftTop2Status,label:moduleName+'Top2',reference:false};
+        if(handicap&&top2Published&&effectiveHandicapResult(row)!==null)
+          return {status:[primary,secondary].includes(effectiveHandicapResult(row))?'SUCCESS':'FAILURE',label:moduleName+'Top2',reference:false};
+        const top1=handicap?settlement.handicapTop1Status:settlement.ftTop1Status;
+        if(['SUCCESS','FAILURE'].includes(top1))
+          return {status:top1,label:moduleName+'Top1',reference:false};
+      }
+      const grade=row.shadowModuleSettlements?.[handicap?'handicap':'ft'];
+      if(grade?.sourceKind==='SG_PREMATCH_SHADOW'&&grade.formalEligible===false){
+        if(['SUCCESS','FAILURE'].includes(grade.top2Status))
+          return {status:grade.top2Status,label:moduleName+'Top2',reference:true};
+        if(['SUCCESS','FAILURE'].includes(grade.top1Status))
+          return {status:grade.top1Status,label:moduleName+'Top1',reference:true};
+      }
+      return null;
+    }
     function evaluationHit(row){
       if(state.model==='htft'){const h=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??(row.htftTop4?.referenceOnly===true||row.htftTop4?.formalEligible===false?null:row.htftTop4);return htftTop3Hit(h);}
       if(state.model==='score')return scoreHit(row);
@@ -1718,22 +1747,12 @@
         if(shadow.settlementStatus==='FAILURE')return '参考评测失败 · Top3';
         return shadow.pendingReason==='HALFTIME_NOT_VERIFIED'?'等待半场赛果核验':'等待评测';
       }
-      if(row?.settlement?.verified===true){
-        const g=state.model==='handicap'?row.settlement.handicapTop1Status:row.settlement.ftTop1Status;
-        const name=state.model==='handicap'?'让球Top1':'胜平负Top1';
-        if(g==='SUCCESS')return '评测成功 · '+name;
-        if(g==='FAILURE')return '评测失败 · '+name;
-      }
-      // A finished match may have a verifiable SG reference forecast while
-      // the original formal handicap/FT module was not published.
-      // Keep reference grades separate from the official hit-rate record.
-      const referenceGrade=state.model==='handicap'?row.shadowModuleSettlements?.handicap
-        :(['overview','wdl'].includes(state.model)?row.shadowModuleSettlements?.ft:null);
-      if(referenceGrade?.sourceKind==='SG_PREMATCH_SHADOW'&&referenceGrade.formalEligible===false){
-        const g=referenceGrade.top1Status;
-        const kind=state.model==='handicap'?'让球Top1':'胜平负Top1';
-        if(g==='SUCCESS')return '参考评测成功 · '+kind;
-        if(g==='FAILURE')return '参考评测失败 · '+kind;
+      const top2Market=state.model==='handicap'||handicapOnlyView(row)?'handicap'
+        :(['overview','wdl','daily'].includes(state.model)?'ft':null);
+      const top2Grade=top2Market?top2Evaluation(row,top2Market):null;
+      if(top2Grade){
+        const text=top2Grade.reference?'参考评测':'评测';
+        return text+(top2Grade.status==='SUCCESS'?'成功 · ':'失败 · ')+top2Grade.label;
       }
       if(row?.analysisPending===true)return '赛前分析待发布';
       if(state.model==='htft'){
@@ -1760,16 +1779,10 @@
       }
       const shadow=state.model==='score'?row.shadowScoreTop3:state.model==='htft'?row.shadowHTFTTop3:state.model==='goals'?row.shadowGoalsTop3:null;
       if(shadow)return 'status '+(shadow.settlementStatus==='SUCCESS'?'verified':shadow.settlementStatus==='FAILURE'?'fail':'');
-      const formalGrade=row?.settlement?.verified===true
-        ?(state.model==='handicap'?row.settlement.handicapTop1Status
-          :(['overview','wdl'].includes(state.model)?row.settlement.ftTop1Status:null)):null;
-      if(formalGrade==='SUCCESS'||formalGrade==='FAILURE')
-        return 'status '+(formalGrade==='SUCCESS'?'verified':'fail');
-      const shadowGrade=state.model==='handicap'?row.shadowModuleSettlements?.handicap
-        :(['overview','wdl'].includes(state.model)?row.shadowModuleSettlements?.ft:null);
-      if(shadowGrade?.sourceKind==='SG_PREMATCH_SHADOW'&&shadowGrade.formalEligible===false
-        &&['SUCCESS','FAILURE'].includes(shadowGrade.top1Status))
-        return 'status '+(shadowGrade.top1Status==='SUCCESS'?'verified':'fail');
+      const gradedMarket=state.model==='handicap'||handicapOnlyView(row)?'handicap'
+        :(['overview','wdl','daily'].includes(state.model)?'ft':null);
+      const evaluated=gradedMarket?top2Evaluation(row,gradedMarket):null;
+      if(evaluated)return 'status '+(evaluated.status==='SUCCESS'?'verified':'fail');
       if(interruptedMatch(row))return 'status pass';if(postponedMatch(row))return 'status pass';if(state.model==='htft'){const h=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??(row.htftTop4?.referenceOnly===true||row.htftTop4?.formalEligible===false?null:row.htftTop4);return 'status '+(htftSettled(h)?(htftTop3Hit(h)?'verified':'fail'):'');}if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':(state.model==='handicap'||handicapOnlyView(row))&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
     function moduleData(row){
       if(handicapOnlyView(row))return [['官方让球',row.officialHandicap],['让球首选',handicapDisplayChoice(row,row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapDisplayChoice(row,row.handicapSecond,row.handicapSecondProbability)]];
