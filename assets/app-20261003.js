@@ -1383,13 +1383,15 @@
         :(state.baseDate||state.today?.date||state.selectedDate||beijingToday());
     }
 
-    function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_sg_cutover_v14:'+String(date)}
+    // Scope the VIP cold-warning cache to this signed-in customer and this site.
+    // Never expose one subscriber's cold-feed to a subsequent user of the device.
+    function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_sg_cutover_v15:'+String(authSession?.user?.id||'')+':'+String(date)}
     function restoreMemberZoneSnapshot(date){
       try{
-        const raw=localStorage.getItem(memberZoneStorageKey(date));
+        const raw=sessionStorage.getItem(memberZoneStorageKey(date));
         if(!raw)return false;
         const x=JSON.parse(raw);
-        if(!x?.zone||x.zone.date!==date)return false;
+        if(!x?.zone||x.zone.date!==date||x.userId!==authSession?.user?.id)return false;
         // Active-day snapshots are only a fast first paint. The authoritative
         // request still refreshes them in the background below.
         const maxAge=date<beijingToday()?24*60*60*1000:6*60*60*1000;
@@ -1401,7 +1403,48 @@
       }catch{return false}
     }
     function persistMemberZoneSnapshot(date,zone,fingerprint){
-      try{localStorage.setItem(memberZoneStorageKey(date),JSON.stringify({at:Date.now(),zone,fingerprint}))}catch{}
+      try{sessionStorage.setItem(memberZoneStorageKey(date),JSON.stringify({at:Date.now(),zone,fingerprint,userId:authSession?.user?.id}))}catch{}
+    }
+
+    // Pre-warm the seventh module (cold warnings) in the background, but only
+    // for an authenticated VIP, a past date and valid customer-published rows.
+    // The ordinary selected cold view remains authoritative and can revalidate.
+    const coldDayRequests=new Map();
+    async function prefetchColdDay(date){
+      const id=authSession?.user?.id;
+      if(!id||!(SHADOW_MODE||memberInfo?.vipActive===true)||!date||date>=beijingToday()||
+         navigator.connection?.saveData===true||document.hidden)return;
+      const cached=memberZoneDataCache.get(date);
+      if(cached&&Date.now()-cached.at<coldResultRefreshTtl(date,cached.zone))return;
+      if(coldDayRequests.has(date))return coldDayRequests.get(date);
+      const task=(async()=>{
+        const q=new URLSearchParams({view:'cold-feed',date,_:String(Date.now())});
+        const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
+        let r;
+        try{r=await authorizedApiFetch(customerApiUrl(q),{cache:'no-store',signal:ctrl.signal})}
+        finally{clearTimeout(timer)}
+        if(!r.ok)return;
+        const j=await r.json();
+        const zone=j?.zone&&typeof j.zone==='object'?j.zone:
+          (j?.ok===true&&Array.isArray(j.rows)?{date,rows:j.rows,
+            routeRuleVersion:j.routeRuleVersion||'UNVERIFIED',
+            certifiedDirectional:j.certifiedDirectional||0,
+            riskObservations:j.riskObservations||0}:null);
+        if(j.ok!==true||!zone||!Array.isArray(zone.rows)||zone.date!==date||
+          authSession?.user?.id!==id||!(SHADOW_MODE||memberInfo?.vipActive===true))return;
+        const fingerprint=JSON.stringify(zone);
+        memberZoneDataCache.delete(date);
+        memberZoneDataCache.set(date,{at:Date.now(),zone,membership:j.membership||memberInfo,fingerprint,userId:id});
+        while(memberZoneDataCache.size>8)memberZoneDataCache.delete(memberZoneDataCache.keys().next().value);
+        persistMemberZoneSnapshot(date,zone,fingerprint);
+      })().catch(e=>{console.warn('冷门历史预取暂不可用',date,String(e?.message||e))})
+        .finally(()=>coldDayRequests.delete(date));
+      coldDayRequests.set(date,task);
+      return task;
+    }
+    function warmColdAfterDateSelect(date){
+      if(date>=beijingToday()||!(SHADOW_MODE||memberInfo?.vipActive===true))return;
+      setTimeout(()=>{if(!document.hidden&&state.selectedDate===date)void prefetchColdDay(date)},850);
     }
 
     // A match played after Beijing midnight may belong to yesterday's lottery
@@ -1421,6 +1464,13 @@
       if((!SHADOW_MODE&&memberInfo?.vipActive!==true))return;
       const zoneDate=memberZoneDate();
       let cachedZone=memberZoneDataCache.get(zoneDate);
+      if(cachedZone?.userId&&cachedZone.userId!==authSession?.user?.id){
+        memberZoneDataCache.delete(zoneDate);cachedZone=null;
+      }
+      if(!cachedZone&&coldDayRequests.has(zoneDate)){
+        try{await coldDayRequests.get(zoneDate)}catch{}
+        cachedZone=memberZoneDataCache.get(zoneDate);
+      }
       if(!cachedZone&&restoreMemberZoneSnapshot(zoneDate))cachedZone=memberZoneDataCache.get(zoneDate);
       const cacheTtl=coldResultRefreshTtl(zoneDate,cachedZone?.zone);
       if(cachedZone){
@@ -1468,7 +1518,7 @@
           memberZoneFingerprint=fingerprint;
           changed=true;
         }
-        memberZoneDataCache.set(zoneDate,{at:Date.now(),zone,membership:j.membership||memberInfo,fingerprint});
+        memberZoneDataCache.set(zoneDate,{at:Date.now(),zone,membership:j.membership||memberInfo,fingerprint,userId:authSession?.user?.id});
         persistMemberZoneSnapshot(zoneDate,zone,fingerprint);
         while(memberZoneDataCache.size>10)memberZoneDataCache.delete(memberZoneDataCache.keys().next().value);
         state.memberZoneError=null;
@@ -2755,7 +2805,7 @@
     // Reuse already-built match-card DOM while switching modules on the same data generation.
     // A background API refresh that returns identical rows updates freshness but keeps the same
     // generation, so it no longer destroys every module cache every two minutes.
-    const moduleGridCache=new Map(),moduleGridBuildState=new WeakMap(),MODULE_GRID_CACHE_MAX=4;
+    const moduleGridCache=new Map(),moduleGridBuildState=new WeakMap(),MODULE_GRID_CACHE_MAX=7;
     function moduleGridKey(rows,history,scope){
       const snapshot=dayCache.get(state.selectedDate)?.version||0;
       return [state.selectedDate||'',state.model,history?'history':'live',scope,
@@ -4590,7 +4640,7 @@
       while(dayContentVersions.size>20)dayContentVersions.delete(dayContentVersions.keys().next().value);
       const scope=dayCacheScope(),entry={data:d,at:Date.now(),settled,signature,version,scope};
       dayCache.delete(d.date);dayCache.set(d.date,entry);
-      while(dayCache.size>7)dayCache.delete(dayCache.keys().next().value);
+      while(dayCache.size>9)dayCache.delete(dayCache.keys().next().value);
       // Persist both settled history and the latest active-day snapshot.
       // Active snapshots are only used for fast boot and are refreshed in the
       // background immediately, so they never replace authoritative live sync.
@@ -4640,24 +4690,36 @@
     }
     function scheduleHistoryPrefetch(){
       if(historyPrefetchStarted||!authSession?.access_token)return;
-      if(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches)return;
+      // The previous implementation skipped all touch devices, leaving
+      // iPhone customers to fetch every history page on first tap.
+      const network=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+      if(network?.saveData||['slow-2g','2g'].includes(String(network?.effectiveType||'')))return;
       historyPrefetchStarted=true;
-      const latest=state.baseDate||beijingToday();
-      // Mobile-first: prefetch only the two nearest archive days, serially and only
-      // when the browser is idle. Never compete with active scrolling/date switching.
-      const queue=[-1,-2].map(offset=>addDays(latest,offset));
+      const latest=state.baseDate||beijingToday(),scope=dayCacheScope();
+      const count=network?.effectiveType==='3g'?2:4;
+      const queue=Array.from({length:count},(_,i)=>addDays(latest,-i-1))
+        .filter(date=>date>='2026-10-07'&&date<beijingToday());
       const worker=async()=>{
+        let loaded=0;
         while(queue.length){
-          if(document.hidden||state.tab!=='home'||state.selectedDate!==state.baseDate)return;
+          // Pause rather than fighting touch interactions or foreground sync.
+          if(document.hidden||state.tab!=='home'||state.selectedDate!==state.baseDate||
+             !authSession?.access_token||dayCacheScope()!==scope)return;
           const date=queue.shift();
-          if(!date||cachedDay(date))continue;
-          try{await readDay(date)}catch(e){console.warn('历史日期预取暂不可用',date,e)}
-          await new Promise(resolve=>setTimeout(resolve,900));
+          if(!date)continue;
+          try{if(!cachedDay(date))await readDay(date)}
+          catch(e){console.warn('七大模块历史数据预取暂不可用',date,String(e?.message||e))}
+          loaded++;
+          // VIP cold-feed is the only separately loaded module; prime two dates
+          // using the same confirmed source and an independent bounded request.
+          if(loaded<=2&&(SHADOW_MODE||memberInfo?.vipActive===true))
+            await prefetchColdDay(date);
+          await new Promise(resolve=>setTimeout(resolve,1200));
         }
       };
-      const start=()=>worker();
+      const start=()=>{if(!document.hidden)void worker()};
       if('requestIdleCallback' in window)window.requestIdleCallback(start,{timeout:4500});
-      else setTimeout(start,3200);
+      else setTimeout(start,2500);
     }
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
     function paintCachedActivePool(today){
@@ -4679,7 +4741,7 @@
       if(date===state.selectedDate){if(wasOutsideHome)render();return}
       const requestId=++dateRequestId;
       const cached=cachedDay(date);
-      if(cached){applyDay(cached);return}
+      if(cached){applyDay(cached);warmColdAfterDateSelect(date);return}
       state.selectedDate=date;buildDates();
       // Historical daily coverage is public to expired members; today's paywall remains unchanged.
       document.querySelector('.toolbar').hidden=memberInfo?.active===false&&date>=beijingToday()&&!(state.model==='handicap'&&!paidHandicapAccess());
@@ -4688,7 +4750,7 @@
         const d=await readDay(date);
         if(requestId!==dateRequestId)return;
         if(state.baseDate&&date>state.baseDate&&(!d||d.date!==date||!Array.isArray(d.rows))){showUnopened(date);return}
-        rememberDay(d);applyDay(d)
+        rememberDay(d);applyDay(d);warmColdAfterDateSelect(date)
       }catch(e){if(requestId!==dateRequestId)return;$('content').replaceChildren(errorBox(e))}
     }
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='九十刻度';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
