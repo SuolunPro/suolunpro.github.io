@@ -566,7 +566,7 @@
     // Historic 2.0 model validation is obtained through a separate VIP-only
     // read endpoint. It is never labeled as a contemporaneously published tip.
     const COLD_V2_HISTORY_API=AUTH_BASE+'/functions/v1/soren-cold-history-v2';
-    const isColdV2HistoryDate=date=>String(date||'')>='2026-09-28'&&String(date||'')<='2026-10-11';
+    const isColdV2HistoryDate=date=>String(date||'')>='2026-09-28'&&String(date||'')<='2026-10-06'; // Oct 07-19 must use SG's verified frozen archive, not the missing legacy-v2 endpoint.
     let coldV2History=null,coldV2HistoryUser=null,coldV2HistoryAt=0;
     let coldV2HistoryPromise=null,coldV2HistoryError=null;
     async function loadColdV2History(){
@@ -1383,7 +1383,7 @@
         :(state.baseDate||state.today?.date||state.selectedDate||beijingToday());
     }
 
-    function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_sg_cutover_v13:'+String(date)}
+    function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_sg_cutover_v14:'+String(date)}
     function restoreMemberZoneSnapshot(date){
       try{
         const raw=localStorage.getItem(memberZoneStorageKey(date));
@@ -4575,7 +4575,7 @@
     // Keep settled snapshots across the full 15-day customer history window; active/unsettled days
     // retain their short TTLs so live prematch updates are never frozen by archive caching.
     const dayCache=new Map(),dayRequests=new Map(),dayContentVersions=new Map();let dateRequestId=0,historyPrefetchStarted=false;
-    const ARCHIVE_SESSION_PREFIX='soren-archive-sg-legacy-history-v8:';
+    const ARCHIVE_SESSION_PREFIX='soren-archive-sg-legacy-history-v9:';
     const SETTLED_CACHE_TTL=15*24*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
     function dayCacheScope(){return [authSession?.user?.id||'',memberInfo?.active===true?'1':'0',(SHADOW_MODE||memberInfo?.vipActive===true)?'1':'0'].join('|')}
     function fullySettledDay(d){
