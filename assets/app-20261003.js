@@ -230,11 +230,15 @@
       return null;
     }
     const API='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-public-api-v1';
+    const VERIFIED_2026_ARCHIVE_API='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-legacy-history-v1';
     function customerApiUrl(params){
       const qs=params instanceof URLSearchParams?new URLSearchParams(params):new URLSearchParams(params||{});
-      // The production database is in Mumbai. Running the data-heavy function in
-      // the same region avoids repeated inter-region round trips before first paint.
-      qs.set('forceFunctionRegion','ap-southeast-1');
+      const date=qs.get('date')||'',view=qs.get('view')||'';
+      // Use read-only, date-scoped verified copies, never the old backend.
+      if(date>='2026-10-07'&&date<='2026-10-19'&&
+        ['today','archive','history','cold-feed','member-zone'].includes(view)){
+        return VERIFIED_2026_ARCHIVE_API+'?'+qs.toString();
+      }
       return API+'?'+qs.toString();
     }
     const CLIENT_DIAG_API=AUTH_BASE+'/functions/v1/soren-client-diag-v1';
