@@ -1739,6 +1739,14 @@
     }
     function statusText(row,history){
       if(interruptedMatch(row))return '比赛中断｜待官方处理';
+      if(row?.legacyHistoryProvenance&&row.pass===true&&['wdl','overview','daily'].includes(state.model))
+        return '赛前未发布正式胜平负方向';
+      if(row?.legacyHistoryProvenance&&state.model==='goals'&&verified(row)&&hasScore(row)){
+        const g=goalVersionInfo(row,'dynamic')??goalVersionInfo(row,'original');
+        if(g){const actual=Number(row.resultHome)+Number(row.resultAway);
+          return goalRanks(g).slice(0,3).some(x=>x.goals===actual)?'评测成功 · Top3':'评测失败 · Top3';}
+        return '赛前进球参数未确认';
+      }
       if(state.model==='daily'&&shadowDailyEligible(row)){
         const grade=row.shadowDailySelection.ftStatus;
         return grade==='SUCCESS'?'评测成功 · 胜平负':grade==='FAILURE'?'评测失败 · 胜平负':'等待评测';
@@ -1765,6 +1773,7 @@
         if(!h||!Array.isArray(h.picks)||h.picks.length<3)return '半全场Top3数据待确认';
         if(htftSettled(h)){
           const verdict=htftTop3Hit(h)?'命中':'未命中';
+          if(row?.legacyHistoryProvenance)return htftTop3Hit(h)?'评测成功 · Top3':'评测失败 · Top3';
           return historical?'历史复算Top3 · '+verdict:dynamic?'动态Top3 · '+verdict:'原始Top3 · '+verdict;
         }
         return historical?'历史复算Top3 · 等待核验':'半全场Top3 · 等待核验';
@@ -2082,7 +2091,7 @@
       const label=!valid?(shadowGrade==='SUCCESS'?'评测成功 · Top3':shadowGrade==='FAILURE'?'评测失败 · Top3':
         row.shadowHTFTTop3?.pendingReason==='HALFTIME_NOT_VERIFIED'?'等待半场赛果核验':
         row.shadowHTFTTop3?'等待评测':'Top3数据待更新')
-        :done?(prefix+' · '+(hit?'命中':'未命中')):(prefix+' · 等待核验');
+        :done?(row?.legacyHistoryProvenance?(hit?'评测成功 · Top3':'评测失败 · Top3'):(prefix+' · '+(hit?'命中':'未命中'))):(prefix+' · 等待核验');
       head.append(id,el('span','status'+(!valid?(shadowGrade==='SUCCESS'?' verified':shadowGrade==='FAILURE'?' fail':''):(done?(hit?' verified':' fail'):'')),label));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
@@ -4462,7 +4471,8 @@
       const formalGoals=state.model==='goals'?settled.filter(row=>isFormalGoalPrediction(row)&&hasScore(row)):[];
       const referenceGoals=state.model==='goals'?settled.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null&&hasScore(row)):[];
       const showGoalReference=state.model==='goals'&&formalGoals.length===0&&referenceGoals.length>0;
-      const evaluable=state.model==='goals'?(showGoalReference?referenceGoals:formalGoals):state.model==='handicap'?settled.filter(handicapEvaluable):settled;
+      const evaluable=state.model==='goals'?(showGoalReference?referenceGoals:formalGoals):state.model==='handicap'?settled.filter(handicapEvaluable):
+        ['wdl','overview','daily'].includes(state.model)?settled.filter(row=>!row?.legacyHistoryProvenance||(row.pass!==true&&row.ftTop1)):settled;
       const hits=state.model==='goals'?evaluable.filter(row=>{
         const lambda=publishedGoalLambda({...row,dynamicGoalPrediction:null}),actual=Number(row.resultHome)+Number(row.resultAway);
         let p=Math.exp(-lambda);const ranked=[];
