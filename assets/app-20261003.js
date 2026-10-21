@@ -4629,7 +4629,7 @@
     const SETTLED_CACHE_TTL=15*24*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
     function dayCacheScope(){return [authSession?.user?.id||'',memberInfo?.active===true?'1':'0',(SHADOW_MODE||memberInfo?.vipActive===true)?'1':'0'].join('|')}
     function fullySettledDay(d){
-      return !!(d&&d.date&&d.date<addDays(beijingToday(),-1)&&Array.isArray(d.rows)&&d.rows.length&&
+      return !!(d&&d.date&&d.date<beijingToday()&&Array.isArray(d.rows)&&d.rows.length&&
         d.rows.every(r=>verified(r)||r.matchStatus==='POSTPONED'));
     }
     function rememberDay(d){
@@ -4648,11 +4648,18 @@
       if('requestIdleCallback' in window)window.requestIdleCallback(persist,{timeout:5000});
       else setTimeout(persist,1200);
     }
+    function scopedDayCacheTtl(date,settled,allowStaleActive){
+      // Yesterday may finish after Beijing midnight: cache only genuinely
+      // graded data and recheck it periodically, never lock an unfinished match.
+      if(settled)return date===addDays(beijingToday(),-1)?20*60*1000:SETTLED_CACHE_TTL;
+      if(date<beijingToday())return 2*60*1000;
+      return allowStaleActive?ACTIVE_BOOT_CACHE_TTL:ACTIVE_CACHE_TTL;
+    }
     function cachedDay(date,allowStaleActive=false){
       const entry=dayCache.get(date);
       if(entry){
         if(entry.scope!==dayCacheScope()){dayCache.delete(date);return null}
-        const ttl=entry.settled?SETTLED_CACHE_TTL:(allowStaleActive?ACTIVE_BOOT_CACHE_TTL:ACTIVE_CACHE_TTL);
+        const ttl=scopedDayCacheTtl(date,entry.settled,allowStaleActive);
         if(Date.now()-entry.at<ttl)return entry.data;
         dayCache.delete(date);
       }
@@ -4663,7 +4670,7 @@
         if(stored?.scope!==dayCacheScope()){
           sessionStorage.removeItem(ARCHIVE_SESSION_PREFIX+date);return null;
         }
-        const ttl=settled?SETTLED_CACHE_TTL:(allowStaleActive?ACTIVE_BOOT_CACHE_TTL:ACTIVE_CACHE_TTL);
+        const ttl=scopedDayCacheTtl(date,settled,allowStaleActive);
         if(!stored?.data||!Number.isFinite(Number(stored.at))||Date.now()-Number(stored.at)>ttl){
           sessionStorage.removeItem(ARCHIVE_SESSION_PREFIX+date);return null;
         }
@@ -4721,6 +4728,24 @@
       if('requestIdleCallback' in window)window.requestIdleCallback(start,{timeout:4500});
       else setTimeout(start,2500);
     }
+    let historyNeighborGeneration=0;
+    function prefetchHistoryNeighbors(anchor){
+      const generation=++historyNeighborGeneration;
+      if(!authSession?.access_token||navigator.connection?.saveData===true||anchor>=beijingToday())return;
+      // Load at most two neighboring dates after an intentional historical tap;
+      // reuse the same day envelope for six modules, never reissue cached calls.
+      const near=[addDays(anchor,-1),addDays(anchor,1)]
+        .filter(d=>d>='2026-10-07'&&d<beijingToday());
+      setTimeout(async()=>{
+        for(const day of near){
+          if(generation!==historyNeighborGeneration||document.hidden||
+             !authSession?.access_token||state.selectedDate!==anchor)return;
+          try{if(!cachedDay(day))await readDay(day)}
+          catch(e){console.warn('相邻日期预加载失败',day,String(e?.message||e))}
+          await new Promise(resolve=>setTimeout(resolve,1000));
+        }
+      },1600);
+    }
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
     function paintCachedActivePool(today){
       // Prevent last night's session snapshot from painting yesterday first.
@@ -4741,7 +4766,7 @@
       if(date===state.selectedDate){if(wasOutsideHome)render();return}
       const requestId=++dateRequestId;
       const cached=cachedDay(date);
-      if(cached){applyDay(cached);warmColdAfterDateSelect(date);return}
+      if(cached){applyDay(cached);warmColdAfterDateSelect(date);prefetchHistoryNeighbors(date);return}
       state.selectedDate=date;buildDates();
       // Historical daily coverage is public to expired members; today's paywall remains unchanged.
       document.querySelector('.toolbar').hidden=memberInfo?.active===false&&date>=beijingToday()&&!(state.model==='handicap'&&!paidHandicapAccess());
@@ -4750,7 +4775,7 @@
         const d=await readDay(date);
         if(requestId!==dateRequestId)return;
         if(state.baseDate&&date>state.baseDate&&(!d||d.date!==date||!Array.isArray(d.rows))){showUnopened(date);return}
-        rememberDay(d);applyDay(d);warmColdAfterDateSelect(date)
+        rememberDay(d);applyDay(d);warmColdAfterDateSelect(date);prefetchHistoryNeighbors(date)
       }catch(e){if(requestId!==dateRequestId)return;$('content').replaceChildren(errorBox(e))}
     }
     function setHeader(d){const settled=d.rows.filter(r=>verified(r)).length;$('version').textContent='九十刻度';$('poolCount').textContent=safe(d.date)+' · '+d.count+' 场比赛';$('totalCount').textContent=d.count;$('pickCount').textContent=settled;$('passCount').textContent=Math.max(0,d.rows.filter(r=>r.matchStatus!=='POSTPONED'&&!verified(r)).length);buildDates(state.baseDate||d.date)}
