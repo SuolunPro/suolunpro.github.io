@@ -4538,6 +4538,19 @@
       const firstOffset=state.model==='htft'?Math.max(-14,Math.round((Date.parse('2026-09-19T00:00:00Z')-Date.parse(latest+'T00:00:00Z'))/86400000)):-14;
       for(let offset=firstOffset;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
         b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
+      // Retain direct access to certified October history after it leaves the rolling 15-day strip.
+      const chooser=document.createElement('select');
+      chooser.setAttribute('aria-label','选择十月历史日期');
+      chooser.style.cssText='grid-column:span 2;flex:0 0 auto;min-width:86px;height:35px;margin:0 5px;border:1px solid #ffffff50;border-radius:9px;background:#bc2229;color:#fff;text-align:center;font-size:12px;font-weight:600';
+      const emptyOption=new Option('10月历史 ▾','');
+      chooser.add(emptyOption);
+      for(let day=7;day<=19;day++){
+        const iso='2026-10-'+String(day).padStart(2,'0');
+        chooser.add(new Option('10月'+day+'日',iso));
+      }
+      chooser.value=state.selectedDate>='2026-10-07'&&state.selectedDate<='2026-10-19'?state.selectedDate:'';
+      chooser.addEventListener('change',()=>{if(chooser.value)selectDate(chooser.value)});
+      box.append(chooser);
     }
     // Historical days that are already fully settled are immutable for customer display.
     // Keep settled snapshots across the full 15-day customer history window; active/unsettled days
@@ -4636,7 +4649,7 @@
     }
     async function selectDate(date){
       const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-14);
-      if(date<earliest||date>displayLatestDate()){alert(state.model==='htft'?'半全场仅展示近15天可核验记录。':'仅展示最近15天的记录。');return}
+      if(((date<earliest)&&!(date>='2026-10-07'&&date<='2026-10-19'))||date>displayLatestDate()){alert('仅展示最近15天及已核验的10月7日至19日历史记录。');return}
       // Date navigation is an entry into match history, even when an expired member starts on "我的".
       // Switch tabs before the same-date shortcut or cached-day path; never change membership/report access.
       const wasOutsideHome=state.tab!=='home';
