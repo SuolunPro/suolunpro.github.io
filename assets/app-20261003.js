@@ -728,7 +728,7 @@
       }
       if(!publishable.length){
         const abcOnly=String(state.memberZone?.routeRuleVersion??'').startsWith('ABC-');
-        const empty=el('div','empty','',abcOnly?'当前暂无通过ABC审核的重点避开。必发资金未确认的比赛不会强制发布。':'今日暂无达到展示门槛的冷门风险');
+        const empty=el('div','empty','',abcOnly?'当前暂无通过ABC审核的重点避开。必发资金未确认的比赛不会强制发布。':zoneDate<beijingToday()?'该日没有通过赛前核验的正式冷门预警记录':'目前尚无达到正式发布门槛的冷门预警');
         page.append(empty);
         if(state.memberZone)memberZonePageCache.set(state.memberZone,page);
         box.append(page);return;
