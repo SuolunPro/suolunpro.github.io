@@ -13,7 +13,7 @@
 <h3 class="section-title">其他统计</h3>
 <div class="grid"><div class="stat">系统标记邮箱已确认<b id="verified">—</b></div><div class="stat">实际记录访次<b id="visits">—</b></div></div>
 <p class="muted">展示访问计数：<span id="display">—</span>。邮箱确认可能由系统自动标记，不能证明用户确实收到了验证邮件。</p>
-<div class="admin-tool">
+<div class="admin-tool" id="passwordResetArea">
 <h3 class="section-title">账号密码重置</h3>
 <p class="muted reset-note">仅修改用户登录密码，不会修改会员状态、到期时间、邀请记录或其他账号资料。重置操作会记录管理员、目标账号和时间，但不会记录密码。</p>
 <input id="resetEmail" type="email" autocomplete="off" placeholder="用户邮箱">
@@ -46,8 +46,8 @@
 <p class="statusline" id="updated">等待更新…</p>
 <button id="refresh">刷新统计</button><button id="logout">退出</button>
 </section><p><a href="./review.html">前往邀请审核后台</a>　·　<a href="./">返回九十刻度客户端</a></p></div><script>"use strict";
-const base="https://ttydbcejxqxdkcfoizkj.supabase.co";
-const key="sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa";
+const base="https://zssourkgabcxibggwhqm.supabase.co";
+const key="sb_publishable_94kSLoSqua2oF4T0C-qBmA_t3jlZ4h7";
 const siteKey="0x4AAAAAAFBKndRZlD2qH4Km";
 const $=id=>document.getElementById(id);
 let token=null;
@@ -58,7 +58,7 @@ const showError=e=>{
 function getSharedSession(){
  for(const store of [localStorage,sessionStorage]){
   try{
-   const session=JSON.parse(store.getItem("soren_auth_v2")||"null");
+   const session=JSON.parse(store.getItem("soren_auth_sg_cutover_v1")||"null");
    if(session?.access_token&&session?.user&&(!session.expires_at||Number(session.expires_at)>Date.now()+10000))
      return session;
   }catch{}
@@ -89,8 +89,8 @@ async function refresh(){
  $("updated").textContent="数据更新于："+(d.stats_updated_at?
    new Date(d.stats_updated_at).toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false})+"（北京时间）":"当前");
  $("verified").textContent=Number(d.email_verified).toLocaleString();
- $("visits").textContent=Number(d.visits_recorded).toLocaleString();
- $("display").textContent=Number(d.visits_display).toLocaleString();
+ $("visits").textContent=d.visits_recorded===null||d.visits_recorded===undefined?"—":Number(d.visits_recorded).toLocaleString();
+ $("display").textContent=d.visits_display===null||d.visits_display===undefined?"暂未恢复":Number(d.visits_display).toLocaleString();
 }
 async function resetUserPassword(){
  if(!token){$("resetMsg").textContent="请先登录管理员账号";return}
@@ -319,4 +319,13 @@ $("logout").onclick=()=>{
  }
  $("signIn").disabled=false;
 })();
+
+// The registration dashboard is migrated. Disable write/research actions until their
+// original admin-only backend functions have been independently restored and verified.
+for(const id of ["resetUserPassword","toggleResetPassword","gptUnifiedLoad","dualShadowHistory","dualShadowLive","dualShadowLoad"]){
+ const control=$(id);if(control){control.disabled=true;control.title="此功能暂不可用";}
+}
+const resetHelp=$("resetMsg");if(resetHelp)resetHelp.textContent="账号密码重置暂不可用，恢复后开放。";
+const gptHelp=$("gptUnifiedList");if(gptHelp){gptHelp.hidden=false;gptHelp.textContent="此项统计暂不可用。";}
+const dualHelp=$("dualShadowStatus");if(dualHelp)dualHelp.textContent="此项统计暂不可用。";
 </script></body></html>
