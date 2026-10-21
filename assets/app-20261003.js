@@ -1666,7 +1666,7 @@
     const verified=row=>row.resultVerified===true&&normalizeResult(row.result)!==null;
     const hasScore=row=>verified(row)&&row.resultHome!==null&&row.resultHome!==undefined&&row.resultHome!==''&&row.resultAway!==null&&row.resultAway!==undefined&&row.resultAway!==''&&Number.isFinite(Number(row.resultHome))&&Number.isFinite(Number(row.resultAway));
     const scoreline=row=>hasScore(row)?Number(row.resultHome)+' : '+Number(row.resultAway):'未确认';
-    const scoreInfo=row=>{const x=row?.dynamicScoreTop4??row?.scoreTop4;if(!x||x.pregameVerified!==true||!Array.isArray(x.picks)||x.picks.length!==4)return null;const frozen=Date.parse(String(x.frozenAt||'')),kickoff=Date.parse(String(row.kickoff||''));return Number.isFinite(frozen)&&Number.isFinite(kickoff)&&frozen<kickoff?x:null};
+    const scoreInfo=row=>{const x=row?.dynamicScoreTop4??row?.scoreTop4;if(!x||x.pregameVerified!==true||!Array.isArray(x.picks)||x.picks.length!==4)return null;const frozen=Date.parse(String(x.frozenAt??x.publishedAt??x.sourceFrozenAt??'')),kickoff=Date.parse(String(row.kickoff||''));return Number.isFinite(frozen)&&Number.isFinite(kickoff)&&frozen<kickoff&&frozen<=Date.now()?x:null};
     // Read-only display simulation for the specifically missing, already finished 09-23/003 match.
     // Never write to scoreTop4 or take part in pre-match score settlement/coverage metrics.
     const scoreSimulationInfo=row=>{
@@ -1808,6 +1808,7 @@
     }
     function statusText(row,history){
       if(interruptedMatch(row))return '比赛中断｜待官方处理';
+      if(state.model==='score'&&scoreInfo(row)){const s=scoreInfo(row).settlementStatus;if(s==='SUCCESS')return '评测成功 · Top4';if(s==='FAILURE')return '评测失败 · Top4';return '等待评测';}
       if(row?.legacyHistoryProvenance&&row.pass===true&&['wdl','overview','daily'].includes(state.model))
         return '赛前未发布正式胜平负方向';
       if(row?.legacyHistoryProvenance&&state.model==='goals'&&verified(row)&&hasScore(row)){
@@ -1841,7 +1842,7 @@
         const dynamic=h?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01';
         if(!h||!Array.isArray(h.picks)||h.picks.length<3)return '半全场Top3数据待确认';
         if(htftSettled(h)){
-          const verdict=htftTop3Hit(h)?'命中':'未命中';
+          const verdict=htftTop3Hit(h)?'评测成功':'评测失败';
           if(row?.legacyHistoryProvenance)return htftTop3Hit(h)?'评测成功 · Top3':'评测失败 · Top3';
           return historical?'历史复算Top3 · '+verdict:dynamic?'动态Top3 · '+verdict:'原始Top3 · '+verdict;
         }
@@ -1854,6 +1855,7 @@
       return '赛前冻结'
     }
     function statusClass(row,history){
+      if(state.model==='score'&&scoreInfo(row)){const s=scoreInfo(row).settlementStatus;return 'status '+(s==='SUCCESS'?'verified':s==='FAILURE'?'fail':'');}
       if(state.model==='daily'&&shadowDailyEligible(row)){
         const grade=row.shadowDailySelection.ftStatus;
         return 'status '+(grade==='SUCCESS'?'verified':grade==='FAILURE'?'fail':'');
@@ -2053,11 +2055,11 @@
     function scoreVersionInfo(row,kind){
       const info=kind==='dynamic'?row.dynamicScoreTop4:row.scoreTop4;
       if(!info||info.pregameVerified!==true||!Array.isArray(info.picks)||info.picks.length!==4)return null;
-      if(kind==='dynamic'&&info.sourceKind!=='MARKET_ANCHORED_POISSON_SHADOW_V01')return null;
-      if(kind==='original'&&(info.sourceKind==='HISTORICAL_BLIND_REPLAY'||info.sourceKind==='POSTMATCH_POISSON_SIMULATION_NOT_PUBLISHED'))return null;
-      const freeze=Date.parse(String(info.frozenAt??'')),kickoff=Date.parse(String(row.kickoff??''));
+      if(kind==='dynamic'&&!['MARKET_ANCHORED_POISSON_SHADOW_V01','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1'].includes(info.sourceKind))return null;
+      if(kind==='original'&&['HISTORICAL_BLIND_REPLAY','POSTMATCH_POISSON_SIMULATION_NOT_PUBLISHED','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1'].includes(info.sourceKind))return null;
+      const freeze=Date.parse(String(info.frozenAt??info.publishedAt??info.sourceFrozenAt??'')),kickoff=Date.parse(String(row.kickoff??''));
       if(!Number.isFinite(freeze)||!Number.isFinite(kickoff)||freeze>=kickoff)return null;
-      if(kind==='dynamic'){
+      if(kind==='dynamic'&&info.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01'){
         const market=Date.parse(String(info.marketAt??'')),baseline=Date.parse(String(info.baselineAt??''));
         if(!Number.isFinite(market)||!Number.isFinite(baseline)||baseline>market||market>freeze||market>=kickoff)return null;
       }
@@ -2070,7 +2072,7 @@
       return Number.isInteger(h)&&Number.isInteger(a)&&h>=0&&a>=0?h+'-'+a:null;
     }
     function scoreVersionStat(items){
-      const settled=items.filter(({row})=>scoreActual(row)!==null);
+      const settled=items.filter(({row,info})=>scoreActual(row)!==null&&(info.sourceKind!=='SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1'||['SUCCESS','FAILURE'].includes(info.settlementStatus)));
       return {total:items.length,n:settled.length,
         top1:settled.filter(({row,info})=>String(info.picks[0].score)===scoreActual(row)).length,
         top4:settled.filter(({row,info})=>info.picks.some(p=>String(p.score)===scoreActual(row))).length};
@@ -2091,7 +2093,7 @@
         const info=kind==='dynamic'?dynamic:original;if(!info)return;
         dyn.classList.toggle('active',kind==='dynamic');orig.classList.toggle('active',kind==='original');
         dyn.setAttribute('aria-pressed',String(kind==='dynamic'));orig.setAttribute('aria-pressed',String(kind==='original'));
-        sub.textContent=(kind==='dynamic'?'动态赛前':'原始赛前')+' · '+fmtStamp(info.frozenAt)+' 留存';
+        sub.textContent=(kind==='dynamic'?'动态赛前':'原始赛前')+' · '+fmtStamp(info.frozenAt??info.publishedAt??info.sourceFrozenAt)+' 留存';
         body.replaceChildren(scoreTop4Panel(row,info));
         if(original&&dynamic){
           const firstOriginal=String(original.picks[0].score).replace('-',':'),firstDynamic=String(dynamic.picks[0].score).replace('-',':');
@@ -2110,10 +2112,11 @@
       const title=el('div','score-top4-title');
       const historical=info?.sourceKind==='HISTORICAL_BLIND_REPLAY';
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
-      const originalPrematch=!!info&&!simulation&&!historical&&!marketShadow;
+      const sgMarketScore=info?.sourceKind==='SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1';
+      const originalPrematch=!!info&&!simulation&&!historical&&!marketShadow&&!sgMarketScore;
       title.append(
-        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):marketShadow?(full?'赛前比分参考 · Top4':'赛前比分参考 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
-        el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow?'':'原始冻结 '+fmtStamp(info.frozenAt))
+        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):sgMarketScore?'赛前比分参考 · Top4':marketShadow?(full?'赛前比分参考 · Top4':'赛前比分参考 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
+        el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow||sgMarketScore?'赛前记录 '+fmtStamp(info.frozenAt??info.publishedAt):'原始冻结 '+fmtStamp(info.frozenAt))
       );
       panel.append(title);
       if(!info){panel.append(el('p','score-top4-note','暂无比分预测 · 赛前参数未确认，不计入比分覆盖统计。'));return panel}
@@ -2131,15 +2134,16 @@
         return panel;
       }
       const actual=scoreActual(row),top1=actual!==null&&String(info.picks[0].score)===actual;
-      const top4=actual!==null&&info.picks.some(p=>String(p.score)===actual);
-      const cls=actual===null?'pending':top4?'success':'fail';
-      const verdict=actual===null?'等待评测':!full
-        ?'实际比分 '+actual.replace('-',':')+' · Top1 · '+(top1?'评测成功':'评测失败')
-        :historical
-          ?'历史复算 · '+(top4?'Top4 · 评测成功':'Top4 · 评测失败')
-          :'实际比分 '+actual.replace('-',':')+' · Top1 · '+(top1?'评测成功':'评测失败')+' · Top4 '+(top4?'覆盖':'未覆盖');
+      const top4=actual!==null&&info.picks.slice(0,4).some(p=>String(p.score)===actual);
+      const gradeReady=actual!==null&&(!sgMarketScore||['SUCCESS','FAILURE'].includes(info.settlementStatus));
+      const gradedHit=sgMarketScore?info.settlementStatus==='SUCCESS':top4;
+      const cls=!gradeReady?'pending':gradedHit?'success':'fail';
+      const verdict=!gradeReady?'等待评测':historical
+        ?'历史复算 · Top4 · '+(gradedHit?'评测成功':'评测失败')
+        :'实际比分 '+actual.replace('-',':')+' · Top4 · '+(gradedHit?'评测成功':'评测失败')+(full?' · Top1 '+(top1?'命中':'未命中'):'');
       panel.append(el('div','score-top4-verdict '+cls,verdict));
-      if(marketShadow)panel.append(el('p','score-top4-note','原索伦真实赛前冻结的泊松研究参考：仅作Top1及Top4对照，不计入正式命中率。'));
+      if(sgMarketScore)panel.append(el('p','score-top4-note','新加坡赛前市场数据推算概率；采用Top3基础比分＋Top4方向挑战，任意一项命中即Top4评测成功。当前为参考口径，不计入旧豪竞正式命中率。'));
+      else if(marketShadow)panel.append(el('p','score-top4-note','原索伦真实赛前冻结的泊松研究参考：仅作Top1及Top4对照，不计入正式命中率。'));
       else if(historical)panel.append(el('p','score-top4-note','本场为赛后依据赛前留存参数复算，不属于当时发布的赛前比分预测，不计入赛前版命中率。'));
       else panel.append(el('p','score-top4-note','赛前记录 · 赛果核验后计算Top1和Top4。'));
       panel.append(el('p','score-top4-note','比分概率为模型估算值，不代表历史命中率或结果保证。'));
@@ -2160,7 +2164,7 @@
       const label=!valid?(shadowGrade==='SUCCESS'?'评测成功 · Top3':shadowGrade==='FAILURE'?'评测失败 · Top3':
         row.shadowHTFTTop3?.pendingReason==='HALFTIME_NOT_VERIFIED'?'等待半场赛果核验':
         row.shadowHTFTTop3?'等待评测':'Top3数据待更新')
-        :done?(row?.legacyHistoryProvenance?(hit?'评测成功 · Top3':'评测失败 · Top3'):(prefix+' · '+(hit?'命中':'未命中'))):(prefix+' · 等待核验');
+        :done?(hit?'评测成功 · Top3':'评测失败 · Top3'):(prefix+' · 等待核验');
       head.append(id,el('span','status'+(!valid?(shadowGrade==='SUCCESS'?' verified':shadowGrade==='FAILURE'?' fail':''):(done?(hit?' verified':' fail'):'')),label));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
