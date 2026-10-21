@@ -540,7 +540,7 @@
       if(a.intelligence.impactSide&&a.intelligence.impactLevel)line(holder,'情报影响',a.intelligence.impactSide+' · '+a.intelligence.impactLevel);
       if(a.intelligence.injuryCount>0)line(holder,'有效伤停/阵容',a.intelligence.injuryCount+' 条');
       if(a.intelligence.highlights.length){const ul=el('ul','member-zone-intel-list');a.intelligence.highlights.forEach(x=>ul.append(el('li','',x)));holder.append(ul)}
-      if(a.capturedAt)line(holder,'深度分析更新',fmtStamp(a.capturedAt));
+      if(a.capturedAt)line(holder,options.updateLabel||'深度分析更新',fmtStamp(a.capturedAt));
       return a;
     }
     // Cold-warning cards are DOM-heavy. Reuse the exact page while its source
@@ -1348,7 +1348,7 @@
         // Load the same saved analysis object used by the match-detail preview.
         // The member endpoint returns only the customer-safe projection.
         const xsec=el('section','member-zone-proof-section');
-        xsec.append(el('div','member-zone-proof-title','九十刻度 · 深度市场依据'),el('div','member-zone-intel-state','展开后读取最新赛前深度分析…'));
+        xsec.append(el('div','member-zone-proof-title','原始预警触发依据'),el('div','member-zone-intel-state','展示预警发布时的冻结市场资料'));
         body.append(xsec);
         const inlineShadow=(row?.shadowAnalysis&&typeof row.shadowAnalysis==='object')?row.shadowAnalysis:((cold?.gate?.shadowAnalysis&&typeof cold.gate.shadowAnalysis==='object')?cold.gate.shadowAnalysis:null);
         // VIP cold proof must be no later than the official pool-day sale close.
@@ -1370,14 +1370,56 @@
               return;
             }
             const analysis=frozenInline||(await loadMemberIntelProof(zoneDate,row.no))?.analysis;
-            renderShadowAnalysisFields(xsec,analysis,{title:'九十刻度 · 深度市场依据',top1:row.model?.top1,conclusion:displayLabel});
+            renderShadowAnalysisFields(xsec,analysis,{title:'原始预警触发依据',updateLabel:'冻结依据快照时间',top1:row.model?.top1,conclusion:displayLabel});
           }catch(error){
             shadowProofLoaded=false;
             xsec.replaceChildren(el('div','member-zone-proof-title','九十刻度 · 深度市场依据'),el('div','member-zone-intel-state','深度市场依据读取失败，请稍后重试'));
           }
         };
         if(inlineShadow)loadShadowProof();
-        details.addEventListener('toggle',()=>{if(details.open)loadShadowProof()},{passive:true});
+        // The original ABCDE trigger remains frozen. New independently verified
+        // prematch readings are displayed separately and cannot change it.
+        const latestSection=zoneDate>='2026-10-20'&&cold?.vipPublish===true&&
+          cold?.customerRoute?.type==='FOCUS_AVOID'
+          ?el('section','member-zone-proof-section'):null;
+        if(latestSection){
+          latestSection.append(el('div','member-zone-proof-title','最新有效赛前市场'),
+            el('div','member-zone-intel-state','展开后读取，独立于原始预警依据'));
+          body.append(latestSection);
+        }
+        let latestLoaded=false,latestLoading=false;
+        async function showLatestMarket(){
+          if(!latestSection||latestLoaded||latestLoading)return;
+          latestLoading=true;
+          try{
+            const key='latest|'+zoneDate+'|'+String(row.no).padStart(3,'0');
+            const old=memberIntelCache.get(key);
+            const qs=new URLSearchParams({view:'member-intel',context:'detail',date:zoneDate,no:String(row.no).padStart(3,'0')});
+            const data=old&&Date.now()-old.at<90*1000?old.data:
+              await (async()=>{const r=await authorizedApiFetch(OKOOO_SHADOW_API+'?'+qs.toString(),{
+                cache:'no-store',signal:timeoutSignal(10000)});
+                const j=await r.json();if(!r.ok||j?.ok!==true)throw Error('MARKET_NOT_VERIFIED');
+                memberIntelCache.set(key,{at:Date.now(),data:j});return j})();
+            const a=data.analysis,at=Date.parse(String(a?.capturedAt||'')),bound=Date.parse(String(data?.reportProvenance?.proofBoundary||''));
+            const origin=Date.parse(String(frozenInline?.capturedAt??frozenInline?.captured_at??row.proofProvenance?.deepSnapshotAt??''));
+            if(!Number.isFinite(at)||!Number.isFinite(bound)||at>bound||at>=proofFreezeMs||
+               (Number.isFinite(origin)&&at<=origin)) {
+              latestSection.replaceChildren(el('div','member-zone-proof-title','最新有效赛前市场'),
+                el('div','member-zone-intel-state','暂无晚于原始预警依据的有效赛前快照。'));
+            }else{
+              renderShadowAnalysisFields(latestSection,a,{title:'最新有效赛前市场',
+                updateLabel:'最新市场快照时间',top1:row.model?.top1});
+              latestSection.append(el('p','report-sub','本栏为预警发布后的市场观察，不改变原始预警方向与冻结记录。'));
+            }
+            latestLoaded=true;
+          }catch(e){
+            latestSection.replaceChildren(el('div','member-zone-proof-title','最新有效赛前市场'),
+              el('div','member-zone-intel-state','最新赛前市场读取失败，原始预警依据仍然有效。'));
+          }finally{latestLoading=false}
+        }
+        details.addEventListener('toggle',()=>{
+          if(details.open){void loadShadowProof();void showLatestMarket()}
+        },{passive:true});
 
         const cov=row.coverage||{},dsec=el('section','member-zone-proof-section');
         dsec.append(el('div','member-zone-proof-title','数据完整度'));
