@@ -1809,6 +1809,7 @@
     function statusText(row,history){
       if(interruptedMatch(row))return '比赛中断｜待官方处理';
       if(state.model==='score'&&scoreInfo(row)){const s=scoreInfo(row).settlementStatus;if(s==='SUCCESS')return '评测成功 · Top4';if(s==='FAILURE')return '评测失败 · Top4';return '等待评测';}
+      if(state.model==='goals'&&verified(row)&&hasScore(row)&&!row.shadowGoalsTop3){const g=goalVersionInfo(row,'dynamic')??goalVersionInfo(row,'original');if(g){const actual=Number(row.resultHome)+Number(row.resultAway);return goalRanks(g).slice(0,3).some(x=>x.goals===actual)?'评测成功 · Top3':'评测失败 · Top3';}}
       if(row?.legacyHistoryProvenance&&row.pass===true&&['wdl','overview','daily'].includes(state.model))
         return '赛前未发布正式胜平负方向';
       if(row?.legacyHistoryProvenance&&state.model==='goals'&&verified(row)&&hasScore(row)){
@@ -1856,6 +1857,7 @@
     }
     function statusClass(row,history){
       if(state.model==='score'&&scoreInfo(row)){const s=scoreInfo(row).settlementStatus;return 'status '+(s==='SUCCESS'?'verified':s==='FAILURE'?'fail':'');}
+      if(state.model==='goals'&&verified(row)&&hasScore(row)&&!row.shadowGoalsTop3){const g=goalVersionInfo(row,'dynamic')??goalVersionInfo(row,'original');if(g){const actual=Number(row.resultHome)+Number(row.resultAway);return 'status '+(goalRanks(g).slice(0,3).some(x=>x.goals===actual)?'verified':'fail');}}
       if(state.model==='daily'&&shadowDailyEligible(row)){
         const grade=row.shadowDailySelection.ftStatus;
         return 'status '+(grade==='SUCCESS'?'verified':grade==='FAILURE'?'fail':'');
@@ -2439,13 +2441,9 @@
                 el('span','','实际总进球 '+actual+'球'+(marketShadow?' · 动态参数版':goalsShadow?' · 原始参数参考':'')));
               goals.append(verdict);
             }else{
-              if(rank===0){
-                const verdict=el('div','goals-inline-verdict goals-inline-success');
-                verdict.append(el('span','goals-inline-icon','✓'),el('b','','最高概率 · 评测成功'),el('span','','实际总进球 '+actual+'球'));
-                goals.append(verdict);
-              }else{
-                goals.append(el('div','goals-inline-verdict','实际总进球 '+actual+'球'));
-              }
+              const verdict=el('div','goals-inline-verdict '+(goalHit?'goals-inline-success':'goals-inline-fail'));
+              verdict.append(el('span','goals-inline-icon',goalHit?'✓':'×'),el('b','',goalHit?'Top3 · 评测成功':'Top3 · 评测失败'),el('span','','实际总进球 '+actual+'球'));
+              goals.append(verdict);
             }
           }else goals.append(el('p','goals-note',full?'待评测 · 统计Top3覆盖':'等待评测'));
         }
@@ -3322,7 +3320,7 @@
       if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3及完整概率分布'));
       if(verified(row)&&hasScore(row)){
         const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
-        panel.append(el('div','goals-verdict',full?('实际总进球 '+actual+'球 · Top3 · '+(top3?'评测成功':'评测失败')):(top1?('✓ 最高概率 · 评测成功 · 实际总进球 '+actual+'球'):('实际总进球 '+actual+'球'))));
+        panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top3 · '+(top3?'评测成功':'评测失败')+(full?' · Top1 '+(top1?'命中':'未命中'):'')));
       }else panel.append(el('div','goals-verdict','等待评测'));
       panel.append(el('p','goals-note','赛前数据已留存；赛果核验后每场只评测一次。'));
       return panel;
