@@ -320,12 +320,12 @@ $("logout").onclick=()=>{
  $("signIn").disabled=false;
 })();
 
-// The registration dashboard is migrated. Disable write/research actions until their
-// original admin-only backend functions have been independently restored and verified.
-for(const id of ["resetUserPassword","toggleResetPassword","gptUnifiedLoad","dualShadowHistory","dualShadowLive","dualShadowLoad"]){
+// Registration statistics and password-reset administration use the Singapore production backend.
+// Other research modules are disabled until their verified server implementations are migrated.
+for(const id of ["gptUnifiedLoad","dualShadowHistory","dualShadowLive","dualShadowLoad"]){
  const control=$(id);if(control){control.disabled=true;control.title="此功能暂不可用";}
 }
-const resetHelp=$("resetMsg");if(resetHelp)resetHelp.textContent="账号密码重置暂不可用，恢复后开放。";
+const resetHelp=$("resetMsg");if(resetHelp)resetHelp.textContent="账号密码重置已恢复。当前仅修改新加坡系统登录密码；原数据库密码不会自动同步。";
 const gptHelp=$("gptUnifiedList");if(gptHelp){gptHelp.hidden=false;gptHelp.textContent="此项统计暂不可用。";}
 const dualHelp=$("dualShadowStatus");if(dualHelp)dualHelp.textContent="此项统计暂不可用。";
 </script></body></html>
