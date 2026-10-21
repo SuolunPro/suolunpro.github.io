@@ -790,6 +790,25 @@
         const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
         const pop=(cold?.popularity&&typeof cold.popularity==='object')?cold.popularity:{};
         const original=String(route?.originalTop1??cold?.originalTop1??row?.model?.top1??'');
+        // Singapore's verified ABCDE channels are frozen at publication.
+        // Summarize only the adverse, pregame proof that actually triggered
+        // the warning. The historic Soren focusGate path below stays intact.
+        const channels=Array.isArray(gate.channels)?gate.channels:[];
+        const top=String(gate.fundsTop??'');
+        const sourceChannel=channels.find(x=>['A','B','C','D','E1','E2'].includes(String(x)));
+        if(sourceChannel){
+          const reason={
+            A:top&&top!==original
+              ?`必发${top}资金居首，与原${original}背离`
+              :'必发反向资金居首，与原首选背离',
+            B:'必发平局资金居首，成交规模达到预警条件',
+            C:'威廉对原首选支持下降，必发资金同步反向',
+            D:'威廉对原首选升赔，多家亚盘加深且主队侧高水',
+            E1:'官方SP提示平局风险，赛前比分模型同向',
+            E2:'官方SP提示平局风险，威廉市场变化同向'
+          };
+          return reason[sourceChannel];
+        }
         const found=new Map();
         const add=(text,rank)=>{if(!text)return;const current=found.get(text);if(current===undefined||rank>current)found.set(text,rank)};
         // Strongest source: typed signals in the same refreshed feed.
