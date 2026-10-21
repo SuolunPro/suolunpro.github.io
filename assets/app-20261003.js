@@ -684,7 +684,7 @@
         if(cached){box.append(cached);return}
       }
       const page=el('div','member-zone-page');
-      const info=el('details','cold-warning-info compact');info.open=true;
+      const info=el('details','cold-warning-info compact');info.open=false; // Keep match history visible first; help remains expandable.
       const infoSummary=el('summary','','冷门预警更新说明');
       const infoBody=el('div','cold-warning-info-body');
       infoBody.append(
