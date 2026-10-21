@@ -1387,9 +1387,10 @@
             el('div','member-zone-intel-state','展开后读取，独立于原始预警依据'));
           body.append(latestSection);
         }
-        let latestLoaded=false,latestLoading=false;
+        let latestLoaded=false,latestLoading=false,latestLoadedAt=0;
         async function showLatestMarket(){
-          if(!latestSection||latestLoaded||latestLoading)return;
+          if(!latestSection||latestLoading||(latestLoaded&&
+             (Date.now()>=proofFreezeMs||Date.now()-latestLoadedAt<90*1000)))return;
           latestLoading=true;
           try{
             const key='latest|'+zoneDate+'|'+String(row.no).padStart(3,'0');
@@ -1411,7 +1412,7 @@
                 updateLabel:'最新市场快照时间',top1:row.model?.top1});
               latestSection.append(el('p','report-sub','本栏为预警发布后的市场观察，不改变原始预警方向与冻结记录。'));
             }
-            latestLoaded=true;
+            latestLoaded=true;latestLoadedAt=Date.now();
           }catch(e){
             latestSection.replaceChildren(el('div','member-zone-proof-title','最新有效赛前市场'),
               el('div','member-zone-intel-state','最新赛前市场读取失败，原始预警依据仍然有效。'));
