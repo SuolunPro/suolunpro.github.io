@@ -4533,22 +4533,41 @@
       buildDates();render();
     }
     function buildDates(){
-      const days=['日','一','二','三','四','五','六'],box=$('dates'),latest=displayLatestDate();box.replaceChildren();
-      box.classList.toggle('htft-dates',state.model==='htft');
-      const firstOffset=state.model==='htft'?Math.max(-14,Math.round((Date.parse('2026-09-19T00:00:00Z')-Date.parse(latest+'T00:00:00Z'))/86400000)):-14;
-      for(let offset=firstOffset;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
-        b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
-      // Retain direct access to certified October history after it leaves the rolling 15-day strip.
-      const chooser=document.createElement('select');
-      chooser.setAttribute('aria-label','选择十月历史日期');
-      chooser.style.cssText='grid-column:span 2;flex:0 0 auto;min-width:86px;height:35px;margin:0 5px;border:1px solid #ffffff50;border-radius:9px;background:#bc2229;color:#fff;text-align:center;font-size:12px;font-weight:600';
-      const emptyOption=new Option('10月历史 ▾','');
-      chooser.add(emptyOption);
-      for(let day=7;day<=19;day++){
-        const iso='2026-10-'+String(day).padStart(2,'0');
-        chooser.add(new Option('10月'+day+'日',iso));
+      // Compact customer navigation: six days plus one visible historical-results chooser.
+      // All previously certified dates remain selectable without occupying three header rows.
+      const days=['日','一','二','三','四','五','六'];
+      const box=$('dates'),latest=displayLatestDate();
+      box.replaceChildren();
+      box.classList.remove('htft-dates');
+      box.classList.add('compact-history-dates');
+      for(let offset=-5;offset<=0;offset++){
+        const iso=addDays(latest,offset);
+        const d=new Date(iso+'T12:00:00+08:00');
+        const active=iso===state.selectedDate;
+        const b=el('button','day'+(active?' active':''));
+        b.type='button';
+        b.setAttribute('aria-label',iso);
+        if(active)b.setAttribute('aria-current','date');
+        b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));
+        b.onclick=()=>selectDate(iso);
+        box.append(b);
       }
-      chooser.value=state.selectedDate>='2026-10-07'&&state.selectedDate<='2026-10-19'?state.selectedDate:'';
+      const chooser=document.createElement('select');
+      chooser.className='history-date-select';
+      chooser.setAttribute('aria-label','历史战绩：选择日期');
+      chooser.title='历史战绩：选择日期';
+      chooser.add(new Option('历史战绩 ▾',''));
+      const earliest=state.model==='htft'?'2026-09-19':'2026-10-07';
+      const firstVisible=addDays(latest,-5);
+      for(let date=addDays(firstVisible,-1);date>=earliest;date=addDays(date,-1)){
+        chooser.add(new Option(date.slice(5),date));
+      }
+      // Preserve the visible selection when switching between model tabs.
+      if(state.selectedDate<firstVisible&&state.selectedDate<=latest&&
+         !Array.from(chooser.options).some(o=>o.value===state.selectedDate)){
+        chooser.add(new Option(state.selectedDate.slice(5),state.selectedDate));
+      }
+      chooser.value=state.selectedDate<firstVisible?state.selectedDate:'';
       chooser.addEventListener('change',()=>{if(chooser.value)selectDate(chooser.value)});
       box.append(chooser);
     }
