@@ -1505,7 +1505,9 @@
           if(state.tab==='memberzone')renderMemberZone();
           else if(state.tab==='home'&&state.model==='cold')render();
         }
-        if(zoneDate<beijingToday()&&Date.now()-cachedZone.at<cacheTtl)return;
+        // Active-day VIP warnings are updated server-side; a short verified client cache
+        // avoids refetching the same cold ledger on every tab switch.
+        if(Date.now()-cachedZone.at<(zoneDate>=beijingToday()?30*1000:cacheTtl))return;
         silent=true;
       }
       // Deduplicate a foreground tap and a scheduled refresh for the same date.
@@ -4604,7 +4606,30 @@
       finally{clearTimeout(timer)}
       return day;
     }
-    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');return await restoreDurableDailyPublication(j)}finally{}}
+    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');// The authoritative current-day envelope is immediately renderable.
+        // A second signed publication RPC is recovery-only: do not hold the
+        // customer's 今日优选 screen for up to 7.5 seconds while it runs.
+        const initialRows=j.rows,accountId=String(authSession?.user?.id??"");
+        if(j.date===beijingToday()&&Array.isArray(j.rows)&&j.rows.length&&
+          (memberInfo?.vipActive===true||memberInfo?.isAdmin===true)&&
+          !j.rows.some(x=>x.dailySelectionCustomerPublished===true&&x.dailySelectionTier==="CORE")){
+          void restoreDurableDailyPublication(j).then(updated=>{
+            if(String(authSession?.user?.id??"")!==accountId||updated!==j)return;
+            const promoted=updated.rows.some((x,i)=>
+              x.dailySelectionCustomerPublished===true&&
+              initialRows[i]?.dailySelectionCustomerPublished!==true);
+            if(!promoted)return;
+            const stillActive=state.today===j&&state.selectedDate===j.date;
+            const cached=dayCache.get(j.date);
+            if(stillActive||cached?.data===j)rememberDay(j);
+            if(stillActive&&state.tab==="home"){
+              const graded=j.rows.filter(verified);
+              state.history={...j,count:graded.length,rows:graded};
+              setHeader(j);render();
+            }
+          }).catch(e=>console.warn("今日优选正式记录后台核验未完成",String(e?.message||e)));
+        }
+        return j}finally{}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
