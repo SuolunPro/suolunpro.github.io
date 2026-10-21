@@ -1838,7 +1838,7 @@
     function htftVersionInfo(row,kind){
       const info=kind==='dynamic'?(row.dynamicHTFTPending?null:row.dynamicHTFT):row.htftTop4;
       const expected=kind==='dynamic'?'MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01':'PUBLISHED_PREMATCH';
-      if(!info||info.referenceOnly===true||info.formalEligible===false||info.sourceKind!==expected||!Array.isArray(info.picks)||info.picks.length!==4)return null;
+      if(!info||info.referenceOnly===true||(info.formalEligible===false&&!row?.legacyHistoryProvenance)||info.sourceKind!==expected||!Array.isArray(info.picks)||info.picks.length!==4)return null;
       const kickoff=Date.parse(String(row.kickoff??'')),frozen=Date.parse(String(info.sourceFrozenAt??'')),published=Date.parse(String(info.publishedAt??''));
       if(!Number.isFinite(kickoff)||!Number.isFinite(frozen)||!Number.isFinite(published)||frozen>published||published>=kickoff)return null;
       return info;
@@ -2079,7 +2079,7 @@
     function htftCard(row,history=false){
       const c=el('article','card'),head=el('div','card-head'),id=el('div','match-id');
       const info=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??(row.htftTop4?.referenceOnly===true||row.htftTop4?.formalEligible===false?null:row.htftTop4),marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01',historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
-      const valid=info&&info.referenceOnly!==true&&info.formalEligible!==false&&Array.isArray(info.picks)&&info.picks.length===4&&
+      const valid=info&&info.referenceOnly!==true&&(info.formalEligible!==false||row?.legacyHistoryProvenance)&&Array.isArray(info.picks)&&info.picks.length===4&&
         ['PUBLISHED_PREMATCH','HISTORICAL_POSTMATCH_RECONSTRUCTION','MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01'].includes(info.sourceKind);
       const full=fullMemberAnalysis(row);
       id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
