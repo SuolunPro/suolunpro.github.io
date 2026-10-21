@@ -1881,7 +1881,7 @@
         const actual=kind==='score'?String(data.actual).replace('-',':'):kind==='goals'?String(data.actual)+'球':String(data.actual);
         const label=status==='SUCCESS'?'评测成功':'评测失败';
         box.append(el('div','score-top4-verdict '+(status==='SUCCESS'?'success':'fail'),
-          title+'Top3 · '+label+' · 实际结果：'+actual));
+          title+'Top3 · 参考'+label+' · 实际结果：'+actual));
         box.append(el('p','report-sub','Top1 '+(data.top1Status==='SUCCESS'?'命中':'未命中')+'；Top3按照三个赛前候选是否覆盖实际结果评测。'));
       }else{
         box.append(el('div','score-top4-verdict pending',data.pendingReason==='HALFTIME_NOT_VERIFIED'?
@@ -2076,7 +2076,7 @@
       const done=valid&&htftSettled(info),hit=done&&htftTop3Hit(info);
       const prefix=marketShadow?'动态Top3':historical?'历史复算Top3':'原始Top3';
       const shadowGrade=row.shadowHTFTTop3?.settlementStatus;
-      const label=!valid?(shadowGrade==='SUCCESS'?'评测成功 · Top3':shadowGrade==='FAILURE'?'评测失败 · Top3':
+      const label=!valid?(shadowGrade==='SUCCESS'?'参考评测成功 · Top3':shadowGrade==='FAILURE'?'参考评测失败 · Top3':
         row.shadowHTFTTop3?.pendingReason==='HALFTIME_NOT_VERIFIED'?'等待半场赛果核验':
         row.shadowHTFTTop3?'等待评测':'Top3数据待更新')
         :done?(prefix+' · '+(hit?'命中':'未命中')):(prefix+' · 等待核验');
@@ -4535,7 +4535,7 @@
     const SETTLED_CACHE_TTL=15*24*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
     function dayCacheScope(){return [authSession?.user?.id||'',memberInfo?.active===true?'1':'0',(SHADOW_MODE||memberInfo?.vipActive===true)?'1':'0'].join('|')}
     function fullySettledDay(d){
-      return !!(d&&d.date&&d.date<beijingToday()&&Array.isArray(d.rows)&&d.rows.length&&
+      return !!(d&&d.date&&d.date<addDays(beijingToday(),-1)&&Array.isArray(d.rows)&&d.rows.length&&
         d.rows.every(r=>verified(r)||r.matchStatus==='POSTPONED'));
     }
     function rememberDay(d){
