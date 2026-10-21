@@ -4542,7 +4542,48 @@
       $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场'+coverage;
     }
     function render(){closeDetail();const coldView=state.tab==='home'&&state.model==='cold';const publicHandicapView=['home','history'].includes(state.tab)&&state.model==='handicap'&&!paidHandicapAccess();const currentNonMember=memberInfo?.active===false&&state.tab!=='profile'&&!publicHandicapView&&(!state.selectedDate||state.selectedDate>=beijingToday());document.querySelector('.toolbar').hidden=state.tab==='profile'||state.tab==='memberzone'||coldView||currentNonMember;if(state.tab==='memberzone'){if((!SHADOW_MODE&&memberInfo?.vipActive!==true)){renderPaidMemberRequired();return}renderMemberZone();return}if(currentNonMember){renderMemberRequired();return}if(state.tab!=='profile'&&!coldView)updateMetrics();if(state.tab==='home')renderHome();else if(state.tab==='history')renderHistory();else renderProfile()}
-    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');return j}finally{}}
+    async function restoreDurableDailyPublication(day){
+      // Verify frozen publication IDs independently of the latest HJ38 run.
+      // This restricted RPC requires the same signed-in VIP account.
+      if(!day||day.date!==beijingToday()||!Array.isArray(day.rows)||!day.rows.length||
+         !(memberInfo?.vipActive===true||memberInfo?.isAdmin===true||day.membership?.vipActive===true))return day;
+      if(day.rows.some(r=>r.dailySelectionCustomerPublished===true&&r.dailySelectionTier==='CORE'))return day;
+      const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),7500);
+      try{
+        const call=await authorizedApiFetch(AUTH_BASE+'/rest/v1/rpc/ninety_verified_daily_publication_v1',{
+          method:'POST',cache:'no-store',signal:ctrl.signal,
+          headers:{apikey:AUTH_KEY,'Content-Type':'application/json'},
+          body:JSON.stringify({p_pool_date:day.date})
+        });
+        if(!call.ok)throw Error('RPC_'+call.status);
+        const publications=await call.json();
+        if(!Array.isArray(publications))throw Error('UNEXPECTED_PUBLICATIONS');
+        const byNo=new Map(publications.map(x=>[String(x.no||'').padStart(3,'0'),x]));
+        if(!byNo.size)return day;
+        day.rows=day.rows.map(row=>{
+          const record=byNo.get(String(row.no||'').padStart(3,'0'));
+          if(!record||row.pregameVerified!==true||row.date!==day.date||
+             record.home!==row.home||record.away!==row.away||
+             record.top1!==row.ftTop1||dailySelectionHardBlocked(row)||
+             !['CORE','SUPPLEMENT'].includes(record.tier))return row;
+          const ko=Date.parse(String(row.kickoff||'')),published=Date.parse(String(record.publishedAt||'')),
+                frozen=Date.parse(String(record.modelFrozenAt||''));
+          if(!Number.isFinite(ko)||!Number.isFinite(published)||!Number.isFinite(frozen)||
+             !(frozen<published&&published<ko&&published<=Date.now()))return row;
+          return {...row,dailySelectionTier:record.tier,
+            dailySelectionLabel:record.tier==='CORE'?'核心优选':'精选补充',
+            dailySelectionCustomerPublished:true,
+            dailySelectionMeta:{source:'SG_VERIFIED_DURABLE_PUBLICATION',
+              publishedAt:record.publishedAt,modelFrozenAt:record.modelFrozenAt},
+            sorenSelectorAudit:{...(row.sorenSelectorAudit||{}),
+              publicationStatus:'PUBLISHED',customerVisible:true,
+              verifiedPublishedAt:record.publishedAt}};
+        });
+      }catch(e){console.warn('今日优选正式记录核验暂不可用',String(e?.message||e))}
+      finally{clearTimeout(timer)}
+      return day;
+    }
+    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');return await restoreDurableDailyPublication(j)}finally{}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
