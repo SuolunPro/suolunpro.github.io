@@ -4185,7 +4185,7 @@
         }
         const conclusion=el('div','prematch-intel-item');
         conclusion.append(el('b','','综合情报判断'));
-        conclusion.append(el('p','','目前情报仅用于辅助核对球队阵容和近期动态；未经阵容、盘口及比赛身份交叉验证，不据此判断单边优势或触发冷门预警。'));
+        conclusion.append(el('p','',cleanIntel(analysis?.intelligence?.comprehensive_summary)||'赛前情报尚未完成交叉核验，暂不作单边方向判断。'));
         evidence.append(conclusion);
         panel.append(evidence);
       }
