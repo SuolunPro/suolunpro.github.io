@@ -4027,8 +4027,10 @@
         return line;
       };
       const cutoff=Number.isFinite(Date.parse(String(row.kickoff??'')))?Date.parse(row.kickoff):null;
-      const freeze=Number.isFinite(Date.parse(String(row.frozenAt??'')))?Date.parse(row.frozenAt):null;
-      item('模型预测更新',freeze!==null&&cutoff!==null&&freeze<cutoff?fmtStamp(row.frozenAt):'时间未确认');
+      const predictionAt=row.latestPrematchAt??row.frozenAt;
+      const freeze=Number.isFinite(Date.parse(String(predictionAt??'')))?Date.parse(predictionAt):null;
+      item(row.saleFreezeStatus==='SALE_CLOSED_FROZEN'?'最终冻结预测':'最近有效预测更新',
+        freeze!==null&&cutoff!==null&&freeze<cutoff?fmtStamp(predictionAt):'时间未确认');
       const oddsLine=item('机构赔率采集','读取中','report-data-odds');
       oddsLine.querySelector('b').textContent='查看本场资料';
       item('赛果核验',verified(row)?'已核验':postponedMatch(row)?'赛事延期':'待核验',verified(row)?'report-data-verified':'');
@@ -4414,7 +4416,9 @@
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
       if(!handicapRoute&&[row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
         reportProbability(summary,'九十刻度赛前概率',['homeProbability','drawProbability','awayProbability'],row);
-      if(reportHas(row.frozenAt))summary.append(el('p','report-sub',(row.predictionView==='LATEST_PREMATCH_ONLY'?'最新赛前预测更新于 ':'赛前预测记录于 ')+fmtStamp(row.frozenAt)));
+      const predictionTime=row.latestPrematchAt??row.frozenAt;
+      if(reportHas(predictionTime))summary.append(el('p','report-sub',
+        (row.saleFreezeStatus==='SALE_CLOSED_FROZEN'?'最终冻结预测于 ':'最近有效预测更新于 ')+fmtStamp(predictionTime)));
       c.append(summary);
       if(state.model==='handicap'){const drawPanel=handicapDrawProtectionPanel(row);if(drawPanel)c.append(drawPanel);}
       let deepMarketSlot=null;
