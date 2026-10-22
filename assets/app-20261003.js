@@ -2012,7 +2012,9 @@
         const label=status==='SUCCESS'?'评测成功':'评测失败';
         box.append(el('div','score-top4-verdict '+(status==='SUCCESS'?'success':'fail'),
           title+'Top3 · 参考'+label+' · 实际结果：'+actual));
-        box.append(el('p','report-sub','Top1 '+(data.top1Status==='SUCCESS'?'命中':'未命中')+'；Top3按照三个赛前候选是否覆盖实际结果评测。'));
+        box.append(el('p','report-sub',kind==='score'
+          ?'Top1 '+(data.top1Status==='SUCCESS'?'命中':'未命中')+'；Top3按照三个赛前候选是否覆盖实际结果评测。'
+          :'Top3按照三个赛前候选是否覆盖实际结果评测。'));
       }else{
         box.append(el('div','score-top4-verdict pending',data.pendingReason==='HALFTIME_NOT_VERIFIED'?
           '等待半场赛果核验 · 暂不判定成功或失败':'等待评测 · 90分钟赛果尚未核验'));
@@ -3365,7 +3367,7 @@
       if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3及完整概率分布'));
       if(verified(row)&&hasScore(row)){
         const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
-        panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top3 · '+(top3?'评测成功':'评测失败')+(full?' · Top1 '+(top1?'命中':'未命中'):'')));
+        panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top3 · '+(top3?'评测成功':'评测失败')));
       }else panel.append(el('div','goals-verdict','等待评测'));
       panel.append(el('p','goals-note','赛前数据已留存；赛果核验后每场只评测一次。'));
       return panel;
@@ -4420,7 +4422,7 @@
         const shadowGrade=(record)=>{
           if(!record)return null;
           const verdict=status=>status==='SUCCESS'?'命中':status==='FAILURE'?'未命中':'等待核验';
-          reportLine(review,'赛前记录Top1',verdict(record.top1Status));
+          if(state.model!=='htft'&&state.model!=='goals')reportLine(review,'赛前记录Top1',verdict(record.top1Status));
           reportLine(review,'赛前记录Top3',verdict(record.settlementStatus));
           review.append(el('p','report-sub','仅在赛前记录与赛果均可核验时显示评测。'));
           return true;
@@ -4507,16 +4509,23 @@
         if(valid.length&&!hasFormal){
           const graded=valid.filter(row=>['SUCCESS','FAILURE'].includes(row[sk].settlementStatus));
           const top3Hits=graded.filter(row=>row[sk].settlementStatus==='SUCCESS').length;
-          const top1Hits=graded.filter(row=>row[sk].top1Status==='SUCCESS').length;
           const labels=document.querySelectorAll('.metric span');
-          $('totalCount').textContent=htftRate(top3Hits,graded.length);
-          $('pickCount').textContent=htftRate(top1Hits,graded.length);
-          $('passCount').textContent=graded.length+' / '+(valid.length-graded.length);
           const label=state.model==='score'?'比分':state.model==='htft'?'半全场':'总进球';
+          $('totalCount').textContent=htftRate(top3Hits,graded.length);
+          $('passCount').textContent=graded.length+' / '+(valid.length-graded.length);
           labels[0].textContent=label+'Top3覆盖率';
-          labels[1].textContent='Top1命中率';
           labels[2].textContent='已评测 / 待评测';
-          $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场比赛 · 已记录 '+valid.length+'场 · Top1 '+top1Hits+'/'+graded.length+' · Top3 '+top3Hits+'/'+graded.length;
+          if(state.model==='score'){
+            const top1Hits=graded.filter(row=>row[sk].top1Status==='SUCCESS').length;
+            $('pickCount').textContent=htftRate(top1Hits,graded.length);
+            labels[1].textContent='Top1命中率';
+            $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场比赛 · 已记录 '+valid.length+'场 · Top1 '+top1Hits+'/'+graded.length+' · Top3 '+top3Hits+'/'+graded.length;
+          }else{
+            // HTFT and total goals are assessed by Top3 coverage, never show Top1 hit rate.
+            $('pickCount').textContent=top3Hits+'/'+graded.length;
+            labels[1].textContent='Top3命中 / 已评测';
+            $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场比赛 · 已记录 '+valid.length+'场 · Top3 '+top3Hits+'/'+graded.length;
+          }
           return;
         }
       }
