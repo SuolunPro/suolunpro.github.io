@@ -1949,7 +1949,7 @@
     function htftSettled(info){
       return !!(info&&['SUCCESS','FAILURE'].includes(info.settlementStatus)&&typeof info.actual==='string'&&info.actual.trim()!=='');
     }
-    function htftDisplayLabel(value){const v=String(value??'').trim();const parts=v.split(/\s*[/／|,，、\-]\s*/);const normalize=x=>({'主胜':'胜','客胜':'负','平局':'平','主负':'负','客负':'胜','胜':'胜','平':'平','负':'负'}[x]||x);if(parts.length===2){const a=normalize(parts[0]),b=normalize(parts[1]);if(/^[胜平负]$/.test(a)&&/^[胜平负]$/.test(b))return a+b;}if(/^[胜平负]{2}$/.test(v))return v;return v;}
+    function htftDisplayLabel(value){const v=String(value??'').trim();const parts=v.split(/\s*[/／|,，、\-]\s*/);const normalize=x=>({'主胜':'胜','主队胜':'胜','主队获胜':'胜','客胜':'负','客队胜':'负','客队获胜':'负','平局':'平','打平':'平','主负':'负','客负':'胜','胜':'胜','平':'平','负':'负'}[x]||x);if(parts.length===2){const a=normalize(parts[0]),b=normalize(parts[1]);if(/^[胜平负]$/.test(a)&&/^[胜平负]$/.test(b))return a+b;}if(/^[胜平负]{2}$/.test(v))return v;return v;}
     function htftTop3Hit(info){
       return !!(htftSettled(info)&&Array.isArray(info.picks)&&info.picks.slice(0,3).some(p=>String(p?.direction??'')===info.actual));
     }
