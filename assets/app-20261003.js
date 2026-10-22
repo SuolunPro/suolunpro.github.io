@@ -2897,7 +2897,7 @@
         if(fragment.childNodes.length)grid.append(fragment);
         if(meta.next<meta.rows.length)scheduleModuleGridBuild(grid);
       };
-      if('requestIdleCallback' in window)window.requestIdleCallback(run,{timeout:140});
+      if('requestIdleCallback' in window)window.requestIdleCallback(run,{timeout:450});
       else setTimeout(()=>run(null),16);
     }
     function getModuleGrid(rows,history=false,scope='main'){
@@ -2909,7 +2909,8 @@
       }
       const grid=el('div','cards'),meta={rows,history,model:state.model,next:0,scheduled:false,cancelled:false};
       moduleGridBuildState.set(grid,meta);
-      const immediate=Math.min(rows.length,2);
+      // Render one card synchronously; defer the rest to idle time to keep iOS taps responsive.
+      const immediate=Math.min(rows.length,1);
       while(meta.next<immediate){
         const row=rows[meta.next++];
         grid.append(meta.model==='upset'?upsetCard(row):matchCard(row,history));
@@ -4907,8 +4908,8 @@
         }
       };
       const start=()=>{if(!document.hidden)void worker()};
-      if('requestIdleCallback' in window)window.requestIdleCallback(start,{timeout:4500});
-      else setTimeout(start,2500);
+      if('requestIdleCallback' in window)window.requestIdleCallback(start,{timeout:8000});
+      else setTimeout(start,6000);
     }
     let historyNeighborGeneration=0;
     function prefetchHistoryNeighbors(anchor){
