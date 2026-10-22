@@ -26,7 +26,7 @@ BEGIN
     target_name := entry[2];
     target_schedule := entry[3];
     SELECT command INTO STRICT source_command FROM cron.job WHERE jobname = source_name;
-    IF target_name = 'dynamic-a-hj38-model-weekend' THEN
+    IF target_name = 'dynamic-a-hj38-model-weekend' AND position(' WHERE EXISTS (' IN upper(source_command)) = 0 THEN
       source_command := rtrim(source_command, '; ')
         || ' WHERE EXISTS (SELECT 1 FROM ninety_core.hao_market_raw_william_v01 w'
         || ' WHERE w.pool_date=(now() at time zone ''Asia/Shanghai'')::date'
@@ -38,6 +38,12 @@ BEGIN
     PERFORM cron.schedule(target_name, target_schedule, source_command);
   END LOOP;
 
+  -- Use the same fresh-source gate in the existing daily model job.
+  PERFORM cron.alter_job(
+    (SELECT jobid FROM cron.job WHERE jobname='hj38-model-v87-sg'),
+    command => (SELECT command FROM cron.job WHERE jobname='dynamic-a-hj38-model-weekend')
+  );
+
   PERFORM cron.alter_job((SELECT jobid FROM cron.job WHERE jobname='ninety-collector-close-weekend'), active => false);
   PERFORM cron.alter_job((SELECT jobid FROM cron.job WHERE jobname='ninety-modules-close-weekend'), active => false);
 END $$;
@@ -46,3 +52,5 @@ END $$;
 -- SELECT cron.unschedule(jobid) FROM cron.job WHERE jobname LIKE 'dynamic-a-%-weekend';
 -- SELECT cron.alter_job(jobid, active => true) FROM cron.job
 -- WHERE jobname IN ('ninety-collector-close-weekend','ninety-modules-close-weekend');
+-- Restore hj38-model-v87-sg.command from the backed-up definition
+-- dynamic_a_weekend_20261022_hj38-model-v87-sg.
