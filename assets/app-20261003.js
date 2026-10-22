@@ -4146,6 +4146,36 @@
       if(Array.isArray(market?.asian)&&market.asian.length)
         reportLine(panel,'亚洲盘口',market.asian.map(x=>String(x.institution)+
           ' '+String(x.initialLine??'—')+'→'+String(x.currentLine??'—')).join('；'));
+      const verifiedReports=Array.isArray(analysis?.intelligence?.reports)?analysis.intelligence.reports:[];
+      if(verifiedReports.length){
+        const evidence=reportSection('赛前情报');
+        evidence.classList.add('prematch-intel-evidence');
+        for(const item of verifiedReports){
+          const card=el('div','prematch-intel-item');
+          const isInjury=item.source_code==='fotmob_match_unavailable_public';
+          card.append(el('b','',isInjury?'赛前伤停名单（非确认首发）':brandSafe(item.headline||'赛前公开情报')));
+          if(isInjury&&Array.isArray(item.highlights)){
+            const list=el('ul','member-zone-intel-list');
+            item.highlights.slice(0,12).forEach(value=>{if(typeof value==='string'&&value.trim())list.append(el('li','',brandSafe(value)))});
+            if(list.childElementCount)card.append(list);
+          }else if(Array.isArray(item.highlights)&&item.highlights.length){
+            const list=el('ul','member-zone-intel-list');
+            item.highlights.slice(0,3).forEach(value=>{const v=typeof value==='string'?value:value?.summary||value?.headline;if(v)list.append(el('li','',brandSafe(v)))});
+            if(list.childElementCount)card.append(list);
+          }
+          if(item.published_at)card.append(el('p','report-sub','发布时间：'+fmtStamp(item.published_at)));
+          card.append(el('p','report-sub','首次采集：'+fmtStamp(item.fetched_at)));
+          try{
+            const u=new URL(String(item.source_url||''));
+            if(u.protocol==='https:'&&['www.fotmob.com','fotmob.com','sports.sina.com.cn','www.okooo.com'].includes(u.hostname)){
+              const a=el('a','',isInjury?'查看公开伤停来源':'查看原文');
+              a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';card.append(a);
+            }
+          }catch{}
+          evidence.append(card);
+        }
+        panel.append(evidence);
+      }
       holder.append(panel);
     }
     async function loadDeepMarketAnalysis(row,holder){
