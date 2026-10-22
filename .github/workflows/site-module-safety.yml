@@ -1,0 +1,27 @@
+name: Site module safety
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'assets/**'
+      - 'scripts/site-safety-smoke.cjs'
+      - '.github/workflows/site-module-safety.yml'
+  pull_request:
+  workflow_dispatch:
+jobs:
+  frontend-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check application JavaScript syntax
+        run: node --check assets/app-20261003.js
+      - name: Assert all seven customer modules and Top3 scoring rules
+        run: node scripts/site-safety-smoke.cjs
+      - name: Confirm Singapore public service health
+        run: |
+          curl -fsS --max-time 15 "https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-public-api-v1/health" |
+            node -e "let s='';process.stdin.on('data',c=>s+=c).on('end',()=>{const j=JSON.parse(s);if(j.ok!==true||j.service!=='soren-public-api-v1')process.exit(1);console.log('PASS public service health')})"
