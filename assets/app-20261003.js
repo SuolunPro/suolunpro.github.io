@@ -1949,6 +1949,7 @@
     function htftSettled(info){
       return !!(info&&['SUCCESS','FAILURE'].includes(info.settlementStatus)&&typeof info.actual==='string'&&info.actual.trim()!=='');
     }
+    function htftDisplayLabel(value){const v=String(value??'').trim();const parts=v.split(/\s*[/／|,，、\-]\s*/);const normalize=x=>({'主胜':'胜','客胜':'负','平局':'平','主负':'负','客负':'胜','胜':'胜','平':'平','负':'负'}[x]||x);if(parts.length===2){const a=normalize(parts[0]),b=normalize(parts[1]);if(/^[胜平负]$/.test(a)&&/^[胜平负]$/.test(b))return a+b;}if(/^[胜平负]{2}$/.test(v))return v;return v;}
     function htftTop3Hit(info){
       return !!(htftSettled(info)&&Array.isArray(info.picks)&&info.picks.slice(0,3).some(p=>String(p?.direction??'')===info.actual));
     }
@@ -1998,7 +1999,7 @@
       }
       const grid=el('div',kind==='htft'?'htft-top4-grid':'score-top4-grid');
       data.picks.forEach((pick,i)=>{
-        const name=kind==='score'?String(pick.score||'').replace('-',':'):kind==='htft'?String(pick.combination||''):String(pick.goals??'')+'球';
+        const name=kind==='score'?String(pick.score||'').replace('-',':'):kind==='htft'?htftDisplayLabel(pick.combination):String(pick.goals??'')+'球';
         const probability=Number(pick.probability);
         const cell=el('div','score-pick');
         cell.append(el('small','','Top'+(i+1)),el('b','',name),
@@ -2062,7 +2063,7 @@
       }
       const grid=el('div','htft-top4-grid');
       (full?info.picks.slice(0,3):info.picks.slice(0,1)).forEach((pick,i)=>{
-        const name=String(pick.direction??'');
+        const name=htftDisplayLabel(pick.direction);
         const cell=el('div','htft-top4-pick'+(info.picks.slice(0,3).some(p=>String(p?.direction??'')===String(info.actual??''))&&name===info.actual?' is-hit':''));
         cell.append(el('small','','Top '+(i+1)),el('b','',name),el('span','htft-prob',percentage(pick.probability)));
         grid.append(cell);
@@ -2078,7 +2079,7 @@
         if(top3Settled){
           const hit=top3Hit;
           panel.append(el('div','score-top4-verdict '+(hit?'success':'fail'),
-            (hit?'动态预测 · 评测成功':'动态预测 · 评测失败')+' · 实际半全场 '+safe(info.actual)+'（计入动态版战绩）'));
+            (hit?'动态预测 · 评测成功':'动态预测 · 评测失败')+' · 实际半全场 '+htftDisplayLabel(info.actual)+'（计入动态版战绩）'));
           if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+safe(info.halfScore)+'；全场按90分钟正式赛果。'));
         }else panel.append(el('div','score-top4-verdict pending',
           info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，暂不评测':'等待评测 · 暂未对照'));
@@ -2086,9 +2087,9 @@
       else if(top3Settled){
         const hit=top3Hit;
         const verdict=historical
-          ?(hit?'历史回放一致 · 实际半全场 ':'历史回放不一致 · 实际半全场 ')+String(info.actual)
-          :hit?'评测成功 · 实际半全场 '+String(info.actual):
-            '评测失败 · 实际半全场 '+String(info.actual)+' 未落在三选内';
+          ?(hit?'历史回放一致 · 实际半全场 ':'历史回放不一致 · 实际半全场 ')+htftDisplayLabel(info.actual)
+          :hit?'评测成功 · 实际半全场 '+htftDisplayLabel(info.actual):
+            '评测失败 · 实际半全场 '+htftDisplayLabel(info.actual)+' 未落在三选内';
         panel.append(el('div','score-top4-verdict '+(hit?'success':'fail'),verdict));
         if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+String(info.halfScore)+'；全场按90分钟正式赛果。'));
       }else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'
@@ -2241,7 +2242,7 @@
         if(done){
           const top3Hit=htftTop3Hit(info);
           panel.append(el('div','score-top4-verdict '+(top3Hit?'success':'fail'),
-            '实际半全场：'+safe(info.actual)+' · '+(marketShadow?'动态Top3':historical?'历史复算Top3':'原始Top3')+' · '+(top3Hit?'命中':'未命中')));
+            '实际半全场：'+htftDisplayLabel(info.actual)+' · '+(marketShadow?'动态Top3':historical?'历史复算Top3':'原始Top3')+' · '+(top3Hit?'命中':'未命中')));
         }
         else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
         panel.append(el('p','htft-list-meta',marketShadow?'动态赛前 · 更新于 '+fmtStamp(info.publishedAt)+' · 冻结进球参数＋赛前威廉希尔欧赔校准。':historical?'本场为赛后依据赛前留存参数复算，非当时发布的预测；不计入赛前战绩。':'原始赛前 · 冻结的进球参数计算，发布于 '+fmtStamp(info.publishedAt)+'。'));
