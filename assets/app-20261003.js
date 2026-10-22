@@ -1739,7 +1739,7 @@
       overview:['九十刻度赛事分析','汇总赛前数据，展示模型概率、主要方向与让球分析'],
       handicap:['九十刻度全场让球','展示赛前让球方向、辅助方向及对应概率'],
       wdl:['九十刻度胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
-      goals:['九十刻度泊松进球','基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'],
+      goals:['九十刻度泊松进球','基于赛前冻结的主客队预期进球参数计算概率；成绩仅按Top3覆盖率评测。'],
       score:['九十刻度比分矩阵','展示赛前冻结的4项比分与模型概率；赛后对照实际比分'],
       htft:['九十刻度半全场','测试阶段 · 展示模型Top3半全场走势及概率，按日期核对实际覆盖情况'],
       daily:['九十刻度今日优选','从当日赛事中筛选通过核心条件与风险过滤的关注场次'],
@@ -3340,9 +3340,9 @@
     }
     function goalStatSummary(items){
       const finished=items.filter(({row})=>verified(row)&&hasScore(row)&&Number.isInteger(Number(row.resultHome))&&Number.isInteger(Number(row.resultAway)));
-      const top1=finished.filter(({row,g})=>goalRanks(g)[0]?.goals===Number(row.resultHome)+Number(row.resultAway)).length;
+      // Poisson goals evaluate Top3 coverage; individual-pick accuracy is not published.
       const top3=finished.filter(({row,g})=>goalRanks(g).slice(0,3).some(x=>x.goals===Number(row.resultHome)+Number(row.resultAway))).length;
-      return {total:items.length,n:finished.length,top1,top3};
+      return {total:items.length,n:finished.length,top3};
     }
     function isFormalGoalPrediction(row){return row.goalPrediction?.formalEligible!==false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null}
     function goalPredictionPanel(row,selectedGoal){
@@ -3366,7 +3366,7 @@
       });panel.append(grid);
       if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3及完整概率分布'));
       if(verified(row)&&hasScore(row)){
-        const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
+        const actual=Number(row.resultHome)+Number(row.resultAway),top3=ranks.slice(0,3).some(x=>x.goals===actual);
         panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top3 · '+(top3?'评测成功':'评测失败')));
       }else panel.append(el('div','goals-verdict','等待评测'));
       panel.append(el('p','goals-note','赛前数据已留存；赛果核验后每场只评测一次。'));
