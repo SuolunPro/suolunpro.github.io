@@ -1,0 +1,11 @@
+-- Production state applied on 2026-10-22, UTC schedules.
+-- Sina job 36: select cron.alter_job(36, schedule => '6,36 0-14 * * *');
+-- Redundant early job 62: select cron.alter_job(62, active => false);
+-- FotMob prematch collector job 71: 8 0-14 * * *.
+-- Cold ABC: job 46 at 13,28,43,58 0-14 * * *.
+-- VIP audit: job 35 at 14,29,44,59 0-14 * * *.
+-- This file records the deployed configuration; it should not be re-run blindly.
+-- Rollback:
+-- select cron.alter_job(36, schedule => '21 4,8,12 * * *');
+-- select cron.alter_job(62, active => true);
+-- select cron.alter_job(71, active => false);
