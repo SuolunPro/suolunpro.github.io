@@ -20,5 +20,5 @@ assert.ok(metrics.includes("labels[1].textContent='Top3命中 / 已评测'"),'To
 assert.ok(metrics.includes("if(state.model==='score'){\n            const top1Hits"),'Score-only Top1 scope regressed');
 assert.ok(bundle.includes("if(state.model!=='htft'&&state.model!=='goals')reportLine"),
   'HTFT/Goals Top1 detail display regressed');
-assert.ok(bundle.includes("data.settlementStatus==='SUCCESS'"),'Score settlement evaluator missing');
+assert.ok(bundle.includes("const status=data.settlementStatus;"),'Top3 settlement evaluator missing');
 console.log('PASS: seven tabs, content renderers, Top3-only HTFT/Goals and match evaluator.');
