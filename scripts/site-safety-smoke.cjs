@@ -23,7 +23,7 @@ assert.ok(bundle.includes("if(state.model!=='htft'&&state.model!=='goals')report
 const goalStats=bundle.slice(bundle.indexOf('function goalStatSummary('),bundle.indexOf('function isFormalGoalPrediction('));
 const goalDetail=bundle.slice(bundle.indexOf('function goalPredictionPanel('),bundle.indexOf('function teamOverviewPanel('));
 assert.ok(goalStats.includes("return {total:items.length,n:finished.length,top3};"),'Goal results must expose only Top3 hit rate');
-assert.ok(!/\\btop1\\b/i.test(goalStats),'Poisson results cannot compute a Top1 rate');
+assert.ok(!/\btop1\b/i.test(goalStats),'Poisson results cannot compute a Top1 rate');
 assert.ok(!goalDetail.includes("top1="),'Poisson details cannot score Top1 separately');
 assert.ok(goalDetail.includes("Top3 · "),'Poisson results must grade Top3');
 assert.ok(bundle.includes("const status=data.settlementStatus;"),'Top3 settlement evaluator missing');
