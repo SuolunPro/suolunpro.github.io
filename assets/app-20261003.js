@@ -5019,8 +5019,11 @@
         // The existing boot already retries membership requests. Only two
         // delayed recovery attempts follow, so a bad Wi-Fi route cannot cause
         // unbounded requests or slow down the rest of the site.
-        if(transient&&authSession?.access_token&&authBootRetryCount<=2){
-          const delay=authBootRetryCount===1?10000:30000;
+        if(transient&&authSession?.access_token){
+          // Keep recovering while the page remains open. A Wi-Fi route can
+          // remain unavailable longer than the previous two-attempt cap.
+          // Cap retry frequency to avoid hammering the membership endpoint.
+          const delay=authBootRetryCount===1?10000:authBootRetryCount===2?30000:60000;
           authGateRecoverTimer=setTimeout(()=>{
             authGateRecoverTimer=null;
             if(!document.hidden&&gate.isConnected&&gate.dataset.autoRecover==='1'&&authSession?.access_token)
@@ -5040,6 +5043,21 @@
         }
       }
     }
+    // Retry immediately when iOS Safari reports that connectivity returned.
+    // Do not discard the saved session or grant access before membership checks.
+    window.addEventListener('online',()=>{
+      const gate=document.getElementById('loginGate');
+      if(gate?.dataset.autoRecover==='1'&&authSession?.access_token){
+        if(authGateRecoverTimer)clearTimeout(authGateRecoverTimer);
+        authGateRecoverTimer=null;
+        beginAuthenticatedApp();
+      }
+    });
+    document.addEventListener('visibilitychange',()=>{
+      const gate=document.getElementById('loginGate');
+      if(!document.hidden&&gate?.dataset.autoRecover==='1'&&authSession?.access_token)
+        beginAuthenticatedApp();
+    });
     let authBootInFlight=false,authBootRetryCount=0;
     async function beginAuthenticatedApp(){
       if(authBootInFlight)return;
