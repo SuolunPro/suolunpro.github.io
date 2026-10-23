@@ -2105,7 +2105,7 @@
     function scoreVersionInfo(row,kind){
       const info=kind==='dynamic'?row.dynamicScoreTop4:row.scoreTop4;
       if(!info||info.pregameVerified!==true||!Array.isArray(info.picks)||info.picks.length!==4)return null;
-      if(kind==='dynamic'&&!['MARKET_ANCHORED_POISSON_SHADOW_V01','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1'].includes(info.sourceKind))return null;
+      if(kind==='dynamic'&&!['MARKET_ANCHORED_POISSON_SHADOW_V01','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1','FOTMOB_XG_STRICT_PREMATCH_POISSON_DC_V1'].includes(info.sourceKind))return null;
       if(kind==='original'&&['HISTORICAL_BLIND_REPLAY','POSTMATCH_POISSON_SIMULATION_NOT_PUBLISHED','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1'].includes(info.sourceKind))return null;
       const freeze=Date.parse(String(info.frozenAt??info.publishedAt??info.sourceFrozenAt??'')),kickoff=Date.parse(String(row.kickoff??''));
       if(!Number.isFinite(freeze)||!Number.isFinite(kickoff)||freeze>=kickoff)return null;
@@ -2136,14 +2136,14 @@
       }
       box.append(el('h3','','全场比分 · 赛前版本对比'));
       const tabs=el('div','htft-version-tabs');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','选择全场比分赛前预测版本');
-      const dyn=el('button','htft-version-tab','动态赛前'),orig=el('button','htft-version-tab','原始赛前');
+      const dyn=el('button','htft-version-tab',dynamic?.sourceKind==='FOTMOB_XG_STRICT_PREMATCH_POISSON_DC_V1'?'索伦xG赛前':'动态赛前'),orig=el('button','htft-version-tab',original?.sourceKind?.startsWith('SG_HJ38_')?'豪竞3.8赛前':'原始赛前');
       dyn.type=orig.type='button';dyn.disabled=!dynamic;orig.disabled=!original;
       const sub=el('p','score-version-label'),body=el('div','');
       const renderVersion=kind=>{
         const info=kind==='dynamic'?dynamic:original;if(!info)return;
         dyn.classList.toggle('active',kind==='dynamic');orig.classList.toggle('active',kind==='original');
         dyn.setAttribute('aria-pressed',String(kind==='dynamic'));orig.setAttribute('aria-pressed',String(kind==='original'));
-        sub.textContent=(kind==='dynamic'?'动态赛前':'原始赛前')+' · '+fmtStamp(info.frozenAt??info.publishedAt??info.sourceFrozenAt)+' 留存';
+        sub.textContent=(kind==='dynamic'?dyn.textContent:orig.textContent)+' · '+fmtStamp(info.frozenAt??info.publishedAt??info.sourceFrozenAt)+' 留存';
         body.replaceChildren(scoreTop4Panel(row,info));
         if(original&&dynamic){
           const firstOriginal=String(original.picks[0].score).replace('-',':'),firstDynamic=String(dynamic.picks[0].score).replace('-',':');
@@ -2163,9 +2163,10 @@
       const historical=info?.sourceKind==='HISTORICAL_BLIND_REPLAY';
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
       const sgMarketScore=info?.sourceKind==='SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1';
+      const sorenStrict=info?.sourceKind==='FOTMOB_XG_STRICT_PREMATCH_POISSON_DC_V1';
       const originalPrematch=!!info&&!simulation&&!historical&&!marketShadow&&!sgMarketScore;
       title.append(
-        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):sgMarketScore?'赛前比分参考 · Top4':marketShadow?(full?'赛前比分参考 · Top4':'赛前比分参考 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
+        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):sgMarketScore?'赛前比分参考 · Top4':sorenStrict?(full?'索伦xG比分 · Top4':'索伦xG比分 · Top1'):marketShadow?(full?'赛前比分参考 · Top4':'赛前比分参考 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
         el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow||sgMarketScore?'赛前记录 '+fmtStamp(info.frozenAt??info.publishedAt):'原始冻结 '+fmtStamp(info.frozenAt))
       );
       panel.append(title);
