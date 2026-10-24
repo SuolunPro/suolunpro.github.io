@@ -147,13 +147,32 @@
       })();
       try{return await authRefreshPending}finally{authRefreshPending=null}
     }
+    // Retry transient transport errors during session verification without deleting a valid session.
+    async function authUserFetch(token){
+      let lastError;
+      for(let attempt=0;attempt<3;attempt++){
+        try{
+          return await fetch(AUTH_BASE+'/auth/v1/user',{
+            headers:{apikey:AUTH_KEY,Authorization:'Bearer '+token},
+            cache:'no-store',signal:timeoutSignal(10000)
+          });
+        }catch(error){
+          lastError=error;
+          if(attempt<2)await new Promise(resolve=>setTimeout(resolve,700*(attempt+1)));
+        }
+      }
+      const error=Error('认证服务器连接暂时失败，请检查网络后重试；登录状态已保留。');
+      error.code='AUTH_VERIFY_NETWORK_ERROR';
+      error.cause=lastError;
+      throw error;
+    }
     async function verifiedAuthToken(){
       if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
       await refreshAuthSession();
-      const check=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:timeoutSignal(10000)});
+      const check=await authUserFetch(authSession.access_token);
       if(check.status===401){
         await refreshAuthSession(true);
-        const retry=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:timeoutSignal(10000)});
+        const retry=await authUserFetch(authSession.access_token);
         if(retry.status===401){clearAuthSession();throw Error('LOGIN_REQUIRED')}
         if(!retry.ok)throw Error('登录状态核验暂时失败（HTTP '+retry.status+'）');
         const user=await retry.json();
