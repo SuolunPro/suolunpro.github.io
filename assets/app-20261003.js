@@ -4788,7 +4788,7 @@
       // Compact customer navigation: six days plus one visible historical-results chooser.
       // All previously certified dates remain selectable without occupying three header rows.
       const days=['日','一','二','三','四','五','六'];
-      const box=$('dates'),latest=addDays(displayLatestDate(),1);
+      const box=$('dates'),latest=displayLatestDate();
       box.replaceChildren();
       box.classList.remove('htft-dates');
       box.classList.add('compact-history-dates');
@@ -4958,7 +4958,7 @@
     }
     async function selectDate(date){
       const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-14);
-      if(((date<earliest)&&!(date>='2026-10-07'&&date<='2026-10-19'))||date>addDays(displayLatestDate(),1)){alert('仅展示最近15天、明天及已核验的10月7日至19日历史记录。');return}
+      if(((date<earliest)&&!(date>='2026-10-07'&&date<='2026-10-19'))||date>displayLatestDate()){alert('仅展示最近15天及已核验的10月7日至19日历史记录。');return}
       // Date navigation is an entry into match history, even when an expired member starts on "我的".
       // Switch tabs before the same-date shortcut or cached-day path; never change membership/report access.
       const wasOutsideHome=state.tab!=='home';
