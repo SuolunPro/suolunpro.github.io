@@ -4918,7 +4918,7 @@
       if(network?.saveData||['slow-2g','2g'].includes(String(network?.effectiveType||'')))return;
       historyPrefetchStarted=true;
       const latest=state.baseDate||beijingToday(),scope=dayCacheScope();
-      const count=network?.effectiveType==='3g'?2:4;
+      const count=network?.effectiveType==='3g'?1:2;
       const queue=Array.from({length:count},(_,i)=>addDays(latest,-i-1))
         .filter(date=>date>='2026-10-07'&&date<beijingToday());
       const worker=async()=>{
@@ -4926,6 +4926,7 @@
         while(queue.length){
           // Pause rather than fighting touch interactions or foreground sync.
           if(document.hidden||state.tab!=='home'||state.selectedDate!==state.baseDate||
+             state.model==='cold'||memberZoneRequest||state.memberZoneLoading||
              !authSession?.access_token||dayCacheScope()!==scope)return;
           const date=queue.shift();
           if(!date)continue;
