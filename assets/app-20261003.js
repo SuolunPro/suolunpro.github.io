@@ -101,8 +101,15 @@
         }catch(error){
           // Retry transport failures only. HTTP/auth errors are handled below and are never retried.
           if(attempt>=maxRetries){
-            const err=Error('当前网络连接认证服务失败，请切换网络后重试。');
-            err.code='AUTH_NETWORK_ERROR';err.cause=error;throw err;
+            // Report transport errors precisely; never log credentials or tokens.
+            const timedOut=error?.name==='TimeoutError'||error?.name==='AbortError';
+            const err=Error(timedOut
+              ? '认证连接超时（30秒），请稍后重试；若持续失败，请联系管理员检查认证网络。'
+              : '无法连接认证服务器（网络请求失败），请检查网络或联系管理员。');
+            err.code=timedOut?'AUTH_TIMEOUT':'AUTH_NETWORK_ERROR';
+            err.cause=error;
+            try{console.warn('[auth-transport]',{kind:err.code,endpoint:new URL(AUTH_BASE).hostname,online:navigator.onLine,at:new Date().toISOString()})}catch(_){}
+            throw err;
           }
           await new Promise(resolve=>setTimeout(resolve,attempt===0?800:1500));
         }
