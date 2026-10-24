@@ -4672,7 +4672,7 @@
       // This restricted RPC requires the same signed-in VIP account.
       if(!day||day.date!==beijingToday()||!Array.isArray(day.rows)||!day.rows.length||
          !(memberInfo?.vipActive===true||memberInfo?.isAdmin===true||day.membership?.vipActive===true))return day;
-      if(day.rows.some(r=>r.dailySelectionCustomerPublished===true&&r.dailySelectionTier==='CORE'))return day;
+      if(day.rows.some(r=>r.dailySelectionCustomerPublished===true))return day;
       const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),7500);
       try{
         const call=await authorizedApiFetch(AUTH_BASE+'/rest/v1/rpc/ninety_verified_daily_publication_v1',{
@@ -4687,7 +4687,7 @@
         if(!byNo.size)return day;
         day.rows=day.rows.map(row=>{
           const record=byNo.get(String(row.no||'').padStart(3,'0'));
-          if(!record||row.pregameVerified!==true||row.date!==day.date||
+          if(!record||row.date!==day.date||
              record.home!==row.home||record.away!==row.away||
              record.top1!==row.ftTop1||dailySelectionHardBlocked(row)||
              !['CORE','SUPPLEMENT'].includes(record.tier))return row;
@@ -4713,8 +4713,8 @@
         // customer's 今日优选 screen for up to 7.5 seconds while it runs.
         const initialRows=j.rows,accountId=String(authSession?.user?.id??"");
         if(j.date===beijingToday()&&Array.isArray(j.rows)&&j.rows.length&&
-          (memberInfo?.vipActive===true||memberInfo?.isAdmin===true)&&
-          !j.rows.some(x=>x.dailySelectionCustomerPublished===true&&x.dailySelectionTier==="CORE")){
+          (memberInfo?.vipActive===true||memberInfo?.isAdmin===true||j.membership?.vipActive===true)&&
+          !j.rows.some(x=>x.dailySelectionCustomerPublished===true)){
           void restoreDurableDailyPublication(j).then(updated=>{
             if(String(authSession?.user?.id??"")!==accountId||updated!==j)return;
             const promoted=updated.rows.some((x,i)=>
