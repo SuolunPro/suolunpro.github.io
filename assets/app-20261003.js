@@ -101,15 +101,8 @@
         }catch(error){
           // Retry transport failures only. HTTP/auth errors are handled below and are never retried.
           if(attempt>=maxRetries){
-            // Report transport errors precisely; never log credentials or tokens.
-            const timedOut=error?.name==='TimeoutError'||error?.name==='AbortError';
-            const err=Error(timedOut
-              ? '认证连接超时（30秒），请稍后重试；若持续失败，请联系管理员检查认证网络。'
-              : '无法连接认证服务器（网络请求失败），请检查网络或联系管理员。');
-            err.code=timedOut?'AUTH_TIMEOUT':'AUTH_NETWORK_ERROR';
-            err.cause=error;
-            try{console.warn('[auth-transport]',{kind:err.code,endpoint:new URL(AUTH_BASE).hostname,online:navigator.onLine,at:new Date().toISOString()})}catch(_){}
-            throw err;
+            const err=Error('当前网络连接认证服务失败，请切换网络后重试。');
+            err.code='AUTH_NETWORK_ERROR';err.cause=error;throw err;
           }
           await new Promise(resolve=>setTimeout(resolve,attempt===0?800:1500));
         }
@@ -147,32 +140,13 @@
       })();
       try{return await authRefreshPending}finally{authRefreshPending=null}
     }
-    // Retry transient transport errors during session verification without deleting a valid session.
-    async function authUserFetch(token){
-      let lastError;
-      for(let attempt=0;attempt<3;attempt++){
-        try{
-          return await fetch(AUTH_BASE+'/auth/v1/user',{
-            headers:{apikey:AUTH_KEY,Authorization:'Bearer '+token},
-            cache:'no-store',signal:timeoutSignal(10000)
-          });
-        }catch(error){
-          lastError=error;
-          if(attempt<2)await new Promise(resolve=>setTimeout(resolve,700*(attempt+1)));
-        }
-      }
-      const error=Error('认证服务器连接暂时失败，请检查网络后重试；登录状态已保留。');
-      error.code='AUTH_VERIFY_NETWORK_ERROR';
-      error.cause=lastError;
-      throw error;
-    }
     async function verifiedAuthToken(){
       if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
       await refreshAuthSession();
-      const check=await authUserFetch(authSession.access_token);
+      const check=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:timeoutSignal(10000)});
       if(check.status===401){
         await refreshAuthSession(true);
-        const retry=await authUserFetch(authSession.access_token);
+        const retry=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:timeoutSignal(10000)});
         if(retry.status===401){clearAuthSession();throw Error('LOGIN_REQUIRED')}
         if(!retry.ok)throw Error('登录状态核验暂时失败（HTTP '+retry.status+'）');
         const user=await retry.json();
@@ -4698,7 +4672,7 @@
       // This restricted RPC requires the same signed-in VIP account.
       if(!day||day.date!==beijingToday()||!Array.isArray(day.rows)||!day.rows.length||
          !(memberInfo?.vipActive===true||memberInfo?.isAdmin===true||day.membership?.vipActive===true))return day;
-      if(day.rows.some(r=>r.dailySelectionCustomerPublished===true))return day;
+      if(day.rows.some(r=>r.dailySelectionCustomerPublished===true&&r.dailySelectionTier==='CORE'))return day;
       const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),7500);
       try{
         const call=await authorizedApiFetch(AUTH_BASE+'/rest/v1/rpc/ninety_verified_daily_publication_v1',{
@@ -4713,7 +4687,7 @@
         if(!byNo.size)return day;
         day.rows=day.rows.map(row=>{
           const record=byNo.get(String(row.no||'').padStart(3,'0'));
-          if(!record||row.date!==day.date||
+          if(!record||row.pregameVerified!==true||row.date!==day.date||
              record.home!==row.home||record.away!==row.away||
              record.top1!==row.ftTop1||dailySelectionHardBlocked(row)||
              !['CORE','SUPPLEMENT'].includes(record.tier))return row;
@@ -4734,13 +4708,13 @@
       finally{clearTimeout(timer)}
       return day;
     }
-    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),attempt===0?12000:6000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');// The authoritative current-day envelope is immediately renderable.
+    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');// The authoritative current-day envelope is immediately renderable.
         // A second signed publication RPC is recovery-only: do not hold the
         // customer's 今日优选 screen for up to 7.5 seconds while it runs.
         const initialRows=j.rows,accountId=String(authSession?.user?.id??"");
         if(j.date===beijingToday()&&Array.isArray(j.rows)&&j.rows.length&&
-          (memberInfo?.vipActive===true||memberInfo?.isAdmin===true||j.membership?.vipActive===true)&&
-          !j.rows.some(x=>x.dailySelectionCustomerPublished===true)){
+          (memberInfo?.vipActive===true||memberInfo?.isAdmin===true)&&
+          !j.rows.some(x=>x.dailySelectionCustomerPublished===true&&x.dailySelectionTier==="CORE")){
           void restoreDurableDailyPublication(j).then(updated=>{
             if(String(authSession?.user?.id??"")!==accountId||updated!==j)return;
             const promoted=updated.rows.some((x,i)=>
@@ -4764,19 +4738,32 @@
     function displayLatestDate(){const today=beijingToday();return state.baseDate&&state.baseDate>today?state.baseDate:today}
     function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)&&!(r.pregameVerified!==true&&r.saleFreezeStatus==='NO_VALID_PREMATCH_LOCK')))}
     async function resolveActivePool(){
-      // The home page always represents the current Beijing calendar date.
-      // Never silently redirect customers to Friday/yesterday when today's
-      // published pool is empty or temporarily unavailable.
-      const today=beijingToday();
+      const today=beijingToday(),previous=addDays(today,-1);
+      // Always start from Beijing today when today's verified customer envelope is available.
+      // An unsettled fixture from yesterday must not hijack the homepage.
+      // The prior date remains selectable and its results continue to refresh on view.
       try{
         const current=await readDay(today,true);
         if(current?.date===today&&Array.isArray(current.rows))return current;
         throw Error('TODAY_POOL_INVALID');
       }catch(e){
+        // Only on a real current-date failure may the client fall back to cached
+        // today or yesterday; never turn a still-open yesterday into a default.
         const currentCache=cachedDay(today,true);
         if(currentCache?.date===today&&Array.isArray(currentCache.rows))return currentCache;
-        console.warn('今日数据暂不可用；保持今天日期，不回退历史赛事',e);
-        return {date:today,count:0,rows:[],modelVersion:'3.8',analysisPending:true};
+        const previousCache=cachedDay(previous,true);
+        if(previousCache&&Array.isArray(previousCache.rows)&&previousCache.rows.length){
+          console.warn('今日竞彩池暂不可用，展示上一可用比赛记录',e);
+          return previousCache;
+        }
+        try{
+          const prior=await readDay(previous);
+          if(prior&&Array.isArray(prior.rows)&&prior.rows.length){
+            console.warn('今日竞彩池暂不可用，显示昨日记录',e);
+            return prior;
+          }
+        }catch(priorError){console.warn('上一竞彩池读取也不可用',priorError)}
+        throw e;
       }
     }
     function showUnopened(date){
@@ -4905,7 +4892,7 @@
       if(network?.saveData||['slow-2g','2g'].includes(String(network?.effectiveType||'')))return;
       historyPrefetchStarted=true;
       const latest=state.baseDate||beijingToday(),scope=dayCacheScope();
-      const count=network?.effectiveType==='3g'?1:2;
+      const count=network?.effectiveType==='3g'?2:4;
       const queue=Array.from({length:count},(_,i)=>addDays(latest,-i-1))
         .filter(date=>date>='2026-10-07'&&date<beijingToday());
       const worker=async()=>{
@@ -4913,7 +4900,6 @@
         while(queue.length){
           // Pause rather than fighting touch interactions or foreground sync.
           if(document.hidden||state.tab!=='home'||state.selectedDate!==state.baseDate||
-             state.model==='cold'||memberZoneRequest||state.memberZoneLoading||
              !authSession?.access_token||dayCacheScope()!==scope)return;
           const date=queue.shift();
           if(!date)continue;
