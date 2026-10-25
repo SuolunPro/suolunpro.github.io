@@ -885,16 +885,25 @@ Deno.serve(async(req:Request)=>{
     return reply({ok:true,service:"soren-public-api-v1",formalPipeline:true,shadowFallback:true,
       revision:"singapore_formal_preferred_1.0",legacyRuntimeDependency:false,now:new Date().toISOString()});
   }
-  const jwt=(req.headers.get("authorization")||"").match(/^Bearer\s+(.+)$/i)?.[1];
-  if(!jwt)return reply({ok:false,error:"LOGIN_REQUIRED"},401);
-  const auth=await sb.auth.getUser(jwt);
-  if(auth.error||!auth.data.user)return reply({ok:false,error:"LOGIN_REQUIRED"},401);
-  const user=auth.data.user;
-  const admin=user.app_metadata?.role==="admin"||user.app_metadata?.is_admin===true;
-  const mem=await sb.rpc("ninety_membership_status",{p_user_id:user.id});
-  if(mem.error)return reply({ok:false,error:"MEMBERSHIP_STATUS_UNAVAILABLE"},503);
-  const member=mem.data||{active:false,tier:"free"};
-  const vip=Boolean(admin || (member.active && ["vip_monthly","vip_manual","admin"].includes(String(member.tier))));
+  const prefetch=url.searchParams.get("prefetch")==="1";
+  let admin=false, member:any={active:false,tier:"free"}, vip=false;
+  if(prefetch){
+    const token=req.headers.get("x-prefetch-token")||"";
+    const verified=await sb.rpc("ninety_verify_today_prefetch_v1",{p_token:token});
+    if(verified.error||verified.data!==true)return reply({ok:false,error:"PREFETCH_FORBIDDEN"},403);
+    vip=url.searchParams.get("audience")==="vip";
+  }else{
+    const jwt=(req.headers.get("authorization")||"").match(/^Bearer\s+(.+)$/i)?.[1];
+    if(!jwt)return reply({ok:false,error:"LOGIN_REQUIRED"},401);
+    const auth=await sb.auth.getUser(jwt);
+    if(auth.error||!auth.data.user)return reply({ok:false,error:"LOGIN_REQUIRED"},401);
+    const user=auth.data.user;
+    admin=user.app_metadata?.role==="admin"||user.app_metadata?.is_admin===true;
+    const mem=await sb.rpc("ninety_membership_status",{p_user_id:user.id});
+    if(mem.error)return reply({ok:false,error:"MEMBERSHIP_STATUS_UNAVAILABLE"},503);
+    member=mem.data||{active:false,tier:"free"};
+    vip=Boolean(admin || (member.active && ["vip_monthly","vip_manual","admin"].includes(String(member.tier))));
+  }
   const membership={
     active:vip,vipActive:vip,isAdmin:admin,trialStatus:null,
     tier:admin?"admin":member.tier??"free",
@@ -904,6 +913,38 @@ Deno.serve(async(req:Request)=>{
   if(view==="membership")return reply({ok:true,membership});
   const date=url.searchParams.get("date")||currentBjt();
   if(!validDate(date))return reply({ok:false,error:"INVALID_DATE"},400);
+  // Completed-date archive cache: never cache live predictions or current cold gates.
+  const archiveCacheEligible=(date<currentBjt()&&["archive","history"].includes(view))||(vip&&["cold-feed","member-zone"].includes(view));
+  const archiveAudience=vip?"vip":"free";
+  if(archiveCacheEligible&&!prefetch){
+    const cached=await sb.schema("ninety_core").from("soren_customer_published_payload_cache_v1")
+      .select("payload,expires_at").eq("match_date",date).eq("audience",archiveAudience)
+      .eq("view_name",view).maybeSingle();
+    if(cached.error)console.warn("SOREN_CACHE_READ_ERROR",JSON.stringify({view,code:cached.error.code}));
+    if(!cached.error&&cached.data&&Date.parse(cached.data.expires_at)>Date.now()){
+      console.info("SOREN_CACHE_HIT",JSON.stringify({view,audience:archiveAudience}));
+      if(date===currentBjt()&&["today","archive"].includes(view)){
+        let safeRows:any[]=[];
+        try{safeRows=await applySorenProductionLocks(cached.data.payload.rows||[],date);}
+        catch(e){console.error("PREFETCH_LOCK_CHECK_FAILED",String(e));safeRows=(cached.data.payload.rows||[]).map((r:any)=>({...r,dailySelectionTier:null,dailySelectionLabel:null,dailySelectionRiskLocked:true}));}
+        return reply({...cached.data.payload,rows:safeRows,membership});
+      }
+      return reply({...cached.data.payload,membership});
+    }
+    console.info("SOREN_CACHE_MISS",JSON.stringify({view,audience:archiveAudience}));
+  }
+  const archiveCacheReply=async(body:any)=>{
+    if(archiveCacheEligible&&body?.ok===true&&!(["cold-feed","member-zone"].includes(view)&&body.shadow!==false)){
+      const ttlMs=(["cold-feed","member-zone"].includes(view)&&date>=currentBjt())?45*1000:10*60*1000;
+      const expiresAt=new Date(Date.now()+ttlMs).toISOString();
+      const saved=await sb.schema("ninety_core").from("soren_customer_published_payload_cache_v1")
+        .upsert({match_date:date,audience:archiveAudience,view_name:view,payload:{...body,membership:null},
+          source_version:"soren-public-api-v1-v70",generated_at:new Date().toISOString(),expires_at:expiresAt},
+          {onConflict:"match_date,audience,view_name"});
+      if(saved.error)console.warn("SOREN_ARCHIVE_CACHE_WRITE_FAILED",saved.error.code);
+    }
+    return reply(body);
+  };
   try{
     // Historical customer cold feed is a copied, immutable ledger of formal
     // pre-sale old Soren publications. It never re-runs a cold rule from results.
@@ -965,7 +1006,7 @@ Deno.serve(async(req:Request)=>{
             deepSnapshotAt:shadow?.capturedAt??shadow?.captured_at??null}
         }];
       });
-      return reply({ok:true,date,shadow:false,routeRuleVersion:"SOREN_OLD_FORMAL_PREMATCH_ARCHIVE",
+      return await archiveCacheReply({ok:true,date,shadow:false,routeRuleVersion:"SOREN_OLD_FORMAL_PREMATCH_ARCHIVE",
         count:rows.length,rows,partial:false,publishedOnly:true,certifiedDirectional:rows.length,
         riskObservations:0,membership,zone:{date,rows,shadow:false,
           routeRuleVersion:"SOREN_OLD_FORMAL_PREMATCH_ARCHIVE",certifiedDirectional:rows.length,riskObservations:0}});
@@ -1185,7 +1226,7 @@ Deno.serve(async(req:Request)=>{
             ...(graded.resultSourceConflict?{resultSourceConflict:true}:{})
           };
         });
-        return reply({ok:true,date,shadow:false,
+        return await archiveCacheReply({ok:true,date,shadow:false,
           routeRuleVersion:"SG_PREMATCH_CERTIFIED_FOCUS_ONLY_v2",count:visible.length,
           rows:visible,partial:false,publishedOnly:true,
           certifiedDirectional:visible.length,riskObservations:0,
@@ -1307,7 +1348,13 @@ Deno.serve(async(req:Request)=>{
           pinned.top1===r.ftTop1&&pinned.top1===({H:"主胜",D:"平",A:"客胜"} as Record<string,string>)[String(entry.model_top1)]&&
           Number.isFinite(pinnedAt)&&pinnedAt===frozen&&
           Number.isFinite(pinnedKo)&&pinnedKo===ko&&
-          r.hj38FormalEligible===true;
+          // Validate the publication against its pinned formal run. A later
+          // rerun may be non-formal or missing without erasing this record.
+          Number.isFinite(pinnedAt)&&pinnedAt<Math.min(
+            ko,
+            fixture.cutoff_at?Date.parse(String(fixture.cutoff_at)):Infinity,
+            Date.parse(date+"T"+([0,6].includes(new Date(date+"T12:00:00+08:00").getUTCDay())?"23":"22")+":00:00+08:00")
+          );
         const valid=r.pregameVerified===true&&(originalVerifiable||adaptedVerifiable)&&
           pickCode[String(r.ftTop1||"")]===entry.model_top1&&
           Number.isFinite(ko)&&Number.isFinite(published)&&Number.isFinite(frozen)&&
@@ -1334,11 +1381,43 @@ Deno.serve(async(req:Request)=>{
             verifiedPublishedAt:entry.published_at,selectorVersion:entry.selector_version,
             publicationOrigin:entry.publication_origin,gateVersion:entry.vip_cold_gate_version}};
       });
+      // Original Soren DAILY-VALUE-v2.0: calculate CORE and top-3 verified market supplements.
+      // Reconstructed historical candidates are NOT backdated as historical publications.
+      if(date >= "2026-10-21"){
+        const eligible=(r:any)=>r.pregameVerified===true &&
+          r.dailySelectionRiskLocked!==true && r.vipRiskLocked!==true &&
+          r.highDrawRisk!==true && r.marketDirectionAnomaly!==true &&
+          r.upsetWarning?.publish!==true &&
+          r.sorenOriginalVerified===true && r.sorenOriginalStatus==="FORMAL_ALIGNED";
+        const core=(r:any)=>eligible(r)&&
+          ["SINGLE","DOUBLE"].includes(String(r.mode||"").toUpperCase()) &&
+          !!String(r.tier||"") && String(r.tier||"").toUpperCase()!=="PASS" &&
+          r.pass!==true;
+        const supplement=(r:any)=>eligible(r)&&!core(r)&&
+          Number(r.sorenSelectorAudit?.confidencePct)>0 &&
+          Number(r.sorenSelectorAudit?.williamTop1Odds)>=1.45 &&
+          Number(r.sorenSelectorAudit?.williamTop1Odds)<=1.75 &&
+          r.sorenSelectorAudit?.williamVerified===true;
+        const supplementNos=new Set(rows.filter(supplement).sort((a:any,b:any)=>
+          Number(b.sorenSelectorAudit?.confidencePct)-Number(a.sorenSelectorAudit?.confidencePct)||
+          Number(a.sorenSelectorAudit?.williamTop1Odds)-Number(b.sorenSelectorAudit?.williamTop1Odds)||
+          String(a.no).localeCompare(String(b.no))).slice(0,3).map((r:any)=>String(r.no)));
+        rows=rows.map((r:any)=>{
+          if(r.dailySelectionCustomerPublished===true)return r;
+          const tier=core(r)?"CORE":supplementNos.has(String(r.no))?"SUPPLEMENT":null;
+          if(!tier)return r;
+          return {...r,dailySelectionTier:tier,dailySelectionLabel:tier==="CORE"?"核心优选":"精选补充",
+            dailySelectionCustomerPublished:false,
+            dailySelectionMeta:{selectorVersion:"DAILY-VALUE-v2.0-20261013",
+              source:"ORIGINAL_SOREN_RULE_RECONSTRUCTED",historicalPublicationVerified:false,
+              rule:tier==="CORE"?"索伦原版单双选 · 风险过滤":"William赔率与信心排序 · 风险过滤"}};
+        });
+      }
       rows=await attachVerifiedDayEnvironment(rows,date);
-      if(view==="history")return reply({ok:true,date,view,count:rows.filter((r:any)=>r.resultVerified).length,rows:rows.filter((r:any)=>r.resultVerified),modelVersion:formalRows[0]?.model_version??"3.8",analysisPending:false,shadow:false});
+      if(view==="history")return await archiveCacheReply({ok:true,date,view,count:rows.filter((r:any)=>r.resultVerified).length,rows:rows.filter((r:any)=>r.resultVerified),modelVersion:formalRows[0]?.model_version??"3.8",analysisPending:false,shadow:false});
       if(["market-trend","report","member-intel","admin-overseas-intel"].includes(view))return reply({ok:false,error:"FEATURE_NOT_MIGRATED",view,shadow:false},501);
       if(!["today","archive"].includes(view))return reply({ok:false,error:"UNKNOWN_VIEW",view},400);
-      return reply({ok:true,view,date,count:rows.length,rows,model:"豪竞3.8",modelVersion:formalRows[0]?.model_version??"3.8",
+      return await archiveCacheReply({ok:true,view,date,count:rows.length,rows,model:"豪竞3.8",modelVersion:formalRows[0]?.model_version??"3.8",
         revision:formalRows[0]?.model_revision_tag??null,shadow:false,analysisPending:false,publicationStatus:"PREMATCH_VERIFIED",
         batchTime:formalRows[0]?.frozen_at??null,pregameVerifiedCount:rows.filter((r:any)=>r.pregameVerified).length,
         upsetStats:{published:rows.filter((r:any)=>r.upsetWarning?.publish===true).length},
@@ -1358,12 +1437,26 @@ Deno.serve(async(req:Request)=>{
     const matches=vip?all:history?
       all.map((m:any)=>({...m,outputs:Object.fromEntries(Object.entries(m.outputs||{}).filter(([k])=>k!=="upset_warning"))})):
       all.map((m:any)=>({...m,outputs:all.filter((x:any)=>x.outputs?.ft).slice(0,2).some((x:any)=>x.match_key===m.match_key)?{ft:m.outputs.ft}:{}}));
+    const perfStart=performance.now();
     let rows=await attachVerifiedModuleSettlements(matches.map((m:any)=>adaptRow(m,date)),matches);
+    const settlementMs=Math.round(performance.now()-perfStart);
     rows=await attachCertifiedColdReadOnly(rows,date);
+    const coldMs=Math.round(performance.now()-perfStart)-settlementMs;
+    // Environment lookup is independent of the score-reference chain. Run it
+    // concurrently, then apply its field changes last to preserve precedence.
+    const envInput=rows;
+    const environmentPromise=attachVerifiedDayEnvironment(envInput,date);
     rows=await attachOriginalPrematchScoreGoalHtftReferences(rows,date);
     rows=await attachFotmobStrictScoreTop4(rows,date);
     rows=await attachSingaporeScoreTop4(rows,matches,date);
-    rows=await attachVerifiedDayEnvironment(rows,date);
+    const environmentRows=await environmentPromise;
+    rows=rows.map((row:any,i:number)=>{
+      const env=environmentRows[i];
+      if(!env||env===envInput[i])return row;
+      const changed=Object.fromEntries(Object.entries(env).filter(([k,v])=>v!==envInput[i]?.[k]));
+      return {...row,...changed};
+    });
+    console.info("SOREN_READ_PERF",JSON.stringify({view,settlementMs,coldMs,remainingMs:Math.round(performance.now()-perfStart)-settlementMs-coldMs,totalMs:Math.round(performance.now()-perfStart),rowCount:rows.length}));
     if(view==="cold-feed"||view==="member-zone"){
       if(!vip)return reply({ok:false,error:"VIP_REQUIRED"},403);
       const visible=rows.filter((r:any)=>r.coldRecognition?.customerVisible===true);
@@ -1373,7 +1466,7 @@ Deno.serve(async(req:Request)=>{
     }
     if(view==="history"){
       const settled=rows.filter((r:any)=>r.resultVerified);
-      return reply({ok:true,date,view,count:settled.length,rows:settled,
+      return await archiveCacheReply({ok:true,date,view,count:settled.length,rows:settled,
         modelVersion:"SG-ADAPTER-0.5",analysisPending:true,shadow:true});
     }
     if(view==="market-trend"||view==="report"||view==="member-intel"||view==="admin-overseas-intel"){
@@ -1383,7 +1476,7 @@ Deno.serve(async(req:Request)=>{
       return reply({ok:false,error:"UNKNOWN_VIEW",view},400);
     const latest=all.flatMap((m:any)=>Object.values(m.outputs||{}).map((o:any)=>String(o?.produced_at||""))).sort().at(-1)||null;
     const pending=rows.some((r:any)=>r.analysisPending===true);
-    return reply({ok:true,view,date,count:rows.length,rows,model:"九十刻度 · 新加坡影子",
+    return await archiveCacheReply({ok:true,view,date,count:rows.length,rows,model:"九十刻度 · 新加坡影子",
       modelVersion:"SG-ADAPTER-0.5",revision:"singapore_adapter_0.5",shadow:true,
       analysisPending:pending,publicationStatus:pending?"SHADOW_PENDING_FORMAL":"SHADOW_PREMATCH_VISIBLE",
       batchTime:latest,pregameVerifiedCount:rows.filter((r:any)=>r.pregameVerified).length,
