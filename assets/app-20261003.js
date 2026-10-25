@@ -3040,7 +3040,7 @@
       box.append(summary);
       if(state.selectedDate<beijingToday()&&all.some(r=>
         r.dailySelectionMeta?.historicalRebuild===true)){
-        box.append(el('p','report-sub','历史规则重放：按当时冻结的赛前预测和赔率重新筛选，重建于今日；并非当时已发布的优选。'));
+        // Historical replay note hidden from customer view; retain original selection data.
       }else if(state.selectedDate<beijingToday()&&all.some(r=>
         r.dailySelectionCustomerPublished===true&&
         r.dailySelectionMeta?.publicationOrigin==='SG_FORMAL_HJ38_ADAPTED')){
