@@ -1371,9 +1371,12 @@ Deno.serve(async(req:Request)=>{
           dailySelectionCustomerPublished:true,
           dailySelectionMeta:{
             selectorVersion:entry.selector_version,publishedAt:entry.published_at,
-            source:"SG_VERIFIED_SOREN_PREMATCH_PUBLICATION",
-            rule:entry.publication_tier==="CORE"?"索伦正式单双选 · 风险审计通过":
-              "三方同向补充 · 赛前市场与冷门过滤通过",
+            publicationOrigin:entry.publication_origin,
+            historicalRebuild:false,
+            source:entry.publication_origin==="ORIGINAL_SOREN"?
+              "ORIGINAL_SOREN_PREMATCH_PUBLICATION":"SG_VERIFIED_ADAPTED_PREMATCH_PUBLICATION",
+            rule:entry.publication_tier==="CORE"?"赛前单双选 · 风险审计通过":
+              "精选补充 · 赛前市场与冷门过滤通过",
             fundsTop1Share:r.sorenSelectorAudit?.fundsSharePct??null
           },
           sorenSelectorAudit:{...r.sorenSelectorAudit,publicationStatus:"PUBLISHED",
@@ -1422,7 +1425,7 @@ Deno.serve(async(req:Request)=>{
         batchTime:formalRows[0]?.frozen_at??null,pregameVerifiedCount:rows.filter((r:any)=>r.pregameVerified).length,
         upsetStats:{published:rows.filter((r:any)=>r.upsetWarning?.publish===true).length},
         dailySelectionStats:{
-          selectorVersion:"DAILY-VALUE-v2.0-20261013",
+          selectorVersion:"SG_ADAPTED_DAILY_VALUE_V2",
           core:rows.filter((r:any)=>r.dailySelectionTier==="CORE").length,
           supplement:rows.filter((r:any)=>r.dailySelectionTier==="SUPPLEMENT").length,
           total:rows.filter((r:any)=>["CORE","SUPPLEMENT"].includes(r.dailySelectionTier)).length,
