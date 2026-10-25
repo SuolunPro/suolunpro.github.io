@@ -52,3 +52,37 @@ from ninety_core.soren_daily_legacy_replay_v1
 where pool_date >= '2026-10-21'
   and pool_date < (now() at time zone 'Asia/Shanghai')::date
 on conflict(pool_date,match_no) do nothing;
+
+-- Freeze each pool 12 minutes after the Beijing sale cutoff.
+create or replace function ninety_core.persist_soren_daily_legacy_replay_v1(p_date date)
+returns integer language plpgsql security definer
+set search_path = ninety_core, public
+as $$
+declare inserted_count integer := 0;
+declare sale_deadline timestamptz;
+begin
+ if p_date < date '2026-10-21' or p_date > (now() at time zone 'Asia/Shanghai')::date then
+   raise exception 'invalid replay pool date';
+ end if;
+ sale_deadline := ((p_date + case when extract(isodow from p_date) in (6,7)
+   then time '23:00' else time '22:00' end) at time zone 'Asia/Shanghai');
+ if now() < sale_deadline then raise exception 'sale cutoff has not passed'; end if;
+ insert into ninety_core.soren_daily_legacy_replay_audit_v1(pool_date,match_no,match_id,prediction_id,run_id,replay,v1,selector_version,evidence)
+ select pool_date,match_no,match_id,prediction_id,run_id,replay,v1,selector_version,
+ jsonb_build_object('prediction_origin',prediction_origin,'prediction_frozen_at',frozen_at,
+ 'pregame_verified',verified,'william_captured_at',william_at,'william_ingested_at',william_ingested_at,
+ 'william_top1_odds',william_odds,'william_rank',william_rank,'betfair_captured_at',bf_at,
+ 'betfair_top1_share',bf_share,'three_way_aligned',triple_aligned,'permanent_risk_lock',locked,
+ 'upset_warning',warning,'market_direction_anomaly',market_direction_anomaly,'high_draw_risk',high_draw_risk,
+ 'publication_kind','historical_rule_replay','published_at',null)
+ from ninety_core.soren_daily_legacy_replay_v1 where pool_date=p_date
+ on conflict(pool_date,match_no) do nothing;
+ get diagnostics inserted_count = row_count;
+ return inserted_count;
+end $$;
+revoke all on function ninety_core.persist_soren_daily_legacy_replay_v1(date) from public, anon, authenticated;
+select cron.schedule('ninety-soren-legacy-replay-weekday','12 14 * * 1-5',
+ $$select ninety_core.persist_soren_daily_legacy_replay_v1((now() at time zone 'Asia/Shanghai')::date)$$);
+select cron.schedule('ninety-soren-legacy-replay-weekend','12 15 * * 0,6',
+ $$select ninety_core.persist_soren_daily_legacy_replay_v1((now() at time zone 'Asia/Shanghai')::date)$$);
+select jobname,schedule,active from cron.job where jobname like 'ninety-soren-legacy-replay-%' order by jobname
