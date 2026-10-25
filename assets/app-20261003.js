@@ -3038,6 +3038,11 @@
         el('span','','今日共 '+all.length+'场')
       );
       box.append(summary);
+      if(state.selectedDate<beijingToday()&&all.some(r=>
+        r.dailySelectionCustomerPublished===true&&
+        r.dailySelectionMeta?.publicationOrigin==='SG_FORMAL_HJ38_ADAPTED')){
+        box.append(el('p','report-sub','历史记录为新加坡站当时发布的赛前适配优选，保留原始发布时间。'));
+      }
       const auditRows=all.map(r=>r.sorenSelectorAudit).filter(Boolean);
       const awaitingVip=auditRows.filter(a=>a.publicationStatus==='PENDING_VIP_COLD_REVIEW').length;
       const awaitingMarket=auditRows.filter(a=>a.publicationStatus==='PENDING_MARKET_DATA').length;
