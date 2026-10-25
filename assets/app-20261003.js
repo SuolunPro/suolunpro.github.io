@@ -3039,6 +3039,9 @@
       );
       box.append(summary);
       if(state.selectedDate<beijingToday()&&all.some(r=>
+        r.dailySelectionMeta?.historicalRebuild===true)){
+        box.append(el('p','report-sub','历史规则重放：按当时冻结的赛前预测和赔率重新筛选，重建于今日；并非当时已发布的优选。'));
+      }else if(state.selectedDate<beijingToday()&&all.some(r=>
         r.dailySelectionCustomerPublished===true&&
         r.dailySelectionMeta?.publicationOrigin==='SG_FORMAL_HJ38_ADAPTED')){
         box.append(el('p','report-sub','历史记录为新加坡站当时发布的赛前适配优选，保留原始发布时间。'));
@@ -4439,6 +4442,7 @@
         const supplement=isSupplement(row)&&!isFocus(row);
         const selection=el('div','daily-detail-selection '+(supplement?'supplement':'core'));
         selection.append(el('strong','',supplement?'精选补充':'核心优选'));
+        if(row.dailySelectionMeta?.historicalRebuild===true)selection.append(el('small','','历史规则重放 · 今日重建'));
         if(supplement){
           const meta=row.dailySelectionMeta??row.daily_selection_meta??{};
           const odds=Number(meta.williamTop1Odds??meta.william_top1_odds);
