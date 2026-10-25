@@ -1297,6 +1297,33 @@ Deno.serve(async(req:Request)=>{
         .select("match_no,match_id,model_top1,model_frozen_at,original_run_id,published_at,publication_tier,selector_version,vip_cold_gate_version,publication_origin,hj38_model_run_id")
         .eq("pool_date",date).limit(150);
       if(publishedQ.error)throw publishedQ.error;
+      // Verify the William band from the quote already captured before the
+      // publication's pinned model freeze. V2 overlays outside this band are
+      // preserved in the ledger but are not displayed as 精选补充.
+      const supplementEntries=(publishedQ.data||[]).filter((x:any)=>
+        x.publication_tier==="SUPPLEMENT");
+      const supplementIds=[...new Set(supplementEntries.map((x:any)=>Number(x.match_id))
+        .filter((x:number)=>Number.isInteger(x)&&x>0))];
+      const williamQ=supplementIds.length
+        ?await sb.schema("ninety_core").from("soren_market_snapshots")
+          .select("match_id,home_value,draw_value,away_value,captured_at,ingested_at,data_quality")
+          .in("match_id",supplementIds).eq("source_code","zucaijia_william")
+          .eq("market_type","FT_1X2").eq("snapshot_type","current")
+          .in("data_quality",["verified","verified_mirror"])
+          .order("captured_at",{ascending:false}).limit(2000)
+        :{data:[],error:null};
+      if(williamQ.error)throw williamQ.error;
+      const supplementOdds=new Map<string,number>();
+      for(const entry of supplementEntries){
+        const frozenAt=Date.parse(String(entry.model_frozen_at||""));
+        const quote=(williamQ.data||[]).find((x:any)=>
+          Number(x.match_id)===Number(entry.match_id)&&
+          Date.parse(String(x.captured_at||""))<=frozenAt&&
+          Date.parse(String(x.ingested_at||""))<=frozenAt);
+        const odds=Number(entry.model_top1==="H"?quote?.home_value:
+          entry.model_top1==="D"?quote?.draw_value:quote?.away_value);
+        if(quote&&Number.isFinite(odds))supplementOdds.set(String(entry.match_no).padStart(3,"0"),odds);
+      }
       // A durable selection must be verified against the exact prematch
       // HJ 3.8 run that created the publication, NOT the latest 15m rerun.
       // Reruns (or later settlement updates) may never erase an archived pick.
@@ -1355,7 +1382,11 @@ Deno.serve(async(req:Request)=>{
             fixture.cutoff_at?Date.parse(String(fixture.cutoff_at)):Infinity,
             Date.parse(date+"T"+([0,6].includes(new Date(date+"T12:00:00+08:00").getUTCDay())?"23":"22")+":00:00+08:00")
           );
+        const supplementOdd=supplementOdds.get(String(entry.match_no).padStart(3,"0"));
+        const supplementBandVerified=entry.publication_tier!=="SUPPLEMENT"||
+          (supplementOdd!==undefined&&supplementOdd>=1.45&&supplementOdd<=1.75);
         const valid=r.pregameVerified===true&&(originalVerifiable||adaptedVerifiable)&&
+          supplementBandVerified&&
           pickCode[String(r.ftTop1||"")]===entry.model_top1&&
           Number.isFinite(ko)&&Number.isFinite(published)&&Number.isFinite(frozen)&&
           frozen<=published&&published<ko&&published<=Date.now()&&
@@ -1373,6 +1404,7 @@ Deno.serve(async(req:Request)=>{
             selectorVersion:entry.selector_version,publishedAt:entry.published_at,
             publicationOrigin:entry.publication_origin,
             historicalRebuild:false,
+            williamTop1Odds:entry.publication_tier==="SUPPLEMENT"?supplementOdd:null,
             source:entry.publication_origin==="ORIGINAL_SOREN"?
               "ORIGINAL_SOREN_PREMATCH_PUBLICATION":"SG_VERIFIED_ADAPTED_PREMATCH_PUBLICATION",
             rule:entry.publication_tier==="CORE"?"赛前单双选 · 风险审计通过":
