@@ -456,19 +456,35 @@
           if(submitting)return;submitting=true;confirm.disabled=true;cancel.disabled=true;close.disabled=true;confirm.textContent='正在生成申请…';status.textContent='';
           try{
             if(!authSession?.access_token||!authSession?.user?.id)throw Error('LOGIN_REQUIRED');
-            const consentRes=await fetch(AUTH_BASE+'/rest/v1/soren_vip_consents_v1',{
-              method:'POST',headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token,'Content-Type':'application/json',Prefer:'return=minimal'},
-              body:JSON.stringify({user_id:authSession.user.id,agreement_version:'2026-10-05',plan_code:'vip_monthly',price_cents:2990,duration_days:30,source:'vip_apply'}),
-              cache:'no-store',signal:timeoutSignal(10000)
-            });
-            if(consentRes.status===401)throw Error('LOGIN_REQUIRED');
-            if(!consentRes.ok)throw Error('CONSENT_SAVE_FAILED');
+            const consentTable=AUTH_BASE+'/rest/v1/soren_vip_consents_v1';
+            const consentHeaders={apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token};
+            const consentBody={user_id:authSession.user.id,agreement_version:'2026-10-05',plan_code:'vip_monthly',price_cents:2990,duration_days:30,source:'vip_apply'};
+            const checkSavedConsent=async()=>{
+              try{
+                const query=new URLSearchParams({user_id:'eq.'+authSession.user.id,agreement_version:'eq.2026-10-05',plan_code:'eq.vip_monthly',source:'eq.vip_apply',select:'user_id',limit:'1'});
+                const response=await fetch(consentTable+'?'+query,{headers:consentHeaders,cache:'no-store',signal:timeoutSignal(8000)});
+                if(!response.ok)return false;
+                const rows=await response.json();return Array.isArray(rows)&&rows.length>0;
+              }catch{return false}
+            };
+            let consentSaved=false,consentFailure=null;
+            try{
+              const response=await fetch(consentTable,{
+                method:'POST',headers:{...consentHeaders,'Content-Type':'application/json',Prefer:'return=minimal'},
+                body:JSON.stringify(consentBody),cache:'no-store',signal:timeoutSignal(20000)
+              });
+              if(response.status===401)throw Error('LOGIN_REQUIRED');
+              if(response.ok)consentSaved=true;
+              else consentFailure=Error('CONSENT_HTTP_'+response.status);
+            }catch(error){consentFailure=error}
+            if(!consentSaved)consentSaved=await checkSavedConsent();
+            if(!consentSaved)throw consentFailure||Error('CONSENT_SAVE_FAILED');
             vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession.user.email||'')+'\\n方案：尊贵月卡VIP 29.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已主动确认同意会员服务协议';
             service.hidden=false;membershipContact.hidden=true;contactNote.textContent='申请已生成。请复制客服微信和申请信息，联系官方客服办理。';overlay.remove();
             requestAnimationFrame(()=>service.scrollIntoView({behavior:'smooth',block:'nearest'}));
           }catch(e){
             submitting=false;confirm.disabled=false;cancel.disabled=false;close.disabled=false;confirm.textContent='我已阅读并同意 · 继续开通';
-            status.textContent=e?.message==='LOGIN_REQUIRED'?'登录状态已失效，请重新登录后申请。':'申请暂未生成，请检查网络后重试。';
+            status.textContent=e?.message==='LOGIN_REQUIRED'?'登录状态已失效，请重新登录后申请。':String(e?.message||'').startsWith('CONSENT_HTTP_')?'会员协议保存失败（HTTP '+String(e.message).split('_').pop()+'），请联系管理员检查权限。':'暂时无法确认会员协议是否保存成功，请检查网络后重试；不会自动扣费。';
           }
         };
         actions.append(cancel,confirm);dialog.append(status,actions);overlay.append(dialog);document.body.append(overlay);
