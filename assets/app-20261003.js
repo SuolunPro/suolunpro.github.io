@@ -4770,21 +4770,26 @@
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
-    function displayLatestDate(){const today=beijingToday();return state.baseDate&&state.baseDate>today?state.baseDate:today}
+    function displayLatestDate(){return beijingToday()}
     function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)&&!(r.pregameVerified!==true&&r.saleFreezeStatus==='NO_VALID_PREMATCH_LOCK')))}
     async function resolveActivePool(){
-      // The home page always represents the current Beijing calendar date.
-      // Never silently redirect customers to Friday/yesterday when today's
-      // published pool is empty or temporarily unavailable.
-      const today=beijingToday();
+      // Prefer yesterday only while it contains genuinely unfinished matches.
+      // A missing result alone is not proof a match is still playing.
+      const today=beijingToday(),yesterday=addDays(today,-1);
+      try{
+        const prev=await readDay(yesterday,true);
+        if(prev?.date===yesterday&&Array.isArray(prev.rows)&&prev.rows.some(r=>{
+          const status=String(r.matchStatus||r.match_status||'').toUpperCase();
+          return /^(LIVE|IN_PLAY|INPLAY|FIRST_HALF|SECOND_HALF|HALFTIME|HT|1H|2H|EXTRA_TIME|PENALTIES|SCHEDULED|NOT_STARTED|NS)$/.test(status)&&!verified(r);
+        }))return prev;
+      }catch(e){console.warn('昨日赛事状态未确认',e)}
       try{
         const current=await readDay(today,true);
         if(current?.date===today&&Array.isArray(current.rows))return current;
         throw Error('TODAY_POOL_INVALID');
       }catch(e){
-        const currentCache=cachedDay(today,true);
-        if(currentCache?.date===today&&Array.isArray(currentCache.rows))return currentCache;
-        console.warn('今日数据暂不可用；保持今天日期，不回退历史赛事',e);
+        const cache=cachedDay(today,true);
+        if(cache?.date===today&&Array.isArray(cache.rows))return cache;
         return {date:today,count:0,rows:[],modelVersion:'3.8',analysisPending:true};
       }
     }
@@ -4797,7 +4802,7 @@
       // Compact customer navigation: six days plus one visible historical-results chooser.
       // All previously certified dates remain selectable without occupying three header rows.
       const days=['日','一','二','三','四','五','六'];
-      const box=$('dates'),latest=addDays(displayLatestDate(),1);
+      const box=$('dates'),latest=displayLatestDate();
       box.replaceChildren();
       box.classList.remove('htft-dates');
       box.classList.add('compact-history-dates');
@@ -4967,7 +4972,7 @@
     }
     async function selectDate(date){
       const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-14);
-      if(((date<earliest)&&!(date>='2026-10-07'&&date<='2026-10-19'))||date>addDays(displayLatestDate(),1)){alert('仅展示最近15天、明天及已核验的10月7日至19日历史记录。');return}
+      if(((date<earliest)&&!(date>='2026-10-07'&&date<='2026-10-19'))||date>displayLatestDate()){alert('仅展示截至今天的赛事及已核验历史记录。');return}
       // Date navigation is an entry into match history, even when an expired member starts on "我的".
       // Switch tabs before the same-date shortcut or cached-day path; never change membership/report access.
       const wasOutsideHome=state.tab!=='home';
