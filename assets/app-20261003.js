@@ -91,7 +91,7 @@
       if(payload!==body)delete payload.captcha_token;
       const authUrl=AUTH_BASE+'/auth/v1/'+authPath;
       const isPasswordLogin=path==='token?grant_type=password';
-      const maxRetries=isPasswordLogin?2:(path==='signup'?1:0);
+      const maxRetries=isPasswordLogin?2:0; // Never automatically replay signup: response loss can follow successful account creation.
       let res;
       for(let attempt=0;;attempt++){
         try{
@@ -1691,7 +1691,13 @@
             });
             if(data.access_token&&data.user)saveSession(data);
             else msg.textContent='注册申请已提交。如未自动登录，请点击「已有账号 · 登录」；如系统提示需要邮箱验证，请检查注册邮箱。';
-          }catch(e){msg.textContent=e.message}finally{resetCaptcha();actionButtons.forEach(button=>button.disabled=false)}
+          }catch(e){
+            if(mode==='注册'&&(e?.code==='AUTH_NETWORK_ERROR'||e?.code==='AUTH_TIMEOUT')){
+              msg.textContent='注册结果暂无法确认：网络连接中断。请先点击「已有账号 · 登录」尝试登录；如果提示账号不存在，再重新注册。请勿连续重复提交。';
+            }else if(mode==='注册'&&(e?.code==='user_already_exists'||e?.status===422)){
+              msg.textContent='该邮箱可能已经注册，请点击「已有账号 · 登录」；忘记密码可使用下方重置入口。';
+            }else msg.textContent=e.message;
+          }finally{resetCaptcha();actionButtons.forEach(button=>button.disabled=false)}
         };mainActions.append(btn);
       }
       gate.append(mainActions);
