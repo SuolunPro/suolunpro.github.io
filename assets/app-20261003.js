@@ -2925,8 +2925,8 @@
         if(fragment.childNodes.length)grid.append(fragment);
         if(meta.next<meta.rows.length)scheduleModuleGridBuild(grid);
       };
-      if('requestIdleCallback' in window)window.requestIdleCallback(run,{timeout:450});
-      else setTimeout(()=>run(null),16);
+      if('requestIdleCallback' in window)window.requestIdleCallback(run,{timeout:80});
+      else setTimeout(()=>run(null),0);
     }
     function getModuleGrid(rows,history=false,scope='main'){
       const key=moduleGridKey(rows,history,scope),cached=moduleGridCache.get(key);
@@ -2938,7 +2938,7 @@
       const grid=el('div','cards'),meta={rows,history,model:state.model,next:0,scheduled:false,cancelled:false};
       moduleGridBuildState.set(grid,meta);
       // Render one card synchronously; defer the rest to idle time to keep iOS taps responsive.
-      const immediate=Math.min(rows.length,1);
+      const immediate=Math.min(rows.length,3);
       while(meta.next<immediate){
         const row=rows[meta.next++];
         grid.append(meta.model==='upset'?upsetCard(row):matchCard(row,history));
