@@ -1,7 +1,7 @@
     const SHADOW_MODE=false;
-    const AUTH_BASE='https://zssourkgabcxibggwhqm.supabase.co';const AUTH_KEY='sb_publishable_94kSLoSqua2oF4T0C-qBmA_t3jlZ4h7';
-    const AUTH_STORE='soren_auth_sg_cutover_v1',LEGACY_AUTH_STORE='soren_auth_sg_legacy_v1';
-    const MEMBER_CACHE_KEY='soren_member_cache_sg_cutover_v1';
+    const AUTH_BASE='https://ttydbcejxqxdkcfoizkj.supabase.co';const AUTH_KEY='sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa';
+    const AUTH_STORE='soren_auth_v2',LEGACY_AUTH_STORE='soren_auth';
+    const MEMBER_CACHE_KEY='soren_member_cache_v1';
     let authSession=null,authPersistence='session',authRefreshPending=null,memberInfo=null;
     const storageRead=(store,key)=>{try{return store.getItem(key)}catch{return null}};
     const storageWrite=(store,key,value)=>{try{store.setItem(key,value);return true}catch{return false}};
@@ -229,7 +229,7 @@
       history.replaceState(null,'',location.pathname+location.search);
       return null;
     }
-    const API='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-public-api-v1';
+    const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
     function customerApiUrl(params){
       const qs=params instanceof URLSearchParams?new URLSearchParams(params):new URLSearchParams(params||{});
       // The production database is in Mumbai. Running the data-heavy function in
