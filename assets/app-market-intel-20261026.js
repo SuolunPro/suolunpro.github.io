@@ -248,7 +248,7 @@
           body,cache:'no-store',keepalive:true,signal:timeoutSignal(6000)}).catch(()=>{});
       }catch{}
     }
-    const OKOOO_SHADOW_API=AUTH_BASE+'/functions/v1/soren-intel-cache-v1';
+    const OKOOO_SHADOW_API=AUTH_BASE+'/functions/v1/ninety-member-intel-v1';
     // Feedback uses an isolated client-database Edge Function; existing membership API is unchanged.
     const FEEDBACK_API=AUTH_BASE+'/functions/v1/soren-feedback-api-v1';
     let feedbackMode=null,feedbackFilter='all',feedbackDraft={category:'功能建议',content:''};

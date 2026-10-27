@@ -58,7 +58,7 @@ const showError=e=>{
 function getSharedSession(){
  for(const store of [localStorage,sessionStorage]){
   try{
-   const session=JSON.parse(store.getItem("soren_auth_v2")||"null");
+   const session=JSON.parse(store.getItem("soren_auth_sg_cutover_v1")||"null");
    if(session?.access_token&&session?.user&&(!session.expires_at||Number(session.expires_at)>Date.now()+10000))
      return session;
   }catch{}

@@ -33,7 +33,7 @@ const msg=document.getElementById("message"),records=document.getElementById("re
 const select=document.getElementById("status"),reload=document.getElementById("reload");
 const text=(tag,content,cls)=>{const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=String(content??"");return el};
 function session(){for(const store of [localStorage,sessionStorage]){
-  try{const s=JSON.parse(store.getItem("soren_auth_v2")||"null");if(s&&s.access_token&&s.user)return s}catch{}
+  try{const s=JSON.parse(store.getItem("soren_auth_sg_cutover_v1")||"null");if(s&&s.access_token&&s.user)return s}catch{}
 }return null}
 function time(t){if(!t)return"暂无记录";const d=new Date(t);return Number.isNaN(+d)?"暂无记录":d.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false})}
 async function request(method,payload){
