@@ -1131,35 +1131,3 @@
   .abc20-status{font-size:10px}
   .abc20-date-info span{display:none}
 }
-
-
-/* 2026-10-21: customer history navigation, compact one-line bar on mobile. */
-.dates.compact-history-dates{
-  display:grid;grid-template-columns:repeat(8,minmax(0,1fr));align-items:center;
-  gap:2px;padding:7px 5px 9px;
-}
-.dates.compact-history-dates .day{
-  min-width:0;min-height:42px;padding:4px 0;
-  font-size:clamp(9px,2.3vw,11px);
-}
-.dates.compact-history-dates .day b{font-size:clamp(11px,2.8vw,13px);margin-bottom:2px}
-.dates.compact-history-dates .history-date-select{
-  grid-column:span 2;width:100%;min-width:0;height:42px;
-  appearance:auto;-webkit-appearance:menulist;
-  border:1px solid rgba(255,255,255,.38);border-radius:9px;
-  background:#b82027;color:#fff;padding:0 2px;
-  text-align:center;text-align-last:center;font-size:12px;font-weight:600;line-height:1.2;font-family:inherit;
-  cursor:pointer;
-}
-.dates.compact-history-dates .history-date-select:focus-visible{
-  outline:2px solid #fff;outline-offset:2px;
-}
-
-/* Verified prematch intelligence inside the VIP market report. */
-.prematch-intel-evidence{margin-top:18px;border-top:1px solid #e4e9e9;padding-top:14px}
-.prematch-intel-item{padding:12px 0;border-bottom:1px solid #e7eae9;overflow-wrap:anywhere}
-.prematch-intel-item:last-child{border-bottom:0}
-.prematch-intel-item>b{display:block;color:#27342f;margin-bottom:8px;line-height:1.5}
-.prematch-intel-item .member-zone-intel-list{margin:7px 0 9px;padding-left:22px;line-height:1.55}
-.prematch-intel-item .report-sub{margin:3px 0;font-size:12px}
-.prematch-intel-item>a{display:inline-block;margin-top:5px;font-size:13px;text-decoration:underline}
