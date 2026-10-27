@@ -4168,13 +4168,16 @@
         if(Date.now()-cached.at<2*60*1000)return;
       }else holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
       try{
-        const url=customerApiUrl({view:'report',date:String(row.date||state.selectedDate),
-          no:String(row.no).padStart(3,'0')});
+        const url=AUTH_BASE+'/functions/v1/ninety-member-intel-v1?'+new URLSearchParams({
+          date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
         const response=await authorizedApiFetch(url,{cache:'no-store',signal:timeoutSignal(12000)});
         const payload=await response.json().catch(()=>null);
         if(!response.ok||payload?.ok!==true)
           throw Error(String(payload?.error||'HTTP '+response.status));
-        const data=verifiedReportMarket(payload,row);
+        const data=payload?.report?verifiedReportMarket(payload,row):(
+          payload?.ok===true&&String(payload?.match?.no).padStart(3,'0')===String(row.no).padStart(3,'0')&&
+          String(payload?.match?.home)===String(row.home)&&String(payload?.match?.away)===String(row.away)
+            ?payload:(()=>{throw Error('REPORT_MATCH_MISMATCH')})());
         if(state.selected!==row||(!SHADOW_MODE&&memberInfo?.vipActive!==true))return;
         okoooShadowCache.set(key,{token:authSession.access_token,at:Date.now(),data});
         while(okoooShadowCache.size>20)okoooShadowCache.delete(okoooShadowCache.keys().next().value);
