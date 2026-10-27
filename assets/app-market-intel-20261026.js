@@ -1,7 +1,7 @@
     const SHADOW_MODE=false;
-    const AUTH_BASE='https://zssourkgabcxibggwhqm.supabase.co';const AUTH_KEY='sb_publishable_94kSLoSqua2oF4T0C-qBmA_t3jlZ4h7';
-    const AUTH_STORE='soren_auth_sg_cutover_v1',LEGACY_AUTH_STORE='soren_auth_sg_legacy_v1';
-    const MEMBER_CACHE_KEY='soren_member_cache_sg_cutover_v1';
+    const AUTH_BASE='https://ttydbcejxqxdkcfoizkj.supabase.co';const AUTH_KEY='sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa';
+    const AUTH_STORE='soren_auth_v2',LEGACY_AUTH_STORE='soren_auth';
+    const MEMBER_CACHE_KEY='soren_member_cache_v1';
     let authSession=null,authPersistence='session',authRefreshPending=null,memberInfo=null;
     const storageRead=(store,key)=>{try{return store.getItem(key)}catch{return null}};
     const storageWrite=(store,key,value)=>{try{store.setItem(key,value);return true}catch{return false}};
@@ -229,7 +229,7 @@
       history.replaceState(null,'',location.pathname+location.search);
       return null;
     }
-    const API='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-public-api-v1';
+    const API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1';
     function customerApiUrl(params){
       const qs=params instanceof URLSearchParams?new URLSearchParams(params):new URLSearchParams(params||{});
       // The production database is in Mumbai. Running the data-heavy function in
@@ -248,7 +248,7 @@
           body,cache:'no-store',keepalive:true,signal:timeoutSignal(6000)}).catch(()=>{});
       }catch{}
     }
-    const OKOOO_SHADOW_API=AUTH_BASE+'/functions/v1/ninety-member-intel-v1';
+    const OKOOO_SHADOW_API=AUTH_BASE+'/functions/v1/soren-intel-cache-v1';
     // Feedback uses an isolated client-database Edge Function; existing membership API is unchanged.
     const FEEDBACK_API=AUTH_BASE+'/functions/v1/soren-feedback-api-v1';
     let feedbackMode=null,feedbackFilter='all',feedbackDraft={category:'功能建议',content:''};
@@ -3665,8 +3665,7 @@
         try{
           const params=new URLSearchParams({view:'market-trend',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
           const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);let response;
-          try{response=await authorizedApiFetch(AUTH_BASE+'/functions/v1/soren-market-trend-v1?'+params,
-            {cache:'no-store',signal:ctrl.signal})}
+          try{response=await authorizedApiFetch(customerApiUrl(params),{cache:'no-store',signal:ctrl.signal})}
           finally{clearTimeout(timer)}
           if(!response.ok)throw Error('HTTP '+response.status);
           const data=await response.json();
@@ -3835,26 +3834,6 @@
         useReport(data.report);
       }catch(err){
         if(state.selected!==row)return;
-        if(vipDeepAccess())try{
-          const qs=new URLSearchParams({date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
-          const proofResponse=await authorizedApiFetch(AUTH_BASE+'/functions/v1/ninety-member-intel-v1?'+qs,
-            {cache:'no-store',signal:timeoutSignal(10000)});
-          const proof=await proofResponse.json().catch(()=>null);
-          if(proofResponse.ok&&proof?.ok===true&&
-            String(proof.match?.no).padStart(3,'0')===String(row.no).padStart(3,'0')&&
-            String(proof.match?.home)===String(row.home)&&String(proof.match?.away)===String(row.away)){
-            const triplet=v=>Array.isArray(v)&&v.length===3&&v.every(x=>x!==null&&Number.isFinite(Number(x))&&Number(x)>1)
-              ?{home:Number(v[0]),draw:Number(v[1]),away:Number(v[2]),capturedAt:proof.market?.capturedAt}:null;
-            const asian=(Array.isArray(proof.market?.asian)?proof.market.asian:[]).map(x=>({institution:x.institution,
-              initial:{lineText:x.initialLine,homeWater:x.initialHomeWater,awayWater:x.initialAwayWater},
-              current:{lineText:x.currentLine,homeWater:x.currentHomeWater,awayWater:x.currentAwayWater}}));
-            const report={home:row.home,away:row.away,market:{european:{
-              initial:triplet(proof.market?.william?.initial),current:triplet(proof.market?.william?.current)},asian},
-              intelligence:{articles:[]}};
-            professionalReportCache.set(key,{token:authSession.access_token,at:Date.now(),report});
-            useReport(report);return;
-          }
-        }catch(proofError){clientDiag('professional_sg_proof_degraded',{reason:String(proofError?.message||proofError).slice(0,80)})}
         slot.replaceChildren(el('p','report-loading','扩展赛事资料暂时无法获取，已发布的赛前分析仍可查看。'));
         const odds=context?.dataStatus?.querySelector('.report-data-odds b');if(odds)odds.textContent='采集时间未确认';
         if(context?.audit)context.audit.append(el('p','report-sub','扩展资料暂时无法读取：'+safe(err?.message||err)));
@@ -4189,16 +4168,13 @@
         if(Date.now()-cached.at<2*60*1000)return;
       }else holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
       try{
-        const url=AUTH_BASE+'/functions/v1/ninety-member-intel-v1?'+new URLSearchParams({
-          date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
+        const url=customerApiUrl({view:'report',date:String(row.date||state.selectedDate),
+          no:String(row.no).padStart(3,'0')});
         const response=await authorizedApiFetch(url,{cache:'no-store',signal:timeoutSignal(12000)});
         const payload=await response.json().catch(()=>null);
         if(!response.ok||payload?.ok!==true)
           throw Error(String(payload?.error||'HTTP '+response.status));
-        const data=payload?.report?verifiedReportMarket(payload,row):(
-          payload?.ok===true&&String(payload?.match?.no).padStart(3,'0')===String(row.no).padStart(3,'0')&&
-          String(payload?.match?.home)===String(row.home)&&String(payload?.match?.away)===String(row.away)
-            ?payload:(()=>{throw Error('REPORT_MATCH_MISMATCH')})());
+        const data=verifiedReportMarket(payload,row);
         if(state.selected!==row||(!SHADOW_MODE&&memberInfo?.vipActive!==true))return;
         okoooShadowCache.set(key,{token:authSession.access_token,at:Date.now(),data});
         while(okoooShadowCache.size>20)okoooShadowCache.delete(okoooShadowCache.keys().next().value);

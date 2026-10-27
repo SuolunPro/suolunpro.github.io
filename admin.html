@@ -46,8 +46,8 @@
 <p class="statusline" id="updated">等待更新…</p>
 <button id="refresh">刷新统计</button><button id="logout">退出</button>
 </section><p><a href="./review.html">前往邀请审核后台</a>　·　<a href="./">返回九十刻度客户端</a></p></div><script>"use strict";
-const base="https://zssourkgabcxibggwhqm.supabase.co";
-const key="sb_publishable_94kSLoSqua2oF4T0C-qBmA_t3jlZ4h7";
+const base="https://ttydbcejxqxdkcfoizkj.supabase.co";
+const key="sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa";
 const siteKey="0x4AAAAAAFBKndRZlD2qH4Km";
 const $=id=>document.getElementById(id);
 let token=null;
@@ -58,7 +58,7 @@ const showError=e=>{
 function getSharedSession(){
  for(const store of [localStorage,sessionStorage]){
   try{
-   const session=JSON.parse(store.getItem("soren_auth_sg_cutover_v1")||"null");
+   const session=JSON.parse(store.getItem("soren_auth_v2")||"null");
    if(session?.access_token&&session?.user&&(!session.expires_at||Number(session.expires_at)>Date.now()+10000))
      return session;
   }catch{}
