@@ -91,7 +91,7 @@
       if(payload!==body)delete payload.captcha_token;
       const authUrl=AUTH_BASE+'/auth/v1/'+authPath;
       const isPasswordLogin=path==='token?grant_type=password';
-      const maxRetries=isPasswordLogin?2:0; // Never automatically replay signup: response loss can follow successful account creation.
+      const maxRetries=isPasswordLogin?2:(path==='signup'?1:0);
       let res;
       for(let attempt=0;;attempt++){
         try{
@@ -101,15 +101,8 @@
         }catch(error){
           // Retry transport failures only. HTTP/auth errors are handled below and are never retried.
           if(attempt>=maxRetries){
-            // Report transport errors precisely; never log credentials or tokens.
-            const timedOut=error?.name==='TimeoutError'||error?.name==='AbortError';
-            const err=Error(timedOut
-              ? '认证连接超时（30秒），请稍后重试；若持续失败，请联系管理员检查认证网络。'
-              : '无法连接认证服务器（网络请求失败），请检查网络或联系管理员。');
-            err.code=timedOut?'AUTH_TIMEOUT':'AUTH_NETWORK_ERROR';
-            err.cause=error;
-            try{console.warn('[auth-transport]',{kind:err.code,endpoint:new URL(AUTH_BASE).hostname,online:navigator.onLine,at:new Date().toISOString()})}catch(_){}
-            throw err;
+            const err=Error('当前网络连接认证服务失败，请切换网络后重试。');
+            err.code='AUTH_NETWORK_ERROR';err.cause=error;throw err;
           }
           await new Promise(resolve=>setTimeout(resolve,attempt===0?800:1500));
         }
@@ -147,32 +140,13 @@
       })();
       try{return await authRefreshPending}finally{authRefreshPending=null}
     }
-    // Retry transient transport errors during session verification without deleting a valid session.
-    async function authUserFetch(token){
-      let lastError;
-      for(let attempt=0;attempt<3;attempt++){
-        try{
-          return await fetch(AUTH_BASE+'/auth/v1/user',{
-            headers:{apikey:AUTH_KEY,Authorization:'Bearer '+token},
-            cache:'no-store',signal:timeoutSignal(10000)
-          });
-        }catch(error){
-          lastError=error;
-          if(attempt<2)await new Promise(resolve=>setTimeout(resolve,700*(attempt+1)));
-        }
-      }
-      const error=Error('认证服务器连接暂时失败，请检查网络后重试；登录状态已保留。');
-      error.code='AUTH_VERIFY_NETWORK_ERROR';
-      error.cause=lastError;
-      throw error;
-    }
     async function verifiedAuthToken(){
       if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
       await refreshAuthSession();
-      const check=await authUserFetch(authSession.access_token);
+      const check=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:timeoutSignal(10000)});
       if(check.status===401){
         await refreshAuthSession(true);
-        const retry=await authUserFetch(authSession.access_token);
+        const retry=await fetch(AUTH_BASE+'/auth/v1/user',{headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token},cache:'no-store',signal:timeoutSignal(10000)});
         if(retry.status===401){clearAuthSession();throw Error('LOGIN_REQUIRED')}
         if(!retry.ok)throw Error('登录状态核验暂时失败（HTTP '+retry.status+'）');
         const user=await retry.json();
@@ -198,7 +172,7 @@
     async function authorizedApiFetch(url,options={}){
       if(!authSession?.access_token)throw Error('LOGIN_REQUIRED');
       await refreshAuthSession();
-      const welcomeHeader=url.startsWith('https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-public-api-v1')
+      const welcomeHeader=url.startsWith(API)
         ?{'X-Soren-Device':welcomeBrowserId()}:{};
       const request=()=>fetch(url,{...options,headers:{...(options.headers||{}),...welcomeHeader,Authorization:'Bearer '+authSession.access_token}});
       let response=await request();
@@ -256,15 +230,11 @@
       return null;
     }
     const API='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-public-api-v1';
-    const VERIFIED_2026_ARCHIVE_API='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-legacy-history-v1';
     function customerApiUrl(params){
       const qs=params instanceof URLSearchParams?new URLSearchParams(params):new URLSearchParams(params||{});
-      const date=qs.get('date')||'',view=qs.get('view')||'';
-      // Use read-only, date-scoped verified copies, never the old backend.
-      if(date>='2026-10-07'&&date<='2026-10-19'&&
-        ['today','archive','history','cold-feed','member-zone'].includes(view)){
-        return VERIFIED_2026_ARCHIVE_API+'?'+qs.toString();
-      }
+      // The production database is in Mumbai. Running the data-heavy function in
+      // the same region avoids repeated inter-region round trips before first paint.
+      qs.set('forceFunctionRegion','ap-southeast-1');
       return API+'?'+qs.toString();
     }
     const CLIENT_DIAG_API=AUTH_BASE+'/functions/v1/soren-client-diag-v1';
@@ -278,7 +248,7 @@
           body,cache:'no-store',keepalive:true,signal:timeoutSignal(6000)}).catch(()=>{});
       }catch{}
     }
-    const OKOOO_SHADOW_API='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-member-intel-v1';
+    const OKOOO_SHADOW_API=AUTH_BASE+'/functions/v1/soren-intel-cache-v1';
     // Feedback uses an isolated client-database Edge Function; existing membership API is unchanged.
     const FEEDBACK_API=AUTH_BASE+'/functions/v1/soren-feedback-api-v1';
     let feedbackMode=null,feedbackFilter='all',feedbackDraft={category:'功能建议',content:''};
@@ -456,40 +426,24 @@
           if(submitting)return;submitting=true;confirm.disabled=true;cancel.disabled=true;close.disabled=true;confirm.textContent='正在生成申请…';status.textContent='';
           try{
             if(!authSession?.access_token||!authSession?.user?.id)throw Error('LOGIN_REQUIRED');
-            const consentTable=AUTH_BASE+'/rest/v1/soren_vip_consents_v1';
-            const consentHeaders={apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token};
-            const consentBody={user_id:authSession.user.id,agreement_version:'2026-10-05',plan_code:'vip_monthly',price_cents:2990,duration_days:30,source:'vip_apply'};
-            const checkSavedConsent=async()=>{
-              try{
-                const query=new URLSearchParams({user_id:'eq.'+authSession.user.id,agreement_version:'eq.2026-10-05',plan_code:'eq.vip_monthly',source:'eq.vip_apply',select:'user_id',limit:'1'});
-                const response=await fetch(consentTable+'?'+query,{headers:consentHeaders,cache:'no-store',signal:timeoutSignal(8000)});
-                if(!response.ok)return false;
-                const rows=await response.json();return Array.isArray(rows)&&rows.length>0;
-              }catch{return false}
-            };
-            let consentSaved=false,consentFailure=null;
-            try{
-              const response=await fetch(consentTable,{
-                method:'POST',headers:{...consentHeaders,'Content-Type':'application/json',Prefer:'return=minimal'},
-                body:JSON.stringify(consentBody),cache:'no-store',signal:timeoutSignal(20000)
-              });
-              if(response.status===401)throw Error('LOGIN_REQUIRED');
-              if(response.ok)consentSaved=true;
-              else consentFailure=Error('CONSENT_HTTP_'+response.status);
-            }catch(error){consentFailure=error}
-            if(!consentSaved)consentSaved=await checkSavedConsent();
-            if(!consentSaved)throw consentFailure||Error('CONSENT_SAVE_FAILED');
+            const consentRes=await fetch(AUTH_BASE+'/rest/v1/soren_vip_consents_v1',{
+              method:'POST',headers:{apikey:AUTH_KEY,Authorization:'Bearer '+authSession.access_token,'Content-Type':'application/json',Prefer:'return=minimal'},
+              body:JSON.stringify({user_id:authSession.user.id,agreement_version:'2026-10-05',plan_code:'vip_monthly',price_cents:2990,duration_days:30,source:'vip_apply'}),
+              cache:'no-store',signal:timeoutSignal(10000)
+            });
+            if(consentRes.status===401)throw Error('LOGIN_REQUIRED');
+            if(!consentRes.ok)throw Error('CONSENT_SAVE_FAILED');
             vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession.user.email||'')+'\\n方案：尊贵月卡VIP 29.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已主动确认同意会员服务协议';
             service.hidden=false;membershipContact.hidden=true;contactNote.textContent='申请已生成。请复制客服微信和申请信息，联系官方客服办理。';overlay.remove();
             requestAnimationFrame(()=>service.scrollIntoView({behavior:'smooth',block:'nearest'}));
           }catch(e){
             submitting=false;confirm.disabled=false;cancel.disabled=false;close.disabled=false;confirm.textContent='我已阅读并同意 · 继续开通';
-            status.textContent=e?.message==='LOGIN_REQUIRED'?'登录状态已失效，请重新登录后申请。':String(e?.message||'').startsWith('CONSENT_HTTP_')?'会员协议保存失败（HTTP '+String(e.message).split('_').pop()+'），请联系管理员检查权限。':'暂时无法确认会员协议是否保存成功，请检查网络后重试；不会自动扣费。';
+            status.textContent=e?.message==='LOGIN_REQUIRED'?'登录状态已失效，请重新登录后申请。':'申请暂未生成，请检查网络后重试。';
           }
         };
         actions.append(cancel,confirm);dialog.append(status,actions);overlay.append(dialog);document.body.append(overlay);
       };
-      membershipContact.onclick=()=>SHADOW_MODE?alert('当前暂不支持在线开通VIP，请联系官方客服'):openVipConsent();
+      membershipContact.onclick=()=>SHADOW_MODE?alert('新加坡影子环境不接受 VIP 开通申请'):openVipConsent();
       membershipPlan.append(vipRisk,membershipContact);
       planGrid.append(membershipPlan);
       const explainer=el('div','member-beta-explainer');
@@ -582,7 +536,7 @@
       if(a.intelligence.impactSide&&a.intelligence.impactLevel)line(holder,'情报影响',a.intelligence.impactSide+' · '+a.intelligence.impactLevel);
       if(a.intelligence.injuryCount>0)line(holder,'有效伤停/阵容',a.intelligence.injuryCount+' 条');
       if(a.intelligence.highlights.length){const ul=el('ul','member-zone-intel-list');a.intelligence.highlights.forEach(x=>ul.append(el('li','',x)));holder.append(ul)}
-      if(a.capturedAt)line(holder,options.updateLabel||'深度分析更新',fmtStamp(a.capturedAt));
+      if(a.capturedAt)line(holder,'深度分析更新',fmtStamp(a.capturedAt));
       return a;
     }
     // Cold-warning cards are DOM-heavy. Reuse the exact page while its source
@@ -608,7 +562,7 @@
     // Historic 2.0 model validation is obtained through a separate VIP-only
     // read endpoint. It is never labeled as a contemporaneously published tip.
     const COLD_V2_HISTORY_API=AUTH_BASE+'/functions/v1/soren-cold-history-v2';
-    const isColdV2HistoryDate=date=>String(date||'')>='2026-09-28'&&String(date||'')<='2026-10-06'; // Oct 07-19 must use SG's verified frozen archive, not the missing legacy-v2 endpoint.
+    const isColdV2HistoryDate=date=>String(date||'')>='2026-09-28'&&String(date||'')<='2026-10-11';
     let coldV2History=null,coldV2HistoryUser=null,coldV2HistoryAt=0;
     let coldV2HistoryPromise=null,coldV2HistoryError=null;
     async function loadColdV2History(){
@@ -726,7 +680,7 @@
         if(cached){box.append(cached);return}
       }
       const page=el('div','member-zone-page');
-      const info=el('details','cold-warning-info compact');info.open=false; // Keep match history visible first; help remains expandable.
+      const info=el('details','cold-warning-info compact');info.open=true;
       const infoSummary=el('summary','','冷门预警更新说明');
       const infoBody=el('div','cold-warning-info-body');
       infoBody.append(
@@ -766,11 +720,12 @@
         const confirmed=Number(state.memberZone.certifiedDirectional||0);
         const observe=Number(state.memberZone.riskObservations||0);
         page.append(el('p','report-sub',
-          '冷门风险识别：已确认 '+confirmed+' 场；另有 '+observe+' 场处于风险观察状态。赛后仅对有效的赛前记录进行核验。'));
+          '新加坡冷门审计：真实赛前已确认避冷方向 '+confirmed+' 场；另有 '+observe+
+          ' 场只达到风险观察条件、尚未形成主队不胜/不败方向。仅已留存且有独立证据的赛前方向参与赛后避冷评测；ABC完整规则链仍需验收。'));
       }
       if(!publishable.length){
         const abcOnly=String(state.memberZone?.routeRuleVersion??'').startsWith('ABC-');
-        const empty=el('div','empty','',abcOnly?'当前暂无通过ABC审核的重点避开。必发资金未确认的比赛不会强制发布。':zoneDate<beijingToday()?'该日没有通过赛前核验的正式冷门预警记录':'目前尚无达到正式发布门槛的冷门预警');
+        const empty=el('div','empty','',abcOnly?'当前暂无通过ABC审核的重点避开。必发资金未确认的比赛不会强制发布。':'今日暂无达到展示门槛的冷门风险');
         page.append(empty);
         if(state.memberZone)memberZonePageCache.set(state.memberZone,page);
         box.append(page);return;
@@ -832,25 +787,6 @@
         const gate=(cold?.gate&&typeof cold.gate==='object')?cold.gate:{};
         const pop=(cold?.popularity&&typeof cold.popularity==='object')?cold.popularity:{};
         const original=String(route?.originalTop1??cold?.originalTop1??row?.model?.top1??'');
-        // Singapore's verified ABCDE channels are frozen at publication.
-        // Summarize only the adverse, pregame proof that actually triggered
-        // the warning. The historic Soren focusGate path below stays intact.
-        const channels=Array.isArray(gate.channels)?gate.channels:[];
-        const top=String(gate.fundsTop??'');
-        const sourceChannel=channels.find(x=>['A','B','C','D','E1','E2'].includes(String(x)));
-        if(sourceChannel){
-          const reason={
-            A:top&&top!==original
-              ?`必发${top}资金居首，与原${original}背离`
-              :'必发反向资金居首，与原首选背离',
-            B:'必发平局资金居首，成交规模达到预警条件',
-            C:'威廉对原首选支持下降，必发资金同步反向',
-            D:'威廉对原首选升赔，多家亚盘加深且主队侧高水',
-            E1:'官方SP提示平局风险，赛前比分模型同向',
-            E2:'官方SP提示平局风险，威廉市场变化同向'
-          };
-          return reason[sourceChannel];
-        }
         const found=new Map();
         const add=(text,rank)=>{if(!text)return;const current=found.get(text);if(current===undefined||rank>current)found.set(text,rank)};
         // Strongest source: typed signals in the same refreshed feed.
@@ -1069,7 +1005,7 @@
           :displayMode==='FT_TOP2'
             ?'原Top2双选保护'
           :displayMode==='HIST_SHADOW'
-            ?'历史赛前核验'
+            ?'历史影子验证'
             :displayMode==='HIST_REFERENCE'
               ?'历史让球参考'
               :displayMode==='HIST_HANDICAP'
@@ -1225,7 +1161,7 @@
             const top2Hit=evaluable&&picks.includes(actual);
             if(evaluable)resultLine.classList.add(top2Hit?'hit':'miss');
             resultLine.append(el('span','cold-card-result-text',
-              evaluable?(actual+' · '+(top2Hit?'✓ Top2 评测成功':'× Top2 评测失败')):'胜平负赛果待核验'));
+              evaluable?(actual+' · '+(top2Hit?'✓ 双选命中':'× 双选未中')):'胜平负赛果待核验'));
           }else if(displayMode==='HANDICAP_PROTECT'){
             const handicapActual=String(st.handicapResult||'');
             const primary=(Array.isArray(route?.handicapPicks)&&route.handicapPicks[0])||handicapPrimary;
@@ -1270,7 +1206,7 @@
           ssec.append(el('div','member-zone-proof-title','冷门观察'));
           addLine(ssec,'风险状态',displayLabel);
           addLine(ssec,'方向状态',displayMode==='LEGACY'?'历史记录，不按新规则重算':direction);
-          if(displayMode==='HIST_SHADOW')addLine(ssec,'验证口径','历史赛前记录，按当时适用规则对照赛果');
+          if(displayMode==='HIST_SHADOW')addLine(ssec,'验证口径','历史影子样本，不计入9月30日起正式新规则成绩');
           if(displayMode==='HIST_REFERENCE')addLine(ssec,'历史让球参考来源','赛前冻结HHAD三项概率排序；当时正式让球结论为PASS，不计作正式推荐');
           if(displayMode==='HIST_HANDICAP')addLine(ssec,'让球Top2来源',
             historicalHandicapRecovered?'赛前冻结HHAD三项概率排序恢复（非赛后倒推）':'赛前快照直接冻结Top1 + 第二方向');
@@ -1295,7 +1231,7 @@
           if(shadowFlags.length)addLine(ssec,'资金判断',shadowFlags.slice(0,2).join('；'));
           if(Number(gate.shadow_kelly_complete??gate.shadowKellyComplete??0)>0)addLine(ssec,'凯利覆盖',String(gate.shadow_kelly_complete??gate.shadowKellyComplete)+'家机构 · 已纳入交叉核验');
           if((gate.shadow_intelligence_observed===true||gate.shadowIntelligenceObserved===true)){
-            addLine(ssec,'赛前情报分析',String(gate.shadow_intelligence_summary??gate.shadowIntelligenceSummary??'已完成赛前情报核验'));
+            addLine(ssec,'影子情报判断',String(gate.shadow_intelligence_summary??gate.shadowIntelligenceSummary??'已完成赛前情报核验'));
             if(Number(gate.shadow_injury_count??gate.shadowInjuryCount??0)>0)addLine(ssec,'有效伤停/阵容',String(gate.shadow_injury_count??gate.shadowInjuryCount)+'条');
           }
           if(gate.asianState){
@@ -1390,7 +1326,7 @@
         // Load the same saved analysis object used by the match-detail preview.
         // The member endpoint returns only the customer-safe projection.
         const xsec=el('section','member-zone-proof-section');
-        xsec.append(el('div','member-zone-proof-title','原始预警触发依据'),el('div','member-zone-intel-state','展示预警发布时的冻结市场资料'));
+        xsec.append(el('div','member-zone-proof-title','九十刻度 · 深度市场依据'),el('div','member-zone-intel-state','展开后读取最新赛前深度分析…'));
         body.append(xsec);
         const inlineShadow=(row?.shadowAnalysis&&typeof row.shadowAnalysis==='object')?row.shadowAnalysis:((cold?.gate?.shadowAnalysis&&typeof cold.gate.shadowAnalysis==='object')?cold.gate.shadowAnalysis:null);
         // VIP cold proof must be no later than the official pool-day sale close.
@@ -1412,57 +1348,14 @@
               return;
             }
             const analysis=frozenInline||(await loadMemberIntelProof(zoneDate,row.no))?.analysis;
-            renderShadowAnalysisFields(xsec,analysis,{title:'原始预警触发依据',updateLabel:'冻结依据快照时间',top1:row.model?.top1,conclusion:displayLabel});
+            renderShadowAnalysisFields(xsec,analysis,{title:'九十刻度 · 深度市场依据',top1:row.model?.top1,conclusion:displayLabel});
           }catch(error){
             shadowProofLoaded=false;
             xsec.replaceChildren(el('div','member-zone-proof-title','九十刻度 · 深度市场依据'),el('div','member-zone-intel-state','深度市场依据读取失败，请稍后重试'));
           }
         };
         if(inlineShadow)loadShadowProof();
-        // The original ABCDE trigger remains frozen. New independently verified
-        // prematch readings are displayed separately and cannot change it.
-        const latestSection=zoneDate>='2026-10-20'&&cold?.vipPublish===true&&
-          cold?.customerRoute?.type==='FOCUS_AVOID'
-          ?el('section','member-zone-proof-section'):null;
-        if(latestSection){
-          latestSection.append(el('div','member-zone-proof-title','最新有效赛前市场'),
-            el('div','member-zone-intel-state','展开后读取，独立于原始预警依据'));
-          body.append(latestSection);
-        }
-        let latestLoaded=false,latestLoading=false,latestLoadedAt=0;
-        async function showLatestMarket(){
-          if(!latestSection||latestLoading||(latestLoaded&&
-             (Date.now()>=proofFreezeMs||Date.now()-latestLoadedAt<90*1000)))return;
-          latestLoading=true;
-          try{
-            const key='latest|'+zoneDate+'|'+String(row.no).padStart(3,'0');
-            const old=memberIntelCache.get(key);
-            const qs=new URLSearchParams({view:'member-intel',context:'detail',date:zoneDate,no:String(row.no).padStart(3,'0')});
-            const data=old&&Date.now()-old.at<90*1000?old.data:
-              await (async()=>{const r=await authorizedApiFetch(OKOOO_SHADOW_API+'?'+qs.toString(),{
-                cache:'no-store',signal:timeoutSignal(10000)});
-                const j=await r.json();if(!r.ok||j?.ok!==true)throw Error('MARKET_NOT_VERIFIED');
-                memberIntelCache.set(key,{at:Date.now(),data:j});return j})();
-            const a=data.analysis,at=Date.parse(String(a?.capturedAt||'')),bound=Date.parse(String(data?.reportProvenance?.proofBoundary||''));
-            const origin=Date.parse(String(frozenInline?.capturedAt??frozenInline?.captured_at??row.proofProvenance?.deepSnapshotAt??''));
-            if(!Number.isFinite(at)||!Number.isFinite(bound)||at>bound||at>=proofFreezeMs||
-               (Number.isFinite(origin)&&at<=origin)) {
-              latestSection.replaceChildren(el('div','member-zone-proof-title','最新有效赛前市场'),
-                el('div','member-zone-intel-state','暂无晚于原始预警依据的有效赛前快照。'));
-            }else{
-              renderShadowAnalysisFields(latestSection,a,{title:'最新有效赛前市场',
-                updateLabel:'最新市场快照时间',top1:row.model?.top1});
-              latestSection.append(el('p','report-sub','本栏为预警发布后的市场观察，不改变原始预警方向与冻结记录。'));
-            }
-            latestLoaded=true;latestLoadedAt=Date.now();
-          }catch(e){
-            latestSection.replaceChildren(el('div','member-zone-proof-title','最新有效赛前市场'),
-              el('div','member-zone-intel-state','最新赛前市场读取失败，原始预警依据仍然有效。'));
-          }finally{latestLoading=false}
-        }
-        details.addEventListener('toggle',()=>{
-          if(details.open){void loadShadowProof();void showLatestMarket()}
-        },{passive:true});
+        details.addEventListener('toggle',()=>{if(details.open)loadShadowProof()},{passive:true});
 
         const cov=row.coverage||{},dsec=el('section','member-zone-proof-section');
         dsec.append(el('div','member-zone-proof-title','数据完整度'));
@@ -1487,8 +1380,7 @@
         :(state.baseDate||state.today?.date||state.selectedDate||beijingToday());
     }
 
-    // Scope the VIP cold-warning cache to this signed-in customer and this site.
-    // Never expose one subscriber's cold-feed to a subsequent user of the device.
+    // Private per-login VIP cold feed cache, not shared across customers.
     function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_sg_cutover_v15:'+String(authSession?.user?.id||'')+':'+String(date)}
     function restoreMemberZoneSnapshot(date){
       try{
@@ -1590,9 +1482,7 @@
           if(state.tab==='memberzone')renderMemberZone();
           else if(state.tab==='home'&&state.model==='cold')render();
         }
-        // Active-day VIP warnings are updated server-side; a short verified client cache
-        // avoids refetching the same cold ledger on every tab switch.
-        if(Date.now()-cachedZone.at<(zoneDate>=beijingToday()?30*1000:cacheTtl))return;
+        if(zoneDate<beijingToday()&&Date.now()-cachedZone.at<cacheTtl)return;
         silent=true;
       }
       // Deduplicate a foreground tap and a scheduled refresh for the same date.
@@ -1707,13 +1597,7 @@
             });
             if(data.access_token&&data.user)saveSession(data);
             else msg.textContent='注册申请已提交。如未自动登录，请点击「已有账号 · 登录」；如系统提示需要邮箱验证，请检查注册邮箱。';
-          }catch(e){
-            if(mode==='注册'&&(e?.code==='AUTH_NETWORK_ERROR'||e?.code==='AUTH_TIMEOUT')){
-              msg.textContent='注册结果暂无法确认：网络连接中断。请先点击「已有账号 · 登录」尝试登录；如果提示账号不存在，再重新注册。请勿连续重复提交。';
-            }else if(mode==='注册'&&(e?.code==='user_already_exists'||e?.status===422)){
-              msg.textContent='该邮箱可能已经注册，请点击「已有账号 · 登录」；忘记密码可使用下方重置入口。';
-            }else msg.textContent=e.message;
-          }finally{resetCaptcha();actionButtons.forEach(button=>button.disabled=false)}
+          }catch(e){msg.textContent=e.message}finally{resetCaptcha();actionButtons.forEach(button=>button.disabled=false)}
         };mainActions.append(btn);
       }
       gate.append(mainActions);
@@ -1759,7 +1643,7 @@
     const verified=row=>row.resultVerified===true&&normalizeResult(row.result)!==null;
     const hasScore=row=>verified(row)&&row.resultHome!==null&&row.resultHome!==undefined&&row.resultHome!==''&&row.resultAway!==null&&row.resultAway!==undefined&&row.resultAway!==''&&Number.isFinite(Number(row.resultHome))&&Number.isFinite(Number(row.resultAway));
     const scoreline=row=>hasScore(row)?Number(row.resultHome)+' : '+Number(row.resultAway):'未确认';
-    const scoreInfo=row=>{const x=row?.dynamicScoreTop4??row?.scoreTop4;if(!x||x.pregameVerified!==true||!Array.isArray(x.picks)||x.picks.length!==4)return null;const frozen=Date.parse(String(x.frozenAt??x.publishedAt??x.sourceFrozenAt??'')),kickoff=Date.parse(String(row.kickoff||''));return Number.isFinite(frozen)&&Number.isFinite(kickoff)&&frozen<kickoff&&frozen<=Date.now()?x:null};
+    const scoreInfo=row=>{const x=row?.dynamicScoreTop4??row?.scoreTop4;if(!x||x.pregameVerified!==true||!Array.isArray(x.picks)||x.picks.length!==4)return null;const frozen=Date.parse(String(x.frozenAt||'')),kickoff=Date.parse(String(row.kickoff||''));return Number.isFinite(frozen)&&Number.isFinite(kickoff)&&frozen<kickoff?x:null};
     // Read-only display simulation for the specifically missing, already finished 09-23/003 match.
     // Never write to scoreTop4 or take part in pre-match score settlement/coverage metrics.
     const scoreSimulationInfo=row=>{
@@ -1787,7 +1671,7 @@
       overview:['九十刻度赛事分析','汇总赛前数据，展示模型概率、主要方向与让球分析'],
       handicap:['九十刻度全场让球','展示赛前让球方向、辅助方向及对应概率'],
       wdl:['九十刻度胜平负','展示主胜、平局、客胜三个方向的正式赛前概率与预测标签'],
-      goals:['九十刻度泊松进球','基于赛前冻结的主客队预期进球参数计算概率；成绩仅按Top3覆盖率评测。'],
+      goals:['九十刻度泊松进球','基于赛前冻结的主客队预期进球参数，通过泊松概率模型计算不同总进球数的概率分布。'],
       score:['九十刻度比分矩阵','展示赛前冻结的4项比分与模型概率；赛后对照实际比分'],
       htft:['九十刻度半全场','测试阶段 · 展示模型Top3半全场走势及概率，按日期核对实际覆盖情况'],
       daily:['九十刻度今日优选','从当日赛事中筛选通过核心条件与风险过滤的关注场次'],
@@ -1849,35 +1733,6 @@
       if(!paidHandicapAccess()&&!publicSettledAccess(row))return '尊贵月卡VIP可见';
       return handicapChoice(pick,prob);
     };
-    // A published Top2 is one evaluation: either frozen selection matching the
-    // independently verified 90-minute result => 评测成功. Top1 statistics stay separate.
-    // Refuse to grade a missing second direction as Top2 or promote SG shadow data.
-    function top2Evaluation(row,market){
-      if(!verified(row))return null;
-      const handicap=market==='handicap',settlement=row?.settlement||{};
-      const moduleName=handicap?'让球':'胜平负';
-      const primary=handicap?String(row.handicapTop1||'').trim():String(row.ftTop1||'').trim();
-      const secondary=handicap?String(row.handicapSecond||'').trim():String(row.second||'').trim();
-      const valid=handicap?validHandicapPick:[v=>['主胜','平','平局','客胜'].includes(v)][0];
-      const top2Published=valid(primary)&&valid(secondary)&&primary!==secondary;
-      if(settlement.verified===true&&row.pregameVerified===true){
-        if(!handicap&&top2Published&&['SUCCESS','FAILURE'].includes(settlement.ftTop2Status))
-          return {status:settlement.ftTop2Status,label:moduleName+'Top2',reference:false};
-        if(handicap&&top2Published&&effectiveHandicapResult(row)!==null)
-          return {status:[primary,secondary].includes(effectiveHandicapResult(row))?'SUCCESS':'FAILURE',label:moduleName+'Top2',reference:false};
-        const top1=handicap?settlement.handicapTop1Status:settlement.ftTop1Status;
-        if(['SUCCESS','FAILURE'].includes(top1))
-          return {status:top1,label:moduleName+'Top1',reference:false};
-      }
-      const grade=row.shadowModuleSettlements?.[handicap?'handicap':'ft'];
-      if(grade?.sourceKind==='SG_PREMATCH_SHADOW'&&grade.formalEligible===false){
-        if(['SUCCESS','FAILURE'].includes(grade.top2Status))
-          return {status:grade.top2Status,label:moduleName+'Top2',reference:true};
-        if(['SUCCESS','FAILURE'].includes(grade.top1Status))
-          return {status:grade.top1Status,label:moduleName+'Top1',reference:true};
-      }
-      return null;
-    }
     function evaluationHit(row){
       if(state.model==='htft'){const h=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??(row.htftTop4?.referenceOnly===true||row.htftTop4?.formalEligible===false?null:row.htftTop4);return htftTop3Hit(h);}
       if(state.model==='score')return scoreHit(row);
@@ -1901,16 +1756,6 @@
     }
     function statusText(row,history){
       if(interruptedMatch(row))return '比赛中断｜待官方处理';
-      if(state.model==='score'&&scoreInfo(row)){const s=scoreInfo(row).settlementStatus;if(s==='SUCCESS')return '评测成功 · Top4';if(s==='FAILURE')return '评测失败 · Top4';return '等待评测';}
-      if(state.model==='goals'&&verified(row)&&hasScore(row)&&!row.shadowGoalsTop3){const g=goalVersionInfo(row,'dynamic')??goalVersionInfo(row,'original');if(g){const actual=Number(row.resultHome)+Number(row.resultAway);return goalRanks(g).slice(0,3).some(x=>x.goals===actual)?'评测成功 · Top3':'评测失败 · Top3';}}
-      if(row?.legacyHistoryProvenance&&row.pass===true&&['wdl','overview','daily'].includes(state.model))
-        return '赛前未发布正式胜平负方向';
-      if(row?.legacyHistoryProvenance&&state.model==='goals'&&verified(row)&&hasScore(row)){
-        const g=goalVersionInfo(row,'dynamic')??goalVersionInfo(row,'original');
-        if(g){const actual=Number(row.resultHome)+Number(row.resultAway);
-          return goalRanks(g).slice(0,3).some(x=>x.goals===actual)?'评测成功 · Top3':'评测失败 · Top3';}
-        return '赛前进球参数未确认';
-      }
       if(state.model==='daily'&&shadowDailyEligible(row)){
         const grade=row.shadowDailySelection.ftStatus;
         return grade==='SUCCESS'?'评测成功 · 胜平负':grade==='FAILURE'?'评测失败 · 胜平负':'等待评测';
@@ -1918,16 +1763,26 @@
       const shadow=state.model==='score'?row.shadowScoreTop3:state.model==='htft'?row.shadowHTFTTop3:state.model==='goals'?row.shadowGoalsTop3:null;
       if(shadow){
         // These are SG prematch reference predictions, not original formal Top4.
-        if(shadow.settlementStatus==='SUCCESS')return '评测成功 · Top3';
-        if(shadow.settlementStatus==='FAILURE')return '评测失败 · Top3';
+        if(shadow.settlementStatus==='SUCCESS')return '参考评测成功 · Top3';
+        if(shadow.settlementStatus==='FAILURE')return '参考评测失败 · Top3';
         return shadow.pendingReason==='HALFTIME_NOT_VERIFIED'?'等待半场赛果核验':'等待评测';
       }
-      const top2Market=state.model==='handicap'||handicapOnlyView(row)?'handicap'
-        :(['overview','wdl','daily'].includes(state.model)?'ft':null);
-      const top2Grade=top2Market?top2Evaluation(row,top2Market):null;
-      if(top2Grade){
-        const text='评测';
-        return text+(top2Grade.status==='SUCCESS'?'成功 · ':'失败 · ')+top2Grade.label;
+      if(row?.settlement?.verified===true){
+        const g=state.model==='handicap'?row.settlement.handicapTop1Status:row.settlement.ftTop1Status;
+        const name=state.model==='handicap'?'让球Top1':'胜平负Top1';
+        if(g==='SUCCESS')return '评测成功 · '+name;
+        if(g==='FAILURE')return '评测失败 · '+name;
+      }
+      // A finished match may have a verifiable SG reference forecast while
+      // the original formal handicap/FT module was not published.
+      // Keep reference grades separate from the official hit-rate record.
+      const referenceGrade=state.model==='handicap'?row.shadowModuleSettlements?.handicap
+        :(['overview','wdl'].includes(state.model)?row.shadowModuleSettlements?.ft:null);
+      if(referenceGrade?.sourceKind==='SG_PREMATCH_SHADOW'&&referenceGrade.formalEligible===false){
+        const g=referenceGrade.top1Status;
+        const kind=state.model==='handicap'?'让球Top1':'胜平负Top1';
+        if(g==='SUCCESS')return '参考评测成功 · '+kind;
+        if(g==='FAILURE')return '参考评测失败 · '+kind;
       }
       if(row?.analysisPending===true)return '赛前分析待发布';
       if(state.model==='htft'){
@@ -1936,31 +1791,34 @@
         const dynamic=h?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01';
         if(!h||!Array.isArray(h.picks)||h.picks.length<3)return '半全场Top3数据待确认';
         if(htftSettled(h)){
-          const verdict=htftTop3Hit(h)?'评测成功':'评测失败';
-          if(row?.legacyHistoryProvenance)return htftTop3Hit(h)?'评测成功 · Top3':'评测失败 · Top3';
+          const verdict=htftTop3Hit(h)?'命中':'未命中';
           return historical?'历史复算Top3 · '+verdict:dynamic?'动态Top3 · '+verdict:'原始Top3 · '+verdict;
         }
         return historical?'历史复算Top3 · 等待核验':'半全场Top3 · 等待核验';
       }
-      if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row))return verified(row)?'赛果已核验':'比分预测未发布';if(!x)return history?'未发布比分预测':'比分预测待确认';if(x.settlementStatus==='SUCCESS')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放一致':x.formalEligible===false?'评测成功':'评测成功';if(x.settlementStatus==='FAILURE')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放不一致':x.formalEligible===false?'评测失败':'评测失败';return '等待评测';}
+      if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row))return verified(row)?'赛果已核验':'比分预测未发布';if(!x)return history?'未发布比分预测':'比分预测待确认';if(x.settlementStatus==='SUCCESS')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放一致':x.formalEligible===false?'参考评测成功':'评测成功';if(x.settlementStatus==='FAILURE')return x.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史回放不一致':x.formalEligible===false?'参考评测失败':'评测失败';return '等待评测';}
       if(verified(row)){if(state.model==='goals')return hasScore(row)?'赛果已核验':'等待评测';if((state.model==='handicap'||handicapOnlyView(row))&&!handicapEvaluable(row))return [row.handicapTop1,row.handicapSecond,row.handicap].some(v=>String(v??'').trim().toUpperCase()==='PASS')?'未发布正式让球方向':'赛前让球预测未记录';return evaluationHit(row)?'评测成功':'评测失败';}
       if(postponedMatch(row))return '赛事延期';if(row.resultVerified===true)return '赛果待复核';if(history)return '等待评测';if(state.model==='daily')return '等待评测';
       if(row.predictionState==='LIVE'&&Date.now()<Date.parse(String(row.kickoff||'')))return '赛前更新中';
       return '赛前冻结'
     }
     function statusClass(row,history){
-      if(state.model==='score'&&scoreInfo(row)){const s=scoreInfo(row).settlementStatus;return 'status '+(s==='SUCCESS'?'verified':s==='FAILURE'?'fail':'');}
-      if(state.model==='goals'&&verified(row)&&hasScore(row)&&!row.shadowGoalsTop3){const g=goalVersionInfo(row,'dynamic')??goalVersionInfo(row,'original');if(g){const actual=Number(row.resultHome)+Number(row.resultAway);return 'status '+(goalRanks(g).slice(0,3).some(x=>x.goals===actual)?'verified':'fail');}}
       if(state.model==='daily'&&shadowDailyEligible(row)){
         const grade=row.shadowDailySelection.ftStatus;
         return 'status '+(grade==='SUCCESS'?'verified':grade==='FAILURE'?'fail':'');
       }
       const shadow=state.model==='score'?row.shadowScoreTop3:state.model==='htft'?row.shadowHTFTTop3:state.model==='goals'?row.shadowGoalsTop3:null;
       if(shadow)return 'status '+(shadow.settlementStatus==='SUCCESS'?'verified':shadow.settlementStatus==='FAILURE'?'fail':'');
-      const gradedMarket=state.model==='handicap'||handicapOnlyView(row)?'handicap'
-        :(['overview','wdl','daily'].includes(state.model)?'ft':null);
-      const evaluated=gradedMarket?top2Evaluation(row,gradedMarket):null;
-      if(evaluated)return 'status '+(evaluated.status==='SUCCESS'?'verified':'fail');
+      const formalGrade=row?.settlement?.verified===true
+        ?(state.model==='handicap'?row.settlement.handicapTop1Status
+          :(['overview','wdl'].includes(state.model)?row.settlement.ftTop1Status:null)):null;
+      if(formalGrade==='SUCCESS'||formalGrade==='FAILURE')
+        return 'status '+(formalGrade==='SUCCESS'?'verified':'fail');
+      const shadowGrade=state.model==='handicap'?row.shadowModuleSettlements?.handicap
+        :(['overview','wdl'].includes(state.model)?row.shadowModuleSettlements?.ft:null);
+      if(shadowGrade?.sourceKind==='SG_PREMATCH_SHADOW'&&shadowGrade.formalEligible===false
+        &&['SUCCESS','FAILURE'].includes(shadowGrade.top1Status))
+        return 'status '+(shadowGrade.top1Status==='SUCCESS'?'verified':'fail');
       if(interruptedMatch(row))return 'status pass';if(postponedMatch(row))return 'status pass';if(state.model==='htft'){const h=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??(row.htftTop4?.referenceOnly===true||row.htftTop4?.formalEligible===false?null:row.htftTop4);return 'status '+(htftSettled(h)?(htftTop3Hit(h)?'verified':'fail'):'');}if(state.model==='score'){const x=scoreInfo(row);if(!x&&scoreSimulationInfo(row)&&verified(row))return 'status verified';return 'status '+(!x||x.settlementStatus==='PENDING'?'':x.settlementStatus==='SUCCESS'?'verified':'fail')}if(verified(row))return 'status '+(state.model==='goals'?'verified':(state.model==='handicap'||handicapOnlyView(row))&&!handicapEvaluable(row)?'':evaluationHit(row)?'verified':'fail');return 'status'}
     function moduleData(row){
       if(handicapOnlyView(row))return [['官方让球',row.officialHandicap],['让球首选',handicapDisplayChoice(row,row.handicapTop1??row.handicap,row.handicapProbability)],['让球次选',handicapDisplayChoice(row,row.handicapSecond,row.handicapSecondProbability)]];
@@ -1997,7 +1855,6 @@
     function htftSettled(info){
       return !!(info&&['SUCCESS','FAILURE'].includes(info.settlementStatus)&&typeof info.actual==='string'&&info.actual.trim()!=='');
     }
-    function htftDisplayLabel(value){const v=String(value??'').trim();const parts=v.split(/\s*[/／|,，、\-]\s*/);const normalize=x=>({'主胜':'胜','主队胜':'胜','主队获胜':'胜','客胜':'负','客队胜':'负','客队获胜':'负','平局':'平','打平':'平','主负':'负','客负':'胜','胜':'胜','平':'平','负':'负'}[x]||x);if(parts.length===2){const a=normalize(parts[0]),b=normalize(parts[1]);if(/^[胜平负]$/.test(a)&&/^[胜平负]$/.test(b))return a+b;}if(/^[胜平负]{2}$/.test(v))return v;return v;}
     function htftTop3Hit(info){
       return !!(htftSettled(info)&&Array.isArray(info.picks)&&info.picks.slice(0,3).some(p=>String(p?.direction??'')===info.actual));
     }
@@ -2005,7 +1862,7 @@
     function htftVersionInfo(row,kind){
       const info=kind==='dynamic'?(row.dynamicHTFTPending?null:row.dynamicHTFT):row.htftTop4;
       const expected=kind==='dynamic'?'MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01':'PUBLISHED_PREMATCH';
-      if(!info||info.referenceOnly===true||(info.formalEligible===false&&!row?.legacyHistoryProvenance)||info.sourceKind!==expected||!Array.isArray(info.picks)||info.picks.length!==4)return null;
+      if(!info||info.referenceOnly===true||info.formalEligible===false||info.sourceKind!==expected||!Array.isArray(info.picks)||info.picks.length!==4)return null;
       const kickoff=Date.parse(String(row.kickoff??'')),frozen=Date.parse(String(info.sourceFrozenAt??'')),published=Date.parse(String(info.publishedAt??''));
       if(!Number.isFinite(kickoff)||!Number.isFinite(frozen)||!Number.isFinite(published)||frozen>published||published>=kickoff)return null;
       return info;
@@ -2040,14 +1897,14 @@
     function sgShadowTop3Panel(row,kind){
       const data=kind==='score'?row.shadowScoreTop3:kind==='htft'?row.shadowHTFTTop3:row.shadowGoalsTop3;
       const title=kind==='score'?'全场比分':kind==='htft'?'半全场':'总进球';
-      const box=reportSection(title+' · 赛前记录Top3');
+      const box=reportSection(title+' · 赛前参考Top3');
       const ko=Date.parse(String(row.kickoff||'')),at=Date.parse(String(data?.publishedAt||''));
       if(!data||!Array.isArray(data.picks)||data.picks.length!==3||!Number.isFinite(ko)||!Number.isFinite(at)||at>=ko){
         box.append(el('p','report-empty','暂无可核验的赛前Top3数据'));return box;
       }
       const grid=el('div',kind==='htft'?'htft-top4-grid':'score-top4-grid');
       data.picks.forEach((pick,i)=>{
-        const name=kind==='score'?String(pick.score||'').replace('-',':'):kind==='htft'?htftDisplayLabel(pick.combination):String(pick.goals??'')+'球';
+        const name=kind==='score'?String(pick.score||'').replace('-',':'):kind==='htft'?String(pick.combination||''):String(pick.goals??'')+'球';
         const probability=Number(pick.probability);
         const cell=el('div','score-pick');
         cell.append(el('small','','Top'+(i+1)),el('b','',name),
@@ -2060,15 +1917,13 @@
         const actual=kind==='score'?String(data.actual).replace('-',':'):kind==='goals'?String(data.actual)+'球':String(data.actual);
         const label=status==='SUCCESS'?'评测成功':'评测失败';
         box.append(el('div','score-top4-verdict '+(status==='SUCCESS'?'success':'fail'),
-          title+'Top3 · 参考'+label+' · 实际结果：'+actual));
-        box.append(el('p','report-sub',kind==='score'
-          ?'Top1 '+(data.top1Status==='SUCCESS'?'命中':'未命中')+'；Top3按照三个赛前候选是否覆盖实际结果评测。'
-          :'Top3按照三个赛前候选是否覆盖实际结果评测。'));
+          title+'Top3 · '+label+' · 实际结果：'+actual));
+        box.append(el('p','report-sub','Top1 '+(data.top1Status==='SUCCESS'?'命中':'未命中')+'；Top3按照三个赛前候选是否覆盖实际结果评测。'));
       }else{
         box.append(el('div','score-top4-verdict pending',data.pendingReason==='HALFTIME_NOT_VERIFIED'?
           '等待半场赛果核验 · 暂不判定成功或失败':'等待评测 · 90分钟赛果尚未核验'));
       }
-      box.append(el('p','report-sub','赛前记录 · 更新时间 '+fmtStamp(data.publishedAt)+'；预测概率仅代表当时的模型估算。'));
+      box.append(el('p','report-sub','新加坡赛前影子预测 · '+fmtStamp(data.publishedAt)+' 留存；所示为模型概率，不是命中率，暂不计入正式战绩。'));
       return box;
     }
     function htftTop4Panel(row,selectedInfo){
@@ -2111,7 +1966,7 @@
       }
       const grid=el('div','htft-top4-grid');
       (full?info.picks.slice(0,3):info.picks.slice(0,1)).forEach((pick,i)=>{
-        const name=htftDisplayLabel(pick.direction);
+        const name=String(pick.direction??'');
         const cell=el('div','htft-top4-pick'+(info.picks.slice(0,3).some(p=>String(p?.direction??'')===String(info.actual??''))&&name===info.actual?' is-hit':''));
         cell.append(el('small','','Top '+(i+1)),el('b','',name),el('span','htft-prob',percentage(pick.probability)));
         grid.append(cell);
@@ -2127,7 +1982,7 @@
         if(top3Settled){
           const hit=top3Hit;
           panel.append(el('div','score-top4-verdict '+(hit?'success':'fail'),
-            (hit?'动态预测 · 评测成功':'动态预测 · 评测失败')+' · 实际半全场 '+htftDisplayLabel(info.actual)+'（计入动态版战绩）'));
+            (hit?'动态预测 · 评测成功':'动态预测 · 评测失败')+' · 实际半全场 '+safe(info.actual)+'（计入动态版战绩）'));
           if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+safe(info.halfScore)+'；全场按90分钟正式赛果。'));
         }else panel.append(el('div','score-top4-verdict pending',
           info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，暂不评测':'等待评测 · 暂未对照'));
@@ -2135,9 +1990,9 @@
       else if(top3Settled){
         const hit=top3Hit;
         const verdict=historical
-          ?(hit?'历史回放一致 · 实际半全场 ':'历史回放不一致 · 实际半全场 ')+htftDisplayLabel(info.actual)
-          :hit?'评测成功 · 实际半全场 '+htftDisplayLabel(info.actual):
-            '评测失败 · 实际半全场 '+htftDisplayLabel(info.actual)+' 未落在三选内';
+          ?(hit?'历史回放一致 · 实际半全场 ':'历史回放不一致 · 实际半全场 ')+String(info.actual)
+          :hit?'评测成功 · 实际半全场 '+String(info.actual):
+            '评测失败 · 实际半全场 '+String(info.actual)+' 未落在三选内';
         panel.append(el('div','score-top4-verdict '+(hit?'success':'fail'),verdict));
         if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+String(info.halfScore)+'；全场按90分钟正式赛果。'));
       }else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'
@@ -2153,11 +2008,11 @@
     function scoreVersionInfo(row,kind){
       const info=kind==='dynamic'?row.dynamicScoreTop4:row.scoreTop4;
       if(!info||info.pregameVerified!==true||!Array.isArray(info.picks)||info.picks.length!==4)return null;
-      if(kind==='dynamic'&&!['MARKET_ANCHORED_POISSON_SHADOW_V01','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1','SG_HJ38_TOP4_PFINAL_INVERSE_POISSON_BLIND_V1','FOTMOB_XG_STRICT_PREMATCH_POISSON_DC_V1'].includes(info.sourceKind))return null;
-      if(kind==='original'&&['HISTORICAL_BLIND_REPLAY','POSTMATCH_POISSON_SIMULATION_NOT_PUBLISHED','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1'].includes(info.sourceKind))return null;
-      const freeze=Date.parse(String(info.frozenAt??info.publishedAt??info.sourceFrozenAt??'')),kickoff=Date.parse(String(row.kickoff??''));
+      if(kind==='dynamic'&&info.sourceKind!=='MARKET_ANCHORED_POISSON_SHADOW_V01')return null;
+      if(kind==='original'&&(info.sourceKind==='HISTORICAL_BLIND_REPLAY'||info.sourceKind==='POSTMATCH_POISSON_SIMULATION_NOT_PUBLISHED'))return null;
+      const freeze=Date.parse(String(info.frozenAt??'')),kickoff=Date.parse(String(row.kickoff??''));
       if(!Number.isFinite(freeze)||!Number.isFinite(kickoff)||freeze>=kickoff)return null;
-      if(kind==='dynamic'&&info.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01'){
+      if(kind==='dynamic'){
         const market=Date.parse(String(info.marketAt??'')),baseline=Date.parse(String(info.baselineAt??''));
         if(!Number.isFinite(market)||!Number.isFinite(baseline)||baseline>market||market>freeze||market>=kickoff)return null;
       }
@@ -2170,7 +2025,7 @@
       return Number.isInteger(h)&&Number.isInteger(a)&&h>=0&&a>=0?h+'-'+a:null;
     }
     function scoreVersionStat(items){
-      const settled=items.filter(({row,info})=>scoreActual(row)!==null&&(!['SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1','SG_HJ38_TOP4_PFINAL_INVERSE_POISSON_BLIND_V1'].includes(info.sourceKind)||['SUCCESS','FAILURE'].includes(info.settlementStatus)));
+      const settled=items.filter(({row})=>scoreActual(row)!==null);
       return {total:items.length,n:settled.length,
         top1:settled.filter(({row,info})=>String(info.picks[0].score)===scoreActual(row)).length,
         top4:settled.filter(({row,info})=>info.picks.some(p=>String(p.score)===scoreActual(row))).length};
@@ -2184,14 +2039,14 @@
       }
       box.append(el('h3','','全场比分 · 赛前版本对比'));
       const tabs=el('div','htft-version-tabs');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','选择全场比分赛前预测版本');
-      const dyn=el('button','htft-version-tab',dynamic?.sourceKind==='FOTMOB_XG_STRICT_PREMATCH_POISSON_DC_V1'?'索伦xG赛前':'动态赛前'),orig=el('button','htft-version-tab',original?.sourceKind?.startsWith('SG_HJ38_')?'豪竞3.8赛前':'原始赛前');
+      const dyn=el('button','htft-version-tab','动态赛前'),orig=el('button','htft-version-tab','原始赛前');
       dyn.type=orig.type='button';dyn.disabled=!dynamic;orig.disabled=!original;
       const sub=el('p','score-version-label'),body=el('div','');
       const renderVersion=kind=>{
         const info=kind==='dynamic'?dynamic:original;if(!info)return;
         dyn.classList.toggle('active',kind==='dynamic');orig.classList.toggle('active',kind==='original');
         dyn.setAttribute('aria-pressed',String(kind==='dynamic'));orig.setAttribute('aria-pressed',String(kind==='original'));
-        sub.textContent=(kind==='dynamic'?dyn.textContent:orig.textContent)+' · '+fmtStamp(info.frozenAt??info.publishedAt??info.sourceFrozenAt)+' 留存';
+        sub.textContent=(kind==='dynamic'?'动态赛前':'原始赛前')+' · '+fmtStamp(info.frozenAt)+' 留存';
         body.replaceChildren(scoreTop4Panel(row,info));
         if(original&&dynamic){
           const firstOriginal=String(original.picks[0].score).replace('-',':'),firstDynamic=String(dynamic.picks[0].score).replace('-',':');
@@ -2210,12 +2065,10 @@
       const title=el('div','score-top4-title');
       const historical=info?.sourceKind==='HISTORICAL_BLIND_REPLAY';
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
-      const sgMarketScore=info?.sourceKind==='SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1';
-      const sorenStrict=info?.sourceKind==='FOTMOB_XG_STRICT_PREMATCH_POISSON_DC_V1';
-      const originalPrematch=!!info&&!simulation&&!historical&&!marketShadow&&!sgMarketScore;
+      const originalPrematch=!!info&&!simulation&&!historical&&!marketShadow;
       title.append(
-        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):sgMarketScore?'赛前比分参考 · Top4':sorenStrict?(full?'索伦xG比分 · Top4':'索伦xG比分 · Top1'):marketShadow?(full?'赛前比分参考 · Top4':'赛前比分参考 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
-        el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow||sgMarketScore?'赛前记录 '+fmtStamp(info.frozenAt??info.publishedAt):'原始冻结 '+fmtStamp(info.frozenAt))
+        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):marketShadow?(full?'赛前比分参考 · Top4':'赛前比分参考 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
+        el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow?'':'原始冻结 '+fmtStamp(info.frozenAt))
       );
       panel.append(title);
       if(!info){panel.append(el('p','score-top4-note','暂无比分预测 · 赛前参数未确认，不计入比分覆盖统计。'));return panel}
@@ -2233,16 +2086,15 @@
         return panel;
       }
       const actual=scoreActual(row),top1=actual!==null&&String(info.picks[0].score)===actual;
-      const top4=actual!==null&&info.picks.slice(0,4).some(p=>String(p.score)===actual);
-      const gradeReady=actual!==null&&(!sgMarketScore||['SUCCESS','FAILURE'].includes(info.settlementStatus));
-      const gradedHit=sgMarketScore?info.settlementStatus==='SUCCESS':top4;
-      const cls=!gradeReady?'pending':gradedHit?'success':'fail';
-      const verdict=!gradeReady?'等待评测':historical
-        ?'历史复算 · Top4 · '+(gradedHit?'评测成功':'评测失败')
-        :'实际比分 '+actual.replace('-',':')+' · Top4 · '+(gradedHit?'评测成功':'评测失败')+(full?' · Top1 '+(top1?'命中':'未命中'):'');
+      const top4=actual!==null&&info.picks.some(p=>String(p.score)===actual);
+      const cls=actual===null?'pending':top4?'success':'fail';
+      const verdict=actual===null?'等待评测':!full
+        ?'实际比分 '+actual.replace('-',':')+' · Top1 · '+(top1?'评测成功':'评测失败')
+        :historical
+          ?'历史复算 · '+(top4?'Top4 · 评测成功':'Top4 · 评测失败')
+          :'实际比分 '+actual.replace('-',':')+' · Top1 · '+(top1?'评测成功':'评测失败')+' · Top4 '+(top4?'覆盖':'未覆盖');
       panel.append(el('div','score-top4-verdict '+cls,verdict));
-      if(sgMarketScore)panel.append(el('p','score-top4-note','新加坡赛前市场数据推算概率；采用Top3基础比分＋Top4方向挑战，任意一项命中即Top4评测成功。当前为参考口径，不计入旧豪竞正式命中率。'));
-      else if(marketShadow)panel.append(el('p','score-top4-note','原索伦真实赛前冻结的泊松研究参考：仅作Top1及Top4对照，不计入正式命中率。'));
+      if(marketShadow)panel.append(el('p','score-top4-note','原索伦真实赛前冻结的泊松研究参考：仅作Top1及Top4对照，不计入正式命中率。'));
       else if(historical)panel.append(el('p','score-top4-note','本场为赛后依据赛前留存参数复算，不属于当时发布的赛前比分预测，不计入赛前版命中率。'));
       else panel.append(el('p','score-top4-note','赛前记录 · 赛果核验后计算Top1和Top4。'));
       panel.append(el('p','score-top4-note','比分概率为模型估算值，不代表历史命中率或结果保证。'));
@@ -2251,7 +2103,7 @@
     function htftCard(row,history=false){
       const c=el('article','card'),head=el('div','card-head'),id=el('div','match-id');
       const info=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??(row.htftTop4?.referenceOnly===true||row.htftTop4?.formalEligible===false?null:row.htftTop4),marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01',historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
-      const valid=info&&info.referenceOnly!==true&&(info.formalEligible!==false||row?.legacyHistoryProvenance)&&Array.isArray(info.picks)&&info.picks.length===4&&
+      const valid=info&&info.referenceOnly!==true&&info.formalEligible!==false&&Array.isArray(info.picks)&&info.picks.length===4&&
         ['PUBLISHED_PREMATCH','HISTORICAL_POSTMATCH_RECONSTRUCTION','MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01'].includes(info.sourceKind);
       const full=fullMemberAnalysis(row);
       id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
@@ -2263,7 +2115,7 @@
       const label=!valid?(shadowGrade==='SUCCESS'?'评测成功 · Top3':shadowGrade==='FAILURE'?'评测失败 · Top3':
         row.shadowHTFTTop3?.pendingReason==='HALFTIME_NOT_VERIFIED'?'等待半场赛果核验':
         row.shadowHTFTTop3?'等待评测':'Top3数据待更新')
-        :done?(hit?'评测成功 · Top3':'评测失败 · Top3'):(prefix+' · 等待核验');
+        :done?(prefix+' · '+(hit?'命中':'未命中')):(prefix+' · 等待核验');
       head.append(id,el('span','status'+(!valid?(shadowGrade==='SUCCESS'?' verified':shadowGrade==='FAILURE'?' fail':''):(done?(hit?' verified':' fail'):'')),label));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
@@ -2291,7 +2143,7 @@
         if(done){
           const top3Hit=htftTop3Hit(info);
           panel.append(el('div','score-top4-verdict '+(top3Hit?'success':'fail'),
-            '实际半全场：'+htftDisplayLabel(info.actual)+' · '+(marketShadow?'动态Top3':historical?'历史复算Top3':'原始Top3')+' · '+(top3Hit?'命中':'未命中')));
+            '实际半全场：'+safe(info.actual)+' · '+(marketShadow?'动态Top3':historical?'历史复算Top3':'原始Top3')+' · '+(top3Hit?'命中':'未命中')));
         }
         else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
         panel.append(el('p','htft-list-meta',marketShadow?'动态赛前 · 更新于 '+fmtStamp(info.publishedAt)+' · 冻结进球参数＋赛前威廉希尔欧赔校准。':historical?'本场为赛后依据赛前留存参数复算，非当时发布的预测；不计入赛前战绩。':'原始赛前 · 冻结的进球参数计算，发布于 '+fmtStamp(info.publishedAt)+'。'));
@@ -2476,7 +2328,7 @@
       const c=el('article','card');
       const head=el('div','card-head');
       const id=el('div','match-id');id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-      if(state.model==='daily'&&row?.analysisPending!==true){if(shadowDailyEligible(row))id.append(el('span','focus-label','赛前记录'));const supplementary=isSupplement(row)&&!isFocus(row);id.append(el('span','focus-label '+(supplementary?'supplement':'core'),supplementary?'精选补充':'核心优选'));}if(handicapOnlyView(row))id.append(el('span','focus-label','仅开让球 · 自动切换'));
+      if(state.model==='daily'&&row?.analysisPending!==true){if(shadowDailyEligible(row))id.append(el('span','focus-label','赛前影子'));const supplementary=isSupplement(row)&&!isFocus(row);id.append(el('span','focus-label '+(supplementary?'supplement':'core'),supplementary?'精选补充':'核心优选'));}if(handicapOnlyView(row))id.append(el('span','focus-label','仅开让球 · 自动切换'));
       if(state.model==='handicap'&&row.handicapSourceLabel)id.append(el('span','focus-label',String(row.handicapSourceLabel).includes('Top5新方案赛前冻结')?'赛前预测':row.handicapSourceLabel));if(state.model==='handicap'&&(paidHandicapAccess()||publicSettledAccess(row))&&handicapDrawProtection(row)){const tag=el('span','focus-label','🟠 让平保护');tag.style.cssText='background:#fff3dd;color:#9e5e10;border:1px solid #edd0a2';id.append(tag)}head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
@@ -2496,7 +2348,7 @@
         if(d.handicapDirection&&(paidHandicapAccess()||publicSettledAccess(row)))grade('让球Top1',d.handicapStatus);
         else if(!d.handicapDirection)grades.append(el('div','score-top4-verdict pending','让球Top1 · 赛前方向未确认'));
         analysis.append(grades);
-        analysis.append(el('p','report-sub','赛前记录 · 更新时间 '+fmtStamp(d.publishedAt)+'；胜平负和让球按各自赛果评测。'));
+        analysis.append(el('p','report-sub','新加坡赛前影子优选 · 发布于 '+fmtStamp(d.publishedAt)+'；胜平负与让球分别评测，不计入正式赛前战绩。'));
       }
       if(state.model==='handicap'){const drawPanel=handicapDrawProtectionPanel(row,true);if(drawPanel)analysis.append(drawPanel);}
       if(state.model==='goals')c.append(head,fixture);else c.append(head,fixture,analysis);
@@ -2538,9 +2390,13 @@
                 el('span','','实际总进球 '+actual+'球'+(marketShadow?' · 动态参数版':goalsShadow?' · 原始参数参考':'')));
               goals.append(verdict);
             }else{
-              const verdict=el('div','goals-inline-verdict '+(goalHit?'goals-inline-success':'goals-inline-fail'));
-              verdict.append(el('span','goals-inline-icon',goalHit?'✓':'×'),el('b','',goalHit?'Top3 · 评测成功':'Top3 · 评测失败'),el('span','','实际总进球 '+actual+'球'));
-              goals.append(verdict);
+              if(rank===0){
+                const verdict=el('div','goals-inline-verdict goals-inline-success');
+                verdict.append(el('span','goals-inline-icon','✓'),el('b','','最高概率 · 评测成功'),el('span','','实际总进球 '+actual+'球'));
+                goals.append(verdict);
+              }else{
+                goals.append(el('div','goals-inline-verdict','实际总进球 '+actual+'球'));
+              }
             }
           }else goals.append(el('p','goals-note',full?'待评测 · 统计Top3覆盖':'等待评测'));
         }
@@ -2947,8 +2803,8 @@
         if(fragment.childNodes.length)grid.append(fragment);
         if(meta.next<meta.rows.length)scheduleModuleGridBuild(grid);
       };
-      if('requestIdleCallback' in window)window.requestIdleCallback(run,{timeout:80});
-      else setTimeout(()=>run(null),0);
+      if('requestIdleCallback' in window)window.requestIdleCallback(run,{timeout:140});
+      else setTimeout(()=>run(null),16);
     }
     function getModuleGrid(rows,history=false,scope='main'){
       const key=moduleGridKey(rows,history,scope),cached=moduleGridCache.get(key);
@@ -2959,8 +2815,7 @@
       }
       const grid=el('div','cards'),meta={rows,history,model:state.model,next:0,scheduled:false,cancelled:false};
       moduleGridBuildState.set(grid,meta);
-      // Render one card synchronously; defer the rest to idle time to keep iOS taps responsive.
-      const immediate=Math.min(rows.length,3);
+      const immediate=Math.min(rows.length,2);
       while(meta.next<immediate){
         const row=rows[meta.next++];
         grid.append(meta.model==='upset'?upsetCard(row):matchCard(row,history));
@@ -3060,23 +2915,16 @@
         el('span','','今日共 '+all.length+'场')
       );
       box.append(summary);
-      if(state.selectedDate<beijingToday()&&all.some(r=>
-        r.dailySelectionMeta?.historicalRebuild===true)){
-        // Historical replay note hidden from customer view; retain original selection data.
-      }else if(state.selectedDate<beijingToday()&&all.some(r=>
-        r.dailySelectionCustomerPublished===true&&
-        r.dailySelectionMeta?.publicationOrigin==='SG_FORMAL_HJ38_ADAPTED')){
-        box.append(el('p','report-sub','历史记录为新加坡站当时发布的赛前适配优选，保留原始发布时间。'));
-      }
       const auditRows=all.map(r=>r.sorenSelectorAudit).filter(Boolean);
       const awaitingVip=auditRows.filter(a=>a.publicationStatus==='PENDING_VIP_COLD_REVIEW').length;
       const awaitingMarket=auditRows.filter(a=>a.publicationStatus==='PENDING_MARKET_DATA').length;
       const rejected=auditRows.filter(a=>a.publicationStatus==='BLOCKED').length;
       if(awaitingVip||awaitingMarket||rejected){
         box.append(el('p','report-sub',
-          '赛前筛选提示：'+awaitingVip+'场等待风险核验，'+awaitingMarket+'场等待市场数据，'+rejected+'场未通过当前筛选条件。已触发冷门预警的场次本期不再进入优选。'));
+          '原索伦今日优选规则审计：'+awaitingVip+'场等待完整冷门ABCDE及情报验证，'+awaitingMarket+
+          '场等待市场数据，'+rejected+'场已被风险或质量门槛排除。待审候选不视为正式优选，也不计入命中率；已触发冷门预警的场次本期不得重新晋级。'));
       }
-      
+      if(all.some(shadowDailyEligible))box.append(el('p','report-sub','今日优选包含新加坡赛前影子筛选；每场独立核验胜平负和让球Top1，影子成绩不计入正式发布战绩。'));
       box.append(sectionHead('核心优选',focus.length+'场 · 通过核心筛选'));
       if(focus.length){
         box.append(getModuleGrid(focus,false,'daily-focus'))
@@ -3399,9 +3247,9 @@
     }
     function goalStatSummary(items){
       const finished=items.filter(({row})=>verified(row)&&hasScore(row)&&Number.isInteger(Number(row.resultHome))&&Number.isInteger(Number(row.resultAway)));
-      // Poisson goals evaluate Top3 coverage; individual-pick accuracy is not published.
+      const top1=finished.filter(({row,g})=>goalRanks(g)[0]?.goals===Number(row.resultHome)+Number(row.resultAway)).length;
       const top3=finished.filter(({row,g})=>goalRanks(g).slice(0,3).some(x=>x.goals===Number(row.resultHome)+Number(row.resultAway))).length;
-      return {total:items.length,n:finished.length,top3};
+      return {total:items.length,n:finished.length,top1,top3};
     }
     function isFormalGoalPrediction(row){return row.goalPrediction?.formalEligible!==false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null}
     function goalPredictionPanel(row,selectedGoal){
@@ -3425,8 +3273,8 @@
       });panel.append(grid);
       if(!full)panel.append(el('div','member-preview-lock','会员可查看Top3及完整概率分布'));
       if(verified(row)&&hasScore(row)){
-        const actual=Number(row.resultHome)+Number(row.resultAway),top3=ranks.slice(0,3).some(x=>x.goals===actual);
-        panel.append(el('div','goals-verdict','实际总进球 '+actual+'球 · Top3 · '+(top3?'评测成功':'评测失败')));
+        const actual=Number(row.resultHome)+Number(row.resultAway),top1=ranks[0]?.goals===actual,top3=ranks.slice(0,3).some(x=>x.goals===actual);
+        panel.append(el('div','goals-verdict',full?('实际总进球 '+actual+'球 · Top3 · '+(top3?'评测成功':'评测失败')):(top1?('✓ 最高概率 · 评测成功 · 实际总进球 '+actual+'球'):('实际总进球 '+actual+'球'))));
       }else panel.append(el('div','goals-verdict','等待评测'));
       panel.append(el('p','goals-note','赛前数据已留存；赛果核验后每场只评测一次。'));
       return panel;
@@ -3929,7 +3777,7 @@
             reportLine(independent,'双方评分差',Math.abs(eloGap).toFixed(1)+' 分（'+(eloGap>0?'主队较高':eloGap<0?'客队较高':'双方相同')+'）');
             independent.append(el('p','report-sub',eloGap>0?'本场历史实力评分：主队较高 '+Math.abs(eloGap).toFixed(1)+' 分。':eloGap<0?'本场历史实力评分：客队较高 '+Math.abs(eloGap).toFixed(1)+' 分。':'双方历史实力评分相同。'));
             const eloHelp=el('details','report-inline-help');
-            eloHelp.append(el('summary','','Elo 分数怎么看？'),el('p','report-sub','在同一评分体系下，分数较高表示历史实力评价相对较高，分差越大表示评分差距越大。它不是本场胜率或比分预测，阵容、赛程等信息仍需单独核对。'+(elo.shadow?' 本指标仅供实力对照。':'')));
+            eloHelp.append(el('summary','','Elo 分数怎么看？'),el('p','report-sub','在同一评分体系下，分数较高表示历史实力评价相对较高，分差越大表示评分差距越大。它不是本场胜率或比分预测，阵容、赛程等信息仍需单独核对。'+(elo.shadow?' 本项仍属于影子研究数据。':'')));
             independent.append(eloHelp);
           }
           if(hasAi)reportOddsGrid(independent,'Kickoff.ai 赛前概率',[ai.home,ai.draw,ai.away].map(v=>probability(v)));
@@ -4085,10 +3933,8 @@
         return line;
       };
       const cutoff=Number.isFinite(Date.parse(String(row.kickoff??'')))?Date.parse(row.kickoff):null;
-      const predictionAt=row.latestPrematchAt??row.frozenAt;
-      const freeze=Number.isFinite(Date.parse(String(predictionAt??'')))?Date.parse(predictionAt):null;
-      item(row.saleFreezeStatus==='SALE_CLOSED_FROZEN'?'最终冻结预测':'最近有效预测更新',
-        freeze!==null&&cutoff!==null&&freeze<cutoff?fmtStamp(predictionAt):'时间未确认');
+      const freeze=Number.isFinite(Date.parse(String(row.frozenAt??'')))?Date.parse(row.frozenAt):null;
+      item('模型预测更新',freeze!==null&&cutoff!==null&&freeze<cutoff?fmtStamp(row.frozenAt):'时间未确认');
       const oddsLine=item('机构赔率采集','读取中','report-data-odds');
       oddsLine.querySelector('b').textContent='查看本场资料';
       item('赛果核验',verified(row)?'已核验':postponedMatch(row)?'赛事延期':'待核验',verified(row)?'report-data-verified':'');
@@ -4178,11 +4024,12 @@
           }
         }
       }else{
-        panel.append(el('div','shadow-admin-status','本场深度市场分析暂无可展示数据。'));
+        panel.append(el('div','shadow-admin-status',data?.legacyZone?'已读取旧库核验的赛前市场数据；未采集的项目保持空白。':'本场深度市场分析暂无可展示数据。'));
         if(market){
           const marketText=market.status==='ok'&&Number(market.bookmakerCount)>0
             ?'市场数据采集成功 · '+market.bookmakerCount+' 家机构'
             :market.status==='login_required'?'部分市场数据暂受来源访问限制'
+            :market.status==='verified_prematch'?'已核验赛前市场快照；未采集项不参与判断'
             :'市场数据状态：'+String(market.status||'未确认');
           panel.append(el('div','shadow-admin-status',marketText));
         }
@@ -4207,90 +4054,125 @@
       if(Array.isArray(market?.asian)&&market.asian.length)
         reportLine(panel,'亚洲盘口',market.asian.map(x=>String(x.institution)+
           ' '+String(x.initialLine??'—')+'→'+String(x.currentLine??'—')).join('；'));
-      const verifiedReports=Array.isArray(analysis?.intelligence?.reports)?analysis.intelligence.reports:[];
-      if(verifiedReports.length){
-        const evidence=reportSection('九十刻度 · 赛前情报综合分析');
-        evidence.classList.add('prematch-intel-evidence');
-        const injuryReports=verifiedReports.filter(item=>item.source_code==='fotmob_match_unavailable_public');
-        const newsReports=verifiedReports.filter(item=>item.source_code!=='fotmob_match_unavailable_public');
-        const cleanIntel=value=>String(value||'').replace(/https?:\/\/\S+/gi,'').replace(/(?:FotMob|小炮(?:APP)?|xiaopao|澳客|okooo)/gi,'').replace(/\s+/g,' ').trim();
-        const chineseFact=value=>{
-          const s=cleanIntel(value);
-          if(!s)return '';
-          const parts=s.split(/[:：]/);
-          if(parts.length>=2&&/伤病名单|伤停名单/.test(parts[1])){
-            const name=parts[0].replace(/^主队\s*|^客队\s*/,'').trim();
-            const side=s.startsWith('客队')?'客队':'主队';
-            const duration=s.match(/About\s+1\s*[-–]\s*2\s+weeks/i)?'预计恢复时间约1至2周':s.match(/About a week/i)?'预计恢复时间约一周':s.match(/Late October 2026/i)?'预计10月下旬恢复':'恢复时间尚待核实';
-            return side+'球员 '+name+' 被列入伤停名单，'+duration+'；是否缺席本场仍需赛前确认。';
-          }
-          if(/^(主队有利|主队不利|客队有利|客队不利)$/.test(s))return '';
-          if(/[A-Za-z]{4,}/.test(s)&&!/[\u4e00-\u9fff]/.test(s))return '';
-          return s;
-        };
-        if(injuryReports.length){
-          const box=el('div','prematch-intel-item');
-          box.append(el('b','','伤停与阵容'));
-          const facts=injuryReports.flatMap(x=>Array.isArray(x.highlights)?x.highlights:[]).map(chineseFact).filter(Boolean).slice(0,8);
-          if(facts.length){const list=el('ul','member-zone-intel-list');facts.forEach(x=>list.append(el('li','',x)));box.append(list)}
-          box.append(el('p','report-sub','','伤停名单不等于本场确定缺席，阵容影响须结合正式首发核验。'));
-          evidence.append(box);
+      if(data?.legacyZone){
+        const behavior=data.legacyZone.behavior;
+        if(behavior&&Array.isArray(behavior.betfairShare)&&behavior.betfairShare.length===3
+          &&behavior.betfairShare.every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v)))){
+          reportLine(panel,'必发资金 主 / 平 / 客',behavior.betfairShare.map(v=>Number(v).toFixed(1)+'%').join(' / '));
         }
-        if(newsReports.length){
-          const box=el('div','prematch-intel-item');
-          box.append(el('b','','球队动态'));
-          const facts=[...new Set(newsReports.flatMap(x=>[x.headline,...(Array.isArray(x.highlights)?x.highlights:[]).map(v=>typeof v==='string'?v:v?.summary||v?.headline)]).map(chineseFact).filter(x=>x&&x!=='主队有利'&&x!=='主队不利'&&x!=='客队不利'&&x!=='客队有利'))].slice(0,6);
-          if(facts.length){const list=el('ul','member-zone-intel-list');facts.forEach(x=>list.append(el('li','',x)));box.append(list)}
-          else box.append(el('p','','已获取赛前报道，但暂无足以独立核验的具体比赛影响信息。'));
-          evidence.append(box);
+        const intel=data.legacyZone.intelligence;
+        if(intel?.impactSide||intel?.riskReasons?.length){
+          const note=[intel.impactSide,...(Array.isArray(intel.riskReasons)?intel.riskReasons.slice(0,2):[])].filter(Boolean).join('；');
+          if(note)reportLine(panel,'赛前情报',note);
         }
-        const conclusion=el('div','prematch-intel-item');
-        conclusion.append(el('b','','综合情报判断'));
-        conclusion.append(el('p','',cleanIntel(analysis?.intelligence?.comprehensive_summary)||'赛前情报尚未完成交叉核验，暂不作单边方向判断。'));
-        evidence.append(conclusion);
-        panel.append(evidence);
       }
+      const articles=Array.isArray(data?.verifiedIntel?.articles)?data.verifiedIntel.articles:[];
+      const legacyIntel=data?.legacyZone?.intelligence;
+      const intelFacts=new Set();
+      for(const item of articles){
+        const title=brandSafe(item?.title);
+        if(title)intelFacts.add(title);
+        for(const section of Array.isArray(item?.sections)?item.sections:[]){
+          const fact=brandSafe(typeof section==='string'?section:section?.summary||section?.headline);
+          if(fact&&!/^(主队有利|主队不利|客队有利|客队不利)$/.test(fact))
+            intelFacts.add(fact);
+        }
+      }
+      for(const category of Array.isArray(legacyIntel?.categories)?legacyIntel.categories:[]){
+        const fact=brandSafe(category?.summary);
+        if(fact)intelFacts.add(fact);
+      }
+      const intelSection=el('section','prematch-intel-evidence');
+      intelSection.append(el('h3','','赛前情报'));
+      if(intelFacts.size){
+        const list=el('ul','member-zone-intel-list');
+        [...intelFacts].slice(0,8).forEach(fact=>list.append(el('li','',fact)));
+        intelSection.append(list);
+        if(legacyIntel?.impactSide)intelSection.append(el('p','report-sub',
+          '情报影响：'+brandSafe(legacyIntel.impactSide)+
+          (legacyIntel.impactLevel?' · '+brandSafe(legacyIntel.impactLevel):'')));
+      }else intelSection.append(el('p','report-sub','本场暂无已核验的赛前情报，市场数据仍可单独查看。'));
+      panel.append(intelSection);
       holder.append(panel);
     }
+    function verifiedReportMarket(payload,row){
+      const report=payload?.report;
+      const no=String(row.no).padStart(3,'0');
+      if(!report||String(report.no).padStart(3,'0')!==no||
+        String(report.date)!==String(row.date||state.selectedDate)||
+        String(report.home)!==String(row.home)||String(report.away)!==String(row.away))
+        throw Error('REPORT_MATCH_MISMATCH');
+      const european=report.market?.european||{};
+      const odds=item=>item&&[item.home,item.draw,item.away].every(v=>v!==null&&v!==undefined&&Number.isFinite(Number(v)))
+        ?[item.home,item.draw,item.away]:null;
+      const asian=(Array.isArray(report.market?.asian)?report.market.asian:[]).map(item=>({
+        institution:item.institution,
+        initialLine:item.initial?.lineText??item.initial?.line??null,
+        currentLine:item.current?.lineText??item.current?.line??null,
+        initialHomeWater:item.initial?.homeWater??null,
+        initialAwayWater:item.initial?.awayWater??null,
+        currentHomeWater:item.current?.homeWater??null,
+        currentAwayWater:item.current?.awayWater??null,
+        capturedAt:item.current?.capturedAt??item.initial?.capturedAt??null
+      }));
+      return {ok:true,match:{no,home:report.home,away:report.away,league:row.league},
+        analysis:null,verifiedIntel:report.intelligence||null,market:{status:'verified_prematch',
+          william:{initial:odds(european.initial),current:odds(european.current),
+            fair:Array.isArray(european.fairProbability)&&european.fairProbability.length===3
+              ?Object.fromEntries(['home','draw','away'].map((k,i)=>[k,european.fairProbability[i]])):null},
+          official:{had:row.officialMarket?.had?.odds??null,
+            hhad:row.officialMarket?.hhad?.odds??null,
+            hhadLine:row.officialMarket?.hhad?.line??null},
+          asian,capturedAt:european.current?.capturedAt??null
+        }};
+    }
     async function loadDeepMarketAnalysis(row,holder){
-      // The deep market endpoint requires authenticated monthly VIP or admin access.
       const key=String(row.date||state.selectedDate)+'|'+String(row.no).padStart(3,'0');
       const cached=okoooShadowCache.get(key);
-      const usableCached=cached&&cached.token===authSession.access_token&&cached.data?.ok===true;
-      // Keep the last verified payload visible while a refresh happens. A transient
-      // cross-project/CORS failure must not blank an already valid VIP analysis.
+      const usableCached=cached&&cached.token===authSession?.access_token&&cached.data?.ok===true;
       if(usableCached){
         renderDeepMarketAnalysis(holder,cached.data,row);
         if(Date.now()-cached.at<2*60*1000)return;
-      }else{
-        holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
-      }
+      }else holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
       try{
-        const params=new URLSearchParams({view:'member-intel',context:'detail',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
-        const url=OKOOO_SHADOW_API+'?'+params.toString();
-        let response,data;
-        // Mobile Safari can occasionally abort the first cross-project request.
-        // Retry once, but never replace a verified cached panel with an error state.
-        for(let attempt=0;attempt<2;attempt++){
-          try{
-            response=authSession?.access_token?await authorizedApiFetch(url,{cache:'no-store',signal:timeoutSignal(12000)}):await fetch(url,{cache:'no-store',signal:timeoutSignal(12000)});
-            data=await response.json().catch(()=>null);
-            if(response.ok&&data?.ok===true)break;
-            if(response.status===401||response.status===403)break;
-          }catch(error){
-            if(attempt===1)throw error;
-          }
-          if(attempt===0)await new Promise(resolve=>setTimeout(resolve,350));
-        }
-        if(!response?.ok||data?.ok!==true)throw Error(String(data?.error||'HTTP '+(response?.status||0)));
+        const url=customerApiUrl({view:'report',date:String(row.date||state.selectedDate),
+          no:String(row.no).padStart(3,'0')});
+        const response=await authorizedApiFetch(url,{cache:'no-store',signal:timeoutSignal(12000)});
+        const payload=await response.json().catch(()=>null);
+        if(!response.ok||payload?.ok!==true)
+          throw Error(String(payload?.error||'HTTP '+response.status));
+        const data=verifiedReportMarket(payload,row);
         if(state.selected!==row||(!SHADOW_MODE&&memberInfo?.vipActive!==true))return;
         okoooShadowCache.set(key,{token:authSession.access_token,at:Date.now(),data});
         while(okoooShadowCache.size>20)okoooShadowCache.delete(okoooShadowCache.keys().next().value);
         renderDeepMarketAnalysis(holder,data,row);
+        // Restore the original member-zone intelligence and shadow proof when
+        // present. Its empty response must not erase verified report evidence.
+        try{
+          const zoneUrl=customerApiUrl({view:'member-zone',date:String(row.date||state.selectedDate)});
+          const zoneResponse=await authorizedApiFetch(zoneUrl,{cache:'no-store',signal:timeoutSignal(9000)});
+          const zonePayload=await zoneResponse.json().catch(()=>null);
+          const entry=(Array.isArray(zonePayload?.zone?.rows)?zonePayload.zone.rows:[])
+            .find(item=>String(item?.no||'').padStart(3,'0')===String(row.no).padStart(3,'0'));
+          if(zoneResponse.ok&&zonePayload?.ok===true&&entry&&
+            String(entry.home)===String(row.home)&&String(entry.away)===String(row.away)){
+            const original=entry.coldRecognition?.gate?.shadowAnalysis;
+            data.analysis=original&&typeof original==='object'&&!Array.isArray(original)?original:null;
+            data.legacyZone=entry;
+            if(state.selected===row&&holder.isConnected){
+              okoooShadowCache.set(key,{token:authSession.access_token,at:Date.now(),data});
+              renderDeepMarketAnalysis(holder,data,row);
+            }
+          }
+        }catch(zoneError){
+          clientDiag('deep_market_legacy_intel_degraded',{
+            reason:String(zoneError?.message||zoneError).slice(0,80),
+            date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
+        }
       }catch(error){
         if(state.selected!==row||!holder.isConnected)return;
-        // Stale-while-refresh: preserve the most recent verified analysis instead
-        // of flashing "temporarily unavailable" during transient endpoint failures.
+        clientDiag('deep_market_read_failed',{reason:String(error?.message||error).slice(0,80),
+          date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
         if(usableCached)renderDeepMarketAnalysis(holder,cached.data,row);
         else holder.replaceChildren(el('p','report-loading','深度市场分析暂不可用，请稍后重试'));
       }
@@ -4343,7 +4225,7 @@
       const scan=String(health?.scanStatus??'NOT_SCANNED');
       if(items.length){
         const brief=el('article','admin-intel-item');
-        brief.append(el('strong','','赛前分析要点（'+(league||'赛事')+'）'));
+        brief.append(el('strong','','影子分析结论（'+(league||'赛事')+'）'));
         brief.append(el('p','report-sub','有效海外报道 '+items.length+' 条 · 来源 '+domains.size+' 个 · '+direction));
         brief.append(el('p','report-sub',aligned));
         if(notes.length)brief.append(el('p','report-sub','关键事实：'+notes.join('；')));
@@ -4464,7 +4346,6 @@
         const supplement=isSupplement(row)&&!isFocus(row);
         const selection=el('div','daily-detail-selection '+(supplement?'supplement':'core'));
         selection.append(el('strong','',supplement?'精选补充':'核心优选'));
-        if(row.dailySelectionMeta?.historicalRebuild===true)selection.append(el('small','','历史规则重放 · 今日重建'));
         if(supplement){
           const meta=row.dailySelectionMeta??row.daily_selection_meta??{};
           const odds=Number(meta.williamTop1Odds??meta.william_top1_odds);
@@ -4475,9 +4356,7 @@
       const prob=Number(row.homeProbability),draw=Number(row.drawProbability),awayProb=Number(row.awayProbability);
       if(!handicapRoute&&[row.homeProbability,row.drawProbability,row.awayProbability].every(v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)))&&[prob,draw,awayProb].every(v=>v>=0&&v<=100))
         reportProbability(summary,'九十刻度赛前概率',['homeProbability','drawProbability','awayProbability'],row);
-      const predictionTime=row.latestPrematchAt??row.frozenAt;
-      if(reportHas(predictionTime))summary.append(el('p','report-sub',
-        (row.saleFreezeStatus==='SALE_CLOSED_FROZEN'?'最终冻结预测于 ':'最近有效预测更新于 ')+fmtStamp(predictionTime)));
+      if(reportHas(row.frozenAt))summary.append(el('p','report-sub',(row.predictionView==='LATEST_PREMATCH_ONLY'?'最新赛前预测更新于 ':'赛前预测记录于 ')+fmtStamp(row.frozenAt)));
       c.append(summary);
       if(state.model==='handicap'){const drawPanel=handicapDrawProtectionPanel(row);if(drawPanel)c.append(drawPanel);}
       let deepMarketSlot=null;
@@ -4529,9 +4408,9 @@
         const shadowGrade=(record)=>{
           if(!record)return null;
           const verdict=status=>status==='SUCCESS'?'命中':status==='FAILURE'?'未命中':'等待核验';
-          if(state.model!=='htft'&&state.model!=='goals')reportLine(review,'赛前记录Top1',verdict(record.top1Status));
-          reportLine(review,'赛前记录Top3',verdict(record.settlementStatus));
-          review.append(el('p','report-sub','仅在赛前记录与赛果均可核验时显示评测。'));
+          reportLine(review,'影子赛前Top1',verdict(record.top1Status));
+          reportLine(review,'影子赛前Top3',verdict(record.settlementStatus));
+          review.append(el('p','report-sub','仅按赛前冻结候选与核验赛果评分；影子参考不计正式战绩。'));
           return true;
         };
         if(state.model==='htft'){
@@ -4616,23 +4495,16 @@
         if(valid.length&&!hasFormal){
           const graded=valid.filter(row=>['SUCCESS','FAILURE'].includes(row[sk].settlementStatus));
           const top3Hits=graded.filter(row=>row[sk].settlementStatus==='SUCCESS').length;
+          const top1Hits=graded.filter(row=>row[sk].top1Status==='SUCCESS').length;
           const labels=document.querySelectorAll('.metric span');
-          const label=state.model==='score'?'比分':state.model==='htft'?'半全场':'总进球';
           $('totalCount').textContent=htftRate(top3Hits,graded.length);
+          $('pickCount').textContent=htftRate(top1Hits,graded.length);
           $('passCount').textContent=graded.length+' / '+(valid.length-graded.length);
-          labels[0].textContent=label+'Top3覆盖率';
+          const label=state.model==='score'?'比分':state.model==='htft'?'半全场':'总进球';
+          labels[0].textContent=label+'Top3覆盖率（影子）';
+          labels[1].textContent='Top1命中率（影子）';
           labels[2].textContent='已评测 / 待评测';
-          if(state.model==='score'){
-            const top1Hits=graded.filter(row=>row[sk].top1Status==='SUCCESS').length;
-            $('pickCount').textContent=htftRate(top1Hits,graded.length);
-            labels[1].textContent='Top1命中率';
-            $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场比赛 · 已记录 '+valid.length+'场 · Top1 '+top1Hits+'/'+graded.length+' · Top3 '+top3Hits+'/'+graded.length;
-          }else{
-            // HTFT and total goals are assessed by Top3 coverage, never show Top1 hit rate.
-            $('pickCount').textContent=top3Hits+'/'+graded.length;
-            labels[1].textContent='Top3命中 / 已评测';
-            $('poolCount').textContent=state.selectedDate+' · '+rows.length+'场比赛 · 已记录 '+valid.length+'场 · Top3 '+top3Hits+'/'+graded.length;
-          }
+          $('poolCount').textContent=state.selectedDate+' · 赛前影子 '+valid.length+'场 · Top1 '+top1Hits+'/'+graded.length+' · Top3 '+top3Hits+'/'+graded.length+' · 不计正式战绩';
           return;
         }
       }
@@ -4665,20 +4537,20 @@
         $('totalCount').textContent=htftRate(st.top3,st.n);
         $('pickCount').textContent=st.top3+'/'+st.n;
         $('passCount').textContent=(st.total-st.n)+' / '+(rows.length-st.total);
-        labels[0].textContent=selected.length&&selected.every(x=>x.g.formalEligible===false)?'总进球Top3覆盖率（赛前记录）':'总进球Top3覆盖率';labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无预测';
+        labels[0].textContent=selected.length&&selected.every(x=>x.g.formalEligible===false)?'总进球Top3参考覆盖率（影子）':'总进球Top3覆盖率';labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无预测';
         $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 赛前总进球 '+st.total+'场';
         return;
       }
       if(state.model==='score'){
         const rows=state.today?.rows||[];
-        const chosen=rows.map(row=>({row,info:scoreVersionInfo(row,'dynamic')??scoreVersionInfo(row,'original')??scoreInfo(row)})).filter(x=>x.info&&x.info.sourceKind!=='HISTORICAL_BLIND_REPLAY');
+        const chosen=rows.map(row=>({row,info:scoreVersionInfo(row,'dynamic')??scoreVersionInfo(row,'original')})).filter(x=>x.info);
         const replay=rows.map(row=>({row,info:scoreInfo({...row,dynamicScoreTop4:null})}))
           .filter(({row,info})=>!scoreVersionInfo(row,'original')&&!scoreVersionInfo(row,'dynamic')&&info?.sourceKind==='HISTORICAL_BLIND_REPLAY');
         const selected=chosen.length?chosen:replay,st=scoreVersionStat(selected),labels=document.querySelectorAll('.metric span');
         $('totalCount').textContent=htftRate(st.top4,st.n);
         $('pickCount').textContent=st.top4+'/'+st.n;
         $('passCount').textContent=(st.total-st.n)+' / '+(rows.length-st.total);
-        labels[0].textContent=chosen.length?'比分Top4 · 评测成功率':replay.length?'历史回放Top4 · 评测成功率':'比分Top4 · 评测成功率';
+        labels[0].textContent=chosen.length&&chosen.every(x=>x.info.formalEligible===false)?'比分Top4参考覆盖率（影子）':chosen.length?'比分Top4 · 评测成功率':replay.length?'历史回放Top4 · 评测成功率':'比分Top4 · 评测成功率';
         labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无预测';
         $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 赛前比分 '+chosen.length+'场'+(!chosen.length&&replay.length?' · 历史回放 '+replay.length+'场':'');
         return;
@@ -4703,8 +4575,7 @@
       const formalGoals=state.model==='goals'?settled.filter(row=>isFormalGoalPrediction(row)&&hasScore(row)):[];
       const referenceGoals=state.model==='goals'?settled.filter(row=>row.goalPrediction?.formalEligible===false&&publishedGoalLambda({...row,dynamicGoalPrediction:null})!==null&&hasScore(row)):[];
       const showGoalReference=state.model==='goals'&&formalGoals.length===0&&referenceGoals.length>0;
-      const evaluable=state.model==='goals'?(showGoalReference?referenceGoals:formalGoals):state.model==='handicap'?settled.filter(handicapEvaluable):
-        ['wdl','overview','daily'].includes(state.model)?settled.filter(row=>!row?.legacyHistoryProvenance||(row.pass!==true&&row.ftTop1)):settled;
+      const evaluable=state.model==='goals'?(showGoalReference?referenceGoals:formalGoals):state.model==='handicap'?settled.filter(handicapEvaluable):settled;
       const hits=state.model==='goals'?evaluable.filter(row=>{
         const lambda=publishedGoalLambda({...row,dynamicGoalPrediction:null}),actual=Number(row.resultHome)+Number(row.resultAway);
         let p=Math.exp(-lambda);const ranked=[];
@@ -4729,7 +4600,7 @@
       // This restricted RPC requires the same signed-in VIP account.
       if(!day||day.date!==beijingToday()||!Array.isArray(day.rows)||!day.rows.length||
          !(memberInfo?.vipActive===true||memberInfo?.isAdmin===true||day.membership?.vipActive===true))return day;
-      if(day.rows.some(r=>r.dailySelectionCustomerPublished===true))return day;
+      if(day.rows.some(r=>r.dailySelectionCustomerPublished===true&&r.dailySelectionTier==='CORE'))return day;
       const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),7500);
       try{
         const call=await authorizedApiFetch(AUTH_BASE+'/rest/v1/rpc/ninety_verified_daily_publication_v1',{
@@ -4744,7 +4615,7 @@
         if(!byNo.size)return day;
         day.rows=day.rows.map(row=>{
           const record=byNo.get(String(row.no||'').padStart(3,'0'));
-          if(!record||row.date!==day.date||
+          if(!record||row.pregameVerified!==true||row.date!==day.date||
              record.home!==row.home||record.away!==row.away||
              record.top1!==row.ftTop1||dailySelectionHardBlocked(row)||
              !['CORE','SUPPLEMENT'].includes(record.tier))return row;
@@ -4765,54 +4636,39 @@
       finally{clearTimeout(timer)}
       return day;
     }
-    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),attempt===0?12000:6000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');// The authoritative current-day envelope is immediately renderable.
-        // A second signed publication RPC is recovery-only: do not hold the
-        // customer's 今日优选 screen for up to 7.5 seconds while it runs.
-        const initialRows=j.rows,accountId=String(authSession?.user?.id??"");
-        if(j.date===beijingToday()&&Array.isArray(j.rows)&&j.rows.length&&
-          (memberInfo?.vipActive===true||memberInfo?.isAdmin===true||j.membership?.vipActive===true)&&
-          !j.rows.some(x=>x.dailySelectionCustomerPublished===true)){
-          void restoreDurableDailyPublication(j).then(updated=>{
-            if(String(authSession?.user?.id??"")!==accountId||updated!==j)return;
-            const promoted=updated.rows.some((x,i)=>
-              x.dailySelectionCustomerPublished===true&&
-              initialRows[i]?.dailySelectionCustomerPublished!==true);
-            if(!promoted)return;
-            const stillActive=state.today===j&&state.selectedDate===j.date;
-            const cached=dayCache.get(j.date);
-            if(stillActive||cached?.data===j)rememberDay(j);
-            if(stillActive&&state.tab==="home"){
-              const graded=j.rows.filter(verified);
-              state.history={...j,count:graded.length,rows:graded};
-              setHeader(j);render();
-            }
-          }).catch(e=>console.warn("今日优选正式记录后台核验未完成",String(e?.message||e)));
-        }
-        return j}finally{}}
+    async function load(view,date){const qs=new URLSearchParams({view,client:'1'});if(date)qs.set('date',date);qs.set('_',String(Date.now()));let r;for(let attempt=0;attempt<2;attempt++){const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),20000);try{r=await authorizedApiFetch(customerApiUrl(qs),{cache:'no-store',signal:ctrl.signal});break}catch(e){if(!(e?.name==='AbortError'||/aborted/i.test(String(e?.message||e)))||attempt===1)throw e}finally{clearTimeout(timer)}}try{if(r.status===403){const denied=await r.json();if(denied.error==='MEMBERSHIP_REQUIRED'){memberInfo=denied.membership||{active:false};state.today=null;state.history=null;dayCache.clear();professionalReportCache.clear();render();throw Error('MEMBERSHIP_REQUIRED')}throw Error('接口返回 HTTP 403')}if(!r.ok)throw Error('接口返回 HTTP '+r.status);const j=await r.json();if(!j.ok||!Array.isArray(j.rows))throw Error(j.error||'接口数据异常');if(j.rows.length>0&&j.analysisPending!==true&&!['3.2','3.3','3.6','3.8'].includes(j.modelVersion))throw Error('赛事数据暂未通过完整性检查');return await restoreDurableDailyPublication(j)}finally{}}
     function isoDate(d){return d.toISOString().slice(0,10)}
     function addDays(iso,delta){const d=new Date(iso+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()+delta);return isoDate(d)}
     function beijingToday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()).replace(/\//g,'-')}
-    function displayLatestDate(){return beijingToday()}
+    function displayLatestDate(){const today=beijingToday();return state.baseDate&&state.baseDate>today?state.baseDate:today}
     function hasUnsettledPool(d){return !!(d&&Array.isArray(d.rows)&&d.rows.length&&d.rows.some(r=>r.matchStatus!=='POSTPONED'&&!verified(r)&&!(r.pregameVerified!==true&&r.saleFreezeStatus==='NO_VALID_PREMATCH_LOCK')))}
     async function resolveActivePool(){
-      // Prefer yesterday only while it contains genuinely unfinished matches.
-      // A missing result alone is not proof a match is still playing.
-      const today=beijingToday(),yesterday=addDays(today,-1);
-      try{
-        const prev=await readDay(yesterday,true);
-        if(prev?.date===yesterday&&Array.isArray(prev.rows)&&prev.rows.some(r=>{
-          const status=String(r.matchStatus||r.match_status||'').toUpperCase();
-          return /^(LIVE|IN_PLAY|INPLAY|FIRST_HALF|SECOND_HALF|HALFTIME|HT|1H|2H|EXTRA_TIME|PENALTIES|SCHEDULED|NOT_STARTED|NS)$/.test(status)&&!verified(r);
-        }))return prev;
-      }catch(e){console.warn('昨日赛事状态未确认',e)}
+      const today=beijingToday(),previous=addDays(today,-1);
+      // Always start from Beijing today when today's verified customer envelope is available.
+      // An unsettled fixture from yesterday must not hijack the homepage.
+      // The prior date remains selectable and its results continue to refresh on view.
       try{
         const current=await readDay(today,true);
         if(current?.date===today&&Array.isArray(current.rows))return current;
         throw Error('TODAY_POOL_INVALID');
       }catch(e){
-        const cache=cachedDay(today,true);
-        if(cache?.date===today&&Array.isArray(cache.rows))return cache;
-        return {date:today,count:0,rows:[],modelVersion:'3.8',analysisPending:true};
+        // Only on a real current-date failure may the client fall back to cached
+        // today or yesterday; never turn a still-open yesterday into a default.
+        const currentCache=cachedDay(today,true);
+        if(currentCache?.date===today&&Array.isArray(currentCache.rows))return currentCache;
+        const previousCache=cachedDay(previous,true);
+        if(previousCache&&Array.isArray(previousCache.rows)&&previousCache.rows.length){
+          console.warn('今日竞彩池暂不可用，展示上一可用比赛记录',e);
+          return previousCache;
+        }
+        try{
+          const prior=await readDay(previous);
+          if(prior&&Array.isArray(prior.rows)&&prior.rows.length){
+            console.warn('今日竞彩池暂不可用，显示昨日记录',e);
+            return prior;
+          }
+        }catch(priorError){console.warn('上一竞彩池读取也不可用',priorError)}
+        throw e;
       }
     }
     function showUnopened(date){
@@ -4821,49 +4677,17 @@
       buildDates();render();
     }
     function buildDates(){
-      // Compact customer navigation: six days plus one visible historical-results chooser.
-      // All previously certified dates remain selectable without occupying three header rows.
-      const days=['日','一','二','三','四','五','六'];
-      const box=$('dates'),latest=displayLatestDate();
-      box.replaceChildren();
-      box.classList.remove('htft-dates');
-      box.classList.add('compact-history-dates');
-      for(let offset=-5;offset<=0;offset++){
-        const iso=addDays(latest,offset);
-        const d=new Date(iso+'T12:00:00+08:00');
-        const active=iso===state.selectedDate;
-        const b=el('button','day'+(active?' active':''));
-        b.type='button';
-        b.setAttribute('aria-label',iso);
-        if(active)b.setAttribute('aria-current','date');
-        b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));
-        b.onclick=()=>selectDate(iso);
-        box.append(b);
-      }
-      const chooser=document.createElement('select');
-      chooser.className='history-date-select';
-      chooser.setAttribute('aria-label','历史战绩：选择日期');
-      chooser.title='历史战绩：选择日期';
-      chooser.add(new Option('历史战绩 ▾',''));
-      const earliest=state.model==='htft'?'2026-09-19':'2026-10-07';
-      const firstVisible=addDays(latest,-5);
-      for(let date=addDays(firstVisible,-1);date>=earliest;date=addDays(date,-1)){
-        chooser.add(new Option(date.slice(5),date));
-      }
-      // Preserve the visible selection when switching between model tabs.
-      if(state.selectedDate<firstVisible&&state.selectedDate<=latest&&
-         !Array.from(chooser.options).some(o=>o.value===state.selectedDate)){
-        chooser.add(new Option(state.selectedDate.slice(5),state.selectedDate));
-      }
-      chooser.value=state.selectedDate<firstVisible?state.selectedDate:'';
-      chooser.addEventListener('change',()=>{if(chooser.value)selectDate(chooser.value)});
-      box.append(chooser);
+      const days=['日','一','二','三','四','五','六'],box=$('dates'),latest=displayLatestDate();box.replaceChildren();
+      box.classList.toggle('htft-dates',state.model==='htft');
+      const firstOffset=state.model==='htft'?Math.max(-14,Math.round((Date.parse('2026-09-19T00:00:00Z')-Date.parse(latest+'T00:00:00Z'))/86400000)):-14;
+      for(let offset=firstOffset;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
+        b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
     }
     // Historical days that are already fully settled are immutable for customer display.
     // Keep settled snapshots across the full 15-day customer history window; active/unsettled days
     // retain their short TTLs so live prematch updates are never frozen by archive caching.
     const dayCache=new Map(),dayRequests=new Map(),dayContentVersions=new Map();let dateRequestId=0,historyPrefetchStarted=false;
-    const ARCHIVE_SESSION_PREFIX='soren-archive-sg-legacy-history-v9:';
+    const ARCHIVE_SESSION_PREFIX='soren-archive-v7_restore-published-daily:';
     const SETTLED_CACHE_TTL=15*24*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
     function dayCacheScope(){return [authSession?.user?.id||'',memberInfo?.active===true?'1':'0',(SHADOW_MODE||memberInfo?.vipActive===true)?'1':'0'].join('|')}
     function fullySettledDay(d){
@@ -4887,8 +4711,6 @@
       else setTimeout(persist,1200);
     }
     function scopedDayCacheTtl(date,settled,allowStaleActive){
-      // Yesterday may finish after Beijing midnight: cache only genuinely
-      // graded data and recheck it periodically, never lock an unfinished match.
       if(settled)return date===addDays(beijingToday(),-1)?20*60*1000:SETTLED_CACHE_TTL;
       if(date<beijingToday())return 2*60*1000;
       return allowStaleActive?ACTIVE_BOOT_CACHE_TTL:ACTIVE_CACHE_TTL;
@@ -4941,7 +4763,7 @@
       if(network?.saveData||['slow-2g','2g'].includes(String(network?.effectiveType||'')))return;
       historyPrefetchStarted=true;
       const latest=state.baseDate||beijingToday(),scope=dayCacheScope();
-      const count=network?.effectiveType==='3g'?1:2;
+      const count=network?.effectiveType==='3g'?2:4;
       const queue=Array.from({length:count},(_,i)=>addDays(latest,-i-1))
         .filter(date=>date>='2026-10-07'&&date<beijingToday());
       const worker=async()=>{
@@ -4949,7 +4771,6 @@
         while(queue.length){
           // Pause rather than fighting touch interactions or foreground sync.
           if(document.hidden||state.tab!=='home'||state.selectedDate!==state.baseDate||
-             state.model==='cold'||memberZoneRequest||state.memberZoneLoading||
              !authSession?.access_token||dayCacheScope()!==scope)return;
           const date=queue.shift();
           if(!date)continue;
@@ -4964,15 +4785,13 @@
         }
       };
       const start=()=>{if(!document.hidden)void worker()};
-      if('requestIdleCallback' in window)window.requestIdleCallback(start,{timeout:8000});
-      else setTimeout(start,6000);
+      if('requestIdleCallback' in window)window.requestIdleCallback(start,{timeout:4500});
+      else setTimeout(start,2500);
     }
     let historyNeighborGeneration=0;
     function prefetchHistoryNeighbors(anchor){
       const generation=++historyNeighborGeneration;
       if(!authSession?.access_token||navigator.connection?.saveData===true||anchor>=beijingToday())return;
-      // Load at most two neighboring dates after an intentional historical tap;
-      // reuse the same day envelope for six modules, never reissue cached calls.
       const near=[addDays(anchor,-1),addDays(anchor,1)]
         .filter(d=>d>='2026-10-07'&&d<beijingToday());
       setTimeout(async()=>{
@@ -4994,7 +4813,7 @@
     }
     async function selectDate(date){
       const earliest=state.model==='htft'?(addDays(displayLatestDate(),-14)>'2026-09-19'?addDays(displayLatestDate(),-14):'2026-09-19'):addDays(displayLatestDate(),-14);
-      if(((date<earliest)&&!(date>='2026-10-07'&&date<='2026-10-19'))||date>displayLatestDate()){alert('仅展示截至今天的赛事及已核验历史记录。');return}
+      if(date<earliest||date>displayLatestDate()){alert(state.model==='htft'?'半全场仅展示近15天可核验记录。':'仅展示最近15天的记录。');return}
       // Date navigation is an entry into match history, even when an expired member starts on "我的".
       // Switch tabs before the same-date shortcut or cached-day path; never change membership/report access.
       const wasOutsideHome=state.tab!=='home';
@@ -5070,11 +4889,8 @@
         // The existing boot already retries membership requests. Only two
         // delayed recovery attempts follow, so a bad Wi-Fi route cannot cause
         // unbounded requests or slow down the rest of the site.
-        if(transient&&authSession?.access_token){
-          // Keep recovering while the page remains open. A Wi-Fi route can
-          // remain unavailable longer than the previous two-attempt cap.
-          // Cap retry frequency to avoid hammering the membership endpoint.
-          const delay=authBootRetryCount===1?10000:authBootRetryCount===2?30000:60000;
+        if(transient&&authSession?.access_token&&authBootRetryCount<=2){
+          const delay=authBootRetryCount===1?10000:30000;
           authGateRecoverTimer=setTimeout(()=>{
             authGateRecoverTimer=null;
             if(!document.hidden&&gate.isConnected&&gate.dataset.autoRecover==='1'&&authSession?.access_token)
@@ -5094,21 +4910,6 @@
         }
       }
     }
-    // Retry immediately when iOS Safari reports that connectivity returned.
-    // Do not discard the saved session or grant access before membership checks.
-    window.addEventListener('online',()=>{
-      const gate=document.getElementById('loginGate');
-      if(gate?.dataset.autoRecover==='1'&&authSession?.access_token){
-        if(authGateRecoverTimer)clearTimeout(authGateRecoverTimer);
-        authGateRecoverTimer=null;
-        beginAuthenticatedApp();
-      }
-    });
-    document.addEventListener('visibilitychange',()=>{
-      const gate=document.getElementById('loginGate');
-      if(!document.hidden&&gate?.dataset.autoRecover==='1'&&authSession?.access_token)
-        beginAuthenticatedApp();
-    });
     let authBootInFlight=false,authBootRetryCount=0;
     async function beginAuthenticatedApp(){
       if(authBootInFlight)return;
