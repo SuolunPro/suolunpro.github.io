@@ -3834,6 +3834,26 @@
         useReport(data.report);
       }catch(err){
         if(state.selected!==row)return;
+        if(vipDeepAccess())try{
+          const qs=new URLSearchParams({date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
+          const proofResponse=await authorizedApiFetch(AUTH_BASE+'/functions/v1/ninety-member-intel-v1?'+qs,
+            {cache:'no-store',signal:timeoutSignal(10000)});
+          const proof=await proofResponse.json().catch(()=>null);
+          if(proofResponse.ok&&proof?.ok===true&&
+            String(proof.match?.no).padStart(3,'0')===String(row.no).padStart(3,'0')&&
+            String(proof.match?.home)===String(row.home)&&String(proof.match?.away)===String(row.away)){
+            const triplet=v=>Array.isArray(v)&&v.length===3&&v.every(x=>x!==null&&Number.isFinite(Number(x))&&Number(x)>1)
+              ?{home:Number(v[0]),draw:Number(v[1]),away:Number(v[2]),capturedAt:proof.market?.capturedAt}:null;
+            const asian=(Array.isArray(proof.market?.asian)?proof.market.asian:[]).map(x=>({institution:x.institution,
+              initial:{lineText:x.initialLine,homeWater:x.initialHomeWater,awayWater:x.initialAwayWater},
+              current:{lineText:x.currentLine,homeWater:x.currentHomeWater,awayWater:x.currentAwayWater}}));
+            const report={home:row.home,away:row.away,market:{european:{
+              initial:triplet(proof.market?.william?.initial),current:triplet(proof.market?.william?.current)},asian},
+              intelligence:{articles:[]}};
+            professionalReportCache.set(key,{token:authSession.access_token,at:Date.now(),report});
+            useReport(report);return;
+          }
+        }catch(proofError){clientDiag('professional_sg_proof_degraded',{reason:String(proofError?.message||proofError).slice(0,80)})}
         slot.replaceChildren(el('p','report-loading','扩展赛事资料暂时无法获取，已发布的赛前分析仍可查看。'));
         const odds=context?.dataStatus?.querySelector('.report-data-odds b');if(odds)odds.textContent='采集时间未确认';
         if(context?.audit)context.audit.append(el('p','report-sub','扩展资料暂时无法读取：'+safe(err?.message||err)));
