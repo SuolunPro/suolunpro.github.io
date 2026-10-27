@@ -3665,7 +3665,8 @@
         try{
           const params=new URLSearchParams({view:'market-trend',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
           const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);let response;
-          try{response=await authorizedApiFetch(customerApiUrl(params),{cache:'no-store',signal:ctrl.signal})}
+          try{response=await authorizedApiFetch(AUTH_BASE+'/functions/v1/soren-market-trend-v1?'+params,
+            {cache:'no-store',signal:ctrl.signal})}
           finally{clearTimeout(timer)}
           if(!response.ok)throw Error('HTTP '+response.status);
           const data=await response.json();
