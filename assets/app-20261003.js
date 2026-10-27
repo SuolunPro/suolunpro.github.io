@@ -2153,7 +2153,7 @@
     function scoreVersionInfo(row,kind){
       const info=kind==='dynamic'?row.dynamicScoreTop4:row.scoreTop4;
       if(!info||info.pregameVerified!==true||!Array.isArray(info.picks)||info.picks.length!==4)return null;
-      if(kind==='dynamic'&&!['MARKET_ANCHORED_POISSON_SHADOW_V01','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1','FOTMOB_XG_STRICT_PREMATCH_POISSON_DC_V1'].includes(info.sourceKind))return null;
+      if(kind==='dynamic'&&!['MARKET_ANCHORED_POISSON_SHADOW_V01','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1','SG_HJ38_TOP4_PFINAL_INVERSE_POISSON_BLIND_V1','FOTMOB_XG_STRICT_PREMATCH_POISSON_DC_V1'].includes(info.sourceKind))return null;
       if(kind==='original'&&['HISTORICAL_BLIND_REPLAY','POSTMATCH_POISSON_SIMULATION_NOT_PUBLISHED','SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1'].includes(info.sourceKind))return null;
       const freeze=Date.parse(String(info.frozenAt??info.publishedAt??info.sourceFrozenAt??'')),kickoff=Date.parse(String(row.kickoff??''));
       if(!Number.isFinite(freeze)||!Number.isFinite(kickoff)||freeze>=kickoff)return null;
@@ -2170,7 +2170,7 @@
       return Number.isInteger(h)&&Number.isInteger(a)&&h>=0&&a>=0?h+'-'+a:null;
     }
     function scoreVersionStat(items){
-      const settled=items.filter(({row,info})=>scoreActual(row)!==null&&(info.sourceKind!=='SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1'||['SUCCESS','FAILURE'].includes(info.settlementStatus)));
+      const settled=items.filter(({row,info})=>scoreActual(row)!==null&&(!['SG_HJ38_TOP4_SELECTION_MARKET_LAMBDA_SHADOW_V1','SG_HJ38_TOP4_PFINAL_INVERSE_POISSON_BLIND_V1'].includes(info.sourceKind)||['SUCCESS','FAILURE'].includes(info.settlementStatus)));
       return {total:items.length,n:settled.length,
         top1:settled.filter(({row,info})=>String(info.picks[0].score)===scoreActual(row)).length,
         top4:settled.filter(({row,info})=>info.picks.some(p=>String(p.score)===scoreActual(row))).length};
