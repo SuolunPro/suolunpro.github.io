@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>豪·足球模型</title>
+<style>
+:root{--bg:#07111f;--panel:#0d1b2d;--panel2:#10233b;--line:#1b3554;--text:#ecf5ff;--muted:#91a8bf;--good:#27d17f;--warn:#ffc04b;--bad:#ff6475;--blue:#5aa9ff}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 82% -10%,#17385f 0,#07111f 43%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}button,input{font:inherit}.wrap{max-width:1280px;margin:auto;padding:16px 14px 54px}.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.title{font-size:24px;font-weight:850}.subtitle,.tiny{font-size:12px;color:var(--muted);line-height:1.55}.topright{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.lock,.fresh,.pill{font-size:11px;border:1px solid var(--line);background:#0b1a2b;padding:5px 8px;border-radius:999px;white-space:nowrap}.good{color:#73e4ad}.warn{color:#ffd27c}.bad{color:#ff91a0}.fresh.good,.pill.good{border-color:#24764f}.fresh.warn,.pill.warn{border-color:#765821}.fresh.bad,.pill.bad{border-color:#713342}nav{display:flex;gap:8px;overflow:auto;padding:14px 0 10px;scrollbar-width:none}nav button{border:1px solid transparent;background:transparent;color:var(--muted);padding:9px 13px;border-radius:10px;white-space:nowrap;font-size:14px}nav button.active{background:#14345a;border-color:#24558c;color:#fff}.actions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px}.refresh,.historybtn,.backbtn{border:1px solid #2b5681;background:#123153;color:#d9edff;border-radius:9px;padding:7px 10px;font-size:12px;cursor:pointer}.logout{border:0;background:transparent;color:#7691aa;font-size:12px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:10px;margin-bottom:12px}.heroMain,.metric,.card{background:linear-gradient(180deg,#0f2238,#0b192a);border:1px solid var(--line);border-radius:14px;padding:14px}.heroMain{border-color:#28577e}.heroTitle{font-size:12px;color:#9ecbff}.heroValue{font-size:24px;font-weight:900;margin:8px 0}.heroSide,.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{min-height:104px}.metric.good{border-color:#24764f}.metric.warn{border-color:#765821}.metric.bad{border-color:#713342}.ml{font-size:12px;color:var(--muted)}.mv{font-size:22px;font-weight:850;margin:9px 0 5px}.section{margin-top:13px;background:rgba(11,25,42,.9);border:1px solid var(--line);border-radius:16px;overflow:hidden}.shead{padding:13px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}.shead h2{font-size:16px;margin:0}.shead span{color:var(--muted);font-size:12px;text-align:right}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px}.card.feature{border-color:#28577e;background:linear-gradient(180deg,#112a46,#0d2035)}.row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.bigpick{font-size:18px;font-weight:850;margin:7px 0}.notice{border:1px solid #765821;background:#2b2314;color:#ffd985;border-radius:12px;padding:11px 13px;margin-bottom:12px;font-size:13px;line-height:1.55}.notice.good{border-color:#1e6e4b;background:#10291f;color:#8cedb9}.notice.bad{border-color:#713342;background:#321820;color:#ff9dad}.tablewrap{overflow:auto;max-height:72vh}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 10px;border-bottom:1px solid #142d49;text-align:left;white-space:nowrap}th{color:#9cb3ca;background:#0b1b2e;position:sticky;top:0;z-index:1}tbody tr:hover{background:#102740}.clickrow{cursor:pointer}.kv{display:grid;grid-template-columns:145px 1fr;gap:8px 12px;font-size:12px;line-height:1.55}.kv>div:nth-child(odd){color:var(--muted)}.sourcegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px}.sourceCard{background:#0e2035;border:1px solid #183655;border-radius:13px;padding:12px}.sourceCard.good{border-color:#24764f;color:var(--text)}.sourceCard.warn{border-color:#765821;color:var(--text)}.sourceCard.bad{border-color:#713342;color:var(--text)}.sourceName{font-size:13px;font-weight:800}.sourceVal{font-size:19px;font-weight:850;margin:8px 0}.sourceMeta{font-size:11px;color:var(--muted);line-height:1.55}.login{min-height:84vh;display:grid;place-items:center;padding:16px}.loginbox{width:min(92vw,390px);background:#0d1b2d;border:1px solid #1d3a5a;border-radius:20px;padding:24px}.loginbox h1{font-size:22px;margin:0 0 8px}.loginbox label{font-size:12px;color:#9bb1c8;display:block;margin:12px 0 6px}.loginbox input{width:100%;border:1px solid #274867;background:#081522;color:white;border-radius:11px;padding:13px 12px;font-size:16px}.loginbox button{width:100%;margin-top:18px;border:0;border-radius:11px;background:#2e83e6;color:white;padding:13px;font-size:16px;font-weight:780}.err{display:none;background:#3a1720;border:1px solid #7a3142;color:#ff9dad;border-radius:10px;padding:9px 11px;margin-bottom:12px;font-size:13px}.loading{min-height:70vh;display:grid;place-items:center;color:var(--muted);text-align:center;padding:20px}.footer{color:#637c95;text-align:center;font-size:11px;margin-top:16px;line-height:1.6}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.grid4,.sourcegrid{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}}
+@media(max-width:620px){.title{font-size:21px}.topright{max-width:48%}.heroSide,.grid,.grid4,.sourcegrid{grid-template-columns:1fr 1fr}.kv{grid-template-columns:105px 1fr}.wrap{padding-left:10px;padding-right:10px}}
+
+/* Mobile layout hardening v2 */
+html,body,#app{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
+.wrap{width:100%;max-width:1280px;min-width:0}
+.top,.top>div,.topright,.hero,.heroMain,.heroSide,.grid,.grid4,.section,.cards,.card,.metric,.sourcegrid,.sourceCard,.shead{min-width:0}
+.subtitle,.tiny,.heroMain,.metric,.card,.sourceCard,.shead h2,.shead span{overflow-wrap:anywhere;word-break:break-word}
+.tablewrap{width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.tablewrap table{width:max-content;min-width:100%;max-width:none}.hjtablewrap{margin-left:0;width:100%;max-width:100%;padding-left:0;padding-right:0;scroll-behavior:auto;overscroll-behavior-x:contain}.hjcompact{font-size:12px}.hjcompact th,.hjcompact td{padding:9px 10px}.hjcompact td:nth-child(2){min-width:150px}.hjcompact td:nth-child(3){min-width:130px}.hjcompact td:nth-child(5){min-width:105px}.hjcompact td:nth-child(6){min-width:90px}@media(max-width:620px){.hjcompact{font-size:11px}.hjcompact th,.hjcompact td{padding:8px 7px}.hjcompact td:nth-child(2){min-width:128px}.hjcompact td:nth-child(3){min-width:112px}.hjcompact td:nth-child(5){min-width:92px}}
+nav{width:100%;max-width:100%;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+nav::-webkit-scrollbar{display:none}
+.actions{width:100%;max-width:100%}
+@media(max-width:620px){
+  .wrap{width:100%;padding:12px 10px 44px;margin:0}
+  .top{display:block;width:100%}
+  .top>div:first-child{width:100%;max-width:100%}
+  .topright{width:100%;max-width:none!important;justify-content:flex-start;margin-top:10px;gap:6px}
+  .title{font-size:20px;line-height:1.2}
+  .subtitle{font-size:11px;line-height:1.5;margin-top:4px}
+  nav{gap:5px;padding:12px 0 9px}
+  nav button{font-size:13px;padding:8px 10px;flex:0 0 auto}
+  .actions{justify-content:flex-start;margin-bottom:8px}
+  .hero{grid-template-columns:1fr;width:100%}
+  .heroSide,.grid{grid-template-columns:1fr 1fr}
+  .grid4{grid-template-columns:1fr 1fr}
+  .cards{grid-template-columns:1fr}
+  .sourcegrid{grid-template-columns:1fr 1fr}
+  .metric,.card,.sourceCard{padding:12px}
+  .heroValue{font-size:21px}
+  .mv{font-size:20px}
+  .section{width:100%;max-width:100%}
+  .shead{align-items:flex-start}
+  .shead h2{font-size:15px}
+  .shead span{font-size:11px;max-width:48%}
+  .kv{grid-template-columns:92px minmax(0,1fr)}
+}
+@media(max-width:430px){
+  .heroSide,.grid,.grid4,.sourcegrid{grid-template-columns:1fr}
+  .shead{display:block}
+  .shead span{display:block;max-width:100%;text-align:left;margin-top:4px}
+  .fresh,.lock,.pill{font-size:10px}
+}
+
+
+/* 豪竞极速总览 v1 */
+.hjquickgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px}
+.hjqcard{background:linear-gradient(180deg,#0e2035,#0a192a);border:1px solid #1c3d60;border-radius:16px;padding:14px;cursor:pointer;box-shadow:0 8px 26px rgba(0,0,0,.14)}
+.hjqcard:hover{border-color:#2b6ca4;transform:translateY(-1px)}
+.hjqhead,.hjqmeta,.hjqline{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hjqno{font-weight:900;color:#f2c66d}.hjqleague{font-size:11px;color:#88a7c8}.hjqtime{font-size:11px;color:#7893ad}
+.hjqteams{font-size:16px;font-weight:850;margin:10px 0 8px;line-height:1.35}
+.hjqpick{font-size:18px;font-weight:900}.hjqprob{font-size:13px;color:#9fd4ff}
+.hjqchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.hjqchip{font-size:11px;padding:5px 8px;border:1px solid #264866;border-radius:999px;background:#0a1827;color:#b9cee2}
+.hjqscoreline{margin-top:10px;padding-top:10px;border-top:1px solid #19344f}.hjqscoretitle{font-size:11px;color:#7593b2;margin-bottom:7px}
+.hjqscores{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.hjqscore{border:1px solid #1b3e60;border-radius:10px;padding:7px 6px;text-align:center;background:#0a1725}
+.hjqscore b{display:block;font-size:15px}.hjqscore span{font-size:10px;color:#7894af}
+.hjqfoot{margin-top:10px;font-size:11px;color:#8fa8bf;line-height:1.45}
+.hjqlegacy{margin:0 12px 12px;border:1px solid #183655;border-radius:12px;background:#0a1725}.hjqlegacy summary{cursor:pointer;padding:11px 12px;color:#9db8d1;font-size:12px;font-weight:800}
+.scoreMatrix{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.scoreCell{border:1px solid #1b3e60;background:#0a1725;border-radius:10px;text-align:center;padding:9px 5px}.scoreCell b{display:block;font-size:16px}.scoreCell span{font-size:10px;color:#7692ad}
+.scoreTop3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.scoreTop3>div{border:1px solid #285477;border-radius:12px;text-align:center;padding:10px;background:#0c1b2d}.scoreTop3 b{display:block;font-size:19px}.scoreTop3 span{font-size:11px;color:#8aa7c3}
+@media(max-width:720px){.hjquickgrid{grid-template-columns:1fr}.hjqcard{padding:12px}.hjqteams{font-size:15px}.scoreMatrix{grid-template-columns:repeat(4,1fr)}}
+
+
+.hjqresult{margin-top:10px;padding:8px 10px;border-radius:10px;background:#0b1a2b;border:1px solid #1d3a5a;font-size:12px;font-weight:800}
+.hjqresult.good{border-color:#24764f;color:#8fe1b2}.hjqresult.bad{border-color:#713342;color:#ff9dad}.hjqresult.warn{border-color:#765821;color:#e7c477}
+
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">正在连接豪·足球模型…</div></div>
+<script>
+const API='https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-console-v1';
+const HB_CUM_API='https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-basketball-7m-probe-v01';
+const APP_BUILD='2026-09-14 豪竞3.2前端v36-hygiene';
+let DATA=null,TAB='dashboard',AUTO_TIMER=null,DETAIL=null,RESET_HJ_SCROLL=false;
+let HB_CUM=null;
+async function checkBuildVersion(){try{const r=await fetch('/version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return false;const j=await r.json();if(j&&j.build&&j.build!==APP_BUILD){const target=String(j.build),u=new URL(location.href);if(u.searchParams.get('v')===target){console.warn('Build mismatch persists after one cache-busting reload; suppressing refresh loop.',{app:APP_BUILD,target});return false}u.searchParams.set('v',target);u.searchParams.set('t',Date.now().toString());location.replace(u.toString());return true}return false}catch(_){return false}}
+function forcePageRefresh(){const u=new URL(location.href);u.searchParams.set('v',APP_BUILD);u.searchParams.set('t',Date.now().toString());location.replace(u.toString())}
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct=(a,b)=>b?(a*100/b).toFixed(1)+'%':'—';
+const fmtTime=v=>{if(!v)return '—';try{return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v))}catch{return String(v)}};
+const ageMinutes=v=>v?Math.max(0,Math.round((Date.now()-new Date(v).getTime())/60000)):null;
+const code=v=>v==='主胜'?'3':v==='平'?'1':v==='客胜'?'0':'';
+const hitTop=r=>!!(r.top1&&r.result_verified&&code(r.top1)===r.result_1x2);
+const hitTicket=r=>!!(r.ticket_pick&&r.result_verified&&String(r.ticket_pick).includes(String(r.result_1x2)));
+const result=r=>!r.result_verified?'待结算':(r.result_home??'?')+'-'+(r.result_away??'?')+' · '+(r.result_1x2==='3'?'主胜':r.result_1x2==='1'?'平':'客胜');
+function token(){return localStorage.getItem('hao_console_token')||''}
+function activeNames(){const ks=Object.keys(DATA?.active_models||{});const hj=DATA?.role_models?.hj||ks.find(k=>k.includes('豪竟')||k.includes('豪竞'))||'豪竞';const hc=DATA?.role_models?.hc||ks.find(k=>k.includes('豪传'))||'豪传';const hb=DATA?.role_models?.hb||ks.find(k=>k.includes('豪篮'))||'豪篮1.0';return {hj,hc,hb}}
+function activeByRole(role){const n=activeNames(),name=role==='hj'?n.hj:role==='hc'?n.hc:n.hb;return DATA?.active_models?.[name]||null}
+function metric(l,v,s='',c=''){return '<div class="metric '+c+'"><div class="ml">'+esc(l)+'</div><div class="mv">'+esc(v)+'</div><div class="tiny">'+esc(s)+'</div></div>'}
+function runFresh(run){const m=ageMinutes(run?.run_time);if(m==null)return {text:'模型无运行',tone:'bad'};const now=DATA?.server_time?new Date(DATA.server_time):new Date();const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hour12:false}).formatToParts(now),p={};for(const x of parts)p[x.type]=x.value;const today=p.year+'-'+p.month+'-'+p.day,h=Number(p.hour);const pool=String(run?.pool_date||'');if(pool&&pool<today&&h<12)return {text:'等待今日12:00首轮 · 展示上一销售日冻结盘',tone:'warn'};if(m<=75)return {text:'模型更新 '+m+' 分钟前',tone:'good'};if(m<=180)return {text:'模型更新 '+m+' 分钟前',tone:'warn'};return {text:'模型已 '+m+' 分钟未运行',tone:'bad'}}
+function nextModelRunText(){const now=DATA?.server_time?new Date(DATA.server_time):new Date(),parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(now),p={};for(const x of parts)p[x.type]=x.value;const h=Number(p.hour),m=Number(p.minute),slots=[12,14,16,18,20,21,22],n=slots.find(x=>x>h||(x===h&&m<1));if(n!=null)return String(n).padStart(2,'0')+':00';return '明天 12:00'}
+function shell(body){const f=runFresh(DATA?.hj?.run),n=activeNames();return '<div class="wrap"><div class="top"><div><div class="title">豪·足球模型</div><div class="subtitle">'+esc(n.hj)+' × '+esc(n.hc)+' × '+esc(n.hb)+' · 足球 + 竞彩篮球量化控制台</div></div><div class="topright"><span class="fresh good">页面同步 '+esc(fmtTime(DATA?.server_time))+'</span><span class="fresh '+f.tone+'">'+esc(f.text)+' · 下次三模型 '+esc(nextModelRunText())+'</span><span class="lock">🔒 私人访问</span><button class="logout" onclick="logout()">退出</button></div></div><nav>'+[['dashboard','总览'],['haojing',n.hj],['haochuan',n.hc],['haolan',n.hb],['cumulative','累计'],['history','历史'],['sources','数据状态']].map(x=>'<button onclick="setTab(\''+x[0]+'\')" class="'+(TAB===x[0]?'active':'')+'">'+esc(x[1])+'</button>').join('')+'</nav><div class="actions"><button class="refresh" onclick="forcePageRefresh()">🔄 立即刷新</button></div>'+body+'<div class="footer">页面每60秒读取一次数据库；三模型自动时段：12/14/16/18/20/21/22点（北京时间），周末追加22:30；系统每小时自动自检并安全自愈。缺失数据保持未确认，不用其他机构冒充补齐。最后API读取：'+esc(fmtTime(DATA?.server_time))+' · 版本：'+esc(APP_BUILD)+'</div></div>'}
+function login(){clearInterval(AUTO_TIMER);document.getElementById('app').innerHTML='<div class="login"><form class="loginbox" id="lf"><h1>🔒 豪·足球模型</h1><div class="subtitle">私人版 · 自动读取当前active模型</div><div class="err" id="err">账号或密码不正确。</div><label>用户名</label><input id="u" autocomplete="username" value="hao"><label>密码</label><input id="p" type="password" autocomplete="current-password"><button>进入控制台</button></form></div>';document.getElementById('lf').onsubmit=async e=>{e.preventDefault();try{const r=await fetch(API+'?login=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('u').value,password:document.getElementById('p').value})});const j=await r.json();if(r.ok&&j.token){localStorage.setItem('hao_console_token',j.token);load(true)}else document.getElementById('err').style.display='block'}catch(_){document.getElementById('err').style.display='block'}}}
+function logout(){localStorage.removeItem('hao_console_token');DATA=null;login()}
+async function load(show=false){if(await checkBuildVersion())return;if(!token()){login();return}if(show)document.getElementById('app').innerHTML='<div class="loading">正在读取最新冻结数据…</div>';try{const r=await fetch(API+'?api=1&t='+Date.now(),{headers:{Authorization:'Bearer '+token()},cache:'no-store'});if(r.status===401){logout();return}const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||'读取失败');const oldHistory=Array.isArray(DATA?.history)?DATA.history:null;DATA=j;if(oldHistory)DATA.history=oldHistory;if(TAB==='cumulative')loadHbCumulative();render();clearInterval(AUTO_TIMER);AUTO_TIMER=setInterval(()=>{if(document.visibilityState==='visible')load(false)},60000)}catch(e){document.getElementById('app').innerHTML='<div class="loading">连接失败：'+esc(e.message)+'<br><br><button class="refresh" onclick="load(true)">重试</button></div>'}}
+function setTab(t){TAB=t;DETAIL=null;if(t==='cumulative')loadHbCumulative();if(t==='haojing')RESET_HJ_SCROLL=true;if(t==='history'&&!Array.isArray(DATA?.history)){render();loadHistory();scrollTo(0,0);return}render();scrollTo(0,0)}
+function modelHeader(){const n=activeNames(),hm=activeByRole('hj'),cm=activeByRole('hc'),bm=activeByRole('hb'),hr=DATA.hj?.run,ha=DATA.hj?.latest_attempt,cr=DATA.hc?.run,ca=DATA.hc?.latest_attempt,br=DATA.hb?.run,rt=DATA.hc?.runtime_status||{},rwait=rt?.stage==='wait_sale_start',rissue=rt?.issue_no||'新期',rstart=rt?.details?.sale_start||null,hcur=!!(hr&&hm&&Number(hr.model_revision_id)===Number(hm.id)),ccur=!!(cr&&cm&&Number(cr.model_revision_id)===Number(cm.id)),bcur=!!(br&&bm&&Number(br.model_revision_id)===Number(bm.id)),hFrozen=!!(hr&&ha&&Number(hr.total_matches||0)>0&&Number(ha.total_matches||0)===0&&String(ha.pool_date||'')>String(hr.pool_date||'')),hcFrozen=!!(cr&&ca&&Number(cr.id)!==Number(ca.id));const hState=hcur?'已运行':hFrozen?'冻结盘':'待运行',hMeta=hFrozen?('继续展示 '+String(hr.pool_date||'上一销售日')+' · 新销售池尚未建立'):(hr?fmtTime(hr.run_time):'暂无当前修订运行'),hcState=rwait?'等待开售':hcFrozen?'冻结盘':ccur?'已运行':'待运行',hcMeta=rwait?(String(rissue)+' · '+fmtTime(rstart)+' 开售，开售后自动更新'):hcFrozen?('当前 '+String(ca?.pool_label||'新期')+' 数据不足 · 继续展示 '+String(cr?.pool_label||'上一有效期')):(cr?fmtTime(cr.run_time):'等待任9赛前冻结运行');return '<div class="hero"><div class="heroMain"><div class="heroTitle">当前正式模型</div><div class="heroValue">'+esc(n.hj)+' × '+esc(n.hc)+' × '+esc(n.hb)+'</div><div class="tiny">豪竞：'+esc(hm?.revision_tag||'未登记')+'<br>豪传：'+esc(cm?.revision_tag||'未登记')+'<br>豪篮：'+esc(bm?.revision_tag||'未登记')+'</div></div><div class="heroSide">'+metric('豪竞当前销售池',hState,hMeta,hcur?'good':hFrozen?'warn':'warn')+metric('豪传当前修订',hcState,hcMeta,hcFrozen?'warn':ccur?'good':'warn')+metric('豪篮当前修订',bcur?'已运行':'待数据',br?fmtTime(br.run_time):'等待竞彩篮球在售池接入',bcur?'good':'warn')+'</div></div>'}
+function srcTone(status,count,total){if(status==='unavailable_fields'||status==='waiting_results')return 'warn';if(status==='ok'&&(total===0||count>0))return total===0||count>=total?'good':'warn';return count>0?'warn':'bad'}
+function sourceCard(name,status,count,total,last,note){const c=srcTone(status,count,total);return '<div class="sourceCard '+c+'"><div class="row"><div class="sourceName">'+esc(name)+'</div><span class="pill '+c+'">'+(c==='good'?'✅ 正常':c==='warn'?'⚠️ 部分':'🔴 缺失')+'</span></div><div class="sourceVal">'+esc(count)+'/'+esc(total)+'</div><div class="sourceMeta">'+esc(note)+'<br>更新：'+esc(fmtTime(last))+'</div></div>'}
+function sourceStatusSection(){const s=DATA.hj?.source_snapshot||{},sp=s.sp_mirrors||{},comb=s.sp_combined||{},a=s.asia4||{},total=Number(s.total_matches||DATA.hj?.run?.total_matches||0)||0;const ok=sp.okooo||{},f=sp.fivehundred||{},q=sp.qiulaile||{},bet=a.bet365||{},crown=a.crown||{},wah=a.william_ah||{},b12=a.bet12||{};let html='<section class="section"><div class="shead"><h2>📡 当前主链数据</h2><span>竞彩SP先看合并主链 · 镜像无赔率≠官方未开售</span></div><div class="sourcegrid">';html+=sourceCard('竞彩 SP 合并主链',comb.status,Number(comb.matched||0),Number(comb.expected||total),comb.last_capture,'澳客 + 500 + 球来乐严格补洞；已开售玩法必须有赔率，镜像无赔率只记未确认，不冒充官方状态');html+=sourceCard('澳客竞彩赔率 单源镜像（容错）',ok.status,Number(ok.matched||0),Number(ok.expected||total),ok.last_capture,'单源部分覆盖不等于主链故障 · HAD '+(ok.had_matches||0)+'/'+total+' · 让球胜平负 '+(ok.hhad_matches||0)+'/'+total+' · 镜像未确认 '+((ok.had_not_offered||0)+(ok.hhad_not_offered||0)));html+=sourceCard('500竞彩赔率 单源镜像（备用）',f.status,Number(f.matched||0),Number(f.expected||total),f.last_capture,'场号+身份严格核验；当前镜像无赔率只代表镜像未确认 · HAD '+(f.had_matches||0)+'/'+total+' · 让球胜平负 '+(f.hhad_matches||0)+'/'+total+' · 镜像未确认 '+((f.had_not_offered||0)+(f.hhad_not_offered||0)));html+=sourceCard('球来乐竞彩赔率 缺口补齐',q.status,Number(q.matched||0),Number(q.expected||0),q.last_capture,'只统计当前真正需要补的缺口，不再拿全池13场做分母 · 未开售也可确认缺口已解决');const wh=s.william||{},whCount=Number(wh.matches??0),whStatus=wh.status||'missing',whLast=wh.last_capture||s.william_last_success;html+=sourceCard('William Hill 欧赔',whStatus,whCount,total,whLast,'同公司欧赔初→即→临/当前 · '+esc(wh.source_code||'主源'));html+=sourceCard('Bet365 亚洲盘',bet.status,bet.matches||0,total,bet.last_capture,'独立机构盘口+水位');html+=sourceCard('皇冠 亚洲盘',crown.status,crown.matches||0,total,crown.last_capture,'独立机构盘口+水位');html+=sourceCard('William AH',wah.status,wah.matches||0,total,wah.last_capture,'William Hill亚洲盘');html+=sourceCard('12Bet 亚洲盘',b12.status,b12.matches||0,total,b12.last_capture,'独立机构盘口+水位');html+='<div class="sourceCard '+(s.core_chain_complete?'good':'warn')+'"><div class="sourceName">模型主链闸门</div><div class="sourceVal">'+(s.core_chain_complete?'完整':'待运行确认')+'</div><div class="sourceMeta">逐场记录 '+(s.row_coverage||0)+'/'+total+'<br>本状态只读数据库，不在前端补算</div></div></div></section>';return html}
+function playCard(title,p){if(!p)return '<div class="card feature"><div class="row"><b>'+title+'</b><span class="warn">未冻结</span></div><div class="tiny">模型本轮没有保存该项正式输出。</div></div>';const st=String(p.status||p.state||'READY').toUpperCase();if(/PASS|NO_TICKET|DISABLED|UNAVAILABLE/.test(st))return '<div class="card feature"><div class="row"><b>'+title+'</b><span class="bad">⛔ 不选</span></div><div class="tiny">'+esc(p.reason||p.note||'模型正式输出为不选')+'</div></div>';const legs=Array.isArray(p.legs)?p.legs:Array.isArray(p.selections)?p.selections:[];return '<div class="card feature"><div class="row"><b>'+title+'</b><span class="good">✅ 正式</span></div><div class="bigpick">'+esc(legs.map(l=>typeof l==='string'?l:[l.match_no,l.home_team&&l.away_team?l.home_team+'-'+l.away_team:'',l.pick||l.top1||''].filter(Boolean).join(' ')).join(' × ')||p.text||'已冻结')+'</div><div class="tiny">'+esc(p.reason||p.note||'')+'</div></div>'}
+function frozenPlayOutcome(p){if(!p)return null;const st=String(p.status||p.state||'READY').toUpperCase();if(/PASS|NO_TICKET|DISABLED|UNAVAILABLE/.test(st))return null;const legs=Array.isArray(p.legs)?p.legs:Array.isArray(p.selections)?p.selections:[];if(!legs.length)return null;const rows=DATA?.hj?.rows||[];let settled=0,hit=0;for(const l of legs){if(typeof l==='string')continue;const no=String(l?.match_no??'').padStart(3,'0');const rr=rows.find(x=>String(x?.match_no??'').padStart(3,'0')===no);if(!rr||!rr.result_verified)continue;settled++;const pick=String(l?.pick||l?.top1||'');const want=pick==='主胜'||pick==='3'?'3':pick==='平'||pick==='1'?'1':pick==='客胜'||pick==='0'?'0':'';if(want&&want===String(rr.result_1x2))hit++}if(settled<legs.length)return{state:'PENDING',label:'⏳ 待结算',detail:'已结算 '+settled+'/'+legs.length};if(hit===legs.length)return{state:'HIT',label:'✅ 命中',detail:hit+'/'+legs.length+' 全中'};return{state:'MISS',label:'❌ 未中',detail:hit+'/'+legs.length+' 命中'}}
+function frozenPlayCard(title,p){if(!p)return '<div class="card feature"><div class="row"><b>'+title+'</b><span class="warn">未冻结</span></div></div>';const st=String(p.status||p.state||'READY').toUpperCase();if(/PASS|NO_TICKET|DISABLED|UNAVAILABLE/.test(st))return '<div class="card feature"><div class="row"><b>'+title+'</b><span class="warn">🧊 冻结不选</span></div><div class="tiny">'+esc(p.reason||p.note||'停售前冻结输出为不选')+'</div></div>';const legs=Array.isArray(p.legs)?p.legs:Array.isArray(p.selections)?p.selections:[],o=frozenPlayOutcome(p),badge=o?.state==='HIT'?'<span class="good">✅ 已命中</span>':o?.state==='MISS'?'<span class="bad">❌ 未命中</span>':o?.state==='PENDING'?'<span class="warn">⏳ 待结算</span>':'<span class="warn">🧊 停售前冻结</span>';return '<div class="card feature"><div class="row"><b>'+title+'</b>'+badge+'</div><div class="bigpick">'+esc(legs.map(l=>typeof l==='string'?l:[l.match_no,l.home_team&&l.away_team?l.home_team+'-'+l.away_team:'',l.pick||l.top1||''].filter(Boolean).join(' ')).join(' × ')||p.text||'已冻结')+'</div><div class="tiny">'+esc(o?.detail||p.reason||p.note||'仅供复盘，不再可执行')+'</div></div>'}
+function plays(){const rec=DATA.hj?.recommendations,s=rec?.saved||{},displayOnly=!!rec?.display_only&&Object.keys(s).length>0,pool=DATA.hj?.run?.pool_label||DATA.hj?.run?.pool_date||'暂无竞彩池';if(displayOnly)return '<section class="section"><div class="shead"><h2>🧊 停售前冻结玩法｜仅复盘</h2><span>'+esc(pool)+'</span></div><div class="notice warn" style="margin:12px">该销售日已经停售。以下是停售前冻结输出，不因跨午夜或模型升级而删除，也不会事后改写。</div><div class="cards">'+frozenPlayCard('A 最稳二串一',s.A||s.a||s.safe2)+frozenPlayCard('B 性价比二串一',s.B||s.b||s.value2)+frozenPlayCard('C 三串一',s.C||s.c||s.triple3)+'</div></section>';return '<section class="section"><div class="shead"><h2>🔥 当前可执行玩法</h2><span>'+esc(pool)+'</span></div><div class="cards">'+(rec?.eligible?playCard('🟢 A 最稳二串一',s.A||s.a||s.safe2)+playCard('🟡 B 性价比二串一',s.B||s.b||s.value2)+playCard('🔵 C 三串一',s.C||s.c||s.triple3):'<div class="card feature" style="grid-column:1/-1"><div class="row"><b>当前结论</b><span class="bad">⛔ 不选 / 不可执行</span></div><div class="tiny">'+esc(rec?.reason||'当前无正式可执行输出')+'</div></div>')+'</div></section>'}
+function dqZh(v){
+ const x=String(v||'').toUpperCase();
+ const m={'DQ-A':'A级（数据完整可靠）','DQ-B':'B级（主链可靠，少量辅助缺失）','DQ-C':'C级（存在重要数据缺口）','DQ-D':'D级（核心数据冲突或不足）'};
+ return m[x]||String(v||'—');
+}
+function reasonZh(v){
+ let x=String(v??'');if(!x)return '';
+ const exact={'PASS':'不选 / 跳过','MARKET_POISSON_CONFLICT':'让球市场与泊松进球差模型冲突','POISSON_MARKET_CONFLICT':'市场与泊松进球差模型冲突','POISSON_MARKET_ALIGNED':'市场与泊松进球差模型同向','MARKET_ONLY':'仅有市场判断','EXACT_MARGIN_RISK':'一球胜负边界风险','NO_ACTION':'不调整','STRONG_CONFLICT':'强冲突','REVIEW':'复核','SUPPORT':'支持'};
+ if(exact[x])return exact[x];
+ const reps=[
+  ['基础爆冷 / 平局 / 直接输球风险存在红灯，Teacher不得复活','基础风险存在红灯：爆冷风险、平局尾险、直接输球风险至少一项偏高；外部复核不得强行放行'],
+  ['基础爆冷 / 平局 / 直接输球风险存在红灯','基础风险存在红灯：爆冷风险、平局尾险、直接输球风险至少一项偏高'],
+  ['A绿质量Gate未通过，且未满足严格B绿救援条件','未通过第一档稳腿质量门槛，也不满足第二档严格救援条件'],
+  ['HHAD市场与Poisson Margin冲突，无法安全裁决','竞彩让球胜平负市场与泊松进球差模型方向冲突，无法安全裁决'],
+  ['HHAD与Poisson未形成双强确认，方向保留但不升绿','竞彩让球胜平负市场与泊松进球差模型未形成双重强确认，方向保留但不升绿'],
+  ['无Poisson时仅允许让球胜平负强市场(≥60%) + Asia4完整升绿','缺少泊松进球差模型时，仅在竞彩让球胜平负市场足够强（≥60%）且四机构亚洲盘完整时才允许升绿'],
+  ['官方±1 + Asia4明显浅盘 + HHAD让平去水>=25%，EXACT Margin高边界风险','官方让球±1、四机构亚洲盘明显偏浅，且让平去水概率≥25%，存在一球胜负边界风险'],
+  ['Teacher无反向动作','外部复核无反向意见'],['Teacher不得复活','外部复核不得强行放行'],
+  ['强冲突','强冲突'],['Poisson Margin','泊松进球差模型'],['Poisson','泊松进球模型'],['Teacher','外部复核'],
+  ['Gate','门槛'],['HAD','胜平负'],['HHAD','让球胜平负'],['HUR','爆冷风险'],['DTR','平局尾险'],['DLR','直接输球风险'],
+  ['HPS','舍场保留评分'],['DQ-A','数据质量A级'],['DQ-B','数据质量B级'],['DQ-C','数据质量C级'],['DQ-D','数据质量D级'],
+  ['PASS','不选 / 跳过'],['Asia4','四机构亚洲盘'],['Elo','实力评分'],['xG','预期进球'],['SP','竞彩赔率']
+ ];
+ for(const [a,b] of reps)x=x.split(a).join(b);return x;
+}
+function statusZh(v){
+ const s=String(v||'');
+ const m={
+  'NO_ANCHOR_RED':'🔴 红灯淘汰',
+  'REVIEW_YELLOW':'🟡 黄灯复核',
+  'ANCHOR_ELIGIBLE':'🟢 正式稳腿',
+  'HAD_ANCHOR_ELIGIBLE':'🟢 正式稳腿',
+  'HAD_MIRROR_UNAVAILABLE':'⚪ HAD镜像暂缺',
+  'NO_ANCHOR_QUALITY':'⚠️ 未达稳腿标准',
+  'NO_ANCHOR_TEACHER_STRONG_CONFLICT':'🔴 二审强冲突淘汰',
+  'NO_ANCHOR_TEACHER_REVIEW':'🟡 二审复核淘汰',
+  'TEACHER_STRONG_CONFLICT_REMOVE':'🔴 二审强冲突淘汰',
+  'TEACHER_REVIEW_NO_REPROOF_REMOVE':'🟡 二审复核未获再证明',
+  'FAIL_HAD_QUALITY':'⚠️ 未达稳腿标准',
+  'NO_ANCHOR_SP_UNAVAILABLE':'⛔ SP数据不足',
+  'FAIL_ALL_SP_UNAVAILABLE':'⛔ 数据不足',
+  'HHAD_REVIEW_CONFLICT':'🟠 让球冲突',
+  'HHAD_POISSON_CONFLICT':'🟠 让球冲突',
+  'HHAD_POISSON_UNAVAILABLE':'⚪ 泊松进球模型未确认',
+  'HHAD_MARKET_ONLY':'⚪ 仅市场让球判断',
+  'HHAD_POISSON_COMPLETE':'✅ 让球泊松进球模型确认',
+  'HHAD_POISSON_ALIGNED':'✅ 让球同向确认',
+  'R9_RETAINED':'✅ 任9保留',
+  'R9_DISCARDED':'⛔ 任9舍弃',
+  'PASS':'⛔ 不选'
+ };
+ return m[s]||s||'—';
+}
+function statusRaw(v){return esc(statusZh(v))}
+function topProb(r){const p=r?.source_status?.top1_prob;return p==null?'—':(Number(p)*100).toFixed(1)+'%'}
+function hjRiskBadge(r){const xs=[r?.hur,r?.dtr,r?.dlr].filter(Boolean);if(xs.includes('红'))return '🔴 高';if(xs.includes('黄'))return '🟡 中';if(xs.length&&xs.every(x=>x==='绿'||x==='NA'))return '🟢 低';return '⚪ 未确认'}
+function hjFtGap(r){const g=Number(r?.source_status?.gap);return Number.isFinite(g)?(g*100).toFixed(1)+'%':'—'}
+function hjHandicapSupport(r){const s=r?.source_status||{},raw=s.handicap_support_count??(Array.isArray(s.handicap_support_domains)?s.handicap_support_domains.length:null),n=Number(raw);if(!Number.isFinite(n))return '支持—';const k=Math.max(0,Math.min(4,Math.round(n))),p=Math.round(k/4*100);return '支持'+k+'/4（'+p+'%）'}
+function hjFtCompact(r){const s=r?.source_status||{},p=topProb(r),c=r?.confidence_label||'—',g=hjFtGap(r),lock=s.prematch_lock===true?' · 🔒赛前冻结':'';return (r?.top1||'未确认')+(p!=='—'?' '+p:'')+' · 信心'+c+(g!=='—'?' · 分离'+g:'')+lock}
+function hjHandicapCompact(r){const s=r?.source_status||{},p=s.handicap_final_pick||r?.handicap_pick||'未确认',h=r?.official_handicap??'—';return String(h)+' · '+String(p)}
+function hjHandicapLight(r){const s=r?.source_status||{},x=String(s.handicap_light||'').toUpperCase(),lab=s.handicap_light_label||(x==='GREEN'?'🟢':x==='YELLOW'?'🟡':x==='RED'?'🔴':'⚪'),sup=hjHandicapSupport(r);if(x==='GREEN')return lab+' 可选 · '+sup;if(x==='YELLOW')return lab+' 观察 · '+sup;if(x==='RED')return lab+' PASS · '+sup;return lab+' 未确认 · '+sup}
+function hjFinalLeg(r){const s=r?.source_status||{},x=s.primary_selection_label||s.had_selection_light_label||s.final_selection_light_label||statusZh(r?.final_handling||r?.anchor_status||'—');return s.prematch_lock===true?'🔒 '+x:x}
+function spSourceZh(v){const x=String(v||'');const m={okooo_sp_mirror:'澳客竞彩赔率', '500_sp_mirror':'500竞彩赔率', qiulaile_sp_mirror:'球来乐竞彩赔率'};return m[x]||x||'未确认'}
+function hjSpDisplay(r){const s=r?.source_status||{},tl=Array.isArray(s.market_timeline)?s.market_timeline:[];const had=tl.find(x=>String(x?.source||'').includes('竞彩HAD'));const hh=tl.find(x=>String(x?.source||'').includes('竞彩HHAD'));const hadTxt=had?.current||((s.had_market_status==='MIRROR_UNAVAILABLE')?'当前镜像暂无可核验HAD赔率（官方状态未确认）':'未确认');const hhTxt=hh?.current||'未确认';const line=r?.official_handicap!=null?String(r.official_handicap):'—';const src=s.hhad_source_code||s.had_source_code||'';return {had:hadTxt,hhad:hhTxt,line,source:spSourceZh(src),verified:s.hhad_market_status==='VERIFIED'}}
+function teacherActionZh(r){const s=r?.source_status||{},a=String(s.teacher_post_gate_action||'NO_ACTION');const m={SUPPORT:'✅ 二审支持',NO_ACTION:'— 不调整',REVIEW:'🟡 二审复核',STRONG_CONFLICT:'🔴 二审强冲突'};return m[a]||a}
+function teacherScore(r){const s=r?.source_status||{},b=s.teacher_base_selection_score,a=s.teacher_adjustment,f=s.teacher_final_selection_score;if(b==null)return '—';return Number(b).toFixed(1)+' '+(Number(a)>=0?'+':'')+Number(a||0).toFixed(0)+' → '+Number(f).toFixed(1)}
+function teacherMember(v,agr,status){const st=String(status||'');if(!v){if(st==='covered_no_clear_direction')return '已覆盖·无明确方向';if(st==='covered_article')return '已取回文章·无明确推荐';if(st==='not_covered')return '未覆盖';if(st==='fetch_failed')return '抓取失败';if(st==='not_injected_server_runtime')return '服务器自动跑未注入·ABSTAIN';return 'ABSTAIN'}const z={SAME:'同向',PARTIAL:'部分覆盖',DIFFERENT:'反向',NONE:'独立意见'};return String(v)+'（'+(z[agr]||agr||'—')+'）'}
+function visibleValue(v){
+ if(v==null)return '';
+ const x=String(v).trim();
+ if(!x)return '';
+ if(['—','未确认','未保存','冻结快照未保存','⚪ 未确认','ABSTAIN','服务器ABSTAIN'].includes(x))return '';
+ return x;
+}
+function kvIf(label,v){
+ const x=visibleValue(v);
+ return x?'<div>'+esc(label)+'</div><div>'+esc(x)+'</div>':'';
+}
+function evidenceFlagZh(v,label,s){
+ const yes=v===true||String(v).toLowerCase()==='true';
+ if(!yes)return '';
+ if(label==='市场')return '✅ 已确认 · 市场主链完整';
+ if(label==='实力'){const x=String(s?.elo?.source_status||'');return x.includes('cold_start')?'✅ 实力评分已确认（冷启动）':x?'✅ 实力评分已确认':'✅ 已确认'}
+ if(label==='基本面')return '✅ 已确认';
+ if(label==='二审')return '✅ 已确认';
+ return '✅ 已确认';
+}
+function teacherMemberVisible(v,agr,status){
+ if(v)return teacherMember(v,agr,status);
+ const st=String(status||'');
+ if(st==='covered_article')return '已取回文章·无明确推荐';
+ if(st==='covered_no_clear_direction')return '已覆盖·无明确方向';
+ return '';
+}
+function teacherHasPick(s){return !!s?.teacher_g_had}
+function hjTeacherDetailSection(r){
+ const s=r?.source_status||{},g=s.teacher_g_had||null,st=String(s.teacher_g_source_status||''),a=String(s.teacher_post_gate_action||'NO_ACTION');
+ const reviewedStatus=['confirmed_prematch_independent_review','confirmed_prematch_review','confirmed'].includes(st);
+ const reviewedEvidence=!!(s.teacher_g_reviewed_at||s.teacher_g_final_conclusion||s.teacher_g_support_evidence||s.teacher_g_opposition_evidence||g);
+ const gptReviewed=reviewedStatus&&reviewedEvidence;
+ if(!gptReviewed){
+  const why=st==='not_injected_server_runtime'?'服务器运行未注入GPT-5.6 Sol二审':st==='fetch_failed'?'GPT二审获取失败':st==='not_covered'?'本场未进入GPT二审覆盖':(st?'二审状态='+st:'没有真实GPT二审记录');
+  return '<section class="section"><div class="shead"><h2>🤖 GPT-5.6 Sol 二审明细</h2><span>真实二审闸门</span></div>'+
+   '<div class="notice warn" style="margin:12px"><b>⚪ 二审未执行：</b> '+esc(why)+'。本场不生成方向判断、黄灯仲裁、基本面审计或“最强证据”二审结论；页面下方市场/Elo/Poisson属于一审数据，不得冒充GPT二审。</div></section>';
+ }
+ const az={SUPPORT:'✅ 支持Top1',REVIEW:'🟡 反对/要求复核',STRONG_CONFLICT:'🔴 强冲突',NO_ACTION:'⚪ ABSTAIN / 不调整'}[a]||a;
+ const sz=st==='not_injected_server_runtime'?'⚪ 本轮未注入 · ABSTAIN':st==='confirmed_prematch_independent_review'?'✅ 已完成赛前独立二审':st==='confirmed_prematch_review'?'✅ 已完成赛前二审':st==='confirmed'?'✅ 已确认':st==='fetch_failed'?'⚠️ 获取失败 · ABSTAIN':st==='not_covered'?'⚪ 未覆盖 · ABSTAIN':(st||'⚪ 未确认');
+ const arbRaw=String(s.teacher_g_yellow_arbitration||'').toUpperCase();
+ const arb=arbRaw==='RESCUE'||arbRaw==='可救黄灯'?'🟢 可救黄灯':arbRaw==='HOLD'||arbRaw==='保持黄灯'?'🟡 保持黄灯':arbRaw==='BLOCK'||arbRaw==='禁止救援'?'🔴 禁止救援':'⚪ ABSTAIN / 未仲裁';
+ const sup=[],opp=[];
+ if(s.teacher_g_support_evidence)sup.push(String(s.teacher_g_support_evidence));
+ if(s.teacher_g_opposition_evidence)opp.push(String(s.teacher_g_opposition_evidence));
+ if((s.market_direction_conflict===false||String(s.market_direction_conflict)==='false')&&r.top1)sup.push('市场主方向未与Top1冲突');
+ if(s.sp_top1===r.top1)sup.push('竞彩HAD方向与Top1一致');
+ const e=Number(s?.elo?.elo_diff);if(Number.isFinite(e)&&((r.top1==='主胜'&&e>0)||(r.top1==='客胜'&&e<0)))sup.push('Elo实力评分支持'+r.top1+'（差 '+Math.abs(e).toFixed(1)+'）');
+ const p=Number(s.top1_prob),gap=Number(s.gap);if(Number.isFinite(p))sup.push('Top1概率 '+(p*100).toFixed(1)+'%');if(Number.isFinite(gap))sup.push('方向分离度 '+(gap*100).toFixed(1)+'%');
+ if(r.hur==='红')opp.push('HUR爆冷风险红灯');else if(r.hur==='黄')opp.push('HUR爆冷风险黄灯');
+ if(r.dtr==='红')opp.push('DTR平局尾险红灯');else if(r.dtr==='黄')opp.push('DTR平局尾险黄灯');
+ if(r.dlr==='红')opp.push('DLR直接输球风险红灯');else if(r.dlr==='黄')opp.push('DLR直接输球风险黄灯');
+ if(s.hhad_market_poisson_conflict===true||String(s.hhad_market_poisson_conflict)==='true')opp.push('HHAD让球市场与Poisson净胜球模型冲突');
+ if(Number.isFinite(e)&&((r.top1==='主胜'&&e<0)||(r.top1==='客胜'&&e>0)))opp.push('Elo反向（差 '+Math.abs(e).toFixed(1)+'）');
+ const deep=Number(s.deep_gate_median_abs);if(Number.isFinite(deep)&&deep<1)opp.push('Asia4盘口深度偏浅（中位 '+deep.toFixed(2)+'）');
+
+ const tl=Array.isArray(s.market_timeline)?s.market_timeline:[];
+ const wh=tl.find(x=>String(x?.source||'').includes('William Hill 欧赔'));
+ const asia=tl.filter(x=>String(x?.source||'').includes('亚洲盘'));
+ const had=tl.find(x=>String(x?.source||'').includes('竞彩HAD'));
+ const hhad=tl.find(x=>String(x?.source||'').includes('竞彩HHAD'));
+ const whTxt=wh?('初 '+(wh.initial||'未确认')+' → 即 '+(wh.current||'未确认')+' → 临 '+(wh.closing||wh.close||'未确认')):'未确认';
+ const asiaTxt=asia.length?asia.map(x=>String(x.source||'')+'：'+String(x.current||'未确认')).join('；'):'未确认';
+ const hadTxt=had?String(had.current||'未确认'):'未确认';
+ const hhadTxt=hhad?String(hhad.current||'未确认'):'未确认';
+ const eloTxt=Number.isFinite(e)?((e>0?'主队 +':'客队 +')+Math.abs(e).toFixed(1)+(r.top1?('；对Top1='+( (r.top1==='主胜'&&e>0)||(r.top1==='客胜'&&e<0) ?'支持':'反向')):'')):'未确认';
+ const lh=Number(s.hhad_lambda_home),la=Number(s.hhad_lambda_away);
+ const poiTxt=(Number.isFinite(lh)&&Number.isFinite(la))?('主λ '+lh.toFixed(2)+' / 客λ '+la.toFixed(2)+'；让球市场 '+(s.hhad_market_top1||'未确认')+'；Poisson '+(s.hhad_poisson_top1||'未确认')):'未确认';
+ const riskTxt='HUR '+(r.hur||'未确认')+' / DTR '+(r.dtr||'未确认')+' / DLR '+(r.dlr||'未确认');
+
+ const basicPieces=[];
+ const basicMap=[
+  ['首发/伤停',s.teacher_g_lineup_injury_audit||s.lineup_injury_audit],
+  ['核心缺阵/轮换',s.teacher_g_rotation_audit||s.rotation_audit],
+  ['体能/休息',s.teacher_g_fatigue_rest_audit||s.fatigue_rest_audit],
+  ['战意/赛程密度',s.teacher_g_motivation_schedule_audit||s.motivation_schedule_audit],
+  ['战术克制',s.teacher_g_tactical_matchup_audit||s.tactical_matchup_audit],
+  ['门将/定位球',s.teacher_g_gk_setpiece_audit||s.gk_setpiece_audit],
+  ['旅行/天气/场地',s.teacher_g_travel_weather_pitch_audit||s.travel_weather_pitch_audit]
+ ];
+ basicMap.forEach(([k,v])=>basicPieces.push(k+'：'+(v||'未确认，不猜')));
+ const basicTxt=basicPieces.join('；');
+
+ let final=s.teacher_g_final_conclusion||s.teacher_final_conclusion||'';
+ if(!final){if(!g)final='GPT-5.6 Sol本轮未注入，ABSTAIN；不伪造二审结论。';else if(a==='STRONG_CONFLICT')final='二审强冲突：不进入正式选腿。';else if(a==='REVIEW')final='二审反对/要求复核：维持观察或降级。';else if(a==='SUPPORT'&&String(s.final_selection_light||'').toUpperCase()==='GREEN')final='二审支持Top1，且正式门槛通过：可进入正式稳腿。';else if(a==='SUPPORT')final='二审支持Top1，但是否升绿必须另看黄灯仲裁与硬证据。';else final='二审ABSTAIN，最终仍按正式门槛执行。'}
+ const arbReason=s.teacher_g_yellow_reason||'未保存独立黄灯仲裁理由';
+ return '<section class="section"><div class="shead"><h2>🤖 GPT-5.6 Sol 二审明细</h2><span>方向判断 + 黄灯仲裁 + 证据审计</span></div>'+
+ '<div class="cards"><div class="card feature"><div class="kv">'+
+ '<div>二审状态</div><div>'+esc(sz)+'</div>'+
+ '<div>方向判断</div><div><b>'+esc(g?az:'ABSTAIN')+'</b></div>'+
+ '<div>GPT方向</div><div>'+esc(g||'ABSTAIN')+'</div>'+
+ '<div>GPT第二方向</div><div>'+esc(s.teacher_g_second_pick||'—')+'</div>'+
+ '<div>GPT信心</div><div>'+esc(s.teacher_g_confidence||'—')+'</div>'+
+ '<div>平局风险</div><div>'+esc(s.teacher_g_draw_risk||'—')+'</div>'+
+ '<div>爆冷风险</div><div>'+esc(s.teacher_g_upset_risk||'—')+'</div>'+
+ '<div>热门陷阱</div><div>'+esc(s.teacher_g_favorite_trap||'—')+'</div>'+
+ '<div>黄灯仲裁</div><div><b>'+esc(arb)+'</b></div>'+
+ '<div>仲裁理由</div><div>'+esc(arbReason)+'</div>'+
+ '<div>最终说明</div><div><b>'+esc(final)+'</b></div>'+
+ '</div></div></div>'+
+ '<div class="cards"><div class="card"><div class="kv">'+
+ '<div>William Hill欧赔</div><div>'+esc(whTxt)+'</div>'+
+ '<div>Asia4盘口/水位</div><div>'+esc(asiaTxt)+'</div>'+
+ '<div>竞彩HAD SP</div><div>'+esc(hadTxt)+'</div>'+
+ '<div>竞彩HHAD SP</div><div>'+esc(hhadTxt)+'</div>'+
+ '<div>Elo实力差</div><div>'+esc(eloTxt)+'</div>'+
+ '<div>Poisson / 净胜球</div><div>'+esc(poiTxt)+'</div>'+
+ '<div>HUR / DTR / DLR</div><div>'+esc(riskTxt)+'</div>'+
+ '</div></div>'+
+ '<div class="card"><div class="kv">'+
+ '<div>最强支持证据</div><div>'+esc(sup.length?sup.join('；'):'未保存明确支持证据')+'</div>'+
+ '<div>最强反方证据</div><div>'+esc(opp.length?opp.join('；'):'未保存明确反方证据')+'</div>'+
+ '<div>基本面审计</div><div>'+esc(basicTxt)+'</div>'+
+ '<div>正式首选</div><div>'+esc(r.top1||'未确认')+'</div>'+
+ '<div>最终胜平负灯</div><div>'+esc(s.final_selection_light_label||s.primary_selection_label||'—')+'</div>'+
+ '</div></div></div></section>';
+}
+function strongestSupportZh(r){
+ const s=r?.source_status||{};
+ if(s.strongest_support)return s.strongest_support;
+ const mc=s.market_direction_conflict===false||String(s.market_direction_conflict)==='false';
+ if(mc&&r?.top1)return '市场主链支持 '+r.top1;
+ const es=String(s?.elo?.source_status||'');
+ if(es.startsWith('confirmed'))return '实力评分已确认';
+ return '';
+}
+function strongestOppositionZh(r){
+ const s=r?.source_status||{};
+ if(s.strongest_opposition)return s.strongest_opposition;
+ if(s.hhad_market_poisson_conflict===true||String(s.hhad_market_poisson_conflict)==='true')return '让球市场与Poisson冲突';
+ if(s.market_direction_conflict===true||String(s.market_direction_conflict)==='true')return '市场方向冲突';
+ const n=Number(s.teacher_independent_opposition_domains||0);
+ if(n>0)return '外部老师独立反向域 '+n;
+ return '';
+}
+function hcExtra(r,k){const s=r?.source_status||{};const aliases={single:['single_eligibility','singleEligibility'],opp:['single_opportunity_cost','opportunity_cost'],hpsclass:['hps_class','hpsClass'],role:['ticket_role','final_role']};for(const x of aliases[k]||[])if(s[x]!=null)return s[x];return '—'}
+function hcOppZh(v){const m={LOW:'低',MEDIUM:'中',HIGH:'高',PROHIBITIVE:'极高（禁止单选）'};return m[String(v||'').toUpperCase()]||v||'—'}
+function hcHpsZh(v){const m={KEEP_CORE:'核心保留',KEEP:'保留',BORDERLINE:'边界保留',DISCARD_PRIORITY:'优先舍弃',UNCONFIRMED:'未确认'};return m[String(v||'').toUpperCase()]||v||'—'}
+function hcRoleZh(v){const m={SINGLE:'单选',DOUBLE:'双选',DISCARD:'舍弃'};return m[String(v||'').toUpperCase()]||v||'—'}
+function hcTicketStatusZh(v){const x=String(v||'').toUpperCase();if(x==='READY')return '✅ 可出票';if(x==='PASS')return '⚠️ 暂停出票';return v||'未确认'}
+function hjPoissonScoreData(r){
+  const s=r?.source_status||{},lh=Number(s.hhad_lambda_home),la=Number(s.hhad_lambda_away),st=String(s.hhad_shadow_status||'');
+  if(!Number.isFinite(lh)||!Number.isFinite(la)||lh<=0||la<=0||st==='MARKET_ONLY')return null;
+  const fact=n=>{let x=1;for(let i=2;i<=n;i++)x*=i;return x};
+  const pp=(l,k)=>Math.exp(-l)*Math.pow(l,k)/fact(k);
+  const cells=[];
+  for(let h=0;h<=6;h++)for(let a=0;a<=6;a++)cells.push({score:h+'-'+a,p:pp(lh,h)*pp(la,a)});
+  cells.sort((x,y)=>y.p-x.p);
+  const total=lh+la,pt=k=>Math.exp(-total)*Math.pow(total,k)/fact(k);
+  const bands=[
+    {label:'0–1球',p:pt(0)+pt(1)},
+    {label:'2–3球',p:pt(2)+pt(3)},
+    {label:'4–5球',p:pt(4)+pt(5)},
+    {label:'6+球',p:Math.max(0,1-[0,1,2,3,4,5].reduce((z,k)=>z+pt(k),0))}
+  ].sort((x,y)=>y.p-x.p);
+  return {top3:cells.slice(0,3),top16:cells.slice(0,16),goalBand:bands[0],lh,la,status:st};
+}
+function hjQuickConclusion(r){
+  const s=r?.source_status||{},risk=hjRiskBadge(r),light=String(s.final_selection_light||'').toUpperCase(),p=Number(s.top1_prob);
+  if(risk.includes('高'))return '热门尾部风险高，优先复核平/冷，不宜只看首选方向。';
+  if(light==='GREEN')return '正式胜平负选腿通过，属于优先关注场。';
+  if(light==='RED')return '正式选腿不选，方向仅作全池参考。';
+  if(Number.isFinite(p)&&p>=0.65)return '方向概率较强，但仍以正式胜平负门槛为准。';
+  return '首选方向明确，仍需结合风险与市场一致性。';
+}
+function hjQuickScoreHtml(r){
+  const d=hjPoissonScoreData(r);
+  if(!d)return '';
+  return '<div class="hjqscoreline"><div class="hjqscoretitle">最高概率3个比分 · 泊松进球模型参考层</div><div class="hjqscores">'+d.top3.map(x=>'<div class="hjqscore"><b>'+esc(x.score)+'</b><span>'+((x.p*100).toFixed(1))+'%</span></div>').join('')+'</div></div>';
+}
+function hjQuickCard(r){
+  const s=r?.source_status||{},p=topProb(r),d=hjPoissonScoreData(r),goal=d?d.goalBand.label+' '+(d.goalBand.p*100).toFixed(1)+'%':'';
+  const t=fmtTime(r.kickoff_bjt),time=t==='—'?'—':t.split(' ').pop()||t;
+  const settled=!!r.result_verified,hit=settled&&r.top1&&hitTop(r),resClass=!settled?'warn':hit?'good':'bad';
+  const resText=!settled?'⏳ 赛果：待结算':('赛果：'+result(r)+(hit?' · ✅ 首选命中':' · ❌ 首选未中'));
+  return '<div class="hjqcard" onclick="showMatch(\'hj\',\''+esc(r.match_no)+'\')">'+
+    '<div class="hjqhead"><div><span class="hjqno">'+esc(r.match_no)+'</span> <span class="hjqleague">'+esc(r.league||'')+'</span></div><span class="hjqtime">'+esc(time)+'</span></div>'+
+    '<div class="hjqteams">'+esc(r.home_team)+' <span style="color:#5f7892;font-weight:600">vs</span> '+esc(r.away_team)+'</div>'+
+    '<div class="hjqline"><div class="hjqpick">'+esc(r.top1||'未确认')+'</div><div class="hjqprob">'+esc(p)+' · 信心'+esc(r.confidence_label||'—')+'</div></div>'+
+    '<div class="hjqchips"><span class="hjqchip">'+esc(hjRiskBadge(r))+'</span><span class="hjqchip">'+esc(hjFinalLeg(r))+'</span>'+(goal?'<span class="hjqchip">⚽ '+esc(goal)+'</span>':'')+'</div>'+
+    hjQuickScoreHtml(r)+
+    '<div class="hjqresult '+resClass+'">'+esc(resText)+'</div>'+
+    '<div class="hjqfoot">'+esc(hjQuickConclusion(r))+'</div>'+
+  '</div>';
+}
+function hjScoreMatrixSection(r){
+  const d=hjPoissonScoreData(r);
+  if(!d)return '';
+  return '<section class="section"><div class="shead"><h2>🎯 比分概率参考</h2><span>仅作解释层 · 不改正式胜平负 Top1</span></div>'+
+    '<div style="padding:12px"><div class="scoreTop3">'+d.top3.map(x=>'<div><b>'+esc(x.score)+'</b><span>'+((x.p*100).toFixed(1))+'%</span></div>').join('')+'</div>'+
+    '<div class="tiny" style="margin:10px 0">进球区间：<b>'+esc(d.goalBand.label)+'</b> · '+(d.goalBand.p*100).toFixed(1)+'% ｜ 主队预期进球 '+d.lh.toFixed(2)+' / 客队预期进球 '+d.la.toFixed(2)+'</div>'+
+    '<div class="scoreMatrix">'+d.top16.map(x=>'<div class="scoreCell"><b>'+esc(x.score)+'</b><span>'+((x.p*100).toFixed(1))+'%</span></div>').join('')+'</div>'+
+    '<div class="tiny" style="margin-top:10px">注意：单一比分概率最高不等于胜平负首选方向必须同方向；正式决策仍读取豪竞2.3的胜平负主链与风险闸门。</div></div></section>';
+}
+
+function rowsTable(kind){const d=kind==='hj'?DATA.hj:DATA.hc,n=activeNames(),rows=d?.rows||[];
+if(kind==='hj'){
+  const quick='<section class="section"><div class="shead"><h2>'+esc(n.hj)+'｜全池极速总览</h2><span>5秒看方向 · 风险 · 最高概率3个比分 · 完整证据点比赛查看</span></div><div class="hjquickgrid">'+rows.map(hjQuickCard).join('')+'</div>'+
+  '<details class="hjqlegacy"><summary>展开完整全池表格（原全部字段保留）</summary><div class="tablewrap hjtablewrap"><table class="hjcompact"><thead><tr><th>场</th><th>对阵</th><th>胜平负</th><th>风险</th><th>让球</th><th>让球灯</th><th>最终选腿</th><th>赛果</th></tr></thead><tbody>'+rows.map(r=>'<tr class="clickrow" onclick="showMatch(\'hj\',\''+esc(r.match_no)+'\')"><td><b>'+esc(r.match_no)+'</b></td><td><b>'+esc(r.home_team)+' - '+esc(r.away_team)+'</b></td><td>'+esc(hjFtCompact(r))+'</td><td>'+esc(hjRiskBadge(r))+'</td><td><b>'+esc(hjHandicapCompact(r))+'</b></td><td><b>'+esc(hjHandicapLight(r))+'</b></td><td>'+esc(hjFinalLeg(r))+'</td><td class="'+(!r.result_verified?'warn':r.top1&&hitTop(r)?'good':'bad')+'">'+esc(result(r))+'</td></tr>').join('')+'</tbody></table></div></details></section>';
+  return quick;
+}
+if(!rows.length)return '<section class="section"><div class="shead"><h2>'+esc(n.hc)+'｜任9全池</h2><span>豪传2.3已接入数据库active模型</span></div><div class="cards"><div class="card feature" style="grid-column:1/-1"><b>等待当前修订赛前运行</b><div class="tiny">当前active：'+esc(activeByRole('hc')?.revision_tag||'未登记')+'。没有绑定当前revision的任9逐场冻结结果时，网站不会拿旧豪传2.2票面冒充2.3。</div></div></div></section>';
+return '<section class="section"><div class="shead"><h2>'+esc(n.hc)+'｜任9全池</h2><span>Confidence-First → 舍5留最强9 → 单/双/三自适应 → 方向一致性</span></div><div class="tablewrap"><table><thead><tr><th>场</th><th>对阵</th><th>首选方向</th><th>第二</th><th>爆冷 / 平局 / 直接输球风险</th><th>单选资格</th><th>机会成本</th><th>舍场保留类型</th><th>票面</th><th>留/舍</th><th>一致性</th><th>角色</th><th>赛果</th></tr></thead><tbody>'+rows.map(r=>'<tr class="clickrow" onclick="showMatch(\'hc\',\''+esc(r.match_no)+'\')"><td><b>'+esc(r.match_no)+'</b></td><td>'+esc(r.home_team)+' - '+esc(r.away_team)+'</td><td>'+esc(r.top1||'—')+'</td><td>'+esc(r.second_pick||'—')+'</td><td>'+esc((r.hur||'—')+'/'+(r.dtr||'—')+'/'+(r.dlr||'—'))+'</td><td>'+esc(hcExtra(r,'single'))+'</td><td>'+esc(hcOppZh(hcExtra(r,'opp')))+'</td><td>'+esc(hcHpsZh(hcExtra(r,'hpsclass')))+'</td><td><b>'+esc(r.ticket_pick_after_gate||r.ticket_pick||'—')+'</b></td><td>'+esc(r.keep_discard||'—')+'</td><td>'+esc(directionConsistencyZh(r.direction_consistency_status))+'</td><td>'+esc(hcRoleZh(hcExtra(r,'role')))+'</td><td class="'+(!r.result_verified?'warn':hitTicket({...r,ticket_pick:r.ticket_pick_after_gate||r.ticket_pick})?'good':'bad')+'">'+esc(result(r))+'</td></tr>').join('')+'</tbody></table></div></section>'}
+async function showMatch(kind,no){const rows=kind==='hj'?(DATA.hj?.rows||[]):(DATA.hc?.rows||[]),base=rows.find(r=>String(r.match_no)===String(no));if(!base)return;document.getElementById('app').innerHTML='<div class="loading">正在读取本场完整证据…</div>';try{const rr=await fetch(API+'?api=1&run_id='+encodeURIComponent(base.run_id)+'&match_no='+encodeURIComponent(base.match_no)+'&t='+Date.now(),{headers:{Authorization:'Bearer '+token()},cache:'no-store'}),j=await rr.json();if(!rr.ok||!j.ok)throw new Error(j.error||'读取失败');DETAIL={kind,row:j.detail.row};render();scrollTo(0,0)}catch(e){DETAIL={kind,row:base};render();scrollTo(0,0)}}
+function hcMatchDetail(r){const s=r.source_status||{},e=s.evidence_domains||s.evidence_completeness||{},tl=Array.isArray(s.market_timeline)?s.market_timeline:[];const role=s.ticket_role||'—',single=s.single_eligibility||'—',opp=s.single_opportunity_cost||'—',hpsclass=s.hps_class||'—';return '<div><button class="backbtn" onclick="DETAIL=null;render()">← 返回</button></div><div class="hero" style="margin-top:10px"><div class="heroMain"><div class="heroTitle">'+esc(r.match_no||'—')+' '+esc(r.league||'')+'</div><div class="heroValue">'+esc(r.home_team)+' vs '+esc(r.away_team)+'</div><div class="tiny">开赛：'+esc(fmtTime(r.kickoff_bjt))+' ｜ 冻结：'+esc(fmtTime(r.frozen_at))+(s.prematch_lock===true?' ｜ 🔒 已锁最后赛前结论（源运行 '+esc(s.prematch_lock_source_run_id||'—')+' / 原模型版本 '+esc(s.prematch_lock_original_revision_id||r.model_revision_id||'—')+'）':'')+'</div></div><div class="heroSide">'+metric('首选方向',r.top1||'未确认','第二：'+(r.second_pick||'未确认'))+metric('基础处理',statusZh(r.final_handling||r.keep_discard||'—'),'数据质量 '+dqZh(r.dq))+'</div></div><section class="section"><div class="shead"><h2>🧠 任9风险与票面证据</h2><span>豪传冻结字段</span></div><div class="cards"><div class="card"><div class="kv"><div>爆冷风险</div><div>'+esc(r.hur||'—')+'</div><div>平局尾险</div><div>'+esc(r.dtr||'—')+'</div><div>直接输球风险</div><div>'+esc(r.dlr||'—')+'</div><div>舍场保留类型</div><div>'+esc(hcHpsZh(hpsclass))+'</div><div>单选资格</div><div>'+esc(single)+'</div><div>机会成本</div><div>'+esc(hcOppZh(opp))+'</div><div>票面角色</div><div>'+esc(hcRoleZh(role))+'</div><div>票面</div><div>'+esc(r.ticket_pick_after_gate||r.ticket_pick||'—')+'</div><div>留/舍</div><div>'+esc(r.keep_discard||'—')+'</div><div>方向一致性</div><div>'+esc(directionConsistencyZh(r.direction_consistency_status))+'</div><div>强冲突</div><div>'+esc(reasonZh(r.strong_conflict||'未触发'))+'</div><div>最强支持</div><div>'+esc(s.strongest_support||r.hps||'未保存')+'</div><div>最强反对</div><div>'+esc(s.strongest_opposition||'未保存')+'</div></div></div><div class="card"><div class="kv"><div>市场</div><div>'+esc(e.market||s.market_summary||'未保存')+'</div><div>实力</div><div>'+esc(e.strength||'冻结快照未保存')+'</div><div>外部老师</div><div>'+esc(e.professional||'冻结快照未保存')+'</div><div>基本面</div><div>'+esc(e.fundamentals||'冻结快照未保存')+'</div><div>二审</div><div>'+esc(e.teacher||'该期冻结时未启用')+'</div><div>舍场保留说明</div><div>'+esc(r.hps||'未保存')+'</div></div></div></div></section><section class="section"><div class="shead"><h2>📈 冻结市场记录</h2><span>只展示冻结时已保存证据</span></div><div class="cards"><div class="card" style="grid-column:1/-1">'+(tl.length?tl.map(x=>'<div class="tiny"><b>'+esc(x.source||'—')+'</b> ｜ 初 '+esc(x.initial??'—')+' → 即 '+esc(x.current??'—')+' → 临 '+esc(x.close??'—')+'</div>').join(''):'<div class="tiny">'+esc(s.market_summary||'该期旧冻结结构未保存逐时市场时间线；禁止用冻结后数据事后补录。')+'</div>')+'</div></div></section>'}
+
+function okoooShadowSection(r){
+ const w=r?.okooo_shadow,a=w?.analysis;if(!a)return '';
+ const level=String(a.level||'数据不足'),tone=level==='重点异常'?'bad':level==='分歧观察'?'warn':level==='同向强化'?'good':'warn';
+ const p=a.market_99?.probabilities_pct||{},b=a.betfair||{},bs=b.share_pct||{},bh=b.cold_heat||{},bp=b.profit_index||{},k=a.kelly||{},it=a.intelligence||{};
+ const n=v=>{const x=Number(v);return Number.isFinite(x)?x.toFixed(1):'—'};
+ const kdir=k.lowest_direction||'未确认',kval=k.lowest_value==null?'—':Number(k.lowest_value).toFixed(3);
+ const hi=Array.isArray(it.highlights)?it.highlights.filter(Boolean):[];
+ return '<section class="section"><div class="shead"><h2>🛰️ 澳客市场影子观察</h2><span>自动采集 + 自动分析 · 不改变正式模型方向</span></div>'+
+ '<div class="notice '+tone+'" style="margin:12px"><b>'+esc(level)+'</b> ｜ '+esc(a.summary||'暂无综合总结')+'</div>'+
+ '<div class="cards">'+
+ '<div class="card"><div class="kv"><div>99家主方向</div><div><b>'+esc(a.market_99?.top||'未确认')+'</b></div><div>主 / 平 / 客</div><div>'+n(p.home)+'% / '+n(p.draw)+'% / '+n(p.away)+'%</div><div>必发资金方向</div><div><b>'+esc(b.top||'未确认')+'</b></div><div>资金占比 主/平/客</div><div>'+n(bs.home)+'% / '+n(bs.draw)+'% / '+n(bs.away)+'%</div></div></div>'+
+ '<div class="card"><div class="kv"><div>凯利最低方向</div><div><b>'+esc(kdir)+'</b> · '+esc(kval)+'</div><div>凯利完整机构</div><div>'+esc(k.complete_count??0)+'</div><div>必发冷热 主/平/客</div><div>'+n(bh.home)+' / '+n(bh.draw)+' / '+n(bh.away)+'</div><div>盈亏指数 主/平/客</div><div>'+n(bp.home)+' / '+n(bp.draw)+' / '+n(bp.away)+'</div></div></div>'+
+ '<div class="card" style="grid-column:1/-1"><b>情报 / 伤停</b><div class="tiny" style="margin-top:6px">有效伤停 '+esc(it.injury_count??0)+' 条 · 主队相关 '+esc(it.home_count??0)+' 条 · 客队相关 '+esc(it.away_count??0)+' 条</div>'+
+ (hi.length?'<div class="tiny" style="margin-top:8px">'+hi.map(x=>'• '+esc(x)).join('<br>')+'</div>':'<div class="tiny" style="margin-top:8px">暂无可用情报摘要。</div>')+
+ '<div class="tiny" style="margin-top:8px">影子更新时间：'+esc(fmtTime(w.captured_at))+' ｜ '+esc(w.timing_quality||'—')+'</div></div>'+
+ '</div></section>';
+}
+
+function matchDetail(){const d=DETAIL,r=d?.row;if(!r)return '';if(d.kind==='hc')return hcMatchDetail(r);const s=r.source_status||{},e=s.evidence_domains||s.evidence_completeness||{},tl=Array.isArray(s.market_timeline)?s.market_timeline:[],sp=hjSpDisplay(r);const scoreSec=hjScoreMatrixSection(r);return '<div><button class="backbtn" onclick="DETAIL=null;render()">← 返回</button></div><div class="hero" style="margin-top:10px"><div class="heroMain"><div class="heroTitle">'+esc(r.match_no||'—')+' '+esc(r.league||'')+'</div><div class="heroValue">'+esc(r.home_team)+' vs '+esc(r.away_team)+'</div><div class="tiny">开赛：'+esc(fmtTime(r.kickoff_bjt))+' ｜ 冻结：'+esc(fmtTime(r.frozen_at))+'</div></div><div class="heroSide">'+metric('首选方向',r.top1||'未确认','第二：'+(r.second_pick||'未确认'))+metric('基础处理',statusZh(r.final_handling||r.anchor_status||r.keep_discard||'—'),'数据质量 '+dqZh(r.dq))+metric('最终胜平负选腿灯',s.primary_selection_label||s.had_selection_light_label||s.final_selection_light_label||'—',s.final_selection_reason||'胜平负HAD正式选腿状态')+metric('让球方向',(s.handicap_light_label||'⚪')+' '+(r.handicap_pick||'未确认'),s.handicap_light_reason||'HHAD按豪竞3.2正式让球链输出')+metric('竞彩SP','HAD '+sp.had,'HHAD '+sp.line+'：'+sp.hhad+' · '+sp.source+(sp.verified?' ✅':''))+'</div></div>'+scoreSec+'<section class="section"><div class="shead"><h2>🧠 风险与证据</h2><span>模型冻结字段</span></div><div class="cards"><div class="card"><div class="kv"><div>爆冷风险</div><div>'+esc(r.hur||'—')+'</div><div>平局尾险</div><div>'+esc(r.dtr||'—')+'</div><div>直接输球风险</div><div>'+esc(r.dlr||'—')+'</div><div>FT分离度</div><div>'+esc(hjFtGap(r))+'</div><div>基础处理</div><div>'+esc(statusZh(r.final_handling||r.anchor_status||'—'))+'</div><div>最终胜平负选腿灯</div><div>'+esc(s.primary_selection_label||s.had_selection_light_label||s.final_selection_light_label||'—')+'</div><div>胜平负正式资格</div><div>'+esc((s.primary_selection_eligible===true||s.had_selection_eligible===true)?'可进入推荐档位':'不可进入推荐档位')+'</div><div>让球方向状态</div><div>'+esc(s.handicap_aux_label||((s.handicap_light_label||'⚪')+' '+(s.handicap_final_pick||r.handicap_pick||'未确认')))+'</div><div>二审结论</div><div>'+esc(teacherActionZh(r))+'</div><div>最终灯理由</div><div>'+esc(reasonZh(s.final_selection_reason||'—'))+'</div><div>赛前冻结</div><div>'+esc(s.prematch_lock===true?('已锁定 · 运行 '+(s.prematch_lock_source_run_id||'—')+' · '+fmtTime(s.prematch_lock_frozen_at||r.frozen_at)):(s.post_kickoff_no_freeze===true?'已开球但无赛前冻结，禁止重算':'未锁定·仍可赛前刷新'))+'</div><div>竞彩胜平负赔率</div><div>'+esc(sp.had)+'</div><div>竞彩让球胜平负赔率</div><div>'+esc((sp.line||'—')+' ｜ '+sp.hhad+' ｜ '+sp.source+(sp.verified?' ✅':''))+'</div><div>让球原始方向</div><div>'+esc(s.handicap_raw_pick||'—')+'</div><div>让球最终方向</div><div>'+esc(s.handicap_final_pick||r.handicap_pick||'—')+'</div><div>让球信号灯</div><div>'+esc((s.handicap_light_label||'⚪')+' '+(s.handicap_light||'UNCONFIRMED'))+'</div><div>让球灯理由</div><div>'+esc(reasonZh(s.handicap_light_reason||'—'))+'</div>'+kvIf('让球支持域',Array.isArray(s.handicap_support_domains)?s.handicap_support_domains.join(' / '):'')+'<div>让球证据支持率</div><div>'+esc(hjHandicapSupport(r))+'</div>'+kvIf('让球跳过原因',reasonZh(s.handicap_pass_trigger||''))+'<div>独立再证明域</div><div>'+esc(s.independent_support_domains??'—')+'</div>'+(s.teacher_base_selection_score==null?'':'<div>基础选腿分</div><div>'+esc(Number(s.teacher_base_selection_score).toFixed(1))+'</div>')+''+((s.teacher_adjustment==null||(!teacherHasPick(s)&&s.teacher_base_selection_score==null&&s.teacher_final_selection_score==null))?'':'<div>二审调整</div><div>'+esc((Number(s.teacher_adjustment)>=0?'+':'')+Number(s.teacher_adjustment).toFixed(0))+'</div>')+''+(s.teacher_final_selection_score==null?'':'<div>最终选腿分</div><div>'+esc(Number(s.teacher_final_selection_score).toFixed(1))+'</div>')+''+kvIf('GPT-5.6 Sol',teacherMemberVisible(s.teacher_g_had,s.teacher_g_had_agreement,s.teacher_g_source_status))+(teacherHasPick(s)?'<div>二审权重</div><div>GPT-5.6 Sol 100%（当前唯一正式二审）</div>':'')+kvIf('强冲突',r.strong_conflict&&r.strong_conflict!=='未触发'?r.strong_conflict:'')+kvIf('最强支持',strongestSupportZh(r))+kvIf('最强反对',strongestOppositionZh(r))+'</div></div><div class="card"><div class="kv">'+kvIf('市场',evidenceFlagZh(e.market,'市场',s))+kvIf('实力',evidenceFlagZh(e.strength,'实力',s))+kvIf('基本面',evidenceFlagZh(e.fundamentals,'基本面',s))+kvIf('二审',teacherActionZh(r))+'</div></div></div></section>'+hjTeacherDetailSection(r)+(tl.length?'<section class="section"><div class="shead"><h2>📈 市场走势</h2><span>William欧赔 / 四机构亚洲盘 / 澳客&500竞彩赔率镜像</span></div><div class="cards"><div class="card" style="grid-column:1/-1">'+tl.map(x=>'<div class="tiny"><b>'+esc(x.source||'—')+'</b> ｜ 初 '+esc(x.initial??'—')+' → 即 '+esc(x.current??'—')+' → 临 '+esc(x.close??'—')+'</div>').join('')+'</div></div></section>':'')}
+function systemHealthSection(){
+ const H=DATA?.system_health||{},x=H.latest||null;
+ if(!x)return '<section class="section"><div class="shead"><h2>🛡️ 系统健康</h2><span>每小时自检 + 自动修复</span></div><div class="notice warn" style="margin:12px">⚠️ 尚无系统自检记录。</div></section>';
+ const st=String(x.overall_status||'attention'),rs=x.run_status||{};
+ const waits=Array.isArray(rs.source_warnings)?rs.source_warnings:[];
+ const acts=Array.isArray(x.actions)?x.actions:[],rawBad=Array.isArray(x.unresolved)?x.unresolved:[],bad=rawBad.filter(v=>v&&((v.count==null)||Number(v.count)>0));
+ const hasHardFault=bad.length>0;
+ const tone=hasHardFault?'bad':(waits.length||st==='waiting'||st==='attention'||st==='healed'?'warn':'good');
+ const label=hasHardFault?'🚨 真故障':(waits.length||st==='waiting'||st==='attention'?'⏳ 系统正常 · 等待数据':st==='healed'?'🛠️ 已自动修复':'✅ 系统正常');
+ const snap=H.last_snapshot||{},ago=ageMinutes(x.checked_at);
+ const modelState=(r,name)=>{if(!r)return name+'：等待真实在售池';return name+'：run '+(r.id??'—')+' · '+(r.status||'—')};
+ let html='<section class="section"><div class="shead"><h2>🛡️ 系统健康</h2><span>每小时第10分自检 · 第40分Watchdog</span></div>';
+ html+='<div class="grid4" style="padding:12px">'+
+   metric('总体',label,'最近自检 '+(ago==null?'—':ago+'分钟前'),tone)+
+   metric('数据等待',String(waits.length)+'项',waits.length?waits.map(w=>w.source||w.type).join(' / '):'没有等待项',waits.length?'warn':'good')+
+   metric('硬故障',String(bad.length)+'项',bad.length?'需要处理':'0项 · 系统链路正常',bad.length?'bad':'good')+
+   metric('灾备快照',snap.snapshot_date||'—',snap.created_at?fmtTime(snap.created_at):'每天23:35自动保存',snap.snapshot_date?'good':'warn')+
+ '</div>';
+ html+='<div class="cards" style="padding:0 12px 12px"><div class="card"><b>豪竞</b><div class="tiny" style="margin-top:6px">'+esc(modelState(rs.haojing,'豪竞'))+'</div></div><div class="card"><b>豪传</b><div class="tiny" style="margin-top:6px">'+esc(modelState(rs.haochuan,'豪传'))+'</div></div><div class="card"><b>豪篮</b><div class="tiny" style="margin-top:6px">'+esc(modelState(rs.haolan,'豪篮'))+'</div></div></div>';
+ if(bad.length)html+='<div class="notice bad" style="margin:0 12px 12px"><b>真故障：</b> '+esc(bad.map(v=>(v.source?String(v.source)+' · ':'')+(v.type||'unknown')).join('、'))+'</div>';
+ if(waits.length)html+='<div class="notice warn" style="margin:0 12px 12px"><b>等待/非阻断：</b> '+waits.map(v=>esc(v.message||((v.source||'数据源')+'等待更新'))).join('；')+'</div>';
+ else if(!bad.length&&acts.length)html+='<div class="notice warn" style="margin:0 12px 12px">🛠️ 本轮已自动处理：'+esc(acts.map(v=>v.type||'repair').join('、'))+'</div>';
+ else if(!bad.length)html+='<div class="notice good" style="margin:0 12px 12px">✅ 网页、核心数据源、三模型revision、定时任务当前未发现硬故障。</div>';
+ return html+'</section>';
+}
+
+function dashboard(){const hr=DATA.hj?.run||{},cr=DATA.hc?.run||{},hs=DATA.hj?.stats||{},cs=DATA.hc?.stats||{},rec=DATA.hj?.recommendations;return modelHeader()+systemHealthSection()+'<div class="notice '+(rec?.eligible?'good':'bad')+'">'+(rec?.eligible?'✅ 当前豪竞运行已通过正式执行闸门。':'🚨 '+esc(rec?.reason||'当前无正式可执行输出'))+'</div><div class="grid4">'+metric('豪竞Top1',hs.hits+'/'+hs.scored,pct(hs.hits,hs.scored))+metric('豪传票面',cs.hits+'/'+cs.scored,pct(cs.hits,cs.scored))+metric('豪竞状态',hr.formal_allowed?'正式':'不选/观察',hr.status||'—',hr.formal_allowed?'good':'warn')+metric('豪传状态',cr.formal_allowed?'正式':'不选/观察',cr.status||'—',cr.formal_allowed?'good':'warn')+'</div>'+plays()+sourceStatusSection()}
+function hj32NativePassNotice(){const a=activeByRole('hj'),run=DATA?.hj?.run,tag=String(a?.revision_tag||''),on=tag.includes('native-pass'),cur=!!(on&&run&&Number(run.model_revision_id)===Number(a.id));if(!on)return '';const state=cur?'当前冻结盘已按Native PASS运行':'当前active已升级，等待下一次新赛前冻结正式落地';return '<div class="notice good"><b>🛡️ 豪竞3.2 Native PASS：</b> '+esc(state)+'。红灯不再自动PASS，先禁裸单并寻找第二方向；DQ-C降级但不自动删除模型观点；DQ-D / Top1缺失 / 非法赛前冻结 / 正式硬冲突才允许硬PASS。<br><span class="tiny">A/B/C、Anchor和具体玩法仍有独立执行闸门，可以PASS，但不会反向抹掉全池Top1判断。</span></div>'}
+function renderHaojing(){return modelHeader()+hj32NativePassNotice()+plays()+rowsTable('hj')+sourceStatusSection()}
+function directionConsistencyZh(v){const x=String(v||'').toUpperCase();if(x==='PASS')return '✅ 方向一致';if(x==='FAIL')return '❌ 方向冲突';return '⚪ 未确认'}
+function hcOutcomeLabel(v){return v==='3'?'主胜':v==='1'?'平':v==='0'?'客胜':v}
+function hcMatchLabel(no){const r=(DATA.hc?.rows||[]).find(x=>String(x.match_no).padStart(2,'0')===String(no).padStart(2,'0'));return r?String(no).padStart(2,'0')+' '+r.home_team+'-'+r.away_team:String(no).padStart(2,'0')}
+function hcTicketOutcome(rows,ticket){const nos=Object.keys(ticket||{});if(!nos.length)return null;let settled=0,hit=0;for(const no of nos){const rr=rows.find(x=>String(x?.match_no??'').padStart(2,'0')===String(no).padStart(2,'0'));if(!rr||!rr.result_verified)continue;settled++;if(String(ticket[no]||'').includes(String(rr.result_1x2)))hit++}if(settled<nos.length)return{state:'PENDING',label:'⏳ 待结算',detail:'已结算 '+settled+'/'+nos.length,hit,settled,total:nos.length};if(hit===nos.length)return{state:'HIT',label:'✅ 任9命中',detail:hit+'/'+nos.length+' 全中',hit,settled,total:nos.length};return{state:'MISS',label:'❌ 任9未命中',detail:hit+'/'+nos.length+' 命中',hit,settled,total:nos.length}}
+function hcRiskScore(r){let n=0;if(r.hur==='红')n+=5;else if(r.hur==='黄')n+=2;if(r.dtr==='红'||r.dlr==='红')n+=4;if(r.dtr==='黄'||r.dlr==='黄')n+=2;const o=hcExtra(r,'opp');if(o==='PROHIBITIVE')n+=4;else if(o==='HIGH')n+=2;if(r.dq==='DQ-C'||r.dq==='DQ-D')n+=4;return n}
+function hcSettlementStatus(){const rows=DATA.hc?.rows||[],run=DATA.hc?.run;if(!run||!rows.length)return '';const verified=rows.filter(r=>r.result_verified).length,total=rows.length;const times=rows.map(r=>r.kickoff_bjt?new Date(r.kickoff_bjt).getTime():NaN).filter(Number.isFinite).sort((a,b)=>a-b);const earliest=times.length?new Date(times[0]):null;const now=DATA?.server_time?new Date(DATA.server_time):new Date();let tone='warn',state='待赛果';if(verified===total&&total>0){tone='good';state='已全部结算'}else if(earliest&&now<earliest){state='尚未开赛'}else if(verified>0){state='结算中'}const meta=earliest&&now<earliest?('最早开赛 '+fmtTime(earliest)):(verified+'/'+total+' 已确认');return '<div class="notice '+tone+'" style="margin-bottom:12px"><b>🎯 '+esc(run.pool_label||'本期')+' 赛果进度：</b> '+verified+'/'+total+' · '+esc(state)+' · '+esc(meta)+'</div>'}
+function hcSummary(){
+ const run=DATA.hc?.run,rows=DATA.hc?.rows||[],s=run?.raw_summary||{};
+ if(!run)return '';
+ const no2=v=>String(v??'').padStart(2,'0');
+ const retained=s.retained_9||rows.filter(r=>r.keep_discard==='留').map(r=>no2(r.match_no));
+ const discarded=s.discarded_5||rows.filter(r=>r.keep_discard==='舍').map(r=>no2(r.match_no));
+ const primaryTicket=s.ticket_310||Object.fromEntries(rows.filter(r=>r.keep_discard==='留'&&r.ticket_pick).map(r=>[no2(r.match_no),String(r.ticket_pick)]));
+ const primaryNos=Object.keys(primaryTicket).sort((a,b)=>Number(a)-Number(b));
+ const primarySingles=Object.keys(s.singles||s.singles_4||{}).length?(s.singles||s.singles_4):Object.fromEntries(primaryNos.filter(no=>String(primaryTicket[no]).length===1).map(no=>[no,primaryTicket[no]]));
+ const primaryDoubles=Object.keys(s.doubles||s.doubles_5||{}).length?(s.doubles||s.doubles_5):Object.fromEntries(primaryNos.filter(no=>String(primaryTicket[no]).length===2).map(no=>[no,primaryTicket[no]]));
+ const primaryTriples=Object.fromEntries(primaryNos.filter(no=>String(primaryTicket[no])==='310').map(no=>[no,'310']));
+ const formalCost=Number(s.cost_rmb||0),formalCombos=Number(s.combination_count||0);
+ const ready=run.formal_allowed===true&&String(s.ticket_status||'READY').toUpperCase()==='READY'&&primaryNos.length===9&&formalCost>0&&formalCost<=64&&formalCombos>0&&formalCombos<=32;
+
+ const fullTicket={};
+ for(const r of rows.filter(r=>r.keep_discard==='留')){
+   const no=no2(r.match_no),p=r.ticket_pick_before_gate;
+   if(p!=null&&String(p)!=='')fullTicket[no]=String(p);
+ }
+ const fullNos=Object.keys(fullTicket).sort((a,b)=>Number(a)-Number(b));
+ const fullSingles=fullNos.filter(no=>fullTicket[no].length===1).length;
+ const fullDoubles=fullNos.filter(no=>fullTicket[no].length===2).length;
+ const fullTriples=fullNos.filter(no=>fullTicket[no]==='310').length;
+ const fullCombos=fullNos.length===9?Math.pow(2,fullDoubles)*Math.pow(3,fullTriples):0;
+ const fullCost=fullCombos*2;
+
+ const outcome=ready?hcTicketOutcome(rows,primaryTicket):null;
+ const risks=rows.filter(r=>r.keep_discard==='留').sort((a,b)=>hcRiskScore(b)-hcRiskScore(a)).slice(0,3);
+ const issue=s.issue_no||run.pool_label||'—',cut=s.cutoff_bjt?String(s.cutoff_bjt).replace('T',' ').slice(0,16):'未记录';
+ const pickZh=p=>String(p||'').split('').map(hcOutcomeLabel).join('/');
+ const primaryGrid=primaryNos.map(no=>{const rr=rows.find(x=>no2(x?.match_no)===no),settled=!!rr?.result_verified,ok=settled&&String(primaryTicket[no]||'').includes(String(rr.result_1x2)),mark=!settled?'⏳':ok?'✅':'❌';return '<div class="card" style="min-width:120px"><div class="tiny">'+esc(hcMatchLabel(no))+' '+mark+'</div><div style="font-size:24px;font-weight:900;margin-top:6px">'+esc(primaryTicket[no])+'</div><div class="tiny">'+esc(pickZh(primaryTicket[no]))+(settled?' ｜ 实际 '+esc(hcOutcomeLabel(rr.result_1x2)):'')+'</div></div>'}).join('');
+ const singlesText=Object.keys(primarySingles).sort((a,b)=>Number(a)-Number(b)).map(no=>{const rr=rows.find(x=>no2(x.match_no)===no),full=fullTicket[no],compressed=full&&String(full)!==String(primarySingles[no]);return hcMatchLabel(no)+' = '+primarySingles[no]+'（'+hcOutcomeLabel(primarySingles[no])+'）'+(compressed?'　⚠️ 64元压缩单，完整覆盖为 '+full:'')+(rr?'　['+hcExtra(rr,'single')+']':'')}).join('<br>');
+ const doublesText=Object.keys(primaryDoubles).sort((a,b)=>Number(a)-Number(b)).map(no=>hcMatchLabel(no)+' = '+primaryDoubles[no]+'（'+pickZh(primaryDoubles[no])+'）').join('<br>');
+ const fullText=fullNos.map(no=>hcMatchLabel(no)+' = '+fullTicket[no]+'（'+pickZh(fullTicket[no])+'）').join('<br>');
+ const riskText=risks.length?risks.map(r=>'<b>'+esc(no2(r.match_no)+' '+r.home_team+'-'+r.away_team)+'</b> · HUR '+esc(r.hur||'—')+' / DTR '+esc(r.dtr||'—')+' / DLR '+esc(r.dlr||'—')+' · '+esc(hcOppZh(hcExtra(r,'opp')))).join('<br>'):'暂无';
+ const compressed=rows.filter(r=>r.keep_discard==='留'&&r.ticket_pick&&r.ticket_pick_before_gate&&String(r.ticket_pick)!==String(r.ticket_pick_before_gate));
+ const compressedText=compressed.length?compressed.map(r=>'<b>'+esc(no2(r.match_no)+' '+r.home_team+'-'+r.away_team)+'</b>：全覆盖 '+esc(r.ticket_pick_before_gate)+' → 主推 '+esc(r.ticket_pick)+'；单选资格 '+esc(hcExtra(r,'single'))+'，机会成本 '+esc(hcOppZh(hcExtra(r,'opp')))).join('<br>'):'本轮主推无需从全覆盖进一步压缩。';
+ const outcomeNotice=outcome?(outcome.state==='HIT'?'<div class="notice good" style="margin:12px"><b>✅ 本期64元主推已命中：</b> '+esc(outcome.detail)+'</div>':outcome.state==='MISS'?'<div class="notice bad" style="margin:12px"><b>❌ 本期64元主推未命中：</b> '+esc(outcome.detail)+'</div>':'<div class="notice warn" style="margin:12px"><b>⏳ 本期64元主推待结算：</b> '+esc(outcome.detail)+'</div>'):'';
+ const fullMetric=fullNos.length===9?(fullSingles+'单 + '+fullDoubles+'双 + '+fullTriples+'三'):'未形成';
+ const fullMeta=fullNos.length===9?(fullCombos+'注 / '+fullCost+'元 · 参考，不是主推'):'全覆盖结构未完整冻结';
+
+ return '<section class="section"><div class="shead"><h2>本期结论｜'+esc(issue)+'</h2><span>停售 '+esc(cut)+'</span></div>'+outcomeNotice+
+  '<div class="grid4" style="padding:12px">'+
+   metric('票面状态',hcTicketStatusZh(ready?'READY':'PASS'),ready?'64元主推已形成':'当前64元主推未通过安全闸门',ready?'good':'warn')+
+   metric('留9 / 舍5',retained.length+' / '+discarded.length,'舍：'+esc(discarded.join('、')))+
+   metric('🔥 主推票面',ready?(formalCombos+'注 / '+formalCost+'元'):'PASS / 未出票',ready?'正式主推，优先看这一套':'不为凑64元使用禁止单选',ready?'good':'warn')+
+   metric('📊 全覆盖参考',fullMetric,fullMeta,fullNos.length===9&&fullCost>64?'warn':'good')+
+  '</div>'+
+  (ready?'<div class="notice good" style="margin:12px"><b>🔥 64元主推：</b> '+primaryNos.map(no=>no+'='+primaryTicket[no]).join('　')+'<br><span class="tiny">正式方案优先看这一套；32注 / 64元。</span></div>':'<div class="notice warn" style="margin:12px"><b>⚠️ 64元主推：PASS / 未出票。</b> 不允许拿“禁止单选”强行凑4胆。</div>')+
+  (ready?'<div class="cards" style="padding:0 12px 12px">'+primaryGrid+'</div>':'')+
+  '<div class="cards" style="padding:0 12px 12px"><div class="card feature"><b>主推单选</b><div class="tiny" style="line-height:1.8;margin-top:8px">'+(singlesText||'—')+'</div></div><div class="card feature"><b>主推双选</b><div class="tiny" style="line-height:1.8;margin-top:8px">'+(doublesText||'—')+'</div></div><div class="card"><b>64元压缩审计</b><div class="tiny" style="line-height:1.8;margin-top:8px">'+compressedText+'</div></div><div class="card"><b>舍5</b><div class="tiny" style="line-height:1.8;margin-top:8px">'+esc(discarded.map(hcMatchLabel).join('、 ')||'—')+'</div></div><div class="card"><b>最大风险Top3</b><div class="tiny" style="line-height:1.8;margin-top:8px">'+riskText+'</div></div></div>'+
+  (fullNos.length===9?'<div class="notice" style="margin:0 12px 12px"><b>📊 全覆盖参考（审计）：</b> '+fullSingles+'单 + '+fullDoubles+'双 + '+fullTriples+'三 = <b>'+fullCombos+'注 / '+fullCost+'元</b>。这套保留模型真实尾险覆盖，只用于参考/复盘，<b>主推仍以上面的≤64元方案为准</b>。</div><div class="card" style="margin:0 12px 12px"><b>全覆盖明细</b><div class="tiny" style="line-height:1.9;margin-top:8px">'+fullText+'</div></div>':'')+
+  (ready?'<div class="notice" style="margin:0 12px 12px"><b>出票说明：</b> 任9选择本期 '+esc(issue)+' → 只勾“留9”的9场 → 按“🔥 64元主推”勾3/1/0 → 应显示 <b>'+formalCombos+'注 / '+formalCost+'元</b>。全覆盖参考不要误当主推出票。</div>':'')+
+  '</section>';
+}
+function renderHaochuan(){const a=activeByRole('hc'),r=DATA.hc?.run,latest=DATA.hc?.latest_attempt,rt=DATA.hc?.runtime_status||{},waiting=rt?.stage==='wait_sale_start',cur=!!(a&&r&&Number(a.id)===Number(r.model_revision_id)),frozen=!!(r&&latest&&Number(r.id)!==Number(latest.id));const msg=waiting?('⏳ '+esc(rt?.issue_no||'新一期')+' 尚未开售；计划开售时间 '+esc(fmtTime(rt?.details?.sale_start||null))+'。开售后豪传会按12/14/16/18/20/21/22点计划持续刷新，停售时冻结。'):frozen?('🧊 当前 '+esc(latest?.pool_label||'新一期')+' 关键赛前主链尚未形成，最新PASS空跑只保留后台审计，不再覆盖主表。下面继续展示 '+esc(r?.pool_label||'上一有效期')+' 的有效冻结盘；当前仍展示上一有效冻结盘。'):(cur?'✅ 豪传当前active修订已有运行结果。先看下面“本期结论”，需要时再展开逐场明细。':'⚠️ 豪传2.3当前还没有形成可展示的有效任9冻结盘；未确认不得猜。');return modelHeader()+'<div class="notice '+(waiting?'warn':frozen?'warn':cur?'good':'warn')+'">'+msg+'</div>'+hcSettlementStatus()+hcSummary()+rowsTable('hc')+sourceStatusSection()}
+function hbPct(v){return v==null?'—':(Number(v)*100).toFixed(1)+'%'}
+function hbLight(v){const x=String(v||'').toUpperCase();if(/FROZEN_LEGACY/.test(x))return '🧊 旧版冻结';if(/GREEN|绿|ELIGIBLE|READY/.test(x))return '🟢 通过';if(/YELLOW|黄|REVIEW/.test(x))return '🟡 复核';if(/RED|红|PASS|BLOCK/.test(x))return '🔴 淘汰';return v||'⚪ 未确认'}
+function hbActual(r){if(!r?.result_verified)return '⏳ 未结算';const score=(r.result_away==null||r.result_home==null)?'比分待核验':(r.result_away+' : '+r.result_home);const parts=[];if(r.actual_moneyline)parts.push(r.actual_moneyline);if(r.actual_spread)parts.push(r.actual_spread);if(r.actual_total)parts.push(r.actual_total);return '✅ '+score+(parts.length?'｜'+parts.join(' / '):'')}
+function hbHit(r){if(!r?.result_verified)return '—';const market=String(r.best_market||''),pick=String(r.best_pick||'');let actual='';if(/让分/.test(market))actual=String(r.actual_spread||'');else if(/大小|总分/.test(market))actual=String(r.actual_total||'');else actual=String(r.actual_moneyline||'');if(!pick||!actual)return '已结算·推荐未形成';return pick===actual?'✅ 命中':'❌ 未中'}
+function renderHaolan(){const n=activeNames(),a=activeByRole('hb'),run=DATA.hb?.run,rows=DATA.hb?.rows||[],cur=!!(a&&run&&Number(a.id)===Number(run.model_revision_id));let h=modelHeader();const hs=DATA?.sources?.health||[],hb500=hs.find(x=>x.source_code==='hb_500_jclq_live')||{},hbform=hs.find(x=>x.source_code==='hb_recent_form')||{};h+='<div class="notice '+(cur?'good':'warn')+'">'+(cur?'✅ 豪篮当前active修订已有竞彩篮球赛前运行。':'🏀 豪篮自动链已经接通；当前若没有真实在售池就等待，不生成0场假run、不猜比赛。')+'</div>';
+h+='<section class="section"><div class="shead"><h2>🏀 豪篮1.0｜竞彩篮球自动运行架构</h2><span>机构级目标 · 当前重复抽样模拟自动链</span></div><div class="cards"><div class="card feature"><b>预计比分引擎</b><div class="tiny">回合数 × 对手调整攻防效率 × 阵容 × 赛程 × 对位 → 主客预计得分；联合建模分差与总分，并做至少2万次模拟。</div></div><div class="card feature"><b>胜负闸门</b><div class="tiny">输出主/客胜率、公平赔率、竞彩隐含概率与价值差。方向灯：胜负概率≥60%、DQ-C以上且市场非红即可绿；核心腿仍要求更高概率、≥4个百分点市场Edge与风险审计。</div></div><div class="card feature"><b>让分闸门</b><div class="tiny">先判断能不能赢，再判断赢多少。初始候选：穿盘率≥56.5%、模型分差与官方线差≥1.5分。</div></div><div class="card feature"><b>大小分闸门</b><div class="tiny">由预期回合与攻防效率共同生成总分分布。初始候选：概率≥56.5%、模型总分与官方线差≥3分。</div></div><div class="card"><b>阵容与伤停</b><div class="tiny">核心球员出战存疑不只做文字提示，而是多情景模拟并扩大方差；足以改变方向时直接红灯不选。</div></div><div class="card"><b>市场与数据质量</b><div class="tiny">竞彩SP为目标市场；主流篮球盘用于校准与异常审计。数据按DQ-推荐档位/D分层，缺核心盘口、伤停或球队匹配时不形成正式腿。</div></div></div></section>';
+h+='<section class="section"><div class="shead"><h2>📡 豪篮自动数据链</h2><span>每轮运行前自动刷新</span></div><div class="sourcegrid">'+sourceCard('500竞彩篮球池/市场',hb500.status||'missing',Number(hb500.verified_matches||0),Number(hb500.expected_matches||0),hb500.last_success_at||hb500.last_attempt_at,'胜负/让分/大小分镜像 · 空池不猜')+sourceCard('近14日真实赛果形态',hbform.status||'missing',Number(hbform.verified_matches||0),Number(hbform.expected_matches||0),hbform.last_success_at||hbform.last_attempt_at,'近期得失分/波动/休息天数 · 不冒充进攻效率/回合节奏')+sourceCard('高级回合效率','missing',0,1,null,'回合节奏/进攻效率/防守效率/实力评分 未确认时DQ最高C')+sourceCard('阵容与伤停','missing',0,1,null,'可靠球员状态未确认时降低核心腿资格；不再自动否定高概率胜负方向')+'</div></section>';if(!rows.length)return h+'<section class="section"><div class="shead"><h2>今日竞彩篮球全池</h2><span>等待真实在售池</span></div><div class="cards"><div class="card feature" style="grid-column:1/-1"><b>暂无正式逐场预测</b><div class="tiny">自动采集已经接通。当前500竞彩篮球在售页没有比赛时这里会保持空池；一旦开售，系统会自动抓比赛身份、胜负/让分/大小分、TheSportsDB历史形态与API-Basketball统计影子层，再运行2万次重复抽样模拟并显示全池概率。高级回合效率或阵容不足时会保持数据质量C级/黄灯或PASS，不会硬凑。</div></div></div></section>';
+const rs=rows.map(r=>{const hw=Number(r.p_home_win)>=Number(r.p_away_win),hc=Number(r.p_home_cover)>=Number(r.p_away_cover),ov=Number(r.p_over)>=Number(r.p_under);return '<tr><td><b>'+esc(r.match_no)+'</b></td><td>'+esc(r.away_team)+' @ '+esc(r.home_team)+'</td><td>'+esc(r.expected_away_points==null?'—':Number(r.expected_away_points).toFixed(1))+' : '+esc(r.expected_home_points==null?'—':Number(r.expected_home_points).toFixed(1))+'</td><td>'+esc(hw?'主胜':'客胜')+'</td><td>'+esc(hbPct(hw?r.p_home_win:r.p_away_win))+'</td><td>'+esc(r.official_spread_home??'—')+'</td><td>'+esc(hc?'让分主胜':'让分客胜')+'</td><td>'+esc(hbPct(hc?r.p_home_cover:r.p_away_cover))+'</td><td>'+esc(r.official_total??'—')+'</td><td>'+esc(ov?'大分':'小分')+'</td><td>'+esc(hbPct(ov?r.p_over:r.p_under))+'</td><td>'+esc(dqZh(r.dq))+'</td><td>'+esc(hbLight(r.lineup_light))+'</td><td>'+esc(hbLight(r.market_volatility_light))+'</td><td>'+esc(hbLight(r.direction_light||r.final_selection_light))+'</td><td>'+esc(hbLight(r.core_leg_light))+'</td><td>'+esc(hbActual(r))+'</td><td><b>'+esc(hbHit(r))+'</b></td></tr>'}).join('');
+return h+'<section class="section"><div class="shead"><h2>今日竞彩篮球全池</h2><span>方向灯=可买方向 · 核心腿灯=最稳串关资格 · 赛前冻结 + 完场结算</span></div><div class="tablewrap"><table><thead><tr><th>场</th><th>对阵</th><th>预计比分</th><th>胜负Top1</th><th>胜率</th><th>官方让分</th><th>让分Top1</th><th>穿盘率</th><th>官方总分</th><th>大小Top1</th><th>概率</th><th>DQ</th><th>阵容灯</th><th>市场灯</th><th>方向灯</th><th>核心腿灯</th><th>赛果/比分</th><th>推荐结果</th></tr></thead><tbody>'+rs+'</tbody></table></div></section>'}
+
+async function loadHbCumulative(){try{const r=await fetch(HB_CUM_API+'?t='+Date.now(),{cache:'no-store'}),j=await r.json();if(r.ok&&j.ok)HB_CUM=j;else HB_CUM=null}catch(_){HB_CUM=null}if(TAB==='cumulative'&&DATA)render()}
+function renderCumulative(){const c=DATA.cumulative||{},h=c.hj||{},r=c.hc||{},b=HB_CUM||{},bo=b.overall||{},bm=b.moneyline||{},bs=b.spread||{},bt=b.total||{},bc=b.core||{};const hbMain=HB_CUM?((bo.hits||0)+'/'+(bo.scored||0)):'加载中';const hbPct=HB_CUM?pct(bo.hits,bo.scored):'读取最终冻结盘';return '<div class="grid4">'+metric('豪竞正式Top1',(h.hits||0)+'/'+(h.scored||0),pct(h.hits,h.scored))+metric('豪竞正式竞彩日',String(h.days||0),'完整正式样本')+metric('豪传9/9',String(r.full9||0),'正式期数 '+String(r.issues||0))+metric('豪传累计票面',(r.hits||0)+'/'+(r.scored||0),pct(r.hits,r.scored))+metric('🏀 豪篮全池首选',hbMain,hbPct,HB_CUM?'good':'warn')+'</div><section class="section"><div class="shead"><h2>🏀 豪篮累计命中率</h2><span>按销售日最终冻结盘去重 · 完场后自动累计</span></div><div class="grid4" style="padding:12px">'+metric('全池冻结首选',HB_CUM?((bo.hits||0)+'/'+(bo.scored||0)):'加载中',HB_CUM?pct(bo.hits,bo.scored):'—')+metric('胜负概率Top1',HB_CUM?((bm.hits||0)+'/'+(bm.scored||0)):'—',HB_CUM?pct(bm.hits,bm.scored):'仅有效概率样本')+metric('让分Top1',HB_CUM?((bs.hits||0)+'/'+(bs.scored||0)):'—',HB_CUM?pct(bs.hits,bs.scored):'仅有效盘口样本')+metric('大小分Top1',HB_CUM?((bt.hits||0)+'/'+(bt.scored||0)):'—',HB_CUM?pct(bt.hits,bt.scored):'仅有效总分样本')+metric('核心腿',HB_CUM?((bc.hits||0)+'/'+(bc.scored||0)):'—',HB_CUM?pct(bc.hits,bc.scored):'核心绿灯样本')+metric('完整结算日',HB_CUM?String(b.days||0):'—','每销售日只计一次，不重复revision')+'</div></section><section class="section"><div class="shead"><h2>胜平负决策质量</h2><span>正式累计</span></div><div class="grid4" style="padding:12px">'+metric('稳腿',(h.anchorHits||0)+'/'+(h.anchorScored||0),pct(h.anchorHits,h.anchorScored))+metric('高信心',(h.highHits||0)+'/'+(h.highScored||0),pct(h.highHits,h.highScored))+metric('历史PASS隔离',String(h.passIsolated||0),'错误场成功隔离')+metric('历史PASS误杀',String(h.passFalseKills||0),'被PASS但首选命中')+'</div></section><section class="section"><div class="shead"><h2>让球决策质量</h2><span>仅统计上线后真实赛前灯</span></div><div class="grid4" style="padding:12px">'+metric('🟢绿灯',(h.handicapGreenHits||0)+'/'+(h.handicapGreenScored||0),pct(h.handicapGreenHits,h.handicapGreenScored))+metric('🟡黄灯',(h.handicapYellowHits||0)+'/'+(h.handicapYellowScored||0),pct(h.handicapYellowHits,h.handicapYellowScored))+metric('实际出手',(h.handicapOutHits||0)+'/'+(h.handicapOutScored||0),pct(h.handicapOutHits,h.handicapOutScored))+metric('🔴PASS',String(h.handicapRedPass||0),'避错 '+String(h.handicapPassAvoided||0)+' · 误杀 '+String(h.handicapPassFalseKills||0))+'</div></section>'}
+function renderHistory(){if(!Array.isArray(DATA?.history))return '<section class="section"><div class="shead"><h2>历史运行记录</h2><span>按需加载，不拖慢首页</span></div><div class="loading" style="min-height:180px">正在读取历史索引…</div></section>';const arr=DATA.history;return '<section class="section"><div class="shead"><h2>历史运行记录</h2><span>点击查看逐场明细</span></div><div class="tablewrap"><table><thead><tr><th>日期</th><th>模型</th><th>修订</th><th>池</th><th>状态</th><th>完整</th><th>正式</th><th>运行时间</th></tr></thead><tbody>'+arr.map(r=>'<tr class="clickrow" onclick="openRun('+Number(r.id)+')"><td>'+esc(r.pool_date)+'</td><td><b>'+esc(r.model_name)+' '+esc(r.model_version||'')+'</b></td><td>'+esc(r.model_revision_tag||'未记录')+'</td><td>'+esc(r.pool_label||r.pool_kind||'—')+'</td><td>'+esc(r.status||'—')+'</td><td>'+(r.data_complete?'✅':'⚠️')+'</td><td>'+(r.formal_allowed?'✅':'否')+'</td><td>'+esc(fmtTime(r.run_time))+'</td></tr>').join('')+'</tbody></table></div></section>'}
+async function loadHistory(){try{const r=await fetch(API+'?api=1&history=1&t='+Date.now(),{headers:{Authorization:'Bearer '+token()},cache:'no-store'}),j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||'读取失败');DATA.history=j.history||[];if(TAB==='history')render()}catch(e){DATA.history=[];if(TAB==='history')render()}}
+async function openRun(id){document.getElementById('app').innerHTML='<div class="loading">正在读取历史复盘…</div>';try{const r=await fetch(API+'?api=1&run_id='+id,{headers:{Authorization:'Bearer '+token()},cache:'no-store'}),j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||'读取失败');DETAIL={history:j.detail};TAB='history';render()}catch(e){DETAIL=null;render()}}
+function historyDetail(){const d=DETAIL?.history;if(!d)return null;const run=d.run||{},rows=d.rows||[];return '<div><button class="backbtn" onclick="DETAIL=null;render()">← 返回历史</button></div><div class="grid4" style="margin-top:10px">'+metric('日期',run.pool_date||'—',run.pool_label||'')+metric('模型',run.model_name||'—',run.model_revision_tag||'')+metric('状态',run.status||'—',run.formal_allowed?'正式':'仅复盘')+metric('逐场记录',String(rows.length),'run_id '+run.id)+'</div><section class="section"><div class="tablewrap"><table><thead><tr><th>场</th><th>对阵</th><th>首选方向</th><th>第二</th><th>票面</th><th>DQ</th><th>HUR</th><th>DTR</th><th>DLR</th><th>处理</th><th>赛果</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+esc(r.match_no)+'</td><td>'+esc(r.home_team)+' - '+esc(r.away_team)+'</td><td>'+esc(r.top1||'—')+'</td><td>'+esc(r.second_pick||'—')+'</td><td>'+esc(r.ticket_pick_after_gate||r.ticket_pick||'—')+'</td><td>'+esc(dqZh(r.dq))+'</td><td>'+esc(r.hur||'—')+'</td><td>'+esc(r.dtr||'—')+'</td><td>'+esc(r.dlr||'—')+'</td><td>'+esc(r.final_handling||r.keep_discard||'—')+'</td><td>'+esc(result(r))+'</td></tr>').join('')+'</tbody></table></div></section>'}function renderSources(){return systemHealthSection()+sourceStatusSection()+'<section class="section"><div class="shead"><h2>数据纪律</h2><span>新主链正式展示口径</span></div><div class="cards"><div class="card"><b>竞彩SP</b><div class="tiny">SP必须同时核验销售日、场号和主客队身份。澳客/500只有身份严格确认后才进入verified；无法确认时使用明确标注的球来乐结构化备用且DQ最高B，任何来源都不冒充Sporttery官网直连。</div></div><div class="card"><b>亚洲盘委员会</b><div class="tiny">Bet365、皇冠、William Hill亚洲盘、12Bet分别核验，不互相冒充；同向不按机构数量机械重复加权。</div></div><div class="card"><b>欧赔</b><div class="tiny">William Hill同公司欧赔初→即→临/当前；外围平均欧赔不能补成William。</div></div><div class="card"><b>刷新原则</b><div class="tiny">数据库无新赛前快照时保持原状态；开赛后不把赛中赔率写回赛前冻结。</div></div></div></section>'}
+function render(){if(!DATA)return;let b;if(DETAIL?.history)b=historyDetail();else if(DETAIL?.row)b=matchDetail();else if(TAB==='dashboard')b=dashboard();else if(TAB==='haojing')b=renderHaojing();else if(TAB==='haochuan')b=renderHaochuan();else if(TAB==='haolan')b=renderHaolan();else if(TAB==='cumulative')b=renderCumulative();else if(TAB==='history')b=renderHistory();else b=renderSources();document.getElementById('app').innerHTML=shell(b);if(RESET_HJ_SCROLL){requestAnimationFrame(()=>{document.querySelectorAll('.hjtablewrap').forEach(el=>{el.scrollLeft=0});RESET_HJ_SCROLL=false})}}
+checkBuildVersion();setInterval(checkBuildVersion,30000);load(true);
+</script>
+</body>
+</html>

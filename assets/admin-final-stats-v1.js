@@ -3,9 +3,9 @@
 (function(){
   "use strict";
   if(window.haoAdminFinalRender)return;
-  const API="https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-admin-final-identification-v1";
-  const DEEP_API="https://tqlibowvnwfkaseqqvvp.supabase.co/functions/v1/hao-r9-discovery-test-v01";
-  const PUB="sb_publishable_n5thZ1g6h93ronyzPfqhsg_N_lFaoSa";
+  const API="https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-admin-final-identification-v1";
+  const DEEP_API="https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-member-intel-v1";
+  const PUB="sb_publishable_94kSLoSqua2oF4T0C-qBmA_t3jlZ4h7";
   const cache=new Map();
   const el=(tag,cls,txt)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=String(txt);return x};
   const name=v=>String(v??"").trim();
