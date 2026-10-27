@@ -715,7 +715,7 @@
 
       // Backend is the single three-tier publication gate.
       // Yellow/orange are observation-only; only formal red warnings expose a direction.
-      const publishable=rows.filter(row=>row?.coldRecognition?.customerVisible===true&&row?.coldRecognition?.customerRoute?.type==='FOCUS_AVOID'&&row?.coldRecognition?.vipPublish===true);
+      const publishable=rows.filter(row=>row?.coldRecognition?.customerVisible===true&&row?.coldRecognition?.customerRoute?.type==='FOCUS_AVOID');
       if(state.memberZone?.routeRuleVersion==='SG_PREMATCH_CERTIFIED_AND_RISK_ONLY_v1'){
         const confirmed=Number(state.memberZone.certifiedDirectional||0);
         const observe=Number(state.memberZone.riskObservations||0);
