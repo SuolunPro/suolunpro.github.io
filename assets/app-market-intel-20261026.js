@@ -1377,7 +1377,7 @@
     }
 
     // Private per-login VIP cold feed cache, not shared across customers.
-    function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_sg_cutover_v15:'+String(authSession?.user?.id||'')+':'+String(date)}
+    function memberZoneStorageKey(date){return 'soren_member_zone_snapshot_sg_cutover_v16:'+String(authSession?.user?.id||'')+':'+String(date)}
     function restoreMemberZoneSnapshot(date){
       try{
         const raw=sessionStorage.getItem(memberZoneStorageKey(date));
