@@ -2109,20 +2109,20 @@
         ['PUBLISHED_PREMATCH','HISTORICAL_POSTMATCH_RECONSTRUCTION','MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01'].includes(info.sourceKind);
       const full=fullMemberAnalysis(row);
       id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-      if(marketShadow)id.append(el('span','focus-label','赛前动态预测'));
-      if(historical)id.append(el('span','focus-label','历史复算'));
+      
+      
       const done=valid&&htftSettled(info),hit=done&&htftTop3Hit(info);
-      const prefix=marketShadow?'动态参考Top3':historical?'历史复算Top3':info?.formalEligible===false?'赛前参考Top3':'原始Top3';
+      const prefix='Top3';
       const shadowGrade=row.shadowHTFTTop3?.settlementStatus;
       const label=!valid?(shadowGrade==='SUCCESS'?'评测成功 · Top3':shadowGrade==='FAILURE'?'评测失败 · Top3':
         row.shadowHTFTTop3?.pendingReason==='HALFTIME_NOT_VERIFIED'?'等待半场赛果核验':
         row.shadowHTFTTop3?'等待评测':'Top3数据待更新')
         :done?(prefix+' · '+(hit?'命中':'未命中')):(prefix+' · 等待核验');
-      head.append(id,el('span','status'+(!valid?(shadowGrade==='SUCCESS'?' verified':shadowGrade==='FAILURE'?' fail':''):(done?(hit?' verified':' fail'):'')),label));
+      head.append(id,el('span','status'+(!valid?(shadowGrade==='SUCCESS'?' verified':shadowGrade==='FAILURE'?' fail':''):(done?(hit?' verified':' fail'):'')),done?(hit?'Top3命中':'Top3未命中'):'半全场预测'));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
       const settled=verified(row),score=el('div','score',settled&&hasScore(row)?scoreline(row):'VS');
-      score.append(el('span','',settled&&hasScore(row)?'90分钟正式赛果':marketShadow?'半全场 · 赛前动态预测':'半全场 · Top3预测'));
+      score.append(el('span','',settled&&hasScore(row)?'90分钟正式赛果':'半全场 · Top3预测'));
       fixture.append(teams,score);c.append(head,fixture);
       const panel=el('div','analysis');
       if(valid){
@@ -2147,15 +2147,9 @@
           panel.append(el('div','score-top4-verdict '+(top3Hit?'success':'fail'),
             '实际半全场：'+safe(info.actual)+' · '+(marketShadow?'动态Top3':historical?'历史复算Top3':'原始Top3')+' · '+(top3Hit?'命中':'未命中')));
         }
-        else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
+        
         panel.append(el('p','htft-list-meta','预测更新：'+fmtStamp(info.publishedAt)));
-        const original=htftVersionInfo(row,'original'),dynamic=htftVersionInfo(row,'dynamic');
-        if(original&&dynamic){
-          const o3=original.picks.slice(0,3).map(p=>p?.direction).sort().join('|');
-          const d3=dynamic.picks.slice(0,3).map(p=>p?.direction).sort().join('|');
-          panel.append(el('p','htft-list-compare',
-            '原始与动态Top3方向'+(o3===d3?'一致':'有调整')+' · 点击查看两版依据'));
-        }
+
       }else if(row.shadowHTFTTop3)panel.append(sgShadowTop3Panel(row,'htft'));
       else panel.append(el('p','htft-top4-note','本场半全场最新数据尚未更新完成；不会使用赛果补写预测。'));
       c.append(panel);c.setAttribute('role','button');c.tabIndex=0;
