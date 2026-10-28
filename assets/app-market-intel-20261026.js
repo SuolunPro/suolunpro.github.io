@@ -410,7 +410,7 @@
         const overlay=el('div','vip-consent-overlay'),dialog=el('div','vip-consent-dialog');
         dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','开通尊贵月卡VIP');
         const close=el('button','vip-consent-close','×');close.type='button';close.setAttribute('aria-label','关闭');
-        dialog.append(close,el('h3','','开通尊贵月卡VIP'),el('div','vip-consent-plan','¥29.9 / 30天 · 非自动续费'),
+        dialog.append(close,el('h3','','开通尊贵月卡VIP'),el('div','vip-consent-plan','¥59.9 / 30天 · 非自动续费'),
           el('p','vip-consent-risk','九十刻度提供足球赛事数据、概率模型及风险分析服务。预测存在不确定性，不构成收益承诺。'));
         const agreement=el('p','vip-consent-agreement','点击下方按钮即表示您已阅读并同意 ');
         const link=document.createElement('a');link.href='./legal.html#vip';link.target='_blank';link.rel='noopener';link.textContent='《尊贵月卡VIP会员服务协议》';
