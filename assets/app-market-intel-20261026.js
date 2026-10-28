@@ -1862,7 +1862,7 @@
     function htftVersionInfo(row,kind){
       const info=kind==='dynamic'?(row.dynamicHTFTPending?null:row.dynamicHTFT):row.htftTop4;
       const expected=kind==='dynamic'?'MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01':'PUBLISHED_PREMATCH';
-      if(!info||info.referenceOnly===true||info.formalEligible===false||info.sourceKind!==expected||!Array.isArray(info.picks)||info.picks.length!==4)return null;
+      if(!info||info.referenceOnly===true||info.sourceKind!==expected||!Array.isArray(info.picks)||info.picks.length!==4)return null;
       const kickoff=Date.parse(String(row.kickoff??'')),frozen=Date.parse(String(info.sourceFrozenAt??'')),published=Date.parse(String(info.publishedAt??''));
       if(!Number.isFinite(kickoff)||!Number.isFinite(frozen)||!Number.isFinite(published)||frozen>published||published>=kickoff)return null;
       return info;
@@ -1955,7 +1955,9 @@
         return value!==null&&value!==undefined&&Number.isFinite(n)&&n>=0&&n<=1?(n*100).toFixed(1)+'%':'—';
       };
       if(marketShadow)
-        panel.append(el('p','htft-top4-flag','赛前动态预测 · 按开球前最后一次有效更新进行赛后评测。'));
+        panel.append(el('p','htft-top4-flag','赛前动态研究参考 · 按开球前最后一次有效更新进行独立评测，不计入正式战绩。'));
+      if(info.formalEligible===false&&!marketShadow)
+        panel.append(el('p','htft-top4-flag','赛前备用来源参考 · 使用开赛前留存的近六场进球参数，不计入正式战绩。'));
       if(historical)
         panel.append(el('p','htft-top4-flag','历史资料补算：开球后根据留存的开球前来源参数重新计算，不属于当时已发布的半全场预测；仅作历史回放对照，不计入正式赛前战绩。'));
       if(full){
@@ -1982,7 +1984,7 @@
         if(top3Settled){
           const hit=top3Hit;
           panel.append(el('div','score-top4-verdict '+(hit?'success':'fail'),
-            (hit?'动态预测 · 评测成功':'动态预测 · 评测失败')+' · 实际半全场 '+safe(info.actual)+'（计入动态版战绩）'));
+            (hit?'动态参考 · 评测成功':'动态参考 · 评测失败')+' · 实际半全场 '+safe(info.actual)+'（独立统计，不计正式战绩）'));
           if(info.halfScore)panel.append(el('p','htft-top4-note','核验半场比分：'+safe(info.halfScore)+'；全场按90分钟正式赛果。'));
         }else panel.append(el('div','score-top4-verdict pending',
           info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，暂不评测':'等待评测 · 暂未对照'));
@@ -2102,15 +2104,15 @@
     }
     function htftCard(row,history=false){
       const c=el('article','card'),head=el('div','card-head'),id=el('div','match-id');
-      const info=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??(row.htftTop4?.referenceOnly===true||row.htftTop4?.formalEligible===false?null:row.htftTop4),marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01',historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
-      const valid=info&&info.referenceOnly!==true&&info.formalEligible!==false&&Array.isArray(info.picks)&&info.picks.length===4&&
+      const info=htftVersionInfo(row,'dynamic')??htftVersionInfo(row,'original')??(row.htftTop4?.referenceOnly===true?null:row.htftTop4),marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01',historical=info?.sourceKind==='HISTORICAL_POSTMATCH_RECONSTRUCTION';
+      const valid=info&&info.referenceOnly!==true&&Array.isArray(info.picks)&&info.picks.length===4&&
         ['PUBLISHED_PREMATCH','HISTORICAL_POSTMATCH_RECONSTRUCTION','MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01'].includes(info.sourceKind);
       const full=fullMemberAnalysis(row);
       id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
       if(marketShadow)id.append(el('span','focus-label','赛前动态预测'));
       if(historical)id.append(el('span','focus-label','历史复算'));
       const done=valid&&htftSettled(info),hit=done&&htftTop3Hit(info);
-      const prefix=marketShadow?'动态Top3':historical?'历史复算Top3':'原始Top3';
+      const prefix=marketShadow?'动态参考Top3':historical?'历史复算Top3':info?.formalEligible===false?'赛前参考Top3':'原始Top3';
       const shadowGrade=row.shadowHTFTTop3?.settlementStatus;
       const label=!valid?(shadowGrade==='SUCCESS'?'评测成功 · Top3':shadowGrade==='FAILURE'?'评测失败 · Top3':
         row.shadowHTFTTop3?.pendingReason==='HALFTIME_NOT_VERIFIED'?'等待半场赛果核验':
@@ -2146,7 +2148,7 @@
             '实际半全场：'+safe(info.actual)+' · '+(marketShadow?'动态Top3':historical?'历史复算Top3':'原始Top3')+' · '+(top3Hit?'命中':'未命中')));
         }
         else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
-        panel.append(el('p','htft-list-meta',marketShadow?'动态赛前 · 更新于 '+fmtStamp(info.publishedAt)+' · 冻结进球参数＋赛前威廉希尔欧赔校准。':historical?'本场为赛后依据赛前留存参数复算，非当时发布的预测；不计入赛前战绩。':'原始赛前 · 冻结的进球参数计算，发布于 '+fmtStamp(info.publishedAt)+'。'));
+        panel.append(el('p','htft-list-meta',marketShadow?'动态赛前参考 · 更新于 '+fmtStamp(info.publishedAt)+' · 冻结进球参数＋赛前威廉希尔欧赔校准；不计正式战绩。':historical?'本场为赛后依据赛前留存参数复算，非当时发布的预测；不计入赛前战绩。':info.formalEligible===false?'赛前备用来源参考 · 发布于 '+fmtStamp(info.publishedAt)+' · 近六场进球参数；不计正式战绩。':'原始赛前 · 冻结的进球参数计算，发布于 '+fmtStamp(info.publishedAt)+'。'));
         const original=htftVersionInfo(row,'original'),dynamic=htftVersionInfo(row,'dynamic');
         if(original&&dynamic){
           const o3=original.picks.slice(0,3).map(p=>p?.direction).sort().join('|');
@@ -4524,7 +4526,7 @@
     function errorBox(e){const x=el('div','error');x.append(el('b','','数据暂时无法加载'),el('div','',safe(e?.message||e)+'。请稍后重试。'));return x}
     function htftSample(rows,kind){
       return rows.map(row=>({row,info:kind==='dynamic'?row.dynamicHTFT:row.htftTop4})).filter(({row,info})=>{
-        if(!info||info.referenceOnly===true||info.formalEligible===false||info.sourceKind!==(kind==='dynamic'?'MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01':kind==='original'?'PUBLISHED_PREMATCH':'HISTORICAL_POSTMATCH_RECONSTRUCTION')||!Array.isArray(info.picks)||info.picks.length!==4)return false;
+        if(!info||info.referenceOnly===true||(kind==='original'&&info.formalEligible===false)||info.sourceKind!==(kind==='dynamic'?'MARKET_ANCHORED_POISSON_HTFT_SHADOW_V01':kind==='original'?'PUBLISHED_PREMATCH':'HISTORICAL_POSTMATCH_RECONSTRUCTION')||!Array.isArray(info.picks)||info.picks.length!==4)return false;
         if(kind==='replay')return true;
         const k=Date.parse(String(row.kickoff??'')),f=Date.parse(String(info.sourceFrozenAt??'')),p=Date.parse(String(info.publishedAt??''));
         return Number.isFinite(k)&&Number.isFinite(f)&&Number.isFinite(p)&&f<=p&&p<k;
@@ -4593,9 +4595,9 @@
         $('totalCount').textContent=htftRate(stat.top3,stat.n);
         $('pickCount').textContent=stat.top3+'/'+stat.n;
         $('passCount').textContent=(stat.total-stat.n)+' / '+(rows.length-stat.total);
-        labels[0].textContent='半全场Top3 · 赛前命中率';
+        labels[0].textContent=dynamic.length?'半全场Top3 · 动态参考命中率':'半全场Top3 · 赛前命中率';
         labels[1].textContent='覆盖 / 已核验';labels[2].textContent='待核验 / 无Top3';
-        $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 原始赛前 '+original.length+'场 · 动态赛前 '+dynamic.length+'场 · 历史复算 '+replay.length+'场';
+        $('poolCount').textContent=state.selectedDate+' · 全池 '+rows.length+'场 · 原始正式 '+original.length+'场 · 动态参考 '+dynamic.length+'场 · 原始备用参考 '+rows.filter(r=>htftVersionInfo(r,'original')?.formalEligible===false).length+'场 · 历史复算 '+replay.length+'场';
         return;
       }
       if(state.model==='goals'){
@@ -4750,12 +4752,13 @@
       const firstOffset=state.model==='htft'?Math.max(-14,Math.round((Date.parse('2026-09-19T00:00:00Z')-Date.parse(latest+'T00:00:00Z'))/86400000)):-14;
       for(let offset=firstOffset;offset<=0;offset++){const iso=addDays(latest,offset),d=new Date(iso+'T12:00:00+08:00'),isActive=iso===state.selectedDate,b=el('button','day'+(isActive?' active':''));
         b.append(el('b','','周'+days[d.getDay()]),el('span','',iso.slice(5)));b.onclick=()=>selectDate(iso);box.append(b)}
+      if(state.model==='htft')requestAnimationFrame(()=>{if(box.classList.contains('htft-dates'))box.scrollLeft=box.scrollWidth-box.clientWidth});
     }
     // Historical days that are already fully settled are immutable for customer display.
     // Keep settled snapshots across the full 15-day customer history window; active/unsettled days
     // retain their short TTLs so live prematch updates are never frozen by archive caching.
     const dayCache=new Map(),dayRequests=new Map(),dayContentVersions=new Map();let dateRequestId=0,historyPrefetchStarted=false;
-    const ARCHIVE_SESSION_PREFIX='soren-archive-v7_restore-published-daily:';
+    const ARCHIVE_SESSION_PREFIX='soren-archive-v8_htft-reference-display:';
     const SETTLED_CACHE_TTL=15*24*60*60*1000,ACTIVE_CACHE_TTL=30*1000,ACTIVE_BOOT_CACHE_TTL=15*60*1000;
     function dayCacheScope(){return [authSession?.user?.id||'',memberInfo?.active===true?'1':'0',(SHADOW_MODE||memberInfo?.vipActive===true)?'1':'0'].join('|')}
     function fullySettledDay(d){
