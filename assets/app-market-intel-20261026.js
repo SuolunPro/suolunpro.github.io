@@ -2065,8 +2065,8 @@
       const marketShadow=info?.sourceKind==='MARKET_ANCHORED_POISSON_SHADOW_V01';
       const originalPrematch=!!info&&!simulation&&!historical&&!marketShadow;
       title.append(
-        el('span','',simulation?'比分概率参考':historical?(full?'历史比分回放 · Top4':'历史比分回放 · Top1'):marketShadow?(full?'赛前比分参考 · Top4':'赛前比分参考 · Top1'):originalPrematch?(full?'原始赛前比分 · Top4':'原始赛前比分 · Top1'):(full?'全场比分 · Top4':'全场比分 · Top1')),
-        el('small','',simulation?'补充分析':!info?'等待赛前参数':historical?'历史资料回放':marketShadow?'':'原始冻结 '+fmtStamp(info.frozenAt))
+        el('span','',full?'比分预测 · Top4':'比分预测 · Top1'),
+        el('small','','')
       );
       panel.append(title);
       if(!info){panel.append(el('p','score-top4-note','暂无比分预测 · 赛前参数未确认，不计入比分覆盖统计。'));return panel}
@@ -2091,11 +2091,7 @@
         :historical
           ?'历史复算 · '+(top4?'Top4 · 评测成功':'Top4 · 评测失败')
           :'实际比分 '+actual.replace('-',':')+' · Top1 · '+(top1?'评测成功':'评测失败')+' · Top4 '+(top4?'覆盖':'未覆盖');
-      panel.append(el('div','score-top4-verdict '+cls,verdict));
-      if(marketShadow)panel.append(el('p','score-top4-note','原索伦真实赛前冻结的泊松研究参考：仅作Top1及Top4对照，不计入正式命中率。'));
-      else if(historical)panel.append(el('p','score-top4-note','本场为赛后依据赛前留存参数复算，不属于当时发布的赛前比分预测，不计入赛前版命中率。'));
-      else panel.append(el('p','score-top4-note','赛前记录 · 赛果核验后计算Top1和Top4。'));
-      panel.append(el('p','score-top4-note','比分概率为模型估算值，不代表历史命中率或结果保证。'));
+      if(actual!==null)panel.append(el('div','score-top4-verdict '+cls,verdict));
       return panel
     }
     function htftCard(row,history=false){
@@ -2158,8 +2154,8 @@
       const dynamic=scoreVersionInfo(row,'dynamic'),original=scoreVersionInfo(row,'original');
       const selected=dynamic??original;
       id.append(el('span','league',safe(row.league)),document.createTextNode(fmtTime(row.kickoff)+' · '+safe(row.no)));
-      if(dynamic)id.append(el('span','focus-label','赛前动态预测'));
-      else if(original)id.append(el('span','focus-label','原始赛前预测'));
+      
+      
       head.append(id,el('span',statusClass(row,history),statusText(row,history)));
       const fixture=el('div','fixture'),teams=el('div','team-list');
       [[row.home,row.homeLogo],[row.away,row.awayLogo]].forEach(([name,logo])=>teams.append(teamNode(name,logo)));
@@ -2167,8 +2163,7 @@
       score.append(el('span','',settled&&hasScore(row)?'90分钟正式赛果':
         scoreSimulationInfo(row)?'赛后比分模拟':
         scoreInfo(row)?.sourceKind==='HISTORICAL_BLIND_REPLAY'?'历史比分回放':
-        dynamic?'动态赛前比分预测':
-        original?'原始赛前比分预测':'赛前比分预测'));
+        '赛前比分预测'));
       fixture.append(teams,score);
       if(selected)c.append(head,fixture,scoreTop4Panel(row,selected));
       else if(scoreSimulationInfo(row))c.append(head,fixture,el('p','score-top4-note','赛前比分预测未发布 · 查看比赛详情 ›'));
