@@ -429,7 +429,7 @@
             });
             if(consentRes.status===401)throw Error('LOGIN_REQUIRED');
             if(!consentRes.ok)throw Error('CONSENT_SAVE_FAILED');
-            vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession.user.email||'')+'\\n方案：尊贵月卡VIP 29.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已主动确认同意会员服务协议';
+            vipApplyMessage='九十刻度尊贵月卡VIP开通申请\\n注册邮箱：'+String(authSession.user.email||'')+'\\n方案：尊贵月卡VIP 59.9元/30天\\n自动续费：否\\n会员协议版本：2026-10-05\\n用户已主动确认同意会员服务协议';
             service.hidden=false;membershipContact.hidden=true;contactNote.textContent='申请已生成。请复制客服微信和申请信息，联系官方客服办理。';overlay.remove();
             requestAnimationFrame(()=>service.scrollIntoView({behavior:'smooth',block:'nearest'}));
           }catch(e){
@@ -444,7 +444,7 @@
       planGrid.append(membershipPlan);
       const explainer=el('div','member-beta-explainer');
       explainer.append(el('strong','','开通流程'),
-        el('p','','① 确认29.9元/30天方案 → ② 阅读并同意会员协议 → ③ 申请后获取官方客服 → ④ 确认付款并人工开通。当前不自动续费。'));
+        el('p','','① 确认59.9元/30天方案 → ② 阅读并同意会员协议 → ③ 申请后获取官方客服 → ④ 确认付款并人工开通。当前不自动续费。'));
       purchaseCard.append(planGrid,explainer,service);
       panel.append(purchaseCard);
       return panel;
