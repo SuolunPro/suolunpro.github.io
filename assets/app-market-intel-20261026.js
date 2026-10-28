@@ -378,25 +378,21 @@
       purchaseCard.append(purchaseHeader,el('h3','','尊贵月卡VIP'),
         el('p','member-muted','解锁九十刻度会员赛事数据、今日优选与风险分析功能。'));
       const planGrid=el('div','member-plan-grid');
-      const makePlan=(name,monthly,formal,features)=>{
-        const card=el('div','member-plan member-plan-promo');
+      const makePlan=(name,monthly,features)=>{
+        const card=el('div','member-plan');
         const top=el('div','member-plan-top');
-        top.append(el('h4','',name),el('span','member-plan-tag member-plan-sale-tag','限时优惠'));
+        top.append(el('h4','',name));
         const priceBox=el('div','member-plan-price-box');
         const cost=el('div','member-plan-price');
         cost.append(el('strong','','¥'+monthly),el('span','','/30天'));
-        const saving=el('span','member-plan-saving','立省 ¥30');
-        priceBox.append(cost,saving);
-        const compare=el('div','member-plan-compare');
-        const original=document.createElement('span');original.className='member-plan-original';original.textContent='原价 ¥'+formal;
-        compare.append(original,el('span','member-plan-discount','约5折'));
-        card.append(top,priceBox,compare);
+        priceBox.append(cost);
+        card.append(top,priceBox);
         const items=el('ul','member-plan-list');
         features.forEach(feature=>items.append(el('li','',feature)));
-        card.append(items,el('div','member-plan-future','活动结束恢复 ¥'+formal+'/月'));
+        card.append(items);
         return card;
       };
-      const membershipPlan=makePlan('尊贵月卡VIP','29.9','59.9',
+      const membershipPlan=makePlan('尊贵月卡VIP','59.9',
         ['解锁当日完整赛事数据与分析','查看「今日优选」筛选结果','查看胜平负、让球等会员赛事数据','使用已开放的冷门预警与风险保护功能']);
       const contactNote=el('p','member-muted member-purchase-help','点击申请后确认会员协议，确认后才会显示官方客服联系方式。');
       const vipRisk=el('p','member-muted member-vip-risk','足球数据、概率模型及风险分析服务；预测存在不确定性，不构成收益承诺。非自动续费。');
