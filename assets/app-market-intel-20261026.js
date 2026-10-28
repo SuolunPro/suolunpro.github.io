@@ -2148,7 +2148,7 @@
             '实际半全场：'+safe(info.actual)+' · '+(marketShadow?'动态Top3':historical?'历史复算Top3':'原始Top3')+' · '+(top3Hit?'命中':'未命中')));
         }
         else panel.append(el('div','score-top4-verdict pending',info.settlementStatus==='PENDING_HALFTIME_VERIFICATION'?'半场赛果待核验，不计入覆盖率':'赛果待核验，不计入覆盖率'));
-        panel.append(el('p','htft-list-meta',marketShadow?'动态赛前参考 · 更新于 '+fmtStamp(info.publishedAt)+' · 冻结进球参数＋赛前威廉希尔欧赔校准；不计正式战绩。':historical?'本场为赛后依据赛前留存参数复算，非当时发布的预测；不计入赛前战绩。':info.formalEligible===false?'赛前备用来源参考 · 发布于 '+fmtStamp(info.publishedAt)+' · 近六场进球参数；不计正式战绩。':'原始赛前 · 冻结的进球参数计算，发布于 '+fmtStamp(info.publishedAt)+'。'));
+        panel.append(el('p','htft-list-meta','预测更新：'+fmtStamp(info.publishedAt)));
         const original=htftVersionInfo(row,'original'),dynamic=htftVersionInfo(row,'dynamic');
         if(original&&dynamic){
           const o3=original.picks.slice(0,3).map(p=>p?.direction).sort().join('|');
