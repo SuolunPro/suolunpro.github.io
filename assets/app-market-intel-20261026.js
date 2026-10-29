@@ -4993,6 +4993,7 @@
         }
       }
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
+      document.querySelectorAll('.app > .membership-retry-notice').forEach(n=>n.remove());
       if(usedCachedMembership){
         setTimeout(()=>membershipFetchWithRetry(2).then(()=>{
           authBootRetryCount=0;
@@ -5004,9 +5005,11 @@
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
       if(memberInfo?.active!==true){
+        // Only one retry notice; never stack duplicate cards on re-entry.
+        document.querySelectorAll('.app > .membership-retry-notice').forEach(n=>n.remove());
         if(memberInfo===null){
-          const notice=el('div','error');
-          notice.append(el('b','','会员状态暂未核验'),el('div','','当前网络无法连接会员服务，已保留登录信息。付费内容暂不开放，请稍后重新连接。'));
+          const notice=el('div','error membership-retry-notice');
+          notice.append(el('b','','会员状态暂未核验'),el('div','','会员接口暂时无法连接。登录信息已保留，付费内容等待服务器核验。'));
           const retry=el('button','secondary','重新核验会员');retry.onclick=()=>beginAuthenticatedApp();notice.append(retry);
           document.querySelector('.app').prepend(notice);
         }
