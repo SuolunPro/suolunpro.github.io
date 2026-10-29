@@ -4963,37 +4963,30 @@
       // Fast boot on mobile: a recently verified membership snapshot may paint
       // the app immediately. The authoritative membership endpoint is refreshed
       // in the background right after the UI becomes usable.
-      // Membership is authoritative on every fresh boot. Remember-device only
-      // persists authentication, never the previous VIP entitlement.
-      try{
-        await membershipFetchWithRetry(2);
+      const bootCachedMembership=readMemberCache(30*60*1000);
+      if(bootCachedMembership){
+        memberInfo=bootCachedMembership;usedCachedMembership=true;authBootRetryCount=0;
+      }else try{
+        // Network handoffs on mobile Safari can briefly fail while the retained
+        // auth session is still valid. Retry the membership check before showing
+        // a blocking reconnect screen, so a single transient request cannot trap
+        // an otherwise healthy logged-in user.
+        await membershipFetchWithRetry(3);
         authBootRetryCount=0;
       }catch(error){
         if(!authSession?.access_token||error?.message==='LOGIN_REQUIRED'){showLoginGate('登录状态已过期，请重新登录');return}
-        // A cached non-VIP snapshot may render the public shell offline;
-        // cached VIP status must never grant paid access without verification.
-        const cached=readMemberCache(30*60*1000);
-        if(cached&&cached.active!==true){
+        const cached=readMemberCache();
+        if(cached){
           memberInfo=cached;usedCachedMembership=true;
-        }else{
+        }else if(isTransientConnectionError(error)){
           authBootRetryCount++;
-          if(!isTransientConnectionError(error)){
-            showAuthRetry('会员状态暂不可核验；登录信息已保留，请稍后重试。');
-            return;
-          }
-          // A temporary membership transport failure must not blank the whole
-          // site. Show only the non-privileged shell; VIP data stays gated until
-          // the server confirms the current entitlement.
-          memberInfo=null;
-          usedCachedMembership=false;
-          clientDiag('membership_boot_public_fallback',{reason:'transport'});
-          setTimeout(()=>{
-            if(!document.hidden&&authSession?.access_token&&memberInfo===null)beginAuthenticatedApp();
-          },30000);
+          showAuthRetry('网络连接有波动，请点击重新连接。');
+          return;
+        }else{
+          showAuthRetry('会员状态暂不可核验；登录信息已保留，请稍后重试。');return;
         }
       }
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
-      document.querySelectorAll('.app > .membership-retry-notice').forEach(n=>n.remove());
       if(usedCachedMembership){
         setTimeout(()=>membershipFetchWithRetry(2).then(()=>{
           authBootRetryCount=0;
@@ -5004,16 +4997,7 @@
       }
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
-      if(memberInfo?.active!==true){
-        // Only one retry notice; never stack duplicate cards on re-entry.
-        document.querySelectorAll('.app > .membership-retry-notice').forEach(n=>n.remove());
-        if(memberInfo===null){
-          const notice=el('div','error membership-retry-notice');
-          notice.append(el('b','','会员状态暂未核验'),el('div','','会员接口暂时无法连接。登录信息已保留，付费内容等待服务器核验。'));
-          const retry=el('button','secondary','重新核验会员');retry.onclick=()=>beginAuthenticatedApp();notice.append(retry);
-          document.querySelector('.app').prepend(notice);
-        }
-        state.tab='home';state.model='overview';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));document.querySelectorAll('.model').forEach(n=>n.classList.toggle('active',n.dataset.model==='overview'));$('version').textContent='九十刻度';$('poolCount').textContent='当日赛事分析 · 会员可见';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();paintCachedActivePool(today);resolveActivePool().then(d=>{state.baseDate=d.date||today;rememberDay(d);applyDay(d)}).catch(e=>{$('content').replaceChildren(errorBox(e));buildDates()});return}
+      if(memberInfo?.active!==true){state.tab='home';state.model='overview';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));document.querySelectorAll('.model').forEach(n=>n.classList.toggle('active',n.dataset.model==='overview'));$('version').textContent='九十刻度';$('poolCount').textContent='当日赛事分析 · 会员可见';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();paintCachedActivePool(today);resolveActivePool().then(d=>{state.baseDate=d.date||today;rememberDay(d);applyDay(d)}).catch(e=>{$('content').replaceChildren(errorBox(e));buildDates()});return}
       // Resolve the active JCZQ pool, not the calendar date. After Beijing
       // midnight an unfinished previous sale day must stay selected.
       paintCachedActivePool(today);
