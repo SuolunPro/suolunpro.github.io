@@ -4977,8 +4977,19 @@
           memberInfo=cached;usedCachedMembership=true;
         }else{
           authBootRetryCount++;
-          showAuthRetry(isTransientConnectionError(error)?'网络连接有波动，请点击重新连接。':'会员状态暂不可核验；登录信息已保留，请稍后重试。');
-          return;
+          if(!isTransientConnectionError(error)){
+            showAuthRetry('会员状态暂不可核验；登录信息已保留，请稍后重试。');
+            return;
+          }
+          // A temporary membership transport failure must not blank the whole
+          // site. Show only the non-privileged shell; VIP data stays gated until
+          // the server confirms the current entitlement.
+          memberInfo=null;
+          usedCachedMembership=false;
+          clientDiag('membership_boot_public_fallback',{reason:'transport'});
+          setTimeout(()=>{
+            if(!document.hidden&&authSession?.access_token&&memberInfo===null)beginAuthenticatedApp();
+          },30000);
         }
       }
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
@@ -4992,7 +5003,14 @@
       }
       document.querySelector('.app').style.display='';document.querySelector('.bottom').style.display='';
       const today=beijingToday();
-      if(memberInfo?.active!==true){state.tab='home';state.model='overview';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));document.querySelectorAll('.model').forEach(n=>n.classList.toggle('active',n.dataset.model==='overview'));$('version').textContent='九十刻度';$('poolCount').textContent='当日赛事分析 · 会员可见';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();paintCachedActivePool(today);resolveActivePool().then(d=>{state.baseDate=d.date||today;rememberDay(d);applyDay(d)}).catch(e=>{$('content').replaceChildren(errorBox(e));buildDates()});return}
+      if(memberInfo?.active!==true){
+        if(memberInfo===null){
+          const notice=el('div','error');
+          notice.append(el('b','','会员状态暂未核验'),el('div','','当前网络无法连接会员服务，已保留登录信息。付费内容暂不开放，请稍后重新连接。'));
+          const retry=el('button','secondary','重新核验会员');retry.onclick=()=>beginAuthenticatedApp();notice.append(retry);
+          document.querySelector('.app').prepend(notice);
+        }
+        state.tab='home';state.model='overview';state.today=null;state.history=null;state.selectedDate=today;state.baseDate=today;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.tab==='home'));document.querySelectorAll('.model').forEach(n=>n.classList.toggle('active',n.dataset.model==='overview'));$('version').textContent='九十刻度';$('poolCount').textContent='当日赛事分析 · 会员可见';$('totalCount').textContent='—';$('pickCount').textContent='—';$('passCount').textContent='—';buildDates();paintCachedActivePool(today);resolveActivePool().then(d=>{state.baseDate=d.date||today;rememberDay(d);applyDay(d)}).catch(e=>{$('content').replaceChildren(errorBox(e));buildDates()});return}
       // Resolve the active JCZQ pool, not the calendar date. After Beijing
       // midnight an unfinished previous sale day must stay selected.
       paintCachedActivePool(today);
