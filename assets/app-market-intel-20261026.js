@@ -91,7 +91,7 @@
       if(payload!==body)delete payload.captcha_token;
       const authUrl=AUTH_BASE+'/auth/v1/'+authPath;
       const isPasswordLogin=path==='token?grant_type=password';
-      const maxRetries=isPasswordLogin?1:0;
+      const maxRetries=isPasswordLogin?2:(path==='signup'?1:0);
       const authTimeoutMs=30000;
       let res;
       for(let attempt=0;;attempt++){
