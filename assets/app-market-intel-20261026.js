@@ -109,7 +109,7 @@
             const diagnosticCode=isTimeout?'AUTH_TIMEOUT':'AUTH_TRANSPORT_FAILED';
             const err=Error(isTimeout
               ?'认证请求等待30秒仍未完成（AUTH_TIMEOUT）。请稍后重试。'
-              :'手机浏览器未能连接认证服务（AUTH_TRANSPORT_FAILED）。请稍后重试。');
+              :'当前 Wi-Fi 网络可能无法连接登录服务。请关闭 Wi-Fi，切换手机移动数据（4G/5G）后重新登录。登录成功后可尝试重新连接 Wi-Fi。（AUTH_TRANSPORT_FAILED）');
             err.code=diagnosticCode;err.cause=error;throw err;
           }
           await new Promise(resolve=>setTimeout(resolve,attempt===0?800:1500));
