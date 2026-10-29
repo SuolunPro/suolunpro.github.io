@@ -102,8 +102,15 @@
         }catch(error){
           // Retry transport failures only. HTTP/auth errors are handled below and are never retried.
           if(attempt>=maxRetries){
-            const err=Error('当前网络连接认证服务失败，请切换网络后重试。');
-            err.code='AUTH_NETWORK_ERROR';err.cause=error;throw err;
+            // Distinguish an aborted request from a browser transport/CORS failure.
+            // Never log passwords, tokens, request payloads or account identifiers.
+            const errorName=String(error?.name||'');
+            const isTimeout=errorName==='TimeoutError'||errorName==='AbortError';
+            const diagnosticCode=isTimeout?'AUTH_TIMEOUT':'AUTH_TRANSPORT_FAILED';
+            const err=Error(isTimeout
+              ?'认证请求等待30秒仍未完成（AUTH_TIMEOUT）。请稍后重试。'
+              :'手机浏览器未能连接认证服务（AUTH_TRANSPORT_FAILED）。请稍后重试。');
+            err.code=diagnosticCode;err.cause=error;throw err;
           }
           await new Promise(resolve=>setTimeout(resolve,attempt===0?800:1500));
         }
