@@ -234,7 +234,7 @@
       const qs=params instanceof URLSearchParams?new URLSearchParams(params):new URLSearchParams(params||{});
       // The production database is in Mumbai. Running the data-heavy function in
       // the same region avoids repeated inter-region round trips before first paint.
-      qs.set('forceFunctionRegion','ap-southeast-1');
+      qs.set('forceFunctionRegion','ap-south-1');
       return API+'?'+qs.toString();
     }
     const CLIENT_DIAG_API=AUTH_BASE+'/functions/v1/soren-client-diag-v1';
