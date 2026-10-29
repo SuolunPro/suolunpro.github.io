@@ -108,8 +108,8 @@
             const isTimeout=errorName==='TimeoutError'||errorName==='AbortError';
             const diagnosticCode=isTimeout?'AUTH_TIMEOUT':'AUTH_TRANSPORT_FAILED';
             const err=Error(isTimeout
-              ?'登录服务连接超时。若手机使用 Wi-Fi，请尝试在 Wi-Fi 设置中将「配置 DNS」改为「手动」，添加 114.114.114.114 后重试；也可暂时切换手机流量。此提示不代表账号或密码错误。（AUTH_TIMEOUT）'
-              :'无法连接登录服务，可能是当前 Wi-Fi 的 DNS 解析或网络连接异常，并非账号密码验证失败。iPhone：设置 → 无线局域网 → 当前 Wi-Fi 右侧 ⓘ → 配置 DNS → 手动 → 添加 114.114.114.114 → 存储，再重新登录；也可先切换手机流量。（AUTH_TRANSPORT_FAILED）');
+              ?'当前网络连接登录服务超时。解决办法：1. 关闭 Wi-Fi，使用手机流量（4G/5G）登录。2. 如需使用 Wi-Fi，请在手机 Wi-Fi 设置中将 DNS 改为手动，填写 114.114.114.114，保存后重新登录。（AUTH_TIMEOUT）'
+              :'当前 Wi-Fi 可能存在 DNS 解析或网络连接异常。解决办法：1. 关闭 Wi-Fi，使用手机流量（4G/5G）登录。2. 如需使用 Wi-Fi，请在手机 Wi-Fi 设置中将 DNS 改为手动，填写 114.114.114.114，保存后重新登录。（AUTH_TRANSPORT_FAILED）');
             err.code=diagnosticCode;err.cause=error;throw err;
           }
           await new Promise(resolve=>setTimeout(resolve,attempt===0?800:1500));
