@@ -4963,27 +4963,22 @@
       // Fast boot on mobile: a recently verified membership snapshot may paint
       // the app immediately. The authoritative membership endpoint is refreshed
       // in the background right after the UI becomes usable.
-      const bootCachedMembership=readMemberCache(30*60*1000);
-      if(bootCachedMembership){
-        memberInfo=bootCachedMembership;usedCachedMembership=true;authBootRetryCount=0;
-      }else try{
-        // Network handoffs on mobile Safari can briefly fail while the retained
-        // auth session is still valid. Retry the membership check before showing
-        // a blocking reconnect screen, so a single transient request cannot trap
-        // an otherwise healthy logged-in user.
-        await membershipFetchWithRetry(3);
+      // Membership is authoritative on every fresh boot. Remember-device only
+      // persists authentication, never the previous VIP entitlement.
+      try{
+        await membershipFetchWithRetry(2);
         authBootRetryCount=0;
       }catch(error){
         if(!authSession?.access_token||error?.message==='LOGIN_REQUIRED'){showLoginGate('登录状态已过期，请重新登录');return}
-        const cached=readMemberCache();
-        if(cached){
+        // A cached non-VIP snapshot may render the public shell offline;
+        // cached VIP status must never grant paid access without verification.
+        const cached=readMemberCache(30*60*1000);
+        if(cached&&cached.active!==true){
           memberInfo=cached;usedCachedMembership=true;
-        }else if(isTransientConnectionError(error)){
-          authBootRetryCount++;
-          showAuthRetry('网络连接有波动，请点击重新连接。');
-          return;
         }else{
-          showAuthRetry('会员状态暂不可核验；登录信息已保留，请稍后重试。');return;
+          authBootRetryCount++;
+          showAuthRetry(isTransientConnectionError(error)?'网络连接有波动，请点击重新连接。':'会员状态暂不可核验；登录信息已保留，请稍后重试。');
+          return;
         }
       }
       const gate=document.getElementById('loginGate');if(gate)gate.remove();
