@@ -3916,24 +3916,15 @@
       return panel;
     }
     function renderDetailDataStatus(row){
-      const status=el('section','report-data-status');
-      const head=el('div','report-data-status-heading');
-      head.append(el('strong','','数据更新状态'),
-        metricHelp('数据更新状态','预测冻结时间、机构赔率采集时间和赛果核验状态来自不同资料。后续赔率更新不等于模型预测已更新；无可靠时间戳时显示未确认。'));
-      status.append(head);
-      const list=el('div','report-data-status-items');
-      const item=(name,value,cls='')=>{
-        const line=el('div','report-data-status-item');
-        line.append(el('span','',name),el('b',cls,value));list.append(line);
-        return line;
-      };
-      const cutoff=Number.isFinite(Date.parse(String(row.kickoff??'')))?Date.parse(row.kickoff):null;
-      const freeze=Number.isFinite(Date.parse(String(row.frozenAt??'')))?Date.parse(row.frozenAt):null;
-      item('模型预测更新',freeze!==null&&cutoff!==null&&freeze<cutoff?fmtStamp(row.frozenAt):'时间未确认');
-      const oddsLine=item('机构赔率采集','读取中','report-data-odds');
-      oddsLine.querySelector('b').textContent='查看本场资料';
-      item('赛果核验',verified(row)?'已核验':postponedMatch(row)?'赛事延期':'待核验',verified(row)?'report-data-verified':'');
-      status.dataset.detailStatus='1';
+      // Compact customer-facing status; retain the existing data/status checks.
+      // Detailed market timestamps remain available in the professional report.
+      const status=el('p','report-sub report-data-status-compact');
+      const cutoff=Date.parse(String(row.kickoff??''));
+      const freeze=Date.parse(String(row.frozenAt??''));
+      const valid=Number.isFinite(cutoff)&&Number.isFinite(freeze)&&freeze<cutoff;
+      status.textContent=valid?'赛前预测更新于 '+fmtStamp(row.frozenAt):'赛前预测时间未确认';
+      if(postponedMatch(row))status.append(el('span','',' · 赛事延期'));
+      else if(verified(row))status.append(el('span','',' · 赛果已核验'));
       return status;
     }
     function updateDetailMarketStatus(status,report){
