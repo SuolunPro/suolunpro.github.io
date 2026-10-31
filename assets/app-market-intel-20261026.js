@@ -4715,9 +4715,16 @@
       // A sale day stays active until all its fixtures are verified or postponed.
       // Do not make an empty new calendar day the default after midnight.
       let prior=null,current=null,priorError=null,currentError=null;
-      try{prior=await readDay(previous,true)}catch(e){priorError=e;prior=cachedDay(previous,true)}
+      // Paint the previous unfinished sale day from cache immediately; refresh normally later.
+      prior=cachedDay(previous,true);
       if(hasUnsettledPool(prior))return prior;
-      try{current=await readDay(today,true)}catch(e){currentError=e;current=cachedDay(today,true)}
+      // Read both days concurrently rather than serially waiting for yesterday's timeout.
+      const results=await Promise.allSettled([readDay(previous,true),readDay(today,true)]);
+      if(results[0].status==='fulfilled')prior=results[0].value;
+      else{priorError=results[0].reason;prior=prior||cachedDay(previous,true)}
+      if(hasUnsettledPool(prior))return prior;
+      if(results[1].status==='fulfilled')current=results[1].value;
+      else{currentError=results[1].reason;current=cachedDay(today,true)}
       if(current?.date===today&&Array.isArray(current.rows)&&current.rows.length)return current;
       if(prior?.date===previous&&Array.isArray(prior.rows)&&prior.rows.length)return prior;
       if(current?.date===today&&Array.isArray(current.rows))return current;
