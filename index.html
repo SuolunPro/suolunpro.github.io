@@ -31,7 +31,7 @@
     <header class="hero">
       <div class="brandbar">
         <div class="brand"><img class="logo" src="assets/ninety-mark-avatar.jpg?v=20260925-brand" alt="九十刻度图标" width="40" height="40"><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
-        <div class="version" id="version">版本核验中</div>
+        <div class="version" id="version">九十刻度</div>
       </div>
       <div class="models" id="models" aria-label="赛事分析模块">
         <button class="model active" data-model="daily">今日优选</button>
@@ -61,7 +61,7 @@
           <div class="metric"><b id="passCount">—</b><span>等待赛果</span></div>
         </div>
       </section>
-      <section class="content" id="content"><div class="empty"><b>正在连接正式数据</b><span class="loading">核验九十刻度赛前冻结记录</span></div></section>
+      <section class="content" id="content"><div class="empty"><b>正在加载今日赛事</b><span class="loading">赛事数据加载中，请稍候…</span></div></section>
     </main>
     <section class="detail" id="detail">
       <div class="backbar"><button class="back" id="back" aria-label="返回">‹</button><b>比赛详情</b></div>
@@ -84,6 +84,30 @@
   .card:has(.htft-top4-grid) .score-top4-verdict.pending,
   .card:has(.htft-top4-grid) .focus-label {display:none!important}
   </style>
+  <script>
+    // Read-only, local performance markers; no account identifiers, tokens or network payloads.
+    (function(){
+      var start=performance.now(),firstData=false;
+      function mark(stage){
+        try{console.info('[九十刻度启动耗时]',stage,Math.round(performance.now()-start)+'ms')}catch(_){}
+      }
+      function ready(){
+        var content=document.getElementById('content');
+        if(!content)return;
+        var observer=new MutationObserver(function(){
+          if(firstData)return;
+          var text=content.textContent||'';
+          if(text.includes('正在加载今日赛事')||text.includes('正在连接正式数据'))return;
+          firstData=true;mark('首页内容首次更新');observer.disconnect();
+        });
+        observer.observe(content,{childList:true,subtree:true});
+        var gate=document.getElementById('loginGate');
+        if(gate)mark('登录界面已显示');
+        mark('首页脚本开始执行');
+      }
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
+    })();
+  </script>
   <script src="assets/app-market-intel-20261026.js?v=20261031-cold-lazy-proof-v1"></script>
 </body>
 </html>
