@@ -684,7 +684,7 @@
         if(cached){box.append(cached);return}
       }
       const page=el('div','member-zone-page');
-      const info=el('details','cold-warning-info compact');info.open=true;
+      const info=el('details','cold-warning-info compact');info.open=false;
       const infoSummary=el('summary','','冷门预警更新说明');
       const infoBody=el('div','cold-warning-info-body');
       infoBody.append(
@@ -1358,7 +1358,7 @@
             xsec.replaceChildren(el('div','member-zone-proof-title','九十刻度 · 深度市场依据'),el('div','member-zone-intel-state','深度市场依据读取失败，请稍后重试'));
           }
         };
-        if(inlineShadow)loadShadowProof();
+        // Render the warning cards first; even available inline proof is deferred until the user opens details.
         details.addEventListener('toggle',()=>{if(details.open)loadShadowProof()},{passive:true});
 
         const cov=row.coverage||{},dsec=el('section','member-zone-proof-section');
