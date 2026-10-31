@@ -4432,6 +4432,8 @@
         c.append(deepMarketLock);
       }
 
+      // Show the independently verified prematch team history and rest-day fields even
+      // when the attack/defense model panel is unavailable. Do not alter predictions.
       const teamOverview=teamOverviewPanel(row);
       const attackDefense=renderAttackDefensePanel(row);
       if(teamOverview&&attackDefense){teamOverview.append(attackDefense);c.append(teamOverview);}
