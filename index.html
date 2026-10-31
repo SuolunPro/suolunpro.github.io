@@ -108,6 +108,20 @@
       if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
     })();
   </script>
+  <script>
+    // Fail open: an unsuccessful startup must never leave an endless spinner.
+    (function(){
+      function checkStartup(){
+        var content=document.getElementById('content');
+        if(!content || !content.textContent.includes('正在加载今日赛事'))return;
+        var pool=document.getElementById('poolCount');
+        if(pool && pool.textContent.includes('正在读取'))pool.textContent='赛事暂未加载成功';
+        content.innerHTML='<div class="empty"><b>赛事加载超时</b><span>网络或数据服务暂时未响应，请重试。已保存的预测记录不会因此删除。</span><button type="button" id="startupRetry" style="margin-top:16px;padding:10px 24px;border-radius:8px;border:1px solid #d72b30;background:#fff;color:#d72b30">重新加载</button></div>';
+        document.getElementById('startupRetry').addEventListener('click',function(){location.reload()});
+      }
+      window.setTimeout(checkStartup,15000);
+    })();
+  </script>
   <script src="assets/app-market-intel-20261026.js?v=20261031-report-dedup-v1"></script>
 </body>
 </html>
