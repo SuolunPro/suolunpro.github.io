@@ -3793,6 +3793,23 @@
         context.audit.append(el('p','report-sub','媒体信息属于原报道观点；不同信息源采集时间可能不同。'));
       }
     }
+    // Deduplicate only simultaneous identical report reads. Keep each consumer's
+    // own validation, TTL, error handling and VIP access rules unchanged.
+    const sharedReportInflight=new Map();
+    function fetchSharedMatchReport(date,no){
+      const token=authSession?.access_token||'';
+      const key=token+'|'+date+'|'+no;
+      if(sharedReportInflight.has(key))return sharedReportInflight.get(key);
+      const request=(async()=>{
+        const params=new URLSearchParams({view:'report',date,no});
+        const response=await authorizedApiFetch(customerApiUrl(params),{cache:'no-store',signal:timeoutSignal(12000)});
+        const payload=await response.json().catch(()=>null);
+        return {ok:response.ok,status:response.status,payload};
+      })();
+      sharedReportInflight.set(key,request);
+      request.finally(()=>{if(sharedReportInflight.get(key)===request)sharedReportInflight.delete(key)}).catch(()=>{});
+      return request;
+    }
     const professionalReportCache=new Map();
     async function loadProfessionalDetail(row,slot,context){
       if(row?.vipRiskAccessRestricted===true&&!vipDeepAccess()){
@@ -3815,12 +3832,9 @@
       }
       slot.replaceChildren(el('p','report-loading','正在读取本场赛前资料…'));
       try{
-        const params=new URLSearchParams({view:'report',date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
-        const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);let response;
-        try{response=await authorizedApiFetch(customerApiUrl(params),{cache:'no-store',signal:ctrl.signal})}
-        finally{clearTimeout(timer)}
-        if(!response.ok)throw Error('HTTP '+response.status);
-        const data=await response.json();
+        const result=await fetchSharedMatchReport(String(row.date||state.selectedDate),String(row.no).padStart(3,'0'));
+        if(!result.ok)throw Error('HTTP '+result.status);
+        const data=result.payload;
         if(!data.ok||!data.report||data.report.home!==row.home||data.report.away!==row.away)throw Error('场次或来源不匹配');
         if(state.selected!==row||!authSession?.access_token)return;
         professionalReportCache.delete(key);
@@ -4154,12 +4168,10 @@
         if(Date.now()-cached.at<2*60*1000)return;
       }else holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
       try{
-        const url=customerApiUrl({view:'report',date:String(row.date||state.selectedDate),
-          no:String(row.no).padStart(3,'0')});
-        const response=await authorizedApiFetch(url,{cache:'no-store',signal:timeoutSignal(12000)});
-        const payload=await response.json().catch(()=>null);
-        if(!response.ok||payload?.ok!==true)
-          throw Error(String(payload?.error||'HTTP '+response.status));
+        const result=await fetchSharedMatchReport(String(row.date||state.selectedDate),String(row.no).padStart(3,'0'));
+        const payload=result.payload;
+        if(!result.ok||payload?.ok!==true)
+          throw Error(String(payload?.error||'HTTP '+result.status));
         const data=verifiedReportMarket(payload,row);
         if(state.selected!==row||(!SHADOW_MODE&&memberInfo?.vipActive!==true))return;
         okoooShadowCache.set(key,{token:authSession.access_token,at:Date.now(),data});
