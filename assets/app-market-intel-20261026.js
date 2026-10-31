@@ -4813,7 +4813,7 @@
       if(network?.saveData||['slow-2g','2g'].includes(String(network?.effectiveType||'')))return;
       historyPrefetchStarted=true;
       const latest=state.baseDate||beijingToday(),scope=dayCacheScope();
-      const count=network?.effectiveType==='3g'?2:4;
+      const count=2; // At most two recent history dates; slow networks already skip prefetch.
       const queue=Array.from({length:count},(_,i)=>addDays(latest,-i-1))
         .filter(date=>date>='2026-10-07'&&date<beijingToday());
       const worker=async()=>{
@@ -4838,22 +4838,9 @@
       if('requestIdleCallback' in window)window.requestIdleCallback(start,{timeout:4500});
       else setTimeout(start,2500);
     }
-    let historyNeighborGeneration=0;
-    function prefetchHistoryNeighbors(anchor){
-      const generation=++historyNeighborGeneration;
-      if(!authSession?.access_token||navigator.connection?.saveData===true||anchor>=beijingToday())return;
-      const near=[addDays(anchor,-1),addDays(anchor,1)]
-        .filter(d=>d>='2026-10-07'&&d<beijingToday());
-      setTimeout(async()=>{
-        for(const day of near){
-          if(generation!==historyNeighborGeneration||document.hidden||
-             !authSession?.access_token||state.selectedDate!==anchor)return;
-          try{if(!cachedDay(day))await readDay(day)}
-          catch(e){console.warn('相邻日期预加载失败',day,String(e?.message||e))}
-          await new Promise(resolve=>setTimeout(resolve,1000));
-        }
-      },1600);
-    }
+    // Historical dates outside the two-day warm cache load on explicit selection.
+    // Keep the call site intact; no adjacent-day background requests.
+    function prefetchHistoryNeighbors(anchor){}
     function applyDay(d){state.unopenedDate=null;state.today=d;state.selectedDate=d.date;const settled=d.rows.filter(r=>verified(r));state.history={...d,count:settled.length,rows:settled};setHeader(d);render()}
     function paintCachedActivePool(today){
       // Prefer an unfinished previous sale day over an empty calendar day.
