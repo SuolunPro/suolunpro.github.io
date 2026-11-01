@@ -4165,7 +4165,9 @@
       const usableCached=cached&&cached.token===authSession?.access_token&&cached.data?.ok===true;
       if(usableCached){
         renderDeepMarketAnalysis(holder,cached.data,row);
-        if(Date.now()-cached.at<2*60*1000)return;
+        // A report-only response is not a complete market snapshot: always retry
+        // member-zone enrichment instead of freezing missing exchange data for 2 min.
+        if(cached.data?.legacyZone&&Date.now()-cached.at<2*60*1000)return;
       }else holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
       try{
         const result=await fetchSharedMatchReport(String(row.date||state.selectedDate),String(row.no).padStart(3,'0'));
@@ -4181,8 +4183,17 @@
         // present. Its empty response must not erase verified report evidence.
         try{
           const zoneUrl=customerApiUrl({view:'member-zone',date:String(row.date||state.selectedDate)});
-          const zoneResponse=await authorizedApiFetch(zoneUrl,{cache:'no-store',signal:timeoutSignal(9000)});
-          const zonePayload=await zoneResponse.json().catch(()=>null);
+          let zoneResponse,zonePayload;
+          for(let attempt=0;attempt<2;attempt++){
+            try{
+              zoneResponse=await authorizedApiFetch(zoneUrl,{cache:'no-store',signal:timeoutSignal(15000)});
+              zonePayload=await zoneResponse.json().catch(()=>null);
+              if(zoneResponse.ok&&zonePayload?.ok===true)break;
+              if(attempt===1)throw Error('MEMBER_ZONE_HTTP_'+zoneResponse.status);
+            }catch(err){
+              if(attempt===1)throw err;
+            }
+          }
           const entry=(Array.isArray(zonePayload?.zone?.rows)?zonePayload.zone.rows:[])
             .find(item=>String(item?.no||'').padStart(3,'0')===String(row.no).padStart(3,'0'));
           if(zoneResponse.ok&&zonePayload?.ok===true&&entry&&
