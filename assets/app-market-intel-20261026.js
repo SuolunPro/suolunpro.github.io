@@ -4184,6 +4184,31 @@
         okoooShadowCache.set(key,{token:authSession.access_token,at:Date.now(),data});
         while(okoooShadowCache.size>20)okoooShadowCache.delete(okoooShadowCache.keys().next().value);
         renderDeepMarketAnalysis(holder,data,row);
+        // Cold-warning proof is the existing authoritative saved market analysis.
+        // Read the very same member-intel endpoint used by its "查看依据" panel,
+        // independently of report/member-zone availability or team-name aliases.
+        try{
+          const proof=await loadMemberIntelProof(String(row.date||state.selectedDate),String(row.no).padStart(3,'0'));
+          const saved=proof?.analysis;
+          if(saved&&typeof saved==='object'){
+            const source=saved.analysis&&typeof saved.analysis==='object'?saved.analysis:saved;
+            const current=data.analysis&&typeof data.analysis==='object'?data.analysis:{};
+            const filled={...current};
+            for(const [section,value] of Object.entries(source)){
+              if(value===null||value===undefined)continue;
+              if(value&&typeof value==='object'&&!Array.isArray(value)&&current[section]&&typeof current[section]==='object'&&!Array.isArray(current[section])){
+                filled[section]={...value,...current[section]};
+                for(const [key,item] of Object.entries(value)){
+                  if(filled[section][key]===null||filled[section][key]===undefined||filled[section][key]==='')filled[section][key]=item;
+                }
+              }else if(filled[section]===null||filled[section]===undefined||filled[section]==='')filled[section]=value;
+            }
+            data.analysis=filled;
+            if(state.selected===row&&holder.isConnected)renderDeepMarketAnalysis(holder,data,row);
+          }
+        }catch(proofError){
+          clientDiag('deep_market_saved_proof_degraded',{reason:String(proofError?.message||proofError).slice(0,80),date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
+        }
         // Restore the original member-zone intelligence and shadow proof when
         // present. Its empty response must not erase verified report evidence.
         try{
