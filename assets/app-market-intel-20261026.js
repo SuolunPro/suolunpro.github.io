@@ -4170,11 +4170,16 @@
         if(cached.data?.legacyZone&&Date.now()-cached.at<2*60*1000)return;
       }else holder.replaceChildren(el('p','report-loading','正在读取深度市场分析…'));
       try{
-        const result=await fetchSharedMatchReport(String(row.date||state.selectedDate),String(row.no).padStart(3,'0'));
-        const payload=result.payload;
-        if(!result.ok||payload?.ok!==true)
-          throw Error(String(payload?.error||'HTTP '+result.status));
-        const data=verifiedReportMarket(payload,row);
+        // Report and member-zone are independent prematch sources. A missing
+        // professional report must never suppress already archived market proof.
+        let data={ok:true,match:{no:String(row.no).padStart(3,'0'),home:row.home,away:row.away,league:row.league},analysis:null,market:{status:'prematch_archive_unavailable'}};
+        try{
+          const result=await fetchSharedMatchReport(String(row.date||state.selectedDate),String(row.no).padStart(3,'0'));
+          if(!result.ok||result.payload?.ok!==true)throw Error(String(result.payload?.error||'HTTP '+result.status));
+          data=verifiedReportMarket(result.payload,row);
+        }catch(reportError){
+          clientDiag('deep_market_report_degraded',{reason:String(reportError?.message||reportError).slice(0,80),date:String(row.date||state.selectedDate),no:String(row.no).padStart(3,'0')});
+        }
         if(state.selected!==row||(!SHADOW_MODE&&memberInfo?.vipActive!==true))return;
         okoooShadowCache.set(key,{token:authSession.access_token,at:Date.now(),data});
         while(okoooShadowCache.size>20)okoooShadowCache.delete(okoooShadowCache.keys().next().value);
@@ -4199,7 +4204,7 @@
           if(zoneResponse.ok&&zonePayload?.ok===true&&entry&&
             String(entry.home)===String(row.home)&&String(entry.away)===String(row.away)){
             const original=entry.shadowAnalysis??entry.coldRecognition?.gate?.shadowAnalysis??null;
-            if(original&&typeof original==='object'&&!Array.isArray(original)&&normalizeShadowAnalysis(original).available){
+            if(original&&typeof original==='object'&&!Array.isArray(original)){
               const base=data.analysis&&typeof data.analysis==='object'?data.analysis:{};
               const merged={...base};
               // Preserve independently verified report fields; fill gaps from the
@@ -4213,6 +4218,9 @@
                     if(existing===null||existing===undefined||existing==='')merged[section][field]=value;
                     else if(value&&typeof value==='object'&&!Array.isArray(value)&&existing&&typeof existing==='object'&&!Array.isArray(existing)){
                       merged[section][field]={...value,...existing};
+                      for(const [nestedKey,nestedValue] of Object.entries(value)){
+                        if(merged[section][field][nestedKey]===null||merged[section][field][nestedKey]===undefined||merged[section][field][nestedKey]==='')merged[section][field][nestedKey]=nestedValue;
+                      }
                     }
                   }
                 }
