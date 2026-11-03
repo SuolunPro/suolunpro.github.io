@@ -72,7 +72,8 @@ export default {
      if(!session)return json({error:'unauthorized'},401,headers);
      const m=await env.DB.prepare('SELECT email,vip_name,active,expires_at FROM vip_members WHERE user_id=?').bind(session.sub).first();
      if(!m||!m.active||Date.parse(m.expires_at)<=Date.now())return json({error:'vip_inactive'},403,headers);
-     return json({email:m.email,vip_name:m.vip_name,expires_at:m.expires_at},200,headers);
+     const admin=await env.DB.prepare('SELECT 1 AS allowed FROM vip_admins WHERE user_id=?').bind(session.sub).first();
+     return json({email:m.email,vip_name:m.vip_name,expires_at:m.expires_at,role:admin?'admin':'vip'},200,headers);
    }
    return json({error:'not_found'},404,headers);
   } catch(e) {return json({error:'request_failed'},500,headers);}
