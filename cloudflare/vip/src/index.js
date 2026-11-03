@@ -81,6 +81,37 @@ export default {
      const admin=await env.DB.prepare('SELECT 1 AS allowed FROM vip_admins WHERE user_id=?').bind(session.sub).first();
      return json({email:m.email,vip_name:m.vip_name,expires_at:m.expires_at,role:admin?'admin':'vip'},200,headers);
    }
+   if(u.pathname==='/admin/members/bulk-create' && request.method==='POST') {
+     const session=await verify((request.headers.get('Authorization')||'').replace(/^Bearer /i,''),env.SESSION_SECRET);
+     if(!session)return json({error:'unauthorized'},401,headers);
+     const admin=await env.DB.prepare('SELECT 1 AS allowed FROM vip_admins WHERE user_id=?').bind(session.sub).first();
+     const current=await env.DB.prepare('SELECT active,expires_at FROM vip_members WHERE user_id=?').bind(session.sub).first();
+     if(!admin||!current?.active||Date.parse(current.expires_at)<=Date.now())return json({error:'forbidden'},403,headers);
+     if(Number(request.headers.get('content-length')||0)>12000)return json({error:'too_large'},413,headers);
+     const body=await request.json();
+     const members=body.members;
+     if(!Array.isArray(members)||members.length<1||members.length>30)return json({error:'invalid_member_count'},400,headers);
+     const seen=new Set(),validated=[];
+     for(const m of members){
+       const email=String(m.email||'').trim().toLowerCase(),expires=String(m.expires_at||'');
+       const ts=Date.parse(expires);
+       if(!/^\S+@\S+\.\S+$/.test(email)||email.length>254||seen.has(email)||!Number.isFinite(ts)||ts<=Date.now()||ts>Date.now()+366*86400000)return json({error:'invalid_member_input'},400,headers);
+       seen.add(email);validated.push({email,expires});
+     }
+     const results=[];
+     for(const m of validated){
+       const exists=await env.DB.prepare('SELECT user_id FROM vip_members WHERE email=?').bind(m.email).first();
+       if(exists){results.push({email:m.email,status:'already_exists'});continue;}
+       const password=b64(crypto.getRandomValues(new Uint8Array(18)));
+       const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
+       const hash=await hashPassword(password,salt);
+       try{
+         await env.DB.prepare("INSERT INTO vip_members(user_id,email,vip_name,expires_at,active,password_salt,password_hash) VALUES (?,?, '尊贵月卡VIP',?,1,?,?)").bind(crypto.randomUUID(),m.email,m.expires,salt,hash).run();
+         results.push({email:m.email,status:'created',expires_at:m.expires,temporary_password:password});
+       }catch(e){results.push({email:m.email,status:'failed'});}
+     }
+     return json({ok:results.every(x=>x.status!=='failed'),results},200,headers);
+   }
    if(u.pathname.startsWith('/admin/') && request.method==='POST') {
      const session=await verify((request.headers.get('Authorization')||'').replace(/^Bearer /i,''),env.SESSION_SECRET);
      if(!session)return json({error:'unauthorized'},401,headers);
