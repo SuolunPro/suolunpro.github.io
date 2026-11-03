@@ -39,6 +39,7 @@ export default {
   }
   if(origin && origin!==ORIGIN)return json({error:'origin_not_allowed'},403,headers);
   if(!env.DB || !env.SESSION_SECRET)return json({error:'not_configured'},503,headers);
+  let stage='routing';
   try {
    if(u.pathname==='/auth/login' && request.method==='POST') {
     if(Number(request.headers.get('content-length')||0)>4096)return json({error:'bad_request'},400,headers);
@@ -46,9 +47,12 @@ export default {
     const email=String(data.email||'').trim().toLowerCase();
     const password=String(data.password||'');
     if(!/^\S+@\S+\.\S+$/.test(email)||email.length>254||password.length>256||!password)return json({error:'invalid_credentials'},401,headers);
+    stage='read_attempts';
     const attempts=await env.DB.prepare('SELECT failures,blocked_until FROM login_attempts WHERE email=?').bind(email).first();
     if(attempts?.blocked_until && Date.parse(attempts.blocked_until)>Date.now())return json({error:'temporarily_locked'},429,headers);
+    stage='read_member';
     const member=await env.DB.prepare('SELECT user_id,email,active,expires_at,password_salt,password_hash FROM vip_members WHERE email=?').bind(email).first();
+    stage='verify_password';
     let valid=false;
     if(member?.password_hash && /^\$2[aby]\$\d{2}\$/.test(member.password_hash)) {
       valid=await bcrypt.compare(password,member.password_hash);
@@ -62,8 +66,10 @@ export default {
       await env.DB.prepare('INSERT INTO login_attempts(email,failures,blocked_until,updated_at) VALUES(?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(email) DO UPDATE SET failures=excluded.failures,blocked_until=excluded.blocked_until,updated_at=CURRENT_TIMESTAMP').bind(email,failures>=5?0:failures,blocked).run();
       return json({error:'invalid_credentials'},401,headers);
     }
+    stage='clear_attempts';
     await env.DB.prepare('DELETE FROM login_attempts WHERE email=?').bind(email).run();
     if(!member.active || Date.parse(member.expires_at)<=Date.now())return json({error:'vip_inactive'},403,headers);
+    stage='sign_session';
     const payload=b64(enc.encode(JSON.stringify({sub:member.user_id,exp:Math.floor(Date.now()/1000)+3600})));
     return json({token:payload+'.'+await sign(payload,env.SESSION_SECRET),expires_in:3600},200,headers);
    }
@@ -121,6 +127,6 @@ export default {
      return json({error:'not_found'},404,headers);
    }
    return json({error:'not_found'},404,headers);
-  } catch(e) {return json({error:'request_failed'},500,headers);}
+  } catch(e) {console.error('VIP request failure',u.pathname,stage,e?.name||'Error');return json({error:'request_failed',stage},500,headers);}
  }
 };
