@@ -49,6 +49,7 @@ jobs:
       - name: Initialize D1 and deploy staging
         working-directory: cloudflare/vip
         run: |
+          npm install --no-save --no-package-lock bcryptjs@2.4.3
           wrangler d1 execute suolun-vip-staging --remote --file=schema.sql --yes
           wrangler deploy
       - name: Configure session signing secret
