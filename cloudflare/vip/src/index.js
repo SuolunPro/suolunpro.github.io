@@ -73,6 +73,26 @@ export default {
     const payload=b64(enc.encode(JSON.stringify({sub:member.user_id,exp:Math.floor(Date.now()/1000)+3600})));
     return json({token:payload+'.'+await sign(payload,env.SESSION_SECRET),expires_in:3600},200,headers);
    }
+   // Server-to-server verification only. Never expose VIP_BRIDGE_SECRET to browsers.
+   // Called by legacy Supabase Edge Functions after they receive a Cloudflare VIP token.
+   if(u.pathname==='/internal/verify-vip' && request.method==='POST') {
+     const expected=env.VIP_BRIDGE_SECRET;
+     const provided=request.headers.get('X-VIP-Bridge-Secret')||'';
+     if(!expected||!provided||provided.length!==expected.length)return json({error:'forbidden'},403,headers);
+     const a=enc.encode(provided),b=enc.encode(expected);
+     let difference=0;for(let i=0;i<a.length;i++)difference|=a[i]^b[i];
+     if(difference!==0)return json({error:'forbidden'},403,headers);
+     if(Number(request.headers.get('content-length')||0)>4096)return json({error:'bad_request'},400,headers);
+     const body=await request.json();
+     const token=String(body?.token||'');
+     const session=await verify(token,env.SESSION_SECRET).catch(()=>null);
+     if(!session?.sub)return json({ok:false,error:'unauthorized'},401,headers);
+     const member=await env.DB.prepare('SELECT user_id,email,vip_name,active,expires_at FROM vip_members WHERE user_id=?').bind(session.sub).first();
+     if(!member?.active||!Number.isFinite(Date.parse(member.expires_at))||Date.parse(member.expires_at)<=Date.now())
+       return json({ok:false,error:'vip_inactive'},403,headers);
+     const admin=await env.DB.prepare('SELECT 1 AS allowed FROM vip_admins WHERE user_id=?').bind(session.sub).first();
+     return json({ok:true,user_id:member.user_id,email:member.email,vipActive:true,active:true,vip_name:member.vip_name,expires_at:member.expires_at,role:admin?'admin':'vip'},200,headers);
+   }
    if(u.pathname==='/auth/me' && request.method==='GET') {
      const session=await verify((request.headers.get('Authorization')||'').replace(/^Bearer /i,''),env.SESSION_SECRET);
      if(!session)return json({error:'unauthorized'},401,headers);
