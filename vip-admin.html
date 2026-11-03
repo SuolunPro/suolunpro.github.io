@@ -4,6 +4,10 @@
 <h1>VIP会员管理 · 测试版</h1><p><small>独立测试页面，尚未连接正式会员系统。请勿向客户发送此页面。</small></p>
 <section id="login"><h2>管理员登录</h2><label>邮箱</label><input id="email" type="email" autocomplete="username"><label>密码</label><input id="passwordInput" type="password" autocomplete="current-password"><button id="loginBtn">登录</button><p id="loginStatus" role="status"></p></section>
 <section id="manager" class="hidden"><p id="identity"></p><button id="logoutBtn">退出登录</button><label>操作</label><select id="operation"><option value="create">新增会员</option><option value="reset-password">重置临时密码</option><option value="renew">续费天数</option><option value="disable">停用会员</option></select><label>会员邮箱</label><input id="memberEmail" type="email" autocomplete="off"><div id="expiryField"><label>到期时间（北京时间）</label><input id="expiry" type="datetime-local"></div><div id="daysField" class="hidden"><label>延长天数</label><input id="days" type="number" min="1" max="366" value="30"></div><button id="submitBtn">确认操作</button><p id="status" role="status"></p><div id="passwordBox" class="hidden"><strong>仅显示一次的临时密码，请立即私下通知客户</strong><pre id="password"></pre><button id="clearBtn">清除屏幕密码</button></div></section>
+<section id="bulkPanel" class="hidden"><h2>批量创建VIP</h2><p><small>每行：邮箱,到期时间（北京时间 YYYY-MM-DD HH:mm）。已存在账号自动跳过，不修改其密码和到期时间。只在测试环境操作。</small></p>
+<textarea id="bulkInput" rows="12" style="width:100%;box-sizing:border-box;font-size:14px" placeholder="example@qq.com,2026-12-01 18:00"></textarea>
+<button id="bulkBtn">批量创建（最多30名）</button><p id="bulkStatus" role="status"></p><pre id="bulkResults" class="hidden"></pre><button id="bulkClear" class="danger">清除屏幕上的临时密码</button>
+</section>
 <script>
 'use strict';
 const API='https://suolun-vip-staging.hjh19970220.workers.dev';
@@ -19,11 +23,11 @@ $('loginBtn').onclick=async()=>{
  $('loginBtn').disabled=true;message('loginStatus','正在验证…');
  try{const result=await request('/auth/login',{email:$('email').value.trim(),password:$('passwordInput').value});token=result.token;$('passwordInput').value='';
  const me=await request('/auth/me');if(me.role!=='admin'){token=null;throw Error('该账号没有管理员权限')}
- message('identity','已登录管理员：'+me.email);$('login').classList.add('hidden');$('manager').classList.remove('hidden');message('loginStatus','');
+ message('identity','已登录管理员：'+me.email);$('login').classList.add('hidden');$('manager').classList.remove('hidden');$('bulkPanel').classList.remove('hidden');message('loginStatus','');
  }catch(e){token=null;message('loginStatus','登录失败：'+e.message)}
  finally{$('loginBtn').disabled=false}
 };
-$('logoutBtn').onclick=()=>{token=null;clearSecret();$('manager').classList.add('hidden');$('login').classList.remove('hidden');message('loginStatus','已退出')};
+$('logoutBtn').onclick=()=>{token=null;clearSecret();$('manager').classList.add('hidden');$('bulkPanel').classList.add('hidden');$('bulkResults').textContent='';$('bulkInput').value='';$('login').classList.remove('hidden');message('loginStatus','已退出')};
 $('operation').onchange=()=>{$('expiryField').classList.toggle('hidden',$('operation').value!=='create');$('daysField').classList.toggle('hidden',$('operation').value!=='renew');clearSecret();message('status','')};
 $('clearBtn').onclick=clearSecret;
 $('submitBtn').onclick=async()=>{
@@ -37,6 +41,29 @@ $('submitBtn').onclick=async()=>{
  try{const result=await request('/admin/member/'+op,body);message('status','操作成功：'+result.email+(result.expires_at?'，到期 '+result.expires_at:''));
  if(result.temporary_password){message('password',result.temporary_password);$('passwordBox').classList.remove('hidden')}
  }catch(e){message('status','操作失败：'+e.message)}finally{$('submitBtn').disabled=false}
+};
+$('bulkClear').onclick=()=>{$('bulkResults').textContent='';$('bulkResults').classList.add('hidden');$('bulkInput').value=''};
+$('bulkBtn').onclick=async()=>{
+ const lines=$('bulkInput').value.trim().split(/\n/).map(x=>x.trim()).filter(Boolean);
+ if(!lines.length||lines.length>30){message('bulkStatus','请输入1至30行');return}
+ const members=[];
+ try{
+  for(const line of lines){
+   const parts=line.split(/[,，\t]/).map(x=>x.trim());
+   if(parts.length!==2||!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(parts[1]))throw Error('格式错误：'+line);
+   const iso=new Date(parts[1].replace(' ','T')+'+08:00').toISOString();
+   members.push({email:parts[0],expires_at:iso});
+  }
+ }catch(e){message('bulkStatus',e.message);return}
+ if(!confirm('确认批量创建 '+members.length+' 个测试环境VIP账号？'))return;
+ $('bulkBtn').disabled=true;message('bulkStatus','正在批量创建，请勿关闭页面');
+ try{
+  const response=await request('/admin/members/bulk-create',{members});
+  const lines=response.results.map(r=>r.email+' | '+r.status+(r.temporary_password?' | 临时密码：'+r.temporary_password:''));
+  $('bulkResults').textContent=lines.join('\n');$('bulkResults').classList.remove('hidden');
+  message('bulkStatus','已创建 '+response.results.filter(r=>r.status==='created').length+' 名；已存在 '+response.results.filter(r=>r.status==='already_exists').length+' 名；失败 '+response.results.filter(r=>r.status==='failed').length+' 名。请立即私下保存新密码。');
+ }catch(e){message('bulkStatus','批量创建失败：'+e.message)}
+ finally{$('bulkBtn').disabled=false}
 };
 window.addEventListener('pagehide',()=>{token=null;clearSecret()});
 </script></body></html>
