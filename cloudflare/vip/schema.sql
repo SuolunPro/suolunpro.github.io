@@ -16,3 +16,9 @@ CREATE TABLE IF NOT EXISTS login_attempts (
  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_vip_active_expiry ON vip_members(active,expires_at);
+
+-- Administrator status is explicit; long expiry alone never grants privileges.
+CREATE TABLE IF NOT EXISTS vip_admins (
+ user_id TEXT PRIMARY KEY REFERENCES vip_members(user_id) ON DELETE CASCADE,
+ granted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
