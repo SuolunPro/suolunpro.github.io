@@ -56,14 +56,29 @@ $('bulkBtn').onclick=async()=>{
   }
  }catch(e){message('bulkStatus',e.message);return}
  if(!confirm('确认批量创建 '+members.length+' 个测试环境VIP账号？'))return;
- $('bulkBtn').disabled=true;message('bulkStatus','正在批量创建，请勿关闭页面');
+ $('bulkBtn').disabled=true;message('bulkStatus','准备逐个创建，请勿关闭页面');
+ const saved=[];let created=0,existing=0,failed=0,stopped=false;
+ const render=()=>{$('bulkResults').textContent=saved.join('\n');$('bulkResults').classList.remove('hidden')};
  try{
-  const response=await request('/admin/members/bulk-create',{members});
-  const lines=response.results.map(r=>r.email+' | '+r.status+(r.temporary_password?' | 临时密码：'+r.temporary_password:''));
-  $('bulkResults').textContent=lines.join('\n');$('bulkResults').classList.remove('hidden');
-  message('bulkStatus','已创建 '+response.results.filter(r=>r.status==='created').length+' 名；已存在 '+response.results.filter(r=>r.status==='already_exists').length+' 名；失败 '+response.results.filter(r=>r.status==='failed').length+' 名。请立即私下保存新密码。');
- }catch(e){message('bulkStatus','批量创建失败：'+e.message)}
- finally{$('bulkBtn').disabled=false}
+  for(let i=0;i<members.length;i++){
+   const m=members[i];
+   message('bulkStatus','正在处理 '+(i+1)+'/'+members.length+'：'+m.email+'；已创建 '+created+'，已存在 '+existing+'，失败 '+failed);
+   try{
+    const result=await request('/admin/members/bulk-create',{members:[m]});
+    const row=result.results?.[0];
+    if(!row)throw Error('接口未返回结果');
+    if(row.status==='created'){created++;saved.push(m.email+' | 已创建 | 临时密码：'+row.temporary_password)}
+    else if(row.status==='already_exists'){existing++;saved.push(m.email+' | 已存在，未修改')}
+    else {failed++;saved.push(m.email+' | 创建失败');}
+   }catch(e){
+    failed++;saved.push(m.email+' | 未确认是否创建：'+e.message);
+    render();stopped=true;break;
+   }
+   render();
+  }
+  message('bulkStatus',(stopped?'遇到连接错误，已暂停。请保存下方结果，重新提交时已存在账号会跳过。':'批量处理完成。')+' 已创建 '+created+'，已存在 '+existing+'，失败/未确认 '+failed+'。请立即保存临时密码。');
+ }finally{$('bulkBtn').disabled=false}
+
 };
 window.addEventListener('pagehide',()=>{token=null;clearSecret()});
 </script></body></html>
