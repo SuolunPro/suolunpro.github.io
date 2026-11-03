@@ -127,6 +127,6 @@ export default {
      return json({error:'not_found'},404,headers);
    }
    return json({error:'not_found'},404,headers);
-  } catch(e) {console.error('VIP request failure',u.pathname,stage,e?.name||'Error');return json({error:'request_failed',stage},500,headers);}
+  } catch(e) {console.error('VIP request failure',u.pathname,stage,e?.name||'Error',e?.message||'');const reason=stage==='verify_password' ? (e?.name||'unknown_error') : undefined;return json({error:'request_failed',stage,...(reason?{reason}:{})},500,headers);}
  }
 };
