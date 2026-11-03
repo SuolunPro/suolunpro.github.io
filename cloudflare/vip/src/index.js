@@ -103,8 +103,8 @@ export default {
        const exists=await env.DB.prepare('SELECT user_id FROM vip_members WHERE email=?').bind(m.email).first();
        if(exists){results.push({email:m.email,status:'already_exists'});continue;}
        const password=b64(crypto.getRandomValues(new Uint8Array(18)));
-       const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
-       const hash=await hashPassword(password,salt);
+       const salt=null;
+       const hash=await bcrypt.hash(password,10);
        try{
          await env.DB.prepare("INSERT INTO vip_members(user_id,email,vip_name,expires_at,active,password_salt,password_hash) VALUES (?,?, '尊贵月卡VIP',?,1,?,?)").bind(crypto.randomUUID(),m.email,m.expires,salt,hash).run();
          results.push({email:m.email,status:'created',expires_at:m.expires,temporary_password:password});
@@ -128,16 +128,16 @@ export default {
        const expires=String(data.expires_at||'');
        if(!Number.isFinite(Date.parse(expires))||Date.parse(expires)<=Date.now()||Date.parse(expires)>Date.now()+366*86400000)return json({error:'invalid_expiry'},400,headers);
        const password=b64(crypto.getRandomValues(new Uint8Array(18)));
-       const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
-       const hash=await hashPassword(password,salt);
+       const salt=null;
+       const hash=await bcrypt.hash(password,10);
        await env.DB.prepare("INSERT INTO vip_members(user_id,email,vip_name,expires_at,active,password_salt,password_hash) VALUES (?,?, '尊贵月卡VIP',?,1,?,?)").bind(crypto.randomUUID(),email,expires,salt,hash).run();
        return json({ok:true,email,temporary_password:password,expires_at:expires},201,headers);
      }
      if(!member)return json({error:'not_found'},404,headers);
      if(u.pathname==='/admin/member/reset-password') {
        const password=b64(crypto.getRandomValues(new Uint8Array(18)));
-       const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
-       const hash=await hashPassword(password,salt);
+       const salt=null;
+       const hash=await bcrypt.hash(password,10);
        await env.DB.prepare('UPDATE vip_members SET password_salt=?,password_hash=?,updated_at=CURRENT_TIMESTAMP WHERE user_id=?').bind(salt,hash,member.user_id).run();
        return json({ok:true,email,temporary_password:password},200,headers);
      }
