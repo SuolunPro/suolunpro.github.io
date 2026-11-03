@@ -1,6 +1,6 @@
 const ORIGIN = 'https://suolunpro.github.io';
 const enc = new TextEncoder();
-const b64 = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');
+const b64 = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const from64 = str => Uint8Array.from(atob(str.replace(/-/g,'+').replace(/_/g,'/') + '='.repeat((4-str.length%4)%4)), c=>c.charCodeAt(0));
 const json = (body,status=200,extra={}) => new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff',...extra}});
 const cors = origin => origin===ORIGIN ? {'access-control-allow-origin':ORIGIN,'vary':'Origin','access-control-allow-credentials':'true'} : {};
@@ -35,7 +35,7 @@ export default {
     const data=await request.json();
     const email=String(data.email||'').trim().toLowerCase();
     const password=String(data.password||'');
-    if(!/^\\S+@\\S+\\.\\S+$/.test(email)||email.length>254||password.length>256||!password)return json({error:'invalid_credentials'},401,headers);
+    if(!/^\S+@\S+\.\S+$/.test(email)||email.length>254||password.length>256||!password)return json({error:'invalid_credentials'},401,headers);
     const attempts=await env.DB.prepare('SELECT failures,blocked_until FROM login_attempts WHERE email=?').bind(email).first();
     if(attempts?.blocked_until && Date.parse(attempts.blocked_until)>Date.now())return json({error:'temporarily_locked'},429,headers);
     const member=await env.DB.prepare('SELECT user_id,email,active,expires_at,password_salt,password_hash FROM vip_members WHERE email=?').bind(email).first();
