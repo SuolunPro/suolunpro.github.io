@@ -1,0 +1,28 @@
+name: Verify isolated VIP staging (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check health and database binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://suolun-vip-staging.hjh19970220.workers.dev"
+          curl -fsS "$BASE/health" | jq -e '.ok == true and .status == "staging"'
+          curl -fsS "$BASE/health/db" | jq -e '.ok == true and .database == "ready" and .session == "configured"'
+      - name: Verify unauthenticated requests are denied
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://suolun-vip-staging.hjh19970220.workers.dev"
+          code=$(curl -sS -o "$RUNNER_TEMP/me.json" -w '%{http_code}' "$BASE/auth/me")
+          test "$code" = 401
+          jq -e '.error == "unauthorized"' "$RUNNER_TEMP/me.json"
+          code=$(curl -sS -o "$RUNNER_TEMP/login.json" -w '%{http_code}' -X POST "$BASE/auth/login" -H 'Content-Type: application/json' --data '{"email":"invalid","password":"x"}')
+          test "$code" = 401
+          jq -e '.error == "invalid_credentials"' "$RUNNER_TEMP/login.json"
+          echo "Staging health, D1, session configuration and anonymous-access checks passed."
