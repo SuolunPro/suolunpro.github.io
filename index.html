@@ -122,6 +122,23 @@
       window.setTimeout(checkStartup,15000);
     })();
   </script>
+  <script>
+    // Temporary customer-facing copy for membership verification outages.
+    // Keep retry controls and authentication logic unchanged.
+    (function(){
+      function updateNotice(){
+        var gate=document.getElementById('loginGate');
+        if(!gate)return;
+        var p=gate.querySelector('p');
+        if(p && p.textContent.includes('会员状态暂不可核验')){
+          p.textContent='服务器升级中，请耐心等待，稍后点击重新连接。您的登录信息已保留。';
+        }
+      }
+      var observer=new MutationObserver(updateNotice);
+      observer.observe(document.body,{childList:true,subtree:true,characterData:true});
+      updateNotice();
+    })();
+  </script>
   <script src="assets/app-market-intel-20261026.js?v=20261102-cold-proof-shared-v3"></script>
 </body>
 </html>
