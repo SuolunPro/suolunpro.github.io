@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>VIP会员管理（测试）</title>
+<style>body{font-family:system-ui,-apple-system,sans-serif;background:#f4f6fa;color:#172033;max-width:520px;margin:0 auto;padding:20px}h1{font-size:23px}section{background:white;border-radius:14px;padding:18px;margin:16px 0;box-shadow:0 2px 10px #0001}label{display:block;margin:12px 0 5px;font-weight:600}input,select,button{box-sizing:border-box;width:100%;padding:12px;border:1px solid #ccd3df;border-radius:9px;font-size:16px}button{background:#1d4ed8;color:white;border:0;margin-top:15px;font-weight:650}button:disabled{opacity:.5}small{color:#64748b}.danger{background:#b91c1c}.hidden{display:none}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f5f9;padding:12px;border-radius:8px}#password{font-size:18px;user-select:text}</style></head><body>
+<h1>VIP会员管理 · 测试版</h1><p><small>独立测试页面，尚未连接正式会员系统。请勿向客户发送此页面。</small></p>
+<section id="login"><h2>管理员登录</h2><label>邮箱</label><input id="email" type="email" autocomplete="username"><label>密码</label><input id="passwordInput" type="password" autocomplete="current-password"><button id="loginBtn">登录</button><p id="loginStatus" role="status"></p></section>
+<section id="manager" class="hidden"><p id="identity"></p><button id="logoutBtn">退出登录</button><label>操作</label><select id="operation"><option value="create">新增会员</option><option value="reset-password">重置临时密码</option><option value="renew">续费天数</option><option value="disable">停用会员</option></select><label>会员邮箱</label><input id="memberEmail" type="email" autocomplete="off"><div id="expiryField"><label>到期时间（北京时间）</label><input id="expiry" type="datetime-local"></div><div id="daysField" class="hidden"><label>延长天数</label><input id="days" type="number" min="1" max="366" value="30"></div><button id="submitBtn">确认操作</button><p id="status" role="status"></p><div id="passwordBox" class="hidden"><strong>仅显示一次的临时密码，请立即私下通知客户</strong><pre id="password"></pre><button id="clearBtn">清除屏幕密码</button></div></section>
+<script>
+'use strict';
+const API='https://suolun-vip-staging.hjh19970220.workers.dev';
+const $=id=>document.getElementById(id);
+let token=null;
+function message(id,text){$(id).textContent=text}
+function clearSecret(){message('password','');$('passwordBox').classList.add('hidden')}
+async function request(route,body){
+ const res=await fetch(API+route,{method:body?'POST':'GET',headers:{...(body?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+ const data=await res.json();if(!res.ok)throw Error(data.error||'请求失败');return data;
+}
+$('loginBtn').onclick=async()=>{
+ $('loginBtn').disabled=true;message('loginStatus','正在验证…');
+ try{const result=await request('/auth/login',{email:$('email').value.trim(),password:$('passwordInput').value});token=result.token;$('passwordInput').value='';
+ const me=await request('/auth/me');if(me.role!=='admin'){token=null;throw Error('该账号没有管理员权限')}
+ message('identity','已登录管理员：'+me.email);$('login').classList.add('hidden');$('manager').classList.remove('hidden');message('loginStatus','');
+ }catch(e){token=null;message('loginStatus','登录失败：'+e.message)}
+ finally{$('loginBtn').disabled=false}
+};
+$('logoutBtn').onclick=()=>{token=null;clearSecret();$('manager').classList.add('hidden');$('login').classList.remove('hidden');message('loginStatus','已退出')};
+$('operation').onchange=()=>{$('expiryField').classList.toggle('hidden',$('operation').value!=='create');$('daysField').classList.toggle('hidden',$('operation').value!=='renew');clearSecret();message('status','')};
+$('clearBtn').onclick=clearSecret;
+$('submitBtn').onclick=async()=>{
+ const op=$('operation').value,email=$('memberEmail').value.trim();clearSecret();
+ if(!email){message('status','请填写会员邮箱');return}
+ if(op==='disable'&&!confirm('确定停用该会员？'))return;
+ let body={email};
+ if(op==='create'){const date=$('expiry').value;if(!date){message('status','请填写到期时间');return}body.expires_at=new Date(date+'+08:00').toISOString()}
+ if(op==='renew')body.days=Number($('days').value);
+ $('submitBtn').disabled=true;message('status','正在处理…');
+ try{const result=await request('/admin/member/'+op,body);message('status','操作成功：'+result.email+(result.expires_at?'，到期 '+result.expires_at:''));
+ if(result.temporary_password){message('password',result.temporary_password);$('passwordBox').classList.remove('hidden')}
+ }catch(e){message('status','操作失败：'+e.message)}finally{$('submitBtn').disabled=false}
+};
+window.addEventListener('pagehide',()=>{token=null;clearSecret()});
+</script></body></html>
