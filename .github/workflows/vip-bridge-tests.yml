@@ -1,0 +1,26 @@
+name: VIP bridge isolated security tests
+on:
+  push:
+    branches:
+      - staging/cloudflare-vip-auth-compat
+    paths:
+      - 'cloudflare/vip/src/**'
+      - 'cloudflare/vip/tests/**'
+      - '.github/workflows/vip-bridge-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bridge-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated test dependency
+        working-directory: cloudflare/vip
+        run: npm install --no-save --no-package-lock bcryptjs@2.4.3
+      - name: Run bridge security tests
+        working-directory: cloudflare/vip
+        run: node --test tests/bridge.test.mjs
