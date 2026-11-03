@@ -12,7 +12,7 @@ Deno.serve(async req=>{
  const origin=req.headers.get("origin");
  if(origin&&origin!==ORIGIN)return reply({ok:false,error:"origin_not_allowed"},403);
  const auth=req.headers.get("authorization")||"";
- if(!/^Bearer\\s+\\S{10,3000}$/i.test(auth))return reply({ok:false,error:"unauthorized"},401);
+ if(!/^Bearer\s+\S{10,3000}$/i.test(auth))return reply({ok:false,error:"unauthorized"},401);
  try {
   const upstream=await fetch(CF_ME,{headers:{"Authorization":auth},signal:AbortSignal.timeout(8000)});
   if(!upstream.ok)return reply({ok:false,error:upstream.status===403?"vip_inactive":upstream.status===401?"unauthorized":"verification_unavailable"},upstream.status===401?401:upstream.status===403?403:503);
