@@ -27,6 +27,15 @@ export default {
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...headers,'access-control-allow-methods':'GET,POST,OPTIONS','access-control-allow-headers':'Content-Type,Authorization','access-control-max-age':'600'}});
   const u=new URL(request.url);
   if(u.pathname==='/health' && request.method==='GET')return json({ok:true,service:'suolun-vip',status:'staging'},200,headers);
+  if(u.pathname==='/health/db' && request.method==='GET') {
+    if(!env.DB || !env.SESSION_SECRET)return json({ok:false,database:'unconfigured',session:'unconfigured'},503,headers);
+    try {
+      const result=await env.DB.prepare('SELECT COUNT(*) AS count FROM vip_members').first();
+      return json({ok:true,database:'ready',session:'configured',membership_table:result?'ready':'unavailable'},200,headers);
+    } catch(e) {
+      return json({ok:false,database:'unavailable'},503,headers);
+    }
+  }
   if(origin && origin!==ORIGIN)return json({error:'origin_not_allowed'},403,headers);
   if(!env.DB || !env.SESSION_SECRET)return json({error:'not_configured'},503,headers);
   try {
