@@ -29,7 +29,7 @@ jobs:
           const hash=bcrypt.hashSync(password,10);
           const email='vip-smoke-'+id+'@example.invalid';
           const expiry=new Date(Date.now()+3600*1000).toISOString();
-          const sql="INSERT INTO vip_members(user_id,email,vip_name,expires_at,active,password_hash) VALUES ("+[id,email,'尊贵月卡VIP',expiry,hash].map(s=>"'"+s.replace(/'/g,"''")+"'").join(',').replace(/,'[^']*'$/,m=>m)+");";
+          const sql="INSERT INTO vip_members(user_id,email,vip_name,expires_at,active,password_hash) VALUES ("+[id,email,'尊贵月卡VIP',expiry,hash].map(s=>"'"+s.replace(/'/g,"''")+"'").join(',')+");";
           fs.writeFileSync(process.env.RUNNER_TEMP+'/vip-smoke.sql',sql,{mode:0o600});
           fs.writeFileSync(process.env.RUNNER_TEMP+'/vip-smoke.json',JSON.stringify({id,email,password}),{mode:0o600});
           NODE
