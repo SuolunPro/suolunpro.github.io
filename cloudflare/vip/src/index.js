@@ -75,6 +75,51 @@ export default {
      const admin=await env.DB.prepare('SELECT 1 AS allowed FROM vip_admins WHERE user_id=?').bind(session.sub).first();
      return json({email:m.email,vip_name:m.vip_name,expires_at:m.expires_at,role:admin?'admin':'vip'},200,headers);
    }
+   if(u.pathname.startsWith('/admin/') && request.method==='POST') {
+     const session=await verify((request.headers.get('Authorization')||'').replace(/^Bearer /i,''),env.SESSION_SECRET);
+     if(!session)return json({error:'unauthorized'},401,headers);
+     const admin=await env.DB.prepare('SELECT 1 AS allowed FROM vip_admins WHERE user_id=?').bind(session.sub).first();
+     const current=await env.DB.prepare('SELECT active,expires_at FROM vip_members WHERE user_id=?').bind(session.sub).first();
+     if(!admin||!current?.active||Date.parse(current.expires_at)<=Date.now())return json({error:'forbidden'},403,headers);
+     if(Number(request.headers.get('content-length')||0)>4096)return json({error:'bad_request'},400,headers);
+     const data=await request.json();
+     const email=String(data.email||'').trim().toLowerCase();
+     if(!/^\S+@\S+\.\S+$/.test(email)||email.length>254)return json({error:'invalid_email'},400,headers);
+     const member=await env.DB.prepare('SELECT user_id FROM vip_members WHERE email=?').bind(email).first();
+     if(u.pathname==='/admin/member/create') {
+       if(member)return json({error:'already_exists'},409,headers);
+       const expires=String(data.expires_at||'');
+       if(!Number.isFinite(Date.parse(expires))||Date.parse(expires)<=Date.now()||Date.parse(expires)>Date.now()+366*86400000)return json({error:'invalid_expiry'},400,headers);
+       const password=b64(crypto.getRandomValues(new Uint8Array(18)));
+       const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
+       const hash=await hashPassword(password,salt);
+       await env.DB.prepare("INSERT INTO vip_members(user_id,email,vip_name,expires_at,active,password_salt,password_hash) VALUES (?,?, '尊贵月卡VIP',?,1,?,?)").bind(crypto.randomUUID(),email,expires,salt,hash).run();
+       return json({ok:true,email,temporary_password:password,expires_at:expires},201,headers);
+     }
+     if(!member)return json({error:'not_found'},404,headers);
+     if(u.pathname==='/admin/member/reset-password') {
+       const password=b64(crypto.getRandomValues(new Uint8Array(18)));
+       const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
+       const hash=await hashPassword(password,salt);
+       await env.DB.prepare('UPDATE vip_members SET password_salt=?,password_hash=?,updated_at=CURRENT_TIMESTAMP WHERE user_id=?').bind(salt,hash,member.user_id).run();
+       return json({ok:true,email,temporary_password:password},200,headers);
+     }
+     if(u.pathname==='/admin/member/renew') {
+       const days=Number(data.days);
+       if(!Number.isInteger(days)||days<1||days>366)return json({error:'invalid_days'},400,headers);
+       const existing=await env.DB.prepare('SELECT expires_at FROM vip_members WHERE user_id=?').bind(member.user_id).first();
+       const base=Math.max(Date.now(),Date.parse(existing.expires_at));
+       const expiry=new Date(base+days*86400000).toISOString();
+       await env.DB.prepare('UPDATE vip_members SET expires_at=?,active=1,updated_at=CURRENT_TIMESTAMP WHERE user_id=?').bind(expiry,member.user_id).run();
+       return json({ok:true,email,expires_at:expiry},200,headers);
+     }
+     if(u.pathname==='/admin/member/disable') {
+       if(member.user_id===session.sub)return json({error:'cannot_disable_self'},400,headers);
+       await env.DB.prepare('UPDATE vip_members SET active=0,updated_at=CURRENT_TIMESTAMP WHERE user_id=?').bind(member.user_id).run();
+       return json({ok:true,email,active:false},200,headers);
+     }
+     return json({error:'not_found'},404,headers);
+   }
    return json({error:'not_found'},404,headers);
   } catch(e) {return json({error:'request_failed'},500,headers);}
  }
