@@ -1,0 +1,33 @@
+name: Audit VIP staging membership (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    environment: vip-staging
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 48f8d496344b2e5f3e7f0c372d52e782
+    steps:
+      - name: Check Cloudflare token and install Wrangler
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Missing Cloudflare token'; exit 1; }
+          npm install -g wrangler@4
+      - name: Audit membership counts without exposing identities
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/vip-audit.sql" <<'SQL'
+          SELECT COUNT(*) AS total_rows,
+                 SUM(CASE WHEN active=1 AND datetime(expires_at)>datetime('now') THEN 1 ELSE 0 END) AS active_vip,
+                 SUM(CASE WHEN active=1 AND datetime(expires_at)>datetime('now') AND vip_name='尊贵月卡VIP' THEN 1 ELSE 0 END) AS active_monthly,
+                 SUM(CASE WHEN active=1 AND datetime(expires_at)>datetime('now') AND password_hash GLOB '$2*' THEN 1 ELSE 0 END) AS active_bcrypt,
+                 SUM(CASE WHEN active=1 AND datetime(expires_at)>datetime('now') AND expires_at>='2100-01-01' THEN 1 ELSE 0 END) AS long_expiry_accounts
+          FROM vip_members;
+          SQL
+          wrangler d1 execute suolun-vip-staging --remote --file="$RUNNER_TEMP/vip-audit.sql" --yes
+          rm -f "$RUNNER_TEMP/vip-audit.sql"
