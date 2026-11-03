@@ -3,6 +3,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../src/index.js';
+import {webcrypto} from 'node:crypto';
+const crypto=webcrypto;
 
 const enc=new TextEncoder();
 const b64=s=>Buffer.from(s).toString('base64url');
