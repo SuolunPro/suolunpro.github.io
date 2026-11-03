@@ -7,6 +7,7 @@ import path from 'node:path';
 const args=process.argv.slice(2), file=args.find(x=>!x.startsWith('--'));
 const dryRun=args.includes('--dry-run');
 if(!file || !fs.existsSync(file))throw Error('Provide a local private JSON file (not in git)');
+if(path.resolve(file).startsWith(path.resolve(process.cwd())+path.sep))throw Error('Private input must be outside the repository working directory');
 const records=JSON.parse(fs.readFileSync(file,'utf8'));
 if(!Array.isArray(records)||records.length===0)throw Error('Expected non-empty array');
 const normalized=[], emails=new Set(), ids=new Set();
@@ -39,13 +40,27 @@ async function sql(query,params=[]){
  if(!result[0]?.success)throw Error('D1 query failed');
  return result[0].results||[];
 }
-const existing=await sql('SELECT COUNT(*) AS n FROM vip_members');
-if(Number(existing[0]?.n)!==0)throw Error('Refusing to import into non-empty D1 database');
+const existing=await sql('SELECT user_id,email,vip_name,expires_at,active,password_hash FROM vip_members');
+const expected=new Map(normalized.map(r=>[r.id,r]));
+if(existing.length>normalized.length)throw Error('Unexpected existing members; refusing to import');
+for(const row of existing){
+ const r=expected.get(row.user_id);
+ if(!r || row.email.toLowerCase()!==r.email || row.vip_name!=='尊贵月卡VIP' || row.expires_at!==r.expires || Number(row.active)!==1 || row.password_hash!==r.hash)throw Error('Existing member conflict; no writes performed');
+}
+const currentAdmins=await sql('SELECT user_id FROM vip_admins');
+if(currentAdmins.some(row=>!expected.get(row.user_id)?.is_admin))throw Error('Unexpected admin role; no writes performed');
+console.log(JSON.stringify({existing_verified:existing.length,remaining:normalized.length-existing.length}));
+const existingIds=new Set(existing.map(x=>x.user_id));
 for(const r of normalized){
- await sql('INSERT INTO vip_members (user_id,email,vip_name,expires_at,active,password_hash) VALUES (?,?,?,?,1,?)',[r.id,r.email,'尊贵月卡VIP',r.expires,r.hash]);
- if(r.is_admin)await sql('INSERT INTO vip_admins(user_id) VALUES (?)',[r.id]);
+ if(!existingIds.has(r.id))await sql('INSERT INTO vip_members (user_id,email,vip_name,expires_at,active,password_hash) VALUES (?,?,?,?,1,?)',[r.id,r.email,'尊贵月卡VIP',r.expires,r.hash]);
+ if(r.is_admin && !currentAdmins.some(x=>x.user_id===r.id))await sql('INSERT INTO vip_admins(user_id) VALUES (?)',[r.id]);
 }
 const result=await sql('SELECT COUNT(*) AS n FROM vip_members');
 const admins=await sql('SELECT COUNT(*) AS n FROM vip_admins');
 if(Number(result[0]?.n)!==normalized.length||Number(admins[0]?.n)!==1)throw Error('Post-import count mismatch; review database before retrying');
+const verified=await sql('SELECT user_id,email,vip_name,expires_at,active,password_hash FROM vip_members');
+for(const row of verified){
+ const r=expected.get(row.user_id);
+ if(!r || row.email.toLowerCase()!==r.email || row.vip_name!=='尊贵月卡VIP' || row.expires_at!==r.expires || Number(row.active)!==1 || row.password_hash!==r.hash)throw Error('Post-import record mismatch');
+}
 console.log(JSON.stringify({imported:Number(result[0].n),admins:Number(admins[0].n),verified:true}));
