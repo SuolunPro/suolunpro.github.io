@@ -50,7 +50,7 @@ export default {
     if(attempts?.blocked_until && Date.parse(attempts.blocked_until)>Date.now())return json({error:'temporarily_locked'},429,headers);
     const member=await env.DB.prepare('SELECT user_id,email,active,expires_at,password_salt,password_hash FROM vip_members WHERE email=?').bind(email).first();
     let valid=false;
-    if(member?.password_hash?.startsWith('$2')) {
+    if(member?.password_hash && /^\$2[aby]\$\d{2}\$/.test(member.password_hash)) {
       valid=await bcrypt.compare(password,member.password_hash);
     } else if(member?.password_salt && member?.password_hash) {
       const calculated=await hashPassword(password,member.password_salt);
