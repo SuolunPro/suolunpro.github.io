@@ -40,7 +40,24 @@ export default {async fetch(request,env){
  if(!response.ok)return reply({error:response.status===401?'login_expired':'membership_unavailable'},response.status===401?401:503,origin);
  let member;try{member=(await response.json()).membership}catch{return reply({error:'membership_invalid'},503,origin)}
  if(member?.vipActive!==true)return reply({error:'vip_required'},403,origin);
- if(!env.PREDICTIONS)return reply({error:'prediction_data_unavailable'},503,origin);
- const stored=await env.PREDICTIONS.get('day:'+date);
+ if(!env.PREDICTION_STORE)return reply({error:'prediction_data_unavailable'},503,origin);
+ const id=env.PREDICTION_STORE.idFromName('predictions');
+ const store=env.PREDICTION_STORE.get(id);
+ const result=await store.fetch('https://internal/read?date='+encodeURIComponent(date));
+ const stored=result.ok?await result.text():null;
  return stored?new Response(stored,{status:200,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...(origin===ORIGIN?{'access-control-allow-origin':ORIGIN,'vary':'Origin'}:{})}}):reply({error:'not_published'},404,origin);
 }};
+// Storage is private: no public writes or direct public reads are exposed.
+export class PredictionStore {
+ constructor(state){this.state=state;}
+ async fetch(request){
+  const url=new URL(request.url);
+  if(url.pathname==='/read'){
+   const date=url.searchParams.get('date')||'';
+   if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))return new Response(null,{status:400});
+   const data=await this.state.storage.get('day:'+date);
+   return data?new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}):new Response(null,{status:404});
+  }
+  return new Response(null,{status:404});
+ }
+}
