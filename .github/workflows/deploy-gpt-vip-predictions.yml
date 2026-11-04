@@ -64,3 +64,5 @@ jobs:
           test "$unauth" = 401
           jq -c '{ok,configured}' /tmp/health.json
           jq -e '.configured == true' /tmp/health.json
+
+# Redeploy after persistent cold-warning storage update.
