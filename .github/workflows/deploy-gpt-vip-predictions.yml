@@ -24,6 +24,15 @@ jobs:
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || { echo "Missing CLOUDFLARE_API_TOKEN"; exit 1; }
           npm install -g wrangler@4
+      - name: Diagnose Cloudflare token and account access
+        shell: bash
+        run: |
+          set -euo pipefail
+          for endpoint in "https://api.cloudflare.com/client/v4/user/tokens/verify" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"; do
+            status=$(curl -sS -o /tmp/cf-diagnostic.json -w "%{http_code}" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$endpoint")
+            echo "Endpoint: ${endpoint%%\\?*} HTTP $status"
+            jq -c '{success,errors:[.errors[]? | {code,message}]}' /tmp/cf-diagnostic.json || true
+          done
       - name: Find or create private KV namespace
         shell: bash
         run: |
