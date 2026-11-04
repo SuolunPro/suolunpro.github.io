@@ -131,7 +131,7 @@
         if(!gate)return;
         var p=gate.querySelector('p');
         if(p && p.textContent.includes('会员状态暂不可核验')){
-          p.textContent='服务器升级中，请耐心等待，稍后点击重新连接。您的登录信息已保留。';
+          p.textContent='服务器升级维护中，请耐心等待，稍后点击重新连接。您的登录信息已保留。维护期间受影响的尊贵VIP会员，停服多少天，会员有效期就顺延多少天；恢复服务后统一核算补足，无需自行申请。';
         }
       }
       var observer=new MutationObserver(updateNotice);
