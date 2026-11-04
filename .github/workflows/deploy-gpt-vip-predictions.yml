@@ -63,3 +63,4 @@ jobs:
           test "$health" = 200
           test "$unauth" = 401
           jq -c '{ok,configured}' /tmp/health.json
+          jq -e '.configured == true' /tmp/health.json
