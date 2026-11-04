@@ -2,7 +2,7 @@
 // All reads validate the caller's existing SoulunPro bearer token against the
 // authoritative membership endpoint; no prediction snapshots are publicly hosted.
 const ORIGIN='https://suolunpro.github.io';
-const AUTH_API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1?view=membership';
+const AUTH_API='https://ttydbcejxqxdkcfoizkj.supabase.co/functions/v1/soren-public-api-v1?view=membership&forceFunctionRegion=ap-south-1';
 const reply=(body,status=200,origin='')=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff',...(origin===ORIGIN?{'access-control-allow-origin':ORIGIN,'vary':'Origin'}:{})}});
 export default {async fetch(request,env){
  const origin=request.headers.get('Origin')||'';
@@ -37,7 +37,7 @@ export default {async fetch(request,env){
  if(!/^Bearer [^\s]+$/.test(bearer))return reply({error:'login_required'},401,origin);
  let response;
  try{response=await fetch(AUTH_API,{headers:{Authorization:bearer},signal:AbortSignal.timeout(12000),cache:'no-store'})}catch{return reply({error:'membership_unavailable'},503,origin)}
- if(!response.ok)return reply({error:'membership_denied'},response.status===401?401:403,origin);
+ if(!response.ok)return reply({error:response.status===401?'login_expired':'membership_unavailable'},response.status===401?401:503,origin);
  let member;try{member=(await response.json()).membership}catch{return reply({error:'membership_invalid'},503,origin)}
  if(member?.vipActive!==true)return reply({error:'vip_required'},403,origin);
  if(!env.PREDICTIONS)return reply({error:'prediction_data_unavailable'},503,origin);
