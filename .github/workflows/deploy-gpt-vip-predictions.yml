@@ -1,6 +1,11 @@
 name: Deploy GPT VIP prediction API (manual)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-gpt-vip-predictions.yml'
+      - 'cloudflare/gpt-predictions/**'
 permissions:
   contents: read
 jobs:
