@@ -1,0 +1,42 @@
+name: Generate verified football predictions
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ops/gpt-predictions/**'
+      - '.github/workflows/run-gpt-predictions.yml'
+  schedule:
+    - cron: '13 2-14/2 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: gpt-predictions-publish
+  cancel-in-progress: false
+jobs:
+  generate:
+    if: github.event_name != 'schedule' || vars.OPENAI_SPEND_AUTHORIZED == 'true'
+    runs-on: ubuntu-latest
+    environment: vip-staging
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+      OPENAI_SPEND_AUTHORIZED: ${{ vars.OPENAI_SPEND_AUTHORIZED }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Collect, analyze and publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -n "$CLOUDFLARE_API_TOKEN"; then
+            PUBLISH_TOKEN=$(node -e 'process.stdout.write(require("node:crypto").createHmac("sha256",process.env.CLOUDFLARE_API_TOKEN).update("suolun-gpt-predictions/publish/v1").digest("hex"))')
+          else
+            PUBLISH_TOKEN=''
+          fi
+          export PUBLISH_TOKEN
+          node ops/gpt-predictions/run.mjs

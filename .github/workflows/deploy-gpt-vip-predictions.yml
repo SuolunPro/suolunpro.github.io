@@ -54,6 +54,12 @@ jobs:
           new_sqlite_classes = ["PredictionStore"]
           EOF
           wrangler deploy
+      - name: Configure private publication token
+        working-directory: cloudflare/gpt-predictions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e 'process.stdout.write(require("node:crypto").createHmac("sha256",process.env.CLOUDFLARE_API_TOKEN).update("suolun-gpt-predictions/publish/v1").digest("hex"))' | wrangler secret put PUBLISH_TOKEN
       - name: Verify deployed Worker endpoints
         shell: bash
         run: |
