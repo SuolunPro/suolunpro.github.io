@@ -13,7 +13,7 @@ export class PredictionStore {
    const warnedKey='warned:'+date;
    const warned=new Set(await this.state.storage.get(warnedKey)||[]);
    const matchId=m=>String(m.fixture_id||[m.number,m.home,m.away].join('|'));
-   for(const m of data.matches||[])if(m.upset)warned.add(matchId(m));
+   for(const m of data.matches||[])if(m.upset && m.upset!==false)warned.add(matchId(m));
    if((data.matches||[]).some(m=>m.daily_pick&&warned.has(matchId(m))))
     return Response.json({error:'cold_warning_exclusion'},{status:422});
    await this.state.storage.put(warnedKey,[...warned]);
@@ -23,7 +23,7 @@ export class PredictionStore {
   return new Response('',{status:405});
  }
 }
-// Private GPT prediction API. Bind KV namespace PREDICTIONS and secret PUBLISH_TOKEN.
+// Private prediction API using a Durable Object and optional PUBLISH_TOKEN secret.
 // All reads validate the caller's existing SoulunPro bearer token against the
 // authoritative membership endpoint; no prediction snapshots are publicly hosted.
 const ORIGIN='https://suolunpro.github.io';
@@ -81,7 +81,7 @@ export default {async fetch(request,env){
  let member;try{member=(await response.json()).membership}catch{return reply({error:'membership_invalid'},503,origin)}
  if(member?.vipActive!==true)return reply({error:'vip_required'},403,origin);
  if(!env.PREDICTION_STORE)return reply({error:'prediction_data_unavailable'},503,origin);
- const id=env.PREDICTION_STORE.idFromName('predictions');
+ const id=env.PREDICTION_STORE.idFromName('verified-predictions');
  const store=env.PREDICTION_STORE.get(id);
  const result=await store.fetch('https://internal/read?date='+encodeURIComponent(date));
  const stored=result.ok?await result.text():null;
