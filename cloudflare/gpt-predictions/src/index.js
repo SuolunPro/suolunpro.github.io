@@ -11,8 +11,10 @@ export default {async fetch(request,env){
  if(origin&&origin!==ORIGIN)return reply({error:'origin_denied'},403,origin);
  const u=new URL(request.url);
  if(u.pathname==='/health')return reply({ok:true,service:'gpt-predictions',configured:!!env.PREDICTIONS},200,origin);
- if(!env.PREDICTIONS)return reply({error:'storage_unconfigured'},503,origin);
+ if(u.pathname==='/'&&request.method==='GET')return reply({service:'九十刻度 GPT VIP API',status:'online',prediction_data:'not_configured',message:'这是API接口，不是预测展示页面；请返回九十刻度网站查看。'},200,origin);
+
  if(u.pathname==='/publish'&&request.method==='PUT'){
+  if(!env.PREDICTIONS)return reply({error:'storage_unconfigured'},503,origin);
   if(!env.PUBLISH_TOKEN)return reply({error:'publishing_unconfigured'},503,origin);
   const supplied=request.headers.get('X-Publish-Token')||'';
   // constant-time comparison of secret digests
@@ -38,6 +40,7 @@ export default {async fetch(request,env){
  if(!response.ok)return reply({error:'membership_denied'},response.status===401?401:403,origin);
  let member;try{member=(await response.json()).membership}catch{return reply({error:'membership_invalid'},503,origin)}
  if(member?.vipActive!==true)return reply({error:'vip_required'},403,origin);
+ if(!env.PREDICTIONS)return reply({error:'prediction_data_unavailable'},503,origin);
  const stored=await env.PREDICTIONS.get('day:'+date);
  return stored?new Response(stored,{status:200,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...(origin===ORIGIN?{'access-control-allow-origin':ORIGIN,'vary':'Origin'}:{})}}):reply({error:'not_published'},404,origin);
 }};
