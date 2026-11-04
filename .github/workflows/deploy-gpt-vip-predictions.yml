@@ -33,19 +33,6 @@ jobs:
             echo "Endpoint: ${endpoint%%\\?*} HTTP $status"
             jq -c '{success,errors:[.errors[]? | {code,message}]}' /tmp/cf-diagnostic.json || true
           done
-      - name: Find or create private KV namespace
-        shell: bash
-        run: |
-          set -euo pipefail
-          API="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces"
-          curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$API?per_page=100" > /tmp/gpt-kv.json
-          KV_ID=$(jq -r '.result[]? | select(.title=="suolun-gpt-predictions-private") | .id' /tmp/gpt-kv.json | head -n1)
-          if [ -z "$KV_ID" ]; then
-            curl -fsS -X POST "$API" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" --data '{"title":"suolun-gpt-predictions-private"}' > /tmp/gpt-kv-created.json
-            KV_ID=$(jq -r '.result.id // empty' /tmp/gpt-kv-created.json)
-          fi
-          test -n "$KV_ID"
-          echo "GPT_KV_ID=$KV_ID" >> "$GITHUB_ENV"
       - name: Configure and deploy Worker
         working-directory: cloudflare/gpt-predictions
         shell: bash
@@ -56,9 +43,6 @@ jobs:
           main = "src/index.js"
           compatibility_date = "2026-10-01"
           workers_dev = true
-          [[kv_namespaces]]
-          binding = "PREDICTIONS"
-          id = "$GPT_KV_ID"
           EOF
           wrangler deploy
       - name: Confirm protected endpoint is reachable
