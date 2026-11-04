@@ -54,7 +54,8 @@ export class PredictionStore {
    const warned=new Set(await this.state.storage.get(warnedKey)||[]);
    const matchId=m=>String(m.fixture_id||[m.number,m.home,m.away].join('|'));
    for(const m of data.matches||[])if(m.upset && m.upset!==false)warned.add(matchId(m));
-   if((data.matches||[]).some(m=>m.daily_pick&&warned.has(matchId(m))))
+   const excluded=await Promise.all((data.matches||[]).filter(m=>m.daily_pick).map(async m=>warned.has(matchId(m))||!!(await this.state.storage.get('warned:fixture:'+matchId(m)))));
+   if(excluded.some(Boolean))
     return Response.json({error:'cold_warning_exclusion'},{status:422});
    const previous=await this.state.storage.get(key);
    const prior=new Map((previous?.matches||[]).map(m=>[String(m.fixture_id),m]));
@@ -66,6 +67,7 @@ export class PredictionStore {
    for(const m of data.matches||[])history[String(m.fixture_id)]=[...(history[String(m.fixture_id)]||[]),m];
    await this.state.storage.put('history:'+date,history);
    await this.state.storage.put(warnedKey,[...warned]);
+   for(const m of data.matches||[])if(m.upset)await this.state.storage.put('warned:fixture:'+matchId(m),true);
    const merged=new Map((previous?.matches||[]).map(m=>[String(m.fixture_id),m]));
    for(const m of data.matches||[])merged.set(String(m.fixture_id),m);
    await this.state.storage.put(key,{...data,matches:[...merged.values()]});

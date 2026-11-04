@@ -22,6 +22,9 @@ test('cold-warning cannot return to daily picks after updates',async()=>{
  assert.equal((await store.fetch(new Request(endpoint,{method:'PUT',body:JSON.stringify({date,matches:[match]})}))).status,422);
  const read=await (await store.fetch(new Request(endpoint))).json();
  assert.equal(read.matches[0].daily_pick,null);
+ const next='2026-11-06';
+ const across=await store.fetch(new Request('https://internal/data?date='+next,{method:'PUT',body:JSON.stringify({date:next,matches:[match]})}));
+ assert.equal(across.status,422);
 });
 test('reject malformed date',async()=>{
  assert.equal((await store.fetch(new Request('https://internal/data?date=bad'))).status,400);

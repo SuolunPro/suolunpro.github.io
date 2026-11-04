@@ -1,6 +1,11 @@
 name: Settle frozen football predictions
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ops/gpt-predictions/settle.mjs'
+      - '.github/workflows/settle-gpt-predictions.yml'
   schedule:
     - cron: '7,27,47 * * * *'
 permissions:
