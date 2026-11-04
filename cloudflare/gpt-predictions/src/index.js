@@ -1,3 +1,7 @@
+export class PredictionStore {
+ constructor(state){this.state=state;}
+ async fetch(request){const u=new URL(request.url);const date=u.searchParams.get('date')||'';if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))return new Response('invalid date',{status:400});const key='day:'+date;if(request.method==='GET'){const data=await this.state.storage.get(key);return data?new Response(data):new Response('',{status:404})}if(request.method==='PUT'){await this.state.storage.put(key,await request.text());return new Response('ok')}return new Response('',{status:405})}
+}
 // Private GPT prediction API. Bind KV namespace PREDICTIONS and secret PUBLISH_TOKEN.
 // All reads validate the caller's existing SoulunPro bearer token against the
 // authoritative membership endpoint; no prediction snapshots are publicly hosted.
@@ -10,11 +14,11 @@ export default {async fetch(request,env){
  if(request.method==='OPTIONS')return origin===ORIGIN?new Response(null,{status:204,headers}):new Response(null,{status:403});
  if(origin&&origin!==ORIGIN)return reply({error:'origin_denied'},403,origin);
  const u=new URL(request.url);
- if(u.pathname==='/health')return reply({ok:true,service:'gpt-predictions',configured:!!env.PREDICTIONS},200,origin);
- if(u.pathname==='/'&&request.method==='GET')return reply({service:'九十刻度 GPT VIP API',status:'online',prediction_data:'not_configured',message:'这是API接口，不是预测展示页面；请返回九十刻度网站查看。'},200,origin);
+ if(u.pathname==='/health')return reply({ok:true,service:'gpt-predictions',configured:!!env.PREDICTION_STORE},200,origin);
+ if(u.pathname==='/'&&request.method==='GET')return reply({service:'九十刻度 GPT VIP API',status:'online',prediction_data:'awaiting_verified_publication',message:'这是API接口，不是预测展示页面；请返回九十刻度网站查看。'},200,origin);
 
  if(u.pathname==='/publish'&&request.method==='PUT'){
-  if(!env.PREDICTIONS)return reply({error:'storage_unconfigured'},503,origin);
+  if(!env.PREDICTION_STORE)return reply({error:'storage_unconfigured'},503,origin);
   if(!env.PUBLISH_TOKEN)return reply({error:'publishing_unconfigured'},503,origin);
   const supplied=request.headers.get('X-Publish-Token')||'';
   // constant-time comparison of secret digests
@@ -27,7 +31,9 @@ export default {async fetch(request,env){
   let data;try{data=JSON.parse(raw)}catch{return reply({error:'invalid_json'},400,origin)}
   if(data.schema_version!==1||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(data.date||'')||!Array.isArray(data.matches)||data.matches.length>100)return reply({error:'invalid_schema'},400,origin);
   if(data.matches.some(m=>!m||typeof m!=='object'||m.verified!==true))return reply({error:'unverified_matches'},422,origin);
-  await env.PREDICTIONS.put('day:'+data.date,JSON.stringify(data));
+  const store=env.PREDICTION_STORE.get(env.PREDICTION_STORE.idFromName('verified-predictions'));
+  const written=await store.fetch('https://internal/data?date='+data.date,{method:'PUT',body:JSON.stringify(data)});
+  if(!written.ok)return reply({error:'storage_write_failed'},503,origin);
   return reply({ok:true,date:data.date,count:data.matches.length},200,origin);
  }
  if(u.pathname!=='/predictions'||request.method!=='GET')return reply({error:'not_found'},404,origin);
