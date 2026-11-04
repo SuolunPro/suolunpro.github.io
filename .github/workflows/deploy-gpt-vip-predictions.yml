@@ -1,0 +1,64 @@
+name: Deploy GPT VIP prediction API (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: vip-staging
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 48f8d496344b2e5f3e7f0c372d52e782
+      GPT_PUBLISH_TOKEN: ${{ secrets.GPT_PUBLISH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check credentials
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "Missing CLOUDFLARE_API_TOKEN"; exit 1; }
+          test -n "$GPT_PUBLISH_TOKEN" || { echo "Missing GPT_PUBLISH_TOKEN"; exit 1; }
+          npm install -g wrangler@4
+      - name: Find or create private KV namespace
+        shell: bash
+        run: |
+          set -euo pipefail
+          API="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/storage/kv/namespaces"
+          curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$API?per_page=100" > /tmp/gpt-kv.json
+          KV_ID=$(jq -r '.result[]? | select(.title=="suolun-gpt-predictions-private") | .id' /tmp/gpt-kv.json | head -n1)
+          if [ -z "$KV_ID" ]; then
+            curl -fsS -X POST "$API" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" --data '{"title":"suolun-gpt-predictions-private"}' > /tmp/gpt-kv-created.json
+            KV_ID=$(jq -r '.result.id // empty' /tmp/gpt-kv-created.json)
+          fi
+          test -n "$KV_ID"
+          echo "GPT_KV_ID=$KV_ID" >> "$GITHUB_ENV"
+      - name: Configure and deploy Worker
+        working-directory: cloudflare/gpt-predictions
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > wrangler.toml <<EOF
+          name = "suolun-gpt-predictions"
+          main = "src/index.js"
+          compatibility_date = "2026-10-01"
+          workers_dev = true
+          [[kv_namespaces]]
+          binding = "PREDICTIONS"
+          id = "$GPT_KV_ID"
+          EOF
+          wrangler deploy
+          printf '%s' "$GPT_PUBLISH_TOKEN" | wrangler secret put PUBLISH_TOKEN
+      - name: Confirm protected endpoint is reachable
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://suolun-gpt-predictions.${{ secrets.CLOUDFLARE_WORKERS_SUBDOMAIN }}.workers.dev"
+          if [ -z "${{ secrets.CLOUDFLARE_WORKERS_SUBDOMAIN }}" ]; then
+            echo "::warning::Worker deployed; set frontend API URL after confirming workers.dev subdomain."
+            exit 0
+          fi
+          code=$(curl -sS -o /tmp/unauthorized.json -w '%{http_code}' "$URL/predictions?date=2026-11-04")
+          test "$code" = 401 || { echo "Unauthenticated access not blocked: $code"; exit 1; }
+          echo "Unauthenticated access correctly blocked."
