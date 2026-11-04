@@ -53,6 +53,7 @@ jobs:
           health=$(curl -sS -o /tmp/health.json -w '%{http_code}' "$URL/health")
           unauth=$(curl -sS -o /tmp/unauth.json -w '%{http_code}' "$URL/predictions?date=2026-11-04")
           echo "health=$health unauthenticated_prediction=$unauth"
+          jq -c '{error,message}' /tmp/unauth.json || true
           test "$health" = 200
           test "$unauth" = 401
           jq -c '{ok,configured}' /tmp/health.json
