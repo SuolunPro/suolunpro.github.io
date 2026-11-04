@@ -1,3 +1,2 @@
-// Configure only after the private Cloudflare Worker is deployed and verified.
-// Example: window.SOULUN_GPT_API = 'https://<your-worker>.workers.dev';
-window.SOULUN_GPT_API = '';
+// Live VIP-gated Worker. Prediction storage is not yet configured.
+window.SOULUN_GPT_API = 'https://suolun-gpt-predictions.hjh19970220.workers.dev';
