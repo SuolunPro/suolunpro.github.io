@@ -45,15 +45,14 @@ jobs:
           workers_dev = true
           EOF
           wrangler deploy
-      - name: Confirm protected endpoint is reachable
+      - name: Verify deployed Worker endpoints
         shell: bash
         run: |
           set -euo pipefail
-          URL="https://suolun-gpt-predictions.${{ secrets.CLOUDFLARE_WORKERS_SUBDOMAIN }}.workers.dev"
-          if [ -z "${{ secrets.CLOUDFLARE_WORKERS_SUBDOMAIN }}" ]; then
-            echo "::warning::Worker deployed; set frontend API URL after confirming workers.dev subdomain."
-            exit 0
-          fi
-          code=$(curl -sS -o /tmp/unauthorized.json -w '%{http_code}' "$URL/predictions?date=2026-11-04")
-          test "$code" = 401 || { echo "Unauthenticated access not blocked: $code"; exit 1; }
-          echo "Unauthenticated access correctly blocked."
+          URL="https://suolun-gpt-predictions.hjh19970220.workers.dev"
+          health=$(curl -sS -o /tmp/health.json -w '%{http_code}' "$URL/health")
+          unauth=$(curl -sS -o /tmp/unauth.json -w '%{http_code}' "$URL/predictions?date=2026-11-04")
+          echo "health=$health unauthenticated_prediction=$unauth"
+          test "$health" = 200
+          test "$unauth" = 401
+          jq -c '{ok,configured}' /tmp/health.json
