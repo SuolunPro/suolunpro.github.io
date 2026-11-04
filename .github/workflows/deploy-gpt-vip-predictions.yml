@@ -33,6 +33,9 @@ jobs:
             echo "Endpoint: ${endpoint%%\\?*} HTTP $status"
             jq -c '{success,errors:[.errors[]? | {code,message}]}' /tmp/cf-diagnostic.json || true
           done
+      - name: Validate prediction storage and exclusion logic
+        working-directory: cloudflare/gpt-predictions
+        run: node --test tests/storage.test.mjs
       - name: Configure and deploy Worker
         working-directory: cloudflare/gpt-predictions
         shell: bash
