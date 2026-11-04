@@ -1,6 +1,27 @@
 export class PredictionStore {
  constructor(state){this.state=state;}
- async fetch(request){const u=new URL(request.url);const date=u.searchParams.get('date')||'';if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))return new Response('invalid date',{status:400});const key='day:'+date;if(request.method==='GET'){const data=await this.state.storage.get(key);return data?new Response(data):new Response('',{status:404})}if(request.method==='PUT'){await this.state.storage.put(key,await request.text());return new Response('ok')}return new Response('',{status:405})}
+ async fetch(request){
+  const u=new URL(request.url),date=u.searchParams.get('date')||'';
+  if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(date))return new Response('invalid date',{status:400});
+  const key='day:'+date;
+  if(request.method==='GET'){
+   const data=await this.state.storage.get(key);
+   return data?Response.json(data):new Response('',{status:404});
+  }
+  if(request.method==='PUT'){
+   let data;try{data=await request.json()}catch{return Response.json({error:'invalid_json'},{status:400})}
+   const warnedKey='warned:'+date;
+   const warned=new Set(await this.state.storage.get(warnedKey)||[]);
+   const matchId=m=>String(m.fixture_id||[m.number,m.home,m.away].join('|'));
+   for(const m of data.matches||[])if(m.upset)warned.add(matchId(m));
+   if((data.matches||[]).some(m=>m.daily_pick&&warned.has(matchId(m))))
+    return Response.json({error:'cold_warning_exclusion'},{status:422});
+   await this.state.storage.put(warnedKey,[...warned]);
+   await this.state.storage.put(key,data);
+   return Response.json({ok:true});
+  }
+  return new Response('',{status:405});
+ }
 }
 // Private GPT prediction API. Bind KV namespace PREDICTIONS and secret PUBLISH_TOKEN.
 // All reads validate the caller's existing SoulunPro bearer token against the
@@ -43,16 +64,9 @@ export default {async fetch(request,env){
     (m.upset && m.daily_pick)
   );
   if(invalid)return reply({error:'prediction_validation_failed'},422,origin);
-  // Preserve cold-warning exclusion across updates to the same fixture/day.
   const store=env.PREDICTION_STORE.get(env.PREDICTION_STORE.idFromName('verified-predictions'));
-  const previous=await store.fetch('https://internal/data?date='+data.date);
-  if(previous.ok){
-    const old=await previous.json();
-    const warned=new Set((old.matches||[]).filter(m=>m.upset).map(m=>String(m.fixture_id||[m.number,m.home,m.away].join('|'))));
-    if(data.matches.some(m=>m.daily_pick&&warned.has(String(m.fixture_id||[m.number,m.home,m.away].join('|')))))
-      return reply({error:'cold_warning_exclusion'},422,origin);
-  }
-  const written=await store.fetch('https://internal/data?date='+data.date,{method:'PUT',body:JSON.stringify(data)});
+  const written=await store.fetch('https://internal/data?date='+data.date,{method:'PUT',body:JSON.stringify(data),headers:{'content-type':'application/json'}});
+  if(written.status===422)return reply({error:'cold_warning_exclusion'},422,origin);
   if(!written.ok)return reply({error:'storage_write_failed'},503,origin);
   return reply({ok:true,date:data.date,count:data.matches.length},200,origin);
  }
