@@ -54,16 +54,3 @@ export default {async fetch(request,env){
  return stored?new Response(stored,{status:200,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...(origin===ORIGIN?{'access-control-allow-origin':ORIGIN,'vary':'Origin'}:{})}}):reply({error:'not_published'},404,origin);
 }};
 // Storage is private: no public writes or direct public reads are exposed.
-export class PredictionStore {
- constructor(state){this.state=state;}
- async fetch(request){
-  const url=new URL(request.url);
-  if(url.pathname==='/read'){
-   const date=url.searchParams.get('date')||'';
-   if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))return new Response(null,{status:400});
-   const data=await this.state.storage.get('day:'+date);
-   return data?new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}}):new Response(null,{status:404});
-  }
-  return new Response(null,{status:404});
- }
-}
