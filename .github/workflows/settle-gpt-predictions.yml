@@ -1,0 +1,30 @@
+name: Settle frozen football predictions
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,27,47 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: gpt-predictions-settle
+  cancel-in-progress: false
+jobs:
+  settle:
+    runs-on: ubuntu-latest
+    environment: vip-staging
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify pending fixtures and settle official results
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN" || exit 1
+          PUBLISH_TOKEN=$(node -e 'process.stdout.write(require("node:crypto").createHmac("sha256",process.env.CLOUDFLARE_API_TOKEN).update("suolun-gpt-predictions/publish/v1").digest("hex"))')
+          export PUBLISH_TOKEN
+          node ops/gpt-predictions/settle.mjs

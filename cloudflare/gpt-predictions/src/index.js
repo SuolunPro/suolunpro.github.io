@@ -18,6 +18,10 @@ export class PredictionStore {
    return Response.json({daily,week:sum(daily.slice(0,7)),month:sum(daily)});
   }
   const key='day:'+date;
+  if(u.pathname==='/pending'&&request.method==='GET'){
+   const data=await this.state.storage.get(key),results=await this.state.storage.get('results:'+date)||{};
+   return Response.json({date,matches:(data?.matches||[]).filter(m=>Date.now()>=Date.parse(m.kickoff_at)+120*60000&&!results[String(m.fixture_id)]).map(m=>({fixture_id:m.fixture_id,kickoff_at:m.kickoff_at,home:m.home,away:m.away}))});
+  }
   if(request.method==='GET'){
    const data=await this.state.storage.get(key);
    if(!data)return new Response('',{status:404});
@@ -85,7 +89,7 @@ export default {async fetch(request,env){
  if(u.pathname==='/health')return reply({ok:true,service:'gpt-predictions',configured:!!env.PREDICTION_STORE},200,origin);
  if(u.pathname==='/'&&request.method==='GET')return reply({service:'九十刻度智能预测接口',status:'online',message:'请返回九十刻度网站查看。'},200,origin);
 
- if((u.pathname==='/publish'||u.pathname==='/settle')&&request.method==='PUT'){
+ if((u.pathname==='/publish'||u.pathname==='/settle'||u.pathname==='/pending')&&(request.method==='PUT'||request.method==='GET')){
   if(!env.PREDICTION_STORE)return reply({error:'storage_unconfigured'},503,origin);
   if(!env.PUBLISH_TOKEN)return reply({error:'publishing_unconfigured'},503,origin);
   const supplied=request.headers.get('X-Publish-Token')||'';
@@ -94,6 +98,12 @@ export default {async fetch(request,env){
   const a=await hash(supplied),b=await hash(env.PUBLISH_TOKEN);
   let diff=0;for(let i=0;i<a.length;i++)diff|=a[i]^b[i];
   if(!supplied||diff)return reply({error:'forbidden'},403,origin);
+  if(u.pathname==='/pending'){
+   const date=u.searchParams.get('date')||'';
+   if(!/^\d{4}-\d\d-\d\d$/.test(date))return reply({error:'invalid_date'},400,origin);
+   const store=env.PREDICTION_STORE.get(env.PREDICTION_STORE.idFromName('verified-predictions'));
+   return reply(await (await store.fetch('https://internal/pending?date='+date)).json(),200,origin);
+  }
   if(Number(request.headers.get('content-length')||0)>1000000)return reply({error:'too_large'},413,origin);
   const raw=await request.text();if(raw.length>1000000)return reply({error:'too_large'},413,origin);
   let data;try{data=JSON.parse(raw)}catch{return reply({error:'invalid_json'},400,origin)}
