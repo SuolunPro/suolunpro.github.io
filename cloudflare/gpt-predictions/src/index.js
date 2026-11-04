@@ -31,7 +31,27 @@ export default {async fetch(request,env){
   let data;try{data=JSON.parse(raw)}catch{return reply({error:'invalid_json'},400,origin)}
   if(data.schema_version!==1||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(data.date||'')||!Array.isArray(data.matches)||data.matches.length>100)return reply({error:'invalid_schema'},400,origin);
   if(data.matches.some(m=>!m||typeof m!=='object'||m.verified!==true))return reply({error:'unverified_matches'},422,origin);
+  // Do not publish untraceable predictions or allow warned matches into daily picks.
+  const invalid=data.matches.some(m=>
+    !String(m.source||'').trim() ||
+    !String(m.home||'').trim() ||
+    !String(m.away||'').trim() ||
+    !Array.isArray(m.wdl_top2) || m.wdl_top2.length!==2 ||
+    !Array.isArray(m.score_top3) || m.score_top3.length!==3 ||
+    !Array.isArray(m.htft_top3) || m.htft_top3.length!==3 ||
+    !Array.isArray(m.goals_top3) || m.goals_top3.length!==3 ||
+    (m.upset && m.daily_pick)
+  );
+  if(invalid)return reply({error:'prediction_validation_failed'},422,origin);
+  // Preserve cold-warning exclusion across updates to the same fixture/day.
   const store=env.PREDICTION_STORE.get(env.PREDICTION_STORE.idFromName('verified-predictions'));
+  const previous=await store.fetch('https://internal/data?date='+data.date);
+  if(previous.ok){
+    const old=await previous.json();
+    const warned=new Set((old.matches||[]).filter(m=>m.upset).map(m=>String(m.fixture_id||[m.number,m.home,m.away].join('|'))));
+    if(data.matches.some(m=>m.daily_pick&&warned.has(String(m.fixture_id||[m.number,m.home,m.away].join('|')))))
+      return reply({error:'cold_warning_exclusion'},422,origin);
+  }
   const written=await store.fetch('https://internal/data?date='+data.date,{method:'PUT',body:JSON.stringify(data)});
   if(!written.ok)return reply({error:'storage_write_failed'},503,origin);
   return reply({ok:true,date:data.date,count:data.matches.length},200,origin);
