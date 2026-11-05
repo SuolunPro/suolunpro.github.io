@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-05",
-  "checked_at": "2026-11-06T05:57:48+08:00",
+  "checked_at": "2026-11-06T06:57:57+08:00",
   "verification_policy": "120_minutes_after_kickoff; verified official 90-minute FT and HT; no post-kickoff snapshot in pre-match denominator",
   "summary": {
     "eligible_fixture_count": 7,
@@ -193,7 +193,8 @@
       "pending_reason": "Provisional press reports HT 0:1, FT 1:1; official China Sports Lottery JCZQ sale identity and official settlement not verified. Do not count in denominators.",
       "result_sources_checked": [
         "https://www.theguardian.com/football/2026/nov/05/kamadas-late-leveller-rescues-point-for-10-man-crystal-palace-and-denies-hoffenheim",
-        "https://www.welt.de/article6aecdb7ea389bc337cfc7333"
+        "https://www.welt.de/article6aecdb7ea389bc337cfc7333",
+        "https://www.cpfc.co.uk/news/match-reports/report-highlights-crystal-palace-hoffenheim-europa-league-november-2026/"
       ],
       "result_source_verified": null,
       "verified_at": null,
@@ -305,7 +306,7 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T05:57:48+08:00",
+      "last_rechecked_at": "2026-11-06T06:57:57+08:00",
       "provisional_score": {
         "ht": "0:1",
         "ft_90": "1:1"
@@ -314,7 +315,13 @@
       "sale_identity_sources": [
         "https://www.cpbao.com/jczq/scheme!editNew.action?matchDate=20260222&passMode=PASS&playType=HT",
         "https://zcai.cn/tool_jc?id=12&wf=%E8%83%9C%E8%B4%9F&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83"
-      ]
+      ],
+      "club_official_score_evidence": {
+        "source": "https://www.cpfc.co.uk/news/match-reports/report-highlights-crystal-palace-hoffenheim-europa-league-november-2026/",
+        "ht": "0:1",
+        "ft_90": "1:1",
+        "finding": "Crystal Palace official club report confirms HT and FT; China Sports Lottery sale identity remains unverified, therefore pending"
+      }
     },
     {
       "fixture_id": null,
@@ -902,6 +909,7 @@
       "checked_at": "2026-11-06T05:57:48+08:00",
       "source": "https://zcai.cn/tool_jc?id=12&wf=%E8%83%9C%E8%B4%9F&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83",
       "finding": "Third-party 2026-11-05 lottery schedule independently lists Thursday 002 Crystal Palace-Hoffenheim; no official completed result established."
-    }
+    },
+    "2026-11-06 06:57 CST: Crystal Palace club official report independently confirms 周四002 HT 0:1 FT 1:1. JC official sale identity still unverified; all seven remain pending, no accuracy denominator changes."
   ]
 }
