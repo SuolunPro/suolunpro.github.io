@@ -3,13 +3,13 @@
   "date": "2026-11-05",
   "snapshot_time": "2026-11-05 15:00 Asia/Shanghai (approximate publication window)",
   "generated_at": "2026-11-05",
-  "status": "partial_preview_with_full_third_party_fixture_list",
-  "coverage": "13 third-party-listed fixtures; 6 earlier partial previews; 7 pending; official in-sale status unverified",
+  "status": "cross_checked_13_fixture_market_based_12_predictions_official_full_pool_unverified",
+  "coverage": "13 third-party listed fixtures; 12 market-based model estimates; 1 missing 1X2 odds; no verified handicap forecasts",
   "is_official_recommendation": false,
-  "method": "public odds baseline + transparent qualitative risk filter; not full seven-module model",
+  "method": "Normalized public 1X2 odds plus fitted independent Poisson estimates; no William/Macau audit; not independently validated model",
   "sources": [
-    "https://www.zcai.cn/tool_jc?wf=%E6%AF%94%E5%88%86&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83",
-    "https://www.jleague.jp/en/acl2/match/search-list/"
+    "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+    "https://shzrs.com/jczq/kaijiang.php"
   ],
   "matches": [
     {
@@ -21,18 +21,889 @@
       "ft": {
         "top1": "主胜",
         "top2": "平",
-        "market_implied_probability_pct": 74,
-        "note": "基于公开赔率的市场基准判断，非独立AI胜率"
+        "market_implied_probability_pct": 73.7,
+        "market_probabilities_pct": {
+          "home": 73.7,
+          "draw": 16.9,
+          "away": 9.4
+        },
+        "odds": [
+          1.19,
+          5.2,
+          9.35
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
       },
       "handicap": {
-        "line": -1,
-        "top1": "让胜",
-        "top2": "让负",
-        "note": "以公开让球赔率最低项作初筛，未完成机构盘口审计"
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
       },
       "score_top3": [
         "2:0",
+        "1:0",
+        "3:0"
+      ],
+      "goals_top3": [
+        "2",
+        "3",
+        "4"
+      ],
+      "half_full_top3": [
+        "胜胜",
+        "平胜",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "prediction_status": "market_based_estimate",
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 2.25,
+        "away_xg": 0.65,
+        "score_top3_pct": [
+          13.9,
+          12.4,
+          10.4
+        ],
+        "goals_top3_pct": [
+          23.1,
+          22.4,
+          16.2
+        ],
+        "half_full_top3_pct": [
+          52.7,
+          18.5,
+          10.8
+        ]
+      }
+    },
+    {
+      "match_no": "周四002",
+      "home_team": "水晶宫",
+      "away_team": "霍芬海姆",
+      "kickoff": "2026-11-06T01:45:00+08:00",
+      "dq": "C",
+      "ft": {
+        "top1": "主胜",
+        "top2": "客胜",
+        "market_implied_probability_pct": 49.9,
+        "market_probabilities_pct": {
+          "home": 49.9,
+          "draw": 24.7,
+          "away": 25.4
+        },
+        "odds": [
+          1.76,
+          3.55,
+          3.45
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "1:1",
+        "1:0",
+        "2:1"
+      ],
+      "goals_top3": [
+        "2",
+        "3",
+        "1"
+      ],
+      "half_full_top3": [
+        "胜胜",
+        "平平",
+        "负负"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "prediction_status": "market_based_estimate",
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 1.55,
+        "away_xg": 1.05,
+        "score_top3_pct": [
+          12.1,
+          11.5,
+          9.4
+        ],
+        "goals_top3_pct": [
+          25.1,
+          21.8,
+          19.3
+        ],
+        "half_full_top3_pct": [
+          31.6,
+          15.6,
+          15.4
+        ]
+      }
+    },
+    {
+      "match_no": "周四003",
+      "home_team": "布拉格斯巴达",
+      "away_team": "伯恩茅斯",
+      "kickoff": "2026-11-06T01:45:00+08:00",
+      "dq": "C",
+      "ft": {
+        "top1": "客胜",
+        "top2": "平",
+        "market_implied_probability_pct": 68,
+        "market_probabilities_pct": {
+          "home": 14,
+          "draw": 17.9,
+          "away": 68
+        },
+        "odds": [
+          6.25,
+          4.9,
+          1.29
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "1:2",
+        "0:2",
+        "1:3"
+      ],
+      "goals_top3": [
+        "3",
+        "4",
+        "2"
+      ],
+      "half_full_top3": [
+        "负负",
+        "平负",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "prediction_status": "market_based_estimate",
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 1.05,
+        "away_xg": 2.45,
+        "score_top3_pct": [
+          9.5,
+          9.1,
+          7.8
+        ],
+        "goals_top3_pct": [
+          21.6,
+          18.9,
+          18.5
+        ],
+        "half_full_top3_pct": [
+          48.2,
+          16.3,
+          9.3
+        ]
+      }
+    },
+    {
+      "match_no": "周四004",
+      "home_team": "奈梅亨",
+      "away_team": "奥莫尼亚",
+      "kickoff": "2026-11-06T01:45:00+08:00",
+      "dq": "C",
+      "ft": {
+        "top1": "主胜",
+        "top2": "平",
+        "market_implied_probability_pct": 54.5,
+        "market_probabilities_pct": {
+          "home": 54.5,
+          "draw": 23.6,
+          "away": 21.9
+        },
+        "odds": [
+          1.61,
+          3.72,
+          4
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "1:1",
+        "1:0",
+        "2:1"
+      ],
+      "goals_top3": [
+        "2",
+        "3",
+        "1"
+      ],
+      "half_full_top3": [
+        "胜胜",
+        "平胜",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "prediction_status": "market_based_estimate",
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 1.75,
+        "away_xg": 1.05,
+        "score_top3_pct": [
+          11.2,
+          10.6,
+          9.8
+        ],
+        "goals_top3_pct": [
+          23.8,
+          22.2,
+          17
+        ],
+        "half_full_top3_pct": [
+          35.6,
+          15.6,
+          14
+        ]
+      }
+    },
+    {
+      "match_no": "周四005",
+      "home_team": "皇家社会",
+      "away_team": "里昂",
+      "kickoff": "2026-11-06T01:45:00+08:00",
+      "dq": "C",
+      "ft": {
+        "top1": "主胜",
+        "top2": "平",
+        "market_implied_probability_pct": 60.9,
+        "market_probabilities_pct": {
+          "home": 60.9,
+          "draw": 20.4,
+          "away": 18.7
+        },
+        "odds": [
+          1.44,
+          4.3,
+          4.7
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
         "2:1",
+        "1:1",
+        "2:0"
+      ],
+      "goals_top3": [
+        "3",
+        "2",
+        "4"
+      ],
+      "half_full_top3": [
+        "胜胜",
+        "平胜",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "prediction_status": "market_based_estimate",
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 2.05,
+        "away_xg": 1.05,
+        "score_top3_pct": [
+          9.9,
+          9.7,
+          9.5
+        ],
+        "goals_top3_pct": [
+          22.4,
+          21.6,
+          17.3
+        ],
+        "half_full_top3_pct": [
+          41.2,
+          16.1,
+          11.7
+        ]
+      }
+    },
+    {
+      "match_no": "周四006",
+      "home_team": "AC米兰",
+      "away_team": "费伦茨瓦罗斯",
+      "kickoff": "2026-11-06T01:45:00+08:00",
+      "dq": "C",
+      "ft": {
+        "top1": "主胜",
+        "top2": "平",
+        "market_implied_probability_pct": 75.7,
+        "market_probabilities_pct": {
+          "home": 75.7,
+          "draw": 15.4,
+          "away": 9
+        },
+        "odds": [
+          1.16,
+          5.7,
+          9.8
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "2:0",
+        "1:0",
+        "3:0"
+      ],
+      "goals_top3": [
+        "3",
+        "2",
+        "4"
+      ],
+      "half_full_top3": [
+        "胜胜",
+        "平胜",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "prediction_status": "market_based_estimate",
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 2.35,
+        "away_xg": 0.65,
+        "score_top3_pct": [
+          13.7,
+          11.7,
+          10.8
+        ],
+        "goals_top3_pct": [
+          22.4,
+          22.4,
+          16.8
+        ],
+        "half_full_top3_pct": [
+          54.4,
+          18.4,
+          10
+        ]
+      }
+    },
+    {
+      "match_no": "周四007",
+      "home_team": "特拉布宗体育",
+      "away_team": "弗赖堡",
+      "kickoff": "2026-11-06T01:45:00+08:00",
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "prediction_status": "market_based_estimate",
+      "dq": "C",
+      "ft": {
+        "top1": "主胜",
+        "top2": "客胜",
+        "market_implied_probability_pct": 39.5,
+        "market_probabilities_pct": {
+          "home": 39.5,
+          "draw": 24.4,
+          "away": 36.1
+        },
+        "odds": [
+          2.22,
+          3.6,
+          2.43
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "1:1",
+        "2:1",
+        "1:2"
+      ],
+      "goals_top3": [
+        "3",
+        "2",
+        "4"
+      ],
+      "half_full_top3": [
+        "胜胜",
+        "负负",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 1.55,
+        "away_xg": 1.45,
+        "score_top3_pct": [
+          11.2,
+          8.7,
+          8.1
+        ],
+        "goals_top3_pct": [
+          22.4,
+          22.4,
+          16.8
+        ],
+        "half_full_top3_pct": [
+          25.5,
+          22.4,
+          13.5
+        ]
+      }
+    },
+    {
+      "match_no": "周四008",
+      "home_team": "桑德兰",
+      "away_team": "萨格勒布迪纳摩",
+      "kickoff": "2026-11-06T04:00:00+08:00",
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "prediction_status": "market_based_estimate",
+      "dq": "C",
+      "ft": {
+        "top1": "主胜",
+        "top2": "平",
+        "market_implied_probability_pct": 69.1,
+        "market_probabilities_pct": {
+          "home": 69.1,
+          "draw": 18.8,
+          "away": 12.1
+        },
+        "odds": [
+          1.27,
+          4.66,
+          7.25
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "2:0",
+        "1:0",
+        "2:1"
+      ],
+      "goals_top3": [
+        "2",
+        "3",
+        "4"
+      ],
+      "half_full_top3": [
+        "胜胜",
+        "平胜",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 2.15,
+        "away_xg": 0.75,
+        "score_top3_pct": [
+          12.7,
+          11.8,
+          9.5
+        ],
+        "goals_top3_pct": [
+          23.1,
+          22.4,
+          16.2
+        ],
+        "half_full_top3_pct": [
+          48.9,
+          18,
+          11.5
+        ]
+      }
+    },
+    {
+      "match_no": "周四009",
+      "home_team": "维戈塞尔塔",
+      "away_team": "圣吉尔联合",
+      "kickoff": "2026-11-06T04:00:00+08:00",
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "prediction_status": "market_based_estimate",
+      "dq": "C",
+      "ft": {
+        "top1": "主胜",
+        "top2": "客胜",
+        "market_implied_probability_pct": 44.6,
+        "market_probabilities_pct": {
+          "home": 44.6,
+          "draw": 26.6,
+          "away": 28.8
+        },
+        "odds": [
+          1.97,
+          3.3,
+          3.05
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "1:1",
+        "1:0",
+        "0:1"
+      ],
+      "goals_top3": [
+        "2",
+        "1",
+        "3"
+      ],
+      "half_full_top3": [
+        "胜胜",
+        "负负",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 1.35,
+        "away_xg": 1.05,
+        "score_top3_pct": [
+          12.9,
+          12.2,
+          9.5
+        ],
+        "goals_top3_pct": [
+          26.1,
+          21.8,
+          20.9
+        ],
+        "half_full_top3_pct": [
+          27.5,
+          17.5,
+          17.5
+        ]
+      }
+    },
+    {
+      "match_no": "周四010",
+      "home_team": "本菲卡",
+      "away_team": "波兹南莱赫",
+      "kickoff": "2026-11-06T04:00:00+08:00",
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "prediction_status": "pending_odds_missing",
+      "dq": "D",
+      "ft": "未确认",
+      "handicap": "未确认",
+      "score_top3": [],
+      "goals_top3": [],
+      "half_full_top3": [],
+      "upset_warning": {
+        "triggered": false,
+        "reason": "证据不足，未作判断"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "未完成赛前分析"
+      },
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false
+    },
+    {
+      "match_no": "周四011",
+      "home_team": "阿尔克马尔",
+      "away_team": "尤文图斯",
+      "kickoff": "2026-11-06T04:00:00+08:00",
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "prediction_status": "market_based_estimate",
+      "dq": "C",
+      "ft": {
+        "top1": "客胜",
+        "top2": "平",
+        "market_implied_probability_pct": 51.4,
+        "market_probabilities_pct": {
+          "home": 24.3,
+          "draw": 24.4,
+          "away": 51.4
+        },
+        "odds": [
+          3.62,
+          3.6,
+          1.71
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "1:1",
+        "0:1",
+        "1:2"
+      ],
+      "goals_top3": [
+        "2",
+        "3",
+        "1"
+      ],
+      "half_full_top3": [
+        "负负",
+        "平负",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 1.05,
+        "away_xg": 1.65,
+        "score_top3_pct": [
+          11.6,
+          11.1,
+          9.6
+        ],
+        "goals_top3_pct": [
+          24.5,
+          22,
+          18.1
+        ],
+        "half_full_top3_pct": [
+          33.6,
+          15.3,
+          14.8
+        ]
+      }
+    },
+    {
+      "match_no": "周四012",
+      "home_team": "勒沃库森",
+      "away_team": "马赛",
+      "kickoff": "2026-11-06T04:00:00+08:00",
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "prediction_status": "market_based_estimate",
+      "dq": "C",
+      "ft": {
+        "top1": "主胜",
+        "top2": "平",
+        "market_implied_probability_pct": 75.6,
+        "market_probabilities_pct": {
+          "home": 75.6,
+          "draw": 15.3,
+          "away": 9.1
+        },
+        "odds": [
+          1.16,
+          5.75,
+          9.65
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "2:0",
+        "3:0",
+        "2:1"
+      ],
+      "goals_top3": [
+        "3",
+        "4",
+        "2"
+      ],
+      "half_full_top3": [
+        "胜胜",
+        "平胜",
+        "平平"
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
+      },
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 2.65,
+        "away_xg": 0.85,
+        "score_top3_pct": [
+          10.6,
+          9.4,
+          9
+        ],
+        "goals_top3_pct": [
+          21.6,
+          18.9,
+          18.5
+        ],
+        "half_full_top3_pct": [
+          55.2,
+          17,
+          8.2
+        ]
+      }
+    },
+    {
+      "match_no": "周四013",
+      "home_team": "帕尔梅拉斯",
+      "away_team": "里莫",
+      "kickoff": "2026-11-06T06:30:00+08:00",
+      "fixture_status": "cross_checked_public_jingcai_listing",
+      "prediction_status": "market_based_estimate",
+      "dq": "C",
+      "ft": {
+        "top1": "主胜",
+        "top2": "平",
+        "market_implied_probability_pct": 79.8,
+        "market_probabilities_pct": {
+          "home": 79.8,
+          "draw": 14.2,
+          "away": 6.1
+        },
+        "odds": [
+          1.1,
+          6.2,
+          14.5
+        ],
+        "note": "第三方所列体彩SP归一化市场隐含概率，非独立模型胜率"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "note": "官方让球数及让球SP未逐场核验，不推断让球方向"
+      },
+      "score_top3": [
+        "2:0",
+        "3:0",
         "1:0"
       ],
       "goals_top3": [
@@ -47,387 +918,48 @@
       ],
       "upset_warning": {
         "triggered": false,
-        "reason": "未触发初筛预警；不代表无冷门风险"
+        "formal_assessment": "insufficient_market_chain",
+        "reason": "未完成威廉/澳门盘口和基本面复核，不能断言无冷门"
       },
       "daily_pick": {
         "selected": false,
-        "reason": "DQ-C：未完成威廉/澳门同机构链及赛前阵容复核"
-      }
-    },
-    {
-      "match_no": "周四002",
-      "home_team": "水晶宫",
-      "away_team": "霍芬海姆",
-      "kickoff": "2026-11-06T01:45:00+08:00",
-      "dq": "C",
-      "ft": {
-        "top1": "主胜",
-        "top2": "客胜",
-        "market_implied_probability_pct": 50,
-        "note": "基于公开赔率的市场基准判断，非独立AI胜率"
+        "reason": "DQ-C，缺乏独立盘口链和基本面验证"
       },
-      "handicap": {
-        "line": -1,
-        "top1": "让负",
-        "top2": "让胜",
-        "note": "以公开让球赔率最低项作初筛，未完成机构盘口审计"
-      },
-      "score_top3": [
-        "2:1",
-        "1:1",
-        "1:2"
-      ],
-      "goals_top3": [
-        "3",
-        "4",
-        "2"
-      ],
-      "half_full_top3": [
-        "胜胜",
-        "负负",
-        "平胜"
-      ],
-      "upset_warning": {
-        "triggered": true,
-        "reason": "市场优势不足六成，存在方向不确定性"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "DQ-C：未完成威廉/澳门同机构链及赛前阵容复核"
-      }
-    },
-    {
-      "match_no": "周四003",
-      "home_team": "布拉格斯巴达",
-      "away_team": "伯恩茅斯",
-      "kickoff": "2026-11-06T01:45:00+08:00",
-      "dq": "C",
-      "ft": {
-        "top1": "客胜",
-        "top2": "平",
-        "market_implied_probability_pct": 68,
-        "note": "基于公开赔率的市场基准判断，非独立AI胜率"
-      },
-      "handicap": {
-        "line": 1,
-        "top1": "让负",
-        "top2": "让胜",
-        "note": "以公开让球赔率最低项作初筛，未完成机构盘口审计"
-      },
-      "score_top3": [
-        "1:2",
-        "0:2",
-        "0:1"
-      ],
-      "goals_top3": [
-        "3",
-        "2",
-        "4"
-      ],
-      "half_full_top3": [
-        "负负",
-        "平负",
-        "平平"
-      ],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "未触发初筛预警；不代表无冷门风险"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "DQ-C：未完成威廉/澳门同机构链及赛前阵容复核"
-      }
-    },
-    {
-      "match_no": "周四004",
-      "home_team": "奈梅亨",
-      "away_team": "奥莫尼亚",
-      "kickoff": "2026-11-06T01:45:00+08:00",
-      "dq": "C",
-      "ft": {
-        "top1": "主胜",
-        "top2": "平",
-        "market_implied_probability_pct": 54,
-        "note": "基于公开赔率的市场基准判断，非独立AI胜率"
-      },
-      "handicap": {
-        "line": -1,
-        "top1": "让负",
-        "top2": "让胜",
-        "note": "以公开让球赔率最低项作初筛，未完成机构盘口审计"
-      },
-      "score_top3": [
-        "2:1",
-        "1:1",
-        "2:0"
-      ],
-      "goals_top3": [
-        "3",
-        "2",
-        "4"
-      ],
-      "half_full_top3": [
-        "胜胜",
-        "平胜",
-        "平平"
-      ],
-      "upset_warning": {
-        "triggered": true,
-        "reason": "市场优势不足六成，存在方向不确定性"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "DQ-C：未完成威廉/澳门同机构链及赛前阵容复核"
-      }
-    },
-    {
-      "match_no": "周四005",
-      "home_team": "皇家社会",
-      "away_team": "里昂",
-      "kickoff": "2026-11-06T01:45:00+08:00",
-      "dq": "C",
-      "ft": {
-        "top1": "主胜",
-        "top2": "平",
-        "market_implied_probability_pct": 61,
-        "note": "基于公开赔率的市场基准判断，非独立AI胜率"
-      },
-      "handicap": {
-        "line": -1,
-        "top1": "让负",
-        "top2": "让胜",
-        "note": "以公开让球赔率最低项作初筛，未完成机构盘口审计"
-      },
-      "score_top3": [
-        "2:1",
-        "1:0",
-        "2:0"
-      ],
-      "goals_top3": [
-        "3",
-        "4",
-        "2"
-      ],
-      "half_full_top3": [
-        "胜胜",
-        "平胜",
-        "平平"
-      ],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "未触发初筛预警；不代表无冷门风险"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "DQ-C：未完成威廉/澳门同机构链及赛前阵容复核"
-      }
-    },
-    {
-      "match_no": "周四006",
-      "home_team": "AC米兰",
-      "away_team": "费伦茨瓦罗斯",
-      "kickoff": "2026-11-06T01:45:00+08:00",
-      "dq": "C",
-      "ft": {
-        "top1": "主胜",
-        "top2": "平",
-        "market_implied_probability_pct": 76,
-        "note": "基于公开赔率的市场基准判断，非独立AI胜率"
-      },
-      "handicap": {
-        "line": -1,
-        "top1": "让胜",
-        "top2": "让负",
-        "note": "以公开让球赔率最低项作初筛，未完成机构盘口审计"
-      },
-      "score_top3": [
-        "2:0",
-        "2:1",
-        "3:0"
-      ],
-      "goals_top3": [
-        "3",
-        "4",
-        "2"
-      ],
-      "half_full_top3": [
-        "胜胜",
-        "平胜",
-        "平平"
-      ],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "未触发初筛预警；不代表无冷门风险"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "DQ-C：未完成威廉/澳门同机构链及赛前阵容复核"
-      }
-    },
-    {
-      "match_no": "周四007",
-      "home_team": "特拉布宗体育",
-      "away_team": "弗赖堡",
-      "kickoff": "2026-11-06T01:45:00+08:00",
-      "fixture_status": "third_party_listed_sale_status_unverified",
-      "prediction_status": "pending",
-      "dq": "D",
-      "ft": "未确认",
-      "handicap": "未确认",
-      "score_top3": [],
-      "goals_top3": [],
-      "half_full_top3": [],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "证据不足，未作判断"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "未完成赛前分析"
-      }
-    },
-    {
-      "match_no": "周四008",
-      "home_team": "桑德兰",
-      "away_team": "萨格勒布迪纳摩",
-      "kickoff": "2026-11-06T04:00:00+08:00",
-      "fixture_status": "third_party_listed_sale_status_unverified",
-      "prediction_status": "pending",
-      "dq": "D",
-      "ft": "未确认",
-      "handicap": "未确认",
-      "score_top3": [],
-      "goals_top3": [],
-      "half_full_top3": [],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "证据不足，未作判断"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "未完成赛前分析"
-      }
-    },
-    {
-      "match_no": "周四009",
-      "home_team": "维戈塞尔塔",
-      "away_team": "圣吉尔联合",
-      "kickoff": "2026-11-06T04:00:00+08:00",
-      "fixture_status": "third_party_listed_sale_status_unverified",
-      "prediction_status": "pending",
-      "dq": "D",
-      "ft": "未确认",
-      "handicap": "未确认",
-      "score_top3": [],
-      "goals_top3": [],
-      "half_full_top3": [],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "证据不足，未作判断"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "未完成赛前分析"
-      }
-    },
-    {
-      "match_no": "周四010",
-      "home_team": "本菲卡",
-      "away_team": "波兹南莱赫",
-      "kickoff": "2026-11-06T04:00:00+08:00",
-      "fixture_status": "third_party_listed_sale_status_unverified",
-      "prediction_status": "pending",
-      "dq": "D",
-      "ft": "未确认",
-      "handicap": "未确认",
-      "score_top3": [],
-      "goals_top3": [],
-      "half_full_top3": [],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "证据不足，未作判断"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "未完成赛前分析"
-      }
-    },
-    {
-      "match_no": "周四011",
-      "home_team": "阿尔克马尔",
-      "away_team": "尤文图斯",
-      "kickoff": "2026-11-06T04:00:00+08:00",
-      "fixture_status": "third_party_listed_sale_status_unverified",
-      "prediction_status": "pending",
-      "dq": "D",
-      "ft": "未确认",
-      "handicap": "未确认",
-      "score_top3": [],
-      "goals_top3": [],
-      "half_full_top3": [],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "证据不足，未作判断"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "未完成赛前分析"
-      }
-    },
-    {
-      "match_no": "周四012",
-      "home_team": "勒沃库森",
-      "away_team": "马赛",
-      "kickoff": "2026-11-06T04:00:00+08:00",
-      "fixture_status": "third_party_listed_sale_status_unverified",
-      "prediction_status": "pending",
-      "dq": "D",
-      "ft": "未确认",
-      "handicap": "未确认",
-      "score_top3": [],
-      "goals_top3": [],
-      "half_full_top3": [],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "证据不足，未作判断"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "未完成赛前分析"
-      }
-    },
-    {
-      "match_no": "周四013",
-      "home_team": "帕尔梅拉斯",
-      "away_team": "里莫",
-      "kickoff": "2026-11-06T06:30:00+08:00",
-      "fixture_status": "third_party_listed_sale_status_unverified",
-      "prediction_status": "pending",
-      "dq": "D",
-      "ft": "未确认",
-      "handicap": "未确认",
-      "score_top3": [],
-      "goals_top3": [],
-      "half_full_top3": [],
-      "upset_warning": {
-        "triggered": false,
-        "reason": "证据不足，未作判断"
-      },
-      "daily_pick": {
-        "selected": false,
-        "reason": "未完成赛前分析"
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T14:55:00+08:00",
+      "official_verified": false,
+      "model_estimates": {
+        "method": "Poisson independent halves, goal rates grid fitted to normalized 1X2 implied probabilities; indicative not independently calibrated",
+        "home_xg": 2.45,
+        "away_xg": 0.55,
+        "score_top3_pct": [
+          14.9,
+          12.2,
+          12.2
+        ],
+        "goals_top3_pct": [
+          22.4,
+          22.4,
+          16.8
+        ],
+        "half_full_top3_pct": [
+          58.1,
+          18.6,
+          9.3
+        ]
       }
     }
   ],
   "pool_total": 13,
   "listed_total": 13,
-  "predicted_total": 6,
-  "pending_total": 7,
+  "predicted_total": 12,
+  "pending_total": 1,
   "full_pool_verified": false,
-  "coverage_pct": 46.15,
+  "coverage_pct": 92.3,
   "pool_sources": [
-    "https://www.zcai.cn/tool_jc?wf=%E6%AF%94%E5%88%86&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83",
-    "https://www.zucaijia.com/zcj/rcmMain/info?rid=1596358",
-    "https://m.17500.cn/zq/draw"
-  ]
+    "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+    "https://shzrs.com/jczq/kaijiang.php"
+  ],
+  "official_verified": false,
+  "unresolved_fixtures": []
 }
