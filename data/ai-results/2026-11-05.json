@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-05",
-  "checked_at": "2026-11-06T04:55:30+08:00",
+  "checked_at": "2026-11-06T05:57:48+08:00",
   "verification_policy": "120_minutes_after_kickoff; verified official 90-minute FT and HT; no post-kickoff snapshot in pre-match denominator",
   "summary": {
     "eligible_fixture_count": 7,
@@ -163,7 +163,7 @@
           "reason": "snapshot_after_kickoff_excluded_from_pre_match_accuracy"
         }
       ],
-      "last_rechecked_at": "2026-11-06T04:04:53+08:00",
+      "last_rechecked_at": "2026-11-06T05:57:48+08:00",
       "fixture_identity_evidence": [
         {
           "url": "https://finance.sina.com.cn/jjxw/2026-10-29/doc-iniwxekn5992172.shtml",
@@ -177,6 +177,10 @@
           "url": "https://www.futbol24.com/de/spiel/2026/11/05/international/AFC/Champions-League-Two/2026-2027/Group-G/Machida-Zelvia/vs/Sh-Shenhua",
           "finding": "Finished HT 1:0 FT 2:1, detailed 29/59/78 minute goals; independent from Scorwave; does not establish official JCZQ sale identity"
         }
+      ],
+      "sale_identity_status": "third_party_listings_correlated_official_unconfirmed",
+      "sale_identity_sources": [
+        "https://www.cpbao.com/jczq/scheme!editNew.action?matchDate=20260222&passMode=PASS&playType=HT"
       ]
     },
     {
@@ -301,11 +305,16 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T04:04:53+08:00",
+      "last_rechecked_at": "2026-11-06T05:57:48+08:00",
       "provisional_score": {
         "ht": "0:1",
         "ft_90": "1:1"
-      }
+      },
+      "sale_identity_status": "third_party_listings_correlated_official_unconfirmed",
+      "sale_identity_sources": [
+        "https://www.cpbao.com/jczq/scheme!editNew.action?matchDate=20260222&passMode=PASS&playType=HT",
+        "https://zcai.cn/tool_jc?id=12&wf=%E8%83%9C%E8%B4%9F&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83"
+      ]
     },
     {
       "fixture_id": null,
@@ -412,11 +421,15 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T04:04:53+08:00",
+      "last_rechecked_at": "2026-11-06T05:57:48+08:00",
       "provisional_score": {
         "ht": "1:0",
         "ft_90": "1:3"
-      }
+      },
+      "sale_identity_status": "third_party_listings_correlated_official_unconfirmed",
+      "sale_identity_sources": [
+        "https://www.cpbao.com/jczq/scheme!editNew.action?matchDate=20260222&passMode=PASS&playType=HT"
+      ]
     },
     {
       "fixture_id": null,
@@ -537,7 +550,7 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T04:55:30+08:00"
+      "last_rechecked_at": "2026-11-06T05:57:48+08:00"
     },
     {
       "fixture_id": null,
@@ -624,7 +637,7 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T04:55:30+08:00"
+      "last_rechecked_at": "2026-11-06T05:57:48+08:00"
     },
     {
       "fixture_id": null,
@@ -745,7 +758,7 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T04:55:30+08:00"
+      "last_rechecked_at": "2026-11-06T05:57:48+08:00"
     },
     {
       "fixture_id": null,
@@ -866,7 +879,7 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T04:55:30+08:00"
+      "last_rechecked_at": "2026-11-06T05:57:48+08:00"
     }
   ],
   "notes": [
@@ -878,5 +891,17 @@
     "2026-11-06 02:04 CST: Futbol24 and Scorwave independently report 90-minute FT 2:1; Futbol24 HT 1:0. Official JCZQ sale identity remains unverified. No settlement; remaining six matches have not reached kickoff+120min.",
     "2026-11-06 04:04 CST: 01:45 fixtures 周四002 and 周四003 pass kickoff+120 minutes. Press sources provisionally report Crystal Palace-Hoffenheim 1:1 (HT 0:1) and Sparta Prague-Bournemouth 1:3 (HT 1:0). Official JCZQ sale identity/results not confirmed, both pending. 04:00 fixtures ineligible until 06:00.",
     "2026-11-06 04:55 CST: all seven listed 001-007 fixtures have passed kickoff+120m; 004-007 newly recorded pending. All remain unverified as official JCZQ sale identity and authoritative HT/90m scores are not established. No accuracy denominator changed."
+  ],
+  "verification_notes": [
+    {
+      "checked_at": "2026-11-06T05:57:48+08:00",
+      "source": "https://www.cpbao.com/jczq/scheme!editNew.action?matchDate=20260222&passMode=PASS&playType=HT",
+      "finding": "Third-party lottery listing explicitly shows 2026-11-05 Thursday match numbers 001 Machida-Shanghai, 002 Crystal Palace-Hoffenheim, 003 Sparta Prague-Bournemouth; supports sale-number matching but is not official China Sports Lottery result or confirmed HT/FT."
+    },
+    {
+      "checked_at": "2026-11-06T05:57:48+08:00",
+      "source": "https://zcai.cn/tool_jc?id=12&wf=%E8%83%9C%E8%B4%9F&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83",
+      "finding": "Third-party 2026-11-05 lottery schedule independently lists Thursday 002 Crystal Palace-Hoffenheim; no official completed result established."
+    }
   ]
 }
