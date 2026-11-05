@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-05",
-  "checked_at": "2026-11-05T22:00:34+08:00",
+  "checked_at": "2026-11-05T23:00:43+08:00",
   "verification_policy": "120_minutes_after_kickoff; verified official 90-minute FT and HT; no post-kickoff snapshot in pre-match denominator",
   "summary": {
     "eligible_fixture_count": 1,
@@ -46,9 +46,11 @@
       "away_team": "上海申花",
       "kickoff": "2026-11-05T18:00:00+08:00",
       "status": "pending",
-      "pending_reason": "Official JCZQ fixture identity and cross-verified final HT/90-minute FT score not yet established",
+      "pending_reason": "Multiple independent sites report HT 1:0 and FT 2:1, but official JCZQ sale/fixture identity and official result are not confirmed; no settlement permitted",
       "result_sources_checked": [
-        "https://www.sofascore.com/football/player/luis-asue/1064103"
+        "https://scorwave.com/football/match/machida-zelvia-vs-shanghai-shenhua-2026-11-05/",
+        "https://www.fotmob.com/matches/shanghai-shenhua-vs-machida-zelvia/98vr9xg",
+        "https://www.sportytrader.com/en/results-live/machida-zelvia-shanghai-shenhua-8754405/"
       ],
       "result_source_verified": null,
       "verified_at": null,
@@ -163,8 +165,9 @@
     }
   ],
   "notes": [
-    "No verified result or hit rate has been inferred.",
-    "Snapshots created after 18:00 are retained for audit only and excluded from pre-match statistics.",
-    "Other fixtures in this sales day have not reached kickoff+120 minutes at check time."
+    "Cross-source provisional evidence: Scorwave reports final 2:1 with goals at 29, 59 and 78 minutes; FotMob reports halftime 1:0. Some live score sources are stale. Official JCZQ identity and official final result remain unconfirmed; do not settle.",
+    "Only 16:25 and 17:33 snapshots predate the 18:00 kickoff. Later snapshots remain audit-only.",
+    "Other 6 listed fixtures kick off on 2026-11-06 01:45+08 and are not yet eligible.",
+    "2026-11-03 and 2026-11-04 latest.json not found; directory completeness not established."
   ]
 }
