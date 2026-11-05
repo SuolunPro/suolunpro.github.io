@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0",
   "date": "2026-11-05",
-  "snapshot_time": "2026-11-05T17:33:00+08:00",
-  "generated_at": "2026-11-05T17:33:00+08:00",
-  "pool_total": 6,
-  "listed_total": 6,
-  "predicted_total": 6,
+  "snapshot_time": "2026-11-05T18:32:30+08:00",
+  "generated_at": "2026-11-05T18:32:30+08:00",
+  "pool_total": 7,
+  "listed_total": 7,
+  "predicted_total": 7,
   "pending_total": 0,
   "full_pool_verified": false,
   "official_verified": false,
@@ -13,17 +13,11 @@
   "pool_sources": [
     "https://zq.gzpxm.cn/articles/daily/2026-11-05",
     "https://m.17500.cn/zq/draw",
-    "https://m.17500.cn/zq/match/analysis-4630662"
+    "https://m.17500.cn/zq/match/analysis-4630662",
+    "https://m.17500.cn/zq/match/bonus-4630639-404",
+    "https://www.oddsator.com/football/world/uefa-europa-league/lyon-vs-real-sociedad-2026-11-05"
   ],
   "unresolved_fixtures": [
-    {
-      "match_no": "周四005",
-      "home_team": "皇家社会",
-      "away_team": "里昂",
-      "kickoff": "2026-11-06T01:45:00+08:00",
-      "reason": "Only one complete numbered listing independently accessible in this run",
-      "source": "https://zq.gzpxm.cn/articles/daily/2026-11-05"
-    },
     {
       "match_no": "周四008",
       "home_team": "桑德兰",
@@ -556,6 +550,120 @@
       ]
     },
     {
+      "match_no": "周四005",
+      "home_team": "皇家社会",
+      "away_team": "里昂",
+      "kickoff": "2026-11-06T01:45:00+08:00",
+      "dq": "C",
+      "fixture_status": "verified_by_multiple_sources",
+      "verified_by_multiple_sources": true,
+      "official_verified": false,
+      "prediction_status": "predicted_partial",
+      "fixture_sources": [
+        {
+          "url": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+          "source_time": "2026-11-05T18:21:00+08:00"
+        },
+        {
+          "url": "https://m.17500.cn/zq/match/bonus-4630639-404",
+          "source_time": null
+        }
+      ],
+      "ft": {
+        "top1": "主胜",
+        "top2": "平",
+        "confidence_pct": 55.54,
+        "model_probabilities_pct": {
+          "home": 55.54,
+          "draw": 23.08,
+          "away": 21.37
+        },
+        "market_probabilities_pct": {
+          "home": 55.67,
+          "draw": 22.95,
+          "away": 21.38
+        },
+        "odds": [
+          1.69,
+          4.1,
+          4.4
+        ],
+        "method": "Independent Poisson, goal rates fitted to third-party market 1X2 odds; not independently calibrated"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "official_handicap": null,
+        "note": "体彩官方让球及让球SP未核验"
+      },
+      "goals_top3": [
+        {
+          "value": "2",
+          "probability_pct": 23.67
+        },
+        {
+          "value": "3",
+          "probability_pct": 22.29
+        },
+        {
+          "value": "1",
+          "probability_pct": 16.75
+        }
+      ],
+      "score_top3": [
+        {
+          "value": "1:1",
+          "probability_pct": 10.94
+        },
+        {
+          "value": "1:0",
+          "probability_pct": 10.68
+        },
+        {
+          "value": "2:1",
+          "probability_pct": 9.85
+        }
+      ],
+      "half_full_top3": [
+        {
+          "value": "胜胜",
+          "probability_pct": 37.04
+        },
+        {
+          "value": "平胜",
+          "probability_pct": 15.9
+        },
+        {
+          "value": "平平",
+          "probability_pct": 13.65
+        }
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_independent_evidence",
+        "risk_observation": "第三方市场赔率存在明显差异，观察平局和客胜风险；非正式触发",
+        "checked_at": "2026-11-05T18:32:30+08:00"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C"
+      },
+      "model_estimates": {
+        "method": "Independent Poisson, half-time 50% intensity, parameters fitted to odds",
+        "home_xg": 1.8,
+        "away_xg": 1.025,
+        "computed_at": "2026-11-05T18:32:30+08:00"
+      },
+      "missing_fields": [
+        "体彩官方让球及SP",
+        "William Hill同机构完整赔率",
+        "澳门亚盘水位",
+        "必发",
+        "Elo",
+        "伤停"
+      ],
+      "source_checked_at": "2026-11-05T18:32:30+08:00"
+    },
+    {
       "match_no": "周四006",
       "home_team": "AC米兰",
       "away_team": "费伦茨瓦罗斯",
@@ -799,5 +907,12 @@
         }
       ]
     }
+  ],
+  "sources": [
+    "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+    "https://m.17500.cn/zq/draw",
+    "https://m.17500.cn/zq/match/analysis-4630662",
+    "https://m.17500.cn/zq/match/bonus-4630639-404",
+    "https://www.oddsator.com/football/world/uefa-europa-league/lyon-vs-real-sociedad-2026-11-05"
   ]
 }
