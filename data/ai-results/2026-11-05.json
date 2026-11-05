@@ -1,0 +1,170 @@
+{
+  "schema_version": "1.0",
+  "sales_date": "2026-11-05",
+  "checked_at": "2026-11-05T22:00:34+08:00",
+  "verification_policy": "120_minutes_after_kickoff; verified official 90-minute FT and HT; no post-kickoff snapshot in pre-match denominator",
+  "summary": {
+    "eligible_fixture_count": 1,
+    "verified_fixture_count": 0,
+    "pending_fixture_count": 1,
+    "modules": {
+      "ft": {
+        "hit": 0,
+        "total": 0
+      },
+      "handicap": {
+        "hit": 0,
+        "total": 0
+      },
+      "goals_top3": {
+        "hit": 0,
+        "total": 0
+      },
+      "score_top3": {
+        "hit": 0,
+        "total": 0
+      },
+      "half_full_top3": {
+        "hit": 0,
+        "total": 0
+      }
+    },
+    "upset_warning": {
+      "triggered": 0,
+      "verified": 0
+    },
+    "daily_pick": {
+      "selected": 0,
+      "verified": 0
+    }
+  },
+  "fixtures": [
+    {
+      "fixture_id": null,
+      "match_no": "周四001",
+      "home_team": "町田泽维亚",
+      "away_team": "上海申花",
+      "kickoff": "2026-11-05T18:00:00+08:00",
+      "status": "pending",
+      "pending_reason": "Official JCZQ fixture identity and cross-verified final HT/90-minute FT score not yet established",
+      "result_sources_checked": [
+        "https://www.sofascore.com/football/player/luis-asue/1064103"
+      ],
+      "result_source_verified": null,
+      "verified_at": null,
+      "ht": null,
+      "ft_90": null,
+      "extra_time": null,
+      "penalties": null,
+      "snapshots": [
+        {
+          "snapshot_file": "1625.json",
+          "snapshot_time": "2026-11-05T16:25:03+08:00",
+          "pre_kickoff": true,
+          "prediction_present": true,
+          "modules": {
+            "ft": true,
+            "handicap": false,
+            "goals_top3": true,
+            "score_top3": true,
+            "half_full_top3": true,
+            "upset_warning_triggered": false,
+            "daily_pick_selected": false
+          },
+          "hit_status": "pending",
+          "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
+        },
+        {
+          "snapshot_file": "1733.json",
+          "snapshot_time": "2026-11-05T17:33:00+08:00",
+          "pre_kickoff": true,
+          "prediction_present": true,
+          "modules": {
+            "ft": true,
+            "handicap": false,
+            "goals_top3": true,
+            "score_top3": true,
+            "half_full_top3": true,
+            "upset_warning_triggered": false,
+            "daily_pick_selected": false
+          },
+          "hit_status": "pending",
+          "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
+        },
+        {
+          "snapshot_file": "1832.json",
+          "snapshot_time": "2026-11-05T18:32:30+08:00",
+          "pre_kickoff": false,
+          "prediction_present": true,
+          "modules": {
+            "ft": true,
+            "handicap": false,
+            "goals_top3": true,
+            "score_top3": true,
+            "half_full_top3": true,
+            "upset_warning_triggered": false,
+            "daily_pick_selected": false
+          },
+          "hit_status": "pending",
+          "reason": "snapshot_after_kickoff_excluded_from_pre_match_accuracy"
+        },
+        {
+          "snapshot_file": "1925.json",
+          "snapshot_time": "2026-11-05T19:25:32+08:00",
+          "pre_kickoff": false,
+          "prediction_present": true,
+          "modules": {
+            "ft": true,
+            "handicap": false,
+            "goals_top3": true,
+            "score_top3": true,
+            "half_full_top3": true,
+            "upset_warning_triggered": false,
+            "daily_pick_selected": false
+          },
+          "hit_status": "pending",
+          "reason": "snapshot_after_kickoff_excluded_from_pre_match_accuracy"
+        },
+        {
+          "snapshot_file": "2032.json",
+          "snapshot_time": "2026-11-05T20:32:44+08:00",
+          "pre_kickoff": false,
+          "prediction_present": true,
+          "modules": {
+            "ft": true,
+            "handicap": false,
+            "goals_top3": true,
+            "score_top3": true,
+            "half_full_top3": true,
+            "upset_warning_triggered": false,
+            "daily_pick_selected": false
+          },
+          "hit_status": "pending",
+          "reason": "snapshot_after_kickoff_excluded_from_pre_match_accuracy"
+        },
+        {
+          "snapshot_file": "2130.json",
+          "snapshot_time": "2026-11-05T21:30:00+08:00",
+          "pre_kickoff": false,
+          "prediction_present": true,
+          "modules": {
+            "ft": true,
+            "handicap": false,
+            "goals_top3": true,
+            "score_top3": true,
+            "half_full_top3": true,
+            "upset_warning_triggered": false,
+            "daily_pick_selected": false
+          },
+          "hit_status": "pending",
+          "reason": "snapshot_after_kickoff_excluded_from_pre_match_accuracy"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "No verified result or hit rate has been inferred.",
+    "Snapshots created after 18:00 are retained for audit only and excluded from pre-match statistics.",
+    "Other fixtures in this sales day have not reached kickoff+120 minutes at check time."
+  ]
+}
