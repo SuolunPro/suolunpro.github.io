@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-05",
-  "checked_at": "2026-11-06T06:57:57+08:00",
+  "checked_at": "2026-11-06T07:56:57+08:00",
   "verification_policy": "120_minutes_after_kickoff; verified official 90-minute FT and HT; no post-kickoff snapshot in pre-match denominator",
   "summary": {
     "eligible_fixture_count": 7,
@@ -46,12 +46,13 @@
       "away_team": "上海申花",
       "kickoff": "2026-11-05T18:00:00+08:00",
       "status": "pending",
-      "pending_reason": "Independent final-score sources Futbol24 and Scorwave agree HT 1:0, FT (90m) 2:1; FotMob cached at halftime and SportyTrader cached at 61m. Official China Sports Lottery JCZQ sale identity/result not established; remain pending, exclude all accuracy denominators.",
+      "pending_reason": "J.League official report confirms 90-minute FT 2:1 and scoring chronology consistent with HT 1:0; independent scoreboard corroborates. Official China Sports Lottery JCZQ sale identity/settlement not verified. Retain pending; do not score predictions.",
       "result_sources_checked": [
         "https://scorwave.com/football/match/machida-zelvia-vs-shanghai-shenhua-2026-11-05/",
         "https://www.fotmob.com/matches/shanghai-shenhua-vs-machida-zelvia/98vr9xg",
         "https://www.sportytrader.com/en/results-live/machida-zelvia-shanghai-shenhua-8754405/",
-        "https://www.futbol24.com/de/spiel/2026/11/05/international/AFC/Champions-League-Two/2026-2027/Group-G/Machida-Zelvia/vs/Sh-Shenhua"
+        "https://www.futbol24.com/de/spiel/2026/11/05/international/AFC/Champions-League-Two/2026-2027/Group-G/Machida-Zelvia/vs/Sh-Shenhua",
+        "https://www.jleague.jp/news/article/35297/"
       ],
       "result_source_verified": null,
       "verified_at": null,
@@ -163,7 +164,7 @@
           "reason": "snapshot_after_kickoff_excluded_from_pre_match_accuracy"
         }
       ],
-      "last_rechecked_at": "2026-11-06T05:57:48+08:00",
+      "last_rechecked_at": "2026-11-06T07:56:57+08:00",
       "fixture_identity_evidence": [
         {
           "url": "https://finance.sina.com.cn/jjxw/2026-10-29/doc-iniwxekn5992172.shtml",
@@ -181,7 +182,13 @@
       "sale_identity_status": "third_party_listings_correlated_official_unconfirmed",
       "sale_identity_sources": [
         "https://www.cpbao.com/jczq/scheme!editNew.action?matchDate=20260222&passMode=PASS&playType=HT"
-      ]
+      ],
+      "league_official_score_evidence": {
+        "source": "https://www.jleague.jp/news/article/35297/",
+        "ft_90": "2:1",
+        "ht_inferred_from_goals": "1:0",
+        "finding": "J.League official Nov 5 match report confirms Machida 2-1 Shanghai Shenhua, goals 29', 59', 78'. HT inferred 1:0 from goal times; independent score sources agree. China Sports Lottery JCZQ identity remains unverified."
+      }
     },
     {
       "fixture_id": null,
