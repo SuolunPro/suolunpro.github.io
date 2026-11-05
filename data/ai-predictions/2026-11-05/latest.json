@@ -1,28 +1,21 @@
 {
   "schema_version": "1.0",
   "date": "2026-11-05",
-  "snapshot_time": "2026-11-05T16:25:03+08:00",
-  "generated_at": "2026-11-05T16:25:03+08:00",
-  "pool_total": 5,
-  "listed_total": 5,
-  "predicted_total": 5,
+  "snapshot_time": "2026-11-05T17:33:00+08:00",
+  "generated_at": "2026-11-05T17:33:00+08:00",
+  "pool_total": 6,
+  "listed_total": 6,
+  "predicted_total": 6,
   "pending_total": 0,
   "full_pool_verified": false,
   "official_verified": false,
   "coverage_pct": null,
   "pool_sources": [
     "https://zq.gzpxm.cn/articles/daily/2026-11-05",
-    "https://m.17500.cn/zq/draw"
+    "https://m.17500.cn/zq/draw",
+    "https://m.17500.cn/zq/match/analysis-4630662"
   ],
   "unresolved_fixtures": [
-    {
-      "match_no": "周四003",
-      "home_team": "布拉格斯巴达",
-      "away_team": "伯恩茅斯",
-      "kickoff": "2026-11-06T01:45:00+08:00",
-      "reason": "Only one complete numbered listing independently accessible in this run",
-      "source": "https://zq.gzpxm.cn/articles/daily/2026-11-05"
-    },
     {
       "match_no": "周四005",
       "home_team": "皇家社会",
@@ -323,6 +316,121 @@
           "url": "https://m.17500.cn/zq/draw",
           "source_time": null
         }
+      ]
+    },
+    {
+      "match_no": "周四003",
+      "home_team": "布拉格斯巴达",
+      "away_team": "伯恩茅斯",
+      "kickoff": "2026-11-06T01:45:00+08:00",
+      "dq": "C",
+      "fixture_status": "verified_by_multiple_sources",
+      "verified_by_multiple_sources": true,
+      "official_verified": false,
+      "prediction_status": "predicted_partial",
+      "fixture_sources": [
+        {
+          "url": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+          "source_time": "2026-11-05T16:55:00+08:00"
+        },
+        {
+          "url": "https://m.17500.cn/zq/match/analysis-4630662",
+          "source_time": null
+        }
+      ],
+      "fixture_source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "fixture_source_time": "2026-11-05T16:55:00+08:00",
+      "ft": {
+        "top1": "客胜",
+        "top2": "平",
+        "confidence_pct": 71.42,
+        "model_probabilities_pct": {
+          "home": 10.91,
+          "draw": 17.66,
+          "away": 71.42
+        },
+        "market_probabilities_pct": {
+          "home": 14.04,
+          "draw": 17.91,
+          "away": 68.04
+        },
+        "odds": [
+          6.25,
+          4.9,
+          1.29
+        ],
+        "method": "Independent Poisson illustration using assumed goal rates; NOT independently calibrated, market odds from 16:55 third-party listing"
+      },
+      "handicap": {
+        "top1": "未确认",
+        "official_handicap": null,
+        "note": "Official handicap and SP not verified; Beijing single match handicap is not JC handicap"
+      },
+      "goals_top3": [
+        {
+          "value": "2",
+          "probability_pct": 22.4
+        },
+        {
+          "value": "3",
+          "probability_pct": 22.4
+        },
+        {
+          "value": "4",
+          "probability_pct": 16.8
+        }
+      ],
+      "score_top3": [
+        {
+          "value": "0:2",
+          "probability_pct": 12.6
+        },
+        {
+          "value": "0:1",
+          "probability_pct": 11.2
+        },
+        {
+          "value": "0:3",
+          "probability_pct": 9.45
+        }
+      ],
+      "half_full_top3": [
+        {
+          "value": "负负",
+          "probability_pct": 50.8
+        },
+        {
+          "value": "平负",
+          "probability_pct": 18
+        },
+        {
+          "value": "平平",
+          "probability_pct": 10.74
+        }
+      ],
+      "upset_warning": {
+        "triggered": false,
+        "formal_assessment": "insufficient_independent_evidence",
+        "risk_observation": "客胜热门，平局及主队不败风险观察",
+        "checked_at": "2026-11-05T17:33:00+08:00"
+      },
+      "daily_pick": {
+        "selected": false,
+        "reason": "DQ-C"
+      },
+      "model_estimates": {
+        "method": "Independent Poisson, independent 50/50 half split, illustrative assumptions not fitted or independently validated",
+        "home_xg": 0.75,
+        "away_xg": 2.25,
+        "computed_at": "2026-11-05T17:33:00+08:00"
+      },
+      "missing_fields": [
+        "体彩官方让球SP",
+        "William Hill同机构赔率链",
+        "澳门盘口水位",
+        "必发",
+        "伤停",
+        "Elo"
       ]
     },
     {
