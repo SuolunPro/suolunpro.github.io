@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "date": "2026-11-05",
-  "snapshot_time": "2026-11-05T18:32:30+08:00",
-  "generated_at": "2026-11-05T18:32:30+08:00",
+  "snapshot_time": "2026-11-05T19:25:32+08:00",
+  "generated_at": "2026-11-05T19:25:32+08:00",
   "pool_total": 7,
   "listed_total": 7,
   "predicted_total": 7,
@@ -56,7 +56,8 @@
       "away_team": "马赛",
       "kickoff": "2026-11-06T04:00:00+08:00",
       "reason": "Only one complete numbered listing independently accessible in this run",
-      "source": "https://zq.gzpxm.cn/articles/daily/2026-11-05"
+      "source": "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "audit_note": "17500 independently shows this fixture as 周四012·北单080, which does not establish JC sale; remains unresolved"
     },
     {
       "match_no": "周四013",
@@ -914,5 +915,24 @@
     "https://m.17500.cn/zq/match/analysis-4630662",
     "https://m.17500.cn/zq/match/bonus-4630639-404",
     "https://www.oddsator.com/football/world/uefa-europa-league/lyon-vs-real-sociedad-2026-11-05"
-  ]
+  ],
+  "verification_audit": {
+    "checked_at": "2026-11-05T19:25:32+08:00",
+    "prior_predictions_preserved": true,
+    "new_verified_fixtures": 0,
+    "new_predictions": 0,
+    "source_status": "Partial: independent match pages do not independently verify Chinese JC numbers; 17500 draw page HTTP 429",
+    "notes": [
+      "008/009/010/011: independent bookmaker fixture evidence but no independent JC number verification",
+      "012: 17500 page displays 周四012·北单080 and Beijing single-match odds; not evidence of JC handicap or JC sale",
+      "013: independent numbered JC confirmation unavailable",
+      "001 kicked off; frozen earlier prediction retained, not recalculated"
+    ],
+    "sources": [
+      "https://zq.gzpxm.cn/articles/daily/2026-11-05",
+      "https://m.17500.cn/zq/match/bonus-4630511-404",
+      "https://stake.com/zh/sports/soccer/international-clubs/uefa-europa-league/46854937-sunderland-gnk-dinamo-zagreb",
+      "https://stake.com/zh/sports/soccer/international-clubs/uefa-europa-league/46854934-celta-vigo-union-saint-gilloise"
+    ]
+  }
 }
