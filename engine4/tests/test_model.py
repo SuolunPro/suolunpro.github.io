@@ -1,5 +1,5 @@
 import unittest
-from engine4.engine import model, normalize_pool
+from engine4.engine import model, normalize_pool, cold_warning, asian_snapshot
 from engine4.settle import score
 
 class EngineTests(unittest.TestCase):
@@ -23,3 +23,21 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(model({'spf':None})['status'],'NO_PREDICTION')
     def test_score(self):
         self.assertEqual(score('2:1'),(2,1))
+    def test_original_e2_needs_both_draw_signals(self):
+        fixture={'spf':[2.4,3.1,2.6], 'handicap':-1,
+          'market':{'william':{'initial':'2.40 / 3.60 / 2.60','current':'2.40 / 3.10 / 2.60'},'asia':{}}}
+        result=cold_warning(fixture,'胜',{})
+        self.assertEqual(result['channels'],['E2'])
+        self.assertEqual(result['direction'],'主队不胜')
+        fixture['market']['william']=None
+        self.assertFalse(cold_warning(fixture,'胜',{})['triggered'])
+    def test_original_d_needs_two_high_water_retreats(self):
+        fixture={'spf':[1.8,3.5,4.0], 'handicap':-1,
+          'market':{'william':{'initial':'1.80 / 3.50 / 4.00','current':'1.98 / 3.50 / 3.60'},
+            'asia':{c:{'initial':'0.92 0.5 0.90','current':'1.03 0/0.5 0.82'} for c in ('澳门','皇冠')}}}
+        self.assertEqual(asian_snapshot('0.92 0.5 0.90')['line'],-.5)
+        self.assertIn('D',cold_warning(fixture,'胜',{})['channels'])
+        fixture['market']['asia']['皇冠']['current']='0.98 0/0.5 0.87'
+        result=cold_warning(fixture,'胜',{})
+        self.assertFalse(result['triggered'])
+        self.assertEqual(result['status'],'WATCH')

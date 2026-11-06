@@ -109,8 +109,90 @@ def normalize_probs(odds):
     inv = [1 / x for x in odds]
     return [v / sum(inv) for v in inv]
 
+def fetch_market(match, errors):
+    """Capture source evidence before kickoff; never treat a failed request as a zero signal."""
+    market = {'source':'qiulaile.vip/match/odds', 'captured_at':now().isoformat(),
+              'william':None, 'asia':{}}
+    params = {'matchId':match['source_id'],'home':match['home'],'away':match['away']}
+    for name, kind in [('william',0),('asia',1)]:
+        try:
+            doc = fetch('/match/odds',dict(params,matchType=kind))
+            lines = doc.get('lines',[]) if isinstance(doc,dict) else []
+            if not isinstance(lines,list):
+                raise ValueError('missing odds lines')
+            for line in lines:
+                company = str(line.get('company') or '').strip()
+                if name=='william' and company=='威廉希尔' and line.get('market')=='欧赔':
+                    market['william']={'initial':line.get('initial'),'current':line.get('primary'),
+                                       'time':line.get('time')}
+                if name=='asia' and company in ('澳门','威廉希尔','Bet365','皇冠') and line.get('market')=='亚赔':
+                    market['asia'][company]={'initial':line.get('initial'),'current':line.get('primary'),
+                                             'time':line.get('time')}
+        except Exception as error:
+            errors.append({'match_no':match['match_no'],'market':name,'error':str(error)})
+    return market
+
 def poisson(lam, k):
     return math.exp(-lam) * lam**k / math.factorial(k)
+
+def asian_snapshot(raw):
+    match = re.fullmatch(r'\s*(\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?(?:/\d+(?:\.\d+)?)?)\s+(\d+(?:\.\d+)?)\s*',str(raw or ''))
+    if not match:
+        return None
+    home_water, line, away_water = match.groups()
+    neg = line.startswith('-')
+    numbers = [float(v) for v in line.lstrip('-').split('/')]
+    magnitude = sum(numbers)/len(numbers)
+    # Mirror displays the home giving 0.5 as "0.5"; map to home handicap -0.5.
+    return {'line':round(magnitude if neg else -magnitude,3),
+            'home_water':float(home_water),'away_water':float(away_water)}
+
+def cold_warning(match, top, ft):
+    """Old ABCDE gates, evaluated only where the corresponding pre-match evidence exists."""
+    market = match.get('market') or {}
+    william = market.get('william') or {}
+    initial, current = odds3(william.get('initial')), odds3(william.get('current'))
+    fi, fc = normalize_probs(initial), normalize_probs(current)
+    sp = normalize_probs(match.get('spf'))
+    direction = '主队不胜' if top=='胜' else '主队不败' if top=='负' else None
+    idx = 0 if top=='胜' else 2 if top=='负' else None
+    asian = []
+    if idx is not None:
+        for company, quote in (market.get('asia') or {}).items():
+            first, last = asian_snapshot(quote.get('initial')),asian_snapshot(quote.get('current'))
+            if not first or not last:
+                continue
+            retreat = last['line']-first['line'] if idx==0 else first['line']-last['line']
+            high_water = last['home_water'] if idx==0 else last['away_water']
+            asian.append({'company':company,'retreat':round(retreat,3),'water':high_water,
+                          'initial':quote.get('initial'),'current':quote.get('current')})
+    price_rise = idx is not None and bool(initial and current and current[idx]>initial[idx])
+    deep_high_water = [a for a in asian if a['retreat']>=.249999 and a['water']>=1]
+    channels=[]
+    evidence=[]
+    if price_rise and len(deep_high_water)>=2:
+        channels.append('D')
+        evidence.append('威廉主方向升赔；'+ '、'.join(a['company'] for a in deep_high_water)+'盘口退让至少0.25球且主方向水位≥1')
+    if sp and fi and fc and sp[1]>=.28 and (fc[1]-fi[1])*100>=1:
+        channels.append('E2')
+        evidence.append(f'竞彩平局隐含比例{sp[1]*100:.1f}%；威廉平局公平比例上升{(fc[1]-fi[1])*100:.1f}个百分点')
+    watch=[]
+    if sp and sp[1]>=.30 and match.get('handicap')==-1:
+        watch.append(f'高平风险观察：平局隐含比例{sp[1]*100:.1f}%且官方让球-1')
+    retreats=[a for a in asian if a['retreat']>=.249999]
+    if price_rise and fi and fc and (fi[idx]-fc[idx])*100>=3 and len(retreats)>=2:
+        watch.append('市场异动观察：威廉主方向公平比例下降'+f'{(fi[idx]-fc[idx])*100:.1f}个百分点，'+
+                     '、'.join(a['company'] for a in retreats)+'盘口退让；未达到D通道高水位条件')
+    triggered=bool(channels and direction)
+    status='TRIGGERED' if triggered else 'WATCH' if watch else 'NOT_TRIGGERED'
+    return {'status':status,'level':'高' if triggered else '关注' if watch else '未触发',
+            'triggered':triggered,'direction':direction if triggered else None,'channels':channels,
+            'evidence':evidence,'watch':watch,
+            'missing':['必发资金方向（A/B/C未评估）','严格赛前独立比分（E1未评估）']+
+                      ([] if fi and fc else ['威廉初盘与即时盘（D/E2未评估）'])+
+                      ([] if asian else ['亚洲盘口（D未评估）']),
+            'checked':['D','E2'] if fi and fc and asian else ['E2'] if fi and fc else [],
+            'model':'SOREN_ABCDE_EVIDENCE_V1'}
 
 def model(match):
     probs = normalize_probs(match['spf'])
@@ -133,12 +215,8 @@ def model(match):
     handicap = match.get('handicap')
     rq = normalize_probs(match.get('rqspf'))
     rq_ranked = sorted(zip(('让胜','让平','让负'),rq),key=lambda x:x[1],reverse=True) if rq and handicap is not None else []
-    # A favourite winning but failing a -1 handicap is normal, not an upset by itself.
-    disagreement = bool(rq_ranked and ft[ranked[0]] >= .65 and rq_ranked[0][1] >= .65 and
-        ((handicap == -1 and ranked[0]=='胜' and rq_ranked[0][0]=='让负') or
-         (handicap == 1 and ranked[0]=='负' and rq_ranked[0][0]=='让胜')))
-    risk = '高' if disagreement or (ranked[0]!='平' and draw>=.31) else ('中' if draw>=.28 else '低')
-    warning = risk=='高'
+    cold = cold_warning(match,ranked[0],ft)
+    warning = cold['triggered']
     value = ranked[0] if (not warning and ft[ranked[0]] >= .55 and match['spf'][('胜','平','负').index(ranked[0])] >= 1.5) else None
     rq_top2 = [k for k,_ in rq_ranked[:2]]
     if set(rq_top2) == {'让胜','让负'}:
@@ -154,9 +232,27 @@ def model(match):
                 'probabilities':{str(n):round(v,4) for n,v in goals}},
             '半全场':{'top3':[k for k,_ in hft],
                 'probabilities':{k:round(v,4) for k,v in hft}},
-            '冷门预警':{'level':risk,'triggered':warning,'reason':'让球方向冲突或平局隐含概率偏高' if warning else '未触发简化风险阈值'},
+            '冷门预警':cold,
             '今日优选':{'selection':value,'reason':'仅 SP 基线筛选，尚未得到机构及必发同向确认' if value else '未通过基线阈值或风险过滤'}},
-        'coverage':{'independent_xg':False,'william':False,'macau_asia':False,'bifa':False}}
+        'coverage':{'independent_xg':False,
+                    'william':bool((match.get('market') or {}).get('william')),
+                    'macau_asia':bool((match.get('market') or {}).get('asia',{}).get('澳门')),
+                    'bifa':False}}
+
+def prior_cold_locks(sale_day):
+    locked={}
+    for path in sorted(Path('data/engine4/history').glob('*.json')):
+        try:
+            historical=json.loads(path.read_text(encoding='utf-8'))
+            if historical.get('sale_day')!=sale_day:
+                continue
+            for old in historical.get('matches',[]):
+                cold=(old.get('prediction') or {}).get('modules',{}).get('冷门预警') or {}
+                if cold.get('model')=='SOREN_ABCDE_EVIDENCE_V1' and cold.get('triggered'):
+                    locked[str(old.get('source_id'))]=cold
+        except (ValueError,OSError,KeyError):
+            continue
+    return locked
 
 def run(sale_day=None, out='data/engine4/latest.json'):
     sale_day = sale_day or datetime.now(BJT).strftime('%Y-%m-%d')
@@ -176,6 +272,7 @@ def run(sale_day=None, out='data/engine4/latest.json'):
             report['source'] = 'qiulaile.vip 第三方竞彩镜像；未获体彩官方全池确认'
             report['pool_verification'] = 'UNVERIFIED_MIRROR'
         report['source_total'] = source_total
+        locks=prior_cold_locks(sale_day)
         for number in sorted(pool):
             match = pool[number]
             try:
@@ -185,8 +282,16 @@ def run(sale_day=None, out='data/engine4/latest.json'):
             except ValueError:
                 report['errors'].append(f'{number}: 开赛时间格式不正确')
                 continue
+            match['market'] = fetch_market(match, report['errors'])
+            if now() >= kickoff.astimezone(timezone.utc):
+                report['errors'].append(f'{number}: 市场采集期间已开赛，跳过预测')
+                continue
             match['predicted_at'] = now().isoformat()
             match['prediction'] = model(match)
+            previous=locks.get(str(match['source_id']))
+            if previous and match['prediction']['status']=='PREDICTED':
+                match['prediction']['modules']['冷门预警']=dict(previous,locked_from_prior=True)
+                match['prediction']['modules']['今日优选']={'selection':None,'reason':'赛前冷门预警已触发，销售日内持续排除'}
             report['matches'].append(match)
         report['status'] = ('OFFICIAL_POOL' if report['pool_verification']=='OFFICIAL_SOURCE' else 'MIRROR_CANDIDATES') if pool else 'NO_VERIFIED_MATCHES'
         if not pool:
