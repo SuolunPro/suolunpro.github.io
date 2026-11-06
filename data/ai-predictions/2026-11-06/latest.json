@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "date": "2026-11-06",
-  "snapshot_time": "2026-11-06T17:31:09+08:00",
-  "generated_at": "2026-11-06T17:31:09+08:00",
+  "snapshot_time": "2026-11-06T18:34:03+08:00",
+  "generated_at": "2026-11-06T18:34:03+08:00",
   "pool_total": 5,
   "listed_total": 5,
   "predicted_total": 5,
@@ -46,6 +46,22 @@
     {
       "url": "https://jingcai.17500.cn/articles/find/aid/15293222.html",
       "note": "独立确认006"
+    },
+    {
+      "url": "https://www.vuodds.com/football/matchhistory/toulouse-vs-strasbourg-2026-11-06-96-95",
+      "note": "独立赛事及William Hill赛前赔率页面，但无中国竞彩足球编号，不能作为第二竞彩来源"
+    },
+    {
+      "url": "https://stake.com/sports/soccer/england/championship/1793995200000-derby-county-bolton",
+      "note": "独立赛事赔率，无法核验竞彩编号；乐彩网同场为北单047"
+    },
+    {
+      "url": "https://stake3084.com/zh/sports/soccer/spain/la-liga/46816966-sevilla-deportivo-alaves",
+      "note": "独立赛事赔率，但未核验竞彩编号"
+    },
+    {
+      "url": "https://m.17500.cn/zq/match/bonus-4578243-404",
+      "note": "乐彩网显示周五013·北单048，不可冒充竞彩足球SP或第二竞彩来源"
     }
   ],
   "unresolved_fixtures": [
@@ -89,9 +105,10 @@
       "match_no": "周五009",
       "home_team": "图卢兹",
       "away_team": "斯特拉斯",
-      "reason": "竞彩猫列出，尚缺第二独立竞彩来源",
+      "reason": "竞彩猫列出，尚缺第二独立竞彩来源；18:34复核新增来源仍不能证明竞彩编号",
       "sources": [
-        "https://www.catjc.com/cms/jcschedule/scheduleInfo?type=1"
+        "https://www.catjc.com/cms/jcschedule/scheduleInfo?type=1",
+        "https://www.vuodds.com/football/matchhistory/toulouse-vs-strasbourg-2026-11-06-96-95"
       ]
     },
     {
@@ -107,27 +124,30 @@
       "match_no": "周五011",
       "home_team": "德比郡",
       "away_team": "博尔顿",
-      "reason": "竞彩猫列出，尚缺第二独立竞彩来源",
+      "reason": "竞彩猫列出，尚缺第二独立竞彩来源；18:34复核新增来源仍不能证明竞彩编号",
       "sources": [
-        "https://www.catjc.com/cms/jcschedule/scheduleInfo?type=1"
+        "https://www.catjc.com/cms/jcschedule/scheduleInfo?type=1",
+        "https://stake.com/sports/soccer/england/championship/1793995200000-derby-county-bolton"
       ]
     },
     {
       "match_no": "周五012",
       "home_team": "塞维利亚",
       "away_team": "阿拉维斯",
-      "reason": "竞彩猫列出，尚缺第二独立竞彩来源",
+      "reason": "竞彩猫列出，尚缺第二独立竞彩来源；18:34复核新增来源仍不能证明竞彩编号",
       "sources": [
-        "https://www.catjc.com/cms/jcschedule/scheduleInfo?type=1"
+        "https://www.catjc.com/cms/jcschedule/scheduleInfo?type=1",
+        "https://stake3084.com/zh/sports/soccer/spain/la-liga/46816966-sevilla-deportivo-alaves"
       ]
     },
     {
       "match_no": "周五013",
       "home_team": "法马利康",
       "away_team": "阿罗卡",
-      "reason": "竞彩猫列出，尚缺第二独立竞彩来源",
+      "reason": "竞彩猫列出，尚缺第二独立竞彩来源；18:34复核新增来源仍不能证明竞彩编号",
       "sources": [
-        "https://www.catjc.com/cms/jcschedule/scheduleInfo?type=1"
+        "https://www.catjc.com/cms/jcschedule/scheduleInfo?type=1",
+        "https://m.17500.cn/zq/match/bonus-4578243-404"
       ]
     }
   ],
@@ -743,10 +763,10 @@
     }
   ],
   "run_audit": {
-    "status": "PARTIAL",
-    "checked_at": "2026-11-06T17:31:09+08:00",
-    "added_predictions": 4,
-    "reason": "双源确认002、003、006、014；001原赛前冻结保留；其余9场单源待核验",
+    "status": "FAILED",
+    "checked_at": "2026-11-06T18:34:03+08:00",
+    "added_predictions": 0,
+    "reason": "原5场赛前预测保留；其余9场仍缺第二独立竞彩足球编号来源；官方全池与网页验收未完成",
     "website_verified": false
   }
 }
