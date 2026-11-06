@@ -154,7 +154,17 @@ def run(sale_day=None, out='data/engine4/latest.json'):
         'source':'中国体育彩票赛事及 SP 官方接口',
         'pool_verification':'OFFICIAL_SOURCE','status':'ERROR','matches':[],'errors':[], 'metrics':{'settled':0,'top1_hit_rate':None}}
     try:
-        pool, source_total = official_pool(sale_day)
+        try:
+            pool, source_total = official_pool(sale_day)
+        except Exception as official_error:
+            report['errors'].append('官方接口不可用：'+str(official_error))
+            raw = fetch('/matches',{'matchType':0,'mode':'full'})
+            items = raw.get('matches') if isinstance(raw,dict) else raw
+            if not isinstance(items,list):
+                raise ValueError('第三方赛事源格式不正确')
+            pool, source_total = normalize_pool(items,sale_day),len(items)
+            report['source'] = 'qiulaile.vip 第三方竞彩镜像；未获体彩官方全池确认'
+            report['pool_verification'] = 'UNVERIFIED_MIRROR'
         report['source_total'] = source_total
         for number in sorted(pool):
             match = pool[number]
@@ -168,7 +178,7 @@ def run(sale_day=None, out='data/engine4/latest.json'):
             match['predicted_at'] = now().isoformat()
             match['prediction'] = model(match)
             report['matches'].append(match)
-        report['status'] = 'OFFICIAL_POOL' if pool else 'NO_VERIFIED_MATCHES'
+        report['status'] = ('OFFICIAL_POOL' if report['pool_verification']=='OFFICIAL_SOURCE' else 'MIRROR_CANDIDATES') if pool else 'NO_VERIFIED_MATCHES'
         if not pool:
             report['errors'].append('未找到符合销售日的真实候选场次；不能据此断言今日无赛事')
     except Exception as e:

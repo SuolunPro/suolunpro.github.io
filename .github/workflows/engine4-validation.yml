@@ -36,7 +36,7 @@ jobs:
           python - <<'PY'
           import json,sys
           r=json.load(open('data/engine4/latest.json'))
-          if r['status']!='OFFICIAL_POOL' or not any(m['prediction']['status']=='PREDICTED' for m in r['matches']):sys.exit('no real predictions: refusing to publish empty report')
+          if r['status'] not in ('OFFICIAL_POOL','MIRROR_CANDIDATES') or not any(m['prediction']['status']=='PREDICTED' for m in r['matches']):sys.exit('no real predictions: refusing to publish empty report')
           PY
       - name: Save snapshot, metrics and page data
         run: |
