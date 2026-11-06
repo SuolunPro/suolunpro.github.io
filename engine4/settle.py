@@ -1,94 +1,131 @@
-"""Settle immutable pre-match snapshots against official half/full-time results."""
+"""Settle one immutable pre-match prediction against verified 90-minute scores."""
 import json
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from engine4.fotmob_results import result_for
 
 BJT = timezone(timedelta(hours=8))
-SOURCE = 'https://webapi.sporttery.cn/gateway/jc/football/getMatchResultV1.qry'
+
 
 def score(raw):
-    match = re.fullmatch(r'(\d+)[:\-](\d+)', str(raw or ''))
-    return tuple(map(int, match.groups())) if match else None
+    value = re.fullmatch(r"\s*(\d+)\s*[:\-]\s*(\d+)\s*", str(raw or ""))
+    return tuple(map(int, value.groups())) if value else None
 
-def result_rows(day):
-    query = {'matchPage':1,'matchBeginDate':day,'matchEndDate':day,'leagueId':'','pageSize':200,'pageNo':1,'isFix':0,'pcOrWap':1}
-    url = SOURCE + '?' + urlencode(query)
-    with urlopen(Request(url,headers={'User-Agent':'Mozilla/5.0','Referer':'https://www.sporttery.cn/'}),timeout=20) as response:
-        body = json.load(response)
-    rows = body.get('value',{}).get('matchResult')
-    if not isinstance(rows,list):
-        raise ValueError('官方赛果格式不正确')
-    return {str(row.get('matchId')):row for row in rows},url
 
-def mark(match, row, url, timestamp):
-    if str(row.get('matchResultStatus')) != '2' or str(row.get('poolStatus','')).lower() != 'payout':
-        return None
-    if row.get('allHomeTeam') != match['home'] or row.get('allAwayTeam') != match['away']:
-        return None
-    ht, ft = score(row.get('sectionsNo1')),score(row.get('sectionsNo999'))
-    if not ht or not ft:
+def outcome(home, away):
+    return "胜" if home > away else "平" if home == away else "负"
+
+
+def mark(match, result, current):
+    ht, ft = score(result.get("ht")), score(result.get("ft"))
+    if ht is None or ft is None or any(h > f for h, f in zip(ht, ft)):
         return None
     try:
-        kickoff = datetime.fromisoformat(match['kickoff'].replace(' ','T')).replace(tzinfo=BJT)
-        if timestamp < kickoff.astimezone(timezone.utc) + timedelta(minutes=120):
+        kickoff = datetime.fromisoformat(match["kickoff"].replace(" ", "T")).replace(tzinfo=BJT).astimezone(timezone.utc)
+        predicted = datetime.fromisoformat(match["predicted_at"].replace("Z", "+00:00"))
+        if predicted.tzinfo is None or predicted >= kickoff or current < kickoff + timedelta(minutes=120):
             return None
-        predicted = datetime.fromisoformat(match['predicted_at'])
-        if predicted >= kickoff.astimezone(timezone.utc):
-            return None
-    except (ValueError,KeyError):
+    except (KeyError, ValueError):
         return None
-    p = match.get('prediction',{})
-    if p.get('status') != 'PREDICTED':
+    p = match.get("prediction") or {}
+    if p.get("status") != "PREDICTED":
         return None
-    def outcome(a,b):
-        return '胜' if a>b else '平' if a==b else '负'
-    ht_label,ft_label = outcome(*ht),outcome(*ft)
-    m = p['modules']
-    handicap = match.get('handicap')
-    rq_out = outcome(ft[0]+handicap,ft[1]) if handicap is not None else None
-    hits = {'胜平负Top1':m['胜平负']['top1']==ft_label,
-        '胜平负Top2':ft_label in m['胜平负']['top2'],
-        '比分Top3':f'{ft[0]}:{ft[1]}' in m['比分']['top3'],
-        '总进球Top3':ft[0]+ft[1] in m['总进球']['top3'],
-        '半全场Top3':ht_label+'-'+ft_label in m['半全场']['top3'],
-        '让球Top2':('让'+rq_out) in m['让球']['top2'] if rq_out else None,
-        '今日优选':m['今日优选']['selection']==ft_label if m['今日优选']['selection'] else None}
-    return {'ht':f'{ht[0]}:{ht[1]}','ft':f'{ft[0]}:{ft[1]}','verified_at':timestamp.isoformat(),
-        'source_url':url,'hits':hits}
+    modules = p.get("modules") or {}
+    spf = outcome(*ft)
+    half_full = outcome(*ht) + "-" + spf
+    handicap = match.get("handicap")
+    rq = "让" + outcome(ft[0] + handicap, ft[1]) if isinstance(handicap, int) else None
+
+    def ranked(name, field, actual, index):
+        picks = (modules.get(name) or {}).get(field) or []
+        return actual in picks[:index] if isinstance(picks, list) and len(picks) >= index else None
+
+    def top1(name, actual, field="top1"):
+        picks = (modules.get(name) or {}).get(field)
+        if field == "top3":
+            picks = picks[0] if isinstance(picks, list) and picks else None
+        if field == "top2":
+            picks = picks[0] if isinstance(picks, list) and picks else None
+        return picks == actual if picks is not None else None
+
+    total = ft[0] + ft[1]
+    goals = "7+" if total >= 7 else total
+    cold = modules.get("冷门预警") or {}
+    risk = cold.get("direction")
+    cold_occurred = (spf != "胜" if risk == "主队不胜" else spf != "负" if risk == "主队不败" else None)
+    selection = (modules.get("今日优选") or {}).get("selection")
+    picks = selection if isinstance(selection, list) else [selection] if selection is not None else []
+    daily_top1 = picks[0] == spf if picks else None
+    daily_top2 = spf in picks[:2] if len(picks) >= 2 else None
+    hits = {
+        "胜平负Top1": top1("胜平负", spf),
+        "胜平负Top2": ranked("胜平负", "top2", spf, 2),
+        "让球Top1": top1("让球", rq, "top2") if rq else None,
+        "让球Top2": ranked("让球", "top2", rq, 2) if rq else None,
+        "比分Top1": top1("比分", f"{ft[0]}:{ft[1]}", "top3"),
+        "比分Top3": ranked("比分", "top3", f"{ft[0]}:{ft[1]}", 3),
+        "总进球Top1": top1("总进球", goals, "top3"),
+        "总进球Top3": ranked("总进球", "top3", goals, 3),
+        "半全场Top1": top1("半全场", half_full, "top3"),
+        "半全场Top3": ranked("半全场", "top3", half_full, 3),
+        "今日优选Top1": daily_top1,
+        "今日优选Top2": daily_top2,
+        "今日优选": daily_top2 if daily_top2 is not None else daily_top1,
+        "冷门预警": cold_occurred if cold.get("triggered") is True else None,
+    }
+    def detail(name, actual, picks, fields):
+        values = {field: hits.get(name + field) for field in fields}
+        primary = values[fields[-1]]
+        return {"actual": actual, "picks": picks, "hits": values,
+                "status": "HIT" if primary is True else "MISS" if primary is False else "NO_FORMAL_SELECTION"}
+    module_results = {
+        "胜平负": detail("胜平负", spf, (modules.get("胜平负") or {}).get("top2"), ("Top1", "Top2")),
+        "让球": detail("让球", rq, (modules.get("让球") or {}).get("top2"), ("Top1", "Top2")),
+        "比分": detail("比分", f"{ft[0]}:{ft[1]}", (modules.get("比分") or {}).get("top3"), ("Top1", "Top3")),
+        "总进球": detail("总进球", goals, (modules.get("总进球") or {}).get("top3"), ("Top1", "Top3")),
+        "半全场": detail("半全场", half_full, (modules.get("半全场") or {}).get("top3"), ("Top1", "Top3")),
+        "今日优选": {"actual": spf, "picks": picks, "hits": {"Top1": daily_top1, "Top2": daily_top2},
+                     "hit": hits["今日优选"],
+                     "status": "HIT" if hits["今日优选"] is True else "MISS" if hits["今日优选"] is False else "NO_FORMAL_SELECTION"},
+        "冷门预警": {"actual": spf, "direction": risk if cold.get("triggered") is True else None,
+                     "upset_occurred": cold_occurred if cold.get("triggered") is True else None,
+                     "hit": hits["冷门预警"],
+                     "status": "HIT" if hits["冷门预警"] is True else "MISS" if hits["冷门预警"] is False else "NO_FORMAL_TRIGGER"},
+    }
+    return {"ht": result["ht"], "ft": result["ft"], "verified_at": result.get("verified_at") or current.isoformat(),
+            "source_url": result["source_url"], "fotmob_match_id": result.get("fotmob_match_id"),
+            "scope": "90min_regular_ft", "hits": hits, "module_results": module_results}
+
 
 def settle(path, current=None):
     current = current or datetime.now(timezone.utc)
     path = Path(path)
     if not path.exists():
         return None
-    report = json.loads(path.read_text(encoding='utf-8'))
-    cache = {}
-    for match in report.get('matches',[]):
-        if match.get('settlement') or not match.get('source_id'):
+    report = json.loads(path.read_text(encoding="utf-8"))
+    changed = False
+    for match in report.get("matches", []):
+        if match.get("settlement") or not match.get("predicted_at"):
             continue
-        day = report['sale_day']
-        if day not in cache:
-            try:
-                cache[day] = result_rows(day)
-            except Exception as error:
-                print(json.dumps({'sale_day':day,'result_source_error':str(error),'action':'keep_pending'}))
-                break
-        row,url = cache[day][0].get(str(match['source_id'])),cache[day][1]
-        if row:
-            match['settlement'] = mark(match,row,url,current)
-    settled = [m for m in report.get('matches',[]) if m.get('settlement')]
-    hits = [m['settlement']['hits']['胜平负Top1'] for m in settled]
-    report['metrics'] = {'settled':len(settled),'top1_hit_rate':round(sum(hits)/len(hits),4) if hits else None,
-        'module_hits':{key:{'hit':sum(m['settlement']['hits'][key] is True for m in settled),
-            'total':sum(m['settlement']['hits'][key] is not None for m in settled)} for key in (settled[0]['settlement']['hits'] if settled else [])}}
-    path.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print(json.dumps({'sale_day':report['sale_day'],'settled':len(settled),'top1_hit_rate':report['metrics']['top1_hit_rate']}))
+        try:
+            result, error = result_for(match, current=current)
+            if error:
+                print(json.dumps({"match_no": match.get("match_no"), "pending": error}))
+                continue
+            settlement = mark(match, result, current)
+            if settlement:
+                match["settlement"] = settlement
+                changed = True
+        except Exception as exc:
+            print(json.dumps({"match_no": match.get("match_no"), "source_error": str(exc)[:200], "action": "keep_pending"}))
+    if changed:
+        path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({"sale_day": report.get("sale_day"), "settled": sum(bool(m.get("settlement")) for m in report.get("matches", []))}))
     return report
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     import sys
     for filename in sys.argv[1:]:
         settle(filename)

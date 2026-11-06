@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+from engine4.fotmob import FotmobXg
 
 BJT = timezone(timedelta(hours=8))
 API = 'https://qiulaile.vip/api'
@@ -234,13 +235,12 @@ def cold_warning(match, top, ft):
             'checked':['D','E2'] if fi and fc and asian else ['E2'] if fi and fc else [],
             'model':'SOREN_ABCDE_EVIDENCE_V1'}
 
-def daily_pick(match, top, ft, cold):
+def daily_pick(match, top2, ft, cold):
     """Legacy-style risk gates; independent model/Bifa absence forbids formal publication."""
+    top = top2[0]
     reasons=[]
     if top not in ('胜','负'):
         reasons.append('胜平负 Top1 为平局')
-    if ft[top] < .55:
-        reasons.append(f'Top1 SP 隐含比例 {ft[top]*100:.1f}% < 55%')
     if cold['status'] in ('TRIGGERED','WATCH'):
         reasons.append('冷门预警或市场异动观察已排除')
     if match.get('handicap')==-1 and ft['平']>=.29:
@@ -269,9 +269,11 @@ def daily_pick(match, top, ft, cold):
         reasons.append('可读亚洲盘口不足两家')
     if len(retreat)>=2:
         reasons.append('两家以上亚洲盘口对 Top1 退让：'+'、'.join(retreat))
-    if odds and not 1.45 <= odds[idx] <= 1.75:
-        reasons.append(f'威廉方向赔率 {odds[idx]:.2f} 不在原版补充档 1.45–1.75')
-    evidence=[f'SP Top1 {top} 去水隐含比例 {ft[top]*100:.1f}%']
+    # Historical fixed odds/probability gates are diagnostic only, not automatic vetoes.
+    evidence=[f'原版门槛审计：SP Top1 {ft[top]*100:.1f}%'+('（低于旧55%门槛）' if ft[top]<.55 else '（达到旧55%门槛）')]
+    if odds:
+        evidence.append(f'原版赔率区间审计：{odds[idx]:.2f}'+('（超出旧1.45–1.75）' if not 1.45<=odds[idx]<=1.75 else '（位于旧区间）'))
+    evidence.append(f'SP Top1 {top} 去水隐含比例 {ft[top]*100:.1f}%')
     if odds:
         evidence.append(f'威廉同方向赔率 {odds[idx]:.2f}' if wp[idx]==max(wp) else '威廉方向不一致')
     evidence.append(f'亚洲盘口可读 {len(valid)} 家，退让 {len(retreat)} 家')
@@ -280,11 +282,35 @@ def daily_pick(match, top, ft, cold):
     if reasons:
         return {'status':'BLOCKED','selection':None,'candidate':None,'reason':'；'.join(reasons),
                 'evidence':evidence,'missing':['独立赛前模型 A 档/SINGLE/HUR','必发资金方向与份额'],
-                'model':'DAILY_VALUE_EVIDENCE_V1'}
-    return {'status':'CANDIDATE','selection':None,'candidate':top,
+                'model':'DAILY_VALUE_EVIDENCE_V2_SHADOW'}
+    return {'status':'CANDIDATE','selection':None,'candidate':top2[:2],'top2':top2[:2],
             'reason':'市场候选，等待独立模型与必发同向核验；不计入正式今日优选',
             'evidence':evidence,'missing':['独立赛前模型 A 档/SINGLE/HUR','必发资金方向与份额'],
             'model':'DAILY_VALUE_EVIDENCE_V1'}
+
+def handicap_probabilities(lam_h,lam_a,line):
+    """90-minute lottery handicap: home score plus integer line."""
+    totals={'让胜':0.0,'让平':0.0,'让负':0.0}
+    for h in range(13):
+        for a in range(13):
+            d=h+line-a
+            totals['让胜' if d>0 else '让平' if d==0 else '让负']+=poisson(lam_h,h)*poisson(lam_a,a)
+    mass=sum(totals.values())
+    return {k:v/mass for k,v in totals.items()}
+
+
+def halftime_fulltime_probabilities(lam_h,lam_a):
+    """Joint 9 outcomes; provisional 50/50 half xG split, not measured."""
+    totals={h+'-'+f:0.0 for h in ('胜','平','负') for f in ('胜','平','负')}
+    halves=[(h,a,poisson(lam_h/2,h)*poisson(lam_a/2,a)) for h in range(10) for a in range(10)]
+    def direction(h,a):
+        return '胜' if h>a else '平' if h==a else '负'
+    for h1,a1,p1 in halves:
+        for h2,a2,p2 in halves:
+            totals[direction(h1,a1)+'-'+direction(h1+h2,a1+a2)]+=p1*p2
+    mass=sum(totals.values())
+    return {k:v/mass for k,v in totals.items()}
+
 
 def model(match):
     probs = normalize_probs(match['spf'])
@@ -292,39 +318,96 @@ def model(match):
         return {'status':'NO_PREDICTION', 'reason':'缺少真实赛前胜平负 SP'}
     # Market implied probabilities are a baseline, not independent team ratings.
     home, draw, away = probs
-    lam_h,lam_a = calibrate_goals(probs)
+    xg=match.get('fotmob_xg') or {}
+    use_xg=xg.get('status')=='AVAILABLE' and all(isinstance(xg.get(k),(int,float)) and
+        math.isfinite(xg[k]) and .15<=xg[k]<=5 for k in ('home_lambda','away_lambda'))
+    lam_h,lam_a = (xg['home_lambda'],xg['away_lambda']) if use_xg else calibrate_goals(probs)
     total = lam_h+lam_a
-    grid = [(h, a, poisson(lam_h,h)*poisson(lam_a,a)) for h in range(8) for a in range(8)]
-    score = sorted(grid, key=lambda x:x[2], reverse=True)[:3]
-    goals = sorted([(n, sum(p for h,a,p in grid if h+a==n)) for n in range(8)], key=lambda x:x[1], reverse=True)[:3]
-    half = [(h,a,poisson(lam_h/2,h)*poisson(lam_a/2,a)) for h in range(5) for a in range(5)]
-    ht = {'胜':sum(p for h,a,p in half if h>a),'平':sum(p for h,a,p in half if h==a),'负':sum(p for h,a,p in half if h<a)}
+    goal_method='FotMob历史完赛xG逐场估算' if use_xg else '赛前胜平负 SP 反推的泊松估算，缺少可用FotMob历史xG'
+    # Exact-score matrix from the same verified FotMob historical xG rates
+    # as total goals. Include 0..12 to retain virtually all probability mass.
+    grid = [(h, a, poisson(lam_h,h)*poisson(lam_a,a)) for h in range(13) for a in range(13)]
+    score = sorted(grid, key=lambda x:(-x[2],x[0],x[1]))[:3]
+    score_coverage = sum(p for _,_,p in grid)
+    # Sum of two independent Poisson goal counts is Poisson(lambda_home+lambda_away).
+    # Calculate all 0..6 buckets directly; 7+ is the exact remaining tail.
+    # This avoids silently dropping 7+ outcomes from a truncated score grid.
+    goal_distribution = {str(n):poisson(total,n) for n in range(7)}
+    goal_distribution['7+'] = max(0.0,1.0-sum(goal_distribution.values()))
+    goals = sorted(goal_distribution.items(),key=lambda x:(-x[1],x[0]))[:3]
     ft = dict(zip(('胜','平','负'),probs))
-    hft = sorted([(x+'-'+y,ht[x]*ft[y]) for x in ht for y in ft],key=lambda x:x[1],reverse=True)[:3]
     ranked = sorted(ft,key=ft.get,reverse=True)
     handicap = match.get('handicap')
     rq = normalize_probs(match.get('rqspf'))
-    rq_ranked = sorted(zip(('让胜','让平','让负'),rq),key=lambda x:x[1],reverse=True) if rq and handicap is not None else []
+    rq_market = dict(zip(('让胜','让平','让负'),rq)) if rq else {}
+    rq_xg = handicap_probabilities(lam_h,lam_a,handicap) if isinstance(handicap,int) else {}
+    rq_used = rq_xg if use_xg and rq_xg else rq_market
+    rq_ranked = sorted(rq_used,key=rq_used.get,reverse=True)
+    hft_all = halftime_fulltime_probabilities(lam_h,lam_a)
+    hft = sorted(hft_all,key=hft_all.get,reverse=True)[:3]
     cold = cold_warning(match,ranked[0],ft)
-    daily = daily_pick(match, ranked[0], ft, cold)
-    rq_top2 = [k for k,_ in rq_ranked[:2]]
+    # Historical FotMob xG is an independent audit signal, not an automatic upset verdict.
+    xg_audit={'status':'AVAILABLE' if use_xg else 'UNAVAILABLE',
+              'source':xg.get('source') if use_xg else None,
+              'reason':None if use_xg else xg.get('reason','赛前历史xG不可用')}
+    if use_xg:
+        xg_ft=dict(zip(('胜','平','负'),outcome_probs(lam_h,lam_a)))
+        xg_top=max(xg_ft,key=xg_ft.get)
+        xg_audit.update({'home_xgf':round(sum(s['xgf'] for s in xg['samples']['home'])/len(xg['samples']['home']),3),
+                         'home_xga':round(sum(s['xga'] for s in xg['samples']['home'])/len(xg['samples']['home']),3),
+                         'away_xgf':round(sum(s['xgf'] for s in xg['samples']['away'])/len(xg['samples']['away']),3),
+                         'away_xga':round(sum(s['xga'] for s in xg['samples']['away'])/len(xg['samples']['away']),3),
+                         'xg_top1':xg_top,
+                         'xg_probabilities':{k:round(v,4) for k,v in xg_ft.items()},
+                         'market_top1':ranked[0],
+                         'direction_conflict':xg_top!=ranked[0]})
+        if xg_top!=ranked[0]:
+            cold.setdefault('watch',[]).append('FotMob历史xG方向与体彩SP首选背离，需人工复核；非独立冷门触发条件')
+            if cold['status']=='NOT_TRIGGERED':
+                cold['status']='WATCH'
+                cold['level']='关注'
+    daily = daily_pick(match, ranked[:2], ft, cold)
+    rq_top2 = rq_ranked[:2]
     if set(rq_top2) == {'让胜','让负'}:
         rq_top2 = [rq_top2[0], '让平']
-    return {'status':'PREDICTED','method':'赛前 SP 去水 1X2 校准逐场泊松进球均值；非独立 xG',
-        'confidence':'低（缺少必发与独立球队、xG信号）', 'modules':{
+    return {'status':'PREDICTED','method':'胜平负 SP 去水；比分/进球/半全场采用'+goal_method,
+        'confidence':'中低（历史xG样本有限且缺少必发）' if use_xg else '低（缺少必发与独立赛前xG）', 'modules':{
             '胜平负':{'top1':ranked[0],'top2':ranked[:2], 'probabilities':{k:round(v,4) for k,v in ft.items()}},
-            '让球':{'handicap':handicap,'top2':rq_top2,'status':'有数据' if rq_ranked else '缺少让球 SP',
-                'probabilities':{k:round(v,4) for k,v in zip(('让胜','让平','让负'),rq)} if rq else {}},
-            '比分':{'top3':[f'{h}:{a}' for h,a,_ in score],
-                'probabilities':{f'{h}:{a}':round(v,4) for h,a,v in score}},
-            '总进球':{'top3':[n for n,_ in goals], 'estimated_total_goals':round(total,3),
-                'method':'赛前胜平负 SP 反推的泊松均值，非独立 xG',
-                'probabilities':{str(n):round(v,4) for n,v in goals}},
-            '半全场':{'top3':[k for k,_ in hft],
-                'probabilities':{k:round(v,4) for k,v in hft}},
+            '让球':{'handicap':handicap,'top2':rq_top2,
+                'status':'有数据' if rq_ranked else '缺少让球SP或有效让球线',
+                'method':goal_method+'；90分钟净胜球映射官方让球' if use_xg and rq_xg else '体彩让球SP去水',
+                'source':'FotMob历史完赛xG' if use_xg and rq_xg else 'SP',
+                'xg_status':'AVAILABLE' if use_xg and rq_xg else 'UNAVAILABLE',
+                'probabilities':{k:round(v,6) for k,v in rq_used.items()},
+                'market_probabilities':{k:round(v,6) for k,v in rq_market.items()},
+                'xg_probabilities':{k:round(v,6) for k,v in rq_xg.items()} if use_xg else {}},
+            '比分':{'top3':[f'{h}:{a}' for h,a,_ in score], 'method':goal_method,
+                'source':xg.get('source') if use_xg else 'SP',
+                'xg_status':'AVAILABLE' if use_xg else 'UNAVAILABLE',
+                'xg_missing_reason':None if use_xg else xg.get('reason','缺少经核实的赛前历史xG'),
+                'home_expected_goals':round(lam_h,3),'away_expected_goals':round(lam_a,3),
+                'xg_samples':{'home':len(xg['samples']['home']),'away':len(xg['samples']['away'])} if use_xg else None,
+                'matrix_probability_mass':round(score_coverage,6),
+                'probabilities':{f'{h}:{a}':round(v,6) for h,a,v in score}},
+            '总进球':{'top3':[int(n) if n!='7+' else '7+' for n,_ in goals],
+                'estimated_total_goals':round(total,3),
+                'home_expected_goals':round(lam_h,3),'away_expected_goals':round(lam_a,3),
+                'method':goal_method,'source':xg.get('source') if use_xg else 'SP',
+                'xg_status':'AVAILABLE' if use_xg else 'UNAVAILABLE',
+                'xg_missing_reason':None if use_xg else xg.get('reason','缺少经核实的赛前历史xG'),
+                'xg_samples':{'home':len(xg['samples']['home']),'away':len(xg['samples']['away'])} if use_xg else None,
+                'probabilities':{n:round(v,6) for n,v in goal_distribution.items()},
+                'top3_probabilities':{n:round(v,6) for n,v in goals}},
+            '半全场':{'top3':hft,
+                'method':goal_method+'；上下半场暂按50/50预期进球分配，联合比分转移计算',
+                'source':xg.get('source') if use_xg else 'SP',
+                'xg_status':'AVAILABLE' if use_xg else 'UNAVAILABLE',
+                'half_split_assumption':'50/50（待真实半场xG验证）',
+                'probabilities':{k:round(v,6) for k,v in hft_all.items()}},
             '冷门预警':cold,
             '今日优选':daily},
-        'coverage':{'independent_xg':False,
+        'fotmob_audit':xg_audit,
+        'coverage':{'independent_xg':use_xg,
                     'william':bool((match.get('market') or {}).get('william')),
                     'macau_asia':bool((match.get('market') or {}).get('asia',{}).get('澳门')),
                     'bifa':False}}
@@ -362,7 +445,22 @@ def run(sale_day=None, out='data/engine4/latest.json'):
             report['source'] = 'qiulaile.vip 第三方竞彩镜像；未获体彩官方全池确认'
             report['pool_verification'] = 'UNVERIFIED_MIRROR'
         report['source_total'] = source_total
+        # Preserve earlier pre-match snapshots for fixtures that have kicked off.
+        # Never recompute their predictions from post-kickoff data.
+        previous={}
+        for source in [Path(out), *sorted(Path('data/engine4/history').glob('*.json'))]:
+            try:
+                old=json.loads(source.read_text(encoding='utf-8'))
+                if old.get('sale_day')!=sale_day:continue
+                for item in old.get('matches',[]):
+                    key=str(item.get('match_no') or '')
+                    if key and item.get('predicted_at') and item.get('prediction'):
+                        if key not in previous or str(item['predicted_at'])>str(previous[key]['predicted_at']):
+                            previous[key]=item
+            except (OSError,ValueError,TypeError,KeyError):
+                continue
         locks=prior_cold_locks(sale_day)
+        fotmob=FotmobXg(sale_day)
         for number in sorted(pool):
             match = pool[number]
             try:
@@ -373,6 +471,7 @@ def run(sale_day=None, out='data/engine4/latest.json'):
                 report['errors'].append(f'{number}: 开赛时间格式不正确')
                 continue
             match['market'] = fetch_market(match, report['errors'])
+            match['fotmob_xg'] = fotmob.collect(match)
             if now() >= kickoff.astimezone(timezone.utc):
                 report['errors'].append(f'{number}: 市场采集期间已开赛，跳过预测')
                 continue
@@ -385,6 +484,13 @@ def run(sale_day=None, out='data/engine4/latest.json'):
                     'reason':'赛前冷门预警已触发，销售日内持续排除','evidence':[],
                     'missing':[],'model':'DAILY_VALUE_EVIDENCE_V1'}
             report['matches'].append(match)
+        # Keep all prior sale-day fixtures, including those no longer offered
+        # by the mirror after kickoff. Settlement reads their frozen predictions.
+        present={str(m.get('match_no')) for m in report['matches']}
+        for number, frozen in sorted(previous.items()):
+            if number not in present:
+                report['matches'].append(frozen)
+        report['matches'].sort(key=lambda m:str(m.get('match_no') or ''))
         report['status'] = ('OFFICIAL_POOL' if report['pool_verification']=='OFFICIAL_SOURCE' else 'MIRROR_CANDIDATES') if pool else 'NO_VERIFIED_MATCHES'
         if not pool:
             report['errors'].append('未找到符合销售日的真实候选场次；不能据此断言今日无赛事')

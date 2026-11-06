@@ -1,4 +1,4 @@
-name: 90scale 4.0 validation data and results
+name: 90scale 4.0 website validation
 on:
   workflow_dispatch:
   push:
@@ -8,7 +8,7 @@ on:
       - '.github/workflows/engine4-validation.yml'
   schedule:
     - cron: '20 4,6,8,10,12,14 * * *'
-    - cron: '10 2,5,8,11,14,17,20,23 * * *'
+    - cron: '0,30 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -17,41 +17,44 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify engine
+      - name: Check code and tests
         run: |
-          python -m py_compile engine4/engine.py engine4/settle.py engine4/aggregate.py
+          python -m py_compile engine4/engine.py engine4/fotmob.py engine4/settle.py engine4/fotmob_results.py engine4/aggregate.py
           python -m unittest discover -s engine4/tests -v
-      - name: Settle recent immutable snapshots
+      - name: Refresh fixtures and prematch predictions
         run: |
-          python engine4/settle.py data/engine4/history/*.json
-      - name: Generate official pre-match predictions
-        run: |
-          cp data/engine4/latest.json /tmp/engine4-previous.json 2>/dev/null || true
-          python engine4/engine.py
+          cp data/engine4/latest.json /tmp/engine4-before.json 2>/dev/null || true
+          if ! python -m engine4.engine; then
+            cp /tmp/engine4-before.json data/engine4/latest.json
+          fi
           python - <<'PY'
-          import json,sys
-          r=json.load(open('data/engine4/latest.json'))
-          if r['status'] not in ('OFFICIAL_POOL','MIRROR_CANDIDATES') or not any(m['prediction']['status']=='PREDICTED' for m in r['matches']):
-              import shutil,os
-              if os.path.exists('/tmp/engine4-previous.json'):shutil.copy('/tmp/engine4-previous.json','data/engine4/latest.json')
-              else:sys.exit('no current prediction and no previous report')
+          import json, shutil
+          from pathlib import Path
+          path=Path('data/engine4/latest.json')
+          doc=json.loads(path.read_text())
+          if not any((m.get('prediction') or {}).get('status')=='PREDICTED' for m in doc.get('matches',[])):
+              before=Path('/tmp/engine4-before.json')
+              if before.exists(): shutil.copyfile(before,path)
+              else: raise SystemExit('No predictions and no previous snapshot')
           PY
-      - name: Aggregate verified match metrics
-        run: python engine4/aggregate.py
-      - name: Save snapshot, metrics and page data
+      - name: Restore fixtures, verify results and calculate metrics
+        run: python -m engine4.aggregate
+      - name: Publish JSON to website
         run: |
           mkdir -p data/engine4/history
           cp data/engine4/latest.json data/engine4/history/$(date -u +%Y%m%dT%H%M%SZ).json
           git config user.name '90scale-engine[bot]'
           git config user.email 'actions@users.noreply.github.com'
           git add data/engine4
-          git diff --cached --quiet || (git commit -m 'data: refresh engine4 validation' && git pull --rebase && git push)
+          git diff --cached --quiet || (git commit -m 'data: refresh verified engine4 validation' && git pull --rebase && git push)
       - uses: actions/upload-artifact@v4
         if: always()
         with:
