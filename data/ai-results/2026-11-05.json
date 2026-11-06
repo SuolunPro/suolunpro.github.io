@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-05",
-  "checked_at": "2026-11-06T07:56:57+08:00",
+  "checked_at": "2026-11-06T10:03:11+08:00",
   "verification_policy": "120_minutes_after_kickoff; verified official 90-minute FT and HT; no post-kickoff snapshot in pre-match denominator",
   "summary": {
     "eligible_fixture_count": 7,
@@ -452,8 +452,11 @@
       "away_team": "奥莫尼亚",
       "kickoff": "2026-11-06T01:45:00+08:00",
       "status": "pending",
-      "pending_reason": "Kickoff+120m reached, but official China Sports Lottery JCZQ sale identity and independently verified final HT/90-minute FT not established; no settlement.",
-      "result_sources_checked": [],
+      "pending_reason": "Independent sources corroborate 90-minute HT/FT, but official China Sports Lottery JCZQ sale identity and settlement are not verified; do not settle or count in denominators.",
+      "result_sources_checked": [
+        "https://www.oddalerts.com/livescores/nec-nijmegen-vs-omonia-nicosia/5774-4756",
+        "https://www.skysports.com/football/nec-nijmegen-vs-omonia-nicosia/stats/577806"
+      ],
       "result_source_verified": null,
       "verified_at": null,
       "ht": null,
@@ -564,7 +567,11 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T05:57:48+08:00"
+      "last_rechecked_at": "2026-11-06T10:03:11+08:00",
+      "provisional_score": {
+        "ht": "0:1",
+        "ft_90": "3:1"
+      }
     },
     {
       "fixture_id": null,
@@ -573,8 +580,11 @@
       "away_team": "里昂",
       "kickoff": "2026-11-06T01:45:00+08:00",
       "status": "pending",
-      "pending_reason": "Kickoff+120m reached, but official China Sports Lottery JCZQ sale identity and independently verified final HT/90-minute FT not established; no settlement.",
-      "result_sources_checked": [],
+      "pending_reason": "Independent sources corroborate 90-minute HT/FT, but official China Sports Lottery JCZQ sale identity and settlement are not verified; do not settle or count in denominators.",
+      "result_sources_checked": [
+        "https://www.laliga.com/en-MA/match/temporada-2026-2027-europa-league-real-sociedad-lyon-4",
+        "https://www.sofascore.com/football/match/real-sociedad-olympique-lyonnais/ZHszgb"
+      ],
       "result_source_verified": null,
       "verified_at": null,
       "ht": null,
@@ -651,7 +661,11 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T05:57:48+08:00"
+      "last_rechecked_at": "2026-11-06T10:03:11+08:00",
+      "provisional_score": {
+        "ht": "1:0",
+        "ft_90": "1:1"
+      }
     },
     {
       "fixture_id": null,
