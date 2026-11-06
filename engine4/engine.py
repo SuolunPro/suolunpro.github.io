@@ -195,6 +195,58 @@ def cold_warning(match, top, ft):
             'checked':['D','E2'] if fi and fc and asian else ['E2'] if fi and fc else [],
             'model':'SOREN_ABCDE_EVIDENCE_V1'}
 
+def daily_pick(match, top, ft, cold):
+    """Legacy-style risk gates; independent model/Bifa absence forbids formal publication."""
+    reasons=[]
+    if top not in ('胜','负'):
+        reasons.append('胜平负 Top1 为平局')
+    if ft[top] < .55:
+        reasons.append(f'Top1 SP 隐含比例 {ft[top]*100:.1f}% < 55%')
+    if cold['status'] in ('TRIGGERED','WATCH'):
+        reasons.append('冷门预警或市场异动观察已排除')
+    if match.get('handicap')==-1 and ft['平']>=.29:
+        reasons.append('官方让球 -1 且高平风险')
+    william=(match.get('market') or {}).get('william') or {}
+    odds=odds3(william.get('current'))
+    wp=normalize_probs(odds)
+    idx={'胜':0,'平':1,'负':2}[top]
+    if not wp:
+        reasons.append('威廉即时欧赔缺失')
+    elif wp[idx] < max(wp):
+        reasons.append('威廉欧赔主方向与 SP Top1 不一致')
+    asia=(match.get('market') or {}).get('asia') or {}
+    valid=[]
+    retreat=[]
+    for company, quote in asia.items():
+        current=asian_snapshot(quote.get('current'))
+        initial=asian_snapshot(quote.get('initial'))
+        if not current:
+            continue
+        valid.append(company)
+        if initial and ((top=='胜' and current['line']-initial['line']>=.249999) or
+                        (top=='负' and initial['line']-current['line']>=.249999)):
+            retreat.append(company)
+    if len(valid)<2:
+        reasons.append('可读亚洲盘口不足两家')
+    if len(retreat)>=2:
+        reasons.append('两家以上亚洲盘口对 Top1 退让：'+'、'.join(retreat))
+    if odds and not 1.45 <= odds[idx] <= 1.75:
+        reasons.append(f'威廉方向赔率 {odds[idx]:.2f} 不在原版补充档 1.45–1.75')
+    evidence=[f'SP Top1 {top} 去水隐含比例 {ft[top]*100:.1f}%']
+    if odds:
+        evidence.append(f'威廉同方向赔率 {odds[idx]:.2f}' if wp[idx]==max(wp) else '威廉方向不一致')
+    evidence.append(f'亚洲盘口可读 {len(valid)} 家，退让 {len(retreat)} 家')
+    # The old CORE/SUPPLEMENT selector also requires a verified independent
+    # model class, selection mode, risk lock, and Bifa funding alignment.
+    if reasons:
+        return {'status':'BLOCKED','selection':None,'candidate':None,'reason':'；'.join(reasons),
+                'evidence':evidence,'missing':['独立赛前模型 A 档/SINGLE/HUR','必发资金方向与份额'],
+                'model':'DAILY_VALUE_EVIDENCE_V1'}
+    return {'status':'CANDIDATE','selection':None,'candidate':top,
+            'reason':'市场候选，等待独立模型与必发同向核验；不计入正式今日优选',
+            'evidence':evidence,'missing':['独立赛前模型 A 档/SINGLE/HUR','必发资金方向与份额'],
+            'model':'DAILY_VALUE_EVIDENCE_V1'}
+
 def model(match):
     probs = normalize_probs(match['spf'])
     if not probs:
@@ -217,8 +269,7 @@ def model(match):
     rq = normalize_probs(match.get('rqspf'))
     rq_ranked = sorted(zip(('让胜','让平','让负'),rq),key=lambda x:x[1],reverse=True) if rq and handicap is not None else []
     cold = cold_warning(match,ranked[0],ft)
-    warning = cold['triggered']
-    value = ranked[0] if (not warning and ft[ranked[0]] >= .55 and match['spf'][('胜','平','负').index(ranked[0])] >= 1.5) else None
+    daily = daily_pick(match, ranked[0], ft, cold)
     rq_top2 = [k for k,_ in rq_ranked[:2]]
     if set(rq_top2) == {'让胜','让负'}:
         rq_top2 = [rq_top2[0], '让平']
@@ -234,7 +285,7 @@ def model(match):
             '半全场':{'top3':[k for k,_ in hft],
                 'probabilities':{k:round(v,4) for k,v in hft}},
             '冷门预警':cold,
-            '今日优选':{'selection':value,'reason':'仅 SP 基线筛选，尚未得到机构及必发同向确认' if value else '未通过基线阈值或风险过滤'}},
+            '今日优选':daily},
         'coverage':{'independent_xg':False,
                     'william':bool((match.get('market') or {}).get('william')),
                     'macau_asia':bool((match.get('market') or {}).get('asia',{}).get('澳门')),
@@ -292,7 +343,9 @@ def run(sale_day=None, out='data/engine4/latest.json'):
             previous=locks.get(str(match['source_id']))
             if previous and match['prediction']['status']=='PREDICTED':
                 match['prediction']['modules']['冷门预警']=dict(previous,locked_from_prior=True)
-                match['prediction']['modules']['今日优选']={'selection':None,'reason':'赛前冷门预警已触发，销售日内持续排除'}
+                match['prediction']['modules']['今日优选']={'status':'BLOCKED','selection':None,'candidate':None,
+                    'reason':'赛前冷门预警已触发，销售日内持续排除','evidence':[],
+                    'missing':[],'model':'DAILY_VALUE_EVIDENCE_V1'}
             report['matches'].append(match)
         report['status'] = ('OFFICIAL_POOL' if report['pool_verification']=='OFFICIAL_SOURCE' else 'MIRROR_CANDIDATES') if pool else 'NO_VERIFIED_MATCHES'
         if not pool:
