@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-05",
-  "checked_at": "2026-11-06T11:00:10+08:00",
+  "checked_at": "2026-11-06T12:03:37+08:00",
   "verification_policy": "120_minutes_after_kickoff; verified official 90-minute FT and HT; no post-kickoff snapshot in pre-match denominator",
   "summary": {
     "eligible_fixture_count": 7,
@@ -684,8 +684,12 @@
       "away_team": "费伦茨瓦罗斯",
       "kickoff": "2026-11-06T01:45:00+08:00",
       "status": "pending",
-      "pending_reason": "Kickoff+120m reached, but official China Sports Lottery JCZQ sale identity and independently verified final HT/90-minute FT not established; no settlement.",
-      "result_sources_checked": [],
+      "pending_reason": "Reuters and Sofascore independently support 90-minute FT 0:2, Sofascore HT 0:0. Official China Sports Lottery JCZQ sale identity/settlement remains unverified; no formal scoring.",
+      "result_sources_checked": [
+        "https://www.reuters.com/sports/soccer/milan-stunned-by-ferencvaros-marseille-and-juventus-secure-europa-league-wins-2026-11-05/",
+        "https://www.sofascore.com/football/match/ac-milan-ferencvaros-tc/ANsRdb",
+        "https://www.skysports.com/football/ac-milan-vs-ferencvaros/577805"
+      ],
       "result_source_verified": null,
       "verified_at": null,
       "ht": null,
@@ -796,7 +800,11 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T05:57:48+08:00"
+      "last_rechecked_at": "2026-11-06T12:03:37+08:00",
+      "provisional_score": {
+        "ht": "0:0",
+        "ft_90": "0:2"
+      }
     },
     {
       "fixture_id": null,
@@ -805,8 +813,10 @@
       "away_team": "弗赖堡",
       "kickoff": "2026-11-06T01:45:00+08:00",
       "status": "pending",
-      "pending_reason": "Kickoff+120m reached, but official China Sports Lottery JCZQ sale identity and independently verified final HT/90-minute FT not established; no settlement.",
-      "result_sources_checked": [],
+      "pending_reason": "Welt match report says Freiburg won 1:0 at Trabzonspor with a 14th-minute goal, implying HT 0:1; independent HT/FT confirmation and official JCZQ sale identity not established. Remains pending.",
+      "result_sources_checked": [
+        "https://www.welt.de/article6aecdcaa47b5fce02f8797ad"
+      ],
       "result_source_verified": null,
       "verified_at": null,
       "ht": null,
@@ -917,7 +927,11 @@
           "reason": "awaiting_verified_HT_FT_and_official_fixture_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-06T05:57:48+08:00"
+      "last_rechecked_at": "2026-11-06T12:03:37+08:00",
+      "provisional_score": {
+        "ht": "0:1",
+        "ft_90": "0:1"
+      }
     }
   ],
   "notes": [
@@ -941,6 +955,10 @@
       "source": "https://zcai.cn/tool_jc?id=12&wf=%E8%83%9C%E8%B4%9F&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83",
       "finding": "Third-party 2026-11-05 lottery schedule independently lists Thursday 002 Crystal Palace-Hoffenheim; no official completed result established."
     },
-    "2026-11-06 06:57 CST: Crystal Palace club official report independently confirms 周四002 HT 0:1 FT 1:1. JC official sale identity still unverified; all seven remain pending, no accuracy denominator changes."
+    "2026-11-06 06:57 CST: Crystal Palace club official report independently confirms 周四002 HT 0:1 FT 1:1. JC official sale identity still unverified; all seven remain pending, no accuracy denominator changes.",
+    {
+      "checked_at": "2026-11-06T12:03:37+08:00",
+      "finding": "New provisional 006 Milan-Ferencvaros HT 0:0 FT 0:2 corroborated by Reuters and Sofascore; 007 Trabzonspor-Freiburg FT 0:1 with 14th minute goal from Welt, HT inference pending independent confirmation. Neither has verified China Sports Lottery JCZQ sale identity. All seven remain pending; no accuracy denominator changes."
+    }
   ]
 }
