@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "date": "2026-11-06",
-  "snapshot_time": "2026-11-06T19:27:33+08:00",
-  "generated_at": "2026-11-06T19:27:33+08:00",
+  "snapshot_time": "2026-11-06T20:31:28+08:00",
+  "generated_at": "2026-11-06T20:31:28+08:00",
   "pool_total": 14,
   "listed_total": 14,
   "predicted_total": 14,
@@ -18,6 +18,16 @@
     {
       "url": "https://zx.500star.com/jczq/worth/",
       "verified_at": "2026-11-06T19:27:33+08:00"
+    },
+    {
+      "url": "https://m.17500.cn/zq/ratio-jz",
+      "observed_at": "2026-11-06T20:31:28+08:00",
+      "note": "第三方页面明确列出2026-11-06共14场；页面部分场次已有赛果，不能作为赛前模型输入"
+    },
+    {
+      "url": "https://www.footip.cn/",
+      "observed_at": "2026-11-06T20:31:28+08:00",
+      "note": "第三方14场赛程交叉参考，非体彩官方"
     }
   ],
   "unresolved_fixtures": [],
@@ -29,6 +39,16 @@
     {
       "url": "https://zx.500star.com/jczq/worth/",
       "verified_at": "2026-11-06T19:27:33+08:00"
+    },
+    {
+      "url": "https://m.17500.cn/zq/ratio-jz",
+      "observed_at": "2026-11-06T20:31:28+08:00",
+      "note": "第三方页面明确列出2026-11-06共14场；页面部分场次已有赛果，不能作为赛前模型输入"
+    },
+    {
+      "url": "https://www.footip.cn/",
+      "observed_at": "2026-11-06T20:31:28+08:00",
+      "note": "第三方14场赛程交叉参考，非体彩官方"
     }
   ],
   "matches": [
@@ -54,7 +74,7 @@
         }
       ],
       "dq": "C",
-      "prediction_status": "partial_calculated",
+      "prediction_status": "frozen_pre_match_partial",
       "ft": {
         "model_probabilities": {
           "home": 67.04,
@@ -1668,5 +1688,6 @@
     "reason": "14场双源核验并有五类预测；体彩官方全池、让球及市场主链未确认；网页待验证",
     "new_predictions": 9,
     "previous_predictions": 5
-  }
+  },
+  "validation_note": "20:31轮次只复核赛程及公开市场展示，未重新计算历史预测；周五001已开赛，冻结值不变；官方完整全池及官方让球SP仍未核验；公开站点HTTP无法验收"
 }
