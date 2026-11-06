@@ -71,7 +71,11 @@ def settle(path, current=None):
             continue
         day = report['sale_day']
         if day not in cache:
-            cache[day] = result_rows(day)
+            try:
+                cache[day] = result_rows(day)
+            except Exception as error:
+                print(json.dumps({'sale_day':day,'result_source_error':str(error),'action':'keep_pending'}))
+                break
         row,url = cache[day][0].get(str(match['source_id'])),cache[day][1]
         if row:
             match['settlement'] = mark(match,row,url,current)

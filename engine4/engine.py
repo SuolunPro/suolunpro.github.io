@@ -133,14 +133,20 @@ def model(match):
     handicap = match.get('handicap')
     rq = normalize_probs(match.get('rqspf'))
     rq_ranked = sorted(zip(('让胜','让平','让负'),rq),key=lambda x:x[1],reverse=True) if rq and handicap is not None else []
-    disagreement = bool(rq_ranked and ((ranked[0]=='胜' and rq_ranked[0][0]=='让负') or (ranked[0]=='负' and rq_ranked[0][0]=='让胜')))
+    # A favourite winning but failing a -1 handicap is normal, not an upset by itself.
+    disagreement = bool(rq_ranked and ft[ranked[0]] >= .65 and rq_ranked[0][1] >= .65 and
+        ((handicap == -1 and ranked[0]=='胜' and rq_ranked[0][0]=='让负') or
+         (handicap == 1 and ranked[0]=='负' and rq_ranked[0][0]=='让胜')))
     risk = '高' if disagreement or (ranked[0]!='平' and draw>=.31) else ('中' if draw>=.28 else '低')
     warning = risk=='高'
     value = ranked[0] if (not warning and ft[ranked[0]] >= .55 and match['spf'][('胜','平','负').index(ranked[0])] >= 1.5) else None
+    rq_top2 = [k for k,_ in rq_ranked[:2]]
+    if set(rq_top2) == {'让胜','让负'}:
+        rq_top2 = [rq_top2[0], '让平']
     return {'status':'PREDICTED','method':'赛前 SP 去水基线 + 固定总进球泊松近似；比分、半全场未经独立 xG 校准',
         'confidence':'低（缺少独立球队与盘口信息）', 'modules':{
             '胜平负':{'top1':ranked[0],'top2':ranked[:2], 'probabilities':{k:round(v,4) for k,v in ft.items()}},
-            '让球':{'handicap':handicap,'top2':[k for k,_ in rq_ranked[:2]],'status':'有数据' if rq_ranked else '缺少让球 SP'},
+            '让球':{'handicap':handicap,'top2':rq_top2,'status':'有数据' if rq_ranked else '缺少让球 SP'},
             '比分':{'top3':[f'{h}:{a}' for h,a,_ in score]},
             '总进球':{'top3':[n for n,_ in goals]},
             '半全场':{'top3':[k for k,_ in hft]},

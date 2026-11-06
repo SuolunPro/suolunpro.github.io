@@ -25,7 +25,7 @@ jobs:
           python-version: '3.12'
       - name: Verify engine
         run: |
-          python -m py_compile engine4/engine.py engine4/settle.py
+          python -m py_compile engine4/engine.py engine4/settle.py engine4/aggregate.py
           python -m unittest discover -s engine4/tests -v
       - name: Settle recent immutable snapshots
         run: |
@@ -38,6 +38,8 @@ jobs:
           r=json.load(open('data/engine4/latest.json'))
           if r['status'] not in ('OFFICIAL_POOL','MIRROR_CANDIDATES') or not any(m['prediction']['status']=='PREDICTED' for m in r['matches']):sys.exit('no real predictions: refusing to publish empty report')
           PY
+      - name: Aggregate verified match metrics
+        run: python engine4/aggregate.py
       - name: Save snapshot, metrics and page data
         run: |
           mkdir -p data/engine4/history
