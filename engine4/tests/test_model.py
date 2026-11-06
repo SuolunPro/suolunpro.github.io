@@ -1,5 +1,5 @@
 import unittest
-from engine4.engine import model, normalize_pool, cold_warning, asian_snapshot
+from engine4.engine import model, normalize_pool, cold_warning, asian_snapshot, daily_pick
 from engine4.settle import score
 
 class EngineTests(unittest.TestCase):
@@ -41,3 +41,21 @@ class EngineTests(unittest.TestCase):
         result=cold_warning(fixture,'胜',{})
         self.assertFalse(result['triggered'])
         self.assertEqual(result['status'],'WATCH')
+    def test_daily_market_candidate_not_formal(self):
+        fixture={'spf':[1.43,3.98,5.30],'handicap':-1,
+          'market':{'william':{'initial':'1.67 / 4.00 / 4.59','current':'1.70 / 3.80 / 4.59'},
+            'asia':{c:{'initial':'0.93 0.5/1 0.91','current':'0.86 0.5/1 0.98'} for c in ('澳门','皇冠')}}}
+        p=model(fixture)['modules']['今日优选']
+        self.assertEqual(p['status'],'CANDIDATE')
+        self.assertIsNone(p['selection'])
+        self.assertEqual(p['candidate'],'胜')
+        fixture['market']['asia']['皇冠']['current']='0.86 0.5 0.98'
+        fixture['market']['asia']['澳门']['current']='0.86 0.5 0.98'
+        self.assertEqual(model(fixture)['modules']['今日优选']['status'],'BLOCKED')
+    def test_daily_cold_watch_excluded(self):
+        fixture={'spf':[1.65,3.60,4.0],'handicap':-1,
+          'market':{'william':{'initial':'1.60 / 3.90 / 4.20','current':'1.70 / 3.80 / 4.40'},
+            'asia':{c:{'initial':'0.90 0.5 0.90','current':'0.90 0/0.5 0.90'} for c in ('澳门','皇冠')}}}
+        d=model(fixture)['modules']['今日优选']
+        self.assertEqual(d['status'],'BLOCKED')
+        self.assertIn('退让',d['reason'])
