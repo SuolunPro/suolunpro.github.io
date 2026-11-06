@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-06",
-  "checked_at": "2026-11-06T18:57:54+08:00",
+  "checked_at": "2026-11-06T20:03:24+08:00",
   "verification_policy": "120_minutes_after_kickoff; verify JC sale identity and 90-minute FT and HT; exclude post-kickoff snapshots",
   "summary": {
     "eligible_fixture_count": 1,
@@ -46,11 +46,12 @@
       "away_team": "中央海岸水手",
       "kickoff": "2026-11-06T16:40:00+08:00",
       "status": "pending",
-      "pending_reason": "Reached 120-minute eligibility threshold at 18:40 CST, but independent sources do not establish final 90-minute score and halftime score consistently; official JC settlement not verified. Sky Sports displays 0-0 without unambiguous FT status; contemporaneous Australian report headline describes Sydney FC win. Do not settle.",
+      "pending_reason": "A-Leagues official match report dated 2026-11-06 confirms Sydney FC 4:1 Central Coast Mariners (90-minute FT); scoring chronology establishes HT 2:0 (27',42' Sydney; 50',85' Sydney; 90+1' Mariners). Sky Sports stats page still displays 0:0, creating source conflict; China Sports Lottery official JCZQ sale identity/settlement not confirmed. Keep pending; no accuracy denominator.",
       "result_sources_checked": [
         "https://www.skysports.com/football/sydney-fc-vs-central-coast-mariners/stats/568671",
         "https://www.theaustralian.com.au/sport/football/aleague-round-4-match-reports-al-hassan-toure-scores-hattrick-in-sydney-fc-win-over-central-coast-mariners/news-story/889e8b0ed8cb468ad52d4282b2e603fe",
-        "https://www.fotmob.com/matches/central-coast-mariners-vs-sydney-fc/2s0afk"
+        "https://www.fotmob.com/matches/central-coast-mariners-vs-sydney-fc/2s0afk",
+        "https://aleagues.com.au/news/sydney-central-coast-mariners-goals-highlights-al-hassan-toure/"
       ],
       "result_source_verified": null,
       "verified_at": null,
@@ -168,14 +169,54 @@
             "score_top3": null,
             "half_full_top3": null
           }
+        },
+        {
+          "snapshot_file": "1927.json",
+          "snapshot_time": "2026-11-06T19:27:33+08:00",
+          "pre_kickoff": false,
+          "prediction_present": true,
+          "modules": {
+            "ft": true,
+            "handicap": false,
+            "goals_top3": true,
+            "score_top3": true,
+            "half_full_top3": true,
+            "upset_warning_triggered": false,
+            "daily_pick_selected": false
+          },
+          "hits": {
+            "ft": null,
+            "handicap": null,
+            "goals_top3": null,
+            "score_top3": null,
+            "half_full_top3": null
+          },
+          "reason": "post_kickoff_excluded"
         }
-      ]
+      ],
+      "result_evidence_unsettled": {
+        "source": "https://aleagues.com.au/news/sydney-central-coast-mariners-goals-highlights-al-hassan-toure/",
+        "source_type": "competition_official_match_report",
+        "ft_90": {
+          "home": 4,
+          "away": 1
+        },
+        "ht_inferred_from_goals": {
+          "home": 2,
+          "away": 0
+        },
+        "conflicting_source": "https://www.skysports.com/football/sydney-fc-vs-central-coast-mariners/stats/568671",
+        "conflicting_display": "0:0 without reliable final result status",
+        "settlement_allowed": false
+      }
     }
   ],
   "notes": [
     "11月6日已读取5个独立快照，latest与1834内容相同。1731、1834在周五001开球后，不纳入赛前统计。",
     "其他预测比赛截至检查时间尚未达到开赛120分钟门槛。",
     "11月5日6个独立快照已读取，原结果文件仍为7 pending、0 verified。",
-    "未修改任何赛前预测文件。"
+    "未修改任何赛前预测文件。",
+    "20:03核查：赛事官方报道悉尼FC4:1，按进球时间半场2:0；Sky Sports旧页仍显示0:0且体彩官方竞彩结算未确认，继续pending。",
+    "已补录19:27快照，周五001为开赛后快照，不计入命中率。"
   ]
 }
