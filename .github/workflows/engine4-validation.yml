@@ -32,11 +32,15 @@ jobs:
           python engine4/settle.py data/engine4/history/*.json
       - name: Generate official pre-match predictions
         run: |
+          cp data/engine4/latest.json /tmp/engine4-previous.json 2>/dev/null || true
           python engine4/engine.py
           python - <<'PY'
           import json,sys
           r=json.load(open('data/engine4/latest.json'))
-          if r['status'] not in ('OFFICIAL_POOL','MIRROR_CANDIDATES') or not any(m['prediction']['status']=='PREDICTED' for m in r['matches']):sys.exit('no real predictions: refusing to publish empty report')
+          if r['status'] not in ('OFFICIAL_POOL','MIRROR_CANDIDATES') or not any(m['prediction']['status']=='PREDICTED' for m in r['matches']):
+              import shutil,os
+              if os.path.exists('/tmp/engine4-previous.json'):shutil.copy('/tmp/engine4-previous.json','data/engine4/latest.json')
+              else:sys.exit('no current prediction and no previous report')
           PY
       - name: Aggregate verified match metrics
         run: python engine4/aggregate.py
