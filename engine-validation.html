@@ -1,8 +1,226 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#071522"><title>九十刻度 · 赛事预测</title><style>
-:root{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#262d38;background:#f1f3f5;--navy:#071522;--gold:#eac878;--red:#c93138;--muted:#778494;--line:#e6e9ee}*{box-sizing:border-box}body{margin:0}.app{max-width:640px;min-height:100vh;margin:auto;background:#f5f6f8;padding-bottom:40px}.hero{background:linear-gradient(145deg,#081524,#142c43);color:#f3f7fc;padding:17px 16px 0}.brand{display:flex;align-items:center;gap:10px}.brand img{width:40px;height:40px;border-radius:11px;border:1px solid #d5b46a77}.brand strong{display:block;font-size:17px}.brand small{color:#b4c4d2;font-size:10px;letter-spacing:1.5px}.badge{margin-left:auto;border:1px solid #b69c61;color:var(--gold);border-radius:20px;padding:4px 8px;font-size:11px}.hero h1{font-size:22px;margin:17px 0 4px}.hero p{font-size:12px;color:#afc0d0;margin:0 0 16px;line-height:1.5}.nav{display:flex;gap:3px;overflow:auto;scrollbar-width:none;margin:0 -16px;padding:0 12px}.nav::-webkit-scrollbar{display:none}.nav button{font:inherit;flex:none;white-space:nowrap;color:#a9bfd2;background:none;border:0;border-bottom:3px solid transparent;padding:10px 11px;font-size:13px;cursor:pointer}.nav button.active{color:#fff;border-color:var(--gold);font-weight:800}.content{padding:12px}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.stat{background:#fff;border-radius:11px;padding:12px 6px;text-align:center;box-shadow:0 2px 10px #10243a08}.stat span{display:block;font-size:10px;color:#788392}.stat b{display:block;font-size:20px;color:#263142;margin-top:4px}.notice{font-size:12px;line-height:1.6;background:#fff;border-left:3px solid #d8ae54;border-radius:8px;padding:10px 12px;color:#596476;margin:12px 0}.notice strong{color:#283243}.toolbar{display:flex;align-items:center;justify-content:space-between;margin:17px 2px 9px}.toolbar h2{font-size:16px;margin:0}.toolbar button{background:#fff;border:1px solid #dce1e7;color:#445365;border-radius:8px;padding:6px 10px;font-size:12px}.card{background:#fff;border-radius:16px;margin:10px 0;box-shadow:0 2px 12px #0b25300c;overflow:hidden}.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);font-size:11px;color:#708093}.card-head b{color:#445163}.status{color:#ad7833;background:#fff5dc;border-radius:12px;padding:4px 8px;white-space:nowrap}.fixture{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;gap:7px;padding:17px 12px}.team{font-size:16px;font-weight:800;overflow-wrap:anywhere}.vs{font-size:12px;color:#97a1ad}.module{border-top:1px solid var(--line);padding:13px 14px}.module-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.module-head strong{font-size:14px}.module-head small{font-size:10px;color:#8994a2}.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.choices.two{grid-template-columns:repeat(2,minmax(0,1fr))}.choice{position:relative;min-height:76px;background:#f7f8fa;border:1px solid #e7e9ed;border-radius:10px;padding:9px 5px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;text-align:center}.choice.top{background:#fff8f7;border-color:#eac4c2}.choice .role{font-size:10px;color:#88939f}.choice .name{font-size:17px;font-weight:750;color:#26303c}.choice.top .name,.choice.top .pct{color:var(--red)}.choice .pct{font-size:12px;color:#657180;font-variant-numeric:tabular-nums}.line{color:#566579;font-size:12px;line-height:1.55}.line strong{color:#263c54}.cold-tag{display:inline-block;border-radius:14px;padding:4px 8px;background:#e9f5ef;color:#267353;font-size:11px;font-weight:750}.cold-tag.watch{background:#fff4dc;color:#9b691f}.cold-tag.high{background:#ffeded;color:#b4313b}.cold-evidence{font-size:12px;color:#49596a;line-height:1.6;margin-top:8px}.cold-missing{font-size:10px;color:#8d98a5;line-height:1.5;margin-top:8px}.footer{padding:11px 14px;border-top:1px solid var(--line);color:#8b97a5;font-size:10px;line-height:1.55}.empty{padding:28px;text-align:center;color:#8b97a5}.error{color:#b74142}.metrics{margin:12px 0;background:#fff;border-radius:12px;padding:12px}.metrics h3{margin:4px 0 9px;font-size:14px}.module-verdict{margin-top:10px;padding:9px;border-radius:8px;background:#f3f7fa;font-size:12px;line-height:1.6}.module-verdict.hit-yes{background:#e9f5ef}.module-verdict.hit-no{background:#fff0f0}.metric-row{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:7px 2px;font-size:12px}.metric-row b{color:#234762}.result{padding:10px 14px;font-size:12px;background:#f3f7fa;line-height:1.8}.result b{color:#123452}.hit-yes{color:#25815a}.hit-no{color:#b73b43}.footnote{color:#87939e;font-size:11px;line-height:1.6;padding:8px 3px}@media(max-width:360px){.team{font-size:14px}.choice .name{font-size:15px}.stat b{font-size:18px}}
-</style></head><body><div class="app"><header class="hero"><div class="brand"><img src="./assets/ninety-mark-avatar.jpg" alt="九十刻度"><div><strong>九十刻度</strong><small>NINETY MARK · 4.0</small></div><span class="badge">智能分析</span></div><h1>竞彩足球智能预测</h1><p>专业赛事分析 · 多维概率参考</p><nav class="nav" id="nav" aria-label="预测模块"></nav></header><main class="content"><section class="summary"><div class="stat"><span>今日赛事</span><b id="count">—</b></div><div class="stat"><span>本模块预测</span><b id="predicted">—</b></div><div class="stat"><span>已核验</span><b id="settled">—</b></div><div class="stat"><span id="hit-label">Top1命中</span><b id="hit">—</b></div></section><div id="metrics"></div><div class="notice" id="notice">正在更新赛事数据…</div><div class="toolbar"><h2 id="section-title">胜平负比赛</h2><button id="refresh" type="button">刷新</button></div><div id="matches"></div><p class="footnote">预测仅供赛事分析参考，结果存在不确定性。</p></main></div><script>
-const $=id=>document.getElementById(id),tabs=['胜平负','让球','比分','总进球','半全场','冷门预警','今日优选'];let report=null,active='胜平负';const label=v=>v==null?'—':String(v),percent=v=>v!=null&&Number.isFinite(Number(v))?Math.round(Number(v)*100)+'%':'未估算';function elem(tag,cls,content){const x=document.createElement(tag);if(cls)x.className=cls;if(content!=null)x.textContent=String(content);return x}function moduleBox(name,items,probabilities,note){const box=elem('section','module'),head=elem('div','module-head');head.append(elem('strong','',name),elem('small','',note||''));box.append(head);if(items.length){const grid=elem('div','choices'+(items.length===2?' two':''));items.forEach((item,i)=>{const c=elem('div','choice'+(i===0?' top':''));c.append(elem('span','role',i===0?'Top1':'Top'+(i+1)),elem('span','name',label(item)),elem('span','pct',percent(probabilities?.[String(item)])));grid.append(c)});box.append(grid)}else box.append(elem('div','line','暂无可靠选项'));return box}function renderModule(card,name,m){const p=m.prediction,all=p?.modules;if(p?.status!=='PREDICTED'||!all){card.append(elem('div','module error',p?.reason||'暂无预测'));return}const x=all[name];if(name==='胜平负')card.append(moduleBox(name,x.top2,x.probabilities,'概率参考'));else if(name==='让球')card.append(moduleBox(name,x.top2,x.probabilities,(x.handicap==null?'让球数待确认':`主队 ${x.handicap>0?'+':''}${x.handicap} 球`)));else if(name==='比分'||name==='半全场')card.append(moduleBox(name,x.top3,x.probabilities,''));else if(name==='总进球')card.append(moduleBox(name,x.top3,x.probabilities,''));else if(name==='冷门预警'){const b=elem('section','module'),h=elem('div','module-head');h.append(elem('strong','',name),elem('span','cold-tag'+(x.triggered?' high':x.status==='WATCH'?' watch':''),x.triggered?'高风险':x.status==='WATCH'?'关注':'暂无预警'));b.append(h);if(x.triggered)b.append(elem('div','line',`风险方向：${x.direction||'待确认'}`));for(const detail of x.evidence||[])b.append(elem('div','cold-evidence',detail));if(x.watch_direction&&!x.triggered)b.append(elem('div','line','关注方向：'+x.watch_direction+'（观察，非正式预警）'));for(const detail of x.watch||[])b.append(elem('div','cold-evidence',detail));if(!x.triggered&&x.status!=='WATCH')b.append(elem('div','line','暂无明显异常信号'));card.append(b)}else if(name==='今日优选'){const b=elem('section','module');b.append(elem('div','module-head',name));if(x.selection)b.append(moduleBox('正式入选',[x.selection],all['胜平负'].probabilities,''));else if(x.candidate)b.append(moduleBox('优选观察',[x.candidate],all['胜平负'].probabilities,''));b.append(elem('div','line',x.reason||'未达到入选条件'));for(const detail of x.evidence||[])b.append(elem('div','cold-evidence','依据 · '+detail));card.append(b)}}function metricText(row){return row?.total?`${row.hit}/${row.total}＝${(100*row.hit/row.total).toFixed(2)}%`:'0/0 · 暂无正式样本'}
-function moduleVerdict(m,name){const box=elem('div','module-verdict');const item=m.settlement?.module_results?.[name];if(!m.settlement){box.textContent='赛果待核验 · 本模块暂不计入命中率';return box}if(!item){box.textContent='本模块结算待更新';return box}const hit=item.status==='HIT',miss=item.status==='MISS';box.className+=' '+(hit?'hit-yes':miss?'hit-no':'');let actual=name==='冷门预警'?`正式赛果 ${item.actual} · ${item.direction||'—'}`: `实际结果 ${item.actual??'—'}`;if(name==='冷门预警'&&item.direction)actual+=` · 冷门${item.upset_occurred?'发生':'未发生'}`;const checks=item.hits?Object.entries(item.hits).map(([k,v])=>`${k} ${v===true?'命中':v===false?'未命中':'无样本'}`).join(' · '):hit?'命中':miss?'未命中':name==='今日优选'?'未正式入选':'未正式触发';box.textContent=actual+' · '+checks+' · 核验 '+label(m.settlement.verified_at);return box}
-function renderMetrics(){const root=$('metrics');root.replaceChildren();const names=[active];for(const name of names){const box=elem('section','metrics');box.append(elem('h3','',name+' · 独立核验'));for(const [title,source] of [['今日',report.metrics],['历史累计',report.historical_metrics]]){const stat=source?.module_stats?.[name];if(!stat)continue;box.append(elem('div','line',`${title} · 正式预测 ${stat.predicted} 场 · 已核验 ${stat.verified} 场 · 待核验 ${stat.pending} 场`));for(const [key,row] of Object.entries(stat.rates||{})){const line=elem('div','metric-row');line.append(elem('span','',title+' '+(key||(name==='今日优选'?'正式推荐命中':'预警效果'))),elem('b','',metricText(row)));box.append(line)}}root.append(box)}}
-function render(){if(!report)return;renderMetrics();const moduleStat=report.metrics?.module_stats?.[active];const primary=active==='今日优选'?'正式推荐命中':active==='冷门预警'?'预警效果':'Top1命中';const rateKey=active==='今日优选'||active==='冷门预警'?'':'Top1';$('hit-label').textContent=primary;$('count').textContent=report.matches.length;$('predicted').textContent=moduleStat?.predicted??0;$('settled').textContent=moduleStat?.verified??0;$('hit').textContent=metricText(moduleStat?.rates?.[rateKey]);const root=$('matches');root.replaceChildren();const focus=active==='冷门预警'?report.matches.filter(m=>['TRIGGERED','WATCH'].includes(m.prediction?.modules?.['冷门预警']?.status)):active==='今日优选'?report.matches.filter(m=>['SELECTED','CANDIDATE'].includes(m.prediction?.modules?.['今日优选']?.status)):report.matches;$('section-title').textContent=(active+' · 比赛')+' · '+focus.length+'场';if(!focus.length){root.append(elem('div','empty',active==='冷门预警'?'当前暂无预警赛事':active==='今日优选'?'当前暂无优选赛事':'暂无赛事数据'));return}for(const m of focus){const card=elem('article','card'),head=elem('div','card-head');head.append(elem('span','',`${label(m.match_no)} · ${label(m.league)} · ${label(m.kickoff)}`),elem('span','status',m.settlement?`已核验 ${m.settlement.ft}`:'待核验'));card.append(head);const f=elem('div','fixture');f.append(elem('div','team',m.home),elem('span','vs','VS'),elem('div','team',m.away));card.append(f);const result=elem('div','result');result.append(elem('b','',m.settlement?`正式完场 · 半场 ${m.settlement.ht} · 全场 ${m.settlement.ft}`:'待正式赛果核验'));result.append(elem('div','',`赛前冻结 ${label(m.predicted_at)} · 核验 ${label(m.settlement?.verified_at)}`));card.append(result);for(const name of [active]){renderModule(card,name,m);card.lastElementChild.append(moduleVerdict(m,name))}root.append(card)}}function nav(){const root=$('nav');root.replaceChildren();for(const name of tabs){const b=elem('button',active===name?'active':'',name);b.type='button';b.setAttribute('aria-current',active===name?'page':'false');b.onclick=()=>{active=name;nav();render()};root.append(b)}}async function load(){try{const response=await fetch('./data/engine4/latest.json?t='+Date.now(),{cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();if(!Array.isArray(data.matches))throw Error('报告格式错误');report=data;$('notice').textContent=`赛事日期 ${label(data.sale_day)} · 最近更新 ${label(data.generated_at)}`;render()}catch(e){$('notice').textContent='赛事数据暂时无法加载，请稍后刷新';$('notice').classList.add('error');$('matches').replaceChildren()}}$('refresh').onclick=load;nav();load();
-</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#d62c31">
+  <link rel="icon" type="image/jpeg" href="./assets/ninety-mark-avatar.jpg">
+  <title>九十刻度 · 4.0 赛事分析</title>
+  <link rel="stylesheet" href="./assets/app-20261003.css?v=20261012-abc-audit-ui-v2">
+  <style>
+    /* Keep the same shell, navigation, fixture and choice grid as the main site. */
+    .app{padding-bottom:75px}
+    .hero{background:var(--red)}
+    .hero:before,.hero:after{display:none}
+    .brandbar{padding:10px 14px 7px}
+    .models{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;padding:6px 12px 10px;overflow:visible}
+    .model{grid-column:span 3;display:flex;align-items:center;justify-content:center;min-width:0;min-height:42px;padding:8px 2px;border:1px solid #ffffff29;border-radius:8px;background:#ffffff17;color:#fff;font-size:clamp(11px,2.9vw,13px);font-weight:600;line-height:1.3;white-space:nowrap;text-align:center;cursor:pointer}
+    .model:nth-child(n+5){grid-column:span 4}
+    .model.active{background:#fff;color:var(--deep);border-color:#fff;font-weight:800}
+    .v4-datebar{border-top:1px solid #ffffff24;padding:8px 14px 10px;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .v4-datebar span:last-child{color:#ffdbdb}
+    .toolbar{padding:11px 13px 10px}
+    .toolbar-top{font-size:12px}
+    .metrics{margin-top:9px}
+    .metric{padding:8px 4px}
+    .metric b{font-size:17px}
+    .content{padding:9px 12px 24px}
+    .section-head{padding:2px 2px 9px}
+    .cards{gap:10px}
+    .card{padding:0 13px 12px;cursor:default}
+    .card:active{transform:none}
+    .card-head{height:37px}
+    .fixture{padding:3px 0 10px}
+    .team-list{gap:8px}
+    .crest{width:32px;height:32px}
+    .team-name{font-size:15px}
+    .analysis{padding-top:9px}
+    .triplet{border-radius:9px}
+    .datum{padding:9px 4px}
+    .datum span{font-size:10px}
+    .datum b{font-size:15px}
+    .datum.primary{background:#fff4f4}
+    .datum .v4-prob{font-size:11px;color:#888;margin:4px 0 0}
+    .datum.hit{background:#eaf6f0}
+    .datum.hit b{color:#278464!important}
+    .datum.miss b{color:#333}
+    .status.verified{background:var(--green)}
+    .v4-stats{background:#fff;border:1px solid #ececec;border-radius:11px;margin:11px 0 4px;overflow:hidden}
+    .v4-stats-head{padding:11px 12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .v4-stats-head strong{font-size:13px;color:#333}
+    .v4-stats-head span{font-size:10px;color:#999}
+    .v4-stat-group{padding:9px 12px}
+    .v4-stat-group+.v4-stat-group{border-top:1px solid #eee}
+    .v4-stat-title{font-size:11px;font-weight:800;color:#555;margin-bottom:7px}
+    .v4-stat-line{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:4px 0;font-size:12px;color:#555}
+    .v4-stat-line b{color:#c92731;font-size:13px;font-variant-numeric:tabular-nums;text-align:right}
+    .v4-stat-line small{color:#999;font-size:10px}
+    .v4-verdict{margin-top:10px;border-radius:8px;background:#f5f5f5;padding:9px 10px;font-size:11px;line-height:1.65;color:#777}
+    .v4-verdict.hit{background:#eaf6f0;color:#278464}
+    .v4-verdict.miss{background:#fff0f0;color:#b94146}
+    .v4-verdict b{font-size:12px}
+    .v4-meta{margin-top:9px;border-top:1px solid #eee;padding-top:9px;font-size:10px;line-height:1.6;color:#999;overflow-wrap:anywhere}
+    .v4-risk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .v4-risk .upset-panel{min-height:86px;padding:9px}
+    .v4-risk .upset-value{font-size:19px}
+    .v4-risk .upset-label{font-size:11px;margin-top:5px}
+    .v4-reason{font-size:11px;color:#666;line-height:1.65;margin:9px 0 0}
+    .v4-reason+.v4-reason{margin-top:4px}
+    .v4-note{margin:10px 0 0;color:#999;font-size:10px;line-height:1.55}
+    .v4-refresh{border:1px solid #dedede;border-radius:6px;background:#fff;color:#555;padding:5px 10px;font-size:11px;cursor:pointer}
+    .v4-foot{color:#999;font-size:10px;line-height:1.65;margin:13px 3px}
+    .v4-error{color:#b94146}
+    @media(max-width:360px){.team-name{font-size:13px}.v4-stat-line{font-size:11px}.metric b{font-size:15px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="brandbar">
+        <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt="九十刻度图标"><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
+        <div class="version">4.0 测试</div>
+      </div>
+      <nav class="models" id="models" aria-label="赛事分析模块"></nav>
+      <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><span>赛前冻结 · 赛后核验</span></div>
+    </header>
+    <main class="main">
+      <section class="toolbar">
+        <div class="toolbar-top"><span class="count" id="pool-count">正在读取赛事数据</span></div>
+        <div class="metrics">
+          <div class="metric"><b id="predicted">—</b><span>本模块正式预测</span></div>
+          <div class="metric"><b id="settled">—</b><span>赛果已核验</span></div>
+          <div class="metric"><b id="pending">—</b><span>等待赛果</span></div>
+        </div>
+      </section>
+      <section class="content">
+        <div class="v4-stats" id="module-stats"></div>
+        <div class="section-head"><h2 id="section-title">胜平负赛事</h2><button class="v4-refresh" id="refresh" type="button">刷新</button></div>
+        <div class="cards" id="matches"><div class="empty">正在加载今日赛事…</div></div>
+        <p class="v4-foot">九十刻度提供赛事数据、概率分析和赛后复盘。模型结果存在不确定性。</p>
+      </section>
+    </main>
+    <nav class="bottom" aria-label="页面导航"><div class="bottom-inner"><a class="nav active" href="./index.html" style="text-decoration:none"><i>⌂</i>首页</a><a class="nav" href="./member.html" style="text-decoration:none"><i>◎</i>我的</a></div></nav>
+  </div>
+  <script>
+    const $=id=>document.getElementById(id);
+    const modules=[
+      ['今日优选','今日优选'],['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
+      ['比分','全场比分'],['总进球','泊松进球'],['冷门预警','冷门预警']
+    ];
+    let report=null,active='胜平负';
+    const label=value=>value==null?'—':String(value);
+    const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!=null)node.textContent=String(text);return node};
+    const rate=row=>row?.total?`${row.hit}/${row.total}＝${(100*row.hit/row.total).toFixed(2)}%`:'0/0 · 暂无正式样本';
+    const pct=value=>Number.isFinite(Number(value))&&value!=null?`${Math.round(Number(value)*100)}%`:'—';
+    const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
+    function navigation(){
+      const root=$('models');root.replaceChildren();
+      for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
+    }
+    function stats(){
+      const today=report.metrics?.module_stats?.[active],history=report.historical_metrics?.module_stats?.[active];
+      $('predicted').textContent=today?.predicted??0;$('settled').textContent=today?.verified??0;$('pending').textContent=today?.pending??0;
+      const root=$('module-stats'),head=el('div','v4-stats-head');root.replaceChildren();
+      head.append(el('strong','',visibleName(active)+' · 独立命中率'),el('span','','仅统计正式预测且已核验场次'));root.append(head);
+      for(const [period,stat] of [['今日',today],['历史累计',history]]){
+        const group=el('div','v4-stat-group');
+        group.append(el('div','v4-stat-title',`${period} · 正式预测 ${stat?.predicted??0} 场 · 已核验 ${stat?.verified??0} 场 · 待核验 ${stat?.pending??0} 场`));
+        for(const [key,row] of Object.entries(stat?.rates||{})){
+          const line=el('div','v4-stat-line');
+          line.append(el('span','',key|| (active==='今日优选'?'正式推荐命中':'预警效果')),el('b','',rate(row)));group.append(line)
+        }
+        root.append(group)
+      }
+    }
+    function fixture(card,match){
+      const head=el('div','card-head'),id=el('div','match-id');
+      id.append(el('span','league',label(match.league)),document.createTextNode(label(match.kickoff)+' · '+label(match.match_no)));
+      head.append(id,el('span','status'+(match.settlement?' verified':' pass'),match.settlement?'已核验':'待核验'));card.append(head);
+      const row=el('div','fixture'),teams=el('div','team-list');
+      for(const [name,index] of [[match.home,0],[match.away,1]]){
+        const team=el('div','team'),crest=el('span','crest',label(name).slice(0,1));
+        crest.setAttribute('aria-hidden','true');team.append(crest,el('span','team-name',label(name)));teams.append(team)
+      }
+      const score=el('div','score',match.settlement?.ft||'VS');
+      score.append(el('span','',match.settlement?`半场 ${label(match.settlement.ht)} · 正式赛果`:'赛前预测'));
+      row.append(teams,score);card.append(row)
+    }
+    function choices(card,match,items,probabilities){
+      const grid=el('div','triplet'+(items.length===2?' pair':''));
+      const result=match.settlement?.module_results?.[active];
+      items.forEach((value,index)=>{
+        const actualHit=result&&String(result.actual)===String(value),cell=el('div','datum'+(actualHit?' hit':index===0?' primary':''));
+        cell.append(el('span','',`Top${index+1}`),el('b','',label(value)),el('span','v4-prob',pct(probabilities?.[String(value)])));
+        if(actualHit)cell.append(el('span','hit-check','✓'));grid.append(cell)
+      });
+      const analysis=el('div','analysis');analysis.append(grid);card.append(analysis)
+    }
+    function special(card,match){
+      const data=match.prediction?.modules?.[active]||{},analysis=el('div','analysis');
+      if(active==='今日优选'){
+        if(data.selection||data.candidate)choices(card,match,[data.selection||data.candidate],match.prediction.modules['胜平负']?.probabilities);
+        analysis.append(el('div','advice',data.selection?'正式入选 · '+data.selection:data.candidate?'优选观察 · '+data.candidate:'未正式入选'));
+        if(data.reason)analysis.append(el('p','v4-reason',data.reason));
+        for(const detail of data.evidence||[])analysis.append(el('p','v4-reason','依据 · '+detail))
+      }else{
+        const blocks=el('div','v4-risk');
+        for(const [value,title] of [[data.triggered?data.direction||'待确认':data.status==='WATCH'?'关注':'暂无预警','风险方向'],[data.triggered?'正式预警':data.status==='WATCH'?'风险观察':'未触发','预警状态']]){
+          const panel=el('div','upset-panel');panel.append(el('div','upset-value',value),el('div','upset-label',title));blocks.append(panel)
+        }
+        analysis.append(blocks);
+        if(data.watch_direction&&!data.triggered)analysis.append(el('p','v4-reason','关注方向：'+data.watch_direction+'（非正式预警）'));
+        for(const detail of [...(data.evidence||[]),...(data.watch||[])])analysis.append(el('p','v4-reason',detail))
+      }
+      card.append(analysis)
+    }
+    function verdict(card,match){
+      const settled=match.settlement,result=settled?.module_results?.[active],box=el('div','v4-verdict');
+      if(!settled)box.textContent='赛果待核验 · 本模块暂不计入命中率';
+      else if(!result)box.textContent='本模块结算待更新';
+      else{
+        box.className+=' '+(result.status==='HIT'?'hit':result.status==='MISS'?'miss':'');
+        const actual=active==='冷门预警'?'正式赛果 '+label(result.actual):'实际结果 '+label(result.actual);
+        const checks=result.hits?Object.entries(result.hits).map(([key,hit])=>key+' '+(hit?'命中':'未命中')).join(' · '):
+          result.status==='HIT'?'命中':result.status==='MISS'?'未命中':active==='今日优选'?'未正式入选':'未正式触发';
+        box.append(el('b','',actual+' · '+checks));
+        if(active==='冷门预警'&&result.direction)box.append(el('div','',`风险方向 ${result.direction} · 冷门${result.upset_occurred?'发生':'未发生'}`))
+      }
+      card.append(box);
+      card.append(el('div','v4-meta',`赛前冻结 ${label(match.predicted_at)} · 核验 ${label(settled?.verified_at)}`))
+    }
+    function render(){
+      if(!report)return;
+      stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
+      $('pool-count').textContent=`全池 ${report.matches.length} 场 · 最近更新 ${label(report.generated_at)}`;
+      const focus=active==='冷门预警'?report.matches.filter(match=>['TRIGGERED','WATCH'].includes(match.prediction?.modules?.[active]?.status)):
+        active==='今日优选'?report.matches.filter(match=>['SELECTED','CANDIDATE'].includes(match.prediction?.modules?.[active]?.status)):report.matches;
+      $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
+      const root=$('matches');root.replaceChildren();
+      if(!focus.length){root.append(el('div','empty',active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'当前暂无预警赛事':'暂无赛事数据'));return}
+      for(const match of focus){
+        const card=el('article','card');fixture(card,match);
+        const data=match.prediction?.modules?.[active];
+        if(match.prediction?.status!=='PREDICTED'||!data)card.append(el('div','v4-verdict v4-error',match.prediction?.reason||'暂无正式预测'));
+        else if(active==='冷门预警'||active==='今日优选')special(card,match);
+        else{
+          if(active==='让球')card.append(el('div','v4-note',`官方让球：主队 ${data.handicap>0?'+':''}${label(data.handicap)} 球`));
+          choices(card,match,data.top2||data.top3||[],data.probabilities)
+        }
+        verdict(card,match);root.append(card)
+      }
+    }
+    async function load(){
+      try{
+        const response=await fetch('./data/engine4/latest.json?t='+Date.now(),{cache:'no-store'});
+        if(!response.ok)throw Error('HTTP '+response.status);
+        const data=await response.json();if(!Array.isArray(data.matches))throw Error('报告格式错误');
+        report=data;render()
+      }catch(error){
+        $('pool-count').textContent='赛事数据暂时无法加载';
+        $('matches').replaceChildren(el('div','error','赛事数据暂时无法加载，请稍后刷新'))
+      }
+    }
+    $('refresh').onclick=load;navigation();load();
+  </script>
+</body>
+</html>
