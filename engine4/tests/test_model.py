@@ -1,0 +1,18 @@
+import unittest
+from engine4.engine import model, normalize_pool
+from engine4.settle import score
+
+class EngineTests(unittest.TestCase):
+    def test_cross_midnight_sale_day(self):
+        rows=[{'matchTypeValue':0,'displayNo':'周五 001','dayLabel':'2026 - 11 - 07 周六','state':'upcoming','id':3,'home':'甲','away':'乙','kickoff':'01:30','spfSp':'1.74 3.82 3.30','rqspfSp':'主(-1) 3.10 3.75 1.82'}]
+        pool=normalize_pool(rows,'2026-11-06')
+        self.assertEqual(pool['001']['handicap'],-1)
+        self.assertEqual(pool['001']['kickoff'],'2026-11-07 01:30')
+    def test_seven_modules(self):
+        p=model({'spf':[1.8,3.6,4.2],'rqspf':[3.1,3.5,2.2],'handicap':-1})
+        self.assertEqual(len(p['modules']),7)
+        self.assertEqual(len(p['modules']['比分']['top3']),3)
+    def test_no_sp_no_prediction(self):
+        self.assertEqual(model({'spf':None})['status'],'NO_PREDICTION')
+    def test_score(self):
+        self.assertEqual(score('2:1'),(2,1))

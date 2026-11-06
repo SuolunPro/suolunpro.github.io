@@ -1,0 +1,54 @@
+name: 90scale 4.0 validation data and results
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'engine4/**'
+      - '.github/workflows/engine4-validation.yml'
+  schedule:
+    - cron: '20 4,6,8,10,12,14 * * *'
+    - cron: '10 2,5,8,11,14,17,20,23 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: engine4-validation
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify engine
+        run: |
+          python -m py_compile engine4/engine.py engine4/settle.py
+          python -m unittest discover -s engine4/tests -v
+      - name: Settle recent immutable snapshots
+        run: |
+          python engine4/settle.py data/engine4/history/*.json
+      - name: Generate official pre-match predictions
+        run: |
+          python engine4/engine.py
+          python - <<'PY'
+          import json,sys
+          r=json.load(open('data/engine4/latest.json'))
+          if r['status']!='OFFICIAL_POOL' or not any(m['prediction']['status']=='PREDICTED' for m in r['matches']):sys.exit('no real predictions: refusing to publish empty report')
+          PY
+      - name: Save snapshot, metrics and page data
+        run: |
+          mkdir -p data/engine4/history
+          cp data/engine4/latest.json data/engine4/history/$(date -u +%Y%m%dT%H%M%SZ).json
+          git config user.name '90scale-engine[bot]'
+          git config user.email 'actions@users.noreply.github.com'
+          git add data/engine4
+          git diff --cached --quiet || (git commit -m 'data: refresh engine4 validation' && git pull --rebase && git push)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: engine4-validation-run
+          path: data/engine4/latest.json
+          retention-days: 14
