@@ -180,8 +180,8 @@
       else{
         box.className+=' '+(result.status==='HIT'?'hit':result.status==='MISS'?'miss':'');
         const actual=active==='冷门预警'?'正式赛果 '+label(result.actual):'实际结果 '+label(result.actual);
-        const checks=result.hits?Object.entries(result.hits).map(([key,hit])=>key+' '+(hit?'命中':'未命中')).join(' · '):
-          result.status==='HIT'?'命中':result.status==='MISS'?'未命中':active==='今日优选'?'未正式入选':'未正式触发';
+        const checks=result.hits?Object.entries(result.hits).map(([key,hit])=>key+' '+(hit?'评测成功':'评测失败')).join(' · '):
+          result.status==='HIT'?'评测成功':result.status==='MISS'?'评测失败':active==='今日优选'?'未正式入选':'未正式触发';
         box.append(el('b','',actual+' · '+checks));
         if(active==='冷门预警'&&result.direction)box.append(el('div','',`风险方向 ${result.direction} · 冷门${result.upset_occurred?'发生':'未发生'}`))
       }
