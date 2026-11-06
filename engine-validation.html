@@ -159,10 +159,15 @@
     function special(card,match){
       const data=match.prediction?.modules?.[active]||{},analysis=el('div','analysis');
       if(active==='今日优选'){
-        const top2=Array.isArray(data.top2)&&data.top2.length===2?data.top2:Array.isArray(data.picks)&&data.picks.length===2?data.picks:[];
+        const top2=Array.isArray(data.selection)&&data.selection.length>=2?data.selection.slice(0,2):
+          Array.isArray(data.top2)&&data.top2.length>=2?data.top2.slice(0,2):
+          Array.isArray(data.candidate)&&data.candidate.length>=2?data.candidate.slice(0,2):
+          Array.isArray(data.picks)&&data.picks.length>=2?data.picks.slice(0,2):[];
         if(top2.length)choices(card,match,top2,match.prediction.modules['胜平负']?.probabilities);
         else if(data.selection||data.candidate)choices(card,match,[data.selection||data.candidate],match.prediction.modules['胜平负']?.probabilities);
-        analysis.append(el('div','advice',data.selection?'正式入选 · '+data.selection:data.candidate?'优选观察 · '+data.candidate:'未正式入选'));
+        const selection=Array.isArray(data.selection)?data.selection.join(' / '):data.selection;
+        const candidate=Array.isArray(data.candidate)?data.candidate.join(' / '):data.candidate;
+        analysis.append(el('div','advice',selection?'正式入选 · '+selection:candidate?'优选观察 · '+candidate:'未正式入选'));
         if(data.reason)analysis.append(el('p','v4-reason',data.reason));
         for(const detail of data.evidence||[])analysis.append(el('p','v4-reason','依据 · '+detail))
       }else{
@@ -182,7 +187,9 @@
       else{
         box.className+=' '+(result.status==='HIT'?'hit':result.status==='MISS'?'miss':'');
         const actual=active==='冷门预警'?'正式赛果 '+label(result.actual):'实际结果 '+label(result.actual);
-        const checks=result.status==='HIT'?'评测成功':
+        const dailyRank=active==='今日优选'&&Array.isArray(result.picks)?
+          result.picks.findIndex(pick=>String(pick)===String(result.actual)):-1;
+        const checks=result.status==='HIT'?'评测成功'+(dailyRank>=0?` · Top${dailyRank+1}命中`:''):
           result.status==='MISS'?'评测失败':active==='今日优选'?'未正式入选':'未正式触发';
         box.append(el('b','',actual+' · '+checks));
         if(active==='冷门预警'&&result.direction)box.append(el('div','',`风险方向 ${result.direction} · 冷门${result.upset_occurred?'发生':'未发生'}`))
