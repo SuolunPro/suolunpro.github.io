@@ -109,6 +109,7 @@
     ];
     let report=null,active='胜平负';
     const label=value=>value==null?'—':String(value);
+    const stamp=value=>{if(!value)return '—';const date=new Date(value);if(Number.isNaN(date.getTime()))return label(value);return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date).replace(/\//g,'-')};
     const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!=null)node.textContent=String(text);return node};
     const rate=row=>row?.total?`${row.hit}/${row.total}＝${(100*row.hit/row.total).toFixed(2)}%`:'0/0 · 暂无正式样本';
     const pct=value=>Number.isFinite(Number(value))&&value!=null?`${Math.round(Number(value)*100)}%`:'—';
@@ -186,12 +187,12 @@
         if(active==='冷门预警'&&result.direction)box.append(el('div','',`风险方向 ${result.direction} · 冷门${result.upset_occurred?'发生':'未发生'}`))
       }
       card.append(box);
-      card.append(el('div','v4-meta',`赛前冻结 ${label(match.predicted_at)} · 核验 ${label(settled?.verified_at)}`))
+      card.append(el('div','v4-meta',`赛前冻结 ${stamp(match.predicted_at)} · 核验 ${stamp(settled?.verified_at)}`))
     }
     function render(){
       if(!report)return;
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
-      $('pool-count').textContent=`全池 ${report.matches.length} 场 · 最近更新 ${label(report.generated_at)}`;
+      $('pool-count').textContent=`全池 ${report.matches.length} 场 · 最近更新 ${stamp(report.generated_at)}`;
       const focus=active==='冷门预警'?report.matches.filter(match=>['TRIGGERED','WATCH'].includes(match.prediction?.modules?.[active]?.status)):
         active==='今日优选'?report.matches.filter(match=>['SELECTED','CANDIDATE'].includes(match.prediction?.modules?.[active]?.status)):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
