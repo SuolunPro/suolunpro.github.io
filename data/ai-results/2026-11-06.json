@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-06",
-  "checked_at": "2026-11-06T22:01:46+08:00",
+  "checked_at": "2026-11-07T01:00:58+08:00",
   "verification_policy": "120_minutes_after_kickoff; verify JC sale identity and 90-minute FT and HT; exclude post-kickoff snapshots",
   "summary": {
     "eligible_fixture_count": 1,
@@ -46,12 +46,14 @@
       "away_team": "中央海岸水手",
       "kickoff": "2026-11-06T16:40:00+08:00",
       "status": "pending",
-      "pending_reason": "A-Leagues official match report dated 2026-11-06 confirms Sydney FC 4:1 Central Coast Mariners (90-minute FT); scoring chronology establishes HT 2:0 (27',42' Sydney; 50',85' Sydney; 90+1' Mariners). Sky Sports stats page still displays 0:0, creating source conflict; China Sports Lottery official JCZQ sale identity/settlement not confirmed. Keep pending; no accuracy denominator.",
+      "pending_reason": "赛事官方及多家完场比分来源一致确认HT 2:0、FT 4:1，第三方赛后页面新增竞彩玩法及奖金信息；中国体彩官方销售/结算身份仍未独立核验，旧Sky页面0:0无明确完赛状态。按严格冲突规则继续pending，不计命中率。",
       "result_sources_checked": [
         "https://www.skysports.com/football/sydney-fc-vs-central-coast-mariners/stats/568671",
         "https://www.theaustralian.com.au/sport/football/aleague-round-4-match-reports-al-hassan-toure-scores-hattrick-in-sydney-fc-win-over-central-coast-mariners/news-story/889e8b0ed8cb468ad52d4282b2e603fe",
         "https://www.fotmob.com/matches/central-coast-mariners-vs-sydney-fc/2s0afk",
-        "https://aleagues.com.au/news/sydney-central-coast-mariners-goals-highlights-al-hassan-toure/"
+        "https://aleagues.com.au/news/sydney-central-coast-mariners-goals-highlights-al-hassan-toure/",
+        "https://mzt.zhibo8.cc/news/web/zuqiu/2026-11-06/match2102464date2026vnative.htm",
+        "https://www.aiscore.com/match-sydney-fc-central-coast-mariners/8lk2dirzg42sz73/lineups"
       ],
       "result_source_verified": null,
       "verified_at": null,
@@ -254,6 +256,22 @@
         "conflicting_source": "https://www.skysports.com/football/sydney-fc-vs-central-coast-mariners/stats/568671",
         "conflicting_display": "0:0 without reliable final result status",
         "settlement_allowed": false
+      },
+      "last_rechecked_at": "2026-11-07T01:00:58+08:00",
+      "jc_settlement_third_party_evidence": {
+        "source": "https://mzt.zhibo8.cc/news/web/zuqiu/2026-11-06/match2102464date2026vnative.htm",
+        "reported_jc_results": {
+          "ft": "主胜",
+          "handicap": -1,
+          "handicap_result": "让胜",
+          "goals": 5,
+          "score": "4:1",
+          "half_full": "胜胜"
+        },
+        "ht": "2:0",
+        "ft_90": "4:1",
+        "official_lottery_confirmation": false,
+        "note": "2026-11-06赛后报道明确列出竞彩各玩法奖金和赛果；第三方转载非体彩官方结算。AiScore半场2:0全场4:1交叉支持；旧Sky 0:0无完赛状态，可能缓存，仍待官方竞彩身份复核。"
       }
     }
   ],
@@ -265,6 +283,7 @@
     "20:03核查：赛事官方报道悉尼FC4:1，按进球时间半场2:0；Sky Sports旧页仍显示0:0且体彩官方竞彩结算未确认，继续pending。",
     "已补录19:27快照，周五001为开赛后快照，不计入命中率。",
     "20:57核查：已读取11月6日20:31赛前预测目录新增快照（14场），仅周五001达到开赛120分钟；20:31快照晚于该场开球，排除赛前命中率。其余13场尚未达到门槛。官方竞彩销售身份及冲突比分尚未消除，继续pending。",
-    "22:01核查：已读取21:39最新快照及前7份独立快照，周五001的21:39预测晚于16:40开球，排除命中率；赛事官方报道4:1、半场2:0，但未取得中国体彩官方销售/结算确认且其他比分网页存在旧缓存冲突，继续pending。其他13场均未达到开赛后120分钟。"
+    "22:01核查：已读取21:39最新快照及前7份独立快照，周五001的21:39预测晚于16:40开球，排除命中率；赛事官方报道4:1、半场2:0，但未取得中国体彩官方销售/结算确认且其他比分网页存在旧缓存冲突，继续pending。其他13场均未达到开赛后120分钟。",
+    "2026-11-07 01:00核查：14份跨两日独立快照已读取（11月5日6份、11月6日8份）；新增直播吧2026-11-06赛后竞彩奖金及AiScore半全场交叉证据。11月6日仅周五001达到开赛120分钟，仍待体彩官方销售/结算确认，保留pending。"
   ]
 }
