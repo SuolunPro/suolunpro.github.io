@@ -146,10 +146,14 @@ def model(match):
     return {'status':'PREDICTED','method':'赛前 SP 去水基线 + 固定总进球泊松近似；比分、半全场未经独立 xG 校准',
         'confidence':'低（缺少独立球队与盘口信息）', 'modules':{
             '胜平负':{'top1':ranked[0],'top2':ranked[:2], 'probabilities':{k:round(v,4) for k,v in ft.items()}},
-            '让球':{'handicap':handicap,'top2':rq_top2,'status':'有数据' if rq_ranked else '缺少让球 SP'},
-            '比分':{'top3':[f'{h}:{a}' for h,a,_ in score]},
-            '总进球':{'top3':[n for n,_ in goals]},
-            '半全场':{'top3':[k for k,_ in hft]},
+            '让球':{'handicap':handicap,'top2':rq_top2,'status':'有数据' if rq_ranked else '缺少让球 SP',
+                'probabilities':{k:round(v,4) for k,v in zip(('让胜','让平','让负'),rq)} if rq else {}},
+            '比分':{'top3':[f'{h}:{a}' for h,a,_ in score],
+                'probabilities':{f'{h}:{a}':round(v,4) for h,a,v in score}},
+            '总进球':{'top3':[n for n,_ in goals],
+                'probabilities':{str(n):round(v,4) for n,v in goals}},
+            '半全场':{'top3':[k for k,_ in hft],
+                'probabilities':{k:round(v,4) for k,v in hft}},
             '冷门预警':{'level':risk,'triggered':warning,'reason':'让球方向冲突或平局隐含概率偏高' if warning else '未触发简化风险阈值'},
             '今日优选':{'selection':value,'reason':'仅 SP 基线筛选，尚未得到机构及必发同向确认' if value else '未通过基线阈值或风险过滤'}},
         'coverage':{'independent_xg':False,'william':False,'macau_asia':False,'bifa':False}}

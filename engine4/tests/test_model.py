@@ -13,6 +13,12 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(len(p['modules']),7)
         self.assertEqual(len(p['modules']['比分']['top3']),3)
         self.assertNotEqual(set(p['modules']['让球']['top2']), {'让胜','让负'})
+        for name, key in [('胜平负','top2'),('让球','top2'),('比分','top3'),('总进球','top3'),('半全场','top3')]:
+            module=p['modules'][name]
+            for choice in module[key]:
+                probability=module['probabilities'][str(choice)]
+                self.assertGreaterEqual(probability,0)
+                self.assertLessEqual(probability,1)
     def test_no_sp_no_prediction(self):
         self.assertEqual(model({'spf':None})['status'],'NO_PREDICTION')
     def test_score(self):
