@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-06",
-  "checked_at": "2026-11-06T20:03:24+08:00",
+  "checked_at": "2026-11-06T20:57:11+08:00",
   "verification_policy": "120_minutes_after_kickoff; verify JC sale identity and 90-minute FT and HT; exclude post-kickoff snapshots",
   "summary": {
     "eligible_fixture_count": 1,
@@ -192,6 +192,29 @@
             "half_full_top3": null
           },
           "reason": "post_kickoff_excluded"
+        },
+        {
+          "snapshot_file": "2031.json",
+          "snapshot_time": "2026-11-06T20:31:28+08:00",
+          "pre_kickoff": false,
+          "prediction_present": true,
+          "modules": {
+            "ft": true,
+            "handicap": false,
+            "goals_top3": true,
+            "score_top3": true,
+            "half_full_top3": true,
+            "upset_warning_triggered": false,
+            "daily_pick_selected": false
+          },
+          "hits": {
+            "ft": null,
+            "handicap": null,
+            "goals_top3": null,
+            "score_top3": null,
+            "half_full_top3": null
+          },
+          "reason": "post_kickoff_excluded"
         }
       ],
       "result_evidence_unsettled": {
@@ -212,11 +235,12 @@
     }
   ],
   "notes": [
-    "11月6日已读取5个独立快照，latest与1834内容相同。1731、1834在周五001开球后，不纳入赛前统计。",
+    "11月6日已读取7个独立快照（12:30、14:34、16:30、17:31、18:34、19:27、20:31），latest与20:31内容相同；周五001仅前三份为开球前快照。",
     "其他预测比赛截至检查时间尚未达到开赛120分钟门槛。",
     "11月5日6个独立快照已读取，原结果文件仍为7 pending、0 verified。",
     "未修改任何赛前预测文件。",
     "20:03核查：赛事官方报道悉尼FC4:1，按进球时间半场2:0；Sky Sports旧页仍显示0:0且体彩官方竞彩结算未确认，继续pending。",
-    "已补录19:27快照，周五001为开赛后快照，不计入命中率。"
+    "已补录19:27快照，周五001为开赛后快照，不计入命中率。",
+    "20:57核查：已读取11月6日20:31赛前预测目录新增快照（14场），仅周五001达到开赛120分钟；20:31快照晚于该场开球，排除赛前命中率。其余13场尚未达到门槛。官方竞彩销售身份及冲突比分尚未消除，继续pending。"
   ]
 }
