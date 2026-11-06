@@ -1,5 +1,5 @@
 import unittest
-from engine4.engine import model, normalize_pool, cold_warning, asian_snapshot, daily_pick
+from engine4.engine import model, normalize_pool, cold_warning, asian_snapshot, daily_pick, calibrate_goals, outcome_probs
 from engine4.settle import score
 
 class EngineTests(unittest.TestCase):
@@ -59,3 +59,15 @@ class EngineTests(unittest.TestCase):
         d=model(fixture)['modules']['今日优选']
         self.assertEqual(d['status'],'BLOCKED')
         self.assertIn('退让',d['reason'])
+    def test_goals_fit_pre_match_market_and_vary_by_match(self):
+        low_draw=(.52,.17,.31)
+        high_draw=(.52,.30,.18)
+        lo=calibrate_goals(low_draw)
+        hi=calibrate_goals(high_draw)
+        self.assertGreater(sum(lo),sum(hi))
+        self.assertAlmostEqual(outcome_probs(*lo)[1],low_draw[1],places=3)
+        self.assertAlmostEqual(outcome_probs(*hi)[1],high_draw[1],places=3)
+        a=model({'spf':[1.22,5.15,8.0]})['modules']['总进球']
+        b=model({'spf':[1.7,3.17,4.25]})['modules']['总进球']
+        self.assertNotEqual(a['top3'],b['top3'])
+        self.assertNotEqual(a['estimated_total_goals'],b['estimated_total_goals'])
