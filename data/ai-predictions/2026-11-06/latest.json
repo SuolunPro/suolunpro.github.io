@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "date": "2026-11-06",
-  "snapshot_time": "2026-11-06T12:30:00+08:00",
-  "generated_at": "2026-11-06T12:30:00+08:00",
+  "snapshot_time": "2026-11-06T14:34:18+08:00",
+  "generated_at": "2026-11-06T14:34:18+08:00",
   "pool_total": 1,
   "listed_total": 1,
   "predicted_total": 1,
@@ -22,11 +22,46 @@
     {
       "url": "https://jingcai.17500.cn/articles/find/aid/15290948.html",
       "note": "2026-11-05发布，周五001与SP"
+    },
+    {
+      "url": "https://m.17500.cn/zq/draw",
+      "note": "2026-11-06当日动态竞彩列表，展示001、002、003、006，抓取时刻14:34北京时间"
     }
   ],
   "unresolved_fixtures": [
     {
-      "note": "第三方显示当日14场，其余13场未逐场完成双源核验，本轮不列入正式matches"
+      "match_no": "周五002",
+      "home_team": "不伦瑞克",
+      "away_team": "科特布斯",
+      "kickoff": "2026-11-07T01:30:00+08:00",
+      "reason": "仅乐彩网来源可证明竞彩编号，尚缺第二独立竞彩来源",
+      "sources": [
+        "https://m.17500.cn/zq/match/bonus-4566624-101"
+      ]
+    },
+    {
+      "match_no": "周五003",
+      "home_team": "哈马比",
+      "away_team": "埃尔夫斯堡",
+      "kickoff": "2026-11-07T02:00:00+08:00",
+      "reason": "竞彩编号只见单一来源",
+      "sources": [
+        "https://m.17500.cn/zq/draw"
+      ]
+    },
+    {
+      "match_no": "周五006",
+      "home_team": "奥斯",
+      "away_team": "瓦尔韦克",
+      "kickoff": "2026-11-07T03:00:00+08:00",
+      "reason": "乐彩网同集团页面，未达到两个独立来源",
+      "sources": [
+        "https://jingcai.17500.cn/articles/find/aid/15293222.html"
+      ]
+    },
+    {
+      "reason": "其他场次尚未逐场双源核验；不能以历史第三方14场宣称官方全池",
+      "count_unconfirmed": null
     }
   ],
   "sources": [
@@ -71,7 +106,7 @@
         "model_probabilities": {
           "home": 67.04,
           "draw": 19.04,
-          "away": 13.91
+          "away": 13.92
         },
         "market_normalized_probabilities": [
           64.08,
@@ -81,7 +116,7 @@
         "first": "主胜",
         "second": "平",
         "draw_tail_risk": "中",
-        "model_note": "独立泊松计算，进球均值为市场锚定假设，非校准胜率"
+        "model_note": "独立泊松计算，进球均值为市场锚定假设，非校准胜率；本轮仅修正原数值合计的0.01%舍入误差，不重估赛前模型"
       },
       "handicap": {
         "official_handicap_verified": false,
@@ -140,7 +175,7 @@
       "upset_warning": {
         "formal_trigger": false,
         "observation": "热门让一球，穿盘风险需要审计",
-        "evidence": "第三方竞彩SP及William Hill赔率",
+        "evidence": "第三方竞彩赔率及模型假设；William Hill同机构数据未核验，不作为正式证据",
         "level": "一般观察"
       },
       "daily_pick": {
