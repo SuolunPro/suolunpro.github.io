@@ -186,7 +186,8 @@ def cold_warning(match, top, ft):
     triggered=bool(channels and direction)
     status='TRIGGERED' if triggered else 'WATCH' if watch else 'NOT_TRIGGERED'
     return {'status':status,'level':'高' if triggered else '关注' if watch else '未触发',
-            'triggered':triggered,'direction':direction if triggered else None,'channels':channels,
+            'triggered':triggered,'direction':direction if triggered else None,
+            'watch_direction':direction if watch and not triggered else None,'channels':channels,
             'evidence':evidence,'watch':watch,
             'missing':['必发资金方向（A/B/C未评估）','严格赛前独立比分（E1未评估）']+
                       ([] if fi and fc else ['威廉初盘与即时盘（D/E2未评估）'])+
@@ -222,7 +223,7 @@ def model(match):
     if set(rq_top2) == {'让胜','让负'}:
         rq_top2 = [rq_top2[0], '让平']
     return {'status':'PREDICTED','method':'赛前 SP 去水基线 + 固定总进球泊松近似；比分、半全场未经独立 xG 校准',
-        'confidence':'低（缺少独立球队与盘口信息）', 'modules':{
+        'confidence':'低（缺少必发与独立球队、xG信号）', 'modules':{
             '胜平负':{'top1':ranked[0],'top2':ranked[:2], 'probabilities':{k:round(v,4) for k,v in ft.items()}},
             '让球':{'handicap':handicap,'top2':rq_top2,'status':'有数据' if rq_ranked else '缺少让球 SP',
                 'probabilities':{k:round(v,4) for k,v in zip(('让胜','让平','让负'),rq)} if rq else {}},
