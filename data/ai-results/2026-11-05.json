@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-05",
-  "checked_at": "2026-11-06T12:03:37+08:00",
+  "checked_at": "2026-11-06T13:03:41+08:00",
   "verification_policy": "120_minutes_after_kickoff; verified official 90-minute FT and HT; no post-kickoff snapshot in pre-match denominator",
   "summary": {
     "eligible_fixture_count": 7,
@@ -318,17 +318,19 @@
         "ht": "0:1",
         "ft_90": "1:1"
       },
-      "sale_identity_status": "third_party_listings_correlated_official_unconfirmed",
+      "sale_identity_status": "third_party_explicit_match_number_official_unconfirmed",
       "sale_identity_sources": [
         "https://www.cpbao.com/jczq/scheme!editNew.action?matchDate=20260222&passMode=PASS&playType=HT",
-        "https://zcai.cn/tool_jc?id=12&wf=%E8%83%9C%E8%B4%9F&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83"
+        "https://zcai.cn/tool_jc?id=12&wf=%E8%83%9C%E8%B4%9F&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83",
+        "https://zcai.cn/tool_jc?gn=%E8%B6%B3%E7%90%83%E6%8B%86%E5%8D%95&id=57&wf=%E6%B7%B7%E5%90%88&yxm=%E7%AB%9E%E5%BD%A9%E8%B6%B3%E7%90%83"
       ],
       "club_official_score_evidence": {
         "source": "https://www.cpfc.co.uk/news/match-reports/report-highlights-crystal-palace-hoffenheim-europa-league-november-2026/",
         "ht": "0:1",
         "ft_90": "1:1",
         "finding": "Crystal Palace official club report confirms HT and FT; China Sports Lottery sale identity remains unverified, therefore pending"
-      }
+      },
+      "sale_identity_evidence_note": "2026-11-06 search shows zcai.cn 2026-11-05 周四002 Crystal Palace–Hoffenheim with JCZQ SP and handicap -1; this is third-party listing, not official China Sports Lottery settlement."
     },
     {
       "fixture_id": null,
@@ -960,5 +962,6 @@
       "checked_at": "2026-11-06T12:03:37+08:00",
       "finding": "New provisional 006 Milan-Ferencvaros HT 0:0 FT 0:2 corroborated by Reuters and Sofascore; 007 Trabzonspor-Freiburg FT 0:1 with 14th minute goal from Welt, HT inference pending independent confirmation. Neither has verified China Sports Lottery JCZQ sale identity. All seven remain pending; no accuracy denominator changes."
     }
-  ]
+  ],
+  "audit_note": "Re-read all six 2026-11-05 pre-match snapshots and 2026-11-06 1230 snapshot. 2026-11-06 match kicks off 16:40, not eligible at this check. Third-party JCZQ listing for 周四002 strengthened, official settlement not independently confirmed. No verified fixtures; all 7 remain pending. Never score post-kickoff snapshots."
 }
