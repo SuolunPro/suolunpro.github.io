@@ -135,6 +135,45 @@ def fetch_market(match, errors):
 def poisson(lam, k):
     return math.exp(-lam) * lam**k / math.factorial(k)
 
+def outcome_probs(home_goals, away_goals):
+    """Independent Poisson 1X2 implied by two goal rates, truncated at 12 goals."""
+    hp=[poisson(home_goals,n) for n in range(13)]
+    ap=[poisson(away_goals,n) for n in range(13)]
+    h=sum(hp[i]*ap[j] for i in range(13) for j in range(i))
+    d=sum(hp[i]*ap[i] for i in range(13))
+    a=sum(hp[i]*ap[j] for i in range(13) for j in range(i+1,13))
+    s=h+d+a
+    return h/s,d/s,a/s
+
+def calibrate_goals(probs):
+    """Fit match-specific Poisson rates to pre-match 1X2 implied probabilities.
+
+    This remains a market-derived estimate; it is not independently measured xG.
+    """
+    home,draw,away=probs
+    target_share=home/(home+away)
+    def at_total(total):
+        lo,hi=.02,.98
+        for _ in range(22):
+            share=(lo+hi)/2
+            h,d,a=outcome_probs(total*share,total*(1-share))
+            if h/(h+a)<target_share:
+                lo=share
+            else:
+                hi=share
+        share=(lo+hi)/2
+        h,d,a=outcome_probs(total*share,total*(1-share))
+        return total*share,total*(1-share),d
+    lo,hi=1.2,6.0
+    for _ in range(24):
+        mid=(lo+hi)/2
+        if at_total(mid)[2]>draw:
+            lo=mid
+        else:
+            hi=mid
+    lam_h,lam_a,_=at_total((lo+hi)/2)
+    return lam_h,lam_a
+
 def asian_snapshot(raw):
     match = re.fullmatch(r'\s*(\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?(?:/\d+(?:\.\d+)?)?)\s+(\d+(?:\.\d+)?)\s*',str(raw or ''))
     if not match:
@@ -253,10 +292,8 @@ def model(match):
         return {'status':'NO_PREDICTION', 'reason':'缺少真实赛前胜平负 SP'}
     # Market implied probabilities are a baseline, not independent team ratings.
     home, draw, away = probs
-    strength = math.log(max(home, .03) / max(away, .03))
-    total = 2.55
-    lam_h = max(.35, min(3.5, total * math.exp(strength / 2) / (1 + math.exp(strength / 2))))
-    lam_a = max(.35, min(3.5, total - lam_h))
+    lam_h,lam_a = calibrate_goals(probs)
+    total = lam_h+lam_a
     grid = [(h, a, poisson(lam_h,h)*poisson(lam_a,a)) for h in range(8) for a in range(8)]
     score = sorted(grid, key=lambda x:x[2], reverse=True)[:3]
     goals = sorted([(n, sum(p for h,a,p in grid if h+a==n)) for n in range(8)], key=lambda x:x[1], reverse=True)[:3]
@@ -273,14 +310,15 @@ def model(match):
     rq_top2 = [k for k,_ in rq_ranked[:2]]
     if set(rq_top2) == {'让胜','让负'}:
         rq_top2 = [rq_top2[0], '让平']
-    return {'status':'PREDICTED','method':'赛前 SP 去水基线 + 固定总进球泊松近似；比分、半全场未经独立 xG 校准',
+    return {'status':'PREDICTED','method':'赛前 SP 去水 1X2 校准逐场泊松进球均值；非独立 xG',
         'confidence':'低（缺少必发与独立球队、xG信号）', 'modules':{
             '胜平负':{'top1':ranked[0],'top2':ranked[:2], 'probabilities':{k:round(v,4) for k,v in ft.items()}},
             '让球':{'handicap':handicap,'top2':rq_top2,'status':'有数据' if rq_ranked else '缺少让球 SP',
                 'probabilities':{k:round(v,4) for k,v in zip(('让胜','让平','让负'),rq)} if rq else {}},
             '比分':{'top3':[f'{h}:{a}' for h,a,_ in score],
                 'probabilities':{f'{h}:{a}':round(v,4) for h,a,v in score}},
-            '总进球':{'top3':[n for n,_ in goals],
+            '总进球':{'top3':[n for n,_ in goals], 'estimated_total_goals':round(total,3),
+                'method':'赛前胜平负 SP 反推的泊松均值，非独立 xG',
                 'probabilities':{str(n):round(v,4) for n,v in goals}},
             '半全场':{'top3':[k for k,_ in hft],
                 'probabilities':{k:round(v,4) for k,v in hft}},
