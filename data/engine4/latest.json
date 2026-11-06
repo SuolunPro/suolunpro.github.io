@@ -7,6 +7,302 @@
   "status": "MIRROR_CANDIDATES",
   "matches": [
     {
+      "match_no": "001",
+      "source_id": "503041391",
+      "league": "澳洲甲",
+      "home": "悉尼FC",
+      "away": "中央海岸",
+      "kickoff": "2026-11-06 16:40",
+      "spf": [
+        1.39,
+        4.2,
+        5.5
+      ],
+      "rqspf": [
+        2.22,
+        3.55,
+        2.46
+      ],
+      "handicap": -1,
+      "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
+      "data_quality": {
+        "spf": true,
+        "rqspf": true
+      },
+      "market": {
+        "source": "qiulaile.vip/match/odds",
+        "captured_at": "2026-11-06T08:20:32.635630+00:00",
+        "william": {
+          "initial": "1.50 / 4.20 / 5.50",
+          "current": "1.55 / 4.00 / 5.00",
+          "time": "18分钟前"
+        },
+        "asia": {
+          "Bet365": {
+            "initial": "0.83 1 0.98",
+            "current": "0.80 1 1.00",
+            "time": "41分钟前"
+          },
+          "澳门": {
+            "initial": "1.02 1/1.5 0.76",
+            "current": "0.92 1 0.86",
+            "time": "24分钟前"
+          },
+          "皇冠": {
+            "initial": "1.09 1/1.5 0.79",
+            "current": "0.94 1 0.95",
+            "time": "3分钟前"
+          },
+          "威廉希尔": {
+            "initial": "0.80 1 0.91",
+            "current": "0.91 1 0.80",
+            "time": "7分钟前"
+          }
+        }
+      },
+      "fotmob_xg": {
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 1000017575,
+        "home_team_id": 10164,
+        "away_team_id": 8164,
+        "home_lambda": 1.245,
+        "away_lambda": 1.2713,
+        "samples": {
+          "home": [
+            {
+              "match_id": 1000017571,
+              "xgf": 0.52,
+              "xga": 1.44
+            },
+            {
+              "match_id": 1000017568,
+              "xgf": 1.95,
+              "xga": 1.25
+            },
+            {
+              "match_id": 1000017557,
+              "xgf": 0.72,
+              "xga": 0.92
+            },
+            {
+              "match_id": 6097682,
+              "xgf": 1.05,
+              "xga": 0.76
+            },
+            {
+              "match_id": 6014074,
+              "xgf": 1.86,
+              "xga": 0.71
+            }
+          ],
+          "away": [
+            {
+              "match_id": 1000017573,
+              "xgf": 0.83,
+              "xga": 0.27
+            },
+            {
+              "match_id": 1000017567,
+              "xgf": 0.46,
+              "xga": 1.76
+            },
+            {
+              "match_id": 1000017560,
+              "xgf": 3.29,
+              "xga": 1.78
+            }
+          ]
+        },
+        "captured_at": "2026-11-06T08:20:35.107568+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
+      },
+      "predicted_at": "2026-11-06T08:20:36.801818+00:00",
+      "prediction": {
+        "status": "PREDICTED",
+        "method": "胜平负 SP 去水；比分/进球/半全场采用FotMob历史完赛xG逐场估算",
+        "confidence": "中低（历史xG样本有限且缺少必发）",
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.6314,
+              "平": 0.209,
+              "负": 0.1596
+            }
+          },
+          "让球": {
+            "handicap": -1,
+            "top2": [
+              "让负",
+              "让平"
+            ],
+            "status": "有数据",
+            "method": "FotMob历史完赛xG逐场估算；90分钟净胜球映射官方让球",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "probabilities": {
+              "让胜": 0.155154,
+              "让平": 0.204101,
+              "让负": 0.640745
+            },
+            "market_probabilities": {
+              "让胜": 0.395602,
+              "让平": 0.247391,
+              "让负": 0.357007
+            },
+            "xg_probabilities": {
+              "让胜": 0.155154,
+              "让平": 0.204101,
+              "让负": 0.640745
+            }
+          },
+          "比分": {
+            "top3": [
+              "1:1",
+              "0:1",
+              "1:0"
+            ],
+            "method": "FotMob历史完赛xG逐场估算",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "home_expected_goals": 1.245,
+            "away_expected_goals": 1.271,
+            "xg_samples": {
+              "home": 5,
+              "away": 3
+            },
+            "matrix_probability_mass": 1,
+            "probabilities": {
+              "1:1": 0.127821,
+              "0:1": 0.102667,
+              "1:0": 0.100544
+            }
+          },
+          "总进球": {
+            "top3": [
+              2,
+              3,
+              1
+            ],
+            "estimated_total_goals": 2.516,
+            "home_expected_goals": 1.245,
+            "away_expected_goals": 1.271,
+            "method": "FotMob历史完赛xG逐场估算",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "xg_samples": {
+              "home": 5,
+              "away": 3
+            },
+            "probabilities": {
+              "0": 0.080758,
+              "1": 0.203211,
+              "2": 0.25567,
+              "3": 0.214447,
+              "4": 0.134904,
+              "5": 0.067892,
+              "6": 0.028473,
+              "7+": 0.014646
+            },
+            "top3_probabilities": {
+              "1": 0.203211,
+              "2": 0.25567,
+              "3": 0.214447
+            }
+          },
+          "半全场": {
+            "top3": [
+              "负-负",
+              "胜-胜",
+              "平-平"
+            ],
+            "method": "FotMob历史完赛xG逐场估算；上下半场暂按50/50预期进球分配，联合比分转移计算",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "half_split_assumption": "50/50（待真实半场xG验证）",
+            "probabilities": {
+              "胜-胜": 0.222191,
+              "胜-平": 0.05116,
+              "胜-负": 0.018415,
+              "平-胜": 0.119114,
+              "平-平": 0.16667,
+              "平-负": 0.122468,
+              "负-胜": 0.01795,
+              "负-平": 0.05116,
+              "负-负": 0.230872
+            }
+          },
+          "冷门预警": {
+            "status": "WATCH",
+            "level": "关注",
+            "triggered": false,
+            "direction": null,
+            "watch_direction": null,
+            "channels": [],
+            "evidence": [],
+            "watch": [
+              "FotMob历史xG方向与体彩SP首选背离，需人工复核；非独立冷门触发条件"
+            ],
+            "missing": [
+              "必发资金方向（A/B/C未评估）",
+              "严格赛前独立比分（E1未评估）"
+            ],
+            "checked": [
+              "D",
+              "E2"
+            ],
+            "model": "SOREN_ABCDE_EVIDENCE_V1"
+          },
+          "今日优选": {
+            "status": "BLOCKED",
+            "selection": null,
+            "candidate": null,
+            "reason": "冷门预警或市场异动观察已排除；两家以上亚洲盘口对 Top1 退让：澳门、皇冠",
+            "evidence": [
+              "SP Top1 胜 去水隐含比例 63.1%",
+              "威廉同方向赔率 1.55",
+              "亚洲盘口可读 4 家，退让 2 家"
+            ],
+            "missing": [
+              "独立赛前模型 A 档/SINGLE/HUR",
+              "必发资金方向与份额"
+            ],
+            "model": "DAILY_VALUE_EVIDENCE_V1"
+          }
+        },
+        "fotmob_audit": {
+          "status": "AVAILABLE",
+          "source": "FotMob历史完赛xG",
+          "reason": null,
+          "home_xgf": 1.22,
+          "home_xga": 1.016,
+          "away_xgf": 1.527,
+          "away_xga": 1.27,
+          "xg_top1": "负",
+          "xg_probabilities": {
+            "胜": 0.3593,
+            "平": 0.269,
+            "负": 0.3718
+          },
+          "market_top1": "胜",
+          "direction_conflict": true
+        },
+        "coverage": {
+          "independent_xg": true,
+          "william": true,
+          "macau_asia": true,
+          "bifa": false
+        }
+      }
+    },
+    {
       "match_no": "002",
       "source_id": "503019183",
       "league": "德乙",
@@ -187,7 +483,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.119667,
               "1:0": 0.091002,
@@ -222,9 +518,9 @@
               "7+": 0.023447
             },
             "top3_probabilities": {
+              "1": 0.172909,
               "2": 0.239998,
-              "3": 0.222078,
-              "1": 0.172909
+              "3": 0.222078
             }
           },
           "半全场": {
@@ -420,7 +716,7 @@
             },
             {
               "match_id": 5107626,
-              "xgf": 1.0,
+              "xgf": 1,
               "xga": 0.99
             },
             {
@@ -493,7 +789,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.12576,
               "0:1": 0.109643,
@@ -528,9 +824,9 @@
               "7+": 0.015539
             },
             "top3_probabilities": {
+              "1": 0.199472,
               "2": 0.254027,
-              "3": 0.215669,
-              "1": 0.199472
+              "3": 0.215669
             }
           },
           "半全场": {
@@ -801,7 +1097,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.102662,
               "2:1": 0.083618,
@@ -836,8 +1132,8 @@
               "7+": 0.047282
             },
             "top3_probabilities": {
-              "3": 0.221959,
               "2": 0.205327,
+              "3": 0.221959,
               "4": 0.179953
             }
           },
@@ -1024,7 +1320,7 @@
             },
             {
               "match_id": 5781784,
-              "xgf": 1.0,
+              "xgf": 1,
               "xga": 1.74
             },
             {
@@ -1107,7 +1403,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.10775,
               "1:2": 0.093581,
@@ -1142,8 +1438,8 @@
               "7+": 0.036624
             },
             "top3_probabilities": {
-              "3": 0.223909,
               "2": 0.219519,
+              "3": 0.223909,
               "4": 0.171291
             }
           },
@@ -1344,7 +1640,7 @@
             "home_expected_goals": 1.107,
             "away_expected_goals": 1.769,
             "xg_samples": null,
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.110352,
               "0:1": 0.099658,
@@ -1376,9 +1672,9 @@
               "7+": 0.027665
             },
             "top3_probabilities": {
+              "1": 0.162029,
               "2": 0.233045,
-              "3": 0.223458,
-              "1": 0.162029
+              "3": 0.223458
             }
           },
           "半全场": {
@@ -1468,7 +1764,7 @@
       ],
       "rqspf": [
         4.6,
-        4.0,
+        4,
         1.49
       ],
       "handicap": -1,
@@ -1635,7 +1931,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.116019,
               "1:2": 0.086898,
@@ -1943,7 +2239,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "2:1": 0.093728,
               "1:1": 0.09021,
@@ -1978,8 +2274,8 @@
               "7+": 0.062398
             },
             "top3_probabilities": {
-              "3": 0.216921,
               "2": 0.187974,
+              "3": 0.216921,
               "4": 0.187745
             }
           },
@@ -2249,7 +2545,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.119308,
               "1:0": 0.097874,
@@ -2284,9 +2580,9 @@
               "7+": 0.022433
             },
             "top3_probabilities": {
+              "1": 0.175802,
               "2": 0.241727,
-              "3": 0.221583,
-              "1": 0.175802
+              "3": 0.221583
             }
           },
           "半全场": {
@@ -2561,7 +2857,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.127608,
               "1:0": 0.103746,
@@ -2596,9 +2892,9 @@
               "7+": 0.014809
             },
             "top3_probabilities": {
+              "1": 0.202514,
               "2": 0.25537,
-              "3": 0.214681,
-              "1": 0.202514
+              "3": 0.214681
             }
           },
           "半全场": {
@@ -2867,7 +3163,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.08678,
               "2:1": 0.080315,
@@ -2902,9 +3198,9 @@
               "7+": 0.076961
             },
             "top3_probabilities": {
+              "2": 0.173603,
               "3": 0.21087,
-              "4": 0.192103,
-              "2": 0.173603
+              "4": 0.192103
             }
           },
           "半全场": {
@@ -3175,7 +3471,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.116332,
               "1:0": 0.103776,
@@ -3210,9 +3506,9 @@
               "7+": 0.022781
             },
             "top3_probabilities": {
+              "1": 0.174797,
               "2": 0.241132,
-              "3": 0.221761,
-              "1": 0.174797
+              "3": 0.221761
             }
           },
           "半全场": {
@@ -3309,8 +3605,8 @@
       "kickoff": "2026-11-07 04:45",
       "spf": [
         2.12,
-        3.0,
-        3.0
+        3,
+        3
       ],
       "rqspf": [
         4.68,
@@ -3481,7 +3777,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.112447,
               "0:1": 0.111887,
@@ -3516,9 +3812,9 @@
               "7+": 0.022166
             },
             "top3_probabilities": {
+              "1": 0.176586,
               "2": 0.242188,
-              "3": 0.22144,
-              "1": 0.176586
+              "3": 0.22144
             }
           },
           "半全场": {
@@ -3698,7 +3994,7 @@
           "away": [
             {
               "match_id": 5103684,
-              "xgf": 2.0,
+              "xgf": 2,
               "xga": 1.31
             },
             {
@@ -3786,7 +4082,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1.0,
+            "matrix_probability_mass": 1,
             "probabilities": {
               "1:1": 0.129535,
               "0:1": 0.106613,
@@ -3821,8 +4117,8 @@
               "7+": 0.012792
             },
             "top3_probabilities": {
-              "2": 0.259084,
               "1": 0.21167,
+              "2": 0.259084,
               "3": 0.211412
             }
           },
@@ -3920,5 +4216,10 @@
     "top1_hit_rate": null,
     "module_hits": {}
   },
-  "source_total": 144
+  "source_total": 144,
+  "restoration": {
+    "match_no": "001",
+    "source_snapshot": "20261106T082212Z.json",
+    "note": "Preserved 90-minute pre-kickoff prediction; no post-kickoff recalculation"
+  }
 }
