@@ -165,12 +165,11 @@
         for(const detail of data.evidence||[])analysis.append(el('p','v4-reason','依据 · '+detail))
       }else{
         const blocks=el('div','v4-risk');
-        for(const [value,title] of [[data.triggered?data.direction||'待确认':data.status==='WATCH'?'关注':'暂无预警','风险方向'],[data.triggered?'正式预警':data.status==='WATCH'?'风险观察':'未触发','预警状态']]){
+        for(const [value,title] of [[data.direction,'风险方向'],['正式预警','预警状态']]){
           const panel=el('div','upset-panel');panel.append(el('div','upset-value',value),el('div','upset-label',title));blocks.append(panel)
         }
         analysis.append(blocks);
-        if(data.watch_direction&&!data.triggered)analysis.append(el('p','v4-reason','关注方向：'+data.watch_direction+'（非正式预警）'));
-        for(const detail of [...(data.evidence||[]),...(data.watch||[])])analysis.append(el('p','v4-reason',detail))
+        for(const detail of data.evidence||[])analysis.append(el('p','v4-reason',detail))
       }
       card.append(analysis)
     }
@@ -193,11 +192,11 @@
       if(!report)return;
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`全池 ${report.matches.length} 场 · 最近更新 ${stamp(report.generated_at)}`;
-      const focus=active==='冷门预警'?report.matches.filter(match=>['TRIGGERED','WATCH'].includes(match.prediction?.modules?.[active]?.status)):
+      const focus=active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
         active==='今日优选'?report.matches.filter(match=>['SELECTED','CANDIDATE'].includes(match.prediction?.modules?.[active]?.status)):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
-      if(!focus.length){root.append(el('div','empty',active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'当前暂无预警赛事':'暂无赛事数据'));return}
+      if(!focus.length){root.append(el('div','empty',active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
       for(const match of focus){
         const card=el('article','card');fixture(card,match);
         const data=match.prediction?.modules?.[active];
