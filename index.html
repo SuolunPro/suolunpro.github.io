@@ -101,9 +101,8 @@
   <section id="vip-gate" class="vip-gate" aria-label="尊贵月卡VIP登录">
     <form id="vip-form" class="vip-panel">
       <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt=""><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
-      <h1>尊贵月卡VIP</h1><p>登录后查看九十刻度4.0赛事分析。原账号和密码继续使用。</p>
-      <label>会员邮箱<input id="vip-email" type="email" autocomplete="username" required></label>
-      <label>密码<input id="vip-password" type="password" autocomplete="current-password" required></label>
+      <h1>尊贵月卡VIP</h1><p>输入会员码（vip+原账号），查看九十刻度4.0赛事分析。</p>
+      <label>会员码<input id="vip-code" type="text" autocomplete="username" placeholder="vip+原账号" maxlength="100" required></label>
       <button id="vip-login" type="submit">登录并查看预测</button>
       <p id="vip-error" role="alert"></p>
       <p class="vip-legal">模型仍在调试，赛事结果存在不确定性。平台仅提供数据研究与风险提示，不提供投注服务或收益承诺。</p>
@@ -165,20 +164,32 @@
   </style>
   <script>
     const $=id=>document.getElementById(id);
-    const VIP_API='https://suolun-vip-staging.hjh19970220.workers.dev';
-    let vipToken=sessionStorage.getItem('ninety_vip_token')||'';
-    async function vipCall(path,options={}){
-      const response=await fetch(VIP_API+path,{...options,cache:'no-store',headers:{...(options.body?{'Content-Type':'application/json'}:{}),...(vipToken?{Authorization:'Bearer '+vipToken}:{}),...options.headers}});
-      const payload=await response.json().catch(()=>({error:'network_error'}));
-      if(!response.ok)throw Error(payload.error||'HTTP '+response.status);
-      return payload;
+    // The membership list and forecasts are published on this GitHub Pages origin.
+    // This is a client-side gate; public static JSON is not a security boundary.
+    const DATA_BASE='./data/engine4/';
+    let vipCode=sessionStorage.getItem('ninety_member_code')||'';
+    const parseExpiry=value=>new Date(String(value||'').replace(' ','T').replace(/\+00$/,'Z'));
+    async function getJson(path){
+      const response=await fetch(path+(path.includes('?')?'&':'?')+'t='+Date.now(),{cache:'no-store'});
+      if(!response.ok)throw Error('HTTP '+response.status);
+      return response.json();
+    }
+    async function checkMember(code){
+      if(!/^vip\+(?:[a-z0-9_-]{2,64}|[^\s@]+@[^\s@]+\.[^\s@]+)$/.test(code))throw Error('invalid_code');
+      const list=await getJson('./member-code-members.json');
+      const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code));
+      const hash=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,'0')).join('');
+      const member=(list.members||[]).find(item=>item.code_sha256===hash);
+      if(!member)throw Error('invalid_code');
+      if(member.active!==true||!(parseExpiry(member.expires_at).getTime()>Date.now()))throw Error('vip_inactive');
+      return {email:code.slice(4),expires_at:member.expires_at,plan_name:'尊贵月卡VIP'};
     }
     function vipShowGate(message=''){
-      vipToken='';sessionStorage.removeItem('ninety_vip_token');
+      vipCode='';vipMember=null;sessionStorage.removeItem('ninety_member_code');
       $('v4-app').hidden=true;$('vip-gate').hidden=false;$('vip-error').textContent=message;
     }
     async function loadDays(){
-      const data=await vipCall('/predictions/days');
+      const data=await getJson(DATA_BASE+'sales/index.json');
       const select=$('day-select'),current=select.value;
       select.replaceChildren(new Option('今日最新','latest'));
       for(const day of data.days||[]){
@@ -189,7 +200,7 @@
     }
     let vipMember=null;
     async function vipEnter(){
-      const me=await vipCall('/auth/me');
+      const me=await checkMember(vipCode);
       vipMember=me;
       $('vip-gate').hidden=true;$('v4-app').hidden=false;
       $('v4-account').title=me.email+' · 有效期至 '+new Date(me.expires_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
@@ -199,17 +210,18 @@
     $('vip-form').addEventListener('submit',async event=>{
       event.preventDefault();const button=$('vip-login');button.disabled=true;$('vip-error').textContent='正在验证会员权限…';
       try{
-        const auth=await vipCall('/auth/login',{method:'POST',body:JSON.stringify({email:$('vip-email').value.trim(),password:$('vip-password').value})});
-        vipToken=auth.token;sessionStorage.setItem('ninety_vip_token',vipToken);$('vip-password').value='';
+        vipCode=$('vip-code').value.trim().toLowerCase();
+        await checkMember(vipCode);
+        sessionStorage.setItem('ninety_member_code',vipCode);$('vip-code').value='';
         await vipEnter();
       }catch(error){
-        vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_credentials'?'账号或密码不正确。':'登录暂时失败，请稍后重试。');
+        vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_code'?'会员码无效，请检查 vip+原账号。':'会员名单暂时无法加载，请稍后重试。');
       }finally{button.disabled=false}
     });
     async function vipProfile(){
       let me;
-      try{me=await vipCall('/auth/me');vipMember=me}
-      catch(_){me=vipMember}
+      try{me=await checkMember(vipCode);vipMember=me}
+      catch(_){vipShowGate('会员资格已失效，请重新登录。');return}
       if(!me){vipShowGate('登录状态已失效，请重新登录。');return}
       let overlay=document.getElementById('vip-profile-overlay');
       if(!overlay){
@@ -220,7 +232,7 @@
         card.innerHTML='<h2 style="margin:0 0 14px;color:#b9252c;font-size:21px">我的会员</h2><div id="vip-profile-details"></div><div style="display:flex;gap:10px;margin-top:22px"><button id="vip-profile-close" type="button" style="flex:1;padding:11px;border-radius:9px;border:1px solid #ddd;background:#fff">返回赛事</button><button id="vip-profile-logout" type="button" style="flex:1;padding:11px;border-radius:9px;border:0;background:#b9252c;color:#fff">退出登录</button></div>';
         overlay.append(card);document.body.append(overlay);
         document.getElementById('vip-profile-close').onclick=()=>overlay.remove();
-        document.getElementById('vip-profile-logout').onclick=()=>{overlay.remove();vipMember=null;vipShowGate('已退出登录。');$('vip-password').value=''};
+        document.getElementById('vip-profile-logout').onclick=()=>{overlay.remove();vipShowGate('已退出登录。')};
         overlay.addEventListener('click',event=>{if(event.target===overlay)overlay.remove()});
       }
       const details=document.getElementById('vip-profile-details');details.replaceChildren();
@@ -239,7 +251,7 @@
     }
     $('v4-account').onclick=vipProfile;$('v4-profile').onclick=vipProfile;
     async function initAuth(){
-      if(!vipToken)return;
+      if(!vipCode)return;
       try{await vipEnter()}catch(_){vipShowGate('登录状态已失效，请重新登录。')}
     }
 
@@ -425,12 +437,12 @@
     }
     async function load(){
       try{
-        const response=await fetch(VIP_API+'/predictions?day='+encodeURIComponent(selectedDay),{headers:{Authorization:'Bearer '+vipToken},cache:'no-store'});
-        if(response.status===401||response.status===403){vipShowGate('会员权限已失效，请重新登录。');return}
-        if(!response.ok)throw Error('HTTP '+response.status);
-        const data=await response.json();if(!Array.isArray(data.matches))throw Error('报告格式错误');
+        vipMember=await checkMember(vipCode);
+        const path=selectedDay==='latest'?DATA_BASE+'latest.json':DATA_BASE+'sales/'+selectedDay+'.json';
+        const data=await getJson(path);if(!Array.isArray(data.matches))throw Error('报告格式错误');
         report=data;render()
       }catch(error){
+        if(error.message==='invalid_code'||error.message==='vip_inactive'){vipShowGate('会员资格已失效，请重新登录。');return}
         $('pool-count').textContent='所选日期数据暂时无法加载';
         $('matches').replaceChildren(el('div','error','赛事数据暂时无法加载，请稍后刷新'))
       }

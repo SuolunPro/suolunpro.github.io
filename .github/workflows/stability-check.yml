@@ -9,24 +9,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate production D1 and 4.0 invariants
+      - name: Validate production member code and 4.0 invariants
         run: |
           python - <<'PY'
           from pathlib import Path
           home=Path('index.html').read_text()
           test=Path('engine-validation.html').read_text()
-          worker=Path('cloudflare/vip/src/index.js').read_text()
           assert home==test, 'Production and validation pages diverged'
-          for marker in ('/auth/login','/auth/me','/predictions?day=','模型调试与验证阶段','重要声明','ftHandicapRiskNote'):
+          for marker in ('vip-code','member-code-members.json','./data/engine4/','模型调试与验证阶段','重要声明','ftHandicapRiskNote'):
               assert marker in home, marker
           for marker in ("['胜平负'","['让球'","['半全场'","['比分'","['总进球'","['冷门预警'"):
               assert marker in home, marker
           assert "['今日优选'" not in home
-          assert './data/engine4/' not in home
+          assert 'workers.dev' not in home
           assert 'supabase.co' not in home.lower()
-          assert "u.pathname==='/predictions'" in worker
-          assert "SELECT active,expires_at FROM vip_members" in worker
-          assert 'vip_predictions' in worker
           for marker in ('<<<<<<<','=======','>>>>>>>'):
               assert marker not in home
           print('stability-check: OK')

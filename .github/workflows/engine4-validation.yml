@@ -184,3 +184,24 @@ jobs:
           jq -e '.result[0].results[0].bytes>100' "$RUNNER_TEMP/result.json" >/dev/null
           echo "Verified private D1 latest snapshot."
           rm -f "$RUNNER_TEMP/query.json" "$RUNNER_TEMP/result.json"
+      - name: Publish same-origin GitHub Pages snapshots
+        if: steps.gate.outputs.predict == 'true' || steps.gate.outputs.settle == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          sales=Path('data/engine4/sales')
+          days=sorted(p.stem for p in sales.glob('????-??-??.json'))
+          assert days and Path('data/engine4/latest.json').exists()
+          (sales/'index.json').write_text(json.dumps({'days':days},ensure_ascii=False))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/engine4/latest.json data/engine4/sales data/engine4/history
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: publish engine4 snapshots for same-origin access'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

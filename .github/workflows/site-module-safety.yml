@@ -30,14 +30,20 @@ jobs:
             assert(html.includes("['"+name+"'"),'missing engine4 module '+name);
           }
           assert(!html.includes("['今日优选'"),'daily picks must stay hidden');
-          for(const marker of ['vip-gate','/auth/login','/auth/me','/predictions?day=','模型调试与验证阶段','重要声明']){
+          for(const marker of ['vip-gate','vip-code','member-code-members.json','./data/engine4/','模型调试与验证阶段','重要声明']){
             assert(html.includes(marker),'missing '+marker);
           }
-          assert(!html.includes('./data/engine4/'),'public JSON bypass in homepage');
+          assert(!html.includes('workers.dev'),'homepage still calls a Worker');
           assert(test.includes("['胜平负'"),'validation page missing');
-          console.log('PASS: 4.0 shell, hidden daily picks, D1 gate, notices');
+          console.log('PASS: 4.0 shell, hidden daily picks, member code gate, notices');
           JS
-      - name: Verify unauthenticated API cannot return forecasts
+      - name: Check published snapshots
         run: |
-          status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 'https://suolun-vip-staging.hjh19970220.workers.dev/predictions?day=latest')
-          test "$status" = 401
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('data/engine4/latest.json').read_text())
+          assert isinstance(data.get('matches'),list) and data['matches']
+          days=json.loads(Path('data/engine4/sales/index.json').read_text())['days']
+          assert days and all((Path('data/engine4/sales')/(day+'.json')).exists() for day in days)
+          PY
