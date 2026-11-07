@@ -202,6 +202,8 @@ jobs:
           git add data/engine4/latest.json data/engine4/sales data/engine4/history
           if ! git diff --cached --quiet; then
             git commit -m 'data: publish engine4 snapshots for same-origin access'
+            # Model collectors may leave changed caches outside the published snapshots.
+            git stash push --include-untracked --quiet
             git pull --rebase origin main
             git push origin HEAD:main
           fi
