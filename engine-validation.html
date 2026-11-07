@@ -19,6 +19,7 @@
     .model.active{background:#fff;color:var(--deep);border-color:#fff;font-weight:800}
     .v4-datebar{border-top:1px solid #ffffff24;padding:8px 14px 10px;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:10px}
     .v4-datebar span:last-child{color:#ffdbdb}
+    .v4-day-select{background:#fff;color:#b9252c;border:0;border-radius:6px;padding:7px 8px;font-weight:700;max-width:150px}
     .toolbar{padding:11px 13px 10px}
     .toolbar-top{font-size:12px}
     .metrics{margin-top:9px}
@@ -81,7 +82,7 @@
         <div class="version">4.0 测试</div>
       </div>
       <nav class="models" id="models" aria-label="赛事分析模块"></nav>
-      <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><span>赛前冻结 · 赛后核验</span></div>
+      <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><select id="day-select" class="v4-day-select" aria-label="选择赛事日期"><option value="latest">今日最新</option><option value="2026-11-06">11月6日历史</option></select></div>
     </header>
     <main class="main">
       <section class="toolbar">
@@ -107,7 +108,7 @@
       ['今日优选','今日优选'],['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
       ['比分','全场比分'],['总进球','泊松进球'],['冷门预警','冷门预警']
     ];
-    let report=null,active='胜平负';
+    let report=null,active='胜平负',selectedDay='latest';
     const label=value=>value==null?'—':String(value);
     const stamp=value=>{if(!value)return '—';const date=new Date(value);if(Number.isNaN(date.getTime()))return label(value);return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date).replace(/\//g,'-')};
     const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!=null)node.textContent=String(text);return node};
@@ -220,16 +221,17 @@
     }
     async function load(){
       try{
-        const response=await fetch('./data/engine4/latest.json?t='+Date.now(),{cache:'no-store'});
+        const path=selectedDay==='latest'?'./data/engine4/latest.json':'./data/engine4/history/'+selectedDay+'.json';
+        const response=await fetch(path+'?t='+Date.now(),{cache:'no-store'});
         if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();if(!Array.isArray(data.matches))throw Error('报告格式错误');
         report=data;render()
       }catch(error){
-        $('pool-count').textContent='赛事数据暂时无法加载';
+        $('pool-count').textContent='所选日期数据暂时无法加载';
         $('matches').replaceChildren(el('div','error','赛事数据暂时无法加载，请稍后刷新'))
       }
     }
-    $('refresh').onclick=load;navigation();load();
+    $('day-select').onchange=e=>{selectedDay=e.target.value;load()};$('refresh').onclick=load;navigation();load();
   </script>
 </body>
 </html>
