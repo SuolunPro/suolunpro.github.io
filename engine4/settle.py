@@ -65,6 +65,7 @@ def mark(match, result, current):
         "让球Top2": ranked("让球", "top2", rq, 2) if rq else None,
         "比分Top1": top1("比分", f"{ft[0]}:{ft[1]}", "top3"),
         "比分Top3": ranked("比分", "top3", f"{ft[0]}:{ft[1]}", 3),
+        "比分Top4": ranked("比分", "top4", f"{ft[0]}:{ft[1]}", 4),
         "总进球Top1": top1("总进球", goals, "top3"),
         "总进球Top3": ranked("总进球", "top3", goals, 3),
         "半全场Top1": top1("半全场", half_full, "top3"),
@@ -82,7 +83,7 @@ def mark(match, result, current):
     module_results = {
         "胜平负": detail("胜平负", spf, (modules.get("胜平负") or {}).get("top2"), ("Top1", "Top2")),
         "让球": detail("让球", rq, (modules.get("让球") or {}).get("top2"), ("Top1", "Top2")),
-        "比分": detail("比分", f"{ft[0]}:{ft[1]}", (modules.get("比分") or {}).get("top3"), ("Top1", "Top3")),
+        "比分": detail("比分", f"{ft[0]}:{ft[1]}", (modules.get("比分") or {}).get("top4") or (modules.get("比分") or {}).get("top3"), ("Top1", "Top3", "Top4")),
         "总进球": detail("总进球", goals, (modules.get("总进球") or {}).get("top3"), ("Top1", "Top3")),
         "半全场": detail("半全场", half_full, (modules.get("半全场") or {}).get("top3"), ("Top1", "Top3")),
         "今日优选": {"actual": spf, "picks": picks, "hits": {"Top1": daily_top1, "Top2": daily_top2},
