@@ -13,6 +13,9 @@ class EngineTests(unittest.TestCase):
         p=model({'spf':[1.8,3.6,4.2],'rqspf':[3.1,3.5,2.2],'handicap':-1})
         self.assertEqual(len(p['modules']),7)
         self.assertEqual(len(p['modules']['比分']['top3']),3)
+        self.assertEqual(len(p['modules']['比分']['top4']),4)
+        self.assertEqual(p['modules']['比分']['top4'][:3],p['modules']['比分']['top3'])
+        self.assertEqual(len(set(p['modules']['比分']['top4'])),4)
         self.assertNotEqual(set(p['modules']['让球']['top2']), {'让胜','让负'})
         for name, key in [('胜平负','top2'),('让球','top2'),('比分','top3'),('总进球','top3'),('半全场','top3')]:
             module=p['modules'][name]
@@ -22,6 +25,17 @@ class EngineTests(unittest.TestCase):
                 self.assertLessEqual(probability,1)
     def test_no_sp_no_prediction(self):
         self.assertEqual(model({'spf':None})['status'],'NO_PREDICTION')
+    def test_handicap_only_official_market(self):
+        p=model({'spf':None,'rqspf':[2.0,3.88,2.62],'handicap':-2})
+        self.assertEqual(p['status'],'PREDICTED')
+        self.assertEqual(p['modules']['胜平负']['status'],'NOT_ON_SALE')
+        self.assertEqual(p['modules']['让球']['top2'],['让胜','让平'])
+        self.assertEqual(p['modules']['今日优选']['status'],'BLOCKED')
+        self.assertFalse(p['modules']['冷门预警']['triggered'])
+        self.assertNotIn('top3',p['modules']['比分'])
+        self.assertAlmostEqual(sum(p['modules']['让球']['probabilities'].values()),1,places=4)
+    def test_handicap_only_requires_valid_handicap(self):
+        self.assertEqual(model({'spf':None,'rqspf':[2.0,3.8,2.6],'handicap':None})['status'],'NO_PREDICTION')
     def test_score(self):
         self.assertEqual(score('2:1'),(2,1))
     def test_original_e2_needs_both_draw_signals(self):
