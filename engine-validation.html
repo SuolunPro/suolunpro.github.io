@@ -198,7 +198,31 @@
           const panel=el('div','upset-panel');panel.append(el('div','upset-value',value),el('div','upset-label',title));blocks.append(panel)
         }
         analysis.append(blocks);
-        /* Internal evidence hidden in customer view. */
+        const details=el('details','risk-evidence');
+        const summary=el('summary','','查看依据');
+        details.append(summary);
+        const channels=Array.isArray(data.channels)?data.channels:[];
+        const explanations={
+          A:'必发资金主要流向与热门相反',
+          B:'必发平局资金集中，且交易规模达到预警条件',
+          C:'威廉热门概率明显下降，同时必发资金反向',
+          D:'威廉热门升赔，多家亚洲机构退盘且热门高水',
+          E2:'体彩平局概率偏高，威廉平局概率同步上升',
+          E1:'独立赛前比分模型提示平局或冷门风险'
+        };
+        const evidence=Array.isArray(data.evidence)?data.evidence:[];
+        const sentences=channels.map(ch=>explanations[ch]).filter(Boolean);
+        if(sentences.length){
+          details.append(el('p','',sentences.slice(0,3).join('；')+'。'));
+        }else if(evidence.length){
+          details.append(el('p','',evidence.slice(0,2).join('；')+'。'));
+        }else{
+          details.append(el('p','','暂无可核实的具体触发依据。'));
+        }
+        if(Array.isArray(data.missing)&&data.missing.length){
+          details.append(el('p','', '未核实：'+data.missing.slice(0,2).join('、')+'。'));
+        }
+        analysis.append(details);
 
       }
       card.append(analysis)
