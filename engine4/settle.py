@@ -116,6 +116,9 @@ def settle(path, current=None):
                 continue
             settlement = mark(match, result, current)
             if settlement:
+                for field in ("fotmob_match_id", "fotmob_home_team_id", "fotmob_away_team_id"):
+                    if result.get(field):
+                        match[field] = result[field]
                 match["settlement"] = settlement
                 changed = True
         except Exception as exc:
