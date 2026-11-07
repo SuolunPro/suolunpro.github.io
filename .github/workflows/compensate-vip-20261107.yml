@@ -1,0 +1,54 @@
+name: Compensate original VIP members once
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/compensate-vip-20261107.yml']
+permissions:
+  contents: read
+jobs:
+  compensate:
+    runs-on: ubuntu-latest
+    environment: vip-staging
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 48f8d496344b2e5f3e7f0c372d52e782
+    steps:
+      - name: Check recovery bookmark exists before any write
+        uses: actions/download-artifact@v4
+        with:
+          name: vip-d1-recovery-bookmark
+          run-id: 42350843580
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/recovery
+      - name: Verify backup and extend existing customer VIP accounts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          jq -e '.bookmark | type=="string" and length>10' "$RUNNER_TEMP/recovery/vip-recovery.json" >/dev/null
+          API="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database"
+          curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$API?per_page=100" > "$RUNNER_TEMP/databases.json"
+          DB_ID=$(jq -r '.result[]? | select(.name=="suolun-vip-staging") | .uuid' "$RUNNER_TEMP/databases.json" | head -n1)
+          test -n "$DB_ID"
+          query() {
+            jq -n --arg sql "$1" '{sql:$sql}' > "$RUNNER_TEMP/query.json"
+            curl -fsS -X POST "$API/$DB_ID/query" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'Content-Type: application/json' --data-binary "@$RUNNER_TEMP/query.json" > "$RUNNER_TEMP/response.json"
+            jq -e '.success==true and .result[0].success==true' "$RUNNER_TEMP/response.json" >/dev/null
+          }
+          query "SELECT COUNT(*) AS eligible FROM vip_members m WHERE m.vip_name='尊贵月卡VIP' AND datetime(m.created_at)<=datetime('2026-11-07T07:20:00Z') AND NOT EXISTS(SELECT 1 FROM vip_admins a WHERE a.user_id=m.user_id)"
+          ELIGIBLE=$(jq -r '.result[0].results[0].eligible' "$RUNNER_TEMP/response.json")
+          test "$ELIGIBLE" -gt 0
+          echo "Original customer VIP accounts eligible: $ELIGIBLE"
+          query "PRAGMA table_info(vip_members)"
+          HAS_COLUMN=$(jq -r '[.result[0].results[] | select(.name=="maintenance_20261107_applied_at")] | length' "$RUNNER_TEMP/response.json")
+          if [ "$HAS_COLUMN" = 0 ]; then
+            query "ALTER TABLE vip_members ADD COLUMN maintenance_20261107_applied_at TEXT"
+          fi
+          query "UPDATE vip_members SET expires_at=strftime('%Y-%m-%dT%H:%M:%SZ',datetime(expires_at,'+5 days')),maintenance_20261107_applied_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE vip_name='尊贵月卡VIP' AND maintenance_20261107_applied_at IS NULL AND datetime(created_at)<=datetime('2026-11-07T07:20:00Z') AND NOT EXISTS(SELECT 1 FROM vip_admins a WHERE a.user_id=vip_members.user_id)"
+          CHANGED=$(jq -r '.result[0].meta.changes // 0' "$RUNNER_TEMP/response.json")
+          query "SELECT COUNT(*) AS compensated FROM vip_members m WHERE m.maintenance_20261107_applied_at IS NOT NULL AND datetime(m.created_at)<=datetime('2026-11-07T07:20:00Z') AND NOT EXISTS(SELECT 1 FROM vip_admins a WHERE a.user_id=m.user_id)"
+          COMPENSATED=$(jq -r '.result[0].results[0].compensated' "$RUNNER_TEMP/response.json")
+          echo "Extended this run: $CHANGED; cumulative compensated: $COMPENSATED / $ELIGIBLE"
+          test "$COMPENSATED" = "$ELIGIBLE"
+          rm -f "$RUNNER_TEMP/databases.json" "$RUNNER_TEMP/query.json" "$RUNNER_TEMP/response.json"
