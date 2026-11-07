@@ -78,7 +78,7 @@ def mark(match, result, current):
     }
     def detail(name, actual, picks, fields):
         values = {field: hits.get(name + field) for field in fields}
-        primary = values[fields[-1]]
+        primary = next((values[field] for field in reversed(fields) if values[field] is not None), None)
         return {"actual": actual, "picks": picks, "hits": values,
                 "status": "HIT" if primary is True else "MISS" if primary is False else "NO_FORMAL_SELECTION"}
     module_results = {
