@@ -34,6 +34,19 @@ class EngineTests(unittest.TestCase):
         self.assertFalse(p['modules']['冷门预警']['triggered'])
         self.assertNotIn('top3',p['modules']['比分'])
         self.assertAlmostEqual(sum(p['modules']['让球']['probabilities'].values()),1,places=4)
+    def test_handicap_only_with_independent_xg_keeps_goal_modules(self):
+        fixture={'spf':None,'rqspf':[2.0,3.88,2.62],'handicap':-2,
+            'fotmob_xg':{'status':'AVAILABLE','home_lambda':1.8,
+                         'away_lambda':0.9,'source':'FotMob'}}
+        p=model(fixture)
+        self.assertEqual(p['status'],'PREDICTED')
+        self.assertEqual(p['modules']['胜平负']['status'],'NOT_ON_SALE')
+        self.assertEqual(len(p['modules']['比分']['top4']),4)
+        self.assertEqual(len(p['modules']['总进球']['top3']),3)
+        self.assertEqual(len(p['modules']['半全场']['top3']),3)
+        self.assertTrue(p['coverage']['independent_xg'])
+        self.assertEqual(p['modules']['今日优选']['status'],'BLOCKED')
+
     def test_handicap_only_requires_valid_handicap(self):
         self.assertEqual(model({'spf':None,'rqspf':[2.0,3.8,2.6],'handicap':None})['status'],'NO_PREDICTION')
     def test_score(self):
