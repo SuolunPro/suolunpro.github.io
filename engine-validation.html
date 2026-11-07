@@ -323,9 +323,14 @@
           img.alt='';img.loading='lazy';img.decoding='async';
           img.width=32;img.height=32;
           img.style.cssText='width:32px;height:32px;object-fit:contain;display:block';
-          img.onerror=()=>{img.remove();crest.style.display='';};
+          const remote='https://images.fotmob.com/image_resources/logo/teamlogo/'+teamId+'.png';
+          img.onerror=()=>{
+            if(img.dataset.remoteTried!=='1'){
+              img.dataset.remoteTried='1';img.src=remote;
+            }else{img.remove();crest.style.display='';}
+          };
           crest.style.display='none';
-          img.src='https://images.fotmob.com/image_resources/logo/teamlogo/'+teamId+'.png';
+          img.src='./assets/team-logos/'+teamId+'.png';
           team.append(img);
         }
         team.append(crest,el('span','team-name',label(name)));teams.append(team)
