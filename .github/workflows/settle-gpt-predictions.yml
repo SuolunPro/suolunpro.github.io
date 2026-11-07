@@ -1,35 +1,74 @@
-name: Settle frozen football predictions
+name: 90scale FotMob result backfill backup
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'ops/gpt-predictions/settle.mjs'
       - '.github/workflows/settle-gpt-predictions.yml'
+      - 'engine4/fotmob.py'
+      - 'engine4/fotmob_results.py'
+      - 'engine4/settle.py'
+      - 'engine4/aggregate.py'
   schedule:
     - cron: '7,27,47 * * * *'
 permissions:
-  contents: read
+  contents: write
 concurrency:
-  group: gpt-predictions-settle
+  group: engine4-result-backfill-backup
   cancel-in-progress: false
 jobs:
-  settle:
+  verify:
     runs-on: ubuntu-latest
-    environment: vip-staging
-    timeout-minutes: 5
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: '22'
-      - name: Verify pending fixtures and settle official results
-        shell: bash
+          python-version: '3.12'
+      - name: Check verification tests
+        run: python -m unittest engine4.tests.test_results -v
+      - name: Verify pending fixtures and settle seven modules
+        run: python -m engine4.aggregate
+      - name: Report November 7 coverage and per-module results
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from datetime import datetime, timedelta, timezone
+          day=Path('data/engine4/sales/2026-11-07.json')
+          doc=json.loads(day.read_text())
+          now=datetime.now(timezone.utc)
+          due=[]
+          for m in doc['matches']:
+              kick=datetime.fromisoformat(m['kickoff'].replace(' ','T')).replace(tzinfo=timezone(timedelta(hours=8)))
+              if now >= kick.astimezone(timezone.utc)+timedelta(minutes=120):
+                  due.append(m)
+          rows=[{'no':m.get('match_no'),'home':m.get('home'),'away':m.get('away'),
+                 'ft':(m.get('settlement') or {}).get('ft'),
+                 'ht':(m.get('settlement') or {}).get('ht'),
+                 'id':m.get('fotmob_match_id'),
+                 'reason':(m.get('result_verification') or {}).get('reason')} for m in doc['matches']]
+          print(json.dumps({'total':len(rows),'due':len(due),
+                            'verified':sum(bool(m.get('settlement')) for m in doc['matches']),
+                            'rows':rows,
+                            'module_stats':doc['metrics']['module_stats']},ensure_ascii=False))
+          assert len(rows)==29, 'November 7 fixture pool changed unexpectedly'
+          PY
+      - name: Commit result snapshots with retry
         run: |
           set -euo pipefail
-          test -n "$CLOUDFLARE_API_TOKEN" || exit 1
-          PUBLISH_TOKEN=$(node -e 'process.stdout.write(require("node:crypto").createHmac("sha256",process.env.CLOUDFLARE_API_TOKEN).update("suolun-gpt-predictions/publish/v1").digest("hex"))')
-          export PUBLISH_TOKEN
-          node ops/gpt-predictions/settle.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3; do
+            git add data/engine4/latest.json data/engine4/sales
+            if git diff --cached --quiet; then
+              echo "No new verified results"
+              break
+            fi
+            git commit -m 'data: persist FotMob 90-minute results and seven-module settlement'
+            if git push origin HEAD:main; then break; fi
+            if [ "$attempt" -eq 3 ]; then exit 1; fi
+            git fetch origin main
+            git reset --hard origin/main
+            python -m engine4.aggregate
+          done
