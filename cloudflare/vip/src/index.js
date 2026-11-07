@@ -81,6 +81,14 @@ export default {
      const admin=await env.DB.prepare('SELECT 1 AS allowed FROM vip_admins WHERE user_id=?').bind(session.sub).first();
      return json({email:m.email,vip_name:m.vip_name,expires_at:m.expires_at,role:admin?'admin':'vip'},200,headers);
    }
+   if(u.pathname==='/predictions/days' && request.method==='GET') {
+     const session=await verify((request.headers.get('Authorization')||'').replace(/^Bearer /i,''),env.SESSION_SECRET);
+     if(!session)return json({error:'unauthorized'},401,headers);
+     const member=await env.DB.prepare('SELECT active,expires_at FROM vip_members WHERE user_id=?').bind(session.sub).first();
+     if(!member?.active||Date.parse(member.expires_at)<=Date.now())return json({error:'vip_inactive'},403,headers);
+     const rows=await env.DB.prepare("SELECT sale_day FROM vip_predictions WHERE sale_day GLOB '20??-??-??' ORDER BY sale_day DESC LIMIT 60").all();
+     return json({days:(rows.results||[]).map(row=>row.sale_day)},200,headers);
+   }
    if(u.pathname==='/predictions' && request.method==='GET') {
      const session=await verify((request.headers.get('Authorization')||'').replace(/^Bearer /i,''),env.SESSION_SECRET);
      if(!session)return json({error:'unauthorized'},401,headers);
