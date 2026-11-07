@@ -7,8 +7,8 @@ on:
       - 'engine4/**'
       - '.github/workflows/engine4-validation.yml'
   schedule:
-    - cron: '20 4,6,8,10,12,14 * * *'
-    - cron: '0,15,30,45 * * * *'
+    - cron: '0,15,30,45 4-17 * * *'
+    - cron: '0,10,20,30,40,50 0-6,14-23 * * *'
 permissions:
   contents: write
 concurrency:
@@ -29,9 +29,58 @@ jobs:
         run: |
           python -m py_compile engine4/legacy_score.py engine4/okooo_betfair.py engine4/market_bridge.py engine4/engine.py engine4/fotmob.py engine4/settle.py engine4/fotmob_results.py engine4/aggregate.py
           python -m unittest discover -s engine4/tests -v
+      - name: Decide whether prediction or settlement is due
+        id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          now=datetime.now(timezone.utc)
+          bj=now.astimezone(timezone(timedelta(hours=8)))
+          forced=os.environ.get('EVENT_NAME')!='schedule'
+          fixtures=[]
+          for path in [Path('data/engine4/latest.json'),*Path('data/engine4/sales').glob('*.json')]:
+              try: fixtures.extend(json.loads(path.read_text()).get('matches',[]))
+              except (OSError,ValueError): pass
+          unique={}
+          for m in fixtures:
+              unique[str(m.get('source_id') or (m.get('match_no'),m.get('kickoff')))]=m
+          active=False
+          near=False
+          pending=False
+          for m in unique.values():
+              try:
+                  kickoff=datetime.fromisoformat(m['kickoff'].replace(' ','T')).replace(tzinfo=bj.tzinfo).astimezone(timezone.utc)
+                  end_raw=m.get('sale_end') or m.get('sale_end_at') or m.get('stop_sale_at')
+                  if end_raw:
+                      end=datetime.fromisoformat(end_raw.replace('Z','+00:00').replace(' ','T'))
+                      if end.tzinfo is None: end=end.replace(tzinfo=bj.tzinfo)
+                      end=end.astimezone(timezone.utc)
+                  else: end=kickoff
+                  if now < end and now < kickoff:
+                      active=True
+                      if end-now <= timedelta(hours=2): near=True
+                  if not m.get('settlement') and kickoff+timedelta(minutes=120)<=now<=kickoff+timedelta(days=2):
+                      pending=True
+              except (KeyError,ValueError,TypeError): continue
+          # The discovery window is for fixtures not yet in local snapshots.
+          # Outside it, do not fetch new market data after all known matches close.
+          discovery=12<=bj.hour<=23 and not unique
+          predict=forced or ((active or discovery) and (bj.minute%15==0 if near else bj.minute%30==0))
+          settle=forced or (pending and bj.minute%10==0)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write(f"predict={'true' if predict else 'false'}\\n")
+              out.write(f"settle={'true' if settle else 'false'}\\n")
+          print({'bj':bj.isoformat(),'active':active,'near':near,'pending':pending,'predict':predict,'settle':settle})
+          PY
       - name: Refresh Okooo prematch evidence
+        if: steps.gate.outputs.predict == 'true'
         run: python -m engine4.okooo_betfair || echo 'Okooo unavailable; continue with verified available sources'
       - name: Refresh fixtures and prematch predictions
+        if: steps.gate.outputs.predict == 'true'
         run: |
           cp data/engine4/latest.json /tmp/engine4-before.json 2>/dev/null || true
           if ! python -m engine4.engine; then
@@ -48,6 +97,7 @@ jobs:
               else: raise SystemExit('No predictions and no previous snapshot')
           PY
       - name: Audit newly generated score Top4
+        if: steps.gate.outputs.predict == 'true'
         run: |
           python - <<'PY'
           import json
@@ -58,8 +108,10 @@ jobs:
           print('Verified score Top4 predictions:',len(fresh))
           PY
       - name: Restore fixtures, verify results and calculate metrics
+        if: steps.gate.outputs.predict == 'true' || steps.gate.outputs.settle == 'true'
         run: python -m engine4.aggregate
       - name: Verify published market coverage
+        if: steps.gate.outputs.predict == 'true' || steps.gate.outputs.settle == 'true'
         run: |
           python - <<'PY'
           import json
@@ -73,6 +125,7 @@ jobs:
             'warnings':sum(bool((x.get('prediction') or {}).get('modules',{}).get('冷门预警',{}).get('triggered')) for x in m)},ensure_ascii=False))
           PY
       - name: Publish JSON to website
+        if: steps.gate.outputs.predict == 'true' || steps.gate.outputs.settle == 'true'
         run: |
           mkdir -p data/engine4/history
           cp data/engine4/latest.json data/engine4/history/$(date -u +%Y%m%dT%H%M%SZ).json
@@ -81,6 +134,7 @@ jobs:
           git add data/engine4
           git diff --cached --quiet || (git commit -m 'data: refresh verified engine4 validation' && git pull --rebase && git push)
       - name: Verify remote snapshot
+        if: steps.gate.outputs.predict == 'true' || steps.gate.outputs.settle == 'true'
         run: |
           git fetch origin main
           python - <<'PY'
