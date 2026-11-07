@@ -22,3 +22,10 @@ CREATE TABLE IF NOT EXISTS vip_admins (
  user_id TEXT PRIMARY KEY REFERENCES vip_members(user_id) ON DELETE CASCADE,
  granted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Engine4 snapshots are read only through the authenticated VIP Worker.
+CREATE TABLE IF NOT EXISTS vip_predictions (
+ sale_day TEXT PRIMARY KEY,
+ payload TEXT NOT NULL,
+ updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
