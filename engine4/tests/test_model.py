@@ -157,7 +157,7 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(score['home_expected_goals'],goals['home_expected_goals'])
         self.assertEqual(score['away_expected_goals'],goals['away_expected_goals'])
         self.assertGreater(score['matrix_probability_mass'],.999)
-        self.assertEqual(set(score['top3']),set(score['probabilities']))
+        self.assertEqual(set(score['top4']),set(score['probabilities']))
 
     def test_handicap_and_halftime_use_fotmob_xg(self):
         fixture={'spf':[1.8,3.4,4.5],'rqspf':[2.9,3.3,2.1],'handicap':-1,
