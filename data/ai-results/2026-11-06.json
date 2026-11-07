@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-06",
-  "checked_at": "2026-11-07T09:59:15+08:00",
+  "checked_at": "2026-11-07T11:56:00+08:00",
   "verification_policy": "120_minutes_after_kickoff; verify JC sale identity and 90-minute FT and HT; exclude post-kickoff snapshots",
   "summary": {
     "eligible_fixture_count": 14,
@@ -748,10 +748,11 @@
       "away_team": "瓦尔韦克",
       "kickoff": "2026-11-07T03:00:00+08:00",
       "status": "pending",
-      "pending_reason": "已达到开赛120分钟门槛，但未取得相互独立一致的半场及90分钟完赛比分与中国体彩官方竞彩身份确认；不结算。",
+      "pending_reason": "2026-11-07复查：ScanGoal赛果列表显示2026-11-06奥斯1:1瓦尔韦克(FT)，但尚缺独立HT比分交叉核验及官方竞彩销售结算身份，保持pending。",
       "result_sources_checked": [
         "https://www.oddalerts.com/livescores/rkc-waalwijk-vs-top-oss/4075-7492",
-        "https://www.gsp.ro/rezultate-live/meci/11162292"
+        "https://www.gsp.ro/rezultate-live/meci/11162292",
+        "https://scangoal.com/team/rkc-waalwijk"
       ],
       "result_source_verified": null,
       "verified_at": null,
@@ -886,8 +887,11 @@
       "away_team": "门兴",
       "kickoff": "2026-11-07T03:30:00+08:00",
       "status": "pending",
-      "pending_reason": "已达到开赛120分钟门槛；本轮未获得可交叉确认的半场、90分钟全场比分及中国体彩官方竞彩销售结算身份。不得结算。",
-      "result_sources_checked": [],
+      "pending_reason": "2026-11-07复查：Sky Sports页面列2026-11-06汉堡3:1门兴FT，但同页面又有11月7日赛程条目，Sky德国版11月7日仍列待赛；日期/状态冲突且HT及体彩身份未核实，保持pending。",
+      "result_sources_checked": [
+        "https://www.skysports.com/hamburg-scores-fixtures",
+        "https://sport.sky.de/fussball/spielplan-ergebnisse/2026-11-07"
+      ],
       "result_source_verified": null,
       "verified_at": null,
       "ht": null,
@@ -1550,6 +1554,7 @@
     "2026-11-07 01:00核查：14份跨两日独立快照已读取（11月5日6份、11月6日8份）；新增直播吧2026-11-06赛后竞彩奖金及AiScore半全场交叉证据。11月6日仅周五001达到开赛120分钟，仍待体彩官方销售/结算确认，保留pending。",
     "2026-11-07 04:04核查：周五002与003达到120分钟门槛，新增pending。002独立来源HT/FT均0:0，官方竞彩销售身份未确认；003未取得一致的完赛半全场证据。全部赛前预测快照保持原样，统计分母不变。",
     "2026-11-07 06:02核查：8份11月6日独立快照均已重新读取，新增周五007—012达到开赛120分钟门槛；搜索未取得足够可靠的半场/90分钟比分与官方竞彩结算证据，继续pending。周五013/014尚未达到门槛。未修改赛前冻结预测。",
-    "2026-11-07 08:01核查：14份独立预测快照已重新读取；周五003有独立比分来源支持HT 1:0 FT 4:1，周五013有来源支持HT 0:0 FT 1:0，但竞彩官方身份未确认，均保留pending。周五014 07:00开赛尚未达到120分钟门槛；13场pending，0 verified。"
+    "2026-11-07 08:01核查：14份独立预测快照已重新读取；周五003有独立比分来源支持HT 1:0 FT 4:1，周五013有来源支持HT 0:0 FT 1:0，但竞彩官方身份未确认，均保留pending。周五014 07:00开赛尚未达到120分钟门槛；13场pending，0 verified。",
+    "2026-11-07 11:56 CST: rechecked 14 frozen snapshot files (Nov 5-6); new third-party evidence for Fri006/Fri007 is insufficient for settlement. No hits counted."
   ]
 }
