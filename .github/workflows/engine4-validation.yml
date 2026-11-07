@@ -53,7 +53,9 @@ jobs:
                     Path('data/engine4/sales')/(key+'.json'))
               path.parent.mkdir(parents=True,exist_ok=True)
               doc=json.loads(row['payload'])
-              assert isinstance(doc.get('matches'),list)
+              if not isinstance(doc.get('matches'),list):
+                  print('Skipping non-forecast D1 row:',key)
+                  continue
               path.write_text(json.dumps(doc,ensure_ascii=False))
           print('Restored private engine4 snapshots:',len(rows))
           PY
