@@ -72,8 +72,8 @@ jobs:
           predict=forced or ((active or discovery) and (bj.minute%15==0 if near else bj.minute%30==0))
           settle=forced or (pending and bj.minute%10==0)
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
-              out.write(f"predict={'true' if predict else 'false'}\\n")
-              out.write(f"settle={'true' if settle else 'false'}\\n")
+              out.write(f"predict={'true' if predict else 'false'}\n")
+              out.write(f"settle={'true' if settle else 'false'}\n")
           print({'bj':bj.isoformat(),'active':active,'near':near,'pending':pending,'predict':predict,'settle':settle})
           PY
       - name: Refresh Okooo prematch evidence
