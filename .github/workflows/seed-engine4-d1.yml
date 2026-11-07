@@ -25,10 +25,10 @@ jobs:
           DB_ID=$(jq -r '.result[]? | select(.name=="suolun-vip-staging") | .uuid' "$RUNNER_TEMP/databases.json" | head -n1)
           test -n "$DB_ID"
           count=0
-          for file in data/engine4/latest.json data/engine4/sales/*.json; do
+          for file in data/engine4/latest.json data/engine4/sales/*.json data/engine4/history/*.json; do
             test -f "$file" || continue
             jq -e '.matches | type=="array"' "$file" >/dev/null
-            if [ "$file" = data/engine4/latest.json ]; then key=latest; else key=$(basename "$file" .json); fi
+            if [ "$file" = data/engine4/latest.json ]; then key=latest; elif [[ "$file" == data/engine4/history/* ]]; then key="history/$(basename "$file" .json)"; else key=$(basename "$file" .json); fi
             jq -n --arg sql 'INSERT INTO vip_predictions(sale_day,payload,updated_at) VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(sale_day) DO UPDATE SET payload=excluded.payload,updated_at=CURRENT_TIMESTAMP' --arg key "$key" --rawfile payload "$file" '{sql:$sql,params:[$key,$payload]}' > "$RUNNER_TEMP/query.json"
             curl -fsS -X POST "$API/$DB_ID/query" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'Content-Type: application/json' --data-binary "@$RUNNER_TEMP/query.json" > "$RUNNER_TEMP/result.json"
             jq -e '.success==true and .result[0].success==true' "$RUNNER_TEMP/result.json" >/dev/null
