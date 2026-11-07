@@ -109,8 +109,9 @@
   <section id="vip-gate" class="vip-gate" aria-label="尊贵月卡VIP登录">
     <form id="vip-form" class="vip-panel">
       <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt=""><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
-      <h1>尊贵月卡VIP</h1><p>输入会员码（vip+原账号），查看九十刻度4.0赛事分析。</p>
-      <label>会员码<input id="vip-code" type="text" autocomplete="username" placeholder="vip+原账号" maxlength="100" required></label>
+      <h1>尊贵月卡VIP</h1><p>请使用原注册邮箱登录：在邮箱最前面添加 <strong>vip+</strong>（必须包含加号）。</p>
+      <div class="vip-example"><div>原注册邮箱：<strong>123456@qq.com</strong></div><div>正确登录账号：<strong>vip+123456@qq.com</strong></div><small>注意：vip 为小写字母，+ 号不能省略；无需重新注册。</small></div>
+      <label>VIP会员账号<input id="vip-code" type="text" autocomplete="username" placeholder="例如：vip+123456@qq.com" maxlength="100" required></label>
       <button id="vip-login" type="submit">登录并查看预测</button>
       <p id="vip-error" role="alert"></p>
       <p class="vip-legal">模型仍在调试，赛事结果存在不确定性。平台仅提供数据研究与风险提示，不提供投注服务或收益承诺。</p>
@@ -163,6 +164,7 @@
     .vip-panel .brand{display:flex;align-items:center;gap:10px}
     .vip-panel h1{font-size:22px;margin:24px 0 7px}
     .vip-panel p{font-size:12px;line-height:1.7;color:#b7c5d5}
+    .vip-example{margin-top:14px;padding:12px;border:1px solid #53647b;border-radius:9px;background:#17283a;font-size:13px;line-height:1.9;overflow-wrap:anywhere}.vip-example strong{color:#f2d58c}.vip-example small{display:block;color:#c9d5e1;margin-top:5px;line-height:1.6}
     .vip-panel label{display:block;font-size:12px;margin-top:16px}
     .vip-panel input{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid #53647b;border-radius:8px;background:#081321;color:#fff;font-size:16px}
     .vip-panel button{width:100%;margin-top:20px;padding:12px;border:0;border-radius:8px;background:#c8a762;color:#081321;font-weight:800}
@@ -223,7 +225,7 @@
         sessionStorage.setItem('ninety_member_code',vipCode);$('vip-code').value='';
         await vipEnter();
       }catch(error){
-        vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_code'?'会员码无效，请检查 vip+原账号。':'会员名单暂时无法加载，请稍后重试。');
+        vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_code'?'会员账号无效。请在原邮箱前添加 vip+（包含加号），例如 vip+123456@qq.com。':'会员名单暂时无法加载，请稍后重试。');
       }finally{button.disabled=false}
     });
     async function vipProfile(){
