@@ -274,6 +274,19 @@
       add('到期时间',dateValue(me.expires_at));
       add('剩余天数',remaining===null?'暂未提供':remaining+'天');
       if(me.starts_at||me.created_at)add('开通时间',dateValue(me.starts_at||me.created_at));
+      const enrollment=document.createElement('section');
+      enrollment.style.cssText='margin-top:18px;padding:15px;border:1px solid #ead5b5;background:#fffaf1;border-radius:12px';
+      const title=document.createElement('h3');title.textContent='开通会员方式';title.style.cssText='margin:0 0 8px;font-size:17px;color:#8d252b';
+      const price=document.createElement('div');price.textContent='尊贵月卡 VIP · ¥59.9 / 月';price.style.cssText='font-size:19px;font-weight:800;color:#b9252c';
+      const description=document.createElement('p');description.textContent='会员有效期内可查看九十刻度提供的完整赛事分析。网站暂未开放在线支付，需联系原有客服渠道，由管理员核实后人工开通或续费。请勿向陌生账户转账。';description.style.cssText='font-size:12px;color:#666;line-height:1.8;margin:9px 0';
+      const apply=document.createElement('button');apply.type='button';apply.textContent='复制开通／续费申请';apply.style.cssText='width:100%;padding:11px;border:0;border-radius:8px;background:#b9252c;color:white;font-weight:700';
+      const note=document.createElement('p');note.style.cssText='font-size:12px;color:#666;margin:8px 0 0';
+      apply.onclick=async()=>{
+        const message='九十刻度尊贵月卡VIP开通／续费申请\\n会员账号：'+(me.email||me.username||'请填写账号')+'\\n套餐：59.9元／月\\n请联系原有客服渠道确认办理方式。';
+        try{await navigator.clipboard.writeText(message);note.textContent='申请内容已复制，请发送至原有客服渠道。';}
+        catch(_){window.prompt('请复制申请内容',message)}
+      };
+      enrollment.append(title,price,description,apply,note);details.append(enrollment);
       overlay.style.display='flex';
     }
     $('v4-account').onclick=vipProfile;$('v4-profile').onclick=vipProfile;
