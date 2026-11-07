@@ -177,10 +177,21 @@
       vipToken='';sessionStorage.removeItem('ninety_vip_token');
       $('v4-app').hidden=true;$('vip-gate').hidden=false;$('vip-error').textContent=message;
     }
+    async function loadDays(){
+      const data=await vipCall('/predictions/days');
+      const select=$('day-select'),current=select.value;
+      select.replaceChildren(new Option('今日最新','latest'));
+      for(const day of data.days||[]){
+        if(!/^20\\d{2}-\\d{2}-\\d{2}$/.test(day))continue;
+        select.add(new Option(day.slice(5,7)+'月'+day.slice(8,10)+'日历史',day));
+      }
+      select.value=[...select.options].some(option=>option.value===current)?current:'latest';
+    }
     async function vipEnter(){
       const me=await vipCall('/auth/me');
       $('vip-gate').hidden=true;$('v4-app').hidden=false;
       $('v4-account').title=me.email+' · 有效期至 '+new Date(me.expires_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
+      await loadDays().catch(()=>{});
       load();
     }
     $('vip-form').addEventListener('submit',async event=>{
