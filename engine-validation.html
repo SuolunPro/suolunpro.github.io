@@ -37,6 +37,8 @@
     .team-name{font-size:15px}
     .analysis{padding-top:9px}
     .triplet{border-radius:9px}
+    .triplet.score-four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+    .triplet.score-four .datum{min-width:0;grid-column:auto}
     .datum{padding:9px 4px}
     .datum span{font-size:10px}
     .datum b{font-size:15px}
@@ -297,7 +299,7 @@
       row.append(teams,score);card.append(row)
     }
     function choices(card,match,items,probabilities){
-      const grid=el('div','triplet'+(items.length===2?' pair':''));
+      const grid=el('div','triplet'+(active==='比分'?' score-four':items.length===2?' pair':''));
       const result=match.settlement?.module_results?.[active];
       items.forEach((value,index)=>{
         const actualHit=result&&String(result.actual)===String(value),cell=el('div','datum'+(actualHit?' hit':index===0?' primary':''));
