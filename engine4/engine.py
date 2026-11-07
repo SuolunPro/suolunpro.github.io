@@ -640,6 +640,11 @@ def run(sale_day=None, out='data/engine4/latest.json'):
                             previous[key]=item
             except (OSError,ValueError,TypeError,KeyError):
                 continue
+        # Beijing-time sale-day cutoff; kickoff can close a fixture earlier.
+        sale_date=datetime.strptime(sale_day,'%Y-%m-%d').replace(tzinfo=BJT)
+        sale_weekday=sale_date.weekday()
+        sale_cutoff=(sale_date.replace(hour=22 if sale_weekday==4 else 23,minute=0)
+                     if sale_weekday in (4,5,6) else None)
         locks=prior_cold_locks(sale_day)
         fotmob=FotmobXg(sale_day)
         betfair_records=load_betfair(sale_day)
@@ -647,7 +652,7 @@ def run(sale_day=None, out='data/engine4/latest.json'):
             match = pool[number]
             try:
                 kickoff = datetime.fromisoformat(match['kickoff'].replace(' ','T')).replace(tzinfo=BJT)
-                if kickoff.astimezone(timezone.utc) <= now():
+                if kickoff.astimezone(timezone.utc) <= now() or (sale_cutoff and now() >= sale_cutoff.astimezone(timezone.utc)):
                     continue
             except ValueError:
                 report['errors'].append(f'{number}: 开赛时间格式不正确')
