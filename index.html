@@ -282,16 +282,13 @@
     }
     function stats(){
       const stat=report.metrics?.module_stats?.[active];
-      const rates=stat?.rates||{};
-      // One published evaluation per module, matching the legacy three-number summary.
-      const evaluationKey=active==='今日优选'?'Top2':
-        active==='比分'||active==='半全场'||active==='总进球'?'Top3':
-        active==='冷门预警'?'':active==='让球'?'Top2':'Top1';
-      const row=rates[evaluationKey];
-      const total=Number(row?.total)||0,hit=Number(row?.hit)||0;
+      // Count only this module's formally settled pre-match selections.
+      const statuses=report.matches.map(match=>match.settlement?.module_results?.[active]?.status)
+        .filter(status=>status==='HIT'||status==='MISS');
+      const total=statuses.length,hit=statuses.filter(status=>status==='HIT').length;
       $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
       $('hit-count').textContent=hit+'/'+total;
-      $('pending').textContent=stat?.pending??0;
+      $('pending').textContent=Math.max(0,(Number(stat?.predicted)||0)-total);
     }
     function fixture(card,match){
       const head=el('div','card-head'),id=el('div','match-id');
