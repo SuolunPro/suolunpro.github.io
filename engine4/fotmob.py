@@ -190,9 +190,9 @@ class FotmobXg:
                     stamp=datetime.fromisoformat(fixture['status']['utcTime'].replace('Z','+00:00'))
                     if abs((stamp-kickoff).total_seconds())>600:
                         continue
-                    if not home_id and norm(fixture['home']['name'])!=norm(match.get('home')):
+                    if not home_id and not team_name_matches(match.get('home'), fixture['home']['name']):
                         continue
-                    if not away_id and norm(fixture['away']['name'])!=norm(match.get('away')):
+                    if not away_id and not team_name_matches(match.get('away'), fixture['away']['name']):
                         continue
                     candidates[int(fixture['id'])]=(hid,aid)
                 except (KeyError,ValueError,TypeError):
@@ -228,7 +228,7 @@ class FotmobXg:
                             continue
                         hname=fixture.get('home',{}).get('name')
                         aname=fixture.get('away',{}).get('name')
-                        if norm(hname)==norm(match['home']) and norm(aname)==norm(match['away']):
+                        if team_name_matches(match['home'], hname) and team_name_matches(match['away'], aname):
                             pairs.add((hid,aid))
                     except (KeyError,ValueError,TypeError):
                         continue
