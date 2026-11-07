@@ -17,7 +17,11 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    environment: vip-staging
     timeout-minutes: 25
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 48f8d496344b2e5f3e7f0c372d52e782
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,6 +29,33 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Restore private engine4 snapshots from D1
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          API="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database"
+          curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$API?per_page=100" > "$RUNNER_TEMP/databases.json"
+          DB_ID=$(jq -r '.result[]? | select(.name=="suolun-vip-staging") | .uuid' "$RUNNER_TEMP/databases.json" | head -n1)
+          test -n "$DB_ID"
+          echo "VIP_D1_ID=$DB_ID" >> "$GITHUB_ENV"
+          jq -n --arg sql 'SELECT sale_day,payload FROM vip_predictions' '{sql:$sql}' > "$RUNNER_TEMP/query.json"
+          curl -fsS -X POST "$API/$DB_ID/query" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'Content-Type: application/json' --data-binary "@$RUNNER_TEMP/query.json" > "$RUNNER_TEMP/result.json"
+          jq -e '.success==true and .result[0].success==true and (.result[0].results | length)>0' "$RUNNER_TEMP/result.json" >/dev/null
+          python - "$RUNNER_TEMP/result.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          rows=json.loads(Path(sys.argv[1]).read_text())['result'][0]['results']
+          for row in rows:
+              key=row['sale_day']
+              path=Path('data/engine4/latest.json') if key=='latest' else Path('data/engine4/sales')/(key+'.json')
+              path.parent.mkdir(parents=True,exist_ok=True)
+              doc=json.loads(row['payload'])
+              assert isinstance(doc.get('matches'),list)
+              path.write_text(json.dumps(doc,ensure_ascii=False))
+          print('Restored private engine4 snapshots:',len(rows))
+          PY
+          rm -f "$RUNNER_TEMP/databases.json" "$RUNNER_TEMP/query.json" "$RUNNER_TEMP/result.json"
       - name: Check code and tests
         run: |
           python -m py_compile engine4/legacy_score.py engine4/okooo_betfair.py engine4/market_bridge.py engine4/engine.py engine4/fotmob.py engine4/settle.py engine4/fotmob_results.py engine4/aggregate.py
@@ -133,27 +164,24 @@ jobs:
             'daily_selected':sum((x.get('prediction') or {}).get('modules',{}).get('今日优选',{}).get('status')=='SELECTED' for x in m),
             'warnings':sum(bool((x.get('prediction') or {}).get('modules',{}).get('冷门预警',{}).get('triggered')) for x in m)},ensure_ascii=False))
           PY
-      - name: Publish JSON to website
+      - name: Publish snapshots to authenticated D1 API
         if: steps.gate.outputs.predict == 'true' || steps.gate.outputs.settle == 'true'
+        shell: bash
         run: |
-          mkdir -p data/engine4/history
-          cp data/engine4/latest.json data/engine4/history/$(date -u +%Y%m%dT%H%M%SZ).json
-          git config user.name '90scale-engine[bot]'
-          git config user.email 'actions@users.noreply.github.com'
-          git add data/engine4
-          git diff --cached --quiet || (git commit -m 'data: refresh verified engine4 validation' && git pull --rebase && git push)
-      - name: Verify remote snapshot
-        if: steps.gate.outputs.predict == 'true' || steps.gate.outputs.settle == 'true'
-        run: |
-          git fetch origin main
-          python - <<'PY'
-          import json,subprocess
-          from pathlib import Path
-          local=json.loads(Path('data/engine4/latest.json').read_text())
-          remote=json.loads(subprocess.check_output(['git','show','origin/main:data/engine4/latest.json']))
-          assert remote['generated_at']==local['generated_at'], 'remote snapshot differs from run output'
-          print('Verified remote latest.json:',remote['sale_day'],remote['generated_at'])
-          PY
+          set -euo pipefail
+          API="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database/$VIP_D1_ID/query"
+          for file in data/engine4/latest.json data/engine4/sales/*.json; do
+            test -f "$file" || continue
+            if [ "$file" = data/engine4/latest.json ]; then key=latest; else key=$(basename "$file" .json); fi
+            jq -n --arg sql 'INSERT INTO vip_predictions(sale_day,payload,updated_at) VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(sale_day) DO UPDATE SET payload=excluded.payload,updated_at=CURRENT_TIMESTAMP' --arg key "$key" --rawfile payload "$file" '{sql:$sql,params:[$key,$payload]}' > "$RUNNER_TEMP/query.json"
+            curl -fsS -X POST "$API" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'Content-Type: application/json' --data-binary "@$RUNNER_TEMP/query.json" > "$RUNNER_TEMP/result.json"
+            jq -e '.success==true and .result[0].success==true' "$RUNNER_TEMP/result.json" >/dev/null
+          done
+          jq -n --arg sql 'SELECT sale_day,length(payload) AS bytes FROM vip_predictions WHERE sale_day="latest"' '{sql:$sql}' > "$RUNNER_TEMP/query.json"
+          curl -fsS -X POST "$API" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'Content-Type: application/json' --data-binary "@$RUNNER_TEMP/query.json" > "$RUNNER_TEMP/result.json"
+          jq -e '.result[0].results[0].bytes>100' "$RUNNER_TEMP/result.json" >/dev/null
+          echo "Verified private D1 latest snapshot."
+          rm -f "$RUNNER_TEMP/query.json" "$RUNNER_TEMP/result.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
