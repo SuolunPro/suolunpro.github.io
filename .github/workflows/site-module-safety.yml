@@ -3,8 +3,8 @@ on:
   push:
     paths:
       - 'index.html'
-      - 'assets/**'
-      - 'scripts/site-safety-smoke.cjs'
+      - 'engine-validation.html'
+      - 'cloudflare/vip/src/index.js'
       - '.github/workflows/site-module-safety.yml'
   pull_request:
   workflow_dispatch:
@@ -17,11 +17,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check application JavaScript syntax
-        run: node --check assets/app-20261003.js
-      - name: Assert all seven customer modules and Top3 scoring rules
-        run: node scripts/site-safety-smoke.cjs
-      - name: Confirm Singapore public service health
+      - name: Validate production engine4 shell and VIP gate
         run: |
-          curl -fsS --max-time 15 "https://zssourkgabcxibggwhqm.supabase.co/functions/v1/soren-public-api-v1/health" |
-            node -e "let s='';process.stdin.on('data',c=>s+=c).on('end',()=>{const j=JSON.parse(s);if(j.ok!==true||j.service!=='soren-public-api-v1')process.exit(1);console.log('PASS public service health')})"
+          node - <<'JS'
+          const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+          const html=fs.readFileSync('index.html','utf8');
+          const test=fs.readFileSync('engine-validation.html','utf8');
+          const script=html.match(/<script>([\\s\\S]*?)<\\/script>/)?.[1];
+          assert(script,'inline engine4 script missing');
+          new vm.Script(script);
+          for(const name of ['胜平负','让球','半全场','比分','总进球','冷门预警']){
+            assert(html.includes("['"+name+"'"),'missing engine4 module '+name);
+          }
+          assert(!html.includes("['今日优选'"),'daily picks must stay hidden');
+          for(const marker of ['vip-gate','/auth/login','/auth/me','/predictions?day=','模型调试与验证阶段','重要声明']){
+            assert(html.includes(marker),'missing '+marker);
+          }
+          assert(!html.includes('./data/engine4/'),'public JSON bypass in homepage');
+          assert(test.includes("['胜平负'"),'validation page missing');
+          console.log('PASS: 4.0 shell, hidden daily picks, D1 gate, notices');
+          JS
+      - name: Verify unauthenticated API cannot return forecasts
+        run: |
+          status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 'https://suolun-vip-staging.hjh19970220.workers.dev/predictions?day=latest')
+          test "$status" = 401
