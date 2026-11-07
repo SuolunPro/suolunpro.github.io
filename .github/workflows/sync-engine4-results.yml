@@ -1,0 +1,61 @@
+name: Sync 90scale 4.0 results to website
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: sync-engine4-website
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Fetch engine snapshots
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --filter=blob:none https://github.com/SuolunPro/90scale-engine.git /tmp/engine-source
+          test -s /tmp/engine-source/data/engine4/latest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          src=Path('/tmp/engine-source/data/engine4')
+          latest=json.loads((src/'latest.json').read_text(encoding='utf-8'))
+          assert isinstance(latest.get('matches'),list) and latest.get('generated_at')
+          sales=list((src/'sales').glob('*.json'))
+          assert sales, 'No sale-day files found; refusing empty sync'
+          print('Engine snapshot:',latest['generated_at'],'sales:',len(sales))
+          PY
+          mkdir -p data/engine4/sales
+          cp /tmp/engine-source/data/engine4/latest.json data/engine4/latest.json
+          cp /tmp/engine-source/data/engine4/sales/*.json data/engine4/sales/
+      - name: Commit and publish changed snapshots
+        run: |
+          set -euo pipefail
+          git config user.name '90scale-sync[bot]'
+          git config user.email 'actions@users.noreply.github.com'
+          git add data/engine4/latest.json data/engine4/sales/
+          if git diff --cached --quiet; then
+            echo 'Already synchronized'
+            exit 0
+          fi
+          git commit -m 'data: sync engine4 results and historical settlements'
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Verify published version
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          local=json.loads(Path('data/engine4/latest.json').read_text(encoding='utf-8'))
+          remote=json.loads(subprocess.check_output(['git','show','origin/main:data/engine4/latest.json']))
+          assert local['generated_at']==remote['generated_at'], 'Published website snapshot differs'
+          print('Website snapshot verified:',remote['generated_at'])
+          PY
