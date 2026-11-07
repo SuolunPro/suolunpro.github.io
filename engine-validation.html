@@ -163,12 +163,13 @@
         const top2=Array.isArray(data.selection)&&data.selection.length>=2?data.selection.slice(0,2):
           Array.isArray(data.top2)&&data.top2.length>=2?data.top2.slice(0,2):
           Array.isArray(data.candidate)&&data.candidate.length>=2?data.candidate.slice(0,2):
-          Array.isArray(data.picks)&&data.picks.length>=2?data.picks.slice(0,2):[];
+          Array.isArray(data.picks)&&data.picks.length>=2?data.picks.slice(0,2):
+          Array.isArray(match.prediction?.modules?.['胜平负']?.top2)?match.prediction.modules['胜平负'].top2.slice(0,2):[];
         if(top2.length)choices(card,match,top2,match.prediction.modules['胜平负']?.probabilities);
-        else if(data.selection||data.candidate)choices(card,match,[data.selection||data.candidate],match.prediction.modules['胜平负']?.probabilities);
+        
         const selection=Array.isArray(data.selection)?data.selection.join(' / '):data.selection;
         const candidate=Array.isArray(data.candidate)?data.candidate.join(' / '):data.candidate;
-        analysis.append(el('div','advice',selection?'正式入选 · '+selection:candidate?'优选观察 · '+candidate:'未正式入选'));
+        analysis.append(el('div','advice',Array.isArray(data.selection)&&data.selection.length===2?'正式双选 · '+selection:top2.length===2?'历史双方向参考（非正式优选） · '+top2.join(' / '):'未正式入选'));
         if(data.reason)analysis.append(el('p','v4-reason',data.reason));
         for(const detail of data.evidence||[])analysis.append(el('p','v4-reason','依据 · '+detail))
       }else{
