@@ -279,14 +279,18 @@
       const title=document.createElement('h3');title.textContent='开通会员方式';title.style.cssText='margin:0 0 8px;font-size:17px;color:#8d252b';
       const price=document.createElement('div');price.textContent='尊贵月卡 VIP · ¥59.9 / 月';price.style.cssText='font-size:19px;font-weight:800;color:#b9252c';
       const description=document.createElement('p');description.textContent='会员有效期内可查看九十刻度提供的完整赛事分析。网站暂未开放在线支付，需联系原有客服渠道，由管理员核实后人工开通或续费。请勿向陌生账户转账。';description.style.cssText='font-size:12px;color:#666;line-height:1.8;margin:9px 0';
-      const apply=document.createElement('button');apply.type='button';apply.textContent='复制开通／续费申请';apply.style.cssText='width:100%;padding:11px;border:0;border-radius:8px;background:#b9252c;color:white;font-weight:700';
-      const note=document.createElement('p');note.style.cssText='font-size:12px;color:#666;margin:8px 0 0';
-      apply.onclick=async()=>{
-        const message='九十刻度尊贵月卡VIP开通／续费申请\\n会员账号：'+(me.email||me.username||'请填写账号')+'\\n套餐：59.9元／月\\n请联系原有客服渠道确认办理方式。';
-        try{await navigator.clipboard.writeText(message);note.textContent='申请内容已复制，请发送至原有客服渠道。';}
-        catch(_){window.prompt('请复制申请内容',message)}
+      const apply=document.createElement('button');apply.type='button';apply.textContent='查看客服微信 · 开通／续费';apply.style.cssText='width:100%;padding:11px;border:0;border-radius:8px;background:#b9252c;color:white;font-weight:700';
+      const contactBox=document.createElement('div');contactBox.hidden=true;contactBox.style.cssText='margin-top:12px;padding:13px;background:#fff;border:1px solid #ead5b5;border-radius:9px;text-align:center';
+      const contactTitle=document.createElement('div');contactTitle.textContent='微信客服';contactTitle.style.cssText='font-size:13px;color:#666';
+      const wechat=document.createElement('strong');wechat.textContent='GoodLuck_H3';wechat.style.cssText='display:block;font-size:23px;color:#242424;margin:6px 0;user-select:all';
+      const copyWechat=document.createElement('button');copyWechat.type='button';copyWechat.textContent='复制客服微信号';copyWechat.style.cssText='width:100%;padding:10px;border:1px solid #b9252c;border-radius:8px;background:#fff;color:#b9252c;font-weight:700';
+      const note=document.createElement('p');note.textContent='复制后打开微信，搜索 GoodLuck_H3 添加客服办理。请先核实客服身份，网站不直接收款。';note.style.cssText='font-size:12px;color:#666;margin:8px 0 0;line-height:1.7';
+      copyWechat.onclick=async()=>{
+        try{await navigator.clipboard.writeText('GoodLuck_H3');note.textContent='已复制 GoodLuck_H3，请打开微信搜索添加客服。';}
+        catch(_){window.prompt('请复制客服微信号','GoodLuck_H3')}
       };
-      enrollment.append(title,price,description,apply,note);details.append(enrollment);
+      apply.onclick=()=>{contactBox.hidden=false;apply.textContent='客服微信已显示';};
+      contactBox.append(contactTitle,wechat,copyWechat,note);enrollment.append(title,price,description,apply,contactBox);details.append(enrollment);
       overlay.style.display='flex';
     }
     $('v4-account').onclick=vipProfile;$('v4-profile').onclick=vipProfile;
