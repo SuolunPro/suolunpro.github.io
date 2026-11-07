@@ -47,7 +47,7 @@ jobs:
               except (OSError,ValueError): pass
           unique={}
           for m in fixtures:
-              unique[str(m.get('source_id') or (m.get('match_no'),m.get('kickoff')))]=m
+              unique[str((m.get('sale_day'),m.get('source_id') or (m.get('match_no'),m.get('kickoff'))))]=m
           active=False
           near=False
           pending=False
@@ -71,13 +71,14 @@ jobs:
                   if now < end and now < kickoff:
                       active=True
                       if end-now <= timedelta(hours=2): near=True
-                  if not m.get('settlement') and kickoff+timedelta(minutes=120)<=now<=kickoff+timedelta(days=2):
+                  if not m.get('settlement') and kickoff+timedelta(minutes=120)<=now:
                       pending=True
               except (KeyError,ValueError,TypeError): continue
           # The discovery window is for fixtures not yet in local snapshots.
           # Outside it, do not fetch new market data after all known matches close.
           cutoff=22 if bj.weekday()==4 else 23 if bj.weekday() in (5,6) else 24
-          discovery=12<=bj.hour<cutoff and not unique
+          today=bj.date().isoformat()
+          discovery=12<=bj.hour<cutoff and not any(m.get('sale_day')==today for m in unique.values())
           predict=forced or ((active or discovery) and (bj.minute%15==0 if near else bj.minute%30==0))
           settle=forced or (pending and bj.minute%10==0)
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
