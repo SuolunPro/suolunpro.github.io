@@ -23,6 +23,91 @@ TEAM_IDS={
     '法马利卡':1634,'阿罗卡':158085,'维多利亚':7733,'弗鲁米嫩':9863,
 }
 
+# Reused from the old 九十刻度 verified FotMob alias backfill (2026-09-22).
+# This is a static, read-only identity map; no Supabase dependency.
+# Fixture identity and kickoff must still pass collect()'s strict checks.
+TEAM_IDS.update({
+    'KFUM奥斯陆':2305,
+    'OFI克里特':7753,
+    'RB大宫松鼠':4398,
+    '上海海港':198616,
+    '上海申花':6628,
+    '不莱梅':8697,
+    '中国U23':317240,
+    '中国香港U23':951610,
+    '乌兹女':1243552,
+    '仙台七夕':162192,
+    '伊朗U23':622101,
+    '克劳利':8647,
+    '北京国安':4177,
+    '卡塔尔U23':304032,
+    '吉尔吉斯坦U23':638900,
+    '埃弗斯堡':8232,
+    '基多体育大学':6721,
+    '山谷独立':192875,
+    '拉查布里府':421346,
+    '日本U23':298067,
+    '朝鲜U23':624265,
+    '札幌冈萨':112688,
+    '杜连斯':212820,
+    '格尼斯坦':2361,
+    '格拉茨':10014,
+    '格林斯比':10005,
+    '沃夫斯堡':8721,
+    '沙特U23':610874,
+    '泰国U23':623768,
+    '淡滨尼士':67386,
+    '瓦斯特拉斯':6194,
+    '米尔顿':8645,
+    '艾因':102117,
+    '菲律宾女':633428,
+    '藤枝MYFC':305776,
+    '诺茨郡':9819,
+    '赫塔菲':8305,
+    '赫尔蒙德':6417,
+    '达姆斯塔':8262,
+    '邓伯什':9835,
+    '阿联酋U23':316113,
+    '韩国U23':300702,
+})
+
+
+TEAM_NAMES = {
+    '横滨水手': ('Yokohama F.Marinos', 'Yokohama F Marinos'),
+    '冈山绿雉': ('Fagiano Okayama',), '鸟栖沙岩': ('Sagan Tosu',),
+    '富山胜利': ('Kataller Toyama',), '柏太阳神': ('Kashiwa Reysol',),
+    '川崎前锋': ('Kawasaki Frontale',), '金泉尚武': ('Gimcheon Sangmu', 'Gimcheon Sangmu FC'),
+    'FC安养': ('FC Anyang',), '珀斯': ('Perth Glory',), '纽喷气机': ('Newcastle Jets',),
+    '利兹联': ('Leeds United',), '热刺': ('Tottenham Hotspur',),
+    '朴茨茅斯': ('Portsmouth',), '斯托克城': ('Stoke City',),
+    '马拉加': ('Malaga', 'Málaga'), '桑坦德竞技': ('Racing Santander', 'Racing de Santander'),
+    '都灵': ('Torino',), '莱切': ('Lecce',), '卡利亚里': ('Cagliari',),
+    '弗洛西诺尼': ('Frosinone',), '莱红牛': ('RB Leipzig',),
+    '奥格斯堡': ('Augsburg',), '帕德博恩': ('Paderborn', 'SC Paderborn 07'),
+    '法兰克福': ('Eintracht Frankfurt',), '多特蒙德': ('Borussia Dortmund',),
+    '埃尔沃斯贝格': ('Elversberg', 'SV Elversberg'),
+    '美因茨': ('Mainz 05', 'Mainz'), '拜仁': ('Bayern München', 'Bayern Munich'),
+    '阿森纳': ('Arsenal',), '赫尔城': ('Hull City',),
+    '富勒姆': ('Fulham',), '纽卡斯尔': ('Newcastle United',),
+    '伯明翰': ('Birmingham City',), '斯旺西': ('Swansea City',),
+    '西班牙人': ('Espanyol',), '拉科鲁尼亚': ('Deportivo La Coruna', 'Deportivo La Coruña'),
+    '福图纳': ('Fortuna Sittard',), '特尔斯达': ('Telstar',),
+    '代格福什': ('Degerfors', 'Degerfors IF'), '哥德堡盖斯': ('GAIS',),
+    '帕尔马': ('Parma',), '博洛尼亚': ('Bologna',),
+    '诺丁汉': ('Nottingham Forest',), '曼城': ('Manchester City',),
+    '斯图加特': ('VfB Stuttgart', 'Stuttgart'), '不莱梅': ('Werder Bremen',),
+    '奥萨苏纳': ('Osasuna',), '毕尔巴鄂': ('Athletic Club', 'Athletic Bilbao'),
+    '欧塞尔': ('Auxerre',), '巴黎FC': ('Paris FC',),
+    '艾华卡': ('Alverca', 'FC Alverca'), '卡沙比亚': ('Casa Pia AC', 'Casa Pia'),
+    '罗马': ('Roma', 'AS Roma'), '萨索洛': ('Sassuolo',),
+    '米竞技': ('Atletico MG', 'Atlético MG', 'Atletico Mineiro'),
+    '格雷米奥': ('Gremio', 'Grêmio'), '盐湖城': ('Real Salt Lake',),
+    '洛城银河': ('LA Galaxy',),
+}
+
+def team_name_matches(label, fixture_name):
+    norm = lambda value: ''.join(c.casefold() for c in str(value or '') if c.isalnum())
+    return norm(fixture_name) in {norm(name) for name in TEAM_NAMES.get(label, (label,))}
 
 def json_get(url):
     with urlopen(Request(url,headers={'User-Agent':'Mozilla/5.0',
@@ -85,13 +170,71 @@ class FotmobXg:
             self.cache[url]=self.get(url)
         return self.cache[url]
 
+    def resolve_identity(self, match):
+        """Persist an unambiguous FotMob fixture independently of historical xG."""
+        try:
+            kickoff=datetime.fromisoformat(match['kickoff'].replace(' ','T')).replace(tzinfo=BJT)
+        except (KeyError,ValueError,TypeError):
+            return None
+        home_id=TEAM_IDS.get(match.get('home'))
+        away_id=TEAM_IDS.get(match.get('away'))
+        norm=lambda value: ''.join(c.casefold() for c in str(value or '') if c.isalnum())
+        candidates={}
+        for (hid,aid),fixtures in self.by_teams.items():
+            if home_id and hid!=home_id:
+                continue
+            if away_id and aid!=away_id:
+                continue
+            for fixture in fixtures:
+                try:
+                    stamp=datetime.fromisoformat(fixture['status']['utcTime'].replace('Z','+00:00'))
+                    if abs((stamp-kickoff).total_seconds())>600:
+                        continue
+                    if not home_id and norm(fixture['home']['name'])!=norm(match.get('home')):
+                        continue
+                    if not away_id and norm(fixture['away']['name'])!=norm(match.get('away')):
+                        continue
+                    candidates[int(fixture['id'])]=(hid,aid)
+                except (KeyError,ValueError,TypeError):
+                    continue
+        if len(candidates)!=1:
+            return None
+        fixture_id,(hid,aid)=next(iter(candidates.items()))
+        return {'fotmob_match_id':fixture_id,'fotmob_home_team_id':hid,
+                'fotmob_away_team_id':aid}
+
     def collect(self,match):
         missing=lambda reason:{'status':'UNAVAILABLE','reason':reason,'source':'FotMob'}
         if self.error:
             return missing('FotMob赛程读取失败：'+self.error)
         home_id,away_id=TEAM_IDS.get(match['home']),TEAM_IDS.get(match['away'])
         if not home_id or not away_id:
-            return missing('球队缺少经核实的FotMob ID映射')
+            # Legacy exact-fixture matching without the legacy Elo/Supabase DB.
+            # Resolve only when both names match FotMob fixture labels exactly,
+            # or when the match carries independently verified FotMob team IDs.
+            def norm(value):
+                return ''.join(ch.casefold() for ch in str(value or '') if ch.isalnum())
+            kickoff_text=match.get('kickoff','')
+            try:
+                kickoff_probe=datetime.fromisoformat(kickoff_text.replace(' ','T')).replace(tzinfo=BJT)
+            except (ValueError,TypeError):
+                return missing('开赛时间无法核实')
+            pairs=set()
+            for (hid,aid),fixtures in self.by_teams.items():
+                for fixture in fixtures:
+                    try:
+                        stamp=datetime.fromisoformat(fixture['status']['utcTime'].replace('Z','+00:00'))
+                        if abs((stamp-kickoff_probe).total_seconds())>60:
+                            continue
+                        hname=fixture.get('home',{}).get('name')
+                        aname=fixture.get('away',{}).get('name')
+                        if norm(hname)==norm(match['home']) and norm(aname)==norm(match['away']):
+                            pairs.add((hid,aid))
+                    except (KeyError,ValueError,TypeError):
+                        continue
+            if len(pairs)!=1:
+                return missing('球队缺少经核实的FotMob ID映射；动态赛程匹配未唯一确认')
+            home_id,away_id=next(iter(pairs))
         try:
             kickoff=datetime.fromisoformat(match['kickoff'].replace(' ','T')).replace(tzinfo=BJT)
         except ValueError:
