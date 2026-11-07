@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九十刻度4.0｜系统健康监控</title>
+<style>
+:root{font-family:system-ui,-apple-system,"PingFang SC",sans-serif;color:#20232b;background:#f5f6f8}*{box-sizing:border-box}body{margin:0}header{background:#c82932;color:white;padding:22px max(18px,calc((100vw - 1050px)/2))}header h1{margin:0 0 6px;font-size:23px}header small{opacity:.88}main{max-width:1050px;margin:18px auto;padding:0 14px 30px}.notice{padding:12px;background:#fff6e8;border:1px solid #f3d39b;border-radius:10px;font-size:13px;margin-bottom:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.card{background:#fff;border:1px solid #e6e7eb;border-radius:12px;padding:17px;box-shadow:0 2px 8px #00000007}.card h2{font-size:13px;font-weight:600;color:#666;margin:0 0 10px}.card strong{font-size:25px}.ok{color:#198754}.warn{color:#b76a00}.bad{color:#cb2730}.section{margin:23px 0 10px;font-size:17px}table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}th,td{text-align:left;border-bottom:1px solid #eee;padding:11px;font-size:13px}th{background:#fafafa}button{border:0;border-radius:8px;background:#c82932;color:white;padding:10px 16px;font-weight:700;cursor:pointer}footer{font-size:12px;color:#777;margin-top:20px;line-height:1.8}#errors{white-space:pre-wrap;color:#b31e29;font-size:13px}a{color:inherit}</style></head>
+<body><header><h1>九十刻度 4.0 · 系统健康监控</h1><small>基于网站公开快照的只读诊断 · 北京时间 <span id="clock">—</span></small></header>
+<main><div class="notice">本页面为公开数据诊断视图，<b>不是带权限保护的管理员后台</b>。不会展示会员名单、密钥或私有日志。绿色仅表示快照指标正常，不能证明 GitHub Actions 已成功运行。</div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div id="state">正在读取数据…</div><button id="refresh">立即刷新</button></div>
+<section class="grid" id="cards" style="margin-top:15px"></section>
+<h2 class="section">七大模块数据覆盖</h2><table><thead><tr><th>模块</th><th>已生成</th><th>缺失</th><th>覆盖率</th></tr></thead><tbody id="modules"></tbody></table>
+<h2 class="section">待核验比赛（开球超过3小时）</h2><table><thead><tr><th>日期 / 编号</th><th>比赛</th><th>开球时间</th></tr></thead><tbody id="overdue"></tbody></table>
+<h2 class="section">数据源诊断</h2><table><thead><tr><th>数据源</th><th>覆盖</th><th>说明</th></tr></thead><tbody id="sources"></tbody></table>
+<p id="errors"></p><footer>统计依据：本站 data/engine4/latest.json 及最近历史销售日快照。已核验以 settlement 字段为准；比赛完成状态与实际核验结果可能存在延迟。页面每5分钟刷新一次，不执行后台修复。<br>如需排查工作流失败，请查看 GitHub Actions 日志。</footer></main>
+<script>
+const $=id=>document.getElementById(id),bj=d=>new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',dateStyle:'medium',timeStyle:'short'}).format(d);
+const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const modules=['胜平负','让球胜平负','比分','总进球','半全场','冷门预警','今日优选'];
+function metric(label,value,cls=''){return '<div class="card"><h2>'+escapeHtml(label)+'</h2><strong class="'+cls+'">'+escapeHtml(value)+'</strong></div>'}
+function rows(id,items){$(id).innerHTML=items.join('')||'<tr><td colspan="4">暂无记录</td></tr>'}
+async function load(){
+  $('clock').textContent=bj(new Date());$('state').textContent='正在检查…';$('errors').textContent='';
+  try{
+    const stamp=Date.now(),res=await fetch('./data/engine4/latest.json?t='+stamp,{cache:'no-store'});
+    if(!res.ok)throw Error('最新快照 HTTP '+res.status);
+    const latest=await res.json(),days=[latest.sale_day],docs=[latest];
+    for(let n=1;n<=3;n++){const d=new Date(Date.now()-n*86400000);const day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);if(days.includes(day))continue;try{const r=await fetch('./data/engine4/sales/'+day+'.json?t='+stamp,{cache:'no-store'});if(r.ok){docs.push(await r.json());days.push(day)}}catch(e){}}
+    const matches=(latest.matches||[]),all=new Map();
+    for(const doc of docs)for(const m of doc.matches||[]){const key=(doc.sale_day||'')+'|'+(m.source_id||m.match_no);const prev=all.get(key);if(!prev||(!prev.settlement&&m.settlement))all.set(key,{...m,sale_day:doc.sale_day})}
+    const history=[...all.values()],now=Date.now();
+    const times=matches.map(m=>Date.parse(m.predicted_at||'')).filter(Number.isFinite);
+    const newest=times.length?Math.max(...times):NaN;
+    const age=Number.isFinite(newest)?(now-newest)/3600000:Infinity;
+    const verified=history.filter(m=>m.settlement).length;
+    const overdue=history.filter(m=>!m.settlement&&Number.isFinite(Date.parse((m.kickoff||'').replace(' ','T')+'+08:00'))&&now-Date.parse(m.kickoff.replace(' ','T')+'+08:00')>3*3600000);
+    const predicted=matches.filter(m=>m.prediction?.status==='PREDICTED').length;
+    const ids=matches.reduce((n,m)=>n+['home','away'].filter(side=>m['fotmob_'+side+'_team_id']).length,0);
+    $('cards').innerHTML=[
+      metric('最新销售日',latest.sale_day||'未知'),metric('今日场次',matches.length),metric('今日已预测',predicted,predicted===matches.length?'ok':'warn'),
+      metric('最新预测距今',Number.isFinite(age)?Math.max(0,age).toFixed(1)+' 小时':'未知',age>24?'warn':'ok'),
+      metric('近4个销售日已核验',verified+' / '+history.length),
+      metric('超时待核验',overdue.length,overdue.length?'bad':'ok'),
+      metric('FotMob球队ID覆盖',ids+' / '+(matches.length*2),ids===matches.length*2?'ok':'warn'),
+      metric('数据读取','成功','ok')].join('');
+    rows('modules',modules.map(name=>{const n=matches.filter(m=>m.prediction?.modules?.[name]&&m.prediction.modules[name].status!=='UNAVAILABLE').length;return '<tr><td>'+name+'</td><td>'+n+'</td><td>'+(matches.length-n)+'</td><td>'+ (matches.length?(100*n/matches.length).toFixed(0)+'%':'—')+'</td></tr>'}));
+    rows('overdue',overdue.slice(0,30).map(m=>'<tr><td>'+escapeHtml(m.sale_day+' / '+m.match_no)+'</td><td>'+escapeHtml(m.home+' vs '+m.away)+'</td><td>'+escapeHtml(m.kickoff)+'</td></tr>'));
+    const counts=[
+      ['FotMob xG',matches.filter(m=>m.fotmob_xg?.status==='AVAILABLE').length,'赛前独立xG可用'],
+      ['FotMob球队ID',matches.filter(m=>m.fotmob_home_team_id&&m.fotmob_away_team_id).length,'双方均有已确认ID'],
+      ['澳客必发',matches.filter(m=>m.bifa).length,'存在必发数据'],
+      ['William欧赔',matches.filter(m=>m.market?.william).length,'存在William字段'],
+      ['澳门亚盘',matches.filter(m=>m.market?.asia?.['澳门']).length,'存在澳门字段']
+    ];rows('sources',counts.map(([name,n,note])=>'<tr><td>'+escapeHtml(name)+'</td><td>'+n+' / '+matches.length+'</td><td>'+escapeHtml(note)+'</td></tr>'));
+    $('state').innerHTML='快照检查完成 · <span class="'+(overdue.length?'bad':'ok')+'">'+(overdue.length?'存在待处理异常':'未发现超时待核验')+'</span> · 检查时间 '+escapeHtml(bj(new Date()));
+  }catch(err){$('state').innerHTML='<span class="bad">快照读取失败</span>';$('errors').textContent=String(err);$('cards').innerHTML=metric('数据状态','不可用','bad')}
+}
+$('refresh').addEventListener('click',load);load();setInterval(load,300000);
+</script></body></html>
