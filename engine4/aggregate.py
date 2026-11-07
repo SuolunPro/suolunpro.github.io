@@ -62,9 +62,14 @@ def metrics(matches):
                 return entry.get("triggered") is True and entry.get("direction") in ("主队不胜", "主队不败")
             return (m.get("prediction") or {}).get("status") == "PREDICTED" and bool(entry.get("top2") or entry.get("top3") or entry.get("top4"))
         predicted = sum(has_selection(m) for m in matches)
-        verified = sum((m.get("settlement") or {}).get("module_results", {}).get(name, {}).get("status") in ("HIT", "MISS") for m in matches)
+        outcomes = [(m.get("settlement") or {}).get("module_results", {}).get(name, {}).get("status") for m in matches]
+        eligible = [status for status in outcomes if status in ("HIT", "MISS")]
+        verified = len(eligible)
+        evaluation = {"hit": eligible.count("HIT"), "total": verified,
+                      "rate": round(eligible.count("HIT") / verified, 4) if verified else None}
         module_stats[name] = {"predicted": predicted, "verified": verified,
                               "pending": max(0, predicted - verified),
+                              "evaluation": evaluation,
                               "rates": {n.removeprefix(name): rows[n] for n in names}}
     return {"total": len(matches), "settled": len(settled), "pending": len(matches) - len(settled),
             "top1_hit_rate": rows["胜平负Top1"]["rate"], "module_hits": rows, "module_stats": module_stats}
