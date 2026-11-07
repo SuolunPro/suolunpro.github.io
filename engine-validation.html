@@ -85,6 +85,14 @@
     .v4-stat-fill{height:100%;background:#d32c36;border-radius:9px}
     .v4-stat-sub{font-size:11px;color:#888;margin-top:8px}
     .v4-error{color:#b94146}
+    .toolbar{padding:12px 12px 13px;background:#f5f5f5}
+    .toolbar-top{color:#888;font-size:12px;margin-bottom:9px}
+    .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0;background:#eceef1;border-radius:8px;overflow:hidden}
+    .metric{min-width:0;padding:14px 3px 12px;border-right:1px solid #dfe1e5;text-align:center;background:transparent}
+    .metric:last-child{border-right:0}
+    .metric b{display:block;font-size:clamp(18px,4.7vw,24px);font-weight:700;color:#282828;line-height:1.25;white-space:nowrap}
+    .metric span{display:block;font-size:clamp(9px,2.5vw,12px);color:#777;margin-top:7px;white-space:nowrap}
+
     .v4-stats{margin-top:2px}.v4-stat-group{padding:8px 12px}.v4-verdict{font-size:12px;font-weight:600}.v4-reason,.v4-meta{display:none}.card{box-shadow:0 2px 10px #16233a0a}
     @media(max-width:360px){.team-name{font-size:13px}.v4-stat-line{font-size:11px}.metric b{font-size:15px}}
   </style>
@@ -103,13 +111,12 @@
       <section class="toolbar">
         <div class="toolbar-top"><span class="count" id="pool-count">正在读取赛事数据</span></div>
         <div class="metrics">
-          <div class="metric"><b id="predicted">—</b><span>预测场次</span></div>
-          <div class="metric"><b id="settled">—</b><span>已完赛</span></div>
-          <div class="metric"><b id="pending">—</b><span>待完赛</span></div>
+          <div class="metric"><b id="hit-rate">—</b><span>当日评测命中率</span></div>
+          <div class="metric"><b id="hit-count">—</b><span>命中 / 有效评测</span></div>
+          <div class="metric"><b id="pending">—</b><span>未核验赛果</span></div>
         </div>
       </section>
       <section class="content">
-        <div class="v4-stats" id="module-stats"></div>
         <div class="section-head"><h2 id="section-title">胜平负赛事</h2><button class="v4-refresh" id="refresh" type="button">刷新</button></div>
         <div class="cards" id="matches"><div class="empty">正在加载今日赛事…</div></div>
         <p class="v4-foot">九十刻度提供赛事数据、概率分析和赛后复盘。模型结果存在不确定性。</p>
@@ -135,31 +142,17 @@
       for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
     function stats(){
-      const today=report.metrics?.module_stats?.[active],history=report.historical_metrics?.module_stats?.[active];
-      $('predicted').textContent=today?.predicted??0;$('settled').textContent=today?.verified??0;$('pending').textContent=today?.pending??0;
-      const root=$('module-stats'),head=el('div','v4-stats-head');root.replaceChildren();
-      head.append(el('strong','',visibleName(active)+' · 命中统计'));root.append(head);
-      for(const [period,stat] of [['本期',today],['历史累计',history]]){
-        const group=el('div','v4-stat-group');
-        group.append(el('div','v4-stat-title',period));
-        const rates=Object.entries(stat?.rates||{});
-        if(!rates.length){group.append(el('div','v4-stat-sub','暂无已核验样本'));root.append(group);continue}
-        for(const [key,row] of rates){
-          const total=Number(row?.total)||0,hit=Number(row?.hit)||0,miss=Math.max(0,total-hit);
-          const percentage=total?Math.min(100,Math.max(0,100*hit/total)):0;
-          if(rates.length>1)group.append(el('div','v4-stat-sub',key));
-          const grid=el('div','v4-stat-kpis');
-          for(const [value,title,highlight] of [[total,'已核验',false],[hit,'评测成功',false],[percentage.toFixed(1)+'%','命中率',true]]){
-            const item=el('div','v4-stat-kpi'+(highlight?' highlight':''));
-            item.append(el('b','',value),el('span','',title));grid.append(item)
-          }
-          group.append(grid);
-          const track=el('div','v4-stat-track'),fill=el('div','v4-stat-fill');
-          fill.style.width=percentage+'%';track.append(fill);group.append(track);
-          group.append(el('div','v4-stat-sub','评测失败 '+miss+' 场'));
-        }
-        root.append(group)
-      }
+      const stat=report.metrics?.module_stats?.[active];
+      const rates=stat?.rates||{};
+      // One published evaluation per module, matching the legacy three-number summary.
+      const evaluationKey=active==='今日优选'?'Top2':
+        active==='比分'||active==='半全场'||active==='总进球'?'Top3':
+        active==='冷门预警'?'':'Top1';
+      const row=rates[evaluationKey];
+      const total=Number(row?.total)||0,hit=Number(row?.hit)||0;
+      $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
+      $('hit-count').textContent=hit+'/'+total;
+      $('pending').textContent=stat?.pending??0;
     }
     function fixture(card,match){
       const head=el('div','card-head'),id=el('div','match-id');
