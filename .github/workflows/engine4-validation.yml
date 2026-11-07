@@ -43,7 +43,9 @@ jobs:
           forced=os.environ.get('EVENT_NAME')!='schedule'
           fixtures=[]
           for path in [Path('data/engine4/latest.json'),*Path('data/engine4/sales').glob('*.json')]:
-              try: fixtures.extend(json.loads(path.read_text()).get('matches',[]))
+              try:
+                  doc=json.loads(path.read_text())
+                  fixtures.extend(dict(m, sale_day=m.get('sale_day') or doc.get('sale_day')) for m in doc.get('matches',[]))
               except (OSError,ValueError): pass
           unique={}
           for m in fixtures:
