@@ -184,10 +184,3 @@ jobs:
           jq -e '.result[0].results[0].bytes>100' "$RUNNER_TEMP/result.json" >/dev/null
           echo "Verified private D1 latest snapshot."
           rm -f "$RUNNER_TEMP/query.json" "$RUNNER_TEMP/result.json"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: engine4-validation-run
-          path: data/engine4/latest.json
-          retention-days: 14
-
