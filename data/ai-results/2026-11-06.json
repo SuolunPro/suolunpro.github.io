@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "sales_date": "2026-11-06",
-  "checked_at": "2026-11-07T09:02:13+08:00",
+  "checked_at": "2026-11-07T09:59:15+08:00",
   "verification_policy": "120_minutes_after_kickoff; verify JC sale identity and 90-minute FT and HT; exclude post-kickoff snapshots",
   "summary": {
     "eligible_fixture_count": 14,
@@ -1402,8 +1402,11 @@
       "away_team": "弗鲁米嫩塞",
       "kickoff": "2026-11-07T07:00:00+08:00",
       "status": "pending",
-      "pending_reason": "Reached 120-minute threshold at 09:00 Beijing time; no reliable cross-verified HT and 90-minute FT or official JCZQ sale identity yet. Keep pending, do not score.",
-      "result_sources_checked": [],
+      "pending_reason": "2026-11-06 UOL postmatch report confirms FT 0:3 and two first-half goals (HT 0:2); Placar live page shows interim 0:2 and first-half goals at 15/42 min, not final. Official JCZQ sale/settlement identity not independently confirmed; keep pending and exclude all hit denominators.",
+      "result_sources_checked": [
+        "https://www.uol.com.br/esporte/futebol/ultimas-noticias/2026/11/06/brasileirao-vitoria-x-fluminense.ghtm",
+        "https://placar.com.br/salvador/futebol/brasileiro-serie-a-2026/jogo/11-2026/147489/vitoria-fluminense/"
+      ],
       "result_source_verified": null,
       "verified_at": null,
       "ht": null,
@@ -1527,8 +1530,12 @@
           "reason": "awaiting_cross_verified_HT_FT_and_official_JCZQ_identity"
         }
       ],
-      "last_rechecked_at": "2026-11-07T09:02:13+08:00",
-      "sale_identity_status": "unverified"
+      "last_rechecked_at": "2026-11-07T09:59:15+08:00",
+      "sale_identity_status": "unverified",
+      "provisional_score": {
+        "ht": "0:2",
+        "ft_90": "0:3"
+      }
     }
   ],
   "notes": [
