@@ -235,11 +235,11 @@
         if(match.prediction?.status!=='PREDICTED'||!data)card.append(el('div','v4-verdict v4-error','暂无预测'));
         else if(active==='胜平负'&&data.status==='NOT_ON_SALE')card.append(el('div','v4-verdict','普通胜平负未开售 · 请查看全场让球'));
         else if(active==='冷门预警'||active==='今日优选')special(card,match);
-        else if(!(data.top2?.length||data.top3?.length))card.append(el('div','v4-verdict','本模块暂无预测'));
+        else if(!(data.top2?.length||data.top3?.length||data.top4?.length))card.append(el('div','v4-verdict','本模块暂无预测'));
         else{
           if(active==='让球')card.append(el('div','v4-note',`官方让球：主队 ${data.handicap>0?'+':''}${label(data.handicap)} 球`));
           if(active==='让球'&&match.prediction?.coverage?.handicap_only)card.append(el('div','v4-verdict','本场仅提供让球预测'));
-          choices(card,match,data.top2||data.top3||[],data.probabilities)
+          choices(card,match,(active==='比分'&&data.top4)||data.top2||data.top3||[],data.probabilities)
         }
         verdict(card,match);root.append(card)
       }
