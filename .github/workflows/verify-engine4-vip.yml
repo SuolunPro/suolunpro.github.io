@@ -1,0 +1,47 @@
+name: Verify D1 VIP engine4 access
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/verify-engine4-vip.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    environment: vip-staging
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      VIP_SESSION_SECRET: ${{ secrets.VIP_SESSION_SECRET }}
+      CLOUDFLARE_ACCOUNT_ID: 48f8d496344b2e5f3e7f0c372d52e782
+    steps:
+      - name: Check active D1 member can read private 4.0 and anonymous cannot
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$VIP_SESSION_SECRET"
+          BASE='https://suolun-vip-staging.hjh19970220.workers.dev'
+          status=$(curl -sS -o /dev/null -w '%{http_code}' "$BASE/predictions?day=latest")
+          test "$status" = 401
+          API="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database"
+          curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$API?per_page=100" > "$RUNNER_TEMP/databases.json"
+          DB_ID=$(jq -r '.result[]? | select(.name=="suolun-vip-staging") | .uuid' "$RUNNER_TEMP/databases.json" | head -n1)
+          test -n "$DB_ID"
+          jq -n --arg sql "SELECT user_id FROM vip_members WHERE active=1 AND datetime(expires_at)>datetime('now') LIMIT 1" '{sql:$sql}' > "$RUNNER_TEMP/query.json"
+          curl -fsS -X POST "$API/$DB_ID/query" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'Content-Type: application/json' --data-binary "@$RUNNER_TEMP/query.json" > "$RUNNER_TEMP/result.json"
+          SAMPLE_ID=$(jq -r '.result[0].results[0].user_id // empty' "$RUNNER_TEMP/result.json")
+          test -n "$SAMPLE_ID"
+          TOKEN=$(SAMPLE_ID="$SAMPLE_ID" node - <<'JS'
+          const crypto=require('node:crypto');
+          const payload=Buffer.from(JSON.stringify({sub:process.env.SAMPLE_ID,exp:Math.floor(Date.now()/1000)+300})).toString('base64url');
+          const sig=crypto.createHmac('sha256',process.env.VIP_SESSION_SECRET).update(payload).digest('base64url');
+          process.stdout.write(payload+'.'+sig);
+          JS
+          )
+          curl -fsS -H "Authorization: Bearer $TOKEN" "$BASE/auth/me" > "$RUNNER_TEMP/me.json"
+          jq -e '.vip_name=="尊贵月卡VIP" and (.expires_at | length)>0' "$RUNNER_TEMP/me.json" >/dev/null
+          curl -fsS -H "Authorization: Bearer $TOKEN" "$BASE/predictions?day=latest" > "$RUNNER_TEMP/report.json"
+          jq -e '.matches | type=="array" and length>0' "$RUNNER_TEMP/report.json" >/dev/null
+          echo "PASS: anonymous denied; active D1 VIP can read current 4.0 matches."
+          rm -f "$RUNNER_TEMP/databases.json" "$RUNNER_TEMP/query.json" "$RUNNER_TEMP/result.json" "$RUNNER_TEMP/me.json" "$RUNNER_TEMP/report.json"
