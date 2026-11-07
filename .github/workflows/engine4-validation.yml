@@ -62,10 +62,10 @@ jobs:
                   else:
                       # Beijing-time daily sales cutoff: Friday 22:00, weekend 23:00.
                       # Never update a fixture after its own kickoff.
-                      local_kickoff=kickoff.astimezone(bj.tzinfo)
-                      weekday=local_kickoff.weekday()
+                      sale_day=datetime.fromisoformat(m.get('sale_day') or bj.date().isoformat()).replace(tzinfo=bj.tzinfo)
+                      weekday=sale_day.weekday()
                       cutoff_hour=22 if weekday==4 else 23 if weekday in (5,6) else None
-                      end=(local_kickoff.replace(hour=cutoff_hour,minute=0,second=0,microsecond=0).astimezone(timezone.utc)
+                      end=(sale_day.replace(hour=cutoff_hour,minute=0,second=0,microsecond=0).astimezone(timezone.utc)
                            if cutoff_hour is not None else kickoff)
                   end=min(end,kickoff)
                   if now < end and now < kickoff:
@@ -76,7 +76,8 @@ jobs:
               except (KeyError,ValueError,TypeError): continue
           # The discovery window is for fixtures not yet in local snapshots.
           # Outside it, do not fetch new market data after all known matches close.
-          discovery=12<=bj.hour<=23 and not unique
+          cutoff=22 if bj.weekday()==4 else 23 if bj.weekday() in (5,6) else 24
+          discovery=12<=bj.hour<cutoff and not unique
           predict=forced or ((active or discovery) and (bj.minute%15==0 if near else bj.minute%30==0))
           settle=forced or (pending and bj.minute%10==0)
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
