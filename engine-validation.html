@@ -313,11 +313,11 @@
       head.append(id,el('span','status'+(match.settlement?' verified':' pass'),match.settlement?'已核验':'待核验'));card.append(head);
       const row=el('div','fixture'),teams=el('div','team-list');
       // Only confirmed team-to-FotMob IDs are allowed; never guess a badge from a similar name.
-      const verifiedTeamIds={'町田泽维':'194011','切尔西':'8455'};
-      for(const name of [match.home,match.away]){
+      for(const [side,name] of [['home',match.home],['away',match.away]]){
         const team=el('div','team'),crest=el('span','crest',label(name).slice(0,1));
         crest.setAttribute('aria-hidden','true');
-        const teamId=verifiedTeamIds[String(name||'').trim()];
+        const rawId=match['fotmob_'+side+'_team_id'];
+        const teamId=/^[1-9][0-9]{0,9}$/.test(String(rawId||''))?String(rawId):null;
         if(teamId){
           const img=document.createElement('img');
           img.alt='';img.loading='lazy';img.decoding='async';
