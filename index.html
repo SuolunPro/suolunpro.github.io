@@ -101,10 +101,11 @@
   <section id="vip-gate" class="vip-gate" aria-label="尊贵月卡VIP登录">
     <form id="vip-form" class="vip-panel">
       <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt=""><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
-      <h1>尊贵月卡VIP</h1><p>登录后查看九十刻度4.0赛事分析。原账号和密码继续使用。</p>
-      <label>会员邮箱<input id="vip-email" type="email" autocomplete="username" required></label>
-      <label>密码<input id="vip-password" type="password" autocomplete="current-password" required></label>
-      <button id="vip-login" type="submit">登录并查看预测</button>
+      <h1>尊贵月卡VIP</h1><p>输入 vip+原账号 验证尊贵月卡VIP资格。</p>
+      <label>VIP会员码<input id="vip-code" type="text" autocomplete="username" placeholder="vip+原账号" required></label>
+      <label style="display:none">会员邮箱<input id="vip-email" type="email" autocomplete="username"></label>
+      <label style="display:none">密码<input id="vip-password" type="password" autocomplete="current-password"></label>
+      <button id="vip-login" type="submit">验证会员码</button>
       <p id="vip-error" role="alert"></p>
       <p class="vip-legal">模型仍在调试，赛事结果存在不确定性。平台仅提供数据研究与风险提示，不提供投注服务或收益承诺。</p>
     </form>
@@ -196,15 +197,27 @@
       await loadDays().catch(()=>{});
       load();
     }
+    async function verifyCode(){
+      const code=$('vip-code').value.trim().toLowerCase();
+      if(!/^vip\\+(?:[a-z0-9_-]{2,64}|[^\\s@]+@[^\\s@]+\\.[^\\s@]+)$/.test(code))throw Error('会员码格式错误');
+      const res=await fetch('./member-code-members.json?ts='+Date.now(),{cache:'no-store'});
+      if(!res.ok)throw Error('会员名单暂不可用');
+      const data=await res.json();
+      const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code));
+      const hash=Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
+      const member=(data.members||[]).find(m=>m.code_sha256===hash);
+      if(!member)throw Error('会员码不存在');
+      if(!member.active||!member.expires_at||Date.parse(member.expires_at)<=Date.now())throw Error('会员已到期或停用');
+      return {email:code.slice(4),expires_at:member.expires_at,plan_name:'尊贵月卡VIP'};
+    }
     $('vip-form').addEventListener('submit',async event=>{
-      event.preventDefault();const button=$('vip-login');button.disabled=true;$('vip-error').textContent='正在验证会员权限…';
+      event.preventDefault();const button=$('vip-login');button.disabled=true;$('vip-error').textContent='正在验证会员资格…';
       try{
-        const auth=await vipCall('/auth/login',{method:'POST',body:JSON.stringify({email:$('vip-email').value.trim(),password:$('vip-password').value})});
-        vipToken=auth.token;sessionStorage.setItem('ninety_vip_token',vipToken);$('vip-password').value='';
-        await vipEnter();
-      }catch(error){
-        vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_credentials'?'账号或密码不正确。':'登录暂时失败，请稍后重试。');
-      }finally{button.disabled=false}
+        const member=await verifyCode();
+        vipMember=member;
+        $('vip-error').textContent='会员资格有效，到期：'+new Date(member.expires_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'})+'。预测接口正在切换，请稍后。';
+      }catch(error){$('vip-error').textContent=error.message}
+      finally{button.disabled=false}
     });
     async function vipProfile(){
       let me;
