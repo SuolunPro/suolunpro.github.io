@@ -131,6 +131,33 @@ class VerificationTests(unittest.TestCase):
         self.assertEqual(result_for(self.fixture(), lambda url: wrong,
             datetime(2026, 11, 6, 12, 0, tzinfo=timezone.utc))[1], "FT_SCORE_CONFLICT")
 
+    def test_bilingual_alias_requires_both_teams_and_kickoff(self):
+        match = self.fixture()
+        match.update(home="横滨水手", away="冈山绿雉", kickoff="2026-11-07 13:00",
+                     predicted_at="2026-11-07T04:20:00+00:00", fotmob_xg={})
+        fixture = {"id": 98765, "home": {"id": 100, "name": "Yokohama F.Marinos"},
+                   "away": {"id": 200, "name": "Fagiano Okayama"},
+                   "status": {"utcTime": "2026-11-07T05:00:00Z"}}
+        details = self.details()
+        details["general"].update(matchId=98765, homeTeam={"id": 100},
+                                  awayTeam={"id": 200},
+                                  matchTimeUTCDate="2026-11-07T05:00:00Z")
+        details["header"]["teams"] = [{"id": 100, "score": 4}, {"id": 200, "score": 1}]
+        def get(url):
+            if "matchDetails?" in url:
+                return details
+            return {"leagues": [{"matches": [fixture]}]}
+        result, error = result_for(match, get, datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+        self.assertIsNone(error)
+        self.assertEqual(result["fotmob_match_id"], 98765)
+        self.assertEqual(result["fotmob_home_team_id"], 100)
+        wrong = dict(fixture, away={"id": 201, "name": "Other"})
+        def wrong_get(url):
+            return details if "matchDetails?" in url else {"leagues": [{"matches": [wrong]}]}
+        result, error = result_for(match, wrong_get, datetime(2026, 11, 7, 8, tzinfo=timezone.utc))
+        self.assertIsNone(result)
+        self.assertIn("TEAM_ID_UNCONFIRMED", error)
+
 
 if __name__ == "__main__":
     unittest.main()
