@@ -1,0 +1,35 @@
+name: Sync verified 90scale engine data to website
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: sync-90scale-engine
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download engine public snapshots
+        run: git clone --depth 1 --filter=blob:none --sparse https://github.com/SuolunPro/90scale-engine.git /tmp/90scale-engine && git -C /tmp/90scale-engine sparse-checkout set data/engine4
+      - name: Merge newer snapshots without losing verified settlements
+        run: python scripts/sync_engine4.py /tmp/90scale-engine/data/engine4 data/engine4
+      - name: Publish website data
+        run: |
+          set -euo pipefail
+          git config user.name '90scale-site-sync[bot]'
+          git config user.email 'actions@users.noreply.github.com'
+          git add data/engine4
+          if git diff --cached --quiet; then
+            echo 'Already synchronized'
+            exit 0
+          fi
+          git commit -m 'data: sync verified 90scale results to website'
+          git pull --rebase origin main
+          git push origin HEAD:main
