@@ -71,6 +71,7 @@
     .v4-refresh{border:1px solid #dedede;border-radius:6px;background:#fff;color:#555;padding:5px 10px;font-size:11px;cursor:pointer}
     .v4-foot{color:#999;font-size:10px;line-height:1.65;margin:13px 3px}
     .v4-error{color:#b94146}
+    .v4-stats{margin-top:2px}.v4-stat-group{padding:8px 12px}.v4-verdict{font-size:12px;font-weight:600}.v4-reason,.v4-meta{display:none}.card{box-shadow:0 2px 10px #16233a0a}
     @media(max-width:360px){.team-name{font-size:13px}.v4-stat-line{font-size:11px}.metric b{font-size:15px}}
   </style>
 </head>
@@ -79,7 +80,7 @@
     <header class="hero">
       <div class="brandbar">
         <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt="九十刻度图标"><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
-        <div class="version">4.0 测试</div>
+        <div class="version">赛事分析</div>
       </div>
       <nav class="models" id="models" aria-label="赛事分析模块"></nav>
       <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><select id="day-select" class="v4-day-select" aria-label="选择赛事日期"><option value="latest">今日最新</option><option value="2026-11-06">11月6日历史</option></select></div>
@@ -88,9 +89,9 @@
       <section class="toolbar">
         <div class="toolbar-top"><span class="count" id="pool-count">正在读取赛事数据</span></div>
         <div class="metrics">
-          <div class="metric"><b id="predicted">—</b><span>本模块正式预测</span></div>
-          <div class="metric"><b id="settled">—</b><span>赛果已核验</span></div>
-          <div class="metric"><b id="pending">—</b><span>等待赛果</span></div>
+          <div class="metric"><b id="predicted">—</b><span>预测场次</span></div>
+          <div class="metric"><b id="settled">—</b><span>已完赛</span></div>
+          <div class="metric"><b id="pending">—</b><span>待完赛</span></div>
         </div>
       </section>
       <section class="content">
@@ -123,10 +124,10 @@
       const today=report.metrics?.module_stats?.[active],history=report.historical_metrics?.module_stats?.[active];
       $('predicted').textContent=today?.predicted??0;$('settled').textContent=today?.verified??0;$('pending').textContent=today?.pending??0;
       const root=$('module-stats'),head=el('div','v4-stats-head');root.replaceChildren();
-      head.append(el('strong','',visibleName(active)+' · 独立命中率'),el('span','','仅统计正式预测且已核验场次'));root.append(head);
+      head.append(el('strong','',visibleName(active)+' · 命中统计'));root.append(head);
       for(const [period,stat] of [[selectedDay==='latest'?'当前日期':report.sale_day,today],['历史累计',history]]){
         const group=el('div','v4-stat-group');
-        group.append(el('div','v4-stat-title',`${period} · 正式预测 ${stat?.predicted??0} 场 · 已核验 ${stat?.verified??0} 场 · 待核验 ${stat?.pending??0} 场`));
+        group.append(el('div','v4-stat-title',period));
         for(const [key,row] of Object.entries(stat?.rates||{})){
           const line=el('div','v4-stat-line');
           line.append(el('span','',key|| (active==='今日优选'?'正式推荐命中':'预警效果')),el('b','',rate(row)));group.append(line)
@@ -169,45 +170,41 @@
         
         const selection=Array.isArray(data.selection)?data.selection.join(' / '):data.selection;
         const candidate=Array.isArray(data.candidate)?data.candidate.join(' / '):data.candidate;
-        analysis.append(el('div','advice',Array.isArray(data.selection)&&data.selection.length===2?'正式双选 · '+selection:top2.length===2?'历史双方向参考（非正式优选） · '+top2.join(' / '):'未正式入选'));
-        if(data.reason)analysis.append(el('p','v4-reason',data.reason));
-        for(const detail of data.evidence||[])analysis.append(el('p','v4-reason','依据 · '+detail))
+        analysis.append(el('div','advice',Array.isArray(data.selection)&&data.selection.length===2?'推荐 · '+selection:top2.length===2?'参考方向 · '+top2.join(' / '):'暂无推荐'));
+        
+        /* Internal evidence stays in the data feed, hidden from customer view. */
       }else{
         const blocks=el('div','v4-risk');
         for(const [value,title] of [[data.direction,'风险方向'],['正式预警','预警状态']]){
           const panel=el('div','upset-panel');panel.append(el('div','upset-value',value),el('div','upset-label',title));blocks.append(panel)
         }
         analysis.append(blocks);
-        for(const detail of data.evidence||[])analysis.append(el('p','v4-reason',detail))
-        if(data.channels?.length)analysis.append(el('p','v4-reason','触发通道 · '+data.channels.join(' / ')));
-        analysis.append(el('p','v4-reason','必发资金方向 · '+(data.funding_direction||'待更新')));
-        analysis.append(el('p','v4-reason','交易冷热指数（主/平/客） · '+(Array.isArray(data.hot_cold_index)?data.hot_cold_index.map(label).join(' / '):'待更新')));
-        analysis.append(el('p','v4-reason','99家机构平均概率（主/平/客） · '+(Array.isArray(data.institution_support)?data.institution_support.map(label).join(' / '):'待更新')));
-        if(data.market_captured_at)analysis.append(el('p','v4-reason','市场采集时间 · '+stamp(data.market_captured_at)));
+        /* Internal evidence hidden in customer view. */
+
       }
       card.append(analysis)
     }
     function verdict(card,match){
       const settled=match.settlement,result=settled?.module_results?.[active],box=el('div','v4-verdict');
-      if(!settled)box.textContent='赛果待核验 · 本模块暂不计入命中率';
-      else if(!result)box.textContent='本模块结算待更新';
+      if(!settled)box.textContent='等待赛果';
+      else if(!result)box.textContent='赛果更新中';
       else{
         box.className+=' '+(result.status==='HIT'?'hit':result.status==='MISS'?'miss':'');
         const actual=active==='冷门预警'?'正式赛果 '+label(result.actual):'实际结果 '+label(result.actual);
         const dailyRank=active==='今日优选'&&Array.isArray(result.picks)?
           result.picks.findIndex(pick=>String(pick)===String(result.actual)):-1;
-        const checks=result.status==='HIT'?'评测成功'+(dailyRank>=0?` · Top${dailyRank+1}命中`:''):
-          result.status==='MISS'?'评测失败':active==='今日优选'?'未正式入选':'未正式触发';
+        const checks=result.status==='HIT'?'评测成功':
+          result.status==='MISS'?'评测失败':active==='今日优选'?'未正式入选' :'未触发';
         box.append(el('b','',actual+' · '+checks));
         if(active==='冷门预警'&&result.direction)box.append(el('div','',`风险方向 ${result.direction} · 冷门${result.upset_occurred?'发生':'未发生'}`))
       }
       card.append(box);
-      card.append(el('div','v4-meta',`赛前冻结 ${stamp(match.predicted_at)} · 核验 ${stamp(settled?.verified_at)}`))
+      /* Technical timestamps are not shown to customers. */
     }
     function render(){
       if(!report)return;
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
-      $('pool-count').textContent=`全池 ${report.matches.length} 场 · 最近更新 ${stamp(report.generated_at)}`;
+      $('pool-count').textContent=`今日赛事 ${report.matches.length} 场`;
       const focus=active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
@@ -216,7 +213,7 @@
       for(const match of focus){
         const card=el('article','card');fixture(card,match);
         const data=match.prediction?.modules?.[active];
-        if(match.prediction?.status!=='PREDICTED'||!data)card.append(el('div','v4-verdict v4-error',match.prediction?.reason||'暂无正式预测'));
+        if(match.prediction?.status!=='PREDICTED'||!data)card.append(el('div','v4-verdict v4-error','暂无预测'));
         else if(active==='冷门预警'||active==='今日优选')special(card,match);
         else{
           if(active==='让球')card.append(el('div','v4-note',`官方让球：主队 ${data.handicap>0?'+':''}${label(data.handicap)} 球`));
