@@ -27,18 +27,6 @@ jobs:
           python-version: '3.12'
       - name: Check verification tests
         run: python -m unittest engine4.tests.test_results -v
-      - name: Diagnose 001 fixture identity
-        run: |
-          python - <<'PY'
-          from engine4.fotmob import json_get, BASE
-          for day in ('20261107','20261108'):
-              doc=json_get(BASE+'matches?date='+day)
-              for league in doc.get('leagues',[]):
-                  for f in league.get('matches',[]):
-                      names=(f.get('home',{}).get('name',''),f.get('away',{}).get('name',''))
-                      if any('yokohama' in n.lower() or 'okayama' in n.lower() for n in names):
-                          print(day,league.get('name'),f.get('id'),names,f.get('status',{}).get('utcTime'))
-          PY
       - name: Verify pending fixtures and settle seven modules
         run: python -m engine4.aggregate
       - name: Report November 7 coverage and per-module results
