@@ -202,7 +202,7 @@
       const data=await getJson(DATA_BASE+'sales/index.json');
       if(!Array.isArray(data.days))throw Error('历史日期索引格式错误');
       const select=$('day-select'),current=selectedDay;
-      const days=[...new Set(data.days.filter(day=>/^20\\d{2}-\\d{2}-\\d{2}$/.test(day)))].sort().reverse();
+      const days=[...new Set(data.days.filter(day=>/^20\d{2}-\d{2}-\d{2}$/.test(day)))].sort().reverse();
       const choices=[['今日最新','latest'],...days.map(day=>[day.slice(5,7)+'月'+day.slice(8,10)+'日历史',day])];
       select.replaceChildren(...choices.map(([label,value])=>{
         const option=document.createElement('option');
@@ -456,7 +456,6 @@
         $('matches').replaceChildren(el('div','error','赛事数据暂时无法加载，请稍后刷新'))
       }
     }
-    $('day-select').onfocus=()=>{loadDays().catch(error=>console.warn('历史日期刷新失败',error))};
     $('day-select').onchange=e=>{selectedDay=e.target.value;load()};
     $('refresh').onclick=()=>{loadDays().catch(error=>console.warn('历史日期刷新失败',error));load()};
     navigation();initAuth();
