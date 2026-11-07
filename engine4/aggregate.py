@@ -110,7 +110,7 @@ def run(current=None):
         # score and snapshot. This performs no result lookup or prediction change.
         for match in doc["matches"]:
             existing = match.get("settlement")
-            if existing and not existing.get("module_results"):
+            if existing:
                 at = datetime.fromisoformat(existing["verified_at"].replace("Z", "+00:00"))
                 match["settlement"] = mark(match, existing, at) or existing
         path = SALES / (day + ".json")
