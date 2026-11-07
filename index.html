@@ -3,143 +3,399 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#d72b30">
-  <link rel="icon" type="image/jpeg" sizes="160x160" href="assets/ninety-mark-avatar.jpg?v=20260925-brand">
-  <link rel="apple-touch-icon" sizes="160x160" href="assets/ninety-mark-avatar.jpg?v=20260925-brand">
-  <title>九十刻度 · 足球赛事分析</title>
-  <link rel="stylesheet" href="assets/app-20261003.css?v=20261012-abc-audit-ui-v2">
+  <meta name="theme-color" content="#d62c31">
+  <link rel="icon" type="image/jpeg" href="./assets/ninety-mark-avatar.jpg">
+  <title>九十刻度 · 4.0 赛事分析</title>
+  <link rel="stylesheet" href="./assets/app-20261003.css?v=20261012-abc-audit-ui-v2">
+  <style>
+    /* Keep the same shell, navigation, fixture and choice grid as the main site. */
+    .app{padding-bottom:75px}
+    .hero{background:var(--red)}
+    .hero:before,.hero:after{display:none}
+    .brandbar{padding:10px 14px 7px}
+    .models{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;padding:6px 12px 10px;overflow:visible}
+    .model{grid-column:span 3;display:flex;align-items:center;justify-content:center;min-width:0;min-height:42px;padding:8px 2px;border:1px solid #ffffff29;border-radius:8px;background:#ffffff17;color:#fff;font-size:clamp(11px,2.9vw,13px);font-weight:600;line-height:1.3;white-space:nowrap;text-align:center;cursor:pointer}
+    .model:nth-child(n+5){grid-column:span 4}
+    .model.active{background:#fff;color:var(--deep);border-color:#fff;font-weight:800}
+    .v4-datebar{border-top:1px solid #ffffff24;padding:8px 14px 10px;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .v4-datebar span:last-child{color:#ffdbdb}
+    .v4-day-select{background:#fff;color:#b9252c;border:0;border-radius:6px;padding:7px 8px;font-weight:700;max-width:150px}
+    .toolbar{padding:11px 13px 10px}
+    .toolbar-top{font-size:12px}
+    .metrics{margin-top:9px}
+    .metric{padding:8px 4px}
+    .metric b{font-size:17px}
+    .content{padding:9px 12px 24px}
+    .section-head{padding:2px 2px 9px}
+    .cards{gap:10px}
+    .card{padding:0 13px 12px;cursor:default}
+    .card:active{transform:none}
+    .card-head{height:37px}
+    .fixture{padding:3px 0 10px}
+    .team-list{gap:8px}
+    .crest{width:32px;height:32px}
+    .team-name{font-size:15px}
+    .analysis{padding-top:9px}
+    .triplet{border-radius:9px}
+    .datum{padding:9px 4px}
+    .datum span{font-size:10px}
+    .datum b{font-size:15px}
+    .datum.primary{background:#fff4f4}
+    .datum .v4-prob{font-size:11px;color:#888;margin:4px 0 0}
+    .datum.hit{background:#eaf6f0}
+    .datum.hit b{color:#278464!important}
+    .datum.miss b{color:#333}
+    .status.verified{background:var(--green)}
+    .v4-stats{background:#fff;border:1px solid #ececec;border-radius:11px;margin:11px 0 4px;overflow:hidden}
+    .v4-stats-head{padding:11px 12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .v4-stats-head strong{font-size:13px;color:#333}
+    .v4-stats-head span{font-size:10px;color:#999}
+    .v4-stat-group{padding:9px 12px}
+    .v4-stat-group+.v4-stat-group{border-top:1px solid #eee}
+    .v4-stat-title{font-size:11px;font-weight:800;color:#555;margin-bottom:7px}
+    .v4-stat-line{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:4px 0;font-size:12px;color:#555}
+    .v4-stat-line b{color:#c92731;font-size:13px;font-variant-numeric:tabular-nums;text-align:right}
+    .v4-stat-line small{color:#999;font-size:10px}
+    .v4-verdict{margin-top:10px;border-radius:8px;background:#f5f5f5;padding:9px 10px;font-size:11px;line-height:1.65;color:#777}
+    .v4-verdict.hit{background:#eaf6f0;color:#278464}
+    .v4-verdict.miss{background:#fff0f0;color:#b94146}
+    .v4-verdict b{font-size:12px}
+    .v4-meta{margin-top:9px;border-top:1px solid #eee;padding-top:9px;font-size:10px;line-height:1.6;color:#999;overflow-wrap:anywhere}
+    .v4-risk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .v4-risk .upset-panel{min-height:86px;padding:9px}
+    .v4-risk .upset-value{font-size:19px}
+    .v4-risk .upset-label{font-size:11px;margin-top:5px}
+    .v4-reason{font-size:11px;color:#666;line-height:1.65;margin:9px 0 0}
+    .v4-reason+.v4-reason{margin-top:4px}
+    .v4-note{margin:10px 0 0;color:#999;font-size:10px;line-height:1.55}
+    .v4-refresh{border:1px solid #dedede;border-radius:6px;background:#fff;color:#555;padding:5px 10px;font-size:11px;cursor:pointer}
+    .v4-foot{color:#999;font-size:10px;line-height:1.65;margin:13px 3px}
+
+    /* Customer statistics: compact legacy-style KPI cards. */
+    .v4-stats-head{padding:12px 14px;background:#fff}
+    .v4-stat-group{padding:11px 13px}
+    .v4-stat-title{font-size:12px;color:#777;margin-bottom:9px}
+    .v4-stat-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .v4-stat-kpi{background:#f7f8fa;border:1px solid #eef0f3;border-radius:9px;padding:10px 5px;text-align:center;min-width:0}
+    .v4-stat-kpi b{display:block;font-size:20px;color:#222;font-variant-numeric:tabular-nums;line-height:1.3}
+    .v4-stat-kpi span{display:block;font-size:10px;color:#888;margin-top:4px}
+    .v4-stat-kpi.highlight{background:#fff1f1;border-color:#f8dada}
+    .v4-stat-kpi.highlight b{color:#d32c36}
+    .v4-stat-track{height:5px;border-radius:9px;background:#f1e4e4;overflow:hidden;margin:10px 2px 1px}
+    .v4-stat-fill{height:100%;background:#d32c36;border-radius:9px}
+    .v4-stat-sub{font-size:11px;color:#888;margin-top:8px}
+    .v4-error{color:#b94146}
+    .toolbar{padding:12px 12px 13px;background:#f5f5f5}
+    .toolbar-top{color:#888;font-size:12px;margin-bottom:9px}
+    .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0;background:#eceef1;border-radius:8px;overflow:hidden}
+    .metric{min-width:0;padding:14px 3px 12px;border-right:1px solid #dfe1e5;text-align:center;background:transparent}
+    .metric:last-child{border-right:0}
+    .metric b{display:block;font-size:clamp(18px,4.7vw,24px);font-weight:700;color:#282828;line-height:1.25;white-space:nowrap}
+    .metric span{display:block;font-size:clamp(9px,2.5vw,12px);color:#777;margin-top:7px;white-space:nowrap}
+
+    .v4-stats{margin-top:2px}.v4-stat-group{padding:8px 12px}.v4-verdict{font-size:12px;font-weight:600}.v4-reason,.v4-meta{display:none}.card{box-shadow:0 2px 10px #16233a0a}
+    @media(max-width:360px){.team-name{font-size:13px}.v4-stat-line{font-size:11px}.metric b{font-size:15px}}
+  </style>
 </head>
 <body>
-  <div id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-label="九十刻度欢迎页">
-    <div class="welcome-poster">
-      <div class="welcome-fallback"><strong>九十刻度</strong><small>NINETY MARK</small><span>用数据，看懂比赛</span></div>
-      <button id="welcomeSkip" class="welcome-skip" type="button">进入九十刻度 <span aria-hidden="true">›</span></button>
-      <div class="welcome-legal"><strong>足球赛事数据 · 概率模型 · 风险分析</strong><br><span>模型结果为概率分析，赛事结果具有不确定性</span></div>
-    </div>
-  </div>
-  <script>
-    (function(){
-      var welcome=document.getElementById('welcomeScreen');
-      var skip=document.getElementById('welcomeSkip');
-      if(!welcome||!skip)return;
-      skip.addEventListener('click',function(){welcome.hidden=true;welcome.setAttribute('aria-hidden','true');});
-      // A failed poster load must never block access to match data.
-      window.addEventListener('keydown',function(e){if(e.key==='Escape'&&!welcome.hidden)skip.click();});
-    })();
-  </script>
-  <div class="app">
+  <section id="vip-gate" class="vip-gate" aria-label="尊贵月卡VIP登录">
+    <form id="vip-form" class="vip-panel">
+      <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt=""><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
+      <h1>尊贵月卡VIP</h1><p>登录后查看九十刻度4.0赛事分析。原账号和密码继续使用。</p>
+      <label>会员邮箱<input id="vip-email" type="email" autocomplete="username" required></label>
+      <label>密码<input id="vip-password" type="password" autocomplete="current-password" required></label>
+      <button id="vip-login" type="submit">登录并查看预测</button>
+      <p id="vip-error" role="alert"></p>
+      <p class="vip-legal">模型仍在调试，赛事结果存在不确定性。平台仅提供数据研究与风险提示，不提供投注服务或收益承诺。</p>
+    </form>
+  </section>
+  <div class="app" id="v4-app" hidden>
     <header class="hero">
       <div class="brandbar">
-        <div class="brand"><img class="logo" src="assets/ninety-mark-avatar.jpg?v=20260925-brand" alt="九十刻度图标" width="40" height="40"><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
-        <div class="version" id="version">九十刻度</div>
+        <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt="九十刻度图标"><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
+        <button class="version v4-account-button" id="v4-account" type="button">我的会员</button>
       </div>
-      <div class="models" id="models" aria-label="赛事分析模块">
-        <button class="model active" data-model="daily">今日优选</button>
-        <button class="model" data-model="overview">胜平负</button>
-        <button class="model" data-model="handicap">全场让球</button>
-        <button class="model" data-model="htft">半全场</button>
-        <button class="model" data-model="score">全场比分</button>
-        <button class="model" data-model="goals">泊松进球</button>
-        <button class="model vip-cold-model" data-model="cold">冷门预警</button>
-        <a href="./gpt-predictions.html" class="model" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">智能预测</a>
-      </div>
-      <div class="hero-copy">
-        <h1 id="modelTitle">今日优选</h1>
-        <p id="modelDesc">核心优选 + 精选补充，分层展示今日赛前筛选结果</p>
-        <div class="warn">赛前发布与历史资料回放分开评测，详情可查数据来源。</div>
-      </div>
-      <div class="dates" id="dates"></div>
+      <nav class="models" id="models" aria-label="赛事分析模块"></nav>
+      <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><select id="day-select" class="v4-day-select" aria-label="选择赛事日期"><option value="latest">今日最新</option><option value="2026-11-06">11月6日历史</option></select></div>
     </header>
-    <main class="main" id="main">
+    <main class="main">
       <section class="toolbar">
-        <div class="toolbar-top">
-          <span class="count" id="poolCount">正在读取正式比赛</span>
-          
-        </div>
+        <div class="toolbar-top"><span class="count" id="pool-count">正在读取赛事数据</span></div>
         <div class="metrics">
-          <div class="metric"><b id="totalCount">—</b><span>全池场次</span></div>
-          <div class="metric"><b id="pickCount">—</b><span>赛果已核验</span></div>
-          <div class="metric"><b id="passCount">—</b><span>等待赛果</span></div>
+          <div class="metric"><b id="hit-rate">—</b><span>当日评测命中率</span></div>
+          <div class="metric"><b id="hit-count">—</b><span>命中 / 有效评测</span></div>
+          <div class="metric"><b id="pending">—</b><span>未核验赛果</span></div>
         </div>
       </section>
-      <section class="content" id="content"><div class="empty"><b>正在加载今日赛事</b><span class="loading">赛事数据加载中，请稍候…</span></div></section>
+      <section class="content">
+        <div class="section-head"><h2 id="section-title">胜平负赛事</h2><button class="v4-refresh" id="refresh" type="button">刷新</button></div>
+        <aside class="v4-model-notice" role="note" style="margin:10px 0 14px;padding:12px 13px;background:#fff8ec;border:1px solid #f1d9b0;border-radius:10px;color:#795726;font-size:12px;line-height:1.75">
+          <strong style="display:block;color:#654718;font-size:13px;margin-bottom:4px">📢 赛事分析与模型调试说明</strong>
+          <div><strong>九十刻度4.0目前仍处于模型调试与验证阶段。</strong>赛事预测会随有效赛前数据更新，部分模块的方向与概率可能发生变化，当前结果不代表稳定的历史预测表现，仅供参考。</div>
+          <details style="margin-top:7px">
+            <summary style="cursor:pointer;font-weight:600">查看更新说明</summary>
+            <p style="margin:7px 0 0">建议赛前2—4小时再次查看最新分析。系统保留有效赛前预测记录，开赛后不应根据赛果回改；赛后按实际赛果核验并统计命中率。</p>
+            <p style="margin:6px 0 0">足球比赛存在不确定性，平台不提供投注服务或收益承诺，请理性参考。</p>
+          </details>
+        </aside>
+        <div class="cards" id="matches"><div class="empty">正在加载今日赛事…</div></div>
+        <footer class="site-disclaimer" role="note" aria-label="重要声明" style="margin:22px 0 8px;padding:17px 16px;background:#fff;border:1px solid #e8e8e8;border-radius:12px;color:#666;font-size:12px;line-height:1.85">
+          <h2 style="margin:0 0 9px;text-align:center;color:#333;font-size:15px">▲ 重要声明</h2>
+          <p>九十刻度提供足球赛事数据、概率模型及风险分析服务。部分预测模块仍处于优化与验证阶段，分析结果仅供参考，赛事结果具有不确定性。</p>
+          <p>平台不提供、不接受、不代理任何形式的投注服务，不提供收益承诺。请理性使用相关数据并遵守所在地法律法规。</p>
+          <div style="text-align:center;margin-top:10px"><a href="./legal.html#terms">《用户服务协议》</a>　｜　<a href="./legal.html#privacy">《隐私政策》</a></div>
+        </footer>
+      </section>
     </main>
-    <section class="detail" id="detail">
-      <div class="backbar"><button class="back" id="back" aria-label="返回">‹</button><b>比赛详情</b></div>
-      <div class="detail-body"><div class="detail-card" id="detailCard"></div></div>
-    </section>
-    <footer class="site-footer">
-      <section class="site-disclaimer" role="note" aria-label="重要声明"><h2><span>▲</span>重要声明</h2><p>九十刻度提供足球赛事数据、概率模型及风险分析服务。模型结果仅代表基于相关数据计算所得的概率判断，赛事结果具有不确定性。</p><p>平台不提供、不接受、不代理任何形式的投注服务，不提供收益承诺。请理性使用相关数据并遵守所在地法律法规。</p><div class="site-legal-links"><a href="./legal.html#terms">《用户服务协议》</a><span>｜</span><a href="./legal.html#privacy">《隐私政策》</a></div></section>
-      <div class="site-counter">九十刻度 © 2026 · 展示计数 <b id="visitCount">—</b></div>
-    </footer>
+    <nav class="bottom" aria-label="页面导航"><div class="bottom-inner"><a class="nav active" href="./" style="text-decoration:none"><i>⌂</i>首页</a><button class="nav" id="v4-profile" type="button"><i>◎</i>我的</button></div></nav>
   </div>
-  
-  <nav class="bottom">
-    <div class="bottom-inner">
-      <button class="nav active" data-tab="home"><i>⌂</i>首页</button>
-      <button class="nav" data-tab="profile"><i>◎</i>我的</button>
-    </div>
-  </nav>
   <style>
-  .card:has(.htft-top4-grid) .htft-list-compare,
-  .card:has(.htft-top4-grid) .score-top4-verdict.pending,
-  .card:has(.htft-top4-grid) .focus-label {display:none!important}
+    .vip-gate{min-height:100dvh;display:grid;place-items:center;padding:24px;background:#081321;color:#f5f5f5}
+    .vip-gate[hidden],#v4-app[hidden]{display:none!important}
+    .vip-panel{width:min(420px,100%);padding:25px;border:1px solid #b99a55;border-radius:16px;background:#101e2e;box-shadow:0 14px 40px #0005}
+    .vip-panel .brand{display:flex;align-items:center;gap:10px}
+    .vip-panel h1{font-size:22px;margin:24px 0 7px}
+    .vip-panel p{font-size:12px;line-height:1.7;color:#b7c5d5}
+    .vip-panel label{display:block;font-size:12px;margin-top:16px}
+    .vip-panel input{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid #53647b;border-radius:8px;background:#081321;color:#fff;font-size:16px}
+    .vip-panel button{width:100%;margin-top:20px;padding:12px;border:0;border-radius:8px;background:#c8a762;color:#081321;font-weight:800}
+    .vip-panel #vip-error{color:#ffc3c3;min-height:20px}
+    .vip-panel .vip-legal{font-size:11px}
+    .v4-account-button{border:1px solid #ffffff80;border-radius:7px;background:transparent;color:#fff;padding:6px 9px}
   </style>
   <script>
-    // Read-only, local performance markers; no account identifiers, tokens or network payloads.
-    (function(){
-      var start=performance.now(),firstData=false;
-      function mark(stage){
-        try{console.info('[九十刻度启动耗时]',stage,Math.round(performance.now()-start)+'ms')}catch(_){}
+    const $=id=>document.getElementById(id);
+    const VIP_API='https://suolun-vip-staging.hjh19970220.workers.dev';
+    let vipToken=sessionStorage.getItem('ninety_vip_token')||'';
+    async function vipCall(path,options={}){
+      const response=await fetch(VIP_API+path,{...options,cache:'no-store',headers:{...(options.body?{'Content-Type':'application/json'}:{}),...(vipToken?{Authorization:'Bearer '+vipToken}:{}),...options.headers}});
+      const payload=await response.json().catch(()=>({error:'network_error'}));
+      if(!response.ok)throw Error(payload.error||'HTTP '+response.status);
+      return payload;
+    }
+    function vipShowGate(message=''){
+      vipToken='';sessionStorage.removeItem('ninety_vip_token');
+      $('v4-app').hidden=true;$('vip-gate').hidden=false;$('vip-error').textContent=message;
+    }
+    async function vipEnter(){
+      const me=await vipCall('/auth/me');
+      $('vip-gate').hidden=true;$('v4-app').hidden=false;
+      $('v4-account').title=me.email+' · 有效期至 '+new Date(me.expires_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
+      load();
+    }
+    $('vip-form').addEventListener('submit',async event=>{
+      event.preventDefault();const button=$('vip-login');button.disabled=true;$('vip-error').textContent='正在验证会员权限…';
+      try{
+        const auth=await vipCall('/auth/login',{method:'POST',body:JSON.stringify({email:$('vip-email').value.trim(),password:$('vip-password').value})});
+        vipToken=auth.token;sessionStorage.setItem('ninety_vip_token',vipToken);$('vip-password').value='';
+        await vipEnter();
+      }catch(error){
+        vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_credentials'?'账号或密码不正确。':'登录暂时失败，请稍后重试。');
+      }finally{button.disabled=false}
+    });
+    function vipProfile(){
+      if(confirm('退出当前会员账号？')){vipShowGate('已退出登录。');$('vip-password').value=''}
+    }
+    $('v4-account').onclick=vipProfile;$('v4-profile').onclick=vipProfile;
+    async function initAuth(){
+      if(!vipToken)return;
+      try{await vipEnter()}catch(_){vipShowGate('登录状态已失效，请重新登录。')}
+    }
+
+    const modules=[
+      ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
+      ['比分','全场比分'],['总进球','泊松进球'],['冷门预警','冷门预警']
+    ];
+    let report=null,active='胜平负',selectedDay='latest';
+    const label=value=>value==null?'—':String(value);
+    const stamp=value=>{if(!value)return '—';const date=new Date(value);if(Number.isNaN(date.getTime()))return label(value);return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date).replace(/\//g,'-')};
+    const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!=null)node.textContent=String(text);return node};
+    const rate=row=>row?.total?`${row.hit}/${row.total}＝${(100*row.hit/row.total).toFixed(2)}%`:'0/0 · 暂无正式样本';
+    const pct=value=>Number.isFinite(Number(value))&&value!=null?`${Math.round(Number(value)*100)}%`:'—';
+    const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
+    function navigation(){
+      const root=$('models');root.replaceChildren();
+      for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
+    }
+    function stats(){
+      const stat=report.metrics?.module_stats?.[active];
+      const rates=stat?.rates||{};
+      // One published evaluation per module, matching the legacy three-number summary.
+      const evaluationKey=active==='今日优选'?'Top2':
+        active==='比分'||active==='半全场'||active==='总进球'?'Top3':
+        active==='冷门预警'?'':'Top1';
+      const row=rates[evaluationKey];
+      const total=Number(row?.total)||0,hit=Number(row?.hit)||0;
+      $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
+      $('hit-count').textContent=hit+'/'+total;
+      $('pending').textContent=stat?.pending??0;
+    }
+    function fixture(card,match){
+      const head=el('div','card-head'),id=el('div','match-id');
+      id.append(el('span','league',label(match.league)),document.createTextNode(label(match.kickoff)+' · '+label(match.match_no)));
+      head.append(id,el('span','status'+(match.settlement?' verified':' pass'),match.settlement?'已核验':'待核验'));card.append(head);
+      const row=el('div','fixture'),teams=el('div','team-list');
+      for(const [name,index] of [[match.home,0],[match.away,1]]){
+        const team=el('div','team'),crest=el('span','crest',label(name).slice(0,1));
+        crest.setAttribute('aria-hidden','true');team.append(crest,el('span','team-name',label(name)));teams.append(team)
       }
-      function ready(){
-        var content=document.getElementById('content');
-        if(!content)return;
-        var observer=new MutationObserver(function(){
-          if(firstData)return;
-          var text=content.textContent||'';
-          if(text.includes('正在加载今日赛事')||text.includes('正在连接正式数据'))return;
-          firstData=true;mark('首页内容首次更新');observer.disconnect();
-        });
-        observer.observe(content,{childList:true,subtree:true});
-        var gate=document.getElementById('loginGate');
-        if(gate)mark('登录界面已显示');
-        mark('首页脚本开始执行');
+      const score=el('div','score',match.settlement?.ft||'VS');
+      score.append(el('span','',match.settlement?`半场 ${label(match.settlement.ht)} · 正式赛果`:'赛前预测'));
+      row.append(teams,score);card.append(row)
+    }
+    function choices(card,match,items,probabilities){
+      const grid=el('div','triplet'+(items.length===2?' pair':''));
+      const result=match.settlement?.module_results?.[active];
+      items.forEach((value,index)=>{
+        const actualHit=result&&String(result.actual)===String(value),cell=el('div','datum'+(actualHit?' hit':index===0?' primary':''));
+        cell.append(el('span','',`Top${index+1}`),el('b','',label(value)),el('span','v4-prob',pct(probabilities?.[String(value)])));
+        if(actualHit)cell.append(el('span','hit-check','✓'));grid.append(cell)
+      });
+      const analysis=el('div','analysis');analysis.append(grid);card.append(analysis)
+    }
+    function ftHandicapRiskNote(card,match){
+      const modules=match.prediction?.modules||{};
+      const warning=modules['冷门预警']||{},handicap=modules['让球']||{};
+      if(warning.status!=='TRIGGERED'||warning.triggered!==true||
+         !['主队不胜','主队不败'].includes(warning.direction))return;
+      const channels=Array.isArray(warning.channels)?warning.channels:[];
+      const labels={A:'必发资金反向',B:'必发平局资金集中',C:'威廉热门概率下降',D:'威廉升赔与亚洲退盘',E2:'平局市场信号增强'};
+      const reason=channels.map(c=>labels[c]).filter(Boolean).slice(0,2).join('、');
+      const box=el('div','v4-ft-handicap');
+      box.style.cssText='margin-top:10px;padding:11px 12px;border:1px solid #f1dfbd;border-radius:9px;background:#fffaf0';
+      const summary=el('div','','⚠️ 风险提醒：'+warning.direction+(reason?'（'+reason+'）':'')+'。');
+      summary.style.cssText='font-size:12px;color:#805e2b;line-height:1.6;margin-bottom:8px';
+      box.append(summary);
+      const picks=Array.isArray(handicap.top2)?handicap.top2.filter(x=>['让胜','让平','让负'].includes(x)).slice(0,2):[];
+      if(picks.length!==2||!Number.isInteger(handicap.handicap)){
+        box.append(el('div','v4-note','让球Top2暂无有效赛前预测'));
+        card.append(box);return;
       }
-      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
-    })();
-  </script>
-  <script>
-    // Fail open: an unsuccessful startup must never leave an endless spinner.
-    (function(){
-      function checkStartup(){
-        var content=document.getElementById('content');
-        if(!content || !content.textContent.includes('正在加载今日赛事'))return;
-        var pool=document.getElementById('poolCount');
-        if(pool && pool.textContent.includes('正在读取'))pool.textContent='赛事暂未加载成功';
-        content.innerHTML='<div class="empty"><b>赛事加载超时</b><span>网络或数据服务暂时未响应，请重试。已保存的预测记录不会因此删除。</span><button type="button" id="startupRetry" style="margin-top:16px;padding:10px 24px;border-radius:8px;border:1px solid #d72b30;background:#fff;color:#d72b30">重新加载</button></div>';
-        document.getElementById('startupRetry').addEventListener('click',function(){location.reload()});
-      }
-      window.setTimeout(checkStartup,15000);
-    })();
-  </script>
-  <script>
-    // Temporary customer-facing copy for membership verification outages.
-    // Keep retry controls and authentication logic unchanged.
-    (function(){
-      function updateNotice(){
-        var gate=document.getElementById('loginGate');
-        if(!gate)return;
-        var p=gate.querySelector('p');
-        if(p && p.textContent.includes('会员状态暂不可核验')){
-          p.textContent='服务器升级维护中，请耐心等待，稍后点击重新连接。您的登录信息已保留。维护期间受影响的尊贵VIP会员，停服多少天，会员有效期就顺延多少天；恢复服务后统一核算补足，无需自行申请。';
+      const title=el('div','','让球Top2 · 主队 '+(handicap.handicap>0?'+':'')+handicap.handicap+'球');
+      title.style.cssText='font-size:11px;font-weight:700;color:#777;margin-bottom:7px';
+      box.append(title);
+      const grid=el('div','triplet pair');
+      const result=match.settlement?.module_results?.['让球'];
+      const actual=result?.actual;
+      for(let i=0;i<2;i++){
+        const pick=picks[i],cell=el('div','datum'+(i===0?' primary':''));
+        cell.append(el('span','','Top'+(i+1)),el('b','',pick));
+        const p=handicap.probabilities?.[pick];
+        if(typeof p==='number'&&Number.isFinite(p))cell.append(el('span','v4-prob',pct(p)));
+        if(result&&String(actual)===String(pick)){
+          cell.classList.add('hit');cell.append(el('span','hit-check','✓'));
         }
+        grid.append(cell);
       }
-      var observer=new MutationObserver(updateNotice);
-      observer.observe(document.body,{childList:true,subtree:true,characterData:true});
-      updateNotice();
-    })();
+      box.append(grid);
+      card.append(box);
+    }
+    function special(card,match){
+      const data=match.prediction?.modules?.[active]||{},analysis=el('div','analysis');
+      if(active==='今日优选'){
+        const top2=Array.isArray(data.selection)&&data.selection.length>=2?data.selection.slice(0,2):
+          Array.isArray(data.top2)&&data.top2.length>=2?data.top2.slice(0,2):
+          Array.isArray(data.candidate)&&data.candidate.length>=2?data.candidate.slice(0,2):
+          Array.isArray(data.picks)&&data.picks.length>=2?data.picks.slice(0,2):
+          Array.isArray(match.prediction?.modules?.['胜平负']?.top2)?match.prediction.modules['胜平负'].top2.slice(0,2):[];
+        if(top2.length)choices(card,match,top2,match.prediction.modules['胜平负']?.probabilities);
+        
+        const selection=Array.isArray(data.selection)?data.selection.join(' / '):data.selection;
+        const candidate=Array.isArray(data.candidate)?data.candidate.join(' / '):data.candidate;
+        analysis.append(el('div','advice',Array.isArray(data.selection)&&data.selection.length===2?'推荐 · '+selection:top2.length===2?'参考方向 · '+top2.join(' / '):'暂无推荐'));
+        
+        /* Internal evidence stays in the data feed, hidden from customer view. */
+      }else{
+        const blocks=el('div','v4-risk');
+        for(const [value,title] of [[data.direction,'风险方向'],['正式预警','预警状态']]){
+          const panel=el('div','upset-panel');panel.append(el('div','upset-value',value),el('div','upset-label',title));blocks.append(panel)
+        }
+        analysis.append(blocks);
+        const details=el('details','risk-evidence');
+        const summary=el('summary','','查看依据');
+        details.append(summary);
+        const channels=Array.isArray(data.channels)?data.channels:[];
+        const explanations={
+          A:'必发资金主要流向与热门相反',
+          B:'必发平局资金集中，且交易规模达到预警条件',
+          C:'威廉热门概率明显下降，同时必发资金反向',
+          D:'威廉热门升赔，多家亚洲机构退盘且热门高水',
+          E2:'体彩平局概率偏高，威廉平局概率同步上升',
+          E1:'独立赛前比分模型提示平局或冷门风险'
+        };
+        const evidence=Array.isArray(data.evidence)?data.evidence:[];
+        const sentences=channels.map(ch=>explanations[ch]).filter(Boolean);
+        if(sentences.length){
+          details.append(el('p','',sentences.slice(0,3).join('；')+'。'));
+        }else if(evidence.length){
+          details.append(el('p','',evidence.slice(0,2).join('；')+'。'));
+        }else{
+          details.append(el('p','','暂无可核实的具体触发依据。'));
+        }
+        if(Array.isArray(data.missing)&&data.missing.length){
+          details.append(el('p','', '未核实：'+data.missing.slice(0,2).join('、')+'。'));
+        }
+        analysis.append(details);
+
+      }
+      card.append(analysis)
+    }
+    function verdict(card,match){
+      const settled=match.settlement,result=settled?.module_results?.[active],box=el('div','v4-verdict');
+      if(!settled)box.textContent='等待赛果';
+      else if(!result)box.textContent='赛果更新中';
+      else{
+        box.className+=' '+(result.status==='HIT'?'hit':result.status==='MISS'?'miss':'');
+        const actual=active==='冷门预警'?'正式赛果 '+label(result.actual):'实际结果 '+label(result.actual);
+        const dailyRank=active==='今日优选'&&Array.isArray(result.picks)?
+          result.picks.findIndex(pick=>String(pick)===String(result.actual)):-1;
+        const checks=result.status==='HIT'?'评测成功':
+          result.status==='MISS'?'评测失败':active==='今日优选'?'未正式入选' :'未触发';
+        box.append(el('b','',actual+' · '+checks));
+        if(active==='冷门预警'&&result.direction)box.append(el('div','',`风险方向 ${result.direction} · 冷门${result.upset_occurred?'发生':'未发生'}`))
+      }
+      card.append(box);
+      /* Technical timestamps are not shown to customers. */
+    }
+    function render(){
+      if(!report)return;
+      stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
+      $('pool-count').textContent=`今日赛事 ${report.matches.length} 场`;
+      const focus=active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
+        active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
+      $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
+      const root=$('matches');root.replaceChildren();
+      if(!focus.length){root.append(el('div','empty',active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
+      for(const match of focus){
+        const card=el('article','card');fixture(card,match);
+        const data=match.prediction?.modules?.[active];
+        if(match.prediction?.status!=='PREDICTED'||!data)card.append(el('div','v4-verdict v4-error','暂无预测'));
+        else if(active==='胜平负'&&data.status==='NOT_ON_SALE')card.append(el('div','v4-verdict','普通胜平负未开售 · 请查看全场让球'));
+        else if(active==='冷门预警'||active==='今日优选')special(card,match);
+        else if(!(data.top2?.length||data.top3?.length||data.top4?.length))card.append(el('div','v4-verdict','本模块暂无预测'));
+        else{
+          if(active==='让球')card.append(el('div','v4-note',`官方让球：主队 ${data.handicap>0?'+':''}${label(data.handicap)} 球`));
+          if(active==='让球'&&match.prediction?.coverage?.handicap_only)card.append(el('div','v4-verdict','本场仅提供让球预测'));
+          choices(card,match,(active==='比分'&&data.top4)||data.top2||data.top3||[],data.probabilities)
+          if(active==='胜平负')ftHandicapRiskNote(card,match);
+        }
+        verdict(card,match);root.append(card)
+      }
+    }
+    async function load(){
+      try{
+        const response=await fetch(VIP_API+'/predictions?day='+encodeURIComponent(selectedDay),{headers:{Authorization:'Bearer '+vipToken},cache:'no-store'});
+        if(response.status===401||response.status===403){vipShowGate('会员权限已失效，请重新登录。');return}
+        if(!response.ok)throw Error('HTTP '+response.status);
+        const data=await response.json();if(!Array.isArray(data.matches))throw Error('报告格式错误');
+        report=data;render()
+      }catch(error){
+        $('pool-count').textContent='所选日期数据暂时无法加载';
+        $('matches').replaceChildren(el('div','error','赛事数据暂时无法加载，请稍后刷新'))
+      }
+    }
+    $('day-select').onchange=e=>{selectedDay=e.target.value;load()};$('refresh').onclick=load;navigation();initAuth();
   </script>
-  <script src="assets/app-market-intel-20261026.js?v=20261102-cold-proof-shared-v3"></script>
 </body>
 </html>
+
