@@ -1,6 +1,9 @@
-name: Audit VIP staging membership (manual)
+name: Audit VIP D1 membership and recovery point
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/audit-suolun-vip-staging.yml']
 permissions:
   contents: read
 jobs:
@@ -24,4 +27,8 @@ jobs:
           curl --fail --silent --show-error -X POST "$API/$DB_ID/query" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H 'Content-Type: application/json' --data-binary "@$RUNNER_TEMP/query.json" > "$RUNNER_TEMP/result.json"
           jq -e '.success == true and .result[0].success == true' "$RUNNER_TEMP/result.json" >/dev/null || { echo 'D1 audit query failed'; exit 1; }
           jq '.result[0].results[0] | {total_rows,active_vip,active_monthly,active_bcrypt,long_expiry_accounts}' "$RUNNER_TEMP/result.json"
+          curl --fail --silent --show-error -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$API/$DB_ID/time_travel/bookmark" > "$RUNNER_TEMP/bookmark.json"
+          jq -e '.success == true and (.result.bookmark | type == "string")' "$RUNNER_TEMP/bookmark.json" >/dev/null || { echo 'D1 recovery bookmark unavailable'; exit 1; }
+          echo "D1 recovery bookmark recorded for this run (see private workflow artifact when configured)."
+          rm -f "$RUNNER_TEMP/bookmark.json"
           rm -f "$RUNNER_TEMP/db-list.json" "$RUNNER_TEMP/query.json" "$RUNNER_TEMP/result.json"
