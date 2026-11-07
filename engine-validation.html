@@ -124,7 +124,7 @@
       $('predicted').textContent=today?.predicted??0;$('settled').textContent=today?.verified??0;$('pending').textContent=today?.pending??0;
       const root=$('module-stats'),head=el('div','v4-stats-head');root.replaceChildren();
       head.append(el('strong','',visibleName(active)+' · 独立命中率'),el('span','','仅统计正式预测且已核验场次'));root.append(head);
-      for(const [period,stat] of [['今日',today],['历史累计',history]]){
+      for(const [period,stat] of [[selectedDay==='latest'?'当前日期':report.sale_day,today],['历史累计',history]]){
         const group=el('div','v4-stat-group');
         group.append(el('div','v4-stat-title',`${period} · 正式预测 ${stat?.predicted??0} 场 · 已核验 ${stat?.verified??0} 场 · 待核验 ${stat?.pending??0} 场`));
         for(const [key,row] of Object.entries(stat?.rates||{})){
@@ -221,8 +221,9 @@
     }
     async function load(){
       try{
-        const path=selectedDay==='latest'?'./data/engine4/latest.json':'./data/engine4/history/'+selectedDay+'.json';
-        const response=await fetch(path+'?t='+Date.now(),{cache:'no-store'});
+        const path=selectedDay==='latest'?'./data/engine4/latest.json':'./data/engine4/sales/'+selectedDay+'.json';
+        let response=await fetch(path+'?t='+Date.now(),{cache:'no-store'});
+        if(!response.ok&&selectedDay!=='latest')response=await fetch('./data/engine4/history/'+selectedDay+'.json?t='+Date.now(),{cache:'no-store'});
         if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();if(!Array.isArray(data.matches))throw Error('报告格式错误');
         report=data;render()
