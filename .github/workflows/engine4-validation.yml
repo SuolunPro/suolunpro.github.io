@@ -70,6 +70,17 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add data/engine4
           git diff --cached --quiet || (git commit -m 'data: refresh verified engine4 validation' && git pull --rebase && git push)
+      - name: Verify remote snapshot
+        run: |
+          git fetch origin main
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          local=json.loads(Path('data/engine4/latest.json').read_text())
+          remote=json.loads(subprocess.check_output(['git','show','origin/main:data/engine4/latest.json']))
+          assert remote['generated_at']==local['generated_at'], 'remote snapshot differs from run output'
+          print('Verified remote latest.json:',remote['sale_day'],remote['generated_at'])
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
