@@ -187,8 +187,10 @@
       }
       select.value=[...select.options].some(option=>option.value===current)?current:'latest';
     }
+    let vipMember=null;
     async function vipEnter(){
       const me=await vipCall('/auth/me');
+      vipMember=me;
       $('vip-gate').hidden=true;$('v4-app').hidden=false;
       $('v4-account').title=me.email+' · 有效期至 '+new Date(me.expires_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
       await loadDays().catch(()=>{});
@@ -204,8 +206,36 @@
         vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_credentials'?'账号或密码不正确。':'登录暂时失败，请稍后重试。');
       }finally{button.disabled=false}
     });
-    function vipProfile(){
-      if(confirm('退出当前会员账号？')){vipShowGate('已退出登录。');$('vip-password').value=''}
+    async function vipProfile(){
+      let me;
+      try{me=await vipCall('/auth/me');vipMember=me}
+      catch(_){me=vipMember}
+      if(!me){vipShowGate('登录状态已失效，请重新登录。');return}
+      let overlay=document.getElementById('vip-profile-overlay');
+      if(!overlay){
+        overlay=document.createElement('div');overlay.id='vip-profile-overlay';
+        overlay.style.cssText='position:fixed;inset:0;z-index:9999;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px';
+        const card=document.createElement('section');
+        card.style.cssText='background:#fff;color:#242424;border-radius:16px;width:min(100%,420px);padding:23px 20px;box-shadow:0 12px 40px #0004;font-size:14px;line-height:1.8';
+        card.innerHTML='<h2 style="margin:0 0 14px;color:#b9252c;font-size:21px">我的会员</h2><div id="vip-profile-details"></div><div style="display:flex;gap:10px;margin-top:22px"><button id="vip-profile-close" type="button" style="flex:1;padding:11px;border-radius:9px;border:1px solid #ddd;background:#fff">返回赛事</button><button id="vip-profile-logout" type="button" style="flex:1;padding:11px;border-radius:9px;border:0;background:#b9252c;color:#fff">退出登录</button></div>';
+        overlay.append(card);document.body.append(overlay);
+        document.getElementById('vip-profile-close').onclick=()=>overlay.remove();
+        document.getElementById('vip-profile-logout').onclick=()=>{overlay.remove();vipMember=null;vipShowGate('已退出登录。');$('vip-password').value=''};
+        overlay.addEventListener('click',event=>{if(event.target===overlay)overlay.remove()});
+      }
+      const details=document.getElementById('vip-profile-details');details.replaceChildren();
+      const add=(title,value)=>{const row=document.createElement('div');row.style.cssText='display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #eee';const key=document.createElement('span');key.textContent=title;key.style.color='#777';const val=document.createElement('strong');val.textContent=value;val.style.textAlign='right';row.append(key,val);details.append(row)};
+      const dateValue=value=>{if(!value)return '暂未提供';const d=new Date(value);return Number.isNaN(d.getTime())?'暂未提供':new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(d)};
+      const expiry=me.expires_at?new Date(me.expires_at):null;
+      const valid=expiry&&!Number.isNaN(expiry.getTime());
+      const remaining=valid?Math.max(0,Math.ceil((expiry.getTime()-Date.now())/86400000)):null;
+      add('会员账号',me.email||me.username||'未提供');
+      add('会员等级',me.plan_name||me.plan||'尊贵VIP会员');
+      add('会员状态',valid?(remaining>0?'有效期内':'已到期'):'待确认');
+      add('到期时间',dateValue(me.expires_at));
+      add('剩余天数',remaining===null?'暂未提供':remaining+'天');
+      if(me.starts_at||me.created_at)add('开通时间',dateValue(me.starts_at||me.created_at));
+      overlay.style.display='flex';
     }
     $('v4-account').onclick=vipProfile;$('v4-profile').onclick=vipProfile;
     async function initAuth(){
