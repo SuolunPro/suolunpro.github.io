@@ -33,10 +33,45 @@ jobs:
           sales=list((src/'sales').glob('*.json'))
           assert sales, 'No sale-day files found; refusing empty sync'
           print('Engine snapshot:',latest['generated_at'],'sales:',len(sales))
+          # Guardian stage 1: read-only integrity check; never alter frozen predictions.
+          from datetime import datetime,timezone,timedelta
+          from collections import Counter
+          problems=[]
+          for f in sales:
+              try:
+                  data=json.loads(f.read_text(encoding='utf-8'))
+                  if not isinstance(data.get('matches'),list):
+                      problems.append(f'{f.name}: matches missing')
+                  if data.get('sale_day') and data['sale_day']!=f.stem:
+                      problems.append(f'{f.name}: sale_day mismatch')
+              except (ValueError,OSError,TypeError) as exc:
+                  problems.append(f'{f.name}: invalid JSON ({exc})')
+          if problems:
+              for p in problems[:20]: print('::error::Guardian: '+p)
+              raise SystemExit('Guardian blocked unsafe snapshot publication')
+          unsettled=Counter()
+          for f in sales:
+              data=json.loads(f.read_text(encoding='utf-8'))
+              for m in data['matches']:
+                  if not m.get('settlement'):
+                      unsettled[f.stem]+=1
+          print('Guardian: JSON integrity PASS; unresolved per day:',dict(unsettled))
+          with open('/tmp/guardian-report.txt','w') as out:
+              out.write('Guardian read-only integrity: PASS\\n')
+              out.write(f'Sales files checked: {len(sales)}\\n')
+              out.write(f'Unsettled matches by sale day: {dict(unsettled)}\\n')
           PY
           mkdir -p data/engine4/sales
           cp /tmp/engine-source/data/engine4/latest.json data/engine4/latest.json
           cp /tmp/engine-source/data/engine4/sales/*.json data/engine4/sales/
+      - name: Guardian audit summary
+        if: always()
+        run: |
+          if [ -f /tmp/guardian-report.txt ]; then
+            cat /tmp/guardian-report.txt >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Guardian: source unavailable or integrity check failed; publication blocked.' >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Commit and publish changed snapshots
         run: |
           set -euo pipefail
