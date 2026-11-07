@@ -179,6 +179,11 @@
         }
         analysis.append(blocks);
         for(const detail of data.evidence||[])analysis.append(el('p','v4-reason',detail))
+        if(data.channels?.length)analysis.append(el('p','v4-reason','触发通道 · '+data.channels.join(' / ')));
+        if(data.funding_direction)analysis.append(el('p','v4-reason','必发资金方向 · '+data.funding_direction));
+        if(Array.isArray(data.hot_cold_index))analysis.append(el('p','v4-reason','交易冷热指数（主/平/客） · '+data.hot_cold_index.map(label).join(' / ')));
+        if(Array.isArray(data.institution_support))analysis.append(el('p','v4-reason','99家机构平均概率（主/平/客） · '+data.institution_support.map(label).join(' / ')));
+        if(data.market_captured_at)analysis.append(el('p','v4-reason','市场采集时间 · '+stamp(data.market_captured_at)));
       }
       card.append(analysis)
     }
@@ -237,3 +242,4 @@
   </script>
 </body>
 </html>
+
