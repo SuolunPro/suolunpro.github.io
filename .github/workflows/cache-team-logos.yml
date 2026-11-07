@@ -1,0 +1,67 @@
+name: Cache verified FotMob team badges
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 5 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: team-logo-cache
+  cancel-in-progress: false
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download missing verified badges only
+        run: |
+          python - <<'PY'
+          import json, pathlib, urllib.request, imghdr, time
+          root=pathlib.Path('assets/team-logos')
+          root.mkdir(parents=True,exist_ok=True)
+          ids=set()
+          files=list(pathlib.Path('data/engine4/sales').glob('*.json'))
+          files.append(pathlib.Path('data/engine4/latest.json'))
+          for path in files:
+              try:
+                  doc=json.loads(path.read_text(encoding='utf-8'))
+                  for match in doc.get('matches',[]):
+                      for side in ('home','away'):
+                          value=str(match.get('fotmob_'+side+'_team_id') or '')
+                          if value.isascii() and value.isdecimal() and 0<int(value)<10**10:
+                              ids.add(str(int(value)))
+              except (OSError,ValueError,TypeError): pass
+          count=0
+          for team_id in sorted(ids):
+              if count>=60: break
+              target=root/(team_id+'.png')
+              if target.exists(): continue
+              url='https://images.fotmob.com/image_resources/logo/teamlogo/'+team_id+'.png'
+              try:
+                  request=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Accept':'image/png,image/*'})
+                  with urllib.request.urlopen(request,timeout=8) as response:
+                      if response.status!=200: continue
+                      data=response.read(150001)
+                  if not (8<len(data)<=150000 and data.startswith(b'\\x89PNG\\r\\n\\x1a\\n')):
+                      print('skip invalid PNG',team_id)
+                      continue
+                  target.write_bytes(data)
+                  count+=1
+              except Exception as exc:
+                  print('badge unavailable',team_id,str(exc)[:120])
+              time.sleep(0.12)
+          print('verified teams:',len(ids),'downloaded:',count,'cached:',len(list(root.glob('*.png'))))
+          PY
+      - name: Commit new badge images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/team-logos/
+          if ! git diff --cached --quiet; then
+            git commit -m "assets: cache newly verified FotMob team badges"
+            git push
+          fi
