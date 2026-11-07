@@ -86,10 +86,11 @@ def run(current=None):
             identity = key(match)
             previous = by_id.get(identity)
             if previous is None:
-                if is_prematch(match):
-                    target["matches"].append(match)
-                    by_id[identity] = match
-            elif is_prematch(match) and match["predicted_at"] > previous["predicted_at"]:
+                # Keep verified fixtures even when one module or the initial
+                # prediction is pending; never make a real match disappear.
+                target["matches"].append(match)
+                by_id[identity] = match
+            elif is_prematch(match) and match["predicted_at"] > str(previous.get("predicted_at") or ""):
                 # Select the last valid snapshot before kickoff. Re-evaluate any already
                 # verified result against that snapshot without fetching or changing scores.
                 settled = previous.get("settlement") or match.get("settlement")
@@ -135,3 +136,4 @@ def run(current=None):
 
 if __name__ == "__main__":
     run()
+

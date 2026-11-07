@@ -54,6 +54,29 @@ class EngineTests(unittest.TestCase):
         fixture['market']['asia']['皇冠']['current']='0.86 0.5 0.98'
         fixture['market']['asia']['澳门']['current']='0.86 0.5 0.98'
         self.assertEqual(model(fixture)['modules']['今日优选']['status'],'BLOCKED')
+    def test_real_betfair_funding_triggers_a_and_blocks_daily(self):
+        fixture={'spf':[1.60,3.40,5.00],'handicap':-1,
+          'bifa':{'prematch_verified':True,'captured_at':'2026-11-07T10:00:00+00:00',
+            'index_rows':[{'bfShare':18,'bfHotCold':-50,'avgProb':60},
+                          {'bfShare':20,'bfHotCold':-15,'avgProb':25},
+                          {'bfShare':62,'bfHotCold':90,'avgProb':15}],
+            'transaction_rows':[{'bfVolume':1800},{'bfVolume':2000},{'bfVolume':6200}]}}
+        modules=model(fixture)['modules']
+        cold=modules['冷门预警']
+        self.assertEqual(cold['channels'],['A'])
+        self.assertEqual(cold['direction'],'主队不胜')
+        self.assertEqual(cold['funding_direction'],'客胜')
+        self.assertEqual(modules['今日优选']['status'],'BLOCKED')
+
+    def test_daily_funding_under_50_is_blocked(self):
+        fixture={'spf':[1.65,3.80,4.90],'handicap':0,
+          'market':{'william':{'current':'1.69 / 3.70 / 4.70'},
+            'asia':{c:{'initial':'0.93 0.5 0.91','current':'0.89 0.5 0.95'} for c in ('澳门','皇冠')}},
+          'bifa':{'prematch_verified':True,
+            'index_rows':[{'bfShare':48,'avgProb':56},{'bfShare':29,'avgProb':25},{'bfShare':23,'avgProb':19}]}}
+        result=model(fixture)['modules']['今日优选']
+        self.assertEqual(result['status'],'BLOCKED')
+        self.assertIn('低于旧版 50%',result['reason'])
     def test_daily_cold_watch_excluded(self):
         fixture={'spf':[1.65,3.60,4.0],'handicap':-1,
           'market':{'william':{'initial':'1.60 / 3.90 / 4.20','current':'1.70 / 3.80 / 4.40'},
@@ -166,3 +189,4 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(prediction['modules']['总进球']['estimated_total_goals'],3.0)
         self.assertEqual(collector.collect(dict(match,home='未知球队'))['status'],'UNAVAILABLE')
         self.assertEqual(xg_pair({'key':'expected_goals','stats':['1.2','0.9']}),(1.2,.9))
+

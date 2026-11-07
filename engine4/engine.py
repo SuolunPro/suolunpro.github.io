@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from engine4.fotmob import FotmobXg
+from engine4.market_bridge import load as load_betfair, attach as attach_betfair
 
 BJT = timezone(timedelta(hours=8))
 API = 'https://qiulaile.vip/api'
@@ -210,6 +211,34 @@ def cold_warning(match, top, ft):
     deep_high_water = [a for a in asian if a['retreat']>=.249999 and a['water']>=1]
     channels=[]
     evidence=[]
+    bifa=match.get('bifa') or {}
+    funding_direction=None
+    hot_cold=None
+    institution_support=None
+    if bifa.get('prematch_verified') and idx is not None:
+        rows=bifa.get('index_rows') or []
+        tx=bifa.get('transaction_rows') or []
+        shares=[r.get('bfShare') for r in rows]
+        valid=(len(shares)==3 and len(tx)==3 and
+               all(isinstance(v,(int,float)) and 0<=v<=100 for v in shares) and
+               abs(sum(shares)-100)<=1.5 and
+               all(isinstance(r.get('bfVolume'),(int,float)) and r['bfVolume']>=0 for r in tx))
+        if valid:
+            leader=max(range(3),key=lambda i:shares[i])
+            funding_direction=('主胜','平局','客胜')[leader]
+            hot_cold=[r.get('bfHotCold') for r in rows]
+            institution_support=[r.get('avgProb') for r in rows]
+            evidence.append('澳客必发赛前资金比例 '+ '/'.join(f'{v:g}%' for v in shares)+
+                            '；成交量 '+ '/'.join(f'{r["bfVolume"]:g}' for r in tx))
+            if leader!=idx and leader!=1:
+                channels.append('A')
+                evidence.append('A：必发最高资金方向为反向胜负 '+funding_direction)
+            if leader==1 and bifa.get('exchange_scale') in ('适中','较大'):
+                channels.append('B')
+                evidence.append('B：必发平局资金最多且交易规模'+bifa['exchange_scale'])
+            if leader!=idx and fi and fc and (fc[idx]-fi[idx])*100<=-7:
+                channels.append('C')
+                evidence.append('C：威廉主方向公平比例下降至少7个百分点且必发反向')
     if price_rise and len(deep_high_water)>=2:
         channels.append('D')
         evidence.append('威廉主方向升赔；'+ '、'.join(a['company'] for a in deep_high_water)+'盘口退让至少0.25球且主方向水位≥1')
@@ -229,10 +258,13 @@ def cold_warning(match, top, ft):
             'triggered':triggered,'direction':direction if triggered else None,
             'watch_direction':direction if watch and not triggered else None,'channels':channels,
             'evidence':evidence,'watch':watch,
-            'missing':['必发资金方向（A/B/C未评估）','严格赛前独立比分（E1未评估）']+
+            'funding_direction':funding_direction,'hot_cold_index':hot_cold,
+            'institution_support':institution_support,
+            'market_captured_at':bifa.get('captured_at') or market.get('captured_at'),
+            'missing':([] if funding_direction else ['必发资金方向（A/B/C未评估）'])+['严格赛前独立比分（E1未评估）']+
                       ([] if fi and fc else ['威廉初盘与即时盘（D/E2未评估）'])+
                       ([] if asian else ['亚洲盘口（D未评估）']),
-            'checked':['D','E2'] if fi and fc and asian else ['E2'] if fi and fc else [],
+            'checked':(['A','B','C'] if funding_direction else [])+(['D'] if fi and fc and asian else [])+(['E2'] if fi and fc else []),
             'model':'SOREN_ABCDE_EVIDENCE_V1'}
 
 def daily_pick(match, top2, ft, cold):
@@ -269,6 +301,18 @@ def daily_pick(match, top2, ft, cold):
         reasons.append('可读亚洲盘口不足两家')
     if len(retreat)>=2:
         reasons.append('两家以上亚洲盘口对 Top1 退让：'+'、'.join(retreat))
+    bifa=match.get('bifa') or {}
+    shares=[r.get('bfShare') for r in (bifa.get('index_rows') or [])]
+    if bifa.get('prematch_verified') and len(shares)==3 and all(isinstance(v,(int,float)) for v in shares):
+        if max(range(3),key=lambda i:shares[i])!=idx:
+            reasons.append('必发最大资金方向不支持 Top1')
+        if shares[idx]<50:
+            reasons.append(f'必发 Top1 资金占比 {shares[idx]:.1f}% 低于旧版 50% 门槛')
+        institution=[r.get('avgProb') for r in bifa['index_rows']]
+        if not all(isinstance(v,(int,float)) for v in institution) or abs(sum(institution)-100)>3:
+            reasons.append('99家机构概率不完整')
+        elif max(range(3),key=lambda i:institution[i])!=idx:
+            reasons.append('99家机构平均概率首选方向不支持 Top1')
     # Historical fixed odds/probability gates are diagnostic only, not automatic vetoes.
     evidence=[f'原版门槛审计：SP Top1 {ft[top]*100:.1f}%'+('（低于旧55%门槛）' if ft[top]<.55 else '（达到旧55%门槛）')]
     if odds:
@@ -283,10 +327,77 @@ def daily_pick(match, top2, ft, cold):
         return {'status':'BLOCKED','selection':None,'candidate':None,'reason':'；'.join(reasons),
                 'evidence':evidence,'missing':['独立赛前模型 A 档/SINGLE/HUR','必发资金方向与份额'],
                 'model':'DAILY_VALUE_EVIDENCE_V2_SHADOW'}
-    return {'status':'CANDIDATE','selection':None,'candidate':top2[:2],'top2':top2[:2],
-            'reason':'市场候选，等待独立模型与必发同向核验；不计入正式今日优选',
-            'evidence':evidence,'missing':['独立赛前模型 A 档/SINGLE/HUR','必发资金方向与份额'],
-            'model':'DAILY_VALUE_EVIDENCE_V1'}
+    if not (match.get('bifa') or {}).get('prematch_verified'):
+        return {'status':'CANDIDATE','selection':None,'candidate':top2[:2],'top2':top2[:2],
+                'reason':'市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选',
+                'evidence':evidence,'missing':['独立赛前模型 A 档/SINGLE/HUR','必发资金方向与份额'],
+                'model':'DAILY_VALUE_EVIDENCE_V2_SHADOW'}
+    return {'status':'SELECTED','selection':top2[:2],'candidate':None,'top2':top2[:2],
+            'reason':'通过4.0市场风险闸门的正式双选；未具备旧版母模型 A 档/SINGLE/HUR 证明',
+            'evidence':evidence,'missing':['独立赛前模型 A 档/SINGLE/HUR'],
+            'model':'DAILY_MARKET_DOUBLE_V4'}
+
+def daily_pick_shadow_v2(match, ft, cold, use_xg=False, xg_ft=None):
+    """Independent double-choice shadow audit; never counted as a formal pick."""
+    directions=('胜','平','负')
+    market=match.get('market') or {}
+    william=market.get('william') or {}
+    wi=normalize_probs(odds3(william.get('initial')))
+    wc=normalize_probs(odds3(william.get('current')))
+    asian=market.get('asia') or {}
+    top=max(ft,key=ft.get)
+    signals=[]
+    blockers=[]
+    if cold.get('status')=='TRIGGERED' or cold.get('triggered'):
+        blockers.append('正式冷门预警：整期排除')
+    if not wc:
+        blockers.append('威廉即时赔率不可核验')
+    elif directions[wc.index(max(wc))]!=top:
+        blockers.append('威廉与体彩首选背离')
+    valid=0
+    retreat=0
+    for quote in asian.values():
+        cur=asian_snapshot(quote.get('current'))
+        initial=asian_snapshot(quote.get('initial'))
+        if cur:
+            valid+=1
+        if cur and initial and ((top=='胜' and cur['line']-initial['line']>=.249999) or
+                                (top=='负' and initial['line']-cur['line']>=.249999)):
+            retreat+=1
+    if valid<2:
+        blockers.append('亚洲盘口有效机构不足两家')
+    if retreat>=2:
+        blockers.append('至少两家亚洲机构对首选退让')
+    if cold.get('status')=='WATCH':
+        signals.append('冷门观察：需进一步市场复核')
+    if retreat:
+        signals.append('盘口退让 '+str(retreat)+' 家')
+    if wi and wc and wc[1]>wi[1]+.015:
+        signals.append('威廉平局隐含概率上升')
+    if ft['平']>=.27:
+        signals.append('平局市场基线较高')
+    if use_xg and xg_ft:
+        if xg_ft.get('平',0)>ft['平']+.025:
+            signals.append('独立历史xG支持提高平局权重')
+    else:
+        signals.append('独立历史xG缺失：不进行伪独立概率加权')
+    # Keep market probabilities as the baseline. Do not turn correlated
+    # qualitative signals into fabricated numerical probability boosts.
+    choices=sorted(directions,key=lambda d:(-ft[d],directions.index(d)))[:2]
+    if '平' not in choices and len(signals)>=2 and any('平局' in x for x in signals):
+        choices=[top,'平']
+    coverage=sum(ft[d] for d in choices)
+    omitted=next(d for d in directions if d not in choices)
+    if coverage<.70:
+        blockers.append('双选市场覆盖率低于探索门槛70%')
+    if ft[omitted]>.30:
+        blockers.append('第三方向市场风险高于30%')
+    return {'version':'DAILY_DOUBLE_V2_SHADOW_0_1','status':'BLOCKED' if blockers else 'SHADOW_CANDIDATE',
+            'selection':choices if not blockers else None,'shadow_choices':choices,
+            'market_coverage':round(coverage,4),'omitted_direction':omitted,
+            'omitted_market_risk':round(ft[omitted],4),'signals':signals,'blockers':blockers,
+            'source':'赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助',
+            'official':False,'settlement_eligible':False}
 
 def handicap_probabilities(lam_h,lam_a,line):
     """90-minute lottery handicap: home score plus integer line."""
@@ -367,10 +478,11 @@ def model(match):
                 cold['status']='WATCH'
                 cold['level']='关注'
     daily = daily_pick(match, ranked[:2], ft, cold)
+    daily_shadow_v2 = daily_pick_shadow_v2(match, ft, cold, use_xg, xg_ft if use_xg else None)
     rq_top2 = rq_ranked[:2]
     if set(rq_top2) == {'让胜','让负'}:
         rq_top2 = [rq_top2[0], '让平']
-    return {'status':'PREDICTED','method':'胜平负 SP 去水；比分/进球/半全场采用'+goal_method,
+    return {'status':'PREDICTED','daily_pick_shadow_v2':daily_shadow_v2,'method':'胜平负 SP 去水；比分/进球/半全场采用'+goal_method,
         'confidence':'中低（历史xG样本有限且缺少必发）' if use_xg else '低（缺少必发与独立赛前xG）', 'modules':{
             '胜平负':{'top1':ranked[0],'top2':ranked[:2], 'probabilities':{k:round(v,4) for k,v in ft.items()}},
             '让球':{'handicap':handicap,'top2':rq_top2,
@@ -409,8 +521,8 @@ def model(match):
         'fotmob_audit':xg_audit,
         'coverage':{'independent_xg':use_xg,
                     'william':bool((match.get('market') or {}).get('william')),
-                    'macau_asia':bool((match.get('market') or {}).get('asia',{}).get('澳门')),
-                    'bifa':False}}
+                    'macau_asia':bool(((match.get('market') or {}).get('asia') or {}).get('澳门')),
+                    'bifa':bool((match.get('bifa') or {}).get('prematch_verified'))}}
 
 def prior_cold_locks(sale_day):
     locked={}
@@ -461,6 +573,7 @@ def run(sale_day=None, out='data/engine4/latest.json'):
                 continue
         locks=prior_cold_locks(sale_day)
         fotmob=FotmobXg(sale_day)
+        betfair_records=load_betfair(sale_day)
         for number in sorted(pool):
             match = pool[number]
             try:
@@ -470,6 +583,8 @@ def run(sale_day=None, out='data/engine4/latest.json'):
             except ValueError:
                 report['errors'].append(f'{number}: 开赛时间格式不正确')
                 continue
+            match['bifa']=attach_betfair(match,betfair_records)
+            match['bifa_status']='已核验赛前' if match['bifa'] else '待更新'
             match['market'] = fetch_market(match, report['errors'])
             match['fotmob_xg'] = fotmob.collect(match)
             if now() >= kickoff.astimezone(timezone.utc):
@@ -477,9 +592,9 @@ def run(sale_day=None, out='data/engine4/latest.json'):
                 continue
             match['predicted_at'] = now().isoformat()
             match['prediction'] = model(match)
-            previous=locks.get(str(match['source_id']))
-            if previous and match['prediction']['status']=='PREDICTED':
-                match['prediction']['modules']['冷门预警']=dict(previous,locked_from_prior=True)
+            locked_warning=locks.get(str(match['source_id']))
+            if locked_warning and match['prediction']['status']=='PREDICTED':
+                match['prediction']['modules']['冷门预警']=dict(locked_warning,locked_from_prior=True)
                 match['prediction']['modules']['今日优选']={'status':'BLOCKED','selection':None,'candidate':None,
                     'reason':'赛前冷门预警已触发，销售日内持续排除','evidence':[],
                     'missing':[],'model':'DAILY_VALUE_EVIDENCE_V1'}
@@ -505,3 +620,4 @@ def run(sale_day=None, out='data/engine4/latest.json'):
 
 if __name__ == '__main__':
     run(os.getenv('POOL_DATE'),os.getenv('ENGINE_OUTPUT','data/engine4/latest.json'))
+

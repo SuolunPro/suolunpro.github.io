@@ -80,6 +80,19 @@ class VerificationTests(unittest.TestCase):
             self.assertFalse(report["matches"][0]["settlement"]["hits"]["让球Top1"])
             self.assertEqual(report["metrics"]["settled"], 1)
 
+    def test_pending_fixture_stays_visible_until_prediction_arrives(self):
+        import engine4.aggregate as aggregate
+        pending={"match_no":"029","source_id":"real-029","home":"主队","away":"客队",
+                 "kickoff":"2026-11-07 20:00","prediction":{"status":"PENDING","reason":"SP待更新"}}
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root / "history").mkdir()
+            (root / "latest.json").write_text(json.dumps({"sale_day":"2026-11-07","matches":[pending]}))
+            with patch.object(aggregate,"ROOT",root), patch.object(aggregate,"LATEST",root / "latest.json"), patch.object(aggregate,"SALES",root / "sales"), patch.object(aggregate,"settle",side_effect=lambda p,current:json.loads(p.read_text())):
+                report=aggregate.run(datetime(2026,11,7,10,tzinfo=timezone.utc))
+            self.assertEqual(report["matches"][0]["match_no"],"029")
+            self.assertEqual(report["metrics"]["total"],1)
+
     def test_daily_value_two_picks_settle_by_either_option(self):
         match = self.fixture()
         match["prediction"]["modules"]["今日优选"] = {
@@ -121,3 +134,4 @@ class VerificationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

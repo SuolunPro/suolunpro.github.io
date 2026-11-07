@@ -8,7 +8,7 @@ on:
       - '.github/workflows/engine4-validation.yml'
   schedule:
     - cron: '20 4,6,8,10,12,14 * * *'
-    - cron: '0,30 * * * *'
+    - cron: '0,15,30,45 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -27,8 +27,10 @@ jobs:
           python-version: '3.12'
       - name: Check code and tests
         run: |
-          python -m py_compile engine4/engine.py engine4/fotmob.py engine4/settle.py engine4/fotmob_results.py engine4/aggregate.py
+          python -m py_compile engine4/okooo_betfair.py engine4/market_bridge.py engine4/engine.py engine4/fotmob.py engine4/settle.py engine4/fotmob_results.py engine4/aggregate.py
           python -m unittest discover -s engine4/tests -v
+      - name: Refresh Okooo prematch evidence
+        run: python -m engine4.okooo_betfair
       - name: Refresh fixtures and prematch predictions
         run: |
           cp data/engine4/latest.json /tmp/engine4-before.json 2>/dev/null || true
@@ -47,6 +49,19 @@ jobs:
           PY
       - name: Restore fixtures, verify results and calculate metrics
         run: python -m engine4.aggregate
+      - name: Verify published market coverage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('data/engine4/latest.json').read_text())
+          m=d.get('matches',[])
+          print(json.dumps({'sale_day':d.get('sale_day'),'status':d.get('status'),
+            'matches':len(m),'predicted':sum((x.get('prediction') or {}).get('status')=='PREDICTED' for x in m),
+            'betfair':sum(bool((x.get('bifa') or {}).get('prematch_verified')) for x in m),
+            'daily_selected':sum((x.get('prediction') or {}).get('modules',{}).get('今日优选',{}).get('status')=='SELECTED' for x in m),
+            'warnings':sum(bool((x.get('prediction') or {}).get('modules',{}).get('冷门预警',{}).get('triggered')) for x in m)},ensure_ascii=False))
+          PY
       - name: Publish JSON to website
         run: |
           mkdir -p data/engine4/history
@@ -61,3 +76,4 @@ jobs:
           name: engine4-validation-run
           path: data/engine4/latest.json
           retention-days: 14
+
