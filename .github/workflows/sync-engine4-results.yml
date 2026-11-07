@@ -16,23 +16,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
-      - name: Configure private engine read key
-        env:
-          ENGINE_DEPLOY_KEY: ${{ secrets.ENGINE4_READ_DEPLOY_KEY }}
-        run: |
-          set -euo pipefail
-          test -n "$ENGINE_DEPLOY_KEY" || { echo 'Missing ENGINE4_READ_DEPLOY_KEY secret'; exit 1; }
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf '%s\\n' "$ENGINE_DEPLOY_KEY" > ~/.ssh/engine4_deploy_key
-          chmod 600 ~/.ssh/engine4_deploy_key
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-          printf 'Host github.com\\n  IdentityFile ~/.ssh/engine4_deploy_key\\n  IdentitiesOnly yes\\n' > ~/.ssh/config
       - name: Fetch engine snapshots
+        env:
+          ENGINE4_READ_TOKEN: ${{ secrets.ENGINE4_READ_TOKEN }}
         run: |
           set -euo pipefail
-          git clone --depth 1 git@github.com:SuolunPro/90scale-engine.git /tmp/engine-source
+          test -n "$ENGINE4_READ_TOKEN" || { echo 'Missing ENGINE4_READ_TOKEN secret'; exit 1; }
+          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$ENGINE4_READ_TOKEN" | base64 -w0)" clone --depth 1 https://github.com/SuolunPro/90scale-engine.git /tmp/engine-source
           test -s /tmp/engine-source/data/engine4/latest.json
           python - <<'PY'
           import json
