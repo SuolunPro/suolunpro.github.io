@@ -124,7 +124,7 @@
         <button class="version v4-account-button" id="v4-account" type="button">我的会员</button>
       </div>
       <nav class="models" id="models" aria-label="赛事分析模块"></nav>
-      <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><select id="day-select" class="v4-day-select" aria-label="选择赛事日期"><option value="latest">今日最新</option><option value="2026-11-06">11月6日历史</option></select></div>
+      <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><select id="day-select" class="v4-day-select" aria-label="选择赛事日期"><option value="latest">今日最新</option><option value="2026-11-06">11月6日历史</option><option value="2026-11-07">11月7日历史</option><option value="2026-11-08">11月8日历史</option></select></div>
     </header>
     <main class="main">
       <section class="toolbar">
@@ -200,13 +200,15 @@
     }
     async function loadDays(){
       const data=await getJson(DATA_BASE+'sales/index.json');
-      const select=$('day-select'),current=select.value;
-      select.replaceChildren(new Option('今日最新','latest'));
-      for(const day of data.days||[]){
-        if(!/^20\\d{2}-\\d{2}-\\d{2}$/.test(day))continue;
-        select.add(new Option(day.slice(5,7)+'月'+day.slice(8,10)+'日历史',day));
-      }
-      select.value=[...select.options].some(option=>option.value===current)?current:'latest';
+      if(!Array.isArray(data.days))throw Error('历史日期索引格式错误');
+      const select=$('day-select'),current=selectedDay;
+      const days=[...new Set(data.days.filter(day=>/^20\\d{2}-\\d{2}-\\d{2}$/.test(day)))].sort().reverse();
+      const choices=[['今日最新','latest'],...days.map(day=>[day.slice(5,7)+'月'+day.slice(8,10)+'日历史',day])];
+      select.replaceChildren(...choices.map(([label,value])=>{
+        const option=document.createElement('option');
+        option.value=value;option.textContent=label;return option;
+      }));
+      select.value=days.includes(current)?current:'latest';
     }
     let vipMember=null;
     async function vipEnter(){
@@ -214,7 +216,7 @@
       vipMember=me;
       $('vip-gate').hidden=true;$('v4-app').hidden=false;
       $('v4-account').title=me.email+' · 有效期至 '+new Date(me.expires_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
-      await loadDays().catch(()=>{});
+      await loadDays().catch(error=>console.warn('历史日期加载失败，保留页面已有日期',error));
       load();
     }
     $('vip-form').addEventListener('submit',async event=>{
@@ -454,7 +456,10 @@
         $('matches').replaceChildren(el('div','error','赛事数据暂时无法加载，请稍后刷新'))
       }
     }
-    $('day-select').onchange=e=>{selectedDay=e.target.value;load()};$('refresh').onclick=load;navigation();initAuth();
+    $('day-select').onfocus=()=>{loadDays().catch(error=>console.warn('历史日期刷新失败',error))};
+    $('day-select').onchange=e=>{selectedDay=e.target.value;load()};
+    $('refresh').onclick=()=>{loadDays().catch(error=>console.warn('历史日期刷新失败',error));load()};
+    navigation();initAuth();
   </script>
 </body>
 </html>
