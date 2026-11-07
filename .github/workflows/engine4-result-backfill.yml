@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/engine4-result-backfill.yml'
+      - 'engine4/fotmob.py'
+      - 'engine4/fotmob_results.py'
+      - 'engine4/settle.py'
+      - 'engine4/aggregate.py'
   schedule:
     - cron: '5,15,25,35,45,55 * * * *'
 permissions:
