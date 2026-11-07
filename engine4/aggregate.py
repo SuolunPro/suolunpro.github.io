@@ -34,7 +34,7 @@ def is_prematch(match):
 
 def metrics(matches):
     settled = [m for m in matches if m.get("settlement")]
-    keys = ("胜平负Top1", "胜平负Top2", "让球Top1", "让球Top2", "比分Top1", "比分Top3",
+    keys = ("胜平负Top1", "胜平负Top2", "让球Top1", "让球Top2", "比分Top1", "比分Top3", "比分Top4",
             "总进球Top1", "总进球Top3", "半全场Top1", "半全场Top3",
             "今日优选Top1", "今日优选Top2", "今日优选", "冷门预警")
     rows = {}
@@ -46,7 +46,7 @@ def metrics(matches):
                       "rate": round(hit / len(eligible), 4) if eligible else None}
     groups = {"胜平负": ("胜平负Top1", "胜平负Top2"),
               "让球": ("让球Top1", "让球Top2"),
-              "比分": ("比分Top1", "比分Top3"),
+              "比分": ("比分Top1", "比分Top3", "比分Top4"),
               "总进球": ("总进球Top1", "总进球Top3"),
               "半全场": ("半全场Top1", "半全场Top3"),
               "今日优选": ("今日优选Top1", "今日优选Top2", "今日优选"),
@@ -60,7 +60,7 @@ def metrics(matches):
                 return entry.get("selection") is not None
             if name == "冷门预警":
                 return entry.get("triggered") is True and entry.get("direction") in ("主队不胜", "主队不败")
-            return (m.get("prediction") or {}).get("status") == "PREDICTED" and bool(entry.get("top2") or entry.get("top3"))
+            return (m.get("prediction") or {}).get("status") == "PREDICTED" and bool(entry.get("top2") or entry.get("top3") or entry.get("top4"))
         predicted = sum(has_selection(m) for m in matches)
         verified = rows[names[-1]]["total"]
         module_stats[name] = {"predicted": predicted, "verified": verified,
