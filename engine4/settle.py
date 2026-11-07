@@ -4,6 +4,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from engine4.fotmob_results import result_for
+from engine4.fotmob import json_get
 
 BJT = timezone(timedelta(hours=8))
 
@@ -106,11 +107,16 @@ def settle(path, current=None):
         return None
     report = json.loads(path.read_text(encoding="utf-8"))
     changed = False
+    cache = {}
+    def cached_get(url):
+        if url not in cache:
+            cache[url] = json_get(url)
+        return cache[url]
     for match in report.get("matches", []):
         if match.get("settlement") or not match.get("predicted_at"):
             continue
         try:
-            result, error = result_for(match, current=current)
+            result, error = result_for(match, get=cached_get, current=current)
             if error:
                 diagnostic = {"status": "PENDING", "reason": error, "checked_at": current.isoformat()}
                 if match.get("result_verification", {}).get("reason") != error:
