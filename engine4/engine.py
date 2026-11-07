@@ -438,8 +438,47 @@ def model(match):
         top2 = ranked[:2]
         if set(top2) == {'让胜', '让负'}:
             top2 = [top2[0], '让平']
+        # Independent goal modules may run only on verified prematch FotMob xG.
+        # Official handicap SP alone cannot identify an exact-goal distribution.
+        xg = match.get('fotmob_xg') or {}
+        use_xg = xg.get('status') == 'AVAILABLE' and all(
+            isinstance(xg.get(k), (int, float)) and math.isfinite(xg[k])
+            and .15 <= xg[k] <= 5 for k in ('home_lambda', 'away_lambda'))
+        goal_modules = {}
+        if use_xg:
+            lh, la = xg['home_lambda'], xg['away_lambda']
+            inferred = outcome_probs(lh, la)
+            legacy = legacy_score_top4(lh, la, inferred)
+            total = lh + la
+            goal_dist = {str(n): poisson(total, n) for n in range(7)}
+            goal_dist['7+'] = max(0.0, 1 - sum(goal_dist.values()))
+            goals = sorted(goal_dist, key=lambda n: (-goal_dist[n], n))[:3]
+            hft_probs = halftime_fulltime_probabilities(lh, la)
+            hft = sorted(hft_probs, key=hft_probs.get, reverse=True)[:3]
+            goal_modules = {
+                '比分': {'top3': legacy['top3'], 'top4': legacy['top4'],
+                    'probabilities': legacy['probabilities'],
+                    'method': '独立FotMob赛前历史xG；HJ3.8 Top4兼容排序',
+                    'legacy_method': legacy['method'],
+                    'legacy_input': '独立xG推导胜平负概率（非旧版P-final）',
+                    'source': xg.get('source') or 'FotMob', 'xg_status': 'AVAILABLE',
+                    'home_expected_goals': round(lh, 3),
+                    'away_expected_goals': round(la, 3)},
+                '总进球': {'top3': [int(n) if n != '7+' else '7+' for n in goals],
+                    'probabilities': {n: round(v, 6) for n, v in goal_dist.items()},
+                    'estimated_total_goals': round(total, 3),
+                    'method': '独立FotMob赛前历史xG泊松',
+                    'source': xg.get('source') or 'FotMob', 'xg_status': 'AVAILABLE'},
+                '半全场': {'top3': hft,
+                    'probabilities': {k: round(v, 6) for k, v in hft_probs.items()},
+                    'method': '独立FotMob赛前历史xG半全场分布',
+                    'source': xg.get('source') or 'FotMob', 'xg_status': 'AVAILABLE'}}
+        else:
+            goal_modules = {k: {'status': 'NO_PREDICTION',
+                'reason': '普通胜平负SP缺失且无经核实的独立赛前xG'}
+                for k in ('比分', '总进球', '半全场')}
         return {'status':'PREDICTED', 'method':'仅体彩让球胜平负SP去水',
-            'confidence':'仅让球市场可用；其他模块未评估',
+            'confidence':'普通胜平负未开售；进球模块仅在独立xG可用时计算',
             'modules':{
                 '胜平负':{'status':'NOT_ON_SALE','reason':'普通胜平负未开售'},
                 '让球':{'status':'有数据','handicap':handicap,'top2':top2,
@@ -447,12 +486,10 @@ def model(match):
                     'probabilities':{k:round(v,6) for k,v in market.items()},
                     'market_probabilities':{k:round(v,6) for k,v in market.items()},
                     'xg_probabilities':{}},
-                '比分':{'status':'NO_PREDICTION'},
-                '总进球':{'status':'NO_PREDICTION'},
-                '半全场':{'status':'NO_PREDICTION'},
+                **goal_modules,
                 '冷门预警':{'status':'NOT_EVALUATED','triggered':False,'direction':None},
                 '今日优选':{'status':'BLOCKED','selection':None,'reason':'普通胜平负未开售，不进入今日优选'}
-            },'coverage':{'handicap_only':True,'independent_xg':False,
+            },'coverage':{'handicap_only':True,'independent_xg':use_xg,
                 'william':bool((match.get('market') or {}).get('william')),
                 'macau_asia':bool(((match.get('market') or {}).get('asia') or {}).get('澳门')),
                 'bifa':bool((match.get('bifa') or {}).get('prematch_verified'))}}
