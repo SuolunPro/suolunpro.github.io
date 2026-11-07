@@ -209,7 +209,7 @@
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`全池 ${report.matches.length} 场 · 最近更新 ${stamp(report.generated_at)}`;
       const focus=active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
-        active==='今日优选'?report.matches.filter(match=>['SELECTED','CANDIDATE'].includes(match.prediction?.modules?.[active]?.status)):report.matches;
+        active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
       if(!focus.length){root.append(el('div','empty',active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
