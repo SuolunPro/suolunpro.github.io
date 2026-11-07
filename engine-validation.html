@@ -98,11 +98,22 @@
   </style>
 </head>
 <body>
-  <div class="app">
+  <section id="vip-gate" class="vip-gate" aria-label="尊贵月卡VIP登录">
+    <form id="vip-form" class="vip-panel">
+      <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt=""><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
+      <h1>尊贵月卡VIP</h1><p>登录后查看九十刻度4.0赛事分析。原账号和密码继续使用。</p>
+      <label>会员邮箱<input id="vip-email" type="email" autocomplete="username" required></label>
+      <label>密码<input id="vip-password" type="password" autocomplete="current-password" required></label>
+      <button id="vip-login" type="submit">登录并查看预测</button>
+      <p id="vip-error" role="alert"></p>
+      <p class="vip-legal">模型仍在调试，赛事结果存在不确定性。平台仅提供数据研究与风险提示，不提供投注服务或收益承诺。</p>
+    </form>
+  </section>
+  <div class="app" id="v4-app" hidden>
     <header class="hero">
       <div class="brandbar">
         <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt="九十刻度图标"><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
-        <div class="version">赛事分析</div>
+        <button class="version v4-account-button" id="v4-account" type="button">我的会员</button>
       </div>
       <nav class="models" id="models" aria-label="赛事分析模块"></nav>
       <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><select id="day-select" class="v4-day-select" aria-label="选择赛事日期"><option value="latest">今日最新</option><option value="2026-11-06">11月6日历史</option></select></div>
@@ -136,10 +147,61 @@
         </footer>
       </section>
     </main>
-    <nav class="bottom" aria-label="页面导航"><div class="bottom-inner"><a class="nav active" href="./index.html" style="text-decoration:none"><i>⌂</i>首页</a><a class="nav" href="./member.html" style="text-decoration:none"><i>◎</i>我的</a></div></nav>
+    <nav class="bottom" aria-label="页面导航"><div class="bottom-inner"><a class="nav active" href="./" style="text-decoration:none"><i>⌂</i>首页</a><button class="nav" id="v4-profile" type="button"><i>◎</i>我的</button></div></nav>
   </div>
+  <style>
+    .vip-gate{min-height:100dvh;display:grid;place-items:center;padding:24px;background:#081321;color:#f5f5f5}
+    .vip-gate[hidden],#v4-app[hidden]{display:none!important}
+    .vip-panel{width:min(420px,100%);padding:25px;border:1px solid #b99a55;border-radius:16px;background:#101e2e;box-shadow:0 14px 40px #0005}
+    .vip-panel .brand{display:flex;align-items:center;gap:10px}
+    .vip-panel h1{font-size:22px;margin:24px 0 7px}
+    .vip-panel p{font-size:12px;line-height:1.7;color:#b7c5d5}
+    .vip-panel label{display:block;font-size:12px;margin-top:16px}
+    .vip-panel input{display:block;width:100%;margin-top:6px;padding:12px;border:1px solid #53647b;border-radius:8px;background:#081321;color:#fff;font-size:16px}
+    .vip-panel button{width:100%;margin-top:20px;padding:12px;border:0;border-radius:8px;background:#c8a762;color:#081321;font-weight:800}
+    .vip-panel #vip-error{color:#ffc3c3;min-height:20px}
+    .vip-panel .vip-legal{font-size:11px}
+    .v4-account-button{border:1px solid #ffffff80;border-radius:7px;background:transparent;color:#fff;padding:6px 9px}
+  </style>
   <script>
     const $=id=>document.getElementById(id);
+    const VIP_API='https://suolun-vip-staging.hjh19970220.workers.dev';
+    let vipToken=sessionStorage.getItem('ninety_vip_token')||'';
+    async function vipCall(path,options={}){
+      const response=await fetch(VIP_API+path,{...options,cache:'no-store',headers:{...(options.body?{'Content-Type':'application/json'}:{}),...(vipToken?{Authorization:'Bearer '+vipToken}:{}),...options.headers}});
+      const payload=await response.json().catch(()=>({error:'network_error'}));
+      if(!response.ok)throw Error(payload.error||'HTTP '+response.status);
+      return payload;
+    }
+    function vipShowGate(message=''){
+      vipToken='';sessionStorage.removeItem('ninety_vip_token');
+      $('v4-app').hidden=true;$('vip-gate').hidden=false;$('vip-error').textContent=message;
+    }
+    async function vipEnter(){
+      const me=await vipCall('/auth/me');
+      $('vip-gate').hidden=true;$('v4-app').hidden=false;
+      $('v4-account').title=me.email+' · 有效期至 '+new Date(me.expires_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
+      load();
+    }
+    $('vip-form').addEventListener('submit',async event=>{
+      event.preventDefault();const button=$('vip-login');button.disabled=true;$('vip-error').textContent='正在验证会员权限…';
+      try{
+        const auth=await vipCall('/auth/login',{method:'POST',body:JSON.stringify({email:$('vip-email').value.trim(),password:$('vip-password').value})});
+        vipToken=auth.token;sessionStorage.setItem('ninety_vip_token',vipToken);$('vip-password').value='';
+        await vipEnter();
+      }catch(error){
+        vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_credentials'?'账号或密码不正确。':'登录暂时失败，请稍后重试。');
+      }finally{button.disabled=false}
+    });
+    function vipProfile(){
+      if(confirm('退出当前会员账号？')){vipShowGate('已退出登录。');$('vip-password').value=''}
+    }
+    $('v4-account').onclick=vipProfile;$('v4-profile').onclick=vipProfile;
+    async function initAuth(){
+      if(!vipToken)return;
+      try{await vipEnter()}catch(_){vipShowGate('登录状态已失效，请重新登录。')}
+    }
+
     const modules=[
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
       ['比分','全场比分'],['总进球','泊松进球'],['冷门预警','冷门预警']
@@ -322,9 +384,8 @@
     }
     async function load(){
       try{
-        const path=selectedDay==='latest'?'./data/engine4/latest.json':'./data/engine4/sales/'+selectedDay+'.json';
-        let response=await fetch(path+'?t='+Date.now(),{cache:'no-store'});
-        if(!response.ok&&selectedDay!=='latest')response=await fetch('./data/engine4/history/'+selectedDay+'.json?t='+Date.now(),{cache:'no-store'});
+        const response=await fetch(VIP_API+'/predictions?day='+encodeURIComponent(selectedDay),{headers:{Authorization:'Bearer '+vipToken},cache:'no-store'});
+        if(response.status===401||response.status===403){vipShowGate('会员权限已失效，请重新登录。');return}
         if(!response.ok)throw Error('HTTP '+response.status);
         const data=await response.json();if(!Array.isArray(data.matches))throw Error('报告格式错误');
         report=data;render()
@@ -333,7 +394,7 @@
         $('matches').replaceChildren(el('div','error','赛事数据暂时无法加载，请稍后刷新'))
       }
     }
-    $('day-select').onchange=e=>{selectedDay=e.target.value;load()};$('refresh').onclick=load;navigation();load();
+    $('day-select').onchange=e=>{selectedDay=e.target.value;load()};$('refresh').onclick=load;navigation();initAuth();
   </script>
 </body>
 </html>
