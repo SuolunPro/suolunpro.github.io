@@ -112,7 +112,11 @@ def settle(path, current=None):
         try:
             result, error = result_for(match, current=current)
             if error:
-                print(json.dumps({"match_no": match.get("match_no"), "pending": error}))
+                diagnostic = {"status": "PENDING", "reason": error, "checked_at": current.isoformat()}
+                if match.get("result_verification", {}).get("reason") != error:
+                    match["result_verification"] = diagnostic
+                    changed = True
+                print(json.dumps({"match_no": match.get("match_no"), "pending": error}, ensure_ascii=False))
                 continue
             settlement = mark(match, result, current)
             if settlement:
@@ -120,6 +124,7 @@ def settle(path, current=None):
                     if result.get(field):
                         match[field] = result[field]
                 match["settlement"] = settlement
+                match["result_verification"] = {"status": "VERIFIED", "checked_at": current.isoformat()}
                 changed = True
         except Exception as exc:
             print(json.dumps({"match_no": match.get("match_no"), "source_error": str(exc)[:200], "action": "keep_pending"}))
