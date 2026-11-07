@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+from engine4.legacy_score import legacy_score_top4
 from engine4.fotmob import FotmobXg
 from engine4.market_bridge import load as load_betfair, attach as attach_betfair
 
@@ -426,7 +427,35 @@ def halftime_fulltime_probabilities(lam_h,lam_a):
 def model(match):
     probs = normalize_probs(match['spf'])
     if not probs:
-        return {'status':'NO_PREDICTION', 'reason':'缺少真实赛前胜平负 SP'}
+        # A match may sell only the official handicap market. Keep it eligible
+        # for a real handicap prediction without fabricating regular 1X2 SP.
+        rq = normalize_probs(match.get('rqspf'))
+        handicap = match.get('handicap')
+        if not rq or not isinstance(handicap, int):
+            return {'status':'NO_PREDICTION', 'reason':'普通胜平负及有效让球SP均缺失'}
+        market = dict(zip(('让胜','让平','让负'), rq))
+        ranked = sorted(market, key=market.get, reverse=True)
+        top2 = ranked[:2]
+        if set(top2) == {'让胜', '让负'}:
+            top2 = [top2[0], '让平']
+        return {'status':'PREDICTED', 'method':'仅体彩让球胜平负SP去水',
+            'confidence':'仅让球市场可用；其他模块未评估',
+            'modules':{
+                '胜平负':{'status':'NOT_ON_SALE','reason':'普通胜平负未开售'},
+                '让球':{'status':'有数据','handicap':handicap,'top2':top2,
+                    'method':'体彩让球SP去水','source':'SP','xg_status':'UNAVAILABLE',
+                    'probabilities':{k:round(v,6) for k,v in market.items()},
+                    'market_probabilities':{k:round(v,6) for k,v in market.items()},
+                    'xg_probabilities':{}},
+                '比分':{'status':'NO_PREDICTION'},
+                '总进球':{'status':'NO_PREDICTION'},
+                '半全场':{'status':'NO_PREDICTION'},
+                '冷门预警':{'status':'NOT_EVALUATED','triggered':False,'direction':None},
+                '今日优选':{'status':'BLOCKED','selection':None,'reason':'普通胜平负未开售，不进入今日优选'}
+            },'coverage':{'handicap_only':True,'independent_xg':False,
+                'william':bool((match.get('market') or {}).get('william')),
+                'macau_asia':bool(((match.get('market') or {}).get('asia') or {}).get('澳门')),
+                'bifa':bool((match.get('bifa') or {}).get('prematch_verified'))}}
     # Market implied probabilities are a baseline, not independent team ratings.
     home, draw, away = probs
     xg=match.get('fotmob_xg') or {}
@@ -439,6 +468,7 @@ def model(match):
     # as total goals. Include 0..12 to retain virtually all probability mass.
     grid = [(h, a, poisson(lam_h,h)*poisson(lam_a,a)) for h in range(13) for a in range(13)]
     score = sorted(grid, key=lambda x:(-x[2],x[0],x[1]))[:3]
+    legacy_score = legacy_score_top4(lam_h, lam_a, probs)
     score_coverage = sum(p for _,_,p in grid)
     # Sum of two independent Poisson goal counts is Poisson(lambda_home+lambda_away).
     # Calculate all 0..6 buckets directly; 7+ is the exact remaining tail.
@@ -493,14 +523,16 @@ def model(match):
                 'probabilities':{k:round(v,6) for k,v in rq_used.items()},
                 'market_probabilities':{k:round(v,6) for k,v in rq_market.items()},
                 'xg_probabilities':{k:round(v,6) for k,v in rq_xg.items()} if use_xg else {}},
-            '比分':{'top3':[f'{h}:{a}' for h,a,_ in score], 'method':goal_method,
+            '比分':{'top3':legacy_score['top3'], 'top4':legacy_score['top4'],
+                'legacy_method':legacy_score['method'], 'dc_rho':legacy_score['dc_rho'],
+                'legacy_input':'体彩SP去水概率（非旧版冻结P-final）', 'method':goal_method+'；旧版HJ3.8比分Top4兼容排序',
                 'source':xg.get('source') if use_xg else 'SP',
                 'xg_status':'AVAILABLE' if use_xg else 'UNAVAILABLE',
                 'xg_missing_reason':None if use_xg else xg.get('reason','缺少经核实的赛前历史xG'),
                 'home_expected_goals':round(lam_h,3),'away_expected_goals':round(lam_a,3),
                 'xg_samples':{'home':len(xg['samples']['home']),'away':len(xg['samples']['away'])} if use_xg else None,
                 'matrix_probability_mass':round(score_coverage,6),
-                'probabilities':{f'{h}:{a}':round(v,6) for h,a,v in score}},
+                'probabilities':legacy_score['probabilities']},
             '总进球':{'top3':[int(n) if n!='7+' else '7+' for n,_ in goals],
                 'estimated_total_goals':round(total,3),
                 'home_expected_goals':round(lam_h,3),'away_expected_goals':round(lam_a,3),
