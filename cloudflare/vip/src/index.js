@@ -81,6 +81,17 @@ export default {
      const admin=await env.DB.prepare('SELECT 1 AS allowed FROM vip_admins WHERE user_id=?').bind(session.sub).first();
      return json({email:m.email,vip_name:m.vip_name,expires_at:m.expires_at,role:admin?'admin':'vip'},200,headers);
    }
+   if(u.pathname==='/predictions' && request.method==='GET') {
+     const session=await verify((request.headers.get('Authorization')||'').replace(/^Bearer /i,''),env.SESSION_SECRET);
+     if(!session)return json({error:'unauthorized'},401,headers);
+     const member=await env.DB.prepare('SELECT active,expires_at FROM vip_members WHERE user_id=?').bind(session.sub).first();
+     if(!member?.active||Date.parse(member.expires_at)<=Date.now())return json({error:'vip_inactive'},403,headers);
+     const day=u.searchParams.get('day')||'latest';
+     if(day!=='latest'&&!/^20\\d{2}-(0[1-9]|1[0-2])-[0-3]\\d$/.test(day))return json({error:'invalid_day'},400,headers);
+     const snapshot=await env.DB.prepare('SELECT payload FROM vip_predictions WHERE sale_day=?').bind(day).first();
+     if(!snapshot)return json({error:'not_found'},404,headers);
+     return new Response(snapshot.payload,{headers:{'content-type':'application/json; charset=utf-8','cache-control':'private, no-store','x-content-type-options':'nosniff',...headers}});
+   }
    if(u.pathname==='/admin/members/bulk-create' && request.method==='POST') {
      const session=await verify((request.headers.get('Authorization')||'').replace(/^Bearer /i,''),env.SESSION_SECRET);
      if(!session)return json({error:'unauthorized'},401,headers);
