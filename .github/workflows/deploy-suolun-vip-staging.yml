@@ -1,6 +1,12 @@
 name: Deploy isolated VIP staging (manual)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/vip/src/**'
+      - 'cloudflare/vip/schema.sql'
+      - '.github/workflows/deploy-suolun-vip-staging.yml'
 permissions:
   contents: read
 jobs:
@@ -61,5 +67,9 @@ jobs:
           else
             echo "::warning::VIP_SESSION_SECRET not configured. Login stays unavailable (503); health check works."
           fi
+      - name: Check unauthenticated prediction request is denied
+        run: |
+          status=$(curl -sS -o /dev/null -w "%{http_code}" "https://suolun-vip-staging.hjh19970220.workers.dev/predictions?day=latest")
+          test "$status" = 401 || { echo "Prediction endpoint returned HTTP $status without session"; exit 1; }
       - name: Deployment complete
         run: echo "Staging deployed; production website was not changed."
