@@ -23,6 +23,36 @@ class EngineTests(unittest.TestCase):
                 probability=module['probabilities'][str(choice)]
                 self.assertGreaterEqual(probability,0)
                 self.assertLessEqual(probability,1)
+    def test_soren_v13_joint_poisson_is_used_for_htft(self):
+        from engine4.engine import halftime_fulltime_probabilities
+        from math import exp, factorial
+        home, away = 2.5, 0.7
+        got = halftime_fulltime_probabilities(home, away)
+        # Independent reference: enumerate both halves using the archived 45/55 split.
+        expected = {a+'-'+b: 0.0 for a in ('胜','平','负') for b in ('胜','平','负')}
+        def p(lam, k):
+            return exp(-lam) * lam**k / factorial(k)
+        def direction(h, a):
+            return '胜' if h>a else '平' if h==a else '负'
+        for h1 in range(11):
+            for a1 in range(11):
+                first = p(home*.45, h1)*p(away*.45, a1)
+                for h2 in range(11):
+                    for a2 in range(11):
+                        expected[direction(h1,a1)+'-'+direction(h1+h2,a1+a2)] += first*p(home*.55,h2)*p(away*.55,a2)
+        mass = sum(expected.values())
+        self.assertGreaterEqual(mass, .99)
+        for key, value in expected.items():
+            self.assertAlmostEqual(got[key], value/mass, places=10)
+        fixture={'spf':None,'rqspf':[2.0,3.88,2.62],'handicap':-2,
+                 'fotmob_xg':{'status':'AVAILABLE','home_lambda':home,
+                              'away_lambda':away,'source':'FotMob'}}
+        module=model(fixture)['modules']['半全场']
+        self.assertEqual(module['algorithm_version'],'HTFT-POISSON-JOINT-TOP4-v1.3')
+        self.assertEqual(module['top3'], sorted(got,key=got.get,reverse=True)[:3])
+        self.assertEqual(len(module['top3']),3)
+        self.assertEqual(set(module['probabilities']), set(got))
+
     def test_no_sp_no_prediction(self):
         self.assertEqual(model({'spf':None})['status'],'NO_PREDICTION')
     def test_handicap_only_official_market(self):
