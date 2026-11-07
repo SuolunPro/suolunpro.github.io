@@ -311,10 +311,13 @@
           "让球Top2": false,
           "比分Top1": false,
           "比分Top3": false,
+          "比分Top4": null,
           "总进球Top1": false,
           "总进球Top3": false,
           "半全场Top1": false,
           "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
           "今日优选": null,
           "冷门预警": null
         },
@@ -352,7 +355,8 @@
             ],
             "hits": {
               "Top1": false,
-              "Top3": false
+              "Top3": false,
+              "Top4": null
             },
             "status": "MISS"
           },
@@ -384,7 +388,11 @@
           },
           "今日优选": {
             "actual": "胜",
-            "picks": null,
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
             "hit": null,
             "status": "NO_FORMAL_SELECTION"
           },
