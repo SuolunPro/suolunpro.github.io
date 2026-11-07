@@ -95,12 +95,18 @@ def run(current=None):
                 # verified result against that snapshot without fetching or changing scores.
                 settled = previous.get("settlement") or match.get("settlement")
                 if settled:
+                    for field in ("fotmob_match_id", "fotmob_home_team_id", "fotmob_away_team_id"):
+                        if not match.get(field) and previous.get(field):
+                            match[field] = previous[field]
                     at = datetime.fromisoformat(settled["verified_at"].replace("Z", "+00:00"))
                     match["settlement"] = mark(match, settled, at)
                 index = target["matches"].index(previous)
                 target["matches"][index] = match
                 by_id[identity] = match
             elif match.get("settlement") and not previous.get("settlement"):
+                for field in ("fotmob_match_id", "fotmob_home_team_id", "fotmob_away_team_id"):
+                    if match.get(field):
+                        previous[field] = match[field]
                 previous["settlement"] = mark(previous, match["settlement"],
                     datetime.fromisoformat(match["settlement"]["verified_at"].replace("Z", "+00:00")))
         if path == LATEST:
@@ -110,6 +116,8 @@ def run(current=None):
         # score and snapshot. This performs no result lookup or prediction change.
         for match in doc["matches"]:
             existing = match.get("settlement")
+            if existing and not match.get("fotmob_match_id") and existing.get("fotmob_match_id"):
+                match["fotmob_match_id"] = existing["fotmob_match_id"]
             if existing:
                 at = datetime.fromisoformat(existing["verified_at"].replace("Z", "+00:00"))
                 match["settlement"] = mark(match, existing, at) or existing
