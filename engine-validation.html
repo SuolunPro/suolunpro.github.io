@@ -184,30 +184,40 @@
     }
     function ftHandicapRiskNote(card,match){
       const modules=match.prediction?.modules||{};
-      const ft=modules['胜平负']||{},handicap=modules['让球']||{};
-      const warning=modules['冷门预警']||{};
-      // Do not turn ordinary 25–30% draw probabilities into universal alerts.
-      // Only independently verified formal cold triggers may create a risk card.
+      const warning=modules['冷门预警']||{},handicap=modules['让球']||{};
       if(warning.status!=='TRIGGERED'||warning.triggered!==true||
          !['主队不胜','主队不败'].includes(warning.direction))return;
-      const note=el('div','v4-verdict');
-      note.style.cssText='background:#fff8ec;border:1px solid #f1dfbd;color:#805e2b;line-height:1.7';
-      const evidence=Array.isArray(warning.channels)?warning.channels:[];
-      const labels={A:'必发资金反向',B:'必发平局资金集中',C:'威廉热门概率下降且资金反向',D:'威廉升赔与亚洲退盘',E2:'体彩与威廉平局信号共振'};
-      const reason=evidence.map(c=>labels[c]).filter(Boolean).slice(0,2).join('、');
-      let message='⚠️ 风险提醒：正式冷门预警（'+warning.direction+'）'+(reason?'，依据：'+reason:'')+'。';
-      const hp=handicap.probabilities||{},top=Array.isArray(handicap.top2)?handicap.top2[0]:null;
-      const second=Array.isArray(handicap.top2)?handicap.top2[1]:null;
-      const topP=top==null?NaN:Number(hp[top]),secondP=second==null?NaN:Number(hp[second]);
-      const verifiedXg=handicap.xg_status==='AVAILABLE'&&
-        ['让胜','让平','让负'].includes(top)&&Number.isFinite(topP)&&
-        Number.isFinite(secondP)&&topP>=0.48&&topP-secondP>=0.12;
-      if(verifiedXg){
-        message+=' 独立赛前xG让球模型倾向'+top+'（约'+Math.round(topP*100)+'%），可对照全场让球分析；不代表更稳。';
-      }else{
-        message+=' 当前没有足够独立依据推荐改走让球，请谨慎参考。';
+      const channels=Array.isArray(warning.channels)?warning.channels:[];
+      const labels={A:'必发资金反向',B:'必发平局资金集中',C:'威廉热门概率下降',D:'威廉升赔与亚洲退盘',E2:'平局市场信号增强'};
+      const reason=channels.map(c=>labels[c]).filter(Boolean).slice(0,2).join('、');
+      const box=el('div','v4-ft-handicap');
+      box.style.cssText='margin-top:10px;padding:11px 12px;border:1px solid #f1dfbd;border-radius:9px;background:#fffaf0';
+      const summary=el('div','','⚠️ 风险提醒：'+warning.direction+(reason?'（'+reason+'）':'')+'。');
+      summary.style.cssText='font-size:12px;color:#805e2b;line-height:1.6;margin-bottom:8px';
+      box.append(summary);
+      const picks=Array.isArray(handicap.top2)?handicap.top2.filter(x=>['让胜','让平','让负'].includes(x)).slice(0,2):[];
+      if(picks.length!==2||!Number.isInteger(handicap.handicap)){
+        box.append(el('div','v4-note','让球Top2暂无有效赛前预测'));
+        card.append(box);return;
       }
-      note.textContent=message;card.append(note);
+      const title=el('div','','让球Top2 · 主队 '+(handicap.handicap>0?'+':'')+handicap.handicap+'球');
+      title.style.cssText='font-size:11px;font-weight:700;color:#777;margin-bottom:7px';
+      box.append(title);
+      const grid=el('div','triplet pair');
+      const result=match.settlement?.module_results?.['让球'];
+      const actual=result?.actual;
+      for(let i=0;i<2;i++){
+        const pick=picks[i],cell=el('div','datum'+(i===0?' primary':''));
+        cell.append(el('span','','Top'+(i+1)),el('b','',pick));
+        const p=handicap.probabilities?.[pick];
+        if(typeof p==='number'&&Number.isFinite(p))cell.append(el('span','v4-prob',pct(p)));
+        if(result&&String(actual)===String(pick)){
+          cell.classList.add('hit');cell.append(el('span','hit-check','✓'));
+        }
+        grid.append(cell);
+      }
+      box.append(grid);
+      card.append(box);
     }
     function special(card,match){
       const data=match.prediction?.modules?.[active]||{},analysis=el('div','analysis');
