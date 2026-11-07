@@ -182,6 +182,35 @@
       });
       const analysis=el('div','analysis');analysis.append(grid);card.append(analysis)
     }
+    function ftHandicapRiskNote(card,match){
+      const modules=match.prediction?.modules||{};
+      const ft=modules['胜平负']||{},handicap=modules['让球']||{};
+      const fp=ft.probabilities||{},hp=handicap.probabilities||{};
+      const top=Array.isArray(ft.top2)?ft.top2[0]:null;
+      const topProb=Number(fp[top]),drawProb=Number(fp['平']);
+      const hTop=Array.isArray(handicap.top2)?handicap.top2[0]:null;
+      const hProb=Number(hp[hTop]);
+      if(!['胜','负'].includes(top)||!Number.isFinite(topProb)||!Number.isFinite(drawProb))return;
+      const marketWarning=match.prediction?.modules?.['冷门预警'];
+      const triggered=marketWarning?.status==='TRIGGERED'&&marketWarning?.triggered===true;
+      const tailRisk=drawProb>=0.29||(topProb<0.53&&drawProb>=0.25);
+      if(!triggered&&!tailRisk)return;
+      const note=el('div','v4-verdict');
+      note.style.cssText='background:#fff8ec;border:1px solid #f1dfbd;color:#805e2b;line-height:1.7';
+      const reasons=[];
+      if(triggered)reasons.push('本场触发正式冷门预警');
+      if(tailRisk)reasons.push('平局概率偏高，普通胜平负存在尾部风险');
+      let message='⚠️ 风险提醒：'+reasons.join('；')+'。';
+      const independentlySupported=handicap.xg_status==='AVAILABLE'&&
+        ['让胜','让平','让负'].includes(hTop)&&Number.isFinite(hProb)&&hProb>=0.46&&
+        Number(hp[hTop])>Number(hp[handicap.top2?.[1]]||0);
+      if(independentlySupported){
+        message+=' 可对照全场让球模块的'+hTop+'方向（模型概率约'+Math.round(hProb*100)+'%），但让球不代表更稳。';
+      }else{
+        message+=' 让球市场不一定更稳，请结合全场让球模块谨慎分析。';
+      }
+      note.textContent=message;card.append(note);
+    }
     function special(card,match){
       const data=match.prediction?.modules?.[active]||{},analysis=el('div','analysis');
       if(active==='今日优选'){
@@ -269,6 +298,7 @@
           if(active==='让球')card.append(el('div','v4-note',`官方让球：主队 ${data.handicap>0?'+':''}${label(data.handicap)} 球`));
           if(active==='让球'&&match.prediction?.coverage?.handicap_only)card.append(el('div','v4-verdict','本场仅提供让球预测'));
           choices(card,match,(active==='比分'&&data.top4)||data.top2||data.top3||[],data.probabilities)
+          if(active==='胜平负')ftHandicapRiskNote(card,match);
         }
         verdict(card,match);root.append(card)
       }
