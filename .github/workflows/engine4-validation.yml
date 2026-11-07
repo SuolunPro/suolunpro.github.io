@@ -138,21 +138,39 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
+          stage="$(mktemp -d)"
+          cp -a data/engine4/. "$stage/"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          published=false
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p data/engine4/history
+            cp "$stage/latest.json" data/engine4/history/_incoming-latest.json
+            for file in "$stage"/sales/????-??-??.json; do
+              test -f "$file" || continue
+              cp "$file" "data/engine4/history/_incoming-$(basename "$file")"
+            done
+            python -m engine4.aggregate
+            rm -f data/engine4/history/_incoming-*.json
+            python - <<'PY'
           import json
           from pathlib import Path
           sales=Path('data/engine4/sales')
           days=sorted(p.stem for p in sales.glob('????-??-??.json'))
-          assert days and Path('data/engine4/latest.json').exists()
+          assert days
           (sales/'index.json').write_text(json.dumps({'days':days},ensure_ascii=False))
           PY
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/engine4/latest.json data/engine4/sales data/engine4/history
-          if ! git diff --cached --quiet; then
-            git commit -m 'data: publish engine4 snapshots for same-origin access'
-            # Model collectors may leave changed caches outside the published snapshots.
-            git stash push --include-untracked --quiet
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+            git add data/engine4/latest.json data/engine4/sales data/engine4/history
+            if git diff --cached --quiet; then
+              published=true
+              break
+            fi
+            git commit -m 'data: merge prediction and verified result snapshots'
+            if git push origin HEAD:main; then
+              published=true
+              break
+            fi
+          done
+          test "$published" = true
