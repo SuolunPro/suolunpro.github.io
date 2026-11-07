@@ -74,7 +74,7 @@ TEAM_IDS.update({
 
 TEAM_NAMES = {
     '横滨水手': ('Yokohama F.Marinos', 'Yokohama F Marinos'),
-    '冈山绿雉': ('Fagiano Okayama',), '鸟栖沙岩': ('Sagan Tosu',),
+    '冈山绿雉': ('Fagiano Okayama', 'Fagiano Okayama FC'), '鸟栖沙岩': ('Sagan Tosu',),
     '富山胜利': ('Kataller Toyama',), '柏太阳神': ('Kashiwa Reysol',),
     '川崎前锋': ('Kawasaki Frontale',), '金泉尚武': ('Gimcheon Sangmu', 'Gimcheon Sangmu FC'),
     'FC安养': ('FC Anyang',), '珀斯': ('Perth Glory',), '纽喷气机': ('Newcastle Jets',),
