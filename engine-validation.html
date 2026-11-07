@@ -312,9 +312,23 @@
       id.append(el('span','league',label(match.league)),document.createTextNode(label(match.kickoff)+' · '+label(match.match_no)));
       head.append(id,el('span','status'+(match.settlement?' verified':' pass'),match.settlement?'已核验':'待核验'));card.append(head);
       const row=el('div','fixture'),teams=el('div','team-list');
-      for(const [name,index] of [[match.home,0],[match.away,1]]){
+      // Only confirmed team-to-FotMob IDs are allowed; never guess a badge from a similar name.
+      const verifiedTeamIds={'町田泽维':'194011','切尔西':'8455'};
+      for(const name of [match.home,match.away]){
         const team=el('div','team'),crest=el('span','crest',label(name).slice(0,1));
-        crest.setAttribute('aria-hidden','true');team.append(crest,el('span','team-name',label(name)));teams.append(team)
+        crest.setAttribute('aria-hidden','true');
+        const teamId=verifiedTeamIds[String(name||'').trim()];
+        if(teamId){
+          const img=document.createElement('img');
+          img.alt='';img.loading='lazy';img.decoding='async';
+          img.width=32;img.height=32;
+          img.style.cssText='width:32px;height:32px;object-fit:contain;display:block';
+          img.onerror=()=>{img.remove();crest.style.display='';};
+          crest.style.display='none';
+          img.src='https://images.fotmob.com/image_resources/logo/teamlogo/'+teamId+'.png';
+          team.append(img);
+        }
+        team.append(crest,el('span','team-name',label(name)));teams.append(team)
       }
       const score=el('div','score',match.settlement?.ft||'VS');
       score.append(el('span','',match.settlement?`半场 ${label(match.settlement.ht)} · 正式赛果`:'赛前预测'));
