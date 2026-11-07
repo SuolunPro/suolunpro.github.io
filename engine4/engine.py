@@ -112,6 +112,37 @@ def normalize_probs(odds):
     inv = [1 / x for x in odds]
     return [v / sum(inv) for v in inv]
 
+def william_dynamic_shadow(match, base):
+    """Auditable shadow calibration; never changes formal frozen selections.
+
+    Experimental 25% market blend is not a historically validated weight.
+    """
+    directions=('胜','平','负')
+    w=((match.get('market') or {}).get('william') or {})
+    initial=odds3(w.get('initial'))
+    current=odds3(w.get('current'))
+    pi=normalize_probs(initial)
+    pc=normalize_probs(current)
+    baseline={d:round(v,6) for d,v in zip(directions,base)}
+    if not pi or not pc:
+        return {'status':'UNAVAILABLE','reason':'威廉同机构初赔及即时赔未同时核实',
+                'base_probabilities':baseline,'formal':False}
+    alpha=.25
+    adjusted=[(1-alpha)*base[i]+alpha*pc[i] for i in range(3)]
+    ranked=sorted(range(3),key=lambda i:(-adjusted[i],i))
+    original=sorted(range(3),key=lambda i:(-base[i],i))
+    return {'status':'SHADOW','version':'WILLIAM_DYNAMIC_SHADOW_V01',
+            'formal':False,'weight_experimental':alpha,
+            'source':'威廉希尔同机构初赔→即时赔',
+            'initial_probabilities':dict(zip(directions,[round(v,6) for v in pi])),
+            'current_probabilities':dict(zip(directions,[round(v,6) for v in pc])),
+            'probability_movement_pp':dict(zip(directions,[round((pc[i]-pi[i])*100,3) for i in range(3)])),
+            'base_probabilities':baseline,
+            'calibrated_probabilities':dict(zip(directions,[round(v,6) for v in adjusted])),
+            'base_top1':directions[original[0]],'base_top2':[directions[i] for i in original[:2]],
+            'shadow_top1':directions[ranked[0]],'shadow_top2':[directions[i] for i in ranked[:2]],
+            'changed_top1':ranked[0]!=original[0]}
+
 def fetch_market(match, errors):
     """Capture source evidence before kickoff; never treat a failed request as a zero signal."""
     market = {'source':'qiulaile.vip/match/odds', 'captured_at':now().isoformat(),
@@ -549,7 +580,7 @@ def model(match):
     rq_top2 = rq_ranked[:2]
     if set(rq_top2) == {'让胜','让负'}:
         rq_top2 = [rq_top2[0], '让平']
-    return {'status':'PREDICTED','daily_pick_shadow_v2':daily_shadow_v2,'method':'胜平负 SP 去水；比分/进球/半全场采用'+goal_method,
+    return {'status':'PREDICTED','william_dynamic_shadow':william_dynamic_shadow(match,probs),'daily_pick_shadow_v2':daily_shadow_v2,'method':'胜平负 SP 去水；比分/进球/半全场采用'+goal_method,
         'confidence':'中低（历史xG样本有限且缺少必发）' if use_xg else '低（缺少必发与独立赛前xG）', 'modules':{
             '胜平负':{'top1':ranked[0],'top2':ranked[:2], 'probabilities':{k:round(v,4) for k,v in ft.items()}},
             '让球':{'handicap':handicap,'top2':rq_top2,
