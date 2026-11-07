@@ -443,16 +443,32 @@ def handicap_probabilities(lam_h,lam_a,line):
 
 
 def halftime_fulltime_probabilities(lam_h,lam_a):
-    """Joint 9 outcomes; provisional 50/50 half xG split, not measured."""
-    totals={h+'-'+f:0.0 for h in ('胜','平','负') for f in ('胜','平','负')}
-    halves=[(h,a,poisson(lam_h/2,h)*poisson(lam_a/2,a)) for h in range(10) for a in range(10)]
-    def direction(h,a):
-        return '胜' if h>a else '平' if h==a else '负'
-    for h1,a1,p1 in halves:
-        for h2,a2,p2 in halves:
-            totals[direction(h1,a1)+'-'+direction(h1+h2,a1+a2)]+=p1*p2
-    mass=sum(totals.values())
-    return {k:v/mass for k,v in totals.items()}
+    """Restore archived Soren HTFT-POISSON-JOINT-TOP4-v1.3 probability core.
+
+    The archived algorithm uses a fixed 45% first-half / 55% second-half
+    expected-goals split and a >=0.99 probability-mass gate. This is NOT
+    a measured team-specific halftime split.
+    """
+    share = 0.45
+    directions = ('胜', '平', '负')
+    totals = {h + '-' + f: 0.0 for h in directions for f in directions}
+    first = [(h, a, poisson(lam_h * share, h) * poisson(lam_a * share, a))
+             for h in range(11) for a in range(11)]
+    second = [(h, a, poisson(lam_h * (1 - share), h) *
+               poisson(lam_a * (1 - share), a))
+              for h in range(11) for a in range(11)]
+
+    def direction(h, a):
+        return '胜' if h > a else '平' if h == a else '负'
+
+    for h1, a1, p1 in first:
+        ht = direction(h1, a1)
+        for h2, a2, p2 in second:
+            totals[ht + '-' + direction(h1 + h2, a1 + a2)] += p1 * p2
+    mass = sum(totals.values())
+    if mass < 0.99:
+        raise ValueError('SOREN_HTFT_JOINT_MASS_BELOW_GATE')
+    return {k: v / mass for k, v in totals.items()}
 
 
 def model(match):
@@ -502,7 +518,8 @@ def model(match):
                     'source': xg.get('source') or 'FotMob', 'xg_status': 'AVAILABLE'},
                 '半全场': {'top3': hft,
                     'probabilities': {k: round(v, 6) for k, v in hft_probs.items()},
-                    'method': '独立FotMob赛前历史xG半全场分布',
+                    'method': '独立FotMob赛前历史xG半全场分布；旧索伦v1.3上下半场45/55假设',
+                    'algorithm_version': 'HTFT-POISSON-JOINT-TOP4-v1.3',
                     'source': xg.get('source') or 'FotMob', 'xg_status': 'AVAILABLE'}}
         else:
             goal_modules = {k: {'status': 'NO_PREDICTION',
@@ -611,10 +628,11 @@ def model(match):
                 'probabilities':{n:round(v,6) for n,v in goal_distribution.items()},
                 'top3_probabilities':{n:round(v,6) for n,v in goals}},
             '半全场':{'top3':hft,
-                'method':goal_method+'；上下半场暂按50/50预期进球分配，联合比分转移计算',
+                'method':goal_method+'；旧索伦v1.3上下半场按45/55预期进球分配，联合比分转移计算',
+                'algorithm_version':'HTFT-POISSON-JOINT-TOP4-v1.3',
                 'source':xg.get('source') if use_xg else 'SP',
                 'xg_status':'AVAILABLE' if use_xg else 'UNAVAILABLE',
-                'half_split_assumption':'50/50（待真实半场xG验证）',
+                'half_split_assumption':'45/55（旧索伦v1.3固定假设，非实测）',
                 'probabilities':{k:round(v,6) for k,v in hft_all.items()}},
             '冷门预警':cold,
             '今日优选':daily},
