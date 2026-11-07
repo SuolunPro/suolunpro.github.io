@@ -62,7 +62,7 @@ def metrics(matches):
                 return entry.get("triggered") is True and entry.get("direction") in ("主队不胜", "主队不败")
             return (m.get("prediction") or {}).get("status") == "PREDICTED" and bool(entry.get("top2") or entry.get("top3") or entry.get("top4"))
         predicted = sum(has_selection(m) for m in matches)
-        verified = rows[names[-1]]["total"]
+        verified = sum((m.get("settlement") or {}).get("module_results", {}).get(name, {}).get("status") in ("HIT", "MISS") for m in matches)
         module_stats[name] = {"predicted": predicted, "verified": verified,
                               "pending": max(0, predicted - verified),
                               "rates": {n.removeprefix(name): rows[n] for n in names}}
