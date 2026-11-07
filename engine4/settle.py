@@ -113,7 +113,21 @@ def settle(path, current=None):
             cache[url] = json_get(url)
         return cache[url]
     for match in report.get("matches", []):
-        if match.get("settlement") or not match.get("predicted_at"):
+        existing = match.get("settlement")
+        if existing:
+            if match.get("fotmob_match_id") and not (match.get("fotmob_home_team_id") and match.get("fotmob_away_team_id")):
+                try:
+                    identity, error = result_for(match, get=cached_get, current=current)
+                    if identity and identity["ft"] == existing.get("ft") and identity["ht"] == existing.get("ht"):
+                        for field in ("fotmob_home_team_id", "fotmob_away_team_id"):
+                            match[field] = identity[field]
+                        changed = True
+                    elif error:
+                        print(json.dumps({"match_no": match.get("match_no"), "identity_pending": error}, ensure_ascii=False))
+                except Exception as exc:
+                    print(json.dumps({"match_no": match.get("match_no"), "identity_error": str(exc)[:150]}, ensure_ascii=False))
+            continue
+        if not match.get("predicted_at"):
             continue
         try:
             result, error = result_for(match, get=cached_get, current=current)
