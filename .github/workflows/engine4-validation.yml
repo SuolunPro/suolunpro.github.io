@@ -30,7 +30,7 @@ jobs:
           python -m py_compile engine4/legacy_score.py engine4/okooo_betfair.py engine4/market_bridge.py engine4/engine.py engine4/fotmob.py engine4/settle.py engine4/fotmob_results.py engine4/aggregate.py
           python -m unittest discover -s engine4/tests -v
       - name: Refresh Okooo prematch evidence
-        run: python -m engine4.okooo_betfair
+        run: python -m engine4.okooo_betfair || echo 'Okooo unavailable; continue with verified available sources'
       - name: Refresh fixtures and prematch predictions
         run: |
           cp data/engine4/latest.json /tmp/engine4-before.json 2>/dev/null || true
@@ -47,7 +47,17 @@ jobs:
               if before.exists(): shutil.copyfile(before,path)
               else: raise SystemExit('No predictions and no previous snapshot')
           PY
-      - name: Audit newly generated score Top4\n        run: |\n          python - <<'PY'\n          import json\n          from pathlib import Path\n          d=json.loads(Path('data/engine4/latest.json').read_text())\n          fresh=[m for m in d.get('matches',[]) if (m.get('prediction') or {}).get('status')=='PREDICTED' and (m.get('prediction') or {}).get('modules',{}).get('比分',{}).get('top3') and (m.get('prediction') or {}).get('modules',{}).get('比分',{}).get('legacy_method')]\n          assert all(len(m['prediction']['modules']['比分'].get('top4',[]))==4 for m in fresh), 'New score prediction missing Top4'\n          print('New Top4 score predictions:',len(fresh),'of',len(d.get('matches',[])),'fixtures; historical frozen Top3 retained')\n          PY\n      - name: Restore fixtures, verify results and calculate metrics
+      - name: Audit newly generated score Top4
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('data/engine4/latest.json').read_text())
+          fresh=[m for m in d.get('matches',[]) if (m.get('prediction') or {}).get('modules',{}).get('比分',{}).get('legacy_method')]
+          assert all(len(m['prediction']['modules']['比分'].get('top4',[]))==4 for m in fresh), 'New score prediction missing Top4'
+          print('Verified score Top4 predictions:',len(fresh))
+          PY
+      - name: Restore fixtures, verify results and calculate metrics
         run: python -m engine4.aggregate
       - name: Verify published market coverage
         run: |
