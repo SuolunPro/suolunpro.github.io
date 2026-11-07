@@ -59,7 +59,15 @@ jobs:
                       end=datetime.fromisoformat(end_raw.replace('Z','+00:00').replace(' ','T'))
                       if end.tzinfo is None: end=end.replace(tzinfo=bj.tzinfo)
                       end=end.astimezone(timezone.utc)
-                  else: end=kickoff
+                  else:
+                      # Beijing-time daily sales cutoff: Friday 22:00, weekend 23:00.
+                      # Never update a fixture after its own kickoff.
+                      local_kickoff=kickoff.astimezone(bj.tzinfo)
+                      weekday=local_kickoff.weekday()
+                      cutoff_hour=22 if weekday==4 else 23 if weekday in (5,6) else None
+                      end=(local_kickoff.replace(hour=cutoff_hour,minute=0,second=0,microsecond=0).astimezone(timezone.utc)
+                           if cutoff_hour is not None else kickoff)
+                  end=min(end,kickoff)
                   if now < end and now < kickoff:
                       active=True
                       if end-now <= timedelta(hours=2): near=True
