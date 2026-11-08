@@ -54,6 +54,13 @@ def merge(source, existing):
         if isinstance(old, dict) and key(old) not in seen:
             base.setdefault("matches", []).append(old)
             seen.add(key(old))
+    # Never publish a settled score with a contradictory PENDING verification.
+    for match in base.get("matches", []):
+        if match.get("settlement") and (match.get("result_verification") or {}).get("status") != "VERIFIED":
+            match["result_verification"] = {
+                "status": "VERIFIED",
+                "checked_at": match["settlement"].get("verified_at"),
+            }
     return base
 
 def main(src, dst):
