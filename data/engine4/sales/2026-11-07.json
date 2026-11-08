@@ -15433,6 +15433,115 @@
         "status": "PENDING",
         "reason": "NOT_DUE",
         "checked_at": "2026-11-07T11:09:45.614100+00:00"
+      },
+      "settlement": {
+        "ht": "2:1",
+        "ft": "2:1",
+        "verified_at": "2026-11-08T03:07:52.537474+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5071497",
+        "fotmob_match_id": 5071497,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": true,
+          "比分Top4": true,
+          "总进球Top1": true,
+          "总进球Top3": true,
+          "半全场Top1": true,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "今日优选": null,
+          "冷门预警": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "胜",
+              "负"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让平",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "2:1",
+            "picks": [
+              "1:1",
+              "2:1",
+              "2:0",
+              "3:1"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true,
+              "Top4": true
+            },
+            "status": "HIT"
+          },
+          "总进球": {
+            "actual": 3,
+            "picks": [
+              3,
+              2,
+              4
+            ],
+            "hits": {
+              "Top1": true,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "半全场": {
+            "actual": "胜-胜",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-胜"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          }
+        }
       }
     },
     {
@@ -15877,64 +15986,64 @@
   ],
   "metrics": {
     "total": 29,
-    "settled": 28,
-    "pending": 1,
-    "top1_hit_rate": 0.4444,
+    "settled": 29,
+    "pending": 0,
+    "top1_hit_rate": 0.4643,
     "module_hits": {
       "胜平负Top1": {
-        "hit": 12,
-        "total": 27,
-        "rate": 0.4444
+        "hit": 13,
+        "total": 28,
+        "rate": 0.4643
       },
       "胜平负Top2": {
-        "hit": 20,
-        "total": 27,
-        "rate": 0.7407
+        "hit": 21,
+        "total": 28,
+        "rate": 0.75
       },
       "让球Top1": {
         "hit": 16,
-        "total": 28,
-        "rate": 0.5714
+        "total": 29,
+        "rate": 0.5517
       },
       "让球Top2": {
-        "hit": 25,
-        "total": 28,
-        "rate": 0.8929
+        "hit": 26,
+        "total": 29,
+        "rate": 0.8966
       },
       "比分Top1": {
         "hit": 8,
-        "total": 28,
-        "rate": 0.2857
+        "total": 29,
+        "rate": 0.2759
       },
       "比分Top3": {
-        "hit": 18,
-        "total": 28,
-        "rate": 0.6429
+        "hit": 19,
+        "total": 29,
+        "rate": 0.6552
       },
       "比分Top4": {
-        "hit": 16,
-        "total": 24,
-        "rate": 0.6667
+        "hit": 17,
+        "total": 25,
+        "rate": 0.68
       },
       "总进球Top1": {
-        "hit": 12,
-        "total": 28,
-        "rate": 0.4286
+        "hit": 13,
+        "total": 29,
+        "rate": 0.4483
       },
       "总进球Top3": {
-        "hit": 22,
-        "total": 28,
-        "rate": 0.7857
+        "hit": 23,
+        "total": 29,
+        "rate": 0.7931
       },
       "半全场Top1": {
-        "hit": 6,
-        "total": 28,
-        "rate": 0.2143
+        "hit": 7,
+        "total": 29,
+        "rate": 0.2414
       },
       "半全场Top3": {
-        "hit": 18,
-        "total": 28,
-        "rate": 0.6429
+        "hit": 19,
+        "total": 29,
+        "rate": 0.6552
       },
       "今日优选Top1": {
         "hit": 7,
@@ -15960,116 +16069,116 @@
     "module_stats": {
       "胜平负": {
         "predicted": 28,
-        "verified": 27,
-        "pending": 1,
+        "verified": 28,
+        "pending": 0,
         "evaluation": {
-          "hit": 20,
-          "total": 27,
-          "rate": 0.7407
+          "hit": 21,
+          "total": 28,
+          "rate": 0.75
         },
         "rates": {
           "Top1": {
-            "hit": 12,
-            "total": 27,
-            "rate": 0.4444
+            "hit": 13,
+            "total": 28,
+            "rate": 0.4643
           },
           "Top2": {
-            "hit": 20,
-            "total": 27,
-            "rate": 0.7407
+            "hit": 21,
+            "total": 28,
+            "rate": 0.75
           }
         }
       },
       "让球": {
         "predicted": 29,
-        "verified": 28,
-        "pending": 1,
+        "verified": 29,
+        "pending": 0,
         "evaluation": {
-          "hit": 25,
-          "total": 28,
-          "rate": 0.8929
+          "hit": 26,
+          "total": 29,
+          "rate": 0.8966
         },
         "rates": {
           "Top1": {
             "hit": 16,
-            "total": 28,
-            "rate": 0.5714
+            "total": 29,
+            "rate": 0.5517
           },
           "Top2": {
-            "hit": 25,
-            "total": 28,
-            "rate": 0.8929
+            "hit": 26,
+            "total": 29,
+            "rate": 0.8966
           }
         }
       },
       "比分": {
         "predicted": 29,
-        "verified": 28,
-        "pending": 1,
+        "verified": 29,
+        "pending": 0,
         "evaluation": {
-          "hit": 19,
-          "total": 28,
-          "rate": 0.6786
+          "hit": 20,
+          "total": 29,
+          "rate": 0.6897
         },
         "rates": {
           "Top1": {
             "hit": 8,
-            "total": 28,
-            "rate": 0.2857
+            "total": 29,
+            "rate": 0.2759
           },
           "Top3": {
-            "hit": 18,
-            "total": 28,
-            "rate": 0.6429
+            "hit": 19,
+            "total": 29,
+            "rate": 0.6552
           },
           "Top4": {
-            "hit": 16,
-            "total": 24,
-            "rate": 0.6667
+            "hit": 17,
+            "total": 25,
+            "rate": 0.68
           }
         }
       },
       "总进球": {
         "predicted": 29,
-        "verified": 28,
-        "pending": 1,
+        "verified": 29,
+        "pending": 0,
         "evaluation": {
-          "hit": 22,
-          "total": 28,
-          "rate": 0.7857
+          "hit": 23,
+          "total": 29,
+          "rate": 0.7931
         },
         "rates": {
           "Top1": {
-            "hit": 12,
-            "total": 28,
-            "rate": 0.4286
+            "hit": 13,
+            "total": 29,
+            "rate": 0.4483
           },
           "Top3": {
-            "hit": 22,
-            "total": 28,
-            "rate": 0.7857
+            "hit": 23,
+            "total": 29,
+            "rate": 0.7931
           }
         }
       },
       "半全场": {
         "predicted": 29,
-        "verified": 28,
-        "pending": 1,
+        "verified": 29,
+        "pending": 0,
         "evaluation": {
-          "hit": 18,
-          "total": 28,
-          "rate": 0.6429
+          "hit": 19,
+          "total": 29,
+          "rate": 0.6552
         },
         "rates": {
           "Top1": {
-            "hit": 6,
-            "total": 28,
-            "rate": 0.2143
+            "hit": 7,
+            "total": 29,
+            "rate": 0.2414
           },
           "Top3": {
-            "hit": 18,
-            "total": 28,
-            "rate": 0.6429
+            "hit": 19,
+            "total": 29,
+            "rate": 0.6552
           }
         }
       },
