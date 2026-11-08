@@ -29,10 +29,21 @@ jobs:
           export GIT_CONFIG_COUNT=1
           export GIT_CONFIG_KEY_0=http.https://github.com/.extraheader
           export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$ENGINE_READ_TOKEN" | base64 -w0)"
-          git clone --depth 1 --filter=blob:none --sparse https://github.com/SuolunPro/90scale-engine.git /tmp/90scale-engine
-          git -C /tmp/90scale-engine sparse-checkout set data/engine4
+          for attempt in 1 2 3 4 5; do
+            rm -rf /tmp/90scale-engine
+            if git clone --depth 1 --filter=blob:none --sparse https://github.com/SuolunPro/90scale-engine.git /tmp/90scale-engine &&
+               git -C /tmp/90scale-engine sparse-checkout set data/engine4; then
+              break
+            fi
+            if [ "$attempt" -eq 5 ]; then echo "::error::Failed to read engine after five attempts"; exit 1; fi
+            sleep 12
+          done
+          test -s /tmp/90scale-engine/data/engine4/latest.json
       - name: Merge newer snapshots without losing verified settlements
         run: python scripts/sync_engine4.py /tmp/90scale-engine/data/engine4 data/engine4
+      - name: Verify merged website snapshot before publishing
+        run: |
+          python scripts/verify_engine4_sync.py /tmp/90scale-engine/data/engine4 data/engine4
       - name: Publish website data
         run: |
           set -euo pipefail
@@ -44,5 +55,14 @@ jobs:
             exit 0
           fi
           git commit -m 'data: sync verified 90scale results to website'
-          git pull --rebase origin main
-          git push origin HEAD:main
+          for attempt in 1 2 3 4 5; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "Website snapshot published"
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            echo "Retrying website publication ($attempt/5)"
+            sleep 12
+          done
+          echo "::error::Website publication failed after five attempts"
+          exit 1
