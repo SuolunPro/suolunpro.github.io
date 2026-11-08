@@ -507,8 +507,11 @@
     async function load(){
       try{
         vipMember=await checkMember(vipCode);
-        const path=selectedDay==='latest'?DATA_BASE+'latest.json':DATA_BASE+'sales/'+selectedDay+'.json';
-        const data=await getJson(path);if(!Array.isArray(data.matches))throw Error('报告格式错误');
+        // The newest sale day must use live predictions, not its archived sales snapshot.
+        const live=await getJson(DATA_BASE+'latest.json');
+        const path=selectedDay===live.sale_day?'':DATA_BASE+'sales/'+selectedDay+'.json';
+        const data=path?await getJson(path):live;
+        if(!Array.isArray(data.matches))throw Error('报告格式错误');
         report=data;render()
       }catch(error){
         if(error.message==='invalid_code'||error.message==='vip_inactive'){vipShowGate('会员资格已失效，请重新登录。');return}
