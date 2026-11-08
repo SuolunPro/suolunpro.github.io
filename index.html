@@ -523,6 +523,12 @@
       }
     }
     let refreshInFlight=false,lastAutoDayCheck=0;
+    // Follow the newest sale day automatically until the visitor explicitly selects history.
+    let followLatestDay=true,reportFingerprint='';
+    function reportSignature(data){
+      // Covers changed predictions, per-module settlement and status even when generated_at is reused.
+      return JSON.stringify([data.sale_day,data.generated_at,data.matches]);
+    }
     async function load(options={}){
       if(refreshInFlight)return;
       refreshInFlight=true;
@@ -532,15 +538,28 @@
         // Refresh VIP authorization as before; all JSON requests bypass browser cache.
         vipMember=await checkMember(vipCode);
         const live=await getJson(DATA_BASE+'latest.json');
-        // Only the latest sale day reads latest.json. Older selected days stay frozen.
-        const path=dayAtStart===live.sale_day?'':DATA_BASE+'sales/'+dayAtStart+'.json';
-        const data=path?await getJson(path):live;
+        if(!Array.isArray(live.matches))throw Error('最新报告格式错误');
+        // Keep the newest date live across midnight, but never hijack an explicitly chosen historical date.
+        if(followLatestDay&&selectedDay!==live.sale_day){
+          selectedDay=live.sale_day;
+          const selector=$('day-select');
+          if(!Array.from(selector.options).some(o=>o.value===live.sale_day)){
+            const option=document.createElement('option');
+            option.value=live.sale_day;
+            option.textContent=live.sale_day.slice(5,7)+'月'+live.sale_day.slice(8,10)+'日';
+            selector.prepend(option);
+          }
+          selector.value=live.sale_day;
+        }
+        const effectiveDay=selectedDay;
+        const data=effectiveDay===live.sale_day?live:await getJson(DATA_BASE+'sales/'+effectiveDay+'.json');
         if(!Array.isArray(data.matches))throw Error('报告格式错误');
-        // A date switch during a fetch must never overwrite the new selection.
-        if(selectedDay!==dayAtStart)return;
-        const changed=report?.generated_at!==data.generated_at||report?.sale_day!==data.sale_day||
-          JSON.stringify(report?.matches?.map(m=>m.settlement?.ft||null))!==JSON.stringify(data.matches.map(m=>m.settlement?.ft||null));
-        if(changed||!options.silent){report=data;render()}
+        if(!followLatestDay&&selectedDay!==dayAtStart)return;
+        if(selectedDay!==effectiveDay)return;
+        const fingerprint=reportSignature(data);
+        if(fingerprint!==reportFingerprint||!options.silent){
+          report=data;reportFingerprint=fingerprint;render();
+        }
       }catch(error){
         if(error.message==='invalid_code'||error.message==='vip_inactive'){vipShowGate('会员资格已失效，请重新登录。');return}
         if(!options.silent){
@@ -549,7 +568,7 @@
         }else console.warn('自动更新失败，保留已显示数据',error);
       }finally{refreshInFlight=false}
     }
-    $('day-select').onchange=e=>{selectedDay=e.target.value;load()};
+    $('day-select').onchange=e=>{selectedDay=e.target.value;followLatestDay=false;load()};
     $('refresh').onclick=async()=>{
       await loadDays().catch(error=>console.warn('历史日期刷新失败',error));
       await load();
