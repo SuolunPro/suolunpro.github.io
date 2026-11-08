@@ -391,8 +391,26 @@
     function ftHandicapRiskNote(card,match){
       const modules=match.prediction?.modules||{};
       const warning=modules['冷门预警']||{},handicap=modules['让球']||{};
-      if(warning.status!=='TRIGGERED'||warning.triggered!==true||
-         !['主队不胜','主队不败'].includes(warning.direction))return;
+      // Display-only legacy risk hints: never alter or recompute frozen predictions.
+      const ft=modules['胜平负']||{};
+      const draw=ft.probabilities?.['平'];
+      const officialLine=handicap.handicap;
+      const highDraw=typeof draw==='number'&&Number.isFinite(draw)&&draw>=0.29&&officialLine===-1;
+      const conflict=match.prediction?.source_status?.market_direction_conflict===true||
+        match.prediction?.market_direction_conflict===true;
+      const cold=warning.status==='TRIGGERED'&&warning.triggered===true&&
+        ['主队不胜','主队不败'].includes(warning.direction);
+      if(highDraw||conflict||cold){
+        const hints=[];
+        if(highDraw)hints.push('高平风险：平局概率'+(draw*100).toFixed(1)+'%，官方让球-1');
+        if(conflict)hints.push('市场方向异常：赛前市场方向存在已确认背离');
+        if(cold)hints.push('冷门预警：'+warning.direction);
+        const note=el('div','v4-ft-risk-hints','⚠️ '+hints.join('；')+'。');
+        note.style.cssText='margin-top:9px;font-size:12px;line-height:1.6;color:#805e2b';
+        card.append(note);
+      }
+      // Preserve existing cold-warning handicap Top2 presentation.
+      if(!cold)return;
       const channels=Array.isArray(warning.channels)?warning.channels:[];
       const labels={A:'必发资金反向',B:'必发平局资金集中',C:'威廉热门概率下降',D:'威廉升赔与亚洲退盘',E2:'平局市场信号增强'};
       const reason=channels.map(c=>labels[c]).filter(Boolean).slice(0,2).join('、');
