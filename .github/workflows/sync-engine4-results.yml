@@ -68,6 +68,55 @@ jobs:
               out.write(f'Sales files checked: {len(sales)}\\n')
               out.write(f'Unsettled matches by sale day: {dict(unsettled)}\\n')
           PY
+          # Self-check: Beijing sale-day routing, source freshness, and frozen predictions.
+          python - <<'PY'
+          import json
+          from datetime import datetime,timezone,timedelta
+          from pathlib import Path
+          source=Path('/tmp/engine-source/data/engine4')
+          website=Path('data/engine4')
+          bj=datetime.now(timezone(timedelta(hours=8)))
+          latest=json.loads((source/'latest.json').read_text())
+          sale_day=latest.get('sale_day')
+          generated=datetime.fromisoformat(latest['generated_at'].replace('Z','+00:00'))
+          if generated.tzinfo is None:
+              raise SystemExit('Guardian: engine generated_at missing timezone')
+          if generated>datetime.now(timezone.utc)+timedelta(minutes=5):
+              raise SystemExit('Guardian: engine generated_at is in the future')
+          if sale_day!=bj.date().isoformat():
+              print('::warning::Guardian: latest sale day differs from Beijing today; date selector must use dated history')
+          dated=source/'sales'/f'{sale_day}.json'
+          if not dated.exists():
+              raise SystemExit('Guardian: missing latest sale-day history')
+          old_path=website/'latest.json'
+          if old_path.exists():
+              old=json.loads(old_path.read_text())
+              old_time=datetime.fromisoformat(old['generated_at'].replace('Z','+00:00'))
+              if old_time.tzinfo is None or generated<old_time:
+                  raise SystemExit('Guardian: engine snapshot older than published website; refusing rollback')
+          for old_path in (website/'sales').glob('*.json'):
+              new_path=source/'sales'/old_path.name
+              if not new_path.exists():
+                  continue
+              old=json.loads(old_path.read_text())
+              new=json.loads(new_path.read_text())
+              prior={str(m.get('source_id') or (m.get('match_no'),m.get('kickoff'))):m for m in old.get('matches',[])}
+              for match in new.get('matches',[]):
+                  key=str(match.get('source_id') or (match.get('match_no'),match.get('kickoff')))
+                  previous=prior.get(key)
+                  if not previous:
+                      continue
+                  try:
+                      kickoff=datetime.fromisoformat(match['kickoff'].replace(' ','T')).replace(tzinfo=bj.tzinfo)
+                  except (KeyError,ValueError,TypeError):
+                      continue
+                  if kickoff>bj:
+                      continue
+                  for field in ('prediction','predicted_at'):
+                      if previous.get(field)!=match.get(field):
+                          raise SystemExit(f'Guardian: frozen {field} changed in {old_path.name} fixture {key}')
+          print('Guardian: Beijing date, monotonic publication and frozen prediction checks PASS')
+          PY
           mkdir -p data/engine4/sales
           cp /tmp/engine-source/data/engine4/latest.json data/engine4/latest.json
           cp /tmp/engine-source/data/engine4/sales/*.json data/engine4/sales/
