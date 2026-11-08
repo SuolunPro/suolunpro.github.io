@@ -522,23 +522,52 @@
         verdict(card,match);root.append(card)
       }
     }
-    async function load(){
+    let refreshInFlight=false,lastAutoDayCheck=0;
+    async function load(options={}){
+      if(refreshInFlight)return;
+      refreshInFlight=true;
+      const dayAtStart=selectedDay;
       try{
+        if(!vipCode||$('v4-app').hidden)return;
+        // Refresh VIP authorization as before; all JSON requests bypass browser cache.
         vipMember=await checkMember(vipCode);
-        // The newest sale day must use live predictions, not its archived sales snapshot.
         const live=await getJson(DATA_BASE+'latest.json');
-        const path=selectedDay===live.sale_day?'':DATA_BASE+'sales/'+selectedDay+'.json';
+        // Only the latest sale day reads latest.json. Older selected days stay frozen.
+        const path=dayAtStart===live.sale_day?'':DATA_BASE+'sales/'+dayAtStart+'.json';
         const data=path?await getJson(path):live;
         if(!Array.isArray(data.matches))throw Error('报告格式错误');
-        report=data;render()
+        // A date switch during a fetch must never overwrite the new selection.
+        if(selectedDay!==dayAtStart)return;
+        const changed=report?.generated_at!==data.generated_at||report?.sale_day!==data.sale_day||
+          JSON.stringify(report?.matches?.map(m=>m.settlement?.ft||null))!==JSON.stringify(data.matches.map(m=>m.settlement?.ft||null));
+        if(changed||!options.silent){report=data;render()}
       }catch(error){
         if(error.message==='invalid_code'||error.message==='vip_inactive'){vipShowGate('会员资格已失效，请重新登录。');return}
-        $('pool-count').textContent='所选日期数据暂时无法加载';
-        $('matches').replaceChildren(el('div','error','赛事数据暂时无法加载，请稍后刷新'))
-      }
+        if(!options.silent){
+          $('pool-count').textContent='所选日期数据暂时无法加载';
+          $('matches').replaceChildren(el('div','error','赛事数据暂时无法加载，请稍后刷新'))
+        }else console.warn('自动更新失败，保留已显示数据',error);
+      }finally{refreshInFlight=false}
     }
     $('day-select').onchange=e=>{selectedDay=e.target.value;load()};
-    $('refresh').onclick=()=>{loadDays().catch(error=>console.warn('历史日期刷新失败',error));load()};
+    $('refresh').onclick=async()=>{
+      await loadDays().catch(error=>console.warn('历史日期刷新失败',error));
+      await load();
+    };
+    // Keep open tabs fresh without reloading the page or changing historical dates.
+    setInterval(async()=>{
+      if(document.hidden||!vipCode||$('v4-app').hidden||refreshInFlight)return;
+      try{
+        if(Date.now()-lastAutoDayCheck>300000){
+          lastAutoDayCheck=Date.now();
+          await loadDays();
+        }
+        await load({silent:true});
+      }catch(error){console.warn('自动刷新检查失败',error)}
+    },60000);
+    document.addEventListener('visibilitychange',()=>{
+      if(!document.hidden&&vipCode&&!$('v4-app').hidden)load({silent:true});
+    });
     navigation();initAuth();
   </script>
 </body>
