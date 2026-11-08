@@ -287,7 +287,7 @@
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
       ['比分','全场比分'],['总进球','泊松进球'],['冷门预警','冷门预警']
     ];
-    let report=null,active='胜平负',selectedDay='2026-11-08';
+    let report=null,active='胜平负',selectedDay='';
     const label=value=>value==null?'—':String(value);
     const stamp=value=>{if(!value)return '—';const date=new Date(value);if(Number.isNaN(date.getTime()))return label(value);return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date).replace(/\//g,'-')};
     const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!=null)node.textContent=String(text);return node};
