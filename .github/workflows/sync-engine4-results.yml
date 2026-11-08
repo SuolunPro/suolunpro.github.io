@@ -120,62 +120,14 @@ jobs:
           mkdir -p data/engine4/sales
           cp /tmp/engine-source/data/engine4/latest.json data/engine4/latest.json
           cp /tmp/engine-source/data/engine4/sales/*.json data/engine4/sales/
-      - name: Cache verified FotMob team crests locally
-        run: |
-          python - <<'PY'
-          import json, re, time
-          from pathlib import Path
-          from urllib.request import Request, urlopen
-          from urllib.error import URLError, HTTPError
-          doc=json.loads(Path('data/engine4/latest.json').read_text(encoding='utf-8'))
-          dest=Path('assets/team-logos')
-          dest.mkdir(parents=True,exist_ok=True)
-          ids=set()
-          for match in doc.get('matches',[]):
-              for side in ('home','away'):
-                  value=match.get('fotmob_'+side+'_team_id')
-                  if re.fullmatch(r'[1-9][0-9]{0,9}',str(value or '')):
-                      ids.add(str(value))
-          downloaded=0
-          failed=[]
-          for team_id in sorted(ids):
-              path=dest/(team_id+'.png')
-              if path.is_file() and path.stat().st_size>100:
-                  continue
-              url='https://images.fotmob.com/image_resources/logo/teamlogo/'+team_id+'.png'
-              for attempt in range(2):
-                  try:
-                      request=Request(url,headers={'User-Agent':'Mozilla/5.0','Accept':'image/png,image/*'})
-                      with urlopen(request,timeout=8) as response:
-                          data=response.read(350001)
-                      if len(data)>350000 or not data.startswith(bytes.fromhex('89504e470d0a1a0a')):
-                          raise ValueError('invalid PNG or image too large')
-                      path.write_bytes(data)
-                      downloaded+=1
-                      break
-                  except (OSError,URLError,HTTPError,ValueError) as exc:
-                      if attempt==1:
-                          failed.append(team_id)
-                      else:
-                          time.sleep(0.5)
-          print(f'FotMob crests: {len(ids)} verified team IDs, {downloaded} newly cached, {len(failed)} unavailable')
-          if failed:
-              print('::warning::Crests unavailable for team IDs: '+','.join(failed[:30]))
-          PY
-      - name: Guardian audit summary
-        if: always()
-        run: |
-          if [ -f /tmp/guardian-report.txt ]; then
-            cat /tmp/guardian-report.txt >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo 'Guardian: source unavailable or integrity check failed; publication blocked.' >> "$GITHUB_STEP_SUMMARY"
-          fi
+      # Results must be published before optional network image downloads.
+      # Slow or blocked FotMob image requests must never delay settlements.
       - name: Commit and publish changed snapshots
         run: |
           set -euo pipefail
           git config user.name '90scale-sync[bot]'
           git config user.email 'actions@users.noreply.github.com'
-          git add data/engine4/latest.json data/engine4/sales/ assets/team-logos/
+          git add data/engine4/latest.json data/engine4/sales/
           if git diff --cached --quiet; then
             echo 'Already synchronized'
             exit 0
@@ -187,6 +139,14 @@ jobs:
             if [ "$attempt" -eq 3 ]; then echo "::error::Website publish failed after 3 attempts"; exit 1; fi
             sleep $((attempt * 10))
           done
+      - name: Guardian audit summary
+        if: always()
+        run: |
+          if [ -f /tmp/guardian-report.txt ]; then
+            cat /tmp/guardian-report.txt >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Guardian: source unavailable or integrity check failed; publication blocked.' >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Verify published version
         run: |
           set -euo pipefail
