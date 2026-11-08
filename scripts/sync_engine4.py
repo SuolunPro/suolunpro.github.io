@@ -2,7 +2,7 @@
 import json
 import sys
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 def read(path):
     try:
@@ -29,10 +29,21 @@ def merge(source, existing):
     else:
         base, other = source, existing
     old_matches = {key(m): m for m in other.get("matches", []) if isinstance(m, dict)}
-    for match in base.get("matches", []):
+    for index, match in enumerate(base.get("matches", [])):
         old = old_matches.get(key(match))
         if not old:
             continue
+        # For an unstarted fixture, keep the latest valid prematch forecast.
+        # Never overwrite a frozen prediction with a post-kickoff version.
+        try:
+            kickoff = datetime.fromisoformat(match["kickoff"].replace(" ", "T")).replace(
+                tzinfo=timezone(timedelta(hours=8))).timestamp()
+        except (KeyError, ValueError, TypeError):
+            kickoff = 0
+        if kickoff and stamp(old.get("predicted_at")) < kickoff and (
+            stamp(old.get("predicted_at")) > stamp(match.get("predicted_at"))):
+            base["matches"][index] = old.copy()
+            match = base["matches"][index]
         current_settlement = match.get("settlement")
         other_settlement = old.get("settlement")
         current_verified = bool(current_settlement) and (match.get("result_verification") or {}).get("status") == "VERIFIED"
