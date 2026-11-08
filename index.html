@@ -113,6 +113,14 @@
       <div class="vip-example"><div>原注册邮箱：<strong>123456@qq.com</strong></div><div>正确登录账号：<strong>vip+123456@qq.com</strong></div><small>注意：vip 为小写字母，+ 号不能省略；无需重新注册。</small></div>
       <label>VIP会员账号<input id="vip-code" type="text" autocomplete="username" placeholder="例如：vip+123456@qq.com" maxlength="100" required></label>
       <button id="vip-login" type="submit">登录并查看预测</button>
+      <button id="vip-register-toggle" type="button" aria-expanded="false" aria-controls="vip-register-info" style="width:100%;margin-top:10px;background:#fff;color:#b9252c;border:1px solid #b9252c;border-radius:9px;padding:11px;font-weight:800;cursor:pointer">🎁 免费领取1天VIP体验</button>
+      <div id="vip-register-info" hidden style="margin-top:12px;padding:14px;background:#fff8f8;border:1px solid #f2d7d9;border-radius:10px;text-align:left;color:#333;font-size:13px;line-height:1.85">
+        <strong style="font-size:15px;color:#b9252c">新用户开户注册</strong>
+        <p style="margin:6px 0">目前采用管理员人工开户注册，暂不开放自助注册。首次注册可申请免费领取1天VIP体验，每位新用户限领一次。</p>
+        <p style="margin:6px 0">① 添加客服微信　② 申请开户注册　③ 管理员核实后开通体验权限</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>客服微信：<strong id="vip-service-wechat">GoodLuck_H3</strong></span><button id="vip-copy-wechat" type="button" style="border:1px solid #d9b1b4;background:#fff;color:#a9252c;border-radius:7px;padding:6px 10px;cursor:pointer">复制微信号</button></div>
+        <small style="display:block;margin-top:8px;color:#777">赛事分析仅供参考，体验权限由管理员人工开通。</small>
+      </div>
       <p id="vip-error" role="alert"></p>
       <p class="vip-legal">模型仍在调试，赛事结果存在不确定性。平台仅提供数据研究与风险提示，不提供投注服务或收益承诺。</p>
     </form>
@@ -234,6 +242,19 @@
       await loadDays().catch(error=>console.warn('历史日期加载失败，保留页面已有日期',error));
       load();
     }
+    $('vip-register-toggle').addEventListener('click',()=>{
+      const panel=$('vip-register-info'),opening=panel.hidden;
+      panel.hidden=!opening;
+      $('vip-register-toggle').setAttribute('aria-expanded',String(opening));
+    });
+    $('vip-copy-wechat').addEventListener('click',async()=>{
+      const value='GoodLuck_H3',button=$('vip-copy-wechat');
+      try{
+        if(navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(value);
+        else {const input=document.createElement('textarea');input.value=value;input.style.position='fixed';input.style.opacity='0';document.body.append(input);input.select();if(!document.execCommand('copy'))throw Error('copy_failed');input.remove()}
+        button.textContent='已复制';setTimeout(()=>button.textContent='复制微信号',2000);
+      }catch(_){button.textContent='请长按微信号复制'}
+    });
     $('vip-form').addEventListener('submit',async event=>{
       event.preventDefault();const button=$('vip-login');button.disabled=true;$('vip-error').textContent='正在验证会员权限…';
       try{
