@@ -22,7 +22,8 @@ def key(match):
 def merge(source, existing):
     if not isinstance(existing, dict):
         return source
-    # Never replace a newer website snapshot with an older engine snapshot.
+    # Preserve the newest document metadata, but reconcile each fixture independently.
+    # A sale-day generated_at can be stale even after an individual match settles.
     if stamp(existing.get("generated_at")) > stamp(source.get("generated_at")):
         base, other = existing, source
     else:
@@ -32,17 +33,27 @@ def merge(source, existing):
         old = old_matches.get(key(match))
         if not old:
             continue
-        # A completed, verified settlement is immutable against PENDING rollbacks.
-        for field in ("settlement", "result_verification"):
-            if old.get("settlement") and old.get("result_verification", {}).get("status") == "VERIFIED":
-                if field == "settlement" and not match.get("settlement"):
-                    match[field] = old[field]
-                elif field == "result_verification" and match.get(field, {}).get("status") != "VERIFIED":
-                    match[field] = old[field]
-        # Also protect verified settlement present in the non-base source.
-        if old.get("settlement") and old.get("result_verification", {}).get("status") == "VERIFIED" and match.get("result_verification", {}).get("status") != "VERIFIED":
-            match["settlement"] = old["settlement"]
+        current_settlement = match.get("settlement")
+        other_settlement = old.get("settlement")
+        current_verified = bool(current_settlement) and (match.get("result_verification") or {}).get("status") == "VERIFIED"
+        other_verified = bool(other_settlement) and (old.get("result_verification") or {}).get("status") == "VERIFIED"
+        if other_verified and (not current_verified or
+            stamp(other_settlement.get("verified_at")) > stamp(current_settlement.get("verified_at"))):
+            match["settlement"] = other_settlement
             match["result_verification"] = old["result_verification"]
+            for field in ("fotmob_match_id", "fotmob_home_team_id", "fotmob_away_team_id"):
+                if old.get(field) is not None:
+                    match[field] = old[field]
+        elif not current_verified and not other_verified:
+            if stamp((old.get("result_verification") or {}).get("checked_at")) > stamp(
+                (match.get("result_verification") or {}).get("checked_at")):
+                match["result_verification"] = old["result_verification"]
+    # If a verified match only exists in the older document, retain it too.
+    seen = {key(m) for m in base.get("matches", [])}
+    for old in other.get("matches", []):
+        if isinstance(old, dict) and key(old) not in seen:
+            base.setdefault("matches", []).append(old)
+            seen.add(key(old))
     return base
 
 def main(src, dst):
