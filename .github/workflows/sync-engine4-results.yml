@@ -2,7 +2,7 @@ name: Sync 90scale 4.0 results to website
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/5 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -22,7 +22,14 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$ENGINE4_READ_TOKEN" || { echo 'Missing ENGINE4_READ_TOKEN secret'; exit 1; }
-          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$ENGINE4_READ_TOKEN" | base64 -w0)" clone --depth 1 https://github.com/SuolunPro/90scale-engine.git /tmp/engine-source
+          for attempt in 1 2 3; do
+            if git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$ENGINE4_READ_TOKEN" | base64 -w0)" clone --depth 1 https://github.com/SuolunPro/90scale-engine.git /tmp/engine-source; then
+              break
+            fi
+            rm -rf /tmp/engine-source
+            if [ "$attempt" -eq 3 ]; then echo "::error::Engine source clone failed after 3 attempts"; exit 1; fi
+            sleep $((attempt * 10))
+          done
           test -s /tmp/engine-source/data/engine4/latest.json
           python - <<'PY'
           import json
@@ -83,8 +90,12 @@ jobs:
             exit 0
           fi
           git commit -m 'data: sync engine4 results and historical settlements'
-          git pull --rebase origin main
-          git push origin HEAD:main
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then break; fi
+            if [ "$attempt" -eq 3 ]; then echo "::error::Website publish failed after 3 attempts"; exit 1; fi
+            sleep $((attempt * 10))
+          done
       - name: Verify published version
         run: |
           set -euo pipefail
