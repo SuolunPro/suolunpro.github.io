@@ -18,11 +18,11 @@ jobs:
           persist-credentials: true
       - name: Download private engine snapshots
         env:
-          ENGINE_READ_TOKEN: ${{ secrets.ENGINE_REPO_TOKEN }}
+          ENGINE_READ_TOKEN: ${{ secrets.ENGINE4_READ_TOKEN }}
         run: |
           set -euo pipefail
           if [ -z "${ENGINE_READ_TOKEN}" ]; then
-            echo "::error::ENGINE_REPO_TOKEN is missing. The engine repository is private; anonymous git clone cannot sync it."
+            echo "::error::ENGINE4_READ_TOKEN is missing. The engine repository is private; anonymous git clone cannot sync it."
             exit 1
           fi
           # Keep the token out of the command line, remote URL and workflow logs.
