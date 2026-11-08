@@ -16,8 +16,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
-      - name: Download engine public snapshots
-        run: git clone --depth 1 --filter=blob:none --sparse https://github.com/SuolunPro/90scale-engine.git /tmp/90scale-engine && git -C /tmp/90scale-engine sparse-checkout set data/engine4
+      - name: Download private engine snapshots
+        env:
+          ENGINE_READ_TOKEN: ${{ secrets.ENGINE_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ENGINE_READ_TOKEN}" ]; then
+            echo "::error::ENGINE_REPO_TOKEN is missing. The engine repository is private; anonymous git clone cannot sync it."
+            exit 1
+          fi
+          # Keep the token out of the command line, remote URL and workflow logs.
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0=http.https://github.com/.extraheader
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$ENGINE_READ_TOKEN" | base64 -w0)"
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/SuolunPro/90scale-engine.git /tmp/90scale-engine
+          git -C /tmp/90scale-engine sparse-checkout set data/engine4
       - name: Merge newer snapshots without losing verified settlements
         run: python scripts/sync_engine4.py /tmp/90scale-engine/data/engine4 data/engine4
       - name: Publish website data
