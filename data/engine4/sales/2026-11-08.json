@@ -1169,8 +1169,9 @@
         }
       },
       "result_verification": {
-        "status": "VERIFIED",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "status": "PENDING",
+        "reason": "NOT_DUE",
+        "checked_at": "2026-11-08T05:59:40.642500+00:00"
       },
       "fotmob_match_id": 1000017580,
       "fotmob_home_team_id": 8008,
@@ -1597,8 +1598,9 @@
         }
       },
       "result_verification": {
-        "status": "VERIFIED",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "status": "PENDING",
+        "reason": "NOT_DUE",
+        "checked_at": "2026-11-08T05:59:40.642500+00:00"
       },
       "fotmob_match_id": 5803651,
       "fotmob_home_team_id": 6582,
@@ -2025,7 +2027,119 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T07:32:12.007561+00:00"
+      },
+      "fotmob_match_id": 6503837,
+      "fotmob_home_team_id": 164734,
+      "fotmob_away_team_id": 46038,
+      "settlement": {
+        "ht": "2:1",
+        "ft": "3:2",
+        "verified_at": "2026-11-08T10:09:20.019633+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=6503837",
+        "fotmob_match_id": 6503837,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": false,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "今日优选": null,
+          "冷门预警": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "胜",
+              "负"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让平",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "3:2",
+            "picks": [
+              "1:1",
+              "0:0",
+              "1:0",
+              "0:1"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 5,
+            "picks": [
+              2,
+              1,
+              3
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "胜-胜",
+            "picks": [
+              "平-平",
+              "胜-胜",
+              "负-负"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          }
+        }
       }
     },
     {
@@ -2036,14 +2150,14 @@
       "away": "拉齐奥",
       "kickoff": "2026-11-08 19:30",
       "spf": [
-        2.22,
-        3.6,
-        2.43
+        2.3,
+        3.66,
+        2.32
       ],
       "rqspf": [
-        4.65,
-        4.1,
-        1.47
+        4.85,
+        4.2,
+        1.44
       ],
       "handicap": -1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -2055,84 +2169,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1328165/exchanges/",
         "okooo_id": "1328165",
-        "captured_at": "2026-11-08T08:38:49.045485+00:00",
+        "captured_at": "2026-11-08T10:06:28.654991+00:00",
         "transaction_rows": [
           {
             "team": "那不勒斯",
             "bfOdds": 2.44,
             "bfVolume": 390918.0,
             "bfProfitLoss": -40921.0,
-            "jcOdds": 2.22,
-            "jcSavedVolume": 29956517.0,
-            "jcProfitLoss": 31070046.0,
-            "savedPopularity": 2887.0,
-            "doerPct": 21.3
+            "jcOdds": 2.3,
+            "jcSavedVolume": 31566393.0,
+            "jcProfitLoss": 29942684.0,
+            "savedPopularity": 3779.0,
+            "doerPct": 21.48
           },
           {
             "team": "平局",
             "bfOdds": 3.75,
             "bfVolume": 227220.0,
             "bfProfitLoss": 60844.0,
-            "jcOdds": 3.6,
-            "jcSavedVolume": 30681823.0,
-            "jcProfitLoss": -12881049.0,
-            "savedPopularity": 3630.0,
-            "doerPct": 26.79
+            "jcOdds": 3.66,
+            "jcSavedVolume": 32805484.0,
+            "jcProfitLoss": -17522683.0,
+            "savedPopularity": 4783.0,
+            "doerPct": 27.18
           },
           {
             "team": "拉齐奥",
             "bfOdds": 3.05,
             "bfVolume": 294781.0,
             "bfProfitLoss": 13837.0,
-            "jcOdds": 2.43,
-            "jcSavedVolume": 36935174.0,
-            "jcProfitLoss": 7821041.0,
-            "savedPopularity": 7034.0,
-            "doerPct": 51.91
+            "jcOdds": 2.32,
+            "jcSavedVolume": 38173511.0,
+            "jcProfitLoss": 13982842.0,
+            "savedPopularity": 9035.0,
+            "doerPct": 51.34
           }
         ],
         "index_rows": [
           {
             "team": "那不勒斯",
             "avgOdds": 2.28,
-            "avgProb": 41.42,
+            "avgProb": 41.39,
             "bfShare": 42.82,
-            "jcSavedShare": 30.7,
-            "northShare": 5.09,
+            "jcSavedShare": 30.78,
+            "northShare": 3.48,
             "bfHotCold": 3.0,
             "jcHotCold": -25.0,
             "bfMarketIndex": 35.0,
-            "jcMarketIndex": 25.0,
+            "jcMarketIndex": 26.0,
             "bfProfitIndex": -4.0,
-            "jcProfitIndex": 32.0
+            "jcProfitIndex": 29.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.6,
-            "avgProb": 26.23,
+            "avgOdds": 3.62,
+            "avgProb": 26.07,
             "bfShare": 24.89,
-            "jcSavedShare": 31.44,
-            "northShare": 88.31,
+            "jcSavedShare": 31.99,
+            "northShare": 82.89,
             "bfHotCold": -5.0,
-            "jcHotCold": 18.0,
+            "jcHotCold": 23.0,
             "bfMarketIndex": 32.0,
-            "jcMarketIndex": 41.0,
+            "jcMarketIndex": 43.0,
             "bfProfitIndex": 7.0,
-            "jcProfitIndex": -13.0
+            "jcProfitIndex": -17.0
           },
           {
             "team": "拉齐奥",
-            "avgOdds": 2.92,
-            "avgProb": 32.35,
+            "avgOdds": 2.9,
+            "avgProb": 32.54,
             "bfShare": 32.29,
-            "jcSavedShare": 37.85,
-            "northShare": 6.6,
-            "bfHotCold": -0.0,
-            "jcHotCold": 17.0,
+            "jcSavedShare": 37.23,
+            "northShare": 13.63,
+            "bfHotCold": -1.0,
+            "jcHotCold": 14.0,
             "bfMarketIndex": 33.0,
-            "jcMarketIndex": 34.0,
+            "jcMarketIndex": 31.0,
             "bfProfitIndex": 2.0,
-            "jcProfitIndex": 8.0
+            "jcProfitIndex": 14.0
           }
         ],
         "exchange_scale": "适中",
@@ -2141,32 +2255,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:39:02.004888+00:00",
+        "captured_at": "2026-11-08T10:06:39.695518+00:00",
         "william": {
           "initial": "1.85 / 3.70 / 3.50",
-          "current": "2.25 / 3.40 / 2.88",
-          "time": "8小时前"
+          "current": "2.25 / 3.40 / 2.80",
+          "time": "12分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.98 0.5 0.88",
             "current": "1.00 0/0.5 0.85",
-            "time": "3分钟前"
+            "time": "0分钟前"
           },
           "澳门": {
             "initial": "0.83 0/0.5 1.01",
-            "current": "1.00 0/0.5 0.84",
-            "time": "1小时前"
+            "current": "1.08 0/0.5 0.76",
+            "time": "21分钟前"
           },
           "皇冠": {
             "initial": "1.07 0.5 0.81",
-            "current": "1.02 0/0.5 0.87",
-            "time": "31分钟前"
+            "current": "1.01 0/0.5 0.88",
+            "time": "1分钟前"
           },
           "威廉希尔": {
             "initial": "0.85 0.5 0.85",
             "current": "0.91 0/0.5 0.70",
-            "time": "2小时前"
+            "time": "3小时前"
           }
         }
       },
@@ -2237,10 +2351,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:39:05.025106+00:00",
+        "captured_at": "2026-11-08T10:06:43.681420+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:39:09.481977+00:00",
+      "predicted_at": "2026-11-08T10:06:47.306088+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -2255,24 +2369,24 @@
             "负": 0.260563
           },
           "current_probabilities": {
-            "胜": 0.40933,
-            "平": 0.27088,
-            "负": 0.319789
+            "胜": 0.405624,
+            "平": 0.268428,
+            "负": 0.325948
           },
           "probability_movement_pp": {
-            "胜": -8.363,
-            "平": 2.44,
-            "负": 5.923
+            "胜": -8.733,
+            "平": 2.195,
+            "负": 6.538
           },
           "base_probabilities": {
-            "胜": 0.395218,
-            "平": 0.243718,
-            "负": 0.361064
+            "胜": 0.381709,
+            "平": 0.239872,
+            "负": 0.378419
           },
           "calibrated_probabilities": {
-            "胜": 0.398746,
-            "平": 0.250509,
-            "负": 0.350745
+            "胜": 0.387688,
+            "平": 0.247011,
+            "负": 0.365301
           },
           "base_top1": "胜",
           "base_top2": [
@@ -2294,9 +2408,9 @@
             "胜",
             "平"
           ],
-          "market_coverage": 0.6389,
+          "market_coverage": 0.6216,
           "omitted_direction": "负",
-          "omitted_market_risk": 0.3611,
+          "omitted_market_risk": 0.3784,
           "signals": [
             "盘口退让 3 家",
             "威廉平局隐含概率上升"
@@ -2321,9 +2435,9 @@
               "负"
             ],
             "probabilities": {
-              "胜": 0.3952,
-              "平": 0.2437,
-              "负": 0.3611
+              "胜": 0.3817,
+              "平": 0.2399,
+              "负": 0.3784
             }
           },
           "让球": {
@@ -2342,9 +2456,9 @@
               "让负": 0.73449
             },
             "market_probabilities": {
-              "让胜": 0.188771,
-              "让平": 0.214094,
-              "让负": 0.597134
+              "让胜": 0.181067,
+              "让平": 0.209089,
+              "让负": 0.609844
             },
             "xg_probabilities": {
               "让胜": 0.110814,
@@ -2508,7 +2622,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -2519,13 +2633,13 @@
       "away": "贝蒂斯",
       "kickoff": "2026-11-08 21:00",
       "spf": [
-        3.86,
-        3.8,
-        1.62
+        3.87,
+        3.9,
+        1.6
       ],
       "rqspf": [
-        1.94,
-        3.26,
+        1.97,
+        3.18,
         3.15
       ],
       "handicap": 1,
@@ -2538,84 +2652,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1335582/exchanges/",
         "okooo_id": "1335582",
-        "captured_at": "2026-11-08T08:38:49.065766+00:00",
+        "captured_at": "2026-11-08T10:06:28.253935+00:00",
         "transaction_rows": [
           {
             "team": "埃尔切",
             "bfOdds": 3.85,
             "bfVolume": 26520.0,
             "bfProfitLoss": 254483.0,
-            "jcOdds": 3.86,
-            "jcSavedVolume": 537413.0,
-            "jcProfitLoss": 5993355.0,
-            "savedPopularity": 602.0,
-            "doerPct": 7.38
+            "jcOdds": 3.87,
+            "jcSavedVolume": 676103.0,
+            "jcProfitLoss": 7855530.0,
+            "savedPopularity": 785.0,
+            "doerPct": 7.28
           },
           {
             "team": "平局",
             "bfOdds": 3.9,
             "bfVolume": 29089.0,
             "bfProfitLoss": 243138.0,
-            "jcOdds": 3.8,
-            "jcSavedVolume": 925030.0,
-            "jcProfitLoss": 4552655.0,
-            "savedPopularity": 1530.0,
-            "doerPct": 18.75
+            "jcOdds": 3.9,
+            "jcSavedVolume": 2670685.0,
+            "jcProfitLoss": 56378.0,
+            "savedPopularity": 2072.0,
+            "doerPct": 19.22
           },
           {
             "team": "贝蒂斯",
             "bfOdds": 2.06,
             "bfVolume": 300976.0,
             "bfProfitLoss": -263426.0,
-            "jcOdds": 1.62,
-            "jcSavedVolume": 6605326.0,
-            "jcProfitLoss": -2632859.0,
-            "savedPopularity": 6028.0,
-            "doerPct": 73.87
+            "jcOdds": 1.6,
+            "jcSavedVolume": 7125261.0,
+            "jcProfitLoss": -928369.0,
+            "savedPopularity": 7923.0,
+            "doerPct": 73.5
           }
         ],
         "index_rows": [
           {
             "team": "埃尔切",
-            "avgOdds": 3.53,
-            "avgProb": 26.74,
+            "avgOdds": 3.58,
+            "avgProb": 26.45,
             "bfShare": 7.44,
-            "jcSavedShare": 6.66,
-            "northShare": 2.63,
+            "jcSavedShare": 6.46,
+            "northShare": 1.81,
             "bfHotCold": -72.0,
-            "jcHotCold": -74.0,
+            "jcHotCold": -77.0,
             "bfMarketIndex": 12.0,
-            "jcMarketIndex": 13.0,
+            "jcMarketIndex": 11.0,
             "bfProfitIndex": 71.0,
-            "jcProfitIndex": 74.0
+            "jcProfitIndex": 75.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.69,
-            "avgProb": 25.58,
+            "avgOdds": 3.75,
+            "avgProb": 25.25,
             "bfShare": 8.16,
-            "jcSavedShare": 11.47,
-            "northShare": 68.56,
+            "jcSavedShare": 25.5,
+            "northShare": 69.27,
             "bfHotCold": -68.0,
-            "jcHotCold": -57.0,
+            "jcHotCold": 3.0,
             "bfMarketIndex": 14.0,
-            "jcMarketIndex": 22.0,
+            "jcMarketIndex": 43.0,
             "bfProfitIndex": 68.0,
-            "jcProfitIndex": 56.0
+            "jcProfitIndex": 1.0
           },
           {
             "team": "贝蒂斯",
-            "avgOdds": 1.98,
-            "avgProb": 47.68,
+            "avgOdds": 1.96,
+            "avgProb": 48.3,
             "bfShare": 84.41,
-            "jcSavedShare": 81.87,
-            "northShare": 28.82,
-            "bfHotCold": 77.0,
-            "jcHotCold": 72.0,
+            "jcSavedShare": 68.04,
+            "northShare": 28.92,
+            "bfHotCold": 75.0,
+            "jcHotCold": 41.0,
             "bfMarketIndex": 74.0,
-            "jcMarketIndex": 66.0,
+            "jcMarketIndex": 47.0,
             "bfProfitIndex": -74.0,
-            "jcProfitIndex": -33.0
+            "jcProfitIndex": -9.0
           }
         ],
         "exchange_scale": "适中",
@@ -2624,32 +2738,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:39:09.484746+00:00",
+        "captured_at": "2026-11-08T10:06:47.310244+00:00",
         "william": {
           "initial": "3.80 / 3.60 / 1.85",
-          "current": "3.50 / 3.50 / 1.95",
-          "time": "21分钟前"
+          "current": "3.60 / 3.50 / 1.95",
+          "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 -0.5/1 1.03",
             "current": "0.93 -0.5 0.93",
-            "time": "55分钟前"
+            "time": "38分钟前"
           },
           "澳门": {
             "initial": "0.97 -0/0.5 0.87",
             "current": "0.92 -0.5 0.92",
-            "time": "50分钟前"
+            "time": "2小时前"
           },
           "皇冠": {
             "initial": "0.84 -0.5 1.04",
-            "current": "0.95 -0.5 0.94",
-            "time": "27分钟前"
+            "current": "0.96 -0.5 0.93",
+            "time": "41分钟前"
           },
           "威廉希尔": {
             "initial": "0.91 -0.5 0.83",
             "current": "0.83 -0.5 0.95",
-            "time": "17分钟前"
+            "time": "1小时前"
           }
         }
       },
@@ -2720,10 +2834,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:39:15.492205+00:00",
+        "captured_at": "2026-11-08T10:06:51.202845+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:39:20.589148+00:00",
+      "predicted_at": "2026-11-08T10:06:54.451106+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -2738,29 +2852,29 @@
             "负": 0.499817
           },
           "current_probabilities": {
-            "胜": 0.263514,
-            "平": 0.263514,
-            "负": 0.472973
+            "胜": 0.258083,
+            "平": 0.265457,
+            "负": 0.476461
           },
           "probability_movement_pp": {
-            "胜": 2.018,
-            "平": 0.666,
-            "负": -2.684
+            "胜": 1.475,
+            "平": 0.861,
+            "负": -2.336
           },
           "base_probabilities": {
-            "胜": 0.22735,
-            "平": 0.23094,
-            "负": 0.54171
+            "胜": 0.226703,
+            "平": 0.224959,
+            "负": 0.548338
           },
           "calibrated_probabilities": {
-            "胜": 0.236391,
-            "平": 0.239083,
-            "负": 0.524526
+            "胜": 0.234548,
+            "平": 0.235083,
+            "负": 0.530369
           },
           "base_top1": "负",
           "base_top2": [
             "负",
-            "平"
+            "胜"
           ],
           "shadow_top1": "负",
           "shadow_top2": [
@@ -2774,15 +2888,15 @@
           "status": "SHADOW_CANDIDATE",
           "selection": [
             "负",
-            "平"
+            "胜"
           ],
           "shadow_choices": [
             "负",
-            "平"
+            "胜"
           ],
-          "market_coverage": 0.7727,
-          "omitted_direction": "胜",
-          "omitted_market_risk": 0.2273,
+          "market_coverage": 0.775,
+          "omitted_direction": "平",
+          "omitted_market_risk": 0.225,
           "signals": [
             "冷门观察：需进一步市场复核",
             "盘口退让 1 家"
@@ -2799,12 +2913,12 @@
             "top1": "负",
             "top2": [
               "负",
-              "平"
+              "胜"
             ],
             "probabilities": {
-              "胜": 0.2273,
-              "平": 0.2309,
-              "负": 0.5417
+              "胜": 0.2267,
+              "平": 0.225,
+              "负": 0.5483
             }
           },
           "让球": {
@@ -2823,9 +2937,9 @@
               "让负": 0.114769
             },
             "market_probabilities": {
-              "让胜": 0.452291,
-              "让平": 0.269155,
-              "让负": 0.278554
+              "让胜": 0.445455,
+              "让平": 0.275958,
+              "让负": 0.278586
             },
             "xg_probabilities": {
               "让胜": 0.724461,
@@ -2939,14 +3053,14 @@
             "hot_cold_index": [
               -72.0,
               -68.0,
-              77.0
+              75.0
             ],
             "institution_support": [
-              26.74,
-              25.58,
-              47.68
+              26.45,
+              25.25,
+              48.3
             ],
-            "market_captured_at": "2026-11-08T08:38:49.065766+00:00",
+            "market_captured_at": "2026-11-08T10:06:28.253935+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -2965,9 +3079,9 @@
             "candidate": null,
             "reason": "冷门预警或市场异动观察已排除",
             "evidence": [
-              "原版门槛审计：SP Top1 54.2%（低于旧55%门槛）",
+              "原版门槛审计：SP Top1 54.8%（低于旧55%门槛）",
               "原版赔率区间审计：1.95（超出旧1.45–1.75）",
-              "SP Top1 负 去水隐含比例 54.2%",
+              "SP Top1 负 去水隐含比例 54.8%",
               "威廉同方向赔率 1.95",
               "亚洲盘口可读 4 家，退让 1 家"
             ],
@@ -3005,7 +3119,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -3016,14 +3130,14 @@
       "away": "国际图尔",
       "kickoff": "2026-11-08 21:00",
       "spf": [
-        3.52,
-        3.6,
+        3.63,
+        3.5,
         1.73
       ],
       "rqspf": [
         1.84,
-        3.52,
-        3.22
+        3.42,
+        3.3
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -3035,32 +3149,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:39:20.591777+00:00",
+        "captured_at": "2026-11-08T10:06:54.454773+00:00",
         "william": {
           "initial": "3.00 / 3.25 / 2.20",
           "current": "3.60 / 3.60 / 1.85",
-          "time": "30分钟前"
+          "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 -0.5/1 0.98",
             "current": "0.95 -0.5 0.85",
-            "time": "3小时前"
+            "time": "37分钟前"
           },
           "澳门": {
             "initial": "0.78 -0.5/1 1.00",
-            "current": "0.99 -0.5 0.79",
-            "time": "4小时前"
+            "current": "0.90 -0.5 0.88",
+            "time": "1小时前"
           },
           "皇冠": {
             "initial": "1.04 -0.5 0.84",
-            "current": "1.02 -0.5 0.87",
-            "time": "2小时前"
+            "current": "1.01 -0.5 0.88",
+            "time": "26分钟前"
           },
           "威廉希尔": {
             "initial": "0.95 -0.5 0.75",
             "current": "0.73 -0.5/1 0.91",
-            "time": "7小时前"
+            "time": "8小时前"
           }
         }
       },
@@ -3072,7 +3186,7 @@
         "reason": "历史完赛xG样本不足：主3场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-08T08:39:31.012838+00:00",
+      "predicted_at": "2026-11-08T10:07:03.926749+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -3097,24 +3211,24 @@
             "负": 7.826
           },
           "base_probabilities": {
-            "胜": 0.249224,
-            "平": 0.243685,
-            "负": 0.507091
+            "胜": 0.241814,
+            "平": 0.250796,
+            "负": 0.50739
           },
           "calibrated_probabilities": {
-            "胜": 0.250274,
-            "平": 0.24612,
-            "负": 0.503606
+            "胜": 0.244717,
+            "平": 0.251453,
+            "负": 0.50383
           },
           "base_top1": "负",
           "base_top2": [
             "负",
-            "胜"
+            "平"
           ],
           "shadow_top1": "负",
           "shadow_top2": [
             "负",
-            "胜"
+            "平"
           ],
           "changed_top1": false
         },
@@ -3124,11 +3238,11 @@
           "selection": null,
           "shadow_choices": [
             "负",
-            "胜"
+            "平"
           ],
-          "market_coverage": 0.7563,
-          "omitted_direction": "平",
-          "omitted_market_risk": 0.2437,
+          "market_coverage": 0.7582,
+          "omitted_direction": "胜",
+          "omitted_market_risk": 0.2418,
           "signals": [
             "盘口退让 2 家",
             "独立历史xG缺失：不进行伪独立概率加权"
@@ -3147,12 +3261,12 @@
             "top1": "负",
             "top2": [
               "负",
-              "胜"
+              "平"
             ],
             "probabilities": {
-              "胜": 0.2492,
-              "平": 0.2437,
-              "负": 0.5071
+              "胜": 0.2418,
+              "平": 0.2508,
+              "负": 0.5074
             }
           },
           "让球": {
@@ -3166,14 +3280,14 @@
             "source": "SP",
             "xg_status": "UNAVAILABLE",
             "probabilities": {
-              "让胜": 0.477519,
-              "让平": 0.249612,
-              "让负": 0.272868
+              "让胜": 0.477193,
+              "让平": 0.256736,
+              "让负": 0.266071
             },
             "market_probabilities": {
-              "让胜": 0.477519,
-              "让平": 0.249612,
-              "让负": 0.272868
+              "让胜": 0.477193,
+              "让平": 0.256736,
+              "让负": 0.266071
             },
             "xg_probabilities": {}
           },
@@ -3196,15 +3310,15 @@
             "source": "SP",
             "xg_status": "UNAVAILABLE",
             "xg_missing_reason": "历史完赛xG样本不足：主3场、客0场",
-            "home_expected_goals": 1.089,
-            "away_expected_goals": 1.661,
+            "home_expected_goals": 1.015,
+            "away_expected_goals": 1.591,
             "xg_samples": null,
             "matrix_probability_mass": 1.0,
             "probabilities": {
-              "1:1": 0.124911,
-              "0:1": 0.096964,
-              "1:2": 0.096026,
-              "0:2": 0.088187
+              "1:1": 0.128784,
+              "0:1": 0.107921,
+              "1:2": 0.094832,
+              "0:2": 0.093413
             }
           },
           "总进球": {
@@ -3213,28 +3327,28 @@
               3,
               1
             ],
-            "estimated_total_goals": 2.749,
-            "home_expected_goals": 1.089,
-            "away_expected_goals": 1.661,
+            "estimated_total_goals": 2.606,
+            "home_expected_goals": 1.015,
+            "away_expected_goals": 1.591,
             "method": "赛前胜平负 SP 反推的泊松估算，缺少可用FotMob历史xG",
             "source": "SP",
             "xg_status": "UNAVAILABLE",
             "xg_missing_reason": "历史完赛xG样本不足：主3场、客0场",
             "xg_samples": null,
             "probabilities": {
-              "0": 0.063966,
-              "1": 0.175868,
-              "2": 0.241766,
-              "3": 0.221571,
-              "4": 0.152297,
-              "5": 0.083745,
-              "6": 0.038375,
-              "7+": 0.022411
+              "0": 0.073849,
+              "1": 0.192431,
+              "2": 0.250712,
+              "3": 0.217762,
+              "4": 0.141858,
+              "5": 0.073929,
+              "6": 0.032106,
+              "7+": 0.017353
             },
             "top3_probabilities": {
-              "2": 0.241766,
-              "3": 0.221571,
-              "1": 0.175868
+              "2": 0.250712,
+              "3": 0.217762,
+              "1": 0.192431
             }
           },
           "半全场": {
@@ -3249,15 +3363,15 @@
             "xg_status": "UNAVAILABLE",
             "half_split_assumption": "45/55（旧索伦v1.3固定假设，非实测）",
             "probabilities": {
-              "胜-胜": 0.140026,
-              "胜-平": 0.048962,
-              "胜-负": 0.02722,
-              "平-胜": 0.093238,
-              "平-平": 0.145762,
-              "平-负": 0.167566,
-              "负-胜": 0.015959,
-              "负-平": 0.048962,
-              "负-负": 0.312305
+              "胜-胜": 0.134594,
+              "胜-平": 0.047793,
+              "胜-负": 0.025414,
+              "平-胜": 0.092727,
+              "平-平": 0.15521,
+              "平-负": 0.171433,
+              "负-胜": 0.014493,
+              "负-平": 0.047793,
+              "负-负": 0.310544
             }
           },
           "冷门预警": {
@@ -3272,7 +3386,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-08T08:39:20.591777+00:00",
+            "market_captured_at": "2026-11-08T10:06:54.454773+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）"
@@ -3317,7 +3431,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -3328,14 +3442,14 @@
       "away": "阿贾克斯",
       "kickoff": "2026-11-08 21:30",
       "spf": [
-        1.9,
-        3.8,
-        2.86
+        1.86,
+        3.85,
+        2.92
       ],
       "rqspf": [
-        3.57,
-        3.95,
-        1.65
+        3.48,
+        3.9,
+        1.68
       ],
       "handicap": -1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -3347,84 +3461,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1328902/exchanges/",
         "okooo_id": "1328902",
-        "captured_at": "2026-11-08T08:38:49.654146+00:00",
+        "captured_at": "2026-11-08T10:06:30.196211+00:00",
         "transaction_rows": [
           {
             "team": "特温特",
             "bfOdds": 2.02,
             "bfVolume": 13341.0,
             "bfProfitLoss": -5364.0,
-            "jcOdds": 1.9,
-            "jcSavedVolume": 1996969.0,
-            "jcProfitLoss": 614795.0,
-            "savedPopularity": 1208.0,
-            "doerPct": 29.58
+            "jcOdds": 1.86,
+            "jcSavedVolume": 2156959.0,
+            "jcProfitLoss": 2436412.0,
+            "savedPopularity": 1627.0,
+            "doerPct": 29.83
           },
           {
             "team": "平局",
             "bfOdds": 4.3,
             "bfVolume": 4151.0,
             "bfProfitLoss": 3736.0,
-            "jcOdds": 3.8,
-            "jcSavedVolume": 867702.0,
-            "jcProfitLoss": 1111768.0,
-            "savedPopularity": 1245.0,
-            "doerPct": 30.48
+            "jcOdds": 3.85,
+            "jcSavedVolume": 960506.0,
+            "jcProfitLoss": 2750408.0,
+            "savedPopularity": 1744.0,
+            "doerPct": 31.98
           },
           {
             "team": "阿贾克斯",
             "bfOdds": 3.55,
             "bfVolume": 4093.0,
             "bfProfitLoss": 7055.0,
-            "jcOdds": 2.86,
-            "jcSavedVolume": 1544365.0,
-            "jcProfitLoss": -7848.0,
-            "savedPopularity": 1631.0,
-            "doerPct": 39.94
+            "jcOdds": 2.92,
+            "jcSavedVolume": 3330891.0,
+            "jcProfitLoss": -3277846.0,
+            "savedPopularity": 2083.0,
+            "doerPct": 38.19
           }
         ],
         "index_rows": [
           {
             "team": "特温特",
-            "avgOdds": 1.98,
-            "avgProb": 47.24,
+            "avgOdds": 1.97,
+            "avgProb": 47.48,
             "bfShare": 61.81,
-            "jcSavedShare": 45.29,
-            "northShare": 6.6,
-            "bfHotCold": 31.0,
-            "jcHotCold": -5.0,
+            "jcSavedShare": 33.45,
+            "northShare": 4.46,
+            "bfHotCold": 30.0,
+            "jcHotCold": -30.0,
             "bfMarketIndex": 45.0,
-            "jcMarketIndex": 33.0,
+            "jcMarketIndex": 23.0,
             "bfProfitIndex": -25.0,
-            "jcProfitIndex": 14.0
+            "jcProfitIndex": 38.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.93,
-            "avgProb": 23.8,
+            "avgOdds": 3.94,
+            "avgProb": 23.74,
             "bfShare": 19.23,
-            "jcSavedShare": 19.68,
-            "northShare": 75.35,
+            "jcSavedShare": 14.9,
+            "northShare": 50.64,
             "bfHotCold": -19.0,
-            "jcHotCold": -16.0,
+            "jcHotCold": -37.0,
             "bfMarketIndex": 30.0,
-            "jcMarketIndex": 29.0,
+            "jcMarketIndex": 21.0,
             "bfProfitIndex": 17.0,
-            "jcProfitIndex": 25.0
+            "jcProfitIndex": 43.0
           },
           {
             "team": "阿贾克斯",
-            "avgOdds": 3.23,
-            "avgProb": 28.96,
+            "avgOdds": 3.25,
+            "avgProb": 28.78,
             "bfShare": 18.96,
-            "jcSavedShare": 35.03,
-            "northShare": 18.04,
-            "bfHotCold": -35.0,
-            "jcHotCold": 21.0,
+            "jcSavedShare": 51.65,
+            "northShare": 44.89,
+            "bfHotCold": -34.0,
+            "jcHotCold": 81.0,
             "bfMarketIndex": 24.0,
-            "jcMarketIndex": 38.0,
+            "jcMarketIndex": 56.0,
             "bfProfitIndex": 33.0,
-            "jcProfitIndex": -0.0
+            "jcProfitIndex": -51.0
           }
         ],
         "exchange_scale": "较小",
@@ -3433,32 +3547,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:39:31.021186+00:00",
+        "captured_at": "2026-11-08T10:07:03.939472+00:00",
         "william": {
           "initial": "2.50 / 3.90 / 2.29",
           "current": "1.91 / 3.80 / 3.30",
-          "time": "21分钟前"
+          "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.98 0 0.83",
-            "current": "0.90 0.5 0.90",
-            "time": "16分钟前"
+            "current": "0.93 0.5 0.88",
+            "time": "22分钟前"
           },
           "澳门": {
             "initial": "0.97 0/0.5 0.81",
-            "current": "0.88 0.5 0.90",
-            "time": "36分钟前"
+            "current": "0.90 0.5 0.88",
+            "time": "8分钟前"
           },
           "皇冠": {
             "initial": "0.98 0/0.5 0.90",
-            "current": "0.92 0.5 0.97",
-            "time": "43分钟前"
+            "current": "0.95 0.5 0.94",
+            "time": "16分钟前"
           },
           "威廉希尔": {
             "initial": "0.91 0 0.80",
             "current": "0.91 0.5 0.80",
-            "time": "1小时前"
+            "time": "3小时前"
           }
         }
       },
@@ -3529,10 +3643,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:39:34.005333+00:00",
+        "captured_at": "2026-11-08T10:07:06.516825+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:39:37.270215+00:00",
+      "predicted_at": "2026-11-08T10:07:09.889546+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -3557,14 +3671,14 @@
             "负": -12.142
           },
           "base_probabilities": {
-            "胜": 0.462036,
-            "平": 0.231018,
-            "负": 0.306947
+            "胜": 0.471675,
+            "平": 0.227874,
+            "负": 0.300451
           },
           "calibrated_probabilities": {
-            "胜": 0.466637,
-            "平": 0.233635,
-            "负": 0.299728
+            "胜": 0.473867,
+            "平": 0.231277,
+            "负": 0.294856
           },
           "base_top1": "胜",
           "base_top2": [
@@ -3589,9 +3703,9 @@
             "胜",
             "负"
           ],
-          "market_coverage": 0.769,
+          "market_coverage": 0.7721,
           "omitted_direction": "平",
-          "omitted_market_risk": 0.231,
+          "omitted_market_risk": 0.2279,
           "signals": [],
           "blockers": [],
           "source": "赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助",
@@ -3608,9 +3722,9 @@
               "负"
             ],
             "probabilities": {
-              "胜": 0.462,
-              "平": 0.231,
-              "负": 0.3069
+              "胜": 0.4717,
+              "平": 0.2279,
+              "负": 0.3005
             }
           },
           "让球": {
@@ -3629,9 +3743,9 @@
               "让负": 0.420627
             },
             "market_probabilities": {
-              "让胜": 0.245855,
-              "让平": 0.222203,
-              "让负": 0.531941
+              "让胜": 0.252287,
+              "让平": 0.225118,
+              "让负": 0.522595
             },
             "xg_probabilities": {
               "让胜": 0.368454,
@@ -3741,16 +3855,16 @@
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              31.0,
+              30.0,
               -19.0,
-              -35.0
+              -34.0
             ],
             "institution_support": [
-              47.24,
-              23.8,
-              28.96
+              47.48,
+              23.74,
+              28.78
             ],
-            "market_captured_at": "2026-11-08T08:38:49.654146+00:00",
+            "market_captured_at": "2026-11-08T10:06:30.196211+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -3776,9 +3890,9 @@
             ],
             "reason": "通过4.0市场风险闸门的正式双选；未具备旧版母模型 A 档/SINGLE/HUR 证明",
             "evidence": [
-              "原版门槛审计：SP Top1 46.2%（低于旧55%门槛）",
+              "原版门槛审计：SP Top1 47.2%（低于旧55%门槛）",
               "原版赔率区间审计：1.91（超出旧1.45–1.75）",
-              "SP Top1 胜 去水隐含比例 46.2%",
+              "SP Top1 胜 去水隐含比例 47.2%",
               "威廉同方向赔率 1.91",
               "亚洲盘口可读 4 家，退让 0 家"
             ],
@@ -3815,7 +3929,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -3826,14 +3940,14 @@
       "away": "博德闪耀",
       "kickoff": "2026-11-08 21:30",
       "spf": [
-        6.4,
-        5.15,
-        1.27
+        6.7,
+        5.25,
+        1.25
       ],
       "rqspf": [
-        2.9,
+        3.0,
         4.0,
-        1.84
+        1.8
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -3845,40 +3959,40 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1317722/exchanges/",
         "okooo_id": "1317722",
-        "captured_at": "2026-11-08T08:38:50.052843+00:00",
+        "captured_at": "2026-11-08T10:06:28.581836+00:00",
         "transaction_rows": [
           {
             "team": "特罗姆瑟",
             "bfOdds": 7.2,
             "bfVolume": 2609.0,
             "bfProfitLoss": 28043.0,
-            "jcOdds": 6.4,
-            "jcSavedVolume": 669771.0,
-            "jcProfitLoss": 5527578.0,
-            "savedPopularity": 676.0,
-            "doerPct": 17.27
+            "jcOdds": 6.7,
+            "jcSavedVolume": 2334771.0,
+            "jcProfitLoss": -3910608.0,
+            "savedPopularity": 890.0,
+            "doerPct": 17.4
           },
           {
             "team": "平局",
             "bfOdds": 5.4,
             "bfVolume": 1597.0,
             "bfProfitLoss": 38204.0,
-            "jcOdds": 5.15,
-            "jcSavedVolume": 3302880.0,
-            "jcProfitLoss": -7195720.0,
-            "savedPopularity": 472.0,
-            "doerPct": 12.06
+            "jcOdds": 5.25,
+            "jcSavedVolume": 3309938.0,
+            "jcProfitLoss": -5644817.0,
+            "savedPopularity": 657.0,
+            "doerPct": 12.85
           },
           {
             "team": "博德闪耀",
             "bfOdds": 1.47,
             "bfVolume": 42622.0,
             "bfProfitLoss": -15826.0,
-            "jcOdds": 1.27,
-            "jcSavedVolume": 5841461.0,
-            "jcProfitLoss": 2395457.0,
-            "savedPopularity": 2767.0,
-            "doerPct": 70.68
+            "jcOdds": 1.25,
+            "jcSavedVolume": 6087649.0,
+            "jcProfitLoss": 4122797.0,
+            "savedPopularity": 3567.0,
+            "doerPct": 69.75
           }
         ],
         "index_rows": [
@@ -3887,42 +4001,42 @@
             "avgOdds": 6.43,
             "avgProb": 14.46,
             "bfShare": 5.57,
-            "jcSavedShare": 6.82,
-            "northShare": 5.79,
+            "jcSavedShare": 19.9,
+            "northShare": 3.44,
             "bfHotCold": -61.0,
-            "jcHotCold": -52.0,
+            "jcHotCold": 38.0,
             "bfMarketIndex": 21.0,
-            "jcMarketIndex": 15.0,
+            "jcMarketIndex": 39.0,
             "bfProfitIndex": 60.0,
-            "jcProfitIndex": 56.0
+            "jcProfitIndex": -33.0
           },
           {
             "team": "平局",
-            "avgOdds": 4.98,
-            "avgProb": 18.67,
+            "avgOdds": 4.99,
+            "avgProb": 18.64,
             "bfShare": 3.41,
-            "jcSavedShare": 33.65,
-            "northShare": 83.77,
+            "jcSavedShare": 28.21,
+            "northShare": 65.55,
             "bfHotCold": -82.0,
-            "jcHotCold": 82.0,
+            "jcHotCold": 50.0,
             "bfMarketIndex": 10.0,
-            "jcMarketIndex": 59.0,
+            "jcMarketIndex": 43.0,
             "bfProfitIndex": 82.0,
-            "jcProfitIndex": -73.0
+            "jcProfitIndex": -48.0
           },
           {
             "team": "博德闪耀",
             "avgOdds": 1.39,
-            "avgProb": 66.87,
+            "avgProb": 66.9,
             "bfShare": 91.02,
-            "jcSavedShare": 59.52,
-            "northShare": 10.44,
+            "jcSavedShare": 51.89,
+            "northShare": 31.01,
             "bfHotCold": 36.0,
-            "jcHotCold": -12.0,
+            "jcHotCold": -22.0,
             "bfMarketIndex": 70.0,
-            "jcMarketIndex": 26.0,
+            "jcMarketIndex": 19.0,
             "bfProfitIndex": -34.0,
-            "jcProfitIndex": 24.0
+            "jcProfitIndex": 35.0
           }
         ],
         "exchange_scale": "较小",
@@ -3931,31 +4045,31 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:39:37.272728+00:00",
+        "captured_at": "2026-11-08T10:07:09.893277+00:00",
         "william": {
           "initial": "5.50 / 4.50 / 1.44",
-          "current": "6.00 / 4.59 / 1.40",
+          "current": "6.00 / 4.80 / 1.40",
           "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 -1.5 0.98",
             "current": "0.95 -1/1.5 0.85",
-            "time": "1小时前"
+            "time": "3小时前"
           },
           "澳门": {
             "initial": "0.87 -1.5 0.91",
             "current": "0.92 -1/1.5 0.86",
-            "time": "1小时前"
+            "time": "3小时前"
           },
           "皇冠": {
             "initial": "1.03 -1/1.5 0.85",
-            "current": "1.00 -1/1.5 0.89",
-            "time": "6分钟前"
+            "current": "0.99 -1/1.5 0.90",
+            "time": "1分钟前"
           },
           "威廉希尔": {
             "initial": "0.91 -1/1.5 0.80",
-            "current": "0.85 -1/1.5 0.85",
+            "current": "0.91 -1/1.5 0.80",
             "time": "1小时前"
           }
         }
@@ -4027,10 +4141,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:39:39.954246+00:00",
+        "captured_at": "2026-11-08T10:07:13.040353+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:39:42.976710+00:00",
+      "predicted_at": "2026-11-08T10:07:16.897521+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -4045,24 +4159,24 @@
             "负": 0.632184
           },
           "current_probabilities": {
-            "胜": 0.151678,
-            "平": 0.198272,
-            "负": 0.65005
+            "胜": 0.153005,
+            "平": 0.191257,
+            "负": 0.655738
           },
           "probability_movement_pp": {
-            "胜": -1.384,
-            "平": -0.403,
-            "负": 1.787
+            "胜": -1.251,
+            "平": -1.104,
+            "负": 2.355
           },
           "base_probabilities": {
-            "胜": 0.137323,
-            "平": 0.170654,
-            "负": 0.692023
+            "胜": 0.130955,
+            "平": 0.167124,
+            "负": 0.701921
           },
           "calibrated_probabilities": {
-            "胜": 0.140912,
-            "平": 0.177559,
-            "负": 0.681529
+            "胜": 0.136468,
+            "平": 0.173157,
+            "负": 0.690375
           },
           "base_top1": "负",
           "base_top2": [
@@ -4084,9 +4198,9 @@
             "负",
             "平"
           ],
-          "market_coverage": 0.8627,
+          "market_coverage": 0.869,
           "omitted_direction": "胜",
-          "omitted_market_risk": 0.1373,
+          "omitted_market_risk": 0.131,
           "signals": [
             "盘口退让 2 家",
             "独立历史xG支持提高平局权重"
@@ -4108,9 +4222,9 @@
               "平"
             ],
             "probabilities": {
-              "胜": 0.1373,
-              "平": 0.1707,
-              "负": 0.692
+              "胜": 0.131,
+              "平": 0.1671,
+              "负": 0.7019
             }
           },
           "让球": {
@@ -4129,9 +4243,9 @@
               "让负": 0.266601
             },
             "market_probabilities": {
-              "让胜": 0.302931,
-              "让平": 0.219625,
-              "让负": 0.477445
+              "让胜": 0.292683,
+              "让平": 0.219512,
+              "让负": 0.487805
             },
             "xg_probabilities": {
               "让胜": 0.50925,
@@ -4247,10 +4361,10 @@
             ],
             "institution_support": [
               14.46,
-              18.67,
-              66.87
+              18.64,
+              66.9
             ],
-            "market_captured_at": "2026-11-08T08:38:50.052843+00:00",
+            "market_captured_at": "2026-11-08T10:06:28.581836+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -4269,9 +4383,9 @@
             "candidate": null,
             "reason": "两家以上亚洲盘口对 Top1 退让：Bet365、澳门",
             "evidence": [
-              "原版门槛审计：SP Top1 69.2%（达到旧55%门槛）",
+              "原版门槛审计：SP Top1 70.2%（达到旧55%门槛）",
               "原版赔率区间审计：1.40（超出旧1.45–1.75）",
-              "SP Top1 负 去水隐含比例 69.2%",
+              "SP Top1 负 去水隐含比例 70.2%",
               "威廉同方向赔率 1.40",
               "亚洲盘口可读 4 家，退让 2 家"
             ],
@@ -4309,7 +4423,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -4339,7 +4453,7 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1331867/exchanges/",
         "okooo_id": "1331867",
-        "captured_at": "2026-11-08T08:38:50.215541+00:00",
+        "captured_at": "2026-11-08T10:06:29.436194+00:00",
         "transaction_rows": [
           {
             "team": "桑德兰",
@@ -4347,10 +4461,10 @@
             "bfVolume": 299077.0,
             "bfProfitLoss": 1241731.0,
             "jcOdds": 3.8,
-            "jcSavedVolume": 980419.0,
-            "jcProfitLoss": 5522459.0,
-            "savedPopularity": 720.0,
-            "doerPct": 9.06
+            "jcSavedVolume": 1000148.0,
+            "jcProfitLoss": 11730738.0,
+            "savedPopularity": 959.0,
+            "doerPct": 9.44
           },
           {
             "team": "平局",
@@ -4358,10 +4472,10 @@
             "bfVolume": 195351.0,
             "bfProfitLoss": 1640471.0,
             "jcOdds": 3.48,
-            "jcSavedVolume": 1067261.0,
-            "jcProfitLoss": 5533983.0,
-            "savedPopularity": 1047.0,
-            "doerPct": 13.17
+            "jcSavedVolume": 1083870.0,
+            "jcProfitLoss": 11759432.0,
+            "savedPopularity": 1399.0,
+            "doerPct": 13.78
           },
           {
             "team": "切尔西",
@@ -4369,54 +4483,54 @@
             "bfVolume": 1868842.0,
             "bfProfitLoss": -1598675.0,
             "jcOdds": 1.7,
-            "jcSavedVolume": 7200371.0,
-            "jcProfitLoss": -2992580.0,
-            "savedPopularity": 6183.0,
-            "doerPct": 77.77
+            "jcSavedVolume": 13447282.0,
+            "jcProfitLoss": -7329079.0,
+            "savedPopularity": 7798.0,
+            "doerPct": 76.78
           }
         ],
         "index_rows": [
           {
             "team": "桑德兰",
-            "avgOdds": 3.52,
-            "avgProb": 26.88,
+            "avgOdds": 3.53,
+            "avgProb": 26.78,
             "bfShare": 12.66,
-            "jcSavedShare": 10.6,
-            "northShare": 19.16,
+            "jcSavedShare": 6.44,
+            "northShare": 9.2,
             "bfHotCold": -53.0,
-            "jcHotCold": -59.0,
+            "jcHotCold": -78.0,
             "bfMarketIndex": 19.0,
-            "jcMarketIndex": 19.0,
+            "jcMarketIndex": 12.0,
             "bfProfitIndex": 53.0,
-            "jcProfitIndex": 60.0
+            "jcProfitIndex": 76.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.57,
-            "avgProb": 26.5,
+            "avgOdds": 3.58,
+            "avgProb": 26.41,
             "bfShare": 8.27,
-            "jcSavedShare": 11.54,
-            "northShare": 19.39,
+            "jcSavedShare": 6.98,
+            "northShare": 22.15,
             "bfHotCold": -69.0,
-            "jcHotCold": -55.0,
+            "jcHotCold": -73.0,
             "bfMarketIndex": 12.0,
-            "jcMarketIndex": 19.0,
+            "jcMarketIndex": 12.0,
             "bfProfitIndex": 69.0,
-            "jcProfitIndex": 60.0
+            "jcProfitIndex": 76.0
           },
           {
             "team": "切尔西",
-            "avgOdds": 2.03,
-            "avgProb": 46.62,
+            "avgOdds": 2.02,
+            "avgProb": 46.81,
             "bfShare": 79.08,
-            "jcSavedShare": 77.86,
-            "northShare": 61.44,
-            "bfHotCold": 70.0,
-            "jcHotCold": 65.0,
+            "jcSavedShare": 86.58,
+            "northShare": 68.65,
+            "bfHotCold": 69.0,
+            "jcHotCold": 86.0,
             "bfMarketIndex": 68.0,
-            "jcMarketIndex": 62.0,
+            "jcMarketIndex": 75.0,
             "bfProfitIndex": -68.0,
-            "jcProfitIndex": -32.0
+            "jcProfitIndex": -47.0
           }
         ],
         "exchange_scale": "较大",
@@ -4425,27 +4539,27 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:39:42.979191+00:00",
+        "captured_at": "2026-11-08T10:07:16.901468+00:00",
         "william": {
           "initial": "3.90 / 3.50 / 1.91",
-          "current": "3.40 / 3.50 / 2.04",
-          "time": "1小时前"
+          "current": "3.60 / 3.50 / 2.00",
+          "time": "2分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.98 -0/0.5 0.88",
-            "current": "0.80 -0.5 1.05",
-            "time": "17分钟前"
+            "current": "0.85 -0.5 1.00",
+            "time": "0分钟前"
           },
           "澳门": {
             "initial": "0.84 -0.5 1.00",
             "current": "0.90 -0.5 0.94",
-            "time": "17小时前"
+            "time": "18小时前"
           },
           "皇冠": {
             "initial": "1.00 -0/0.5 0.88",
-            "current": "0.82 -0.5 1.07",
-            "time": "52分钟前"
+            "current": "0.88 -0.5 1.01",
+            "time": "1分钟前"
           },
           "威廉希尔": {
             "initial": "0.91 -0.5 0.85",
@@ -4521,10 +4635,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:39:47.266445+00:00",
+        "captured_at": "2026-11-08T10:07:20.306484+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:39:50.754408+00:00",
+      "predicted_at": "2026-11-08T10:07:23.637733+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -4539,14 +4653,14 @@
             "负": 0.49129
           },
           "current_probabilities": {
-            "胜": 0.274869,
-            "平": 0.267016,
-            "负": 0.458115
+            "胜": 0.261194,
+            "平": 0.268657,
+            "负": 0.470149
           },
           "probability_movement_pp": {
-            "胜": 3.426,
-            "平": -0.109,
-            "负": -3.317
+            "胜": 2.059,
+            "平": 0.055,
+            "负": -2.114
           },
           "base_probabilities": {
             "胜": 0.231094,
@@ -4554,9 +4668,9 @@
             "负": 0.516563
           },
           "calibrated_probabilities": {
-            "胜": 0.242038,
-            "平": 0.256012,
-            "负": 0.501951
+            "胜": 0.238619,
+            "平": 0.256422,
+            "负": 0.504959
           },
           "base_top1": "负",
           "base_top2": [
@@ -4735,14 +4849,14 @@
             "hot_cold_index": [
               -53.0,
               -69.0,
-              70.0
+              69.0
             ],
             "institution_support": [
-              26.88,
-              26.5,
-              46.62
+              26.78,
+              26.41,
+              46.81
             ],
-            "market_captured_at": "2026-11-08T08:38:50.215541+00:00",
+            "market_captured_at": "2026-11-08T10:06:29.436194+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -4769,9 +4883,9 @@
             "reason": "通过4.0市场风险闸门的正式双选；未具备旧版母模型 A 档/SINGLE/HUR 证明",
             "evidence": [
               "原版门槛审计：SP Top1 51.7%（低于旧55%门槛）",
-              "原版赔率区间审计：2.04（超出旧1.45–1.75）",
+              "原版赔率区间审计：2.00（超出旧1.45–1.75）",
               "SP Top1 负 去水隐含比例 51.7%",
-              "威廉同方向赔率 2.04",
+              "威廉同方向赔率 2.00",
               "亚洲盘口可读 4 家，退让 0 家"
             ],
             "missing": [
@@ -4807,7 +4921,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -4837,27 +4951,27 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:39:50.756820+00:00",
+        "captured_at": "2026-11-08T10:07:23.641447+00:00",
         "william": {
           "initial": "3.10 / 3.50 / 2.20",
-          "current": "3.80 / 3.60 / 1.85",
-          "time": "4小时前"
+          "current": "3.70 / 3.70 / 1.91",
+          "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.88 -0.5 0.98",
-            "current": "0.98 -0.5 0.88",
-            "time": "2小时前"
+            "current": "0.95 -0.5 0.90",
+            "time": "51分钟前"
           },
           "澳门": {
             "initial": "0.90 -0.5 0.94",
             "current": "0.96 -0.5 0.88",
-            "time": "1小时前"
+            "time": "2小时前"
           },
           "皇冠": {
             "initial": "1.06 -0/0.5 0.82",
-            "current": "0.99 -0.5 0.90",
-            "time": "2小时前"
+            "current": "0.95 -0.5 0.94",
+            "time": "17分钟前"
           },
           "威廉希尔": {
             "initial": "0.80 -0/0.5 0.91",
@@ -4933,10 +5047,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:39:53.686304+00:00",
+        "captured_at": "2026-11-08T10:07:26.653487+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:39:57.353544+00:00",
+      "predicted_at": "2026-11-08T10:07:29.544631+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -4951,14 +5065,14 @@
             "负": 0.42767
           },
           "current_probabilities": {
-            "胜": 0.243332,
-            "平": 0.256851,
-            "负": 0.499817
+            "胜": 0.253989,
+            "平": 0.253989,
+            "负": 0.492021
           },
           "probability_movement_pp": {
-            "胜": -6.018,
-            "平": -1.197,
-            "负": 7.215
+            "胜": -4.952,
+            "平": -1.483,
+            "负": 6.435
           },
           "base_probabilities": {
             "胜": 0.214139,
@@ -4966,9 +5080,9 @@
             "负": 0.545322
           },
           "calibrated_probabilities": {
-            "胜": 0.221437,
-            "平": 0.244617,
-            "负": 0.533946
+            "胜": 0.224101,
+            "平": 0.243902,
+            "负": 0.531997
           },
           "base_top1": "负",
           "base_top2": [
@@ -5144,7 +5258,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-08T08:39:50.756820+00:00",
+            "market_captured_at": "2026-11-08T10:07:23.641447+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）"
@@ -5169,9 +5283,9 @@
             "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
             "evidence": [
               "原版门槛审计：SP Top1 54.5%（低于旧55%门槛）",
-              "原版赔率区间审计：1.85（超出旧1.45–1.75）",
+              "原版赔率区间审计：1.91（超出旧1.45–1.75）",
               "SP Top1 负 去水隐含比例 54.5%",
-              "威廉同方向赔率 1.85",
+              "威廉同方向赔率 1.91",
               "亚洲盘口可读 4 家，退让 0 家"
             ],
             "missing": [
@@ -5208,7 +5322,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -5219,14 +5333,14 @@
       "away": "利物浦",
       "kickoff": "2026-11-08 22:00",
       "spf": [
-        5.3,
-        4.35,
-        1.39
+        5.7,
+        4.5,
+        1.35
       ],
       "rqspf": [
-        2.48,
-        3.7,
-        2.15
+        2.55,
+        3.69,
+        2.1
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -5238,84 +5352,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1331860/exchanges/",
         "okooo_id": "1331860",
-        "captured_at": "2026-11-08T08:38:52.176256+00:00",
+        "captured_at": "2026-11-08T10:06:29.724463+00:00",
         "transaction_rows": [
           {
             "team": "水晶宫",
             "bfOdds": 6.0,
             "bfVolume": 110839.0,
             "bfProfitLoss": 282252.0,
-            "jcOdds": 5.3,
-            "jcSavedVolume": 365615.0,
-            "jcProfitLoss": 23773752.0,
-            "savedPopularity": 671.0,
-            "doerPct": 11.86
+            "jcOdds": 5.7,
+            "jcSavedVolume": 877176.0,
+            "jcProfitLoss": 27310449.0,
+            "savedPopularity": 879.0,
+            "doerPct": 12.2
           },
           {
             "team": "平局",
             "bfOdds": 4.7,
             "bfVolume": 108034.0,
             "bfProfitLoss": 439526.0,
-            "jcOdds": 4.35,
-            "jcSavedVolume": 10268706.0,
-            "jcProfitLoss": -18957360.0,
-            "savedPopularity": 802.0,
-            "doerPct": 14.17
+            "jcOdds": 4.5,
+            "jcSavedVolume": 10285463.0,
+            "jcProfitLoss": -13974232.0,
+            "savedPopularity": 1000.0,
+            "doerPct": 13.88
           },
           {
             "team": "利物浦",
             "bfOdds": 1.61,
             "bfVolume": 728413.0,
             "bfProfitLoss": -225459.0,
-            "jcOdds": 1.39,
-            "jcSavedVolume": 15077190.0,
-            "jcProfitLoss": 4754217.0,
-            "savedPopularity": 4187.0,
-            "doerPct": 73.98
+            "jcOdds": 1.35,
+            "jcSavedVolume": 21147713.0,
+            "jcProfitLoss": 3760939.0,
+            "savedPopularity": 5325.0,
+            "doerPct": 73.92
           }
         ],
         "index_rows": [
           {
             "team": "水晶宫",
-            "avgOdds": 5.18,
-            "avgProb": 18.29,
+            "avgOdds": 5.23,
+            "avgProb": 18.09,
             "bfShare": 11.7,
-            "jcSavedShare": 1.42,
-            "northShare": 23.79,
-            "bfHotCold": -36.0,
-            "jcHotCold": -95.0,
+            "jcSavedShare": 2.71,
+            "northShare": 14.93,
+            "bfHotCold": -35.0,
+            "jcHotCold": -83.0,
             "bfMarketIndex": 28.0,
-            "jcMarketIndex": 3.0,
+            "jcMarketIndex": 6.0,
             "bfProfitIndex": 30.0,
-            "jcProfitIndex": 92.0
+            "jcProfitIndex": 85.0
           },
           {
             "team": "平局",
-            "avgOdds": 4.36,
-            "avgProb": 21.73,
+            "avgOdds": 4.37,
+            "avgProb": 21.65,
             "bfShare": 11.4,
-            "jcSavedShare": 39.94,
-            "northShare": 59.87,
-            "bfHotCold": -48.0,
-            "jcHotCold": 84.0,
+            "jcSavedShare": 31.83,
+            "northShare": 42.65,
+            "bfHotCold": -47.0,
+            "jcHotCold": 48.0,
             "bfMarketIndex": 22.0,
-            "jcMarketIndex": 66.0,
+            "jcMarketIndex": 58.0,
             "bfProfitIndex": 46.0,
-            "jcProfitIndex": -74.0
+            "jcProfitIndex": -43.0
           },
           {
             "team": "利物浦",
-            "avgOdds": 1.58,
-            "avgProb": 59.98,
+            "avgOdds": 1.57,
+            "avgProb": 60.26,
             "bfShare": 76.89,
-            "jcSavedShare": 58.64,
-            "northShare": 16.34,
+            "jcSavedShare": 65.45,
+            "northShare": 42.42,
             "bfHotCold": 28.0,
-            "jcHotCold": -2.0,
+            "jcHotCold": 8.0,
             "bfMarketIndex": 50.0,
-            "jcMarketIndex": 31.0,
+            "jcMarketIndex": 36.0,
             "bfProfitIndex": -24.0,
-            "jcProfitIndex": 18.0
+            "jcProfitIndex": 12.0
           }
         ],
         "exchange_scale": "适中",
@@ -5324,32 +5438,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:39:57.356000+00:00",
+        "captured_at": "2026-11-08T10:07:29.548316+00:00",
         "william": {
           "initial": "4.20 / 4.00 / 1.73",
-          "current": "5.00 / 4.33 / 1.57",
-          "time": "2小时前"
+          "current": "5.00 / 4.20 / 1.55",
+          "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.93 -0.5/1 0.93",
-            "current": "0.90 -1 0.95",
-            "time": "25分钟前"
+            "current": "0.93 -1 0.93",
+            "time": "51分钟前"
           },
           "澳门": {
             "initial": "0.79 -1 1.05",
             "current": "0.92 -1 0.92",
-            "time": "17小时前"
+            "time": "18小时前"
           },
           "皇冠": {
             "initial": "0.90 -0.5/1 0.98",
-            "current": "0.92 -1 0.97",
-            "time": "32分钟前"
+            "current": "0.95 -1 0.94",
+            "time": "9分钟前"
           },
           "威廉希尔": {
             "initial": "0.91 -0.5/1 0.80",
-            "current": "0.75 -1 0.85",
-            "time": "18分钟前"
+            "current": "0.80 -1 0.83",
+            "time": "57分钟前"
           }
         }
       },
@@ -5420,10 +5534,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:40:00.237731+00:00",
+        "captured_at": "2026-11-08T10:07:33.480098+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:40:04.577101+00:00",
+      "predicted_at": "2026-11-08T10:07:36.999291+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -5438,24 +5552,24 @@
             "负": 0.54218
           },
           "current_probabilities": {
-            "胜": 0.187285,
-            "平": 0.216265,
-            "负": 0.59645
+            "胜": 0.184628,
+            "平": 0.219796,
+            "负": 0.595576
           },
           "probability_movement_pp": {
-            "胜": -3.604,
-            "平": -1.823,
-            "负": 5.427
+            "胜": -3.87,
+            "平": -1.47,
+            "负": 5.34
           },
           "base_probabilities": {
-            "胜": 0.165801,
-            "平": 0.20201,
-            "负": 0.632189
+            "胜": 0.15411,
+            "平": 0.195205,
+            "负": 0.650685
           },
           "calibrated_probabilities": {
-            "胜": 0.171172,
-            "平": 0.205574,
-            "负": 0.623255
+            "胜": 0.161739,
+            "平": 0.201353,
+            "负": 0.636908
           },
           "base_top1": "负",
           "base_top2": [
@@ -5480,9 +5594,9 @@
             "负",
             "平"
           ],
-          "market_coverage": 0.8342,
+          "market_coverage": 0.8459,
           "omitted_direction": "胜",
-          "omitted_market_risk": 0.1658,
+          "omitted_market_risk": 0.1541,
           "signals": [
             "独立历史xG支持提高平局权重"
           ],
@@ -5501,9 +5615,9 @@
               "平"
             ],
             "probabilities": {
-              "胜": 0.1658,
-              "平": 0.202,
-              "负": 0.6322
+              "胜": 0.1541,
+              "平": 0.1952,
+              "负": 0.6507
             }
           },
           "让球": {
@@ -5522,9 +5636,9 @@
               "让负": 0.256243
             },
             "market_probabilities": {
-              "让胜": 0.354138,
-              "让平": 0.237368,
-              "让负": 0.408494
+              "让胜": 0.344193,
+              "让平": 0.237857,
+              "让负": 0.417949
             },
             "xg_probabilities": {
               "让胜": 0.511291,
@@ -5634,16 +5748,16 @@
             "watch": [],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -36.0,
-              -48.0,
+              -35.0,
+              -47.0,
               28.0
             ],
             "institution_support": [
-              18.29,
-              21.73,
-              59.98
+              18.09,
+              21.65,
+              60.26
             ],
-            "market_captured_at": "2026-11-08T08:38:52.176256+00:00",
+            "market_captured_at": "2026-11-08T10:06:29.724463+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -5669,10 +5783,10 @@
             ],
             "reason": "通过4.0市场风险闸门的正式双选；未具备旧版母模型 A 档/SINGLE/HUR 证明",
             "evidence": [
-              "原版门槛审计：SP Top1 63.2%（达到旧55%门槛）",
-              "原版赔率区间审计：1.57（位于旧区间）",
-              "SP Top1 负 去水隐含比例 63.2%",
-              "威廉同方向赔率 1.57",
+              "原版门槛审计：SP Top1 65.1%（达到旧55%门槛）",
+              "原版赔率区间审计：1.55（位于旧区间）",
+              "SP Top1 负 去水隐含比例 65.1%",
+              "威廉同方向赔率 1.55",
               "亚洲盘口可读 4 家，退让 0 家"
             ],
             "missing": [
@@ -5708,7 +5822,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -5738,84 +5852,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1328164/exchanges/",
         "okooo_id": "1328164",
-        "captured_at": "2026-11-08T07:48:10.830234+00:00",
+        "captured_at": "2026-11-08T10:06:31.353595+00:00",
         "transaction_rows": [
           {
             "team": "蒙扎",
             "bfOdds": 3.75,
-            "bfVolume": 108960.0,
-            "bfProfitLoss": -29519.0,
+            "bfVolume": 111611.0,
+            "bfProfitLoss": -32991.0,
             "jcOdds": 3.22,
-            "jcSavedVolume": 73696.0,
-            "jcProfitLoss": 18565611.0,
-            "savedPopularity": 488.0,
-            "doerPct": 13.34
+            "jcSavedVolume": 532895.0,
+            "jcProfitLoss": 17944173.0,
+            "savedPopularity": 710.0,
+            "doerPct": 13.28
           },
           {
             "team": "平局",
-            "bfOdds": 4.0,
-            "bfVolume": 32487.0,
-            "bfProfitLoss": 249133.0,
+            "bfOdds": 3.95,
+            "bfVolume": 34979.0,
+            "bfProfitLoss": 247383.0,
             "jcOdds": 3.8,
-            "jcSavedVolume": 7885491.0,
-            "jcProfitLoss": -11161954.0,
-            "savedPopularity": 710.0,
-            "doerPct": 19.41
+            "jcSavedVolume": 7985650.0,
+            "jcProfitLoss": -10685375.0,
+            "savedPopularity": 1042.0,
+            "doerPct": 19.49
           },
           {
             "team": "亚特兰大",
             "bfOdds": 2.08,
-            "bfVolume": 237634.0,
-            "bfProfitLoss": -115198.0,
+            "bfVolume": 238960.0,
+            "bfProfitLoss": -111487.0,
             "jcOdds": 1.77,
-            "jcSavedVolume": 10843725.0,
-            "jcProfitLoss": -390481.0,
-            "savedPopularity": 2459.0,
-            "doerPct": 67.24
+            "jcSavedVolume": 11141550.0,
+            "jcProfitLoss": -60449.0,
+            "savedPopularity": 3593.0,
+            "doerPct": 67.22
           }
         ],
         "index_rows": [
           {
             "team": "蒙扎",
-            "avgOdds": 3.31,
-            "avgProb": 28.52,
-            "bfShare": 28.74,
-            "jcSavedShare": 0.39,
-            "northShare": 52.87,
-            "bfHotCold": 1.0,
-            "jcHotCold": -100.0,
+            "avgOdds": 3.37,
+            "avgProb": 27.98,
+            "bfShare": 28.95,
+            "jcSavedShare": 2.71,
+            "northShare": 33.74,
+            "bfHotCold": 3.0,
+            "jcHotCold": -89.0,
             "bfMarketIndex": 40.0,
-            "jcMarketIndex": 0.0,
-            "bfProfitIndex": -8.0,
-            "jcProfitIndex": 99.0
+            "jcMarketIndex": 3.0,
+            "bfProfitIndex": -9.0,
+            "jcProfitIndex": 91.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.78,
-            "avgProb": 24.97,
-            "bfShare": 8.57,
-            "jcSavedShare": 41.94,
-            "northShare": 25.9,
-            "bfHotCold": -66.0,
-            "jcHotCold": 68.0,
+            "avgOdds": 3.79,
+            "avgProb": 24.88,
+            "bfShare": 9.07,
+            "jcSavedShare": 40.62,
+            "northShare": 19.84,
+            "bfHotCold": -64.0,
+            "jcHotCold": 65.0,
             "bfMarketIndex": 13.0,
-            "jcMarketIndex": 61.0,
-            "bfProfitIndex": 66.0,
-            "jcProfitIndex": -59.0
+            "jcMarketIndex": 59.0,
+            "bfProfitIndex": 64.0,
+            "jcProfitIndex": -54.0
           },
           {
             "team": "亚特兰大",
-            "avgOdds": 2.03,
-            "avgProb": 46.51,
-            "bfShare": 62.69,
-            "jcSavedShare": 57.67,
-            "northShare": 21.23,
-            "bfHotCold": 35.0,
-            "jcHotCold": 25.0,
-            "bfMarketIndex": 48.0,
-            "jcMarketIndex": 39.0,
-            "bfProfitIndex": -30.0,
-            "jcProfitIndex": -2.0
+            "avgOdds": 2.0,
+            "avgProb": 47.14,
+            "bfShare": 61.98,
+            "jcSavedShare": 56.67,
+            "northShare": 46.42,
+            "bfHotCold": 31.0,
+            "jcHotCold": 19.0,
+            "bfMarketIndex": 47.0,
+            "jcMarketIndex": 38.0,
+            "bfProfitIndex": -29.0,
+            "jcProfitIndex": -0.0
           }
         ],
         "exchange_scale": "适中",
@@ -5824,32 +5938,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:40:04.579538+00:00",
+        "captured_at": "2026-11-08T10:07:37.003103+00:00",
         "william": {
           "initial": "3.10 / 4.00 / 1.95",
-          "current": "3.20 / 3.60 / 2.00",
-          "time": "2小时前"
+          "current": "3.30 / 3.60 / 1.95",
+          "time": "16分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.80 -0.5 1.05",
             "current": "0.85 -0.5 1.00",
-            "time": "56分钟前"
+            "time": "25分钟前"
           },
           "澳门": {
             "initial": "1.04 -0/0.5 0.80",
             "current": "0.84 -0.5 1.00",
-            "time": "5分钟前"
+            "time": "1小时前"
           },
           "皇冠": {
             "initial": "1.06 -0/0.5 0.82",
-            "current": "0.87 -0.5 1.02",
-            "time": "4分钟前"
+            "current": "0.89 -0.5 1.00",
+            "time": "15分钟前"
           },
           "威廉希尔": {
             "initial": "0.80 -0.5 0.95",
-            "current": "1.00 -0/0.5 0.73",
-            "time": "18小时前"
+            "current": "0.95 -0/0.5 0.70",
+            "time": "1小时前"
           }
         }
       },
@@ -5920,10 +6034,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:40:08.780194+00:00",
+        "captured_at": "2026-11-08T10:07:39.872253+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:40:11.473859+00:00",
+      "predicted_at": "2026-11-08T10:07:42.320080+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -5938,14 +6052,14 @@
             "负": 0.472471
           },
           "current_probabilities": {
-            "胜": 0.286624,
-            "平": 0.254777,
-            "负": 0.458599
+            "胜": 0.277087,
+            "平": 0.253996,
+            "负": 0.468917
           },
           "probability_movement_pp": {
-            "胜": -1.058,
-            "平": 2.445,
-            "负": -1.387
+            "胜": -2.011,
+            "平": 2.367,
+            "负": -0.355
           },
           "base_probabilities": {
             "胜": 0.272734,
@@ -5953,9 +6067,9 @@
             "负": 0.49616
           },
           "calibrated_probabilities": {
-            "胜": 0.276206,
-            "平": 0.237024,
-            "负": 0.48677
+            "胜": 0.273822,
+            "平": 0.236829,
+            "负": 0.489349
           },
           "base_top1": "负",
           "base_top2": [
@@ -6130,21 +6244,21 @@
             "watch_direction": null,
             "channels": [],
             "evidence": [
-              "澳客必发赛前资金比例 28.74%/8.57%/62.69%；成交量 108960/32487/237634"
+              "澳客必发赛前资金比例 28.95%/9.07%/61.98%；成交量 111611/34979/238960"
             ],
             "watch": [],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              1.0,
-              -66.0,
-              35.0
+              3.0,
+              -64.0,
+              31.0
             ],
             "institution_support": [
-              28.52,
-              24.97,
-              46.51
+              27.98,
+              24.88,
+              47.14
             ],
-            "market_captured_at": "2026-11-08T07:48:10.830234+00:00",
+            "market_captured_at": "2026-11-08T10:06:31.353595+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -6171,9 +6285,9 @@
             "reason": "通过4.0市场风险闸门的正式双选；未具备旧版母模型 A 档/SINGLE/HUR 证明",
             "evidence": [
               "原版门槛审计：SP Top1 49.6%（低于旧55%门槛）",
-              "原版赔率区间审计：2.00（超出旧1.45–1.75）",
+              "原版赔率区间审计：1.95（超出旧1.45–1.75）",
               "SP Top1 负 去水隐含比例 49.6%",
-              "威廉同方向赔率 2.00",
+              "威廉同方向赔率 1.95",
               "亚洲盘口可读 4 家，退让 1 家"
             ],
             "missing": [
@@ -6209,7 +6323,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -6226,8 +6340,8 @@
       ],
       "rqspf": [
         1.93,
-        3.32,
-        3.12
+        3.2,
+        3.25
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -6239,83 +6353,83 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1328162/exchanges/",
         "okooo_id": "1328162",
-        "captured_at": "2026-11-08T07:48:17.286879+00:00",
+        "captured_at": "2026-11-08T10:06:30.770664+00:00",
         "transaction_rows": [
           {
             "team": "热那亚",
-            "bfOdds": 4.4,
-            "bfVolume": 63871.0,
-            "bfProfitLoss": 46245.0,
+            "bfOdds": 4.5,
+            "bfVolume": 66042.0,
+            "bfProfitLoss": 46351.0,
             "jcOdds": 4.32,
-            "jcSavedVolume": 27452259.0,
-            "jcProfitLoss": -10030031.0,
-            "savedPopularity": 776.0,
-            "doerPct": 15.42
+            "jcSavedVolume": 27471379.0,
+            "jcProfitLoss": -8796518.0,
+            "savedPopularity": 1018.0,
+            "doerPct": 14.24
           },
           {
             "team": "平局",
             "bfOdds": 3.5,
-            "bfVolume": 54053.0,
-            "bfProfitLoss": 138092.0,
+            "bfVolume": 56501.0,
+            "bfProfitLoss": 145787.0,
             "jcOdds": 3.4,
-            "jcSavedVolume": 37993841.0,
-            "jcProfitLoss": -20615331.0,
-            "savedPopularity": 981.0,
-            "doerPct": 19.49
+            "jcSavedVolume": 38287276.0,
+            "jcProfitLoss": -20296899.0,
+            "savedPopularity": 1432.0,
+            "doerPct": 20.04
           },
           {
             "team": "AC米兰",
-            "bfOdds": 2.06,
-            "bfVolume": 209353.0,
-            "bfProfitLoss": -103990.0,
+            "bfOdds": 2.02,
+            "bfVolume": 220997.0,
+            "bfProfitLoss": -102874.0,
             "jcOdds": 1.63,
-            "jcSavedVolume": 43117628.0,
-            "jcProfitLoss": 38281994.0,
-            "savedPopularity": 3277.0,
-            "doerPct": 65.1
+            "jcSavedVolume": 44121184.0,
+            "jcProfitLoss": 37962309.0,
+            "savedPopularity": 4697.0,
+            "doerPct": 65.72
           }
         ],
         "index_rows": [
           {
             "team": "热那亚",
-            "avgOdds": 4.15,
-            "avgProb": 22.74,
-            "bfShare": 19.52,
-            "jcSavedShare": 25.29,
-            "northShare": 54.59,
-            "bfHotCold": -14.0,
-            "jcHotCold": 10.0,
-            "bfMarketIndex": 31.0,
+            "avgOdds": 4.13,
+            "avgProb": 22.85,
+            "bfShare": 19.22,
+            "jcSavedShare": 25.0,
+            "northShare": 22.6,
+            "bfHotCold": -16.0,
+            "jcHotCold": 9.0,
+            "bfMarketIndex": 32.0,
             "jcMarketIndex": 37.0,
-            "bfProfitIndex": 14.0,
-            "jcProfitIndex": -9.0
+            "bfProfitIndex": 13.0,
+            "jcProfitIndex": -8.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.39,
-            "avgProb": 27.84,
-            "bfShare": 16.52,
-            "jcSavedShare": 35.0,
-            "northShare": 21.48,
+            "avgOdds": 3.37,
+            "avgProb": 28.0,
+            "bfShare": 16.45,
+            "jcSavedShare": 34.84,
+            "northShare": 23.61,
             "bfHotCold": -41.0,
-            "jcHotCold": 26.0,
+            "jcHotCold": 25.0,
             "bfMarketIndex": 21.0,
             "jcMarketIndex": 41.0,
             "bfProfitIndex": 42.0,
-            "jcProfitIndex": -19.0
+            "jcProfitIndex": -18.0
           },
           {
             "team": "AC米兰",
-            "avgOdds": 1.91,
-            "avgProb": 49.42,
-            "bfShare": 63.97,
-            "jcSavedShare": 39.72,
-            "northShare": 23.93,
-            "bfHotCold": 29.0,
+            "avgOdds": 1.92,
+            "avgProb": 49.15,
+            "bfShare": 64.33,
+            "jcSavedShare": 40.15,
+            "northShare": 53.79,
+            "bfHotCold": 31.0,
             "jcHotCold": -19.0,
-            "bfMarketIndex": 48.0,
+            "bfMarketIndex": 47.0,
             "jcMarketIndex": 22.0,
-            "bfProfitIndex": -32.0,
+            "bfProfitIndex": -30.0,
             "jcProfitIndex": 35.0
           }
         ],
@@ -6325,32 +6439,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:40:11.476378+00:00",
+        "captured_at": "2026-11-08T10:07:42.323803+00:00",
         "william": {
           "initial": "4.59 / 3.40 / 1.75",
           "current": "4.00 / 3.20 / 1.91",
-          "time": "3小时前"
+          "time": "4小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 -0.5/1 1.03",
-            "current": "0.88 -0.5 0.98",
-            "time": "6分钟前"
+            "current": "0.90 -0.5 0.95",
+            "time": "16分钟前"
           },
           "澳门": {
             "initial": "1.03 -0.5 0.81",
             "current": "0.88 -0.5 0.96",
-            "time": "2小时前"
+            "time": "4小时前"
           },
           "皇冠": {
             "initial": "0.83 -0.5/1 1.05",
-            "current": "0.91 -0.5 0.98",
-            "time": "8分钟前"
+            "current": "0.92 -0.5 0.97",
+            "time": "1小时前"
           },
           "威廉希尔": {
             "initial": "0.73 -0.5/1 1.00",
             "current": "0.85 -0.5 0.91",
-            "time": "3小时前"
+            "time": "4小时前"
           }
         }
       },
@@ -6421,10 +6535,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:40:18.552781+00:00",
+        "captured_at": "2026-11-08T10:07:45.141460+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:40:21.813295+00:00",
+      "predicted_at": "2026-11-08T10:07:48.406762+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -6524,9 +6638,9 @@
               "让负": 0.158771
             },
             "market_probabilities": {
-              "让胜": 0.454563,
-              "让平": 0.264249,
-              "让负": 0.281188
+              "让胜": 0.455172,
+              "让平": 0.274526,
+              "让负": 0.270302
             },
             "xg_probabilities": {
               "让胜": 0.651623,
@@ -6631,7 +6745,7 @@
             "watch_direction": "主队不败",
             "channels": [],
             "evidence": [
-              "澳客必发赛前资金比例 19.52%/16.52%/63.97%；成交量 63871/54053/209353"
+              "澳客必发赛前资金比例 19.22%/16.45%/64.33%；成交量 66042/56501/220997"
             ],
             "watch": [
               "市场异动观察：威廉主方向公平比例下降4.5个百分点，Bet365、皇冠、威廉希尔盘口退让；未达到D通道高水位条件",
@@ -6639,16 +6753,16 @@
             ],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -14.0,
+              -16.0,
               -41.0,
-              29.0
+              31.0
             ],
             "institution_support": [
-              22.74,
-              27.84,
-              49.42
+              22.85,
+              28.0,
+              49.15
             ],
-            "market_captured_at": "2026-11-08T07:48:17.286879+00:00",
+            "market_captured_at": "2026-11-08T10:06:30.770664+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -6707,7 +6821,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -6718,14 +6832,14 @@
       "away": "勒沃库森",
       "kickoff": "2026-11-08 22:30",
       "spf": [
+        4.2,
         4.05,
-        4.05,
-        1.55
+        1.53
       ],
       "rqspf": [
-        2.05,
+        2.08,
         3.75,
-        2.6
+        2.55
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -6737,18 +6851,18 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1336394/exchanges/",
         "okooo_id": "1336394",
-        "captured_at": "2026-11-08T08:38:51.845008+00:00",
+        "captured_at": "2026-11-08T10:06:31.679611+00:00",
         "transaction_rows": [
           {
             "team": "科隆",
             "bfOdds": 4.5,
             "bfVolume": 109843.0,
             "bfProfitLoss": 296367.0,
-            "jcOdds": 4.05,
-            "jcSavedVolume": 846881.0,
-            "jcProfitLoss": 23180886.0,
-            "savedPopularity": 603.0,
-            "doerPct": 13.23
+            "jcOdds": 4.2,
+            "jcSavedVolume": 909288.0,
+            "jcProfitLoss": 23068096.0,
+            "savedPopularity": 713.0,
+            "doerPct": 12.64
           },
           {
             "team": "平局",
@@ -6756,65 +6870,65 @@
             "bfVolume": 52820.0,
             "bfProfitLoss": 568816.0,
             "jcOdds": 4.05,
-            "jcSavedVolume": 10344369.0,
-            "jcProfitLoss": -15283940.0,
-            "savedPopularity": 697.0,
-            "doerPct": 15.3
+            "jcSavedVolume": 10383627.0,
+            "jcProfitLoss": -15166583.0,
+            "savedPopularity": 898.0,
+            "doerPct": 15.92
           },
           {
             "team": "勒沃库森",
             "bfOdds": 1.86,
             "bfVolume": 627997.0,
             "bfProfitLoss": -377414.0,
-            "jcOdds": 1.55,
-            "jcSavedVolume": 15419504.0,
-            "jcProfitLoss": 2710523.0,
-            "savedPopularity": 3257.0,
-            "doerPct": 71.47
+            "jcOdds": 1.53,
+            "jcSavedVolume": 15594191.0,
+            "jcProfitLoss": 3027994.0,
+            "savedPopularity": 4028.0,
+            "doerPct": 71.43
           }
         ],
         "index_rows": [
           {
             "team": "科隆",
-            "avgOdds": 3.88,
-            "avgProb": 24.27,
+            "avgOdds": 3.93,
+            "avgProb": 24.02,
             "bfShare": 13.89,
-            "jcSavedShare": 3.18,
-            "northShare": 15.68,
-            "bfHotCold": -43.0,
+            "jcSavedShare": 3.38,
+            "northShare": 23.34,
+            "bfHotCold": -42.0,
             "jcHotCold": -88.0,
             "bfMarketIndex": 26.0,
             "jcMarketIndex": 5.0,
             "bfProfitIndex": 37.0,
-            "jcProfitIndex": 87.0
+            "jcProfitIndex": 86.0
           },
           {
             "team": "平局",
-            "avgOdds": 4.02,
-            "avgProb": 23.42,
+            "avgOdds": 4.01,
+            "avgProb": 23.54,
             "bfShare": 6.68,
-            "jcSavedShare": 38.87,
-            "northShare": 69.24,
-            "bfHotCold": -71.0,
-            "jcHotCold": 67.0,
+            "jcSavedShare": 38.62,
+            "northShare": 30.23,
+            "bfHotCold": -72.0,
+            "jcHotCold": 66.0,
             "bfMarketIndex": 12.0,
-            "jcMarketIndex": 61.0,
+            "jcMarketIndex": 60.0,
             "bfProfitIndex": 72.0,
-            "jcProfitIndex": -57.0
+            "jcProfitIndex": -56.0
           },
           {
             "team": "勒沃库森",
             "avgOdds": 1.8,
-            "avgProb": 52.31,
+            "avgProb": 52.44,
             "bfShare": 79.43,
-            "jcSavedShare": 57.94,
-            "northShare": 15.08,
-            "bfHotCold": 52.0,
+            "jcSavedShare": 58.0,
+            "northShare": 46.43,
+            "bfHotCold": 51.0,
             "jcHotCold": 11.0,
             "bfMarketIndex": 62.0,
-            "jcMarketIndex": 35.0,
+            "jcMarketIndex": 34.0,
             "bfProfitIndex": -48.0,
-            "jcProfitIndex": 10.0
+            "jcProfitIndex": 11.0
           }
         ],
         "exchange_scale": "适中",
@@ -6823,32 +6937,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:40:21.815910+00:00",
+        "captured_at": "2026-11-08T10:07:48.410571+00:00",
         "william": {
           "initial": "4.20 / 4.33 / 1.62",
-          "current": "3.75 / 3.90 / 1.75",
-          "time": "3小时前"
+          "current": "3.80 / 3.90 / 1.75",
+          "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "1.03 -0.5/1 0.83",
             "current": "0.83 -0.5/1 1.03",
-            "time": "1小时前"
+            "time": "43分钟前"
           },
           "澳门": {
             "initial": "0.91 -0.5/1 0.93",
             "current": "1.04 -0.5 0.80",
-            "time": "46分钟前"
+            "time": "2小时前"
           },
           "皇冠": {
             "initial": "1.04 -0.5/1 0.84",
-            "current": "0.86 -0.5/1 1.03",
-            "time": "2小时前"
+            "current": "0.87 -0.5/1 1.02",
+            "time": "1小时前"
           },
           "威廉希尔": {
             "initial": "0.95 -0.5/1 0.70",
-            "current": "0.70 -0.5/1 0.95",
-            "time": "2小时前"
+            "current": "0.70 -0.5/1 0.91",
+            "time": "1小时前"
           }
         }
       },
@@ -6919,10 +7033,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:40:26.964183+00:00",
+        "captured_at": "2026-11-08T10:07:51.021843+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:40:30.267262+00:00",
+      "predicted_at": "2026-11-08T10:07:55.136331+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -6937,34 +7051,34 @@
             "负": 0.568231
           },
           "current_probabilities": {
-            "胜": 0.243641,
-            "平": 0.23427,
-            "负": 0.522088
+            "胜": 0.241209,
+            "平": 0.235024,
+            "负": 0.523767
           },
           "probability_movement_pp": {
-            "胜": 2.447,
-            "平": 2.168,
-            "负": -4.614
+            "胜": 2.203,
+            "平": 2.243,
+            "负": -4.446
           },
           "base_probabilities": {
-            "胜": 0.216783,
-            "平": 0.216783,
-            "负": 0.566434
+            "胜": 0.209112,
+            "平": 0.216856,
+            "负": 0.574032
           },
           "calibrated_probabilities": {
-            "胜": 0.223498,
-            "平": 0.221155,
-            "负": 0.555347
+            "胜": 0.217136,
+            "平": 0.221398,
+            "负": 0.561466
           },
           "base_top1": "负",
           "base_top2": [
             "负",
-            "胜"
+            "平"
           ],
           "shadow_top1": "负",
           "shadow_top2": [
             "负",
-            "胜"
+            "平"
           ],
           "changed_top1": false
         },
@@ -6979,9 +7093,9 @@
             "负",
             "平"
           ],
-          "market_coverage": 0.7832,
+          "market_coverage": 0.7909,
           "omitted_direction": "胜",
-          "omitted_market_risk": 0.2168,
+          "omitted_market_risk": 0.2091,
           "signals": [
             "冷门观察：需进一步市场复核",
             "盘口退让 1 家",
@@ -6999,12 +7113,12 @@
             "top1": "负",
             "top2": [
               "负",
-              "胜"
+              "平"
             ],
             "probabilities": {
-              "胜": 0.2168,
-              "平": 0.2168,
-              "负": 0.5664
+              "胜": 0.2091,
+              "平": 0.2169,
+              "负": 0.574
             }
           },
           "让球": {
@@ -7023,9 +7137,9 @@
               "让负": 0.171467
             },
             "market_probabilities": {
-              "让胜": 0.428242,
-              "让平": 0.234106,
-              "让负": 0.337652
+              "让胜": 0.421878,
+              "让平": 0.234002,
+              "让负": 0.34412
             },
             "xg_probabilities": {
               "让胜": 0.63949,
@@ -7137,16 +7251,16 @@
             ],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -43.0,
-              -71.0,
-              52.0
+              -42.0,
+              -72.0,
+              51.0
             ],
             "institution_support": [
-              24.27,
-              23.42,
-              52.31
+              24.02,
+              23.54,
+              52.44
             ],
-            "market_captured_at": "2026-11-08T08:38:51.845008+00:00",
+            "market_captured_at": "2026-11-08T10:06:31.679611+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -7165,9 +7279,9 @@
             "candidate": null,
             "reason": "冷门预警或市场异动观察已排除",
             "evidence": [
-              "原版门槛审计：SP Top1 56.6%（达到旧55%门槛）",
+              "原版门槛审计：SP Top1 57.4%（达到旧55%门槛）",
               "原版赔率区间审计：1.75（位于旧区间）",
-              "SP Top1 负 去水隐含比例 56.6%",
+              "SP Top1 负 去水隐含比例 57.4%",
               "威廉同方向赔率 1.75",
               "亚洲盘口可读 4 家，退让 1 家"
             ],
@@ -7205,7 +7319,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -7216,14 +7330,14 @@
       "away": "巴列卡诺",
       "kickoff": "2026-11-08 23:15",
       "spf": [
-        1.55,
-        3.75,
-        4.42
+        1.5,
+        4.03,
+        4.45
       ],
       "rqspf": [
-        2.81,
-        3.3,
-        2.08
+        2.78,
+        3.2,
+        2.14
       ],
       "handicap": -1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -7235,84 +7349,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1335586/exchanges/",
         "okooo_id": "1335586",
-        "captured_at": "2026-11-08T08:38:51.895348+00:00",
+        "captured_at": "2026-11-08T10:06:34.062406+00:00",
         "transaction_rows": [
           {
             "team": "皇家社会",
             "bfOdds": 1.83,
-            "bfVolume": 281378.0,
-            "bfProfitLoss": -162515.0,
-            "jcOdds": 1.55,
-            "jcSavedVolume": 14628440.0,
-            "jcProfitLoss": 2224780.0,
-            "savedPopularity": 2862.0,
-            "doerPct": 70.2
+            "bfVolume": 287097.0,
+            "bfProfitLoss": -159229.0,
+            "jcOdds": 1.5,
+            "jcSavedVolume": 15234462.0,
+            "jcProfitLoss": 2721762.0,
+            "savedPopularity": 3645.0,
+            "doerPct": 70.6
           },
           {
             "team": "平局",
             "bfOdds": 4.2,
-            "bfVolume": 29446.0,
-            "bfProfitLoss": 228734.0,
-            "jcOdds": 3.75,
-            "jcSavedVolume": 9992214.0,
-            "jcProfitLoss": -12571941.0,
-            "savedPopularity": 822.0,
-            "doerPct": 20.16
+            "bfVolume": 30179.0,
+            "bfProfitLoss": 239407.0,
+            "jcOdds": 4.03,
+            "jcSavedVolume": 10006636.0,
+            "jcProfitLoss": -14753288.0,
+            "savedPopularity": 1025.0,
+            "doerPct": 19.85
           },
           {
             "team": "巴列卡诺",
             "bfOdds": 4.6,
-            "bfVolume": 41583.0,
-            "bfProfitLoss": 161125.0,
-            "jcOdds": 4.42,
-            "jcSavedVolume": 278208.0,
-            "jcProfitLoss": 23669183.0,
-            "savedPopularity": 393.0,
-            "doerPct": 9.64
+            "bfVolume": 48883.0,
+            "bfProfitLoss": 141297.0,
+            "jcOdds": 4.45,
+            "jcSavedVolume": 332357.0,
+            "jcProfitLoss": 24094466.0,
+            "savedPopularity": 493.0,
+            "doerPct": 9.55
           }
         ],
         "index_rows": [
           {
             "team": "皇家社会",
-            "avgOdds": 1.75,
-            "avgProb": 53.93,
-            "bfShare": 79.84,
-            "jcSavedShare": 58.75,
-            "northShare": 59.72,
-            "bfHotCold": 48.0,
-            "jcHotCold": 9.0,
-            "bfMarketIndex": 62.0,
-            "jcMarketIndex": 37.0,
-            "bfProfitIndex": -46.0,
-            "jcProfitIndex": 9.0
+            "avgOdds": 1.76,
+            "avgProb": 53.7,
+            "bfShare": 78.41,
+            "jcSavedShare": 59.57,
+            "northShare": 76.62,
+            "bfHotCold": 46.0,
+            "jcHotCold": 12.0,
+            "bfMarketIndex": 60.0,
+            "jcMarketIndex": 35.0,
+            "bfProfitIndex": -43.0,
+            "jcProfitIndex": 11.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.99,
-            "avgProb": 23.65,
-            "bfShare": 8.36,
-            "jcSavedShare": 40.13,
-            "northShare": 19.21,
+            "avgOdds": 3.98,
+            "avgProb": 23.75,
+            "bfShare": 8.24,
+            "jcSavedShare": 39.13,
+            "northShare": 10.76,
             "bfHotCold": -65.0,
-            "jcHotCold": 69.0,
-            "bfMarketIndex": 15.0,
-            "jcMarketIndex": 61.0,
+            "jcHotCold": 64.0,
+            "bfMarketIndex": 14.0,
+            "jcMarketIndex": 62.0,
             "bfProfitIndex": 65.0,
-            "jcProfitIndex": -50.0
+            "jcProfitIndex": -58.0
           },
           {
             "team": "巴列卡诺",
-            "avgOdds": 4.21,
-            "avgProb": 22.42,
-            "bfShare": 11.8,
-            "jcSavedShare": 1.12,
-            "northShare": 21.07,
-            "bfHotCold": -47.0,
+            "avgOdds": 4.19,
+            "avgProb": 22.55,
+            "bfShare": 13.35,
+            "jcSavedShare": 1.3,
+            "northShare": 12.63,
+            "bfHotCold": -41.0,
             "jcHotCold": -96.0,
-            "bfMarketIndex": 23.0,
+            "bfMarketIndex": 26.0,
             "jcMarketIndex": 2.0,
-            "bfProfitIndex": 46.0,
-            "jcProfitIndex": 95.0
+            "bfProfitIndex": 39.0,
+            "jcProfitIndex": 94.0
           }
         ],
         "exchange_scale": "适中",
@@ -7321,32 +7435,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:40:30.269858+00:00",
+        "captured_at": "2026-11-08T10:07:55.140345+00:00",
         "william": {
           "initial": "1.83 / 3.60 / 4.00",
           "current": "1.75 / 3.80 / 4.00",
-          "time": "2小时前"
+          "time": "4小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.80 0.5 1.05",
             "current": "1.03 0.5/1 0.83",
-            "time": "3小时前"
+            "time": "4小时前"
           },
           "澳门": {
             "initial": "0.91 0.5/1 0.93",
             "current": "0.76 0.5 1.08",
-            "time": "9小时前"
+            "time": "10小时前"
           },
           "皇冠": {
             "initial": "0.88 0.5 1.00",
-            "current": "1.02 0.5/1 0.87",
-            "time": "1小时前"
+            "current": "1.01 0.5/1 0.88",
+            "time": "15分钟前"
           },
           "威廉希尔": {
             "initial": "0.80 0.5 0.95",
-            "current": "0.85 0.5/1 0.73",
-            "time": "2小时前"
+            "current": "0.85 0.5/1 0.75",
+            "time": "48分钟前"
           }
         }
       },
@@ -7417,10 +7531,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:40:32.932365+00:00",
+        "captured_at": "2026-11-08T10:07:57.865191+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:40:36.617956+00:00",
+      "predicted_at": "2026-11-08T10:08:01.380769+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -7445,14 +7559,14 @@
             "负": -0.222
           },
           "base_probabilities": {
-            "胜": 0.56689,
-            "平": 0.234314,
-            "负": 0.198796
+            "胜": 0.585039,
+            "平": 0.217757,
+            "负": 0.197204
           },
           "calibrated_probabilities": {
-            "胜": 0.556883,
-            "平": 0.236394,
-            "负": 0.206723
+            "胜": 0.570495,
+            "平": 0.223976,
+            "负": 0.205529
           },
           "base_top1": "胜",
           "base_top2": [
@@ -7477,9 +7591,9 @@
             "胜",
             "平"
           ],
-          "market_coverage": 0.8012,
+          "market_coverage": 0.8028,
           "omitted_direction": "负",
-          "omitted_market_risk": 0.1988,
+          "omitted_market_risk": 0.1972,
           "signals": [
             "冷门观察：需进一步市场复核",
             "盘口退让 1 家"
@@ -7499,9 +7613,9 @@
               "平"
             ],
             "probabilities": {
-              "胜": 0.5669,
-              "平": 0.2343,
-              "负": 0.1988
+              "胜": 0.585,
+              "平": 0.2178,
+              "负": 0.1972
             }
           },
           "让球": {
@@ -7520,9 +7634,9 @@
               "让负": 0.660588
             },
             "market_probabilities": {
-              "让胜": 0.312258,
-              "让平": 0.265893,
-              "让负": 0.421849
+              "让胜": 0.315675,
+              "让平": 0.274243,
+              "让负": 0.410082
             },
             "xg_probabilities": {
               "让胜": 0.163604,
@@ -7627,23 +7741,23 @@
             "watch_direction": null,
             "channels": [],
             "evidence": [
-              "澳客必发赛前资金比例 79.84%/8.36%/11.8%；成交量 281378/29446/41583"
+              "澳客必发赛前资金比例 78.41%/8.24%/13.35%；成交量 287097/30179/48883"
             ],
             "watch": [
               "FotMob历史xG方向与体彩SP首选背离，需人工复核；非独立冷门触发条件"
             ],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              48.0,
+              46.0,
               -65.0,
-              -47.0
+              -41.0
             ],
             "institution_support": [
-              53.93,
-              23.65,
-              22.42
+              53.7,
+              23.75,
+              22.55
             ],
-            "market_captured_at": "2026-11-08T08:38:51.895348+00:00",
+            "market_captured_at": "2026-11-08T10:06:34.062406+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -7662,9 +7776,9 @@
             "candidate": null,
             "reason": "冷门预警或市场异动观察已排除",
             "evidence": [
-              "原版门槛审计：SP Top1 56.7%（达到旧55%门槛）",
+              "原版门槛审计：SP Top1 58.5%（达到旧55%门槛）",
               "原版赔率区间审计：1.75（位于旧区间）",
-              "SP Top1 胜 去水隐含比例 56.7%",
+              "SP Top1 胜 去水隐含比例 58.5%",
               "威廉同方向赔率 1.75",
               "亚洲盘口可读 4 家，退让 1 家"
             ],
@@ -7702,7 +7816,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -7713,14 +7827,14 @@
       "away": "赫根",
       "kickoff": "2026-11-08 23:30",
       "spf": [
-        4.4,
-        4.25,
-        1.48
+        5.3,
+        4.65,
+        1.36
       ],
       "rqspf": [
-        2.2,
-        3.5,
-        2.51
+        2.59,
+        3.35,
+        2.2
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -7732,84 +7846,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1318617/exchanges/",
         "okooo_id": "1318617",
-        "captured_at": "2026-11-08T08:38:52.717377+00:00",
+        "captured_at": "2026-11-08T10:06:31.241559+00:00",
         "transaction_rows": [
           {
             "team": "索尔纳",
-            "bfOdds": 5.4,
-            "bfVolume": 505.0,
-            "bfProfitLoss": 224.0,
-            "jcOdds": 4.4,
-            "jcSavedVolume": 352962.0,
-            "jcProfitLoss": 16709382.0,
-            "savedPopularity": 361.0,
-            "doerPct": 18.24
+            "bfOdds": 5.5,
+            "bfVolume": 767.0,
+            "bfProfitLoss": 109.0,
+            "jcOdds": 5.3,
+            "jcSavedVolume": 419704.0,
+            "jcProfitLoss": 16258728.0,
+            "savedPopularity": 504.0,
+            "doerPct": 18.92
           },
           {
             "team": "平局",
-            "bfOdds": 5.2,
-            "bfVolume": 326.0,
-            "bfProfitLoss": 1256.0,
-            "jcOdds": 4.25,
-            "jcSavedVolume": 6777718.0,
-            "jcProfitLoss": -10542887.0,
-            "savedPopularity": 573.0,
-            "doerPct": 28.95
+            "bfOdds": 4.8,
+            "bfVolume": 431.0,
+            "bfProfitLoss": 2258.0,
+            "jcOdds": 4.65,
+            "jcSavedVolume": 6790582.0,
+            "jcProfitLoss": -13093047.0,
+            "savedPopularity": 742.0,
+            "doerPct": 27.85
           },
           {
             "team": "赫根",
-            "bfOdds": 1.6,
-            "bfVolume": 2120.0,
-            "bfProfitLoss": -441.0,
-            "jcOdds": 1.48,
-            "jcSavedVolume": 11131735.0,
-            "jcProfitLoss": 1787447.0,
-            "savedPopularity": 1045.0,
-            "doerPct": 52.8
+            "bfOdds": 1.61,
+            "bfVolume": 3129.0,
+            "bfProfitLoss": -711.0,
+            "jcOdds": 1.36,
+            "jcSavedVolume": 11272873.0,
+            "jcProfitLoss": 3152052.0,
+            "savedPopularity": 1418.0,
+            "doerPct": 53.23
           }
         ],
         "index_rows": [
           {
             "team": "索尔纳",
-            "avgOdds": 4.72,
-            "avgProb": 19.69,
-            "bfShare": 17.11,
-            "jcSavedShare": 1.93,
-            "northShare": 11.14,
-            "bfHotCold": -13.0,
+            "avgOdds": 4.78,
+            "avgProb": 19.46,
+            "bfShare": 17.73,
+            "jcSavedShare": 2.27,
+            "northShare": 6.31,
+            "bfHotCold": -9.0,
             "jcHotCold": -90.0,
-            "bfMarketIndex": 35.0,
-            "jcMarketIndex": 3.0,
-            "bfProfitIndex": 8.0,
-            "jcProfitIndex": 91.0
+            "bfMarketIndex": 37.0,
+            "jcMarketIndex": 5.0,
+            "bfProfitIndex": 3.0,
+            "jcProfitIndex": 88.0
           },
           {
             "team": "平局",
-            "avgOdds": 4.33,
-            "avgProb": 21.47,
-            "bfShare": 11.05,
-            "jcSavedShare": 37.11,
-            "northShare": 75.93,
-            "bfHotCold": -49.0,
-            "jcHotCold": 72.0,
-            "bfMarketIndex": 22.0,
-            "jcMarketIndex": 62.0,
-            "bfProfitIndex": 43.0,
-            "jcProfitIndex": -58.0
+            "avgOdds": 4.37,
+            "avgProb": 21.29,
+            "bfShare": 9.96,
+            "jcSavedShare": 36.74,
+            "northShare": 47.16,
+            "bfHotCold": -53.0,
+            "jcHotCold": 74.0,
+            "bfMarketIndex": 18.0,
+            "jcMarketIndex": 64.0,
+            "bfProfitIndex": 52.0,
+            "jcProfitIndex": -71.0
           },
           {
             "team": "赫根",
-            "avgOdds": 1.58,
-            "avgProb": 58.84,
-            "bfShare": 71.84,
-            "jcSavedShare": 60.95,
-            "northShare": 12.92,
+            "avgOdds": 1.57,
+            "avgProb": 59.25,
+            "bfShare": 72.31,
+            "jcSavedShare": 60.99,
+            "northShare": 46.53,
             "bfHotCold": 22.0,
-            "jcHotCold": 4.0,
-            "bfMarketIndex": 43.0,
-            "jcMarketIndex": 35.0,
-            "bfProfitIndex": -15.0,
-            "jcProfitIndex": 10.0
+            "jcHotCold": 3.0,
+            "bfMarketIndex": 44.0,
+            "jcMarketIndex": 31.0,
+            "bfProfitIndex": -16.0,
+            "jcProfitIndex": 17.0
           }
         ],
         "exchange_scale": "较小",
@@ -7818,32 +7932,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:40:36.620706+00:00",
+        "captured_at": "2026-11-08T10:08:01.390695+00:00",
         "william": {
           "initial": "3.40 / 3.70 / 1.85",
-          "current": "4.59 / 4.20 / 1.57",
-          "time": "44分钟前"
+          "current": "4.80 / 4.33 / 1.55",
+          "time": "10分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.85 -0.5 0.95",
-            "current": "0.98 -1 0.83",
-            "time": "7分钟前"
+            "current": "0.95 -1 0.85",
+            "time": "3分钟前"
           },
           "澳门": {
             "initial": "0.84 -0.5/1 0.94",
             "current": "0.93 -1 0.85",
-            "time": "31分钟前"
+            "time": "1小时前"
           },
           "皇冠": {
             "initial": "0.88 -0.5/1 1.00",
-            "current": "1.01 -1 0.88",
-            "time": "9分钟前"
+            "current": "1.04 -1 0.85",
+            "time": "55分钟前"
           },
           "威廉希尔": {
             "initial": "0.85 -0.5 0.85",
             "current": "0.75 -1 0.85",
-            "time": "33分钟前"
+            "time": "1小时前"
           }
         }
       },
@@ -7914,10 +8028,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:40:39.558806+00:00",
+        "captured_at": "2026-11-08T10:08:03.948792+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:40:43.192157+00:00",
+      "predicted_at": "2026-11-08T10:08:07.959147+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -7932,24 +8046,24 @@
             "负": 0.489209
           },
           "current_probabilities": {
-            "胜": 0.199345,
-            "平": 0.217856,
-            "负": 0.582799
+            "胜": 0.192111,
+            "平": 0.212964,
+            "负": 0.594925
           },
           "probability_movement_pp": {
-            "胜": -6.684,
-            "平": -2.675,
-            "负": 9.359
+            "胜": -7.408,
+            "平": -3.164,
+            "负": 10.572
           },
           "base_probabilities": {
-            "胜": 0.19967,
-            "平": 0.206717,
-            "负": 0.593613
+            "胜": 0.165649,
+            "平": 0.188805,
+            "负": 0.645546
           },
           "calibrated_probabilities": {
-            "胜": 0.199589,
-            "平": 0.209502,
-            "负": 0.59091
+            "胜": 0.172265,
+            "平": 0.194845,
+            "负": 0.632891
           },
           "base_top1": "负",
           "base_top2": [
@@ -7974,9 +8088,9 @@
             "负",
             "平"
           ],
-          "market_coverage": 0.8003,
+          "market_coverage": 0.8344,
           "omitted_direction": "胜",
-          "omitted_market_risk": 0.1997,
+          "omitted_market_risk": 0.1656,
           "signals": [],
           "blockers": [],
           "source": "赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助",
@@ -7993,9 +8107,9 @@
               "平"
             ],
             "probabilities": {
-              "胜": 0.1997,
-              "平": 0.2067,
-              "负": 0.5936
+              "胜": 0.1656,
+              "平": 0.1888,
+              "负": 0.6455
             }
           },
           "让球": {
@@ -8014,9 +8128,9 @@
               "让负": 0.333028
             },
             "market_probabilities": {
-              "让胜": 0.399191,
-              "让平": 0.25092,
-              "让负": 0.349889
+              "让胜": 0.338936,
+              "让平": 0.262043,
+              "让负": 0.39902
             },
             "xg_probabilities": {
               "让胜": 0.442448,
@@ -8121,21 +8235,21 @@
             "watch_direction": null,
             "channels": [],
             "evidence": [
-              "澳客必发赛前资金比例 17.11%/11.05%/71.84%；成交量 505/326/2120"
+              "澳客必发赛前资金比例 17.73%/9.96%/72.31%；成交量 767/431/3129"
             ],
             "watch": [],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -13.0,
-              -49.0,
+              -9.0,
+              -53.0,
               22.0
             ],
             "institution_support": [
-              19.69,
-              21.47,
-              58.84
+              19.46,
+              21.29,
+              59.25
             ],
-            "market_captured_at": "2026-11-08T08:38:52.717377+00:00",
+            "market_captured_at": "2026-11-08T10:06:31.241559+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -8161,10 +8275,10 @@
             ],
             "reason": "通过4.0市场风险闸门的正式双选；未具备旧版母模型 A 档/SINGLE/HUR 证明",
             "evidence": [
-              "原版门槛审计：SP Top1 59.4%（达到旧55%门槛）",
-              "原版赔率区间审计：1.57（位于旧区间）",
-              "SP Top1 负 去水隐含比例 59.4%",
-              "威廉同方向赔率 1.57",
+              "原版门槛审计：SP Top1 64.6%（达到旧55%门槛）",
+              "原版赔率区间审计：1.55（位于旧区间）",
+              "SP Top1 负 去水隐含比例 64.6%",
+              "威廉同方向赔率 1.55",
               "亚洲盘口可读 4 家，退让 0 家"
             ],
             "missing": [
@@ -8200,7 +8314,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -8211,14 +8325,14 @@
       "away": "格罗宁根",
       "kickoff": "2026-11-08 23:45",
       "spf": [
-        1.33,
-        4.65,
-        5.78
+        1.31,
+        4.75,
+        6.05
       ],
       "rqspf": [
-        2.04,
+        2.0,
         3.7,
-        2.64
+        2.71
       ],
       "handicap": -1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -8230,54 +8344,54 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1328904/exchanges/",
         "okooo_id": "1328904",
-        "captured_at": "2026-11-08T08:38:57.983291+00:00",
+        "captured_at": "2026-11-08T10:06:31.816123+00:00",
         "transaction_rows": [
           {
             "team": "阿尔克马",
             "bfOdds": 1.53,
-            "bfVolume": 11406.0,
-            "bfProfitLoss": 7643.0,
-            "jcOdds": 1.33,
-            "jcSavedVolume": 16121503.0,
-            "jcProfitLoss": 7778859.0,
-            "savedPopularity": 2169.0,
-            "doerPct": 74.69
+            "bfVolume": 13610.0,
+            "bfProfitLoss": 8734.0,
+            "jcOdds": 1.31,
+            "jcSavedVolume": 16390605.0,
+            "jcProfitLoss": 8075775.0,
+            "savedPopularity": 2797.0,
+            "doerPct": 74.91
           },
           {
             "team": "平局",
             "bfOdds": 5.1,
-            "bfVolume": 6484.0,
-            "bfProfitLoss": -7974.0,
-            "jcOdds": 4.65,
-            "jcSavedVolume": 12897076.0,
-            "jcProfitLoss": -30750945.0,
-            "savedPopularity": 360.0,
-            "doerPct": 12.4
+            "bfVolume": 7971.0,
+            "bfProfitLoss": -11095.0,
+            "jcOdds": 4.75,
+            "jcSavedVolume": 12900042.0,
+            "jcProfitLoss": -31727732.0,
+            "savedPopularity": 438.0,
+            "doerPct": 11.73
           },
           {
             "team": "格罗宁根",
-            "bfOdds": 6.4,
-            "bfVolume": 7204.0,
-            "bfProfitLoss": -21012.0,
-            "jcOdds": 5.78,
-            "jcSavedVolume": 201879.0,
-            "jcProfitLoss": 28053597.0,
-            "savedPopularity": 375.0,
-            "doerPct": 12.91
+            "bfOdds": 6.6,
+            "bfVolume": 7976.0,
+            "bfProfitLoss": -23085.0,
+            "jcOdds": 6.05,
+            "jcSavedVolume": 256821.0,
+            "jcProfitLoss": 27993701.0,
+            "savedPopularity": 499.0,
+            "doerPct": 13.36
           }
         ],
         "index_rows": [
           {
             "team": "阿尔克马",
             "avgOdds": 1.47,
-            "avgProb": 63.48,
-            "bfShare": 45.45,
-            "jcSavedShare": 55.17,
-            "northShare": 15.27,
-            "bfHotCold": -28.0,
+            "avgProb": 63.5,
+            "bfShare": 46.05,
+            "jcSavedShare": 55.47,
+            "northShare": 29.97,
+            "bfHotCold": -27.0,
             "jcHotCold": -13.0,
             "bfMarketIndex": 18.0,
-            "jcMarketIndex": 26.0,
+            "jcMarketIndex": 25.0,
             "bfProfitIndex": 30.0,
             "jcProfitIndex": 27.0
           },
@@ -8285,29 +8399,29 @@
             "team": "平局",
             "avgOdds": 4.7,
             "avgProb": 19.86,
-            "bfShare": 25.84,
-            "jcSavedShare": 44.14,
-            "northShare": 7.47,
-            "bfHotCold": 30.0,
+            "bfShare": 26.97,
+            "jcSavedShare": 43.66,
+            "northShare": 6.95,
+            "bfHotCold": 36.0,
             "jcHotCold": 122.0,
-            "bfMarketIndex": 34.0,
+            "bfMarketIndex": 36.0,
             "jcMarketIndex": 73.0,
-            "bfProfitIndex": -32.0,
-            "jcProfitIndex": -105.0
+            "bfProfitIndex": -38.0,
+            "jcProfitIndex": -107.0
           },
           {
             "team": "格罗宁根",
-            "avgOdds": 5.6,
-            "avgProb": 16.66,
-            "bfShare": 28.71,
-            "jcSavedShare": 0.69,
-            "northShare": 77.27,
-            "bfHotCold": 72.0,
+            "avgOdds": 5.61,
+            "avgProb": 16.64,
+            "bfShare": 26.99,
+            "jcSavedShare": 0.87,
+            "northShare": 63.08,
+            "bfHotCold": 62.0,
             "jcHotCold": -94.0,
-            "bfMarketIndex": 48.0,
-            "jcMarketIndex": 1.0,
-            "bfProfitIndex": -84.0,
-            "jcProfitIndex": 96.0
+            "bfMarketIndex": 46.0,
+            "jcMarketIndex": 2.0,
+            "bfProfitIndex": -78.0,
+            "jcProfitIndex": 95.0
           }
         ],
         "exchange_scale": "较小",
@@ -8316,32 +8430,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:40:43.194772+00:00",
+        "captured_at": "2026-11-08T10:08:07.962846+00:00",
         "william": {
           "initial": "1.50 / 4.59 / 5.00",
           "current": "1.44 / 4.50 / 5.50",
-          "time": "45分钟前"
+          "time": "2小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.80 1 1.00",
-            "current": "0.98 1/1.5 0.83",
-            "time": "50分钟前"
+            "current": "0.95 1/1.5 0.85",
+            "time": "36分钟前"
           },
           "澳门": {
             "initial": "0.82 1 0.96",
             "current": "0.93 1/1.5 0.85",
-            "time": "1小时前"
+            "time": "2小时前"
           },
           "皇冠": {
             "initial": "1.04 1/1.5 0.84",
-            "current": "1.02 1/1.5 0.87",
-            "time": "46分钟前"
+            "current": "1.00 1/1.5 0.89",
+            "time": "40分钟前"
           },
           "威廉希尔": {
             "initial": "0.73 1 1.00",
             "current": "0.91 1/1.5 0.73",
-            "time": "39分钟前"
+            "time": "2小时前"
           }
         }
       },
@@ -8412,10 +8526,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:40:48.866971+00:00",
+        "captured_at": "2026-11-08T10:08:11.592819+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:40:51.464184+00:00",
+      "predicted_at": "2026-11-08T10:08:15.337739+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -8440,14 +8554,14 @@
             "负": -1.889
           },
           "base_probabilities": {
-            "胜": 0.659576,
-            "平": 0.188653,
-            "负": 0.151771
+            "胜": 0.670098,
+            "平": 0.184806,
+            "负": 0.145096
           },
           "calibrated_probabilities": {
-            "胜": 0.652728,
-            "平": 0.192064,
-            "负": 0.155208
+            "胜": 0.66062,
+            "平": 0.189179,
+            "负": 0.150201
           },
           "base_top1": "胜",
           "base_top2": [
@@ -8472,9 +8586,9 @@
             "胜",
             "平"
           ],
-          "market_coverage": 0.8482,
+          "market_coverage": 0.8549,
           "omitted_direction": "负",
-          "omitted_market_risk": 0.1518,
+          "omitted_market_risk": 0.1451,
           "signals": [
             "独立历史xG支持提高平局权重"
           ],
@@ -8493,9 +8607,9 @@
               "平"
             ],
             "probabilities": {
-              "胜": 0.6596,
-              "平": 0.1887,
-              "负": 0.1518
+              "胜": 0.6701,
+              "平": 0.1848,
+              "负": 0.1451
             }
           },
           "让球": {
@@ -8514,9 +8628,9 @@
               "让负": 0.556388
             },
             "market_probabilities": {
-              "让胜": 0.430278,
-              "让平": 0.237234,
-              "让负": 0.332488
+              "让胜": 0.438876,
+              "让平": 0.23723,
+              "让负": 0.323894
             },
             "xg_probabilities": {
               "让胜": 0.24243,
@@ -8621,21 +8735,21 @@
             "watch_direction": null,
             "channels": [],
             "evidence": [
-              "澳客必发赛前资金比例 45.45%/25.84%/28.71%；成交量 11406/6484/7204"
+              "澳客必发赛前资金比例 46.05%/26.97%/26.99%；成交量 13610/7971/7976"
             ],
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              -28.0,
-              30.0,
-              72.0
+              -27.0,
+              36.0,
+              62.0
             ],
             "institution_support": [
-              63.48,
+              63.5,
               19.86,
-              16.66
+              16.64
             ],
-            "market_captured_at": "2026-11-08T08:38:57.983291+00:00",
+            "market_captured_at": "2026-11-08T10:06:31.816123+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -8652,11 +8766,11 @@
             "status": "BLOCKED",
             "selection": null,
             "candidate": null,
-            "reason": "必发 Top1 资金占比 45.5% 低于旧版 50% 门槛",
+            "reason": "必发 Top1 资金占比 46.0% 低于旧版 50% 门槛",
             "evidence": [
-              "原版门槛审计：SP Top1 66.0%（达到旧55%门槛）",
+              "原版门槛审计：SP Top1 67.0%（达到旧55%门槛）",
               "原版赔率区间审计：1.44（超出旧1.45–1.75）",
-              "SP Top1 胜 去水隐含比例 66.0%",
+              "SP Top1 胜 去水隐含比例 67.0%",
               "威廉同方向赔率 1.44",
               "亚洲盘口可读 4 家，退让 0 家"
             ],
@@ -8694,7 +8808,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -8705,14 +8819,14 @@
       "away": "摩纳哥",
       "kickoff": "2026-11-09 00:15",
       "spf": [
-        4.55,
-        4.02,
-        1.49
+        4.85,
+        4.2,
+        1.44
       ],
       "rqspf": [
-        2.18,
-        3.45,
-        2.56
+        2.29,
+        3.3,
+        2.5
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -8724,84 +8838,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1328576/exchanges/",
         "okooo_id": "1328576",
-        "captured_at": "2026-11-08T08:38:52.874206+00:00",
+        "captured_at": "2026-11-08T10:06:32.353418+00:00",
         "transaction_rows": [
           {
             "team": "勒芒",
-            "bfOdds": 5.6,
-            "bfVolume": 24656.0,
-            "bfProfitLoss": 68056.0,
-            "jcOdds": 4.55,
-            "jcSavedVolume": 307463.0,
-            "jcProfitLoss": 24675075.0,
-            "savedPopularity": 167.0,
-            "doerPct": 4.0
+            "bfOdds": 5.7,
+            "bfVolume": 29628.0,
+            "bfProfitLoss": 51424.0,
+            "jcOdds": 4.85,
+            "jcSavedVolume": 369411.0,
+            "jcProfitLoss": 24634960.0,
+            "savedPopularity": 221.0,
+            "doerPct": 4.1
           },
           {
             "team": "平局",
             "bfOdds": 4.2,
-            "bfVolume": 11870.0,
-            "bfProfitLoss": 156276.0,
-            "jcOdds": 4.02,
-            "jcSavedVolume": 10135365.0,
-            "jcProfitLoss": -14670135.0,
-            "savedPopularity": 435.0,
-            "doerPct": 10.41
+            "bfVolume": 12781.0,
+            "bfProfitLoss": 166624.0,
+            "jcOdds": 4.2,
+            "jcSavedVolume": 10141701.0,
+            "jcProfitLoss": -16168541.0,
+            "savedPopularity": 539.0,
+            "doerPct": 10.01
           },
           {
             "team": "摩纳哥",
-            "bfOdds": 1.73,
-            "bfVolume": 169604.0,
-            "bfProfitLoss": -87285.0,
-            "jcOdds": 1.49,
-            "jcSavedVolume": 15631204.0,
-            "jcProfitLoss": 2783538.0,
-            "savedPopularity": 3578.0,
-            "doerPct": 85.6
+            "bfOdds": 1.72,
+            "bfVolume": 177895.0,
+            "bfProfitLoss": -85675.0,
+            "jcOdds": 1.44,
+            "jcSavedVolume": 15915491.0,
+            "jcProfitLoss": 3508296.0,
+            "savedPopularity": 4624.0,
+            "doerPct": 85.88
           }
         ],
         "index_rows": [
           {
             "team": "勒芒",
-            "avgOdds": 4.69,
-            "avgProb": 20.06,
-            "bfShare": 11.96,
-            "jcSavedShare": 1.18,
-            "northShare": 7.5,
-            "bfHotCold": -40.0,
+            "avgOdds": 4.77,
+            "avgProb": 19.74,
+            "bfShare": 13.45,
+            "jcSavedShare": 1.4,
+            "northShare": 7.71,
+            "bfHotCold": -32.0,
             "jcHotCold": -95.0,
-            "bfMarketIndex": 29.0,
-            "jcMarketIndex": 2.0,
-            "bfProfitIndex": 33.0,
-            "jcProfitIndex": 95.0
+            "bfMarketIndex": 32.0,
+            "jcMarketIndex": 3.0,
+            "bfProfitIndex": 23.0,
+            "jcProfitIndex": 93.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.88,
-            "avgProb": 24.25,
-            "bfShare": 5.76,
-            "jcSavedShare": 38.87,
-            "northShare": 13.87,
+            "avgOdds": 3.89,
+            "avgProb": 24.21,
+            "bfShare": 5.8,
+            "jcSavedShare": 38.38,
+            "northShare": 12.71,
             "bfHotCold": -76.0,
-            "jcHotCold": 61.0,
+            "jcHotCold": 57.0,
             "bfMarketIndex": 10.0,
-            "jcMarketIndex": 62.0,
+            "jcMarketIndex": 63.0,
             "bfProfitIndex": 76.0,
-            "jcProfitIndex": -56.0
+            "jcProfitIndex": -61.0
           },
           {
             "team": "摩纳哥",
-            "avgOdds": 1.69,
-            "avgProb": 55.69,
-            "bfShare": 82.28,
-            "jcSavedShare": 59.95,
-            "northShare": 78.64,
-            "bfHotCold": 48.0,
-            "jcHotCold": 8.0,
-            "bfMarketIndex": 61.0,
-            "jcMarketIndex": 36.0,
-            "bfProfitIndex": -42.0,
-            "jcProfitIndex": 11.0
+            "avgOdds": 1.68,
+            "avgProb": 56.05,
+            "bfShare": 80.75,
+            "jcSavedShare": 60.23,
+            "northShare": 79.58,
+            "bfHotCold": 44.0,
+            "jcHotCold": 9.0,
+            "bfMarketIndex": 58.0,
+            "jcMarketIndex": 34.0,
+            "bfProfitIndex": -39.0,
+            "jcProfitIndex": 13.0
           }
         ],
         "exchange_scale": "适中",
@@ -8810,32 +8924,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:40:51.466614+00:00",
+        "captured_at": "2026-11-08T10:08:15.341498+00:00",
         "william": {
           "initial": "3.70 / 3.70 / 1.85",
-          "current": "4.50 / 3.60 / 1.70",
-          "time": "1小时前"
+          "current": "4.59 / 3.60 / 1.67",
+          "time": "10分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.80 -1 1.05",
-            "current": "0.98 -0.5/1 0.88",
-            "time": "42分钟前"
+            "current": "1.00 -0.5/1 0.85",
+            "time": "1小时前"
           },
           "澳门": {
             "initial": "0.91 -0.5/1 0.93",
             "current": "0.94 -0.5/1 0.90",
-            "time": "17小时前"
+            "time": "18小时前"
           },
           "皇冠": {
             "initial": "0.91 -0.5/1 0.97",
-            "current": "1.02 -0.5/1 0.87",
-            "time": "3分钟前"
+            "current": "1.03 -0.5/1 0.86",
+            "time": "33分钟前"
           },
           "威廉希尔": {
             "initial": "0.95 -0.5 0.85",
             "current": "0.85 -0.5/1 0.85",
-            "time": "2小时前"
+            "time": "3小时前"
           }
         }
       },
@@ -8906,10 +9020,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:40:54.284737+00:00",
+        "captured_at": "2026-11-08T10:08:18.415234+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:40:58.072345+00:00",
+      "predicted_at": "2026-11-08T10:08:20.904652+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -8924,24 +9038,24 @@
             "负": 0.5
           },
           "current_probabilities": {
-            "胜": 0.204204,
-            "平": 0.255255,
-            "负": 0.540541
+            "胜": 0.199064,
+            "平": 0.253807,
+            "负": 0.547129
           },
           "probability_movement_pp": {
-            "胜": -4.58,
-            "平": 0.526,
-            "负": 4.054
+            "胜": -5.094,
+            "平": 0.381,
+            "负": 4.713
           },
           "base_probabilities": {
-            "胜": 0.192844,
-            "平": 0.218269,
-            "负": 0.588887
+            "胜": 0.181067,
+            "平": 0.209089,
+            "负": 0.609844
           },
           "calibrated_probabilities": {
-            "胜": 0.195684,
-            "平": 0.227516,
-            "负": 0.5768
+            "胜": 0.185566,
+            "平": 0.220269,
+            "负": 0.594165
           },
           "base_top1": "负",
           "base_top2": [
@@ -8966,9 +9080,9 @@
             "负",
             "平"
           ],
-          "market_coverage": 0.8072,
+          "market_coverage": 0.8189,
           "omitted_direction": "胜",
-          "omitted_market_risk": 0.1928,
+          "omitted_market_risk": 0.1811,
           "signals": [
             "盘口退让 1 家"
           ],
@@ -8987,9 +9101,9 @@
               "平"
             ],
             "probabilities": {
-              "胜": 0.1928,
-              "平": 0.2183,
-              "负": 0.5889
+              "胜": 0.1811,
+              "平": 0.2091,
+              "负": 0.6098
             }
           },
           "让球": {
@@ -9008,9 +9122,9 @@
               "让负": 0.301455
             },
             "market_probabilities": {
-              "让胜": 0.402666,
-              "让平": 0.254438,
-              "让负": 0.342895
+              "让胜": 0.383151,
+              "让平": 0.265883,
+              "让负": 0.350966
             },
             "xg_probabilities": {
               "让胜": 0.46162,
@@ -9115,21 +9229,21 @@
             "watch_direction": null,
             "channels": [],
             "evidence": [
-              "澳客必发赛前资金比例 11.96%/5.76%/82.28%；成交量 24656/11870/169604"
+              "澳客必发赛前资金比例 13.45%/5.8%/80.75%；成交量 29628/12781/177895"
             ],
             "watch": [],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -40.0,
+              -32.0,
               -76.0,
-              48.0
+              44.0
             ],
             "institution_support": [
-              20.06,
-              24.25,
-              55.69
+              19.74,
+              24.21,
+              56.05
             ],
-            "market_captured_at": "2026-11-08T08:38:52.874206+00:00",
+            "market_captured_at": "2026-11-08T10:06:32.353418+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -9155,10 +9269,10 @@
             ],
             "reason": "通过4.0市场风险闸门的正式双选；未具备旧版母模型 A 档/SINGLE/HUR 证明",
             "evidence": [
-              "原版门槛审计：SP Top1 58.9%（达到旧55%门槛）",
-              "原版赔率区间审计：1.70（位于旧区间）",
-              "SP Top1 负 去水隐含比例 58.9%",
-              "威廉同方向赔率 1.70",
+              "原版门槛审计：SP Top1 61.0%（达到旧55%门槛）",
+              "原版赔率区间审计：1.67（位于旧区间）",
+              "SP Top1 负 去水隐含比例 61.0%",
+              "威廉同方向赔率 1.67",
               "亚洲盘口可读 4 家，退让 1 家"
             ],
             "missing": [
@@ -9194,7 +9308,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -9310,7 +9424,7 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:40:58.074824+00:00",
+        "captured_at": "2026-11-08T10:08:20.908401+00:00",
         "william": {
           "initial": "2.20 / 3.70 / 2.90",
           "current": "2.15 / 3.60 / 3.00",
@@ -9319,23 +9433,23 @@
         "asia": {
           "Bet365": {
             "initial": "0.88 0/0.5 0.98",
-            "current": "0.88 0/0.5 0.98",
-            "time": "59分钟前"
+            "current": "0.85 0/0.5 1.00",
+            "time": "54分钟前"
           },
           "澳门": {
             "initial": "0.99 0/0.5 0.85",
             "current": "0.86 0/0.5 0.98",
-            "time": "7小时前"
+            "time": "8小时前"
           },
           "皇冠": {
             "initial": "0.94 0/0.5 0.94",
-            "current": "0.90 0/0.5 0.99",
-            "time": "3小时前"
+            "current": "0.87 0/0.5 1.02",
+            "time": "16分钟前"
           },
           "威廉希尔": {
             "initial": "0.91 0/0.5 0.80",
             "current": "0.80 0/0.5 0.91",
-            "time": "2小时前"
+            "time": "3小时前"
           }
         }
       },
@@ -9406,10 +9520,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:41:01.390263+00:00",
+        "captured_at": "2026-11-08T10:08:24.678593+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:41:04.709676+00:00",
+      "predicted_at": "2026-11-08T10:08:27.492239+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -9690,7 +9804,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -9720,84 +9834,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1336391/exchanges/",
         "okooo_id": "1336391",
-        "captured_at": "2026-11-08T08:38:55.151099+00:00",
+        "captured_at": "2026-11-08T10:06:33.046676+00:00",
         "transaction_rows": [
           {
             "team": "弗赖堡",
             "bfOdds": 1.5,
-            "bfVolume": 298432.0,
-            "bfProfitLoss": -108054.0,
+            "bfVolume": 319431.0,
+            "bfProfitLoss": -107853.0,
             "jcOdds": 1.3,
-            "jcSavedVolume": 43285443.0,
-            "jcProfitLoss": 54410180.0,
-            "savedPopularity": 3134.0,
-            "doerPct": 70.28
+            "jcSavedVolume": 43664910.0,
+            "jcProfitLoss": 54826197.0,
+            "savedPopularity": 3925.0,
+            "doerPct": 70.48
           },
           {
             "team": "平局",
             "bfOdds": 4.9,
-            "bfVolume": 19380.0,
-            "bfProfitLoss": 244632.0,
+            "bfVolume": 25830.0,
+            "bfProfitLoss": 244727.0,
             "jcOdds": 4.5,
-            "jcSavedVolume": 39984687.0,
-            "jcProfitLoss": -69249836.0,
-            "savedPopularity": 562.0,
-            "doerPct": 12.6
+            "jcSavedVolume": 40014034.0,
+            "jcProfitLoss": -68472573.0,
+            "savedPopularity": 680.0,
+            "doerPct": 12.21
           },
           {
             "team": "柏林联合",
-            "bfOdds": 7.6,
-            "bfVolume": 21782.0,
-            "bfProfitLoss": 174051.0,
+            "bfOdds": 7.4,
+            "bfVolume": 26033.0,
+            "bfProfitLoss": 178650.0,
             "jcOdds": 6.75,
-            "jcSavedVolume": 27411126.0,
-            "jcProfitLoss": -74343845.0,
-            "savedPopularity": 763.0,
-            "doerPct": 17.11
+            "jcSavedVolume": 27911636.0,
+            "jcProfitLoss": -76812963.0,
+            "savedPopularity": 964.0,
+            "doerPct": 17.31
           }
         ],
         "index_rows": [
           {
             "team": "弗赖堡",
             "avgOdds": 1.47,
-            "avgProb": 64.13,
-            "bfShare": 87.88,
-            "jcSavedShare": 39.11,
-            "northShare": 19.28,
-            "bfHotCold": 37.0,
+            "avgProb": 64.14,
+            "bfShare": 86.03,
+            "jcSavedShare": 39.13,
+            "northShare": 40.31,
+            "bfHotCold": 34.0,
             "jcHotCold": -39.0,
-            "bfMarketIndex": 63.0,
+            "bfMarketIndex": 60.0,
             "jcMarketIndex": 13.0,
-            "bfProfitIndex": -32.0,
+            "bfProfitIndex": -29.0,
             "jcProfitIndex": 49.0
           },
           {
             "team": "平局",
             "avgOdds": 4.54,
-            "avgProb": 20.76,
-            "bfShare": 5.71,
-            "jcSavedShare": 36.13,
-            "northShare": 12.18,
-            "bfHotCold": -73.0,
+            "avgProb": 20.77,
+            "bfShare": 6.96,
+            "jcSavedShare": 35.86,
+            "northShare": 33.82,
+            "bfHotCold": -67.0,
             "jcHotCold": 73.0,
-            "bfMarketIndex": 13.0,
-            "jcMarketIndex": 43.0,
-            "bfProfitIndex": 72.0,
-            "jcProfitIndex": -63.0
+            "bfMarketIndex": 16.0,
+            "jcMarketIndex": 42.0,
+            "bfProfitIndex": 66.0,
+            "jcProfitIndex": -61.0
           },
           {
             "team": "柏林联合",
-            "avgOdds": 6.24,
-            "avgProb": 15.11,
-            "bfShare": 6.41,
-            "jcSavedShare": 24.77,
-            "northShare": 68.55,
-            "bfHotCold": -58.0,
-            "jcHotCold": 65.0,
-            "bfMarketIndex": 23.0,
+            "avgOdds": 6.25,
+            "avgProb": 15.09,
+            "bfShare": 7.01,
+            "jcSavedShare": 25.01,
+            "northShare": 25.87,
+            "bfHotCold": -54.0,
+            "jcHotCold": 66.0,
+            "bfMarketIndex": 24.0,
             "jcMarketIndex": 44.0,
-            "bfProfitIndex": 51.0,
-            "jcProfitIndex": -67.0
+            "bfProfitIndex": 48.0,
+            "jcProfitIndex": -69.0
           }
         ],
         "exchange_scale": "适中",
@@ -9806,32 +9920,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:41:04.712165+00:00",
+        "captured_at": "2026-11-08T10:08:27.495948+00:00",
         "william": {
           "initial": "1.50 / 4.20 / 5.50",
           "current": "1.44 / 4.33 / 6.00",
-          "time": "2小时前"
+          "time": "3小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "1.03 1/1.5 0.83",
             "current": "1.05 1/1.5 0.80",
-            "time": "5小时前"
+            "time": "7小时前"
           },
           "澳门": {
             "initial": "0.84 1 1.00",
             "current": "0.74 1 1.10",
-            "time": "1小时前"
+            "time": "2小时前"
           },
           "皇冠": {
             "initial": "0.82 1 1.06",
             "current": "1.06 1/1.5 0.83",
-            "time": "4分钟前"
+            "time": "1小时前"
           },
           "威廉希尔": {
             "initial": "0.80 1 0.91",
             "current": "0.70 1 0.95",
-            "time": "2小时前"
+            "time": "3小时前"
           }
         }
       },
@@ -9902,10 +10016,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:41:07.217704+00:00",
+        "captured_at": "2026-11-08T10:08:30.335876+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:41:10.177805+00:00",
+      "predicted_at": "2026-11-08T10:08:32.689464+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -10111,21 +10225,21 @@
             "watch_direction": null,
             "channels": [],
             "evidence": [
-              "澳客必发赛前资金比例 87.88%/5.71%/6.41%；成交量 298432/19380/21782"
+              "澳客必发赛前资金比例 86.03%/6.96%/7.01%；成交量 319431/25830/26033"
             ],
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              37.0,
-              -73.0,
-              -58.0
+              34.0,
+              -67.0,
+              -54.0
             ],
             "institution_support": [
-              64.13,
-              20.76,
-              15.11
+              64.14,
+              20.77,
+              15.09
             ],
-            "market_captured_at": "2026-11-08T08:38:55.151099+00:00",
+            "market_captured_at": "2026-11-08T10:06:33.046676+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -10190,7 +10304,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -10220,84 +10334,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1328163/exchanges/",
         "okooo_id": "1328163",
-        "captured_at": "2026-11-08T08:38:53.695838+00:00",
+        "captured_at": "2026-11-08T10:06:32.875081+00:00",
         "transaction_rows": [
           {
             "team": "国际米兰",
-            "bfOdds": 2.1,
-            "bfVolume": 550335.0,
-            "bfProfitLoss": -217108.0,
+            "bfOdds": 2.08,
+            "bfVolume": 570544.0,
+            "bfProfitLoss": -205441.0,
             "jcOdds": 1.76,
-            "jcSavedVolume": 42669013.0,
-            "jcProfitLoss": 32831369.0,
-            "savedPopularity": 3476.0,
-            "doerPct": 57.96
+            "jcSavedVolume": 49234299.0,
+            "jcProfitLoss": 28660735.0,
+            "savedPopularity": 4601.0,
+            "doerPct": 58.94
           },
           {
             "team": "平局",
-            "bfOdds": 4.1,
-            "bfVolume": 99828.0,
-            "bfProfitLoss": 529301.0,
+            "bfOdds": 4.2,
+            "bfVolume": 112342.0,
+            "bfProfitLoss": 509455.0,
             "jcOdds": 3.92,
-            "jcSavedVolume": 37773051.0,
-            "jcProfitLoss": -40141528.0,
-            "savedPopularity": 1348.0,
-            "doerPct": 22.48
+            "jcSavedVolume": 37799008.0,
+            "jcProfitLoss": -32859010.0,
+            "savedPopularity": 1749.0,
+            "doerPct": 22.41
           },
           {
             "team": "科莫",
-            "bfOdds": 3.6,
-            "bfVolume": 288433.0,
-            "bfProfitLoss": -99763.0,
+            "bfOdds": 3.65,
+            "bfVolume": 298405.0,
+            "bfProfitLoss": -107887.0,
             "jcOdds": 3.17,
-            "jcSavedVolume": 27486768.0,
-            "jcProfitLoss": 20795777.0,
-            "savedPopularity": 1173.0,
-            "doerPct": 19.56
+            "jcSavedVolume": 28279794.0,
+            "jcProfitLoss": 25666154.0,
+            "savedPopularity": 1456.0,
+            "doerPct": 18.65
           }
         ],
         "index_rows": [
           {
             "team": "国际米兰",
             "avgOdds": 1.97,
-            "avgProb": 47.95,
-            "bfShare": 58.63,
-            "jcSavedShare": 39.53,
-            "northShare": 27.74,
-            "bfHotCold": 22.0,
-            "jcHotCold": -17.0,
-            "bfMarketIndex": 44.0,
-            "jcMarketIndex": 24.0,
-            "bfProfitIndex": -23.0,
-            "jcProfitIndex": 30.0
+            "avgProb": 47.92,
+            "bfShare": 58.14,
+            "jcSavedShare": 42.7,
+            "northShare": 14.04,
+            "bfHotCold": 21.0,
+            "jcHotCold": -10.0,
+            "bfMarketIndex": 43.0,
+            "jcMarketIndex": 27.0,
+            "bfProfitIndex": -21.0,
+            "jcProfitIndex": 25.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.92,
-            "avgProb": 24.1,
-            "bfShare": 10.64,
-            "jcSavedShare": 35.0,
-            "northShare": 16.57,
-            "bfHotCold": -56.0,
-            "jcHotCold": 45.0,
-            "bfMarketIndex": 16.0,
-            "jcMarketIndex": 48.0,
-            "bfProfitIndex": 56.0,
-            "jcProfitIndex": -37.0
+            "avgOdds": 3.91,
+            "avgProb": 24.15,
+            "bfShare": 11.45,
+            "jcSavedShare": 32.78,
+            "northShare": 34.64,
+            "bfHotCold": -53.0,
+            "jcHotCold": 37.0,
+            "bfMarketIndex": 17.0,
+            "jcMarketIndex": 46.0,
+            "bfProfitIndex": 52.0,
+            "jcProfitIndex": -28.0
           },
           {
             "team": "科莫",
             "avgOdds": 3.38,
-            "avgProb": 27.95,
-            "bfShare": 30.73,
-            "jcSavedShare": 25.47,
-            "northShare": 55.69,
-            "bfHotCold": 10.0,
-            "jcHotCold": -11.0,
+            "avgProb": 27.93,
+            "bfShare": 30.41,
+            "jcSavedShare": 24.52,
+            "northShare": 51.32,
+            "bfHotCold": 9.0,
+            "jcHotCold": -14.0,
             "bfMarketIndex": 40.0,
             "jcMarketIndex": 28.0,
             "bfProfitIndex": -11.0,
-            "jcProfitIndex": 19.0
+            "jcProfitIndex": 22.0
           }
         ],
         "exchange_scale": "适中",
@@ -10306,32 +10420,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:41:10.180294+00:00",
+        "captured_at": "2026-11-08T10:08:32.693211+00:00",
         "william": {
           "initial": "1.73 / 4.00 / 3.80",
           "current": "1.95 / 3.60 / 3.30",
-          "time": "1小时前"
+          "time": "3小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.95 0.5/1 0.90",
-            "current": "1.00 0.5 0.85",
-            "time": "39分钟前"
+            "current": "1.03 0.5 0.83",
+            "time": "1小时前"
           },
           "澳门": {
             "initial": "0.99 0.5/1 0.85",
             "current": "0.92 0.5 0.92",
-            "time": "7小时前"
+            "time": "9小时前"
           },
           "皇冠": {
             "initial": "0.95 0.5/1 0.93",
-            "current": "1.04 0.5 0.85",
-            "time": "2小时前"
+            "current": "1.03 0.5 0.86",
+            "time": "1小时前"
           },
           "威廉希尔": {
             "initial": "0.85 0.5/1 0.85",
             "current": "0.95 0.5 0.80",
-            "time": "2小时前"
+            "time": "4小时前"
           }
         }
       },
@@ -10402,10 +10516,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:41:13.319312+00:00",
+        "captured_at": "2026-11-08T10:08:35.491153+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:41:16.834173+00:00",
+      "predicted_at": "2026-11-08T10:08:38.817216+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -10682,7 +10796,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -10712,32 +10826,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:41:16.836669+00:00",
+        "captured_at": "2026-11-08T10:08:38.820898+00:00",
         "william": {
           "initial": "1.60 / 3.80 / 5.00",
           "current": "1.44 / 4.20 / 6.00",
-          "time": "14分钟前"
+          "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 0.5/1 1.03",
             "current": "0.83 1 1.03",
-            "time": "1小时前"
+            "time": "2小时前"
           },
           "澳门": {
             "initial": "0.99 1/1.5 0.85",
             "current": "1.08 1/1.5 0.76",
-            "time": "47分钟前"
+            "time": "2小时前"
           },
           "皇冠": {
             "initial": "0.94 1 0.94",
-            "current": "0.83 1 1.06",
-            "time": "58分钟前"
+            "current": "0.84 1 1.05",
+            "time": "37分钟前"
           },
           "威廉希尔": {
             "initial": "0.95 1 0.70",
             "current": "0.75 1 0.91",
-            "time": "11分钟前"
+            "time": "1小时前"
           }
         }
       },
@@ -10808,10 +10922,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:41:19.329519+00:00",
+        "captured_at": "2026-11-08T10:08:41.412633+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:41:23.759780+00:00",
+      "predicted_at": "2026-11-08T10:08:44.100056+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -11021,7 +11135,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-08T08:41:16.836669+00:00",
+            "market_captured_at": "2026-11-08T10:08:38.820898+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）"
@@ -11085,7 +11199,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -11096,14 +11210,14 @@
       "away": "莱万特",
       "kickoff": "2026-11-09 01:30",
       "spf": [
-        1.66,
-        3.36,
-        4.18
+        1.67,
+        3.17,
+        4.45
       ],
       "rqspf": [
-        3.14,
         3.3,
-        1.93
+        3.2,
+        1.91
       ],
       "handicap": -1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -11115,84 +11229,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1335581/exchanges/",
         "okooo_id": "1335581",
-        "captured_at": "2026-11-08T08:38:54.998053+00:00",
+        "captured_at": "2026-11-08T10:06:33.730064+00:00",
         "transaction_rows": [
           {
             "team": "塞尔塔",
-            "bfOdds": 1.87,
-            "bfVolume": 293976.0,
-            "bfProfitLoss": -185678.0,
-            "jcOdds": 1.66,
-            "jcSavedVolume": 10171000.0,
-            "jcProfitLoss": 3634270.0,
-            "savedPopularity": 846.0,
-            "doerPct": 43.88
+            "bfOdds": 1.88,
+            "bfVolume": 321701.0,
+            "bfProfitLoss": -208514.0,
+            "jcOdds": 1.67,
+            "jcSavedVolume": 10310808.0,
+            "jcProfitLoss": 3511347.0,
+            "savedPopularity": 1138.0,
+            "doerPct": 44.42
           },
           {
             "team": "平局",
             "bfOdds": 3.75,
-            "bfVolume": 34400.0,
-            "bfProfitLoss": 235057.0,
-            "jcOdds": 3.36,
-            "jcSavedVolume": 10102364.0,
-            "jcProfitLoss": -13425813.0,
-            "savedPopularity": 697.0,
-            "doerPct": 36.15
+            "bfVolume": 35402.0,
+            "bfProfitLoss": 263527.0,
+            "jcOdds": 3.17,
+            "jcSavedVolume": 10120120.0,
+            "jcProfitLoss": -11350384.0,
+            "savedPopularity": 924.0,
+            "doerPct": 36.07
           },
           {
             "team": "莱万特",
-            "bfOdds": 4.9,
-            "bfVolume": 35681.0,
-            "bfProfitLoss": 189220.0,
-            "jcOdds": 4.18,
-            "jcSavedVolume": 244766.0,
-            "jcProfitLoss": 19495008.0,
-            "savedPopularity": 385.0,
-            "doerPct": 19.97
+            "bfOdds": 5.0,
+            "bfVolume": 39181.0,
+            "bfProfitLoss": 200379.0,
+            "jcOdds": 4.45,
+            "jcSavedVolume": 299468.0,
+            "jcProfitLoss": 19397763.0,
+            "savedPopularity": 500.0,
+            "doerPct": 19.52
           }
         ],
         "index_rows": [
           {
             "team": "塞尔塔",
-            "avgOdds": 1.82,
-            "avgProb": 51.88,
-            "bfShare": 80.75,
-            "jcSavedShare": 49.57,
-            "northShare": 19.67,
+            "avgOdds": 1.81,
+            "avgProb": 52.18,
+            "bfShare": 81.18,
+            "jcSavedShare": 49.74,
+            "northShare": 35.8,
             "bfHotCold": 56.0,
             "jcHotCold": -4.0,
-            "bfMarketIndex": 64.0,
-            "jcMarketIndex": 33.0,
-            "bfProfitIndex": -51.0,
-            "jcProfitIndex": 18.0
+            "bfMarketIndex": 65.0,
+            "jcMarketIndex": 34.0,
+            "bfProfitIndex": -53.0,
+            "jcProfitIndex": 17.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.59,
-            "avgProb": 26.3,
-            "bfShare": 9.45,
-            "jcSavedShare": 49.24,
-            "northShare": 76.78,
-            "bfHotCold": -64.0,
-            "jcHotCold": 86.0,
-            "bfMarketIndex": 15.0,
-            "jcMarketIndex": 65.0,
-            "bfProfitIndex": 65.0,
-            "jcProfitIndex": -65.0
+            "avgOdds": 3.61,
+            "avgProb": 26.16,
+            "bfShare": 8.93,
+            "jcSavedShare": 48.82,
+            "northShare": 62.41,
+            "bfHotCold": -66.0,
+            "jcHotCold": 87.0,
+            "bfMarketIndex": 14.0,
+            "jcMarketIndex": 63.0,
+            "bfProfitIndex": 66.0,
+            "jcProfitIndex": -55.0
           },
           {
             "team": "莱万特",
-            "avgOdds": 4.33,
-            "avgProb": 21.82,
-            "bfShare": 9.8,
-            "jcSavedShare": 1.19,
-            "northShare": 3.55,
-            "bfHotCold": -55.0,
+            "avgOdds": 4.36,
+            "avgProb": 21.66,
+            "bfShare": 9.89,
+            "jcSavedShare": 1.44,
+            "northShare": 1.78,
+            "bfHotCold": -54.0,
             "jcHotCold": -95.0,
-            "bfMarketIndex": 20.0,
-            "jcMarketIndex": 2.0,
-            "bfProfitIndex": 52.0,
-            "jcProfitIndex": 95.0
+            "bfMarketIndex": 21.0,
+            "jcMarketIndex": 3.0,
+            "bfProfitIndex": 51.0,
+            "jcProfitIndex": 94.0
           }
         ],
         "exchange_scale": "适中",
@@ -11201,27 +11315,27 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:41:23.762294+00:00",
+        "captured_at": "2026-11-08T10:08:44.103739+00:00",
         "william": {
           "initial": "1.85 / 3.40 / 4.00",
           "current": "1.83 / 3.40 / 4.20",
-          "time": "1小时前"
+          "time": "3小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.85 0.5 1.00",
-            "current": "1.05 0.5/1 0.80",
-            "time": "1小时前"
+            "current": "1.03 0.5/1 0.78",
+            "time": "26分钟前"
           },
           "澳门": {
             "initial": "0.79 0.5 1.05",
             "current": "0.84 0.5 1.00",
-            "time": "17小时前"
+            "time": "18小时前"
           },
           "皇冠": {
             "initial": "0.86 0.5 1.02",
-            "current": "0.82 0.5 1.07",
-            "time": "53分钟前"
+            "current": "0.81 0.5 1.08",
+            "time": "1小时前"
           },
           "威廉希尔": {
             "initial": "0.85 0.5 0.91",
@@ -11297,10 +11411,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:41:27.645914+00:00",
+        "captured_at": "2026-11-08T10:08:46.662340+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:41:31.237745+00:00",
+      "predicted_at": "2026-11-08T10:08:49.335091+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -11325,14 +11439,14 @@
             "负": -0.976
           },
           "base_probabilities": {
-            "胜": 0.528771,
-            "平": 0.261238,
-            "负": 0.209991
+            "胜": 0.525736,
+            "平": 0.276965,
+            "负": 0.197299
           },
           "calibrated_probabilities": {
-            "胜": 0.523228,
-            "平": 0.264096,
-            "负": 0.212676
+            "胜": 0.520952,
+            "平": 0.275891,
+            "负": 0.203157
           },
           "base_top1": "胜",
           "base_top2": [
@@ -11357,10 +11471,12 @@
             "胜",
             "平"
           ],
-          "market_coverage": 0.79,
+          "market_coverage": 0.8027,
           "omitted_direction": "负",
-          "omitted_market_risk": 0.21,
-          "signals": [],
+          "omitted_market_risk": 0.1973,
+          "signals": [
+            "平局市场基线较高"
+          ],
           "blockers": [],
           "source": "赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助",
           "official": false,
@@ -11376,9 +11492,9 @@
               "平"
             ],
             "probabilities": {
-              "胜": 0.5288,
-              "平": 0.2612,
-              "负": 0.21
+              "胜": 0.5257,
+              "平": 0.277,
+              "负": 0.1973
             }
           },
           "让球": {
@@ -11397,9 +11513,9 @@
               "让负": 0.597865
             },
             "market_probabilities": {
-              "让胜": 0.27945,
-              "让平": 0.265901,
-              "让负": 0.454649
+              "让胜": 0.266028,
+              "让平": 0.274342,
+              "让负": 0.45963
             },
             "xg_probabilities": {
               "让胜": 0.18625,
@@ -11504,21 +11620,21 @@
             "watch_direction": null,
             "channels": [],
             "evidence": [
-              "澳客必发赛前资金比例 80.75%/9.45%/9.8%；成交量 293976/34400/35681"
+              "澳客必发赛前资金比例 81.18%/8.93%/9.89%；成交量 321701/35402/39181"
             ],
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
               56.0,
-              -64.0,
-              -55.0
+              -66.0,
+              -54.0
             ],
             "institution_support": [
-              51.88,
-              26.3,
-              21.82
+              52.18,
+              26.16,
+              21.66
             ],
-            "market_captured_at": "2026-11-08T08:38:54.998053+00:00",
+            "market_captured_at": "2026-11-08T10:06:33.730064+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -11544,9 +11660,9 @@
             ],
             "reason": "通过4.0市场风险闸门的正式双选；未具备旧版母模型 A 档/SINGLE/HUR 证明",
             "evidence": [
-              "原版门槛审计：SP Top1 52.9%（低于旧55%门槛）",
+              "原版门槛审计：SP Top1 52.6%（低于旧55%门槛）",
               "原版赔率区间审计：1.83（超出旧1.45–1.75）",
-              "SP Top1 胜 去水隐含比例 52.9%",
+              "SP Top1 胜 去水隐含比例 52.6%",
               "威廉同方向赔率 1.83",
               "亚洲盘口可读 4 家，退让 0 家"
             ],
@@ -11583,7 +11699,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -11594,14 +11710,14 @@
       "away": "波尔图",
       "kickoff": "2026-11-09 02:00",
       "spf": [
-        5.85,
-        4.2,
-        1.37
+        6.2,
+        4.31,
+        1.34
       ],
       "rqspf": [
-        2.55,
+        2.62,
         3.35,
-        2.23
+        2.18
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -11613,84 +11729,84 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1337991/exchanges/",
         "okooo_id": "1337991",
-        "captured_at": "2026-11-08T08:38:56.366414+00:00",
+        "captured_at": "2026-11-08T10:06:33.997221+00:00",
         "transaction_rows": [
           {
             "team": "吉马良斯",
-            "bfOdds": 6.4,
-            "bfVolume": 10098.0,
-            "bfProfitLoss": 92150.0,
-            "jcOdds": 5.85,
-            "jcSavedVolume": 742686.0,
-            "jcProfitLoss": 22741246.0,
-            "savedPopularity": 331.0,
-            "doerPct": 6.29
+            "bfOdds": 6.8,
+            "bfVolume": 10469.0,
+            "bfProfitLoss": 106904.0,
+            "jcOdds": 6.2,
+            "jcSavedVolume": 800050.0,
+            "jcProfitLoss": 28352668.0,
+            "savedPopularity": 422.0,
+            "doerPct": 6.64
           },
           {
             "team": "平局",
             "bfOdds": 4.7,
-            "bfVolume": 26792.0,
-            "bfProfitLoss": 30855.0,
-            "jcOdds": 4.2,
-            "jcSavedVolume": 9547435.0,
-            "jcProfitLoss": -13013268.0,
-            "savedPopularity": 382.0,
-            "doerPct": 7.26
+            "bfVolume": 26991.0,
+            "bfProfitLoss": 51235.0,
+            "jcOdds": 4.31,
+            "jcSavedVolume": 9576975.0,
+            "jcProfitLoss": -7963784.0,
+            "savedPopularity": 477.0,
+            "doerPct": 7.5
           },
           {
             "team": "波尔图",
-            "bfOdds": 1.58,
-            "bfVolume": 119887.0,
-            "bfProfitLoss": -32644.0,
-            "jcOdds": 1.37,
-            "jcSavedVolume": 16795838.0,
-            "jcProfitLoss": 4075661.0,
-            "savedPopularity": 4551.0,
-            "doerPct": 86.46
+            "bfOdds": 1.57,
+            "bfVolume": 140633.0,
+            "bfProfitLoss": -42701.0,
+            "jcOdds": 1.34,
+            "jcSavedVolume": 22935953.0,
+            "jcProfitLoss": 2578801.0,
+            "savedPopularity": 5459.0,
+            "doerPct": 85.86
           }
         ],
         "index_rows": [
           {
             "team": "吉马良斯",
-            "avgOdds": 5.47,
-            "avgProb": 17.03,
-            "bfShare": 6.44,
-            "jcSavedShare": 2.74,
-            "northShare": 47.77,
-            "bfHotCold": -62.0,
-            "jcHotCold": -82.0,
+            "avgOdds": 5.6,
+            "avgProb": 16.66,
+            "bfShare": 5.88,
+            "jcSavedShare": 2.4,
+            "northShare": 24.62,
+            "bfHotCold": -65.0,
+            "jcHotCold": -88.0,
             "bfMarketIndex": 17.0,
             "jcMarketIndex": 6.0,
-            "bfProfitIndex": 59.0,
-            "jcProfitIndex": 84.0
+            "bfProfitIndex": 60.0,
+            "jcProfitIndex": 85.0
           },
           {
             "team": "平局",
-            "avgOdds": 4.07,
-            "avgProb": 22.88,
-            "bfShare": 17.09,
-            "jcSavedShare": 35.25,
-            "northShare": 25.79,
-            "bfHotCold": -25.0,
-            "jcHotCold": 53.0,
-            "bfMarketIndex": 33.0,
-            "jcMarketIndex": 59.0,
-            "bfProfitIndex": 20.0,
-            "jcProfitIndex": -48.0
+            "avgOdds": 4.1,
+            "avgProb": 22.76,
+            "bfShare": 15.16,
+            "jcSavedShare": 28.75,
+            "northShare": 36.78,
+            "bfHotCold": -33.0,
+            "jcHotCold": 27.0,
+            "bfMarketIndex": 30.0,
+            "jcMarketIndex": 54.0,
+            "bfProfitIndex": 29.0,
+            "jcProfitIndex": -24.0
           },
           {
             "team": "波尔图",
-            "avgOdds": 1.55,
-            "avgProb": 60.09,
-            "bfShare": 76.47,
-            "jcSavedShare": 62.01,
-            "northShare": 26.44,
-            "bfHotCold": 27.0,
-            "jcHotCold": 3.0,
-            "bfMarketIndex": 50.0,
-            "jcMarketIndex": 34.0,
-            "bfProfitIndex": -21.0,
-            "jcProfitIndex": 15.0
+            "avgOdds": 1.54,
+            "avgProb": 60.58,
+            "bfShare": 78.97,
+            "jcSavedShare": 68.85,
+            "northShare": 38.61,
+            "bfHotCold": 30.0,
+            "jcHotCold": 14.0,
+            "bfMarketIndex": 53.0,
+            "jcMarketIndex": 40.0,
+            "bfProfitIndex": -24.0,
+            "jcProfitIndex": 8.0
           }
         ],
         "exchange_scale": "适中",
@@ -11699,32 +11815,32 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:41:31.240262+00:00",
+        "captured_at": "2026-11-08T10:08:49.338806+00:00",
         "william": {
           "initial": "4.59 / 3.50 / 1.73",
-          "current": "5.00 / 4.00 / 1.57",
-          "time": "8小时前"
+          "current": "5.00 / 4.00 / 1.55",
+          "time": "26分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.85 -1 1.00",
-            "current": "0.93 -1 0.93",
-            "time": "13分钟前"
+            "current": "0.95 -1 0.90",
+            "time": "22分钟前"
           },
           "澳门": {
             "initial": "0.96 -0.5/1 0.82",
-            "current": "0.82 -1 0.96",
-            "time": "4小时前"
+            "current": "0.90 -1 0.88",
+            "time": "22分钟前"
           },
           "皇冠": {
             "initial": "0.99 -0.5/1 0.89",
-            "current": "0.91 -1 0.98",
-            "time": "3小时前"
+            "current": "0.96 -1 0.93",
+            "time": "24分钟前"
           },
           "威廉希尔": {
             "initial": "0.80 -0.5/1 0.91",
-            "current": "0.70 -1 0.91",
-            "time": "5小时前"
+            "current": "0.73 -1 0.91",
+            "time": "21分钟前"
           }
         }
       },
@@ -11795,10 +11911,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:41:33.872289+00:00",
+        "captured_at": "2026-11-08T10:08:52.166236+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:41:39.022325+00:00",
+      "predicted_at": "2026-11-08T10:08:55.403687+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -11813,24 +11929,24 @@
             "负": 0.534419
           },
           "current_probabilities": {
-            "胜": 0.184002,
-            "平": 0.230003,
-            "负": 0.585995
+            "胜": 0.182622,
+            "平": 0.228277,
+            "负": 0.589102
           },
           "probability_movement_pp": {
-            "胜": -1.742,
-            "平": -3.415,
-            "负": 5.158
+            "胜": -1.88,
+            "平": -3.588,
+            "负": 5.468
           },
           "base_probabilities": {
-            "胜": 0.150084,
-            "平": 0.209046,
-            "负": 0.64087
+            "胜": 0.141535,
+            "平": 0.203601,
+            "负": 0.654864
           },
           "calibrated_probabilities": {
-            "胜": 0.158564,
-            "平": 0.214285,
-            "负": 0.627151
+            "胜": 0.151807,
+            "平": 0.20977,
+            "负": 0.638424
           },
           "base_top1": "负",
           "base_top2": [
@@ -11855,9 +11971,9 @@
             "负",
             "平"
           ],
-          "market_coverage": 0.8499,
+          "market_coverage": 0.8585,
           "omitted_direction": "胜",
-          "omitted_market_risk": 0.1501,
+          "omitted_market_risk": 0.1415,
           "signals": [
             "独立历史xG支持提高平局权重"
           ],
@@ -11876,9 +11992,9 @@
               "平"
             ],
             "probabilities": {
-              "胜": 0.1501,
-              "平": 0.209,
-              "负": 0.6409
+              "胜": 0.1415,
+              "平": 0.2036,
+              "负": 0.6549
             }
           },
           "让球": {
@@ -11897,9 +12013,9 @@
               "让负": 0.26839
             },
             "market_probabilities": {
-              "让胜": 0.344271,
-              "让平": 0.262057,
-              "让负": 0.393673
+              "让胜": 0.335129,
+              "让平": 0.262101,
+              "让负": 0.40277
             },
             "xg_probabilities": {
               "让胜": 0.495528,
@@ -12004,21 +12120,21 @@
             "watch_direction": null,
             "channels": [],
             "evidence": [
-              "澳客必发赛前资金比例 6.44%/17.09%/76.47%；成交量 10098/26792/119887"
+              "澳客必发赛前资金比例 5.88%/15.16%/78.97%；成交量 10469/26991/140633"
             ],
             "watch": [],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -62.0,
-              -25.0,
-              27.0
+              -65.0,
+              -33.0,
+              30.0
             ],
             "institution_support": [
-              17.03,
-              22.88,
-              60.09
+              16.66,
+              22.76,
+              60.58
             ],
-            "market_captured_at": "2026-11-08T08:38:56.366414+00:00",
+            "market_captured_at": "2026-11-08T10:06:33.997221+00:00",
             "missing": [
               "严格赛前独立比分（E1未评估）"
             ],
@@ -12044,10 +12160,10 @@
             ],
             "reason": "通过4.0市场风险闸门的正式双选；未具备旧版母模型 A 档/SINGLE/HUR 证明",
             "evidence": [
-              "原版门槛审计：SP Top1 64.1%（达到旧55%门槛）",
-              "原版赔率区间审计：1.57（位于旧区间）",
-              "SP Top1 负 去水隐含比例 64.1%",
-              "威廉同方向赔率 1.57",
+              "原版门槛审计：SP Top1 65.5%（达到旧55%门槛）",
+              "原版赔率区间审计：1.55（位于旧区间）",
+              "SP Top1 负 去水隐含比例 65.5%",
+              "威廉同方向赔率 1.55",
               "亚洲盘口可读 4 家，退让 0 家"
             ],
             "missing": [
@@ -12083,7 +12199,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -12113,32 +12229,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:41:39.025812+00:00",
+        "captured_at": "2026-11-08T10:08:55.407370+00:00",
         "william": {
           "initial": "1.50 / 4.50 / 5.00",
           "current": "1.57 / 4.00 / 5.00",
-          "time": "1小时前"
+          "time": "2小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.85 1 1.00",
-            "current": "0.95 1 0.90",
-            "time": "56分钟前"
+            "current": "0.93 1 0.93",
+            "time": "1小时前"
           },
           "澳门": {
             "initial": "0.81 0.5/1 1.03",
             "current": "1.00 1 0.84",
-            "time": "17小时前"
+            "time": "18小时前"
           },
           "皇冠": {
             "initial": "0.92 1 0.96",
             "current": "0.96 1 0.93",
-            "time": "2小时前"
+            "time": "16分钟前"
           },
           "威廉希尔": {
             "initial": "0.70 1 0.95",
             "current": "0.91 1 0.75",
-            "time": "2小时前"
+            "time": "3小时前"
           }
         }
       },
@@ -12209,10 +12325,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:41:41.466215+00:00",
+        "captured_at": "2026-11-08T10:08:58.267688+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:41:45.142376+00:00",
+      "predicted_at": "2026-11-08T10:09:01.454715+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -12422,7 +12538,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-08T08:41:39.025812+00:00",
+            "market_captured_at": "2026-11-08T10:08:55.407370+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）"
@@ -12486,7 +12602,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -12497,14 +12613,14 @@
       "away": "尤文图斯",
       "kickoff": "2026-11-09 03:45",
       "spf": [
-        3.08,
-        3.37,
-        1.93
+        3.2,
+        3.4,
+        1.88
       ],
       "rqspf": [
-        1.65,
-        3.7,
-        3.8
+        1.67,
+        3.65,
+        3.75
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -12516,32 +12632,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:41:45.144828+00:00",
+        "captured_at": "2026-11-08T10:09:01.458400+00:00",
         "william": {
           "initial": "4.00 / 3.75 / 1.75",
           "current": "3.30 / 3.30 / 2.04",
-          "time": "8小时前"
+          "time": "10小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.90 -0.5 0.95",
             "current": "0.98 -0/0.5 0.88",
-            "time": "1小时前"
+            "time": "16分钟前"
           },
           "澳门": {
             "initial": "0.90 -0.5 0.94",
             "current": "1.02 -0/0.5 0.82",
-            "time": "17小时前"
+            "time": "18小时前"
           },
           "皇冠": {
             "initial": "0.92 -0.5 0.96",
-            "current": "1.01 -0/0.5 0.88",
+            "current": "1.00 -0/0.5 0.89",
             "time": "1小时前"
           },
           "威廉希尔": {
             "initial": "0.91 -0.5 0.85",
             "current": "0.91 -0/0.5 0.70",
-            "time": "4小时前"
+            "time": "5小时前"
           }
         }
       },
@@ -12612,10 +12728,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:41:48.674545+00:00",
+        "captured_at": "2026-11-08T10:09:04.519231+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:41:51.175053+00:00",
+      "predicted_at": "2026-11-08T10:09:06.570329+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -12640,14 +12756,14 @@
             "负": -7.801
           },
           "base_probabilities": {
-            "胜": 0.284916,
-            "平": 0.260398,
-            "负": 0.454685
+            "胜": 0.274476,
+            "平": 0.25833,
+            "负": 0.467193
           },
           "calibrated_probabilities": {
-            "胜": 0.282793,
-            "平": 0.264404,
-            "负": 0.452803
+            "胜": 0.274963,
+            "平": 0.262854,
+            "负": 0.462184
           },
           "base_top1": "负",
           "base_top2": [
@@ -12669,9 +12785,9 @@
             "负",
             "平"
           ],
-          "market_coverage": 0.7151,
+          "market_coverage": 0.7255,
           "omitted_direction": "胜",
-          "omitted_market_risk": 0.2849,
+          "omitted_market_risk": 0.2745,
           "signals": [
             "冷门观察：需进一步市场复核",
             "盘口退让 4 家",
@@ -12694,9 +12810,9 @@
               "胜"
             ],
             "probabilities": {
-              "胜": 0.2849,
-              "平": 0.2604,
-              "负": 0.4547
+              "胜": 0.2745,
+              "平": 0.2583,
+              "负": 0.4672
             }
           },
           "让球": {
@@ -12715,9 +12831,9 @@
               "让负": 0.182432
             },
             "market_probabilities": {
-              "让胜": 0.531871,
-              "让平": 0.237186,
-              "让负": 0.230944
+              "让胜": 0.525523,
+              "让平": 0.240445,
+              "让负": 0.234033
             },
             "xg_probabilities": {
               "让胜": 0.610029,
@@ -12735,7 +12851,7 @@
               "1:1",
               "1:2",
               "0:1",
-              "2:1"
+              "0:0"
             ],
             "legacy_method": "HJ38_SCORE_TOP4_COMPAT_V1",
             "dc_rho": -0.08,
@@ -12755,7 +12871,7 @@
               "1:1": 0.130781,
               "1:2": 0.085311,
               "0:1": 0.081292,
-              "2:1": 0.080588
+              "0:0": 0.074258
             }
           },
           "总进球": {
@@ -12828,7 +12944,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-08T08:41:45.144828+00:00",
+            "market_captured_at": "2026-11-08T10:09:01.458400+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）"
@@ -12845,9 +12961,9 @@
             "candidate": null,
             "reason": "冷门预警或市场异动观察已排除；两家以上亚洲盘口对 Top1 退让：Bet365、澳门、皇冠、威廉希尔",
             "evidence": [
-              "原版门槛审计：SP Top1 45.5%（低于旧55%门槛）",
+              "原版门槛审计：SP Top1 46.7%（低于旧55%门槛）",
               "原版赔率区间审计：2.04（超出旧1.45–1.75）",
-              "SP Top1 负 去水隐含比例 45.5%",
+              "SP Top1 负 去水隐含比例 46.7%",
               "威廉同方向赔率 2.04",
               "亚洲盘口可读 4 家，退让 4 家"
             ],
@@ -12885,7 +13001,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -12896,14 +13012,14 @@
       "away": "马赛",
       "kickoff": "2026-11-09 03:45",
       "spf": [
-        2.08,
-        3.55,
-        2.65
+        2.15,
+        3.5,
+        2.57
       ],
       "rqspf": [
-        4.0,
-        4.1,
-        1.55
+        4.2,
+        4.2,
+        1.51
       ],
       "handicap": -1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -12915,83 +13031,83 @@
         "source": "澳客必发交易所",
         "source_url": "https://www.okooo.com/soccer/match/1328577/exchanges/",
         "okooo_id": "1328577",
-        "captured_at": "2026-11-08T08:38:56.180172+00:00",
+        "captured_at": "2026-11-08T10:06:34.852568+00:00",
         "transaction_rows": [
           {
             "team": "朗斯",
-            "bfOdds": 2.4,
-            "bfVolume": 37410.0,
-            "bfProfitLoss": 24775.0,
-            "jcOdds": 2.08,
-            "jcSavedVolume": 7046634.0,
-            "jcProfitLoss": 916386.0,
-            "savedPopularity": 680.0,
-            "doerPct": 28.7
+            "bfOdds": 2.42,
+            "bfVolume": 41827.0,
+            "bfProfitLoss": 34360.0,
+            "jcOdds": 2.15,
+            "jcSavedVolume": 7172276.0,
+            "jcProfitLoss": 385036.0,
+            "savedPopularity": 861.0,
+            "doerPct": 28.3
           },
           {
             "team": "平局",
-            "bfOdds": 3.85,
-            "bfVolume": 11965.0,
-            "bfProfitLoss": 68494.0,
-            "jcOdds": 3.55,
-            "jcSavedVolume": 7236004.0,
-            "jcProfitLoss": -10114429.0,
-            "savedPopularity": 775.0,
-            "doerPct": 32.71
+            "bfOdds": 3.8,
+            "bfVolume": 27115.0,
+            "bfProfitLoss": 32544.0,
+            "jcOdds": 3.5,
+            "jcSavedVolume": 7273457.0,
+            "jcProfitLoss": -9651671.0,
+            "savedPopularity": 1012.0,
+            "doerPct": 33.27
           },
           {
             "team": "马赛",
-            "bfOdds": 3.05,
-            "bfVolume": 65184.0,
-            "bfProfitLoss": -84252.0,
-            "jcOdds": 2.65,
-            "jcSavedVolume": 1290747.0,
-            "jcProfitLoss": 12152905.0,
-            "savedPopularity": 914.0,
-            "doerPct": 38.58
+            "bfOdds": 3.1,
+            "bfVolume": 66639.0,
+            "bfProfitLoss": -71000.0,
+            "jcOdds": 2.57,
+            "jcSavedVolume": 1359696.0,
+            "jcProfitLoss": 12311010.0,
+            "savedPopularity": 1169.0,
+            "doerPct": 38.43
           }
         ],
         "index_rows": [
           {
             "team": "朗斯",
-            "avgOdds": 2.27,
-            "avgProb": 41.49,
-            "bfShare": 32.66,
-            "jcSavedShare": 45.25,
-            "northShare": 19.23,
-            "bfHotCold": -21.0,
-            "jcHotCold": 8.0,
-            "bfMarketIndex": 27.0,
-            "jcMarketIndex": 33.0,
-            "bfProfitIndex": 22.0,
-            "jcProfitIndex": 6.0
+            "avgOdds": 2.28,
+            "avgProb": 41.37,
+            "bfShare": 30.85,
+            "jcSavedShare": 45.38,
+            "northShare": 18.98,
+            "bfHotCold": -25.0,
+            "jcHotCold": 9.0,
+            "bfMarketIndex": 25.0,
+            "jcMarketIndex": 35.0,
+            "bfProfitIndex": 25.0,
+            "jcProfitIndex": 2.0
           },
           {
             "team": "平局",
-            "avgOdds": 3.7,
-            "avgProb": 25.46,
-            "bfShare": 10.44,
-            "jcSavedShare": 46.46,
-            "northShare": 16.47,
-            "bfHotCold": -59.0,
-            "jcHotCold": 81.0,
-            "bfMarketIndex": 14.0,
-            "jcMarketIndex": 59.0,
-            "bfProfitIndex": 60.0,
-            "jcProfitIndex": -65.0
+            "avgOdds": 3.66,
+            "avgProb": 25.77,
+            "bfShare": 20.0,
+            "jcSavedShare": 46.02,
+            "northShare": 13.96,
+            "bfHotCold": -22.0,
+            "jcHotCold": 79.0,
+            "bfMarketIndex": 25.0,
+            "jcMarketIndex": 57.0,
+            "bfProfitIndex": 24.0,
+            "jcProfitIndex": -61.0
           },
           {
             "team": "马赛",
-            "avgOdds": 2.85,
-            "avgProb": 33.05,
-            "bfShare": 56.9,
-            "jcSavedShare": 8.29,
-            "northShare": 64.3,
-            "bfHotCold": 72.0,
+            "avgOdds": 2.87,
+            "avgProb": 32.86,
+            "bfShare": 49.15,
+            "jcSavedShare": 8.6,
+            "northShare": 67.06,
+            "bfHotCold": 50.0,
             "jcHotCold": -73.0,
-            "bfMarketIndex": 59.0,
+            "bfMarketIndex": 50.0,
             "jcMarketIndex": 8.0,
-            "bfProfitIndex": -74.0,
+            "bfProfitIndex": -52.0,
             "jcProfitIndex": 78.0
           }
         ],
@@ -13001,11 +13117,11 @@
       "bifa_status": "已核验赛前",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:41:51.177596+00:00",
+        "captured_at": "2026-11-08T10:09:06.574061+00:00",
         "william": {
           "initial": "2.20 / 3.80 / 2.70",
           "current": "2.20 / 3.50 / 2.75",
-          "time": "2小时前"
+          "time": "4小时前"
         },
         "asia": {
           "Bet365": {
@@ -13016,17 +13132,17 @@
           "澳门": {
             "initial": "0.83 0/0.5 1.01",
             "current": "1.02 0/0.5 0.82",
-            "time": "17小时前"
+            "time": "18小时前"
           },
           "皇冠": {
             "initial": "0.91 0/0.5 0.97",
             "current": "1.04 0/0.5 0.85",
-            "time": "3小时前"
+            "time": "5小时前"
           },
           "威廉希尔": {
             "initial": "0.75 0/0.5 0.83",
             "current": "0.91 0/0.5 0.73",
-            "time": "3小时前"
+            "time": "5小时前"
           }
         }
       },
@@ -13097,10 +13213,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:41:54.767614+00:00",
+        "captured_at": "2026-11-08T10:09:09.662884+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:41:59.547136+00:00",
+      "predicted_at": "2026-11-08T10:09:14.216938+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -13125,14 +13241,14 @@
             "负": -1.098
           },
           "base_probabilities": {
-            "胜": 0.421795,
-            "平": 0.247136,
-            "负": 0.331069
+            "胜": 0.40802,
+            "平": 0.250641,
+            "负": 0.34134
           },
           "calibrated_probabilities": {
-            "胜": 0.419287,
-            "平": 0.250058,
-            "负": 0.330655
+            "胜": 0.408956,
+            "平": 0.252686,
+            "负": 0.338358
           },
           "base_top1": "胜",
           "base_top2": [
@@ -13154,9 +13270,9 @@
             "胜",
             "负"
           ],
-          "market_coverage": 0.7529,
+          "market_coverage": 0.7494,
           "omitted_direction": "平",
-          "omitted_market_risk": 0.2471,
+          "omitted_market_risk": 0.2506,
           "signals": [
             "威廉平局隐含概率上升"
           ],
@@ -13177,9 +13293,9 @@
               "负"
             ],
             "probabilities": {
-              "胜": 0.4218,
-              "平": 0.2471,
-              "负": 0.3311
+              "胜": 0.408,
+              "平": 0.2506,
+              "负": 0.3413
             }
           },
           "让球": {
@@ -13198,9 +13314,9 @@
               "让负": 0.654756
             },
             "market_probabilities": {
-              "让胜": 0.219479,
-              "让平": 0.214125,
-              "让负": 0.566396
+              "让胜": 0.209141,
+              "让平": 0.209141,
+              "让负": 0.581717
             },
             "xg_probabilities": {
               "让胜": 0.165823,
@@ -13373,7 +13489,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     },
     {
@@ -13384,14 +13500,14 @@
       "away": "巴塞罗那",
       "kickoff": "2026-11-09 04:00",
       "spf": [
-        3.22,
-        4.15,
-        1.7
+        3.35,
+        4.32,
+        1.64
       ],
       "rqspf": [
-        1.84,
-        4.3,
-        2.75
+        1.91,
+        4.09,
+        2.69
       ],
       "handicap": 1,
       "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
@@ -13403,32 +13519,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-08T08:41:59.549578+00:00",
+        "captured_at": "2026-11-08T10:09:14.220616+00:00",
         "william": {
           "initial": "3.75 / 3.90 / 1.80",
-          "current": "3.00 / 3.90 / 2.00",
-          "time": "3小时前"
+          "current": "3.10 / 4.00 / 1.95",
+          "time": "45分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.85 -0.5/1 1.00",
             "current": "0.85 -0.5 1.00",
-            "time": "4分钟前"
+            "time": "12分钟前"
           },
           "澳门": {
             "initial": "1.01 -0.5 0.83",
             "current": "0.80 -0.5 1.04",
-            "time": "3小时前"
+            "time": "5小时前"
           },
           "皇冠": {
             "initial": "1.03 -0.5 0.85",
-            "current": "0.87 -0.5 1.02",
+            "current": "0.90 -0.5 0.99",
             "time": "1小时前"
           },
           "威廉希尔": {
             "initial": "0.95 -0.5 0.80",
             "current": "1.00 -0/0.5 0.73",
-            "time": "3小时前"
+            "time": "5小时前"
           }
         }
       },
@@ -13499,10 +13615,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-08T08:42:09.762699+00:00",
+        "captured_at": "2026-11-08T10:09:17.357323+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-08T08:42:13.717924+00:00",
+      "predicted_at": "2026-11-08T10:09:19.681324+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -13517,24 +13633,24 @@
             "负": 0.515055
           },
           "current_probabilities": {
-            "胜": 0.305882,
-            "平": 0.235294,
-            "负": 0.458824
+            "胜": 0.297199,
+            "平": 0.23033,
+            "负": 0.472471
           },
           "probability_movement_pp": {
-            "胜": 5.866,
-            "平": -0.242,
-            "负": -5.623
+            "胜": 4.997,
+            "平": -0.739,
+            "负": -4.258
           },
           "base_probabilities": {
-            "胜": 0.272478,
-            "平": 0.211417,
-            "负": 0.516105
+            "胜": 0.261907,
+            "平": 0.203099,
+            "负": 0.534993
           },
           "calibrated_probabilities": {
-            "胜": 0.280829,
-            "平": 0.217386,
-            "负": 0.501785
+            "胜": 0.27073,
+            "平": 0.209907,
+            "负": 0.519363
           },
           "base_top1": "负",
           "base_top2": [
@@ -13556,9 +13672,9 @@
             "负",
             "胜"
           ],
-          "market_coverage": 0.7886,
+          "market_coverage": 0.7969,
           "omitted_direction": "平",
-          "omitted_market_risk": 0.2114,
+          "omitted_market_risk": 0.2031,
           "signals": [
             "冷门观察：需进一步市场复核",
             "盘口退让 2 家"
@@ -13580,9 +13696,9 @@
               "胜"
             ],
             "probabilities": {
-              "胜": 0.2725,
-              "平": 0.2114,
-              "负": 0.5161
+              "胜": 0.2619,
+              "平": 0.2031,
+              "负": 0.535
             }
           },
           "让球": {
@@ -13601,9 +13717,9 @@
               "让负": 0.274365
             },
             "market_probabilities": {
-              "让胜": 0.476872,
-              "让平": 0.204057,
-              "让负": 0.319071
+              "让胜": 0.459341,
+              "让平": 0.214509,
+              "让负": 0.326149
             },
             "xg_probabilities": {
               "让胜": 0.509761,
@@ -13709,12 +13825,12 @@
             "channels": [],
             "evidence": [],
             "watch": [
-              "市场异动观察：威廉主方向公平比例下降5.6个百分点，Bet365、威廉希尔盘口退让；未达到D通道高水位条件"
+              "市场异动观察：威廉主方向公平比例下降4.3个百分点，Bet365、威廉希尔盘口退让；未达到D通道高水位条件"
             ],
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-08T08:41:59.549578+00:00",
+            "market_captured_at": "2026-11-08T10:09:14.220616+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）"
@@ -13731,10 +13847,10 @@
             "candidate": null,
             "reason": "冷门预警或市场异动观察已排除；两家以上亚洲盘口对 Top1 退让：Bet365、威廉希尔",
             "evidence": [
-              "原版门槛审计：SP Top1 51.6%（低于旧55%门槛）",
-              "原版赔率区间审计：2.00（超出旧1.45–1.75）",
-              "SP Top1 负 去水隐含比例 51.6%",
-              "威廉同方向赔率 2.00",
+              "原版门槛审计：SP Top1 53.5%（低于旧55%门槛）",
+              "原版赔率区间审计：1.95（超出旧1.45–1.75）",
+              "SP Top1 负 去水隐含比例 53.5%",
+              "威廉同方向赔率 1.95",
               "亚洲盘口可读 4 家，退让 2 家"
             ],
             "missing": [
@@ -13771,78 +13887,78 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-08T08:42:14.143101+00:00"
+        "checked_at": "2026-11-08T10:13:30.303484+00:00"
       }
     }
   ],
-  "generated_at": "2026-11-08T08:38:58.074764+00:00",
+  "generated_at": "2026-11-08T10:09:20.019633+00:00",
   "source": "qiulaile.vip 第三方竞彩镜像；未获体彩官方全池确认",
   "pool_verification": "UNVERIFIED_MIRROR",
   "status": "MIRROR_CANDIDATES",
   "errors": [
     "官方接口不可用：HTTP Error 567: Unknown Status"
   ],
-  "source_total": 110,
+  "source_total": 120,
   "metrics": {
     "total": 30,
-    "settled": 4,
-    "pending": 26,
-    "top1_hit_rate": 0.0,
+    "settled": 5,
+    "pending": 25,
+    "top1_hit_rate": 0.2,
     "module_hits": {
       "胜平负Top1": {
-        "hit": 0,
-        "total": 4,
-        "rate": 0.0
+        "hit": 1,
+        "total": 5,
+        "rate": 0.2
       },
       "胜平负Top2": {
-        "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "hit": 3,
+        "total": 5,
+        "rate": 0.6
       },
       "让球Top1": {
         "hit": 4,
-        "total": 4,
-        "rate": 1.0
+        "total": 5,
+        "rate": 0.8
       },
       "让球Top2": {
-        "hit": 4,
-        "total": 4,
+        "hit": 5,
+        "total": 5,
         "rate": 1.0
       },
       "比分Top1": {
         "hit": 0,
-        "total": 4,
+        "total": 5,
         "rate": 0.0
       },
       "比分Top3": {
         "hit": 0,
-        "total": 4,
+        "total": 5,
         "rate": 0.0
       },
       "比分Top4": {
         "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "total": 5,
+        "rate": 0.4
       },
       "总进球Top1": {
         "hit": 0,
-        "total": 4,
+        "total": 5,
         "rate": 0.0
       },
       "总进球Top3": {
         "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "total": 5,
+        "rate": 0.4
       },
       "半全场Top1": {
         "hit": 0,
-        "total": 4,
+        "total": 5,
         "rate": 0.0
       },
       "半全场Top3": {
-        "hit": 3,
-        "total": 4,
-        "rate": 0.75
+        "hit": 4,
+        "total": 5,
+        "rate": 0.8
       },
       "今日优选Top1": {
         "hit": 0,
@@ -13868,116 +13984,116 @@
     "module_stats": {
       "胜平负": {
         "predicted": 30,
-        "verified": 4,
-        "pending": 26,
+        "verified": 5,
+        "pending": 25,
         "evaluation": {
-          "hit": 2,
-          "total": 4,
-          "rate": 0.5
+          "hit": 3,
+          "total": 5,
+          "rate": 0.6
         },
         "rates": {
           "Top1": {
-            "hit": 0,
-            "total": 4,
-            "rate": 0.0
+            "hit": 1,
+            "total": 5,
+            "rate": 0.2
           },
           "Top2": {
-            "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "hit": 3,
+            "total": 5,
+            "rate": 0.6
           }
         }
       },
       "让球": {
         "predicted": 30,
-        "verified": 4,
-        "pending": 26,
+        "verified": 5,
+        "pending": 25,
         "evaluation": {
-          "hit": 4,
-          "total": 4,
+          "hit": 5,
+          "total": 5,
           "rate": 1.0
         },
         "rates": {
           "Top1": {
             "hit": 4,
-            "total": 4,
-            "rate": 1.0
+            "total": 5,
+            "rate": 0.8
           },
           "Top2": {
-            "hit": 4,
-            "total": 4,
+            "hit": 5,
+            "total": 5,
             "rate": 1.0
           }
         }
       },
       "比分": {
         "predicted": 30,
-        "verified": 4,
-        "pending": 26,
+        "verified": 5,
+        "pending": 25,
         "evaluation": {
           "hit": 2,
-          "total": 4,
-          "rate": 0.5
+          "total": 5,
+          "rate": 0.4
         },
         "rates": {
           "Top1": {
             "hit": 0,
-            "total": 4,
+            "total": 5,
             "rate": 0.0
           },
           "Top3": {
             "hit": 0,
-            "total": 4,
+            "total": 5,
             "rate": 0.0
           },
           "Top4": {
             "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "total": 5,
+            "rate": 0.4
           }
         }
       },
       "总进球": {
         "predicted": 30,
-        "verified": 4,
-        "pending": 26,
+        "verified": 5,
+        "pending": 25,
         "evaluation": {
           "hit": 2,
-          "total": 4,
-          "rate": 0.5
+          "total": 5,
+          "rate": 0.4
         },
         "rates": {
           "Top1": {
             "hit": 0,
-            "total": 4,
+            "total": 5,
             "rate": 0.0
           },
           "Top3": {
             "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "total": 5,
+            "rate": 0.4
           }
         }
       },
       "半全场": {
         "predicted": 30,
-        "verified": 4,
-        "pending": 26,
+        "verified": 5,
+        "pending": 25,
         "evaluation": {
-          "hit": 3,
-          "total": 4,
-          "rate": 0.75
+          "hit": 4,
+          "total": 5,
+          "rate": 0.8
         },
         "rates": {
           "Top1": {
             "hit": 0,
-            "total": 4,
+            "total": 5,
             "rate": 0.0
           },
           "Top3": {
-            "hit": 3,
-            "total": 4,
-            "rate": 0.75
+            "hit": 4,
+            "total": 5,
+            "rate": 0.8
           }
         }
       },
