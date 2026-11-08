@@ -124,7 +124,7 @@
         <button class="version v4-account-button" id="v4-account" type="button">我的会员</button>
       </div>
       <nav class="models" id="models" aria-label="赛事分析模块"></nav>
-      <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><select id="day-select" class="v4-day-select" aria-label="选择赛事日期"><option value="latest">今日最新</option><option value="2026-11-06">11月6日历史</option><option value="2026-11-07">11月7日历史</option><option value="2026-11-08">11月8日历史</option></select></div>
+      <div class="v4-datebar"><b id="sale-day">赛事日期 —</b><select id="day-select" class="v4-day-select" aria-label="选择赛事日期"><option value="2026-11-08">11月08日</option><option value="2026-11-07">11月07日</option><option value="2026-11-06">11月06日</option></select></div>
     </header>
     <main class="main">
       <section class="toolbar">
@@ -218,12 +218,13 @@
       if(!Array.isArray(data.days))throw Error('历史日期索引格式错误');
       const select=$('day-select'),current=selectedDay;
       const days=[...new Set(data.days.filter(day=>/^20\d{2}-\d{2}-\d{2}$/.test(day)))].sort().reverse();
-      const choices=[['今日最新','latest'],...days.map(day=>[day.slice(5,7)+'月'+day.slice(8,10)+'日历史',day])];
+      const choices=days.map(day=>[day.slice(5,7)+'月'+day.slice(8,10)+'日',day]);
       select.replaceChildren(...choices.map(([label,value])=>{
         const option=document.createElement('option');
         option.value=value;option.textContent=label;return option;
       }));
-      select.value=days.includes(current)?current:'latest';
+      select.value=days.includes(current)?current:(days[0]||'');
+      selectedDay=select.value;
     }
     let vipMember=null;
     async function vipEnter(){
@@ -286,7 +287,7 @@
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
       ['比分','全场比分'],['总进球','泊松进球'],['冷门预警','冷门预警']
     ];
-    let report=null,active='胜平负',selectedDay='latest';
+    let report=null,active='胜平负',selectedDay='2026-11-08';
     const label=value=>value==null?'—':String(value);
     const stamp=value=>{if(!value)return '—';const date=new Date(value);if(Number.isNaN(date.getTime()))return label(value);return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date).replace(/\//g,'-')};
     const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!=null)node.textContent=String(text);return node};
