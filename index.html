@@ -73,15 +73,22 @@
     .v4-refresh{border:1px solid #dedede;border-radius:6px;background:#fff;color:#555;padding:5px 10px;font-size:11px;cursor:pointer}
     .v4-foot{color:#999;font-size:10px;line-height:1.65;margin:13px 3px}
     /* Independent intelligence review (test): no public prediction fetch. */
-    .intel-review{margin-top:11px;border:1px solid #e7e8ec;border-radius:10px;padding:11px;background:#fafbfc;color:#333;font-size:12px;line-height:1.65}
-    .intel-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800;font-size:13px}
-    .intel-test{font-size:10px;color:#a35c19;background:#fff2df;border-radius:5px;padding:2px 6px}
-    .intel-summary{margin-top:6px;color:#555}
-    .intel-review details{margin-top:7px;border-top:1px solid #e9e9e9;padding-top:7px}
-    .intel-review summary{cursor:pointer;font-weight:700;color:#555}
-    .intel-detail{margin-top:8px;white-space:pre-wrap;overflow-wrap:anywhere}
-    .intel-detail p{margin:5px 0}
-
+    .intel-review{background:#fff;border:1px solid #e9ebef;border-radius:14px;padding:14px;color:#292d35;font-size:13px;line-height:1.55}
+    .intel-title{font-size:13px;color:#515968;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+    .intel-test{font-size:10px;color:#946324;background:#fff5e5;padding:2px 7px;border-radius:8px}
+    .intel-hero{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 8px}
+    .intel-pick small{display:block;font-size:11px;color:#8a909b}.intel-pick strong{font-size:23px;color:#242936;line-height:1.5}
+    .intel-score{text-align:center;min-width:72px}.intel-score b{font-size:32px;line-height:1.1;color:#d62c39;font-variant-numeric:tabular-nums}.intel-score small{display:block;color:#9ca2ac;font-size:10px}
+    .intel-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+    .intel-tag{background:#f4f5f7;color:#68707d;border-radius:5px;padding:4px 7px;font-size:11px}
+    .intel-tag.good{background:#eaf7ef;color:#237849}.intel-tag.warn{background:#fff5e7;color:#a3651d}
+    .intel-compare{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px;margin:8px 0}
+    .intel-compare th,.intel-compare td{padding:9px 4px;border-bottom:1px solid #eef0f3;text-align:left;overflow-wrap:anywhere}
+    .intel-compare th{color:#8b919b;font-weight:500}.intel-compare td:first-child{color:#7e8590}
+    .intel-brief{margin-top:12px;color:#555f6d;font-size:12px;line-height:1.7}
+    .intel-review details{margin-top:12px;padding-top:11px;border-top:1px solid #eceef2}
+    .intel-review summary{cursor:pointer;color:#5c6470;font-size:12px;font-weight:600}
+    .intel-detail{margin-top:10px;white-space:pre-wrap;overflow-wrap:anywhere}.intel-detail p{margin:7px 0}
 
     /* Customer statistics: compact legacy-style KPI cards. */
     .v4-stats-head{padding:12px 14px;background:#fff}
@@ -557,51 +564,51 @@
       const hm=match.prediction?.modules?.['让球'];
       const review=match.independent_review||match.prediction?.independent_review;
       const panel=el('section','intel-review');
-      const head=el('div','intel-title');
-      head.append(el('span','','🔍 九十刻度精选研判'),el('span','intel-test','测试'));
-      panel.append(head);
+      const title=el('div','intel-title');title.append(el('span','','精选研判'),el('span','intel-test','测试'));panel.append(title);
       const warning=match.prediction?.modules?.['冷门预警'];
       const blocked=warning?.triggered===true;
-      const selected=review?.selected===true&&!blocked;
       const map={胜:'主胜',平:'平局',负:'客胜'};
-      const ftName=map[ft?.top1]||'未确认';
-      const hp=hm?.probabilities?.[hm?.top2?.[0]];
       const score=review?.score;
-      const hasScore=score!==null&&score!==undefined&&Number.isFinite(Number(score));
-      const pick=review?.comprehensive_pick||'待研判';
-      const scoreText=hasScore?Number(score).toFixed(0)+'/100':'暂无评分';
-      panel.append(el('div','intel-summary','⭐ 综合首选：'+pick+' · 综合评分：'+scoreText));
-      if(review?.score_type)panel.append(el('div','intel-summary',review.score_type));
-      panel.append(el('div','intel-summary','审核：'+(review?.audit_status||'待复核')+' · 正式精选：'+(selected?'入选':'未入选')+(blocked?' · 冷门预警已触发':'') ));
-      panel.append(el('div','intel-summary','九十刻度胜平负：'+ftName+(ft?.probabilities?.[ft?.top1]!=null?' · '+(100*Number(ft.probabilities[ft.top1])).toFixed(2)+'%':'')));
-      panel.append(el('div','intel-summary','九十刻度让球（'+(hm?.handicap>0?'+':'')+(hm?.handicap??'未确认')+'）：'+(hm?.top2?.[0]||'未确认')+(hp!=null?' · '+(100*Number(hp)).toFixed(2)+'%':'')));
-      if(!review||review.status!=='COMPLETED'){
-        panel.append(el('div','intel-summary','独立研判尚未完成。'));
-        card.append(panel);return;
-      }
-      const direction=review.ft_review?.independent_top1||review.top1;
-      panel.append(el('div','intel-summary','独立胜平负：'+(map[direction]||'未确认')+' · '+(review.ft_review?.verdict||'待核查')));
-      const handicap=review.handicap_review;
-      panel.append(el('div','intel-summary','独立让球：'+(handicap?.top1||'方向待核实')+' · '+(handicap?.verdict||'待核查')));
-      if(review.comprehensive_reason)panel.append(el('div','intel-summary','综合依据：'+review.comprehensive_reason));
-      if(review.selection_reason)panel.append(el('div','intel-summary','精选说明：'+review.selection_reason));
-      const details=document.createElement('details');details.append(el('summary','','查看深度研判与评分明细'));
+      const hasScore=score!=null&&Number.isFinite(Number(score));
+      const hero=el('div','intel-hero'),pick=el('div','intel-pick'),grade=el('div','intel-score');
+      pick.append(el('small','','综合首选'),el('strong','',review?.comprehensive_pick||'待研判'));
+      grade.append(el('b','',hasScore?Math.round(Number(score)):'—'),el('small','','/ 100 综合评分'));
+      hero.append(pick,grade);panel.append(hero);
+      const tags=el('div','intel-tags');
+      const status=review?.audit_status||'待复核';
+      tags.append(el('span','intel-tag '+(status==='通过复核'?'good':status==='谨慎关注'?'warn':''),status));
+      if(review?.score_type||review?.score_coverage!=null)tags.append(el('span','intel-tag','资料覆盖'+(review.score_coverage!=null?review.score_coverage+'%':'待核实')+' · 暂定评分'));
+      if(blocked)tags.append(el('span','intel-tag warn','冷门预警已触发 · 不入选'));
+      panel.append(tags);
+      const table=el('table','intel-compare');
+      const thead=document.createElement('thead'),tr=document.createElement('tr');
+      for(const name of ['分析来源','胜平负','让球（'+(hm?.handicap>0?'+':'')+(hm?.handicap??'—')+'）'])tr.append(el('th','',name));
+      thead.append(tr);table.append(thead);
+      const tbody=document.createElement('tbody');
+      const ftP=ft?.probabilities?.[ft?.top1],hpDir=hm?.top1||hm?.top2?.[0],hp=hm?.probabilities?.[hpDir];
+      const modelRow=document.createElement('tr');
+      for(const val of ['九十刻度',(map[ft?.top1]||'未确认')+(ftP!=null?' '+(Number(ftP)*100).toFixed(2)+'%':''),(hpDir||'未确认')+(hp!=null?' '+(Number(hp)*100).toFixed(2)+'%':'')])modelRow.append(el('td','',val));
+      tbody.append(modelRow);
+      const indRow=document.createElement('tr'),indFt=review?.ft_review?.independent_top1||review?.top1;
+      const indHp=review?.handicap_review?.top1;
+      for(const val of ['独立研判',map[indFt]||'待核实',indHp||'待核实'])indRow.append(el('td','',val));
+      tbody.append(indRow);table.append(tbody);panel.append(table);
+      panel.append(el('div','intel-brief',review?.comprehensive_reason||'正在核查赛前情报，综合结论待更新。'));
+      const details=document.createElement('details');details.append(el('summary','','展开完整分析与五维评分'));
       const body=el('div','intel-detail');
-      const breakdown=review.score_breakdown;
-      if(breakdown&&typeof breakdown==='object'){
+      if(review){
+        if(review.selection_reason)body.append(el('p','','审核说明：'+review.selection_reason));
+        if(review.score_type)body.append(el('p','','评分性质：'+review.score_type));
         const labels={model:'模型支持',form_strength:'实力与近况',home_away_attack:'主客场攻防',squad_schedule:'阵容赛程',market:'市场支持'};
         for(const [key,name] of Object.entries(labels)){
-          const row=breakdown[key];
-          if(!row)continue;
-          body.append(el('p','',name+'：'+(Number.isFinite(Number(row.score))?row.score:'—')+'/'+(row.max||'—')+' · '+(row.reason||row.status||'')));
+          const row=review.score_breakdown?.[key];if(!row)continue;
+          body.append(el('p','',name+'：'+(row.score??'—')+'/'+(row.max??row.weight??'—')+' · '+(row.reason||row.status||'')));
         }
-        if(review.score_coverage!=null)body.append(el('p','','资料覆盖率（估计）：'+review.score_coverage+'%'));
-      }
-      const sections=[['近期竞技状态','recent_form'],['主客场表现','home_away'],['球队实力对比','standings'],['攻防能力','attack_defense'],['市场赔率分析','market'],['阵容与伤停','squad'],['赛程与战意','schedule'],['历史交锋','h2h'],['热门陷阱审计','favorite_trap'],['平局风险审计','draw_risk'],['赛制与战意审计','motivation_risk']];
-      for(const [title,key] of sections){const value=review.details?.[key];const p=el('p','');p.append(el('b','',title+'：'),document.createTextNode(typeof value==='string'&&value.trim()?value:'未确认'));body.append(p)}
-      if(handicap?.reason)body.append(el('p','','独立让球依据：'+handicap.reason));
-      if(review.conclusion)body.append(el('p','','综合结论：'+String(review.conclusion)));
-      if(review.reviewed_at||review.updated_at)body.append(el('p','','情报更新：'+stamp(review.reviewed_at||review.updated_at)));
+        const sections=[['近期竞技状态','recent_form'],['主客场表现','home_away'],['球队实力对比','standings'],['攻防能力','attack_defense'],['市场赔率分析','market'],['阵容与伤停','squad'],['赛程与战意','schedule'],['历史交锋','h2h'],['热门陷阱审计','favorite_trap'],['平局风险审计','draw_risk'],['赛制与战意审计','motivation_risk']];
+        for(const [name,key] of sections){const value=review.details?.[key];if(typeof value==='string'&&value.trim())body.append(el('p','',name+'：'+value))}
+        if(review.handicap_review?.reason)body.append(el('p','','让球分析：'+review.handicap_review.reason));
+        if(review.reviewed_at)body.append(el('p','','研判更新：'+stamp(review.reviewed_at)));
+      }else body.append(el('p','','本场尚未生成独立研判。'));
       details.append(body);panel.append(details);card.append(panel);
     }
     function verdict(card,match){
