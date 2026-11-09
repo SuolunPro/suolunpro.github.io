@@ -1,6 +1,7 @@
 name: Sync verified 90scale engine data to website
 # Trigger website data sync after dual-sale-day engine publication.
 # Re-run synchronization to reconcile the corrected latest.json and validate counts.
+# Health-check requested one safe reconciliation of non-frozen snapshots.
 on:
   repository_dispatch:
     types: [engine4_data_updated]
