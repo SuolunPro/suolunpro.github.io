@@ -282,7 +282,22 @@
       const me=await checkMember(vipCode);
       vipMember=me;
       if(!scheduleVipExpiry(me.expires_at))return;
+      // iOS Safari can retain the keyboard/input visual zoom after hiding the login form.
+      // Reset it once at the gate-to-app transition, then restore normal user zoom.
+      const focused=document.activeElement;
+      if(focused&&typeof focused.blur==='function')focused.blur();
       $('vip-gate').hidden=true;$('v4-app').hidden=false;
+      const viewportMeta=document.querySelector('meta[name="viewport"]');
+      if(viewportMeta&&window.visualViewport&&window.visualViewport.scale>1.01){
+        const originalViewport=viewportMeta.content;
+        viewportMeta.content='width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover';
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{
+          viewportMeta.content=originalViewport;
+          window.scrollTo({left:0,top:0,behavior:'instant'});
+        }));
+      }else{
+        window.scrollTo({left:0,top:0,behavior:'instant'});
+      }
       $('v4-account').title=me.email+' · 有效期至 '+new Date(me.expires_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
       await loadDays().catch(error=>console.warn('历史日期加载失败，保留页面已有日期',error));
       load();
