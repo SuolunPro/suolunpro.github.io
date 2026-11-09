@@ -94,6 +94,14 @@ def main(src, dst):
         if not target.exists() or target.read_text(encoding="utf-8") != output:
             target.write_text(output, encoding="utf-8")
             count += 1
+    # Keep date navigation aligned with all available sale-day reports, including empty days.
+    sales = dst / "sales"
+    days = sorted(p.stem for p in sales.glob("????-??-??.json") if p.is_file())
+    index = sales / "index.json"
+    payload = json.dumps({"days": days}, ensure_ascii=False, indent=2) + "\n"
+    if not index.exists() or index.read_text(encoding="utf-8") != payload:
+        index.write_text(payload, encoding="utf-8")
+        count += 1
     print(f"Updated {count} website JSON files")
 
 if __name__ == "__main__":
