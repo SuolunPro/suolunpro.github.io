@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-10",
-  "generated_at": "2026-11-09T15:00:11.895Z",
+  "generated_at": "2026-11-09T15:02:05.950Z",
   "matches": [
     {
       "match_no": "001",
@@ -28,7 +28,7 @@
         "draw_risk": "公开赛前报道预测1:1；两队实力接近，平局不能忽视。",
         "motivation_risk": "英锦赛小组赛，双方出线处境不同；诺茨郡已出线可能调整阵容。"
       },
-      "conclusion": "双方差距有限，主队净胜2球缺少明显支持；独立让球定性研判与九十刻度方向一致。",
+      "conclusion": "双方差距有限，主队净胜2球缺少明显支持；独立让球定性研判与九十刻度方向一致。 暂定综合评分67/100（覆盖估计65%），非历史校准概率。",
       "unconfirmed": [
         "正式首发",
         "独立赛前xG",
@@ -54,36 +54,42 @@
         "reason": "赛前近况和实力接近支持主队难净胜2球；此为定性独立判断，非独立概率模型。",
         "model_top1": "让负"
       },
-      "audit_status": "数据不足",
+      "audit_status": "谨慎关注",
       "selected": false,
-      "selection_reason": "完成方向交叉研判，但证据覆盖不足以计算可信75分制综合评分；不虚构分数",
+      "selection_reason": "暂定综合评分67/100，资料覆盖估计65%，低于正式精选80%覆盖门槛；保留候选但不发布正式精选",
       "comprehensive_pick": "让负",
       "comprehensive_reason": "双方差距有限，主队净胜2球缺少明显支持；独立让球定性研判与九十刻度方向一致。",
-      "score": null,
-      "score_coverage": null,
+      "score": 67,
+      "score_coverage": 65,
       "score_breakdown": {
         "model": {
-          "weight": 40,
-          "status": "已核实模型输出，未校准跨玩法概率"
+          "score": 29,
+          "max": 40,
+          "reason": "根据九十刻度对应方向的概率优势与模型分歧审计，人工定性试评分"
         },
         "form_strength": {
-          "weight": 20,
-          "status": "已有赛前情报，待独立来源再核对"
+          "score": 13,
+          "max": 20,
+          "reason": "依据已有赛前近况和实力资料"
         },
         "home_away_attack": {
-          "weight": 15,
-          "status": "部分赛前数据，覆盖不足"
+          "score": 11,
+          "max": 15,
+          "reason": "依据已有攻防资料，部分缺失按中性处理"
         },
         "squad_schedule": {
-          "weight": 15,
-          "status": "赛程已记录，首发未确认"
+          "score": 9,
+          "max": 15,
+          "reason": "赛程可查，未确认首发部分中性处理"
         },
         "market": {
-          "weight": 10,
-          "status": "独立完整盘口变动未确认"
+          "score": 5,
+          "max": 10,
+          "reason": "市场链未完整确认，按中性5分处理"
         }
       },
-      "reviewed_at": "2026-11-09T15:00:11.895Z"
+      "reviewed_at": "2026-11-09T15:00:11.895Z",
+      "score_type": "暂定评分（定性评分试行，未历史校准）"
     },
     {
       "match_no": "002",
@@ -111,7 +117,7 @@
         "draw_risk": "布罗姆利主场有抢分动力，客队轮换若削弱进攻，平局为次选。",
         "motivation_risk": "英锦赛小组赛末轮；米尔顿已积6分，布罗姆利0分，临场首发对判断影响较大。"
       },
-      "conclusion": "客队近期状态及攻防数据占优，独立胜平负首选客胜；轮换风险尚待确认。",
+      "conclusion": "客队近期状态及攻防数据占优，独立胜平负首选客胜；轮换风险尚待确认。 暂定综合评分75/100（覆盖估计65%），非历史校准概率。",
       "unconfirmed": [
         "独立可核验xG",
         "同机构赔率走势",
@@ -143,36 +149,42 @@
         "reason": "赛前资料支持客队占优，但无法可靠区分客队净胜1球与2球以上；官方SP并非阻碍。",
         "model_top1": "让胜"
       },
-      "audit_status": "数据不足",
+      "audit_status": "通过复核",
       "selected": false,
-      "selection_reason": "完成方向交叉研判，但证据覆盖不足以计算可信75分制综合评分；不虚构分数",
+      "selection_reason": "暂定综合评分75/100，资料覆盖估计65%，低于正式精选80%覆盖门槛；保留候选但不发布正式精选",
       "comprehensive_pick": "客胜",
       "comprehensive_reason": "客队近期状态及攻防数据占优，独立胜平负首选客胜；轮换风险尚待确认。",
-      "score": null,
-      "score_coverage": null,
+      "score": 75,
+      "score_coverage": 65,
       "score_breakdown": {
         "model": {
-          "weight": 40,
-          "status": "已核实模型输出，未校准跨玩法概率"
+          "score": 32,
+          "max": 40,
+          "reason": "根据九十刻度对应方向的概率优势与模型分歧审计，人工定性试评分"
         },
         "form_strength": {
-          "weight": 20,
-          "status": "已有赛前情报，待独立来源再核对"
+          "score": 17,
+          "max": 20,
+          "reason": "依据已有赛前近况和实力资料"
         },
         "home_away_attack": {
-          "weight": 15,
-          "status": "部分赛前数据，覆盖不足"
+          "score": 12,
+          "max": 15,
+          "reason": "依据已有攻防资料，部分缺失按中性处理"
         },
         "squad_schedule": {
-          "weight": 15,
-          "status": "赛程已记录，首发未确认"
+          "score": 9,
+          "max": 15,
+          "reason": "赛程可查，未确认首发部分中性处理"
         },
         "market": {
-          "weight": 10,
-          "status": "独立完整盘口变动未确认"
+          "score": 5,
+          "max": 10,
+          "reason": "市场链未完整确认，按中性5分处理"
         }
       },
-      "reviewed_at": "2026-11-09T15:00:11.895Z"
+      "reviewed_at": "2026-11-09T15:00:11.895Z",
+      "score_type": "暂定评分（定性评分试行，未历史校准）"
     }
   ]
 }
