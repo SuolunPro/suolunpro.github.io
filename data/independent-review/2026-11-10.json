@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-10",
-  "generated_at": "2026-11-09T14:31:10.053Z",
+  "generated_at": "2026-11-09T15:00:11.895Z",
   "matches": [
     {
       "match_no": "001",
@@ -28,12 +28,13 @@
         "draw_risk": "公开赛前报道预测1:1；两队实力接近，平局不能忽视。",
         "motivation_risk": "英锦赛小组赛，双方出线处境不同；诺茨郡已出线可能调整阵容。"
       },
-      "conclusion": "让负具备方向性支持；仍需完整评分核验。",
+      "conclusion": "双方差距有限，主队净胜2球缺少明显支持；独立让球定性研判与九十刻度方向一致。",
       "unconfirmed": [
-        "官方让球SP",
         "正式首发",
         "独立赛前xG",
-        "同机构赔率变化"
+        "同机构赔率变化",
+        "完整独立净胜球分布",
+        "综合评分证据覆盖"
       ],
       "sources": [
         "https://www.sportsmole.co.uk/football/burton-albion/efl-trophy/preview/burton-albion-vs-notts-county-prediction-team-news-lineups_608726.html",
@@ -49,18 +50,40 @@
         "official_handicap": -1,
         "official_sp": null,
         "top1": "让负",
-        "verdict": "基于已有赛前信息的方向复核",
-        "reason": "结合双方近况及主队净胜2球难度，独立定性倾向让负；九十刻度进球估算仅作模型交叉验证，不算独立证据。",
+        "verdict": "定性方向一致；尚无独立概率校准",
+        "reason": "赛前近况和实力接近支持主队难净胜2球；此为定性独立判断，非独立概率模型。",
         "model_top1": "让负"
       },
       "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "新评分制尚未完成逐维证据评分，暂为精选候选，非正式精选",
+      "selection_reason": "完成方向交叉研判，但证据覆盖不足以计算可信75分制综合评分；不虚构分数",
       "comprehensive_pick": "让负",
-      "comprehensive_reason": "让负具备方向性支持；仍需完整评分核验。",
+      "comprehensive_reason": "双方差距有限，主队净胜2球缺少明显支持；独立让球定性研判与九十刻度方向一致。",
       "score": null,
       "score_coverage": null,
-      "score_breakdown": null
+      "score_breakdown": {
+        "model": {
+          "weight": 40,
+          "status": "已核实模型输出，未校准跨玩法概率"
+        },
+        "form_strength": {
+          "weight": 20,
+          "status": "已有赛前情报，待独立来源再核对"
+        },
+        "home_away_attack": {
+          "weight": 15,
+          "status": "部分赛前数据，覆盖不足"
+        },
+        "squad_schedule": {
+          "weight": 15,
+          "status": "赛程已记录，首发未确认"
+        },
+        "market": {
+          "weight": 10,
+          "status": "独立完整盘口变动未确认"
+        }
+      },
+      "reviewed_at": "2026-11-09T15:00:11.895Z"
     },
     {
       "match_no": "002",
@@ -88,15 +111,16 @@
         "draw_risk": "布罗姆利主场有抢分动力，客队轮换若削弱进攻，平局为次选。",
         "motivation_risk": "英锦赛小组赛末轮；米尔顿已积6分，布罗姆利0分，临场首发对判断影响较大。"
       },
-      "conclusion": "客队近况及赛前情报支持客胜；轮换不确定。",
+      "conclusion": "客队近期状态及攻防数据占优，独立胜平负首选客胜；轮换风险尚待确认。",
       "unconfirmed": [
         "独立可核验xG",
         "同机构赔率走势",
         "正式首发",
         "确切伤停名单",
         "联赛积分最新权威快照",
-        "官方让球SP",
-        "正式首发轮换"
+        "正式首发轮换",
+        "完整独立净胜球分布",
+        "综合评分证据覆盖"
       ],
       "sources": [
         "https://www.skysports.com/football/bromley-vs-milton-keynes-dons/577396",
@@ -115,18 +139,40 @@
         "official_handicap": 1,
         "official_sp": null,
         "top1": null,
-        "verdict": "独立让球方向待核实",
-        "reason": "已有赛前资料支持客队占优，但无法独立确认净胜1球与2球以上的概率排序；缺SP不构成方向PASS。",
+        "verdict": "净胜球独立证据不足，待核实",
+        "reason": "赛前资料支持客队占优，但无法可靠区分客队净胜1球与2球以上；官方SP并非阻碍。",
         "model_top1": "让胜"
       },
       "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "新评分制尚未完成逐维证据评分，暂为精选候选，非正式精选",
+      "selection_reason": "完成方向交叉研判，但证据覆盖不足以计算可信75分制综合评分；不虚构分数",
       "comprehensive_pick": "客胜",
-      "comprehensive_reason": "客队近况及赛前情报支持客胜；轮换不确定。",
+      "comprehensive_reason": "客队近期状态及攻防数据占优，独立胜平负首选客胜；轮换风险尚待确认。",
       "score": null,
       "score_coverage": null,
-      "score_breakdown": null
+      "score_breakdown": {
+        "model": {
+          "weight": 40,
+          "status": "已核实模型输出，未校准跨玩法概率"
+        },
+        "form_strength": {
+          "weight": 20,
+          "status": "已有赛前情报，待独立来源再核对"
+        },
+        "home_away_attack": {
+          "weight": 15,
+          "status": "部分赛前数据，覆盖不足"
+        },
+        "squad_schedule": {
+          "weight": 15,
+          "status": "赛程已记录，首发未确认"
+        },
+        "market": {
+          "weight": 10,
+          "status": "独立完整盘口变动未确认"
+        }
+      },
+      "reviewed_at": "2026-11-09T15:00:11.895Z"
     }
   ]
 }
