@@ -28,7 +28,7 @@
         "draw_risk": "公开赛前报道预测1:1；两队实力接近，平局不能忽视。",
         "motivation_risk": "英锦赛小组赛，双方出线处境不同；诺茨郡已出线可能调整阵容。"
       },
-      "conclusion": "4.0主胜仅39.89%，独立资料未形成足够优势，建议排除稳健精选。",
+      "conclusion": "让负具备方向性支持；仍需完整评分核验。",
       "unconfirmed": [
         "官方让球SP",
         "正式首发",
@@ -48,13 +48,19 @@
       "handicap_review": {
         "official_handicap": -1,
         "official_sp": null,
-        "top1": null,
-        "verdict": "PASS",
-        "reason": "官方让球SP未核实，无法判断让胜、让平、让负的赔率价值"
+        "top1": "让负",
+        "verdict": "基于已有赛前信息的方向复核",
+        "reason": "结合双方近况及主队净胜2球难度，独立定性倾向让负；九十刻度进球估算仅作模型交叉验证，不算独立证据。",
+        "model_top1": "让负"
       },
-      "audit_status": "建议排除",
+      "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "胜平负优势不足且让球数据不完整"
+      "selection_reason": "新评分制尚未完成逐维证据评分，暂为精选候选，非正式精选",
+      "comprehensive_pick": "让负",
+      "comprehensive_reason": "让负具备方向性支持；仍需完整评分核验。",
+      "score": null,
+      "score_coverage": null,
+      "score_breakdown": null
     },
     {
       "match_no": "002",
@@ -82,7 +88,7 @@
         "draw_risk": "布罗姆利主场有抢分动力，客队轮换若削弱进攻，平局为次选。",
         "motivation_risk": "英锦赛小组赛末轮；米尔顿已积6分，布罗姆利0分，临场首发对判断影响较大。"
       },
-      "conclusion": "独立首选客胜、次选平局；客队近期攻防和交锋优势明显，但轮换及小组赛战意使信心只评中。",
+      "conclusion": "客队近况及赛前情报支持客胜；轮换不确定。",
       "unconfirmed": [
         "独立可核验xG",
         "同机构赔率走势",
@@ -109,12 +115,18 @@
         "official_handicap": 1,
         "official_sp": null,
         "top1": null,
-        "verdict": "PASS",
-        "reason": "主队+1已从4.0读取，但官方让球SP未独立核实，净胜球判断不足"
+        "verdict": "独立让球方向待核实",
+        "reason": "已有赛前资料支持客队占优，但无法独立确认净胜1球与2球以上的概率排序；缺SP不构成方向PASS。",
+        "model_top1": "让胜"
       },
-      "audit_status": "谨慎关注",
+      "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "客胜方向有依据，但轮换和净胜球风险尚未排除，不进入稳健精选"
+      "selection_reason": "新评分制尚未完成逐维证据评分，暂为精选候选，非正式精选",
+      "comprehensive_pick": "客胜",
+      "comprehensive_reason": "客队近况及赛前情报支持客胜；轮换不确定。",
+      "score": null,
+      "score_coverage": null,
+      "score_breakdown": null
     }
   ]
 }
