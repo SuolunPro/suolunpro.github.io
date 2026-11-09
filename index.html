@@ -494,7 +494,14 @@
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
-      if(!focus.length){root.append(el('div','empty',active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
+      if(!focus.length){
+        // Never label an API outage or an unverified empty pool as 'no matches on sale'.
+        const confirmedEmpty=report.matches.length===0 && report.status==='NO_MATCHES_CONFIRMED' && report.pool_verification==='OFFICIAL_SOURCE';
+        const message=confirmedEmpty?`${report.sale_day.slice(5,7)}月${report.sale_day.slice(8,10)}日｜今日暂无竞彩足球在售比赛`:
+          report.matches.length===0?'今日赛事暂未确认，请稍后刷新':
+          active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据';
+        root.append(el('div','empty',message));return
+      }
       for(const match of focus){
         const card=el('article','card');fixture(card,match);
         const data=match.prediction?.modules?.[active];
