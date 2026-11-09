@@ -10,6 +10,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/sync-engine4.yml'
+      - '.github/workflows/engine4-result-backfill.yml'
   schedule:
     - cron: '3,13,23,33,43,53 * * * *'
 permissions:
