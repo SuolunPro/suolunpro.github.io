@@ -571,8 +571,8 @@
       const map={胜:'主胜',平:'平局',负:'客胜'};
       const selection=map[pick]||pick||'待研判';
       panel.append(el('div','intel-pickline','建议：'+selection));
-      const reason=review?.comprehensive_reason;
-      const brief=typeof reason==='string'&&reason.trim()?reason.trim().split(/[。；]/)[0].slice(0,90)+'。':'赛前研判资料正在更新。';
+      const reason=review?.customer_summary||review?.comprehensive_reason;
+      const brief=typeof reason==='string'&&reason.trim()?reason.trim().slice(0,120):'赛前研判资料正在更新。';
       panel.append(el('div','intel-brief',brief));
       if(match.prediction?.modules?.['冷门预警']?.triggered===true)
         panel.append(el('div','intel-tag warn','冷门预警已触发 · 不列入精选'));
