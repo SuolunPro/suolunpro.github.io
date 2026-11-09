@@ -646,6 +646,17 @@
         else{
           if(active==='让球')card.append(el('div','v4-note',`官方让球：主队 ${data.handicap>0?'+':''}${label(data.handicap)} 球`));
           if(active==='让球'&&match.prediction?.coverage?.handicap_only)card.append(el('div','v4-verdict','本场仅提供让球预测'));
+          if(active==='比分'){
+            const home=data.home_expected_goals;
+            const away=data.away_expected_goals;
+            // Display only the frozen score module's own verified numerical inputs.
+            if(typeof home==='number'&&typeof away==='number'&&
+               Number.isFinite(home)&&Number.isFinite(away)&&home>=0&&away>=0){
+              const line=el('div','v4-note v4-expected-goals',`⚽ 进球预期：主 ${home.toFixed(2)}｜客 ${away.toFixed(2)}`);
+              line.style.cssText='margin:5px 0 8px';
+              card.append(line);
+            }
+          }
           if(active==='总进球'){
             const scoreGoals=match.prediction?.modules?.['比分']||{};
             const home=Number(data.home_expected_goals??scoreGoals.home_expected_goals);
