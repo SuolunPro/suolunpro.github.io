@@ -1,4 +1,5 @@
 name: Sync verified 90scale engine data to website
+# Trigger website data sync after dual-sale-day engine publication.
 on:
   repository_dispatch:
     types: [engine4_data_updated]
