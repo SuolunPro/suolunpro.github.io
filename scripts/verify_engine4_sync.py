@@ -29,6 +29,17 @@ def check(src, dst):
             continue
         if timestamp(website.get("generated_at")) < timestamp(engine.get("generated_at")):
             raise RuntimeError(f"Stale website snapshot: {relative}")
+        if relative.as_posix() == "latest.json":
+            if website.get("sale_day") != engine.get("sale_day"):
+                raise RuntimeError("Latest sale day mismatch")
+            if len(website.get("matches", [])) != len(engine.get("matches", [])):
+                raise RuntimeError("Latest match count mismatch")
+            if {identity(m) for m in website.get("matches", [])} != {identity(m) for m in engine.get("matches", [])}:
+                raise RuntimeError("Latest fixture identity mismatch")
+            expected_total = (engine.get("metrics") or {}).get("total")
+            actual_total = (website.get("metrics") or {}).get("total")
+            if expected_total is not None and (actual_total != expected_total or actual_total != len(website["matches"])):
+                raise RuntimeError("Latest daily metrics count mismatch")
         web_matches = {identity(m):m for m in website.get("matches",[])}
         for m in engine.get("matches",[]):
             match = web_matches.get(identity(m))
