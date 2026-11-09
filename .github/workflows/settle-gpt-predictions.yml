@@ -1,23 +1,15 @@
 name: 90scale FotMob result backfill backup
+# Website is read-only. Backup verification has moved to 90scale-engine.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/settle-gpt-predictions.yml'
-      - 'engine4/fotmob.py'
-      - 'engine4/fotmob_results.py'
-      - 'engine4/settle.py'
-      - 'engine4/aggregate.py'
-  schedule:
-    - cron: '7,27,47 * * * *'
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: engine4-result-backfill-backup
   cancel-in-progress: false
 jobs:
   verify:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
