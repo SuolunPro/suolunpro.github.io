@@ -593,16 +593,24 @@
       const indHp=review?.handicap_review?.top1;
       for(const val of ['独立研判',map[indFt]||'待核实',indHp||'待核实'])indRow.append(el('td','',val));
       tbody.append(indRow);table.append(tbody);panel.append(table);
-      panel.append(el('div','intel-brief',review?.comprehensive_reason||'正在核查赛前情报，综合结论待更新。'));
-      const details=document.createElement('details');details.append(el('summary','','展开完整赛前分析'));
+      panel.append(el('div','intel-brief',review?.comprehensive_reason?String(review.comprehensive_reason).split(/[。；]/)[0].slice(0,90)+'。':'正在核查赛前情报，综合结论待更新。'));
+      const details=document.createElement('details');details.append(el('summary','','查看赛前分析要点'));
       const body=el('div','intel-detail');
       if(review){
-        if(review.selection_reason)body.append(el('p','','审核说明：'+review.selection_reason));
-        if(review.score_type)body.append(el('p','','评分性质：'+review.score_type));
-        const sections=[['近期竞技状态','recent_form'],['主客场表现','home_away'],['球队实力对比','standings'],['攻防能力','attack_defense'],['市场赔率分析','market'],['阵容与伤停','squad'],['赛程与战意','schedule'],['历史交锋','h2h'],['热门陷阱审计','favorite_trap'],['平局风险审计','draw_risk'],['赛制与战意审计','motivation_risk']];
-        for(const [name,key] of sections){const value=review.details?.[key];if(typeof value==='string'&&value.trim())body.append(el('p','',name+'：'+value))}
-        if(review.handicap_review?.reason)body.append(el('p','','让球分析：'+review.handicap_review.reason));
-        if(review.reviewed_at)body.append(el('p','','研判更新：'+stamp(review.reviewed_at)));
+        const brief=(value,max=90)=>{
+          if(typeof value!=='string')return '';
+          const cleaned=value.replace(/\\s+/g,' ').replace(/4\\.0/g,'九十刻度').trim();
+          const sentence=cleaned.split(/[。；]/).find(x=>x.trim())||cleaned;
+          return sentence.length>max?sentence.slice(0,max-1)+'…':sentence;
+        };
+        const sections=[['近期状态','recent_form'],['主客场','home_away'],['攻防对比','attack_defense'],['阵容赛程','squad'],['市场观察','market']];
+        let shown=0;
+        for(const [name,key] of sections){
+          const value=brief(review.details?.[key],75);
+          if(value){body.append(el('p','',name+'：'+value));shown++}
+        }
+        if(!shown)body.append(el('p','','详细赛前情报尚待补充。'));
+        if(review.reviewed_at)body.append(el('p','','更新时间：'+stamp(review.reviewed_at)));
       }else body.append(el('p','','本场尚未生成独立研判。'));
       details.append(body);panel.append(details);card.append(panel);
     }
