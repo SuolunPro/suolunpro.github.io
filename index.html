@@ -217,7 +217,26 @@
       if(member.active!==true||!(parseExpiry(member.expires_at).getTime()>Date.now()))throw Error('vip_inactive');
       return {email:code.slice(4),expires_at:member.expires_at,plan_name:'尊贵月卡VIP'};
     }
+    let vipExpiryTimer=null;
+    const VIP_EXPIRED_MESSAGE='会员已到期，请续费后继续查看预测。';
+    function scheduleVipExpiry(expiresAt){
+      clearTimeout(vipExpiryTimer);
+      vipExpiryTimer=null;
+      const deadline=parseExpiry(expiresAt).getTime();
+      if(!Number.isFinite(deadline)||deadline<=Date.now()){
+        vipShowGate(VIP_EXPIRED_MESSAGE);
+        return false;
+      }
+      // Browser timers have a maximum delay; re-arm for long memberships.
+      vipExpiryTimer=setTimeout(()=>{
+        if(!vipMember)return;
+        if(parseExpiry(vipMember.expires_at).getTime()<=Date.now())vipShowGate(VIP_EXPIRED_MESSAGE);
+        else scheduleVipExpiry(vipMember.expires_at);
+      },Math.min(deadline-Date.now(),2147483647));
+      return true;
+    }
     function vipShowGate(message=''){
+      clearTimeout(vipExpiryTimer);vipExpiryTimer=null;
       vipCode='';vipMember=null;sessionStorage.removeItem('ninety_member_code');
       $('v4-app').hidden=true;$('vip-gate').hidden=false;$('vip-error').textContent=message;
     }
@@ -238,6 +257,7 @@
     async function vipEnter(){
       const me=await checkMember(vipCode);
       vipMember=me;
+      if(!scheduleVipExpiry(me.expires_at))return;
       $('vip-gate').hidden=true;$('v4-app').hidden=false;
       $('v4-account').title=me.email+' · 有效期至 '+new Date(me.expires_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
       await loadDays().catch(error=>console.warn('历史日期加载失败，保留页面已有日期',error));
@@ -537,6 +557,7 @@
         if(!vipCode||$('v4-app').hidden)return;
         // Refresh VIP authorization as before; all JSON requests bypass browser cache.
         vipMember=await checkMember(vipCode);
+        if(!scheduleVipExpiry(vipMember.expires_at))return;
         const live=await getJson(DATA_BASE+'latest.json');
         if(!Array.isArray(live.matches))throw Error('最新报告格式错误');
         // Keep the newest date live across midnight, but never hijack an explicitly chosen historical date.
@@ -556,6 +577,9 @@
         if(!Array.isArray(data.matches))throw Error('报告格式错误');
         if(!followLatestDay&&selectedDay!==dayAtStart)return;
         if(selectedDay!==effectiveDay)return;
+        if(!vipMember||parseExpiry(vipMember.expires_at).getTime()<=Date.now()){
+          vipShowGate(VIP_EXPIRED_MESSAGE);return;
+        }
         const fingerprint=reportSignature(data);
         if(fingerprint!==reportFingerprint||!options.silent){
           report=data;reportFingerprint=fingerprint;render();
@@ -585,7 +609,18 @@
       }catch(error){console.warn('自动刷新检查失败',error)}
     },60000);
     document.addEventListener('visibilitychange',()=>{
-      if(!document.hidden&&vipCode&&!$('v4-app').hidden)load({silent:true});
+      if(document.hidden||!vipCode||$('v4-app').hidden)return;
+      if(!vipMember||parseExpiry(vipMember.expires_at).getTime()<=Date.now()){
+        vipShowGate(VIP_EXPIRED_MESSAGE);return;
+      }
+      load({silent:true});
+    });
+    window.addEventListener('focus',()=>{
+      if(!vipCode||$('v4-app').hidden)return;
+      if(!vipMember||parseExpiry(vipMember.expires_at).getTime()<=Date.now()){
+        vipShowGate(VIP_EXPIRED_MESSAGE);return;
+      }
+      load({silent:true});
     });
     navigation();initAuth();
   </script>
