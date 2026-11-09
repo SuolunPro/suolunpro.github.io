@@ -392,7 +392,7 @@
 
     const modules=[
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
-      ['比分','全场比分'],['总进球','泊松进球'],['冷门预警','冷门预警']
+      ['比分','全场比分'],['总进球','泊松进球'],['冷门预警','冷门预警'],['独立研判','精选研判（测试）']
     ];
     let report=null,active='胜平负',selectedDay='';
     const label=value=>value==null?'—':String(value);
@@ -406,6 +406,7 @@
       for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
     function stats(){
+      if(active==='独立研判'){$('hit-rate').textContent='—';$('hit-count').textContent='—';$('pending').textContent='—';return;}
       const stat=report.metrics?.module_stats?.[active];
       // Count only this module's formally settled pre-match selections.
       const statuses=report.matches.map(match=>match.settlement?.module_results?.[active]?.status)
@@ -583,17 +584,25 @@
       card.append(box);
       /* Technical timestamps are not shown to customers. */
     }
+    function reviewEligible(match){
+      const ft=match.prediction?.modules?.['胜平负'];
+      const p=Number(ft?.probabilities?.[ft?.top1]);
+      const kickoff=String(match.kickoff||'').replace(' ','T');
+      const kickoffMs=Date.parse(kickoff+(kickoff.includes('+')||kickoff.endsWith('Z')?'':'+08:00'));
+      return match.prediction?.status==='PREDICTED'&&['胜','平','负'].includes(ft?.top1)&&Number.isFinite(p)&&p>0.55&&Number.isFinite(kickoffMs)&&kickoffMs>Date.now()&&!match.settlement;
+    }
     function render(){
       if(!report)return;
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`今日赛事 ${report.matches.length} 场`;
-      const focus=active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
+      const focus=active==='独立研判'?report.matches.filter(reviewEligible):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
-      if(!focus.length){root.append(el('div','empty',active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
+      if(!focus.length){root.append(el('div','empty',active==='独立研判'?'当前暂无符合条件的未开赛精选场次':active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
       for(const match of focus){
         const card=el('article','card');fixture(card,match);
+        if(active==='独立研判'){independentReview(card,match);root.append(card);continue;}
         const data=match.prediction?.modules?.[active];
         if(match.prediction?.status!=='PREDICTED'||!data)card.append(el('div','v4-verdict v4-error','暂无预测'));
         else if(active==='胜平负'&&data.status==='NOT_ON_SALE')card.append(el('div','v4-verdict','普通胜平负未开售 · 请查看全场让球'));
@@ -616,7 +625,6 @@
           choices(card,match,(active==='比分'&&data.top4)||data.top2||data.top3||[],data.probabilities)
           if(active==='胜平负')ftHandicapRiskNote(card,match);
         }
-        if(active==='胜平负')independentReview(card,match);
         verdict(card,match);root.append(card)
       }
     }
