@@ -540,6 +540,18 @@
       card.append(analysis)
     }
 
+    async function loadIndependentReviews(data){
+      if(!data||!Array.isArray(data.matches))return;
+      try{
+        const reviews=await getJson('./data/independent-review/'+encodeURIComponent(data.sale_day)+'.json');
+        if(reviews.sale_day!==data.sale_day||!Array.isArray(reviews.matches))return;
+        const byId=new Map(reviews.matches.filter(r=>r.status==='COMPLETED').map(r=>[String(r.match_no),r]));
+        for(const match of data.matches){
+          const review=byId.get(String(match.match_no));
+          if(review&&review.home===match.home&&review.away===match.away)match.independent_review=review;
+        }
+      }catch(_){/* No published review for this date yet. */}
+    }
     function independentReview(card,match){
       const ft=match.prediction?.modules?.['胜平负'];
       const top1=ft?.top1;
@@ -666,6 +678,7 @@
         if(!vipMember||parseExpiry(vipMember.expires_at).getTime()<=Date.now()){
           vipShowGate(VIP_EXPIRED_MESSAGE);return;
         }
+        await loadIndependentReviews(data);
         const fingerprint=reportSignature(data);
         if(fingerprint!==reportFingerprint||!options.silent){
           report=data;reportFingerprint=fingerprint;render();
