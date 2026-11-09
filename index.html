@@ -545,7 +545,8 @@
       const prob=Number(ft?.probabilities?.[top1]);
       if(!['胜','平','负'].includes(top1)||!Number.isFinite(prob)||prob<=0.55)return;
       const panel=el('section','intel-review');
-      const head=el('div','intel-title');head.append(el('span','','🔍 独立情报研判'),el('span','intel-test','测试'));panel.append(head);
+      const head=el('div','intel-title');head.append(el('span','','🔍 精选场次独立研判'),el('span','intel-test','测试'));panel.append(head);
+      panel.append(el('div','intel-summary','仅针对胜平负首选概率大于55%的未开赛场次开展独立复核，非全场赛事分析。'));
       // Only consume an already-authorized per-match payload. Never fetch a public VIP prediction JSON.
       const review=match.independent_review||match.prediction?.independent_review;
       if(!review||review.status!=='COMPLETED'){
