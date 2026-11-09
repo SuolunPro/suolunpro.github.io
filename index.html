@@ -103,6 +103,30 @@
     .triplet .datum,.triplet .datum.primary,.triplet .datum.hit,.triplet .datum.miss{background:transparent!important;background-color:transparent!important}
     .datum b,.datum.primary b,.datum.hit b,.datum.miss b,.triplet .datum b,.triplet .datum.hit b,.triplet .datum.primary b{color:#202020!important}
     .v4-verdict,.v4-verdict.hit,.v4-verdict.miss{background:transparent!important;background-color:transparent!important}
+
+    /* Mobile viewport containment: prevent Safari restoring a horizontally
+       scrolled, oversized app after the VIP gate is dismissed. */
+    html,body{width:100%;max-width:100%;overflow-x:clip}
+    #v4-app,.app{width:100%;max-width:640px;min-width:0}
+    .app .hero,.app .toolbar,.app .content,.app .cards,.app .card{min-width:0;max-width:100%}
+    .app .models{width:100%;max-width:100%;min-width:0;grid-template-columns:repeat(12,minmax(0,1fr))}
+    .app .model{min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+    .app .brandbar,.app .v4-datebar,.app .toolbar-top{min-width:0;max-width:100%}
+    .app .v4-datebar>span{min-width:0;overflow-wrap:anywhere}
+    .app .v4-day-select{min-width:0;max-width:48%}
+    .app .metrics,.app .triplet,.app .v4-stat-kpis{width:100%;max-width:100%;min-width:0}
+    .app .metric,.app .datum{min-width:0}
+    @media(max-width:420px){
+      .app .brandbar{padding:9px 12px 7px}
+      .app .models{gap:5px;padding:6px 9px 9px}
+      .app .model{font-size:clamp(10px,2.8vw,12px);padding:7px 2px;min-height:38px;line-height:1.2}
+      .app .v4-datebar{padding:8px 10px}
+      .app .toolbar{padding:10px 9px}
+      .app .content{padding:9px 9px 22px}
+      .app .card{padding-left:10px;padding-right:10px}
+      .app .metric b{font-size:clamp(16px,4.4vw,20px)}
+      .app .metric span{font-size:clamp(9px,2.4vw,11px);white-space:normal}
+    }
   </style>
 </head>
 <body>
