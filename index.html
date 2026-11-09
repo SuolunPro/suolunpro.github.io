@@ -494,14 +494,7 @@
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
-      if(!focus.length){
-        // Never label an API outage or an unverified empty pool as 'no matches on sale'.
-        const confirmedEmpty=report.matches.length===0 && report.status==='NO_MATCHES_CONFIRMED' && report.pool_verification==='OFFICIAL_SOURCE';
-        const message=confirmedEmpty?`${report.sale_day.slice(5,7)}月${report.sale_day.slice(8,10)}日｜今日暂无竞彩足球在售比赛`:
-          report.matches.length===0?'今日赛事暂未确认，请稍后刷新':
-          active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据';
-        root.append(el('div','empty',message));return
-      }
+      if(!focus.length){root.append(el('div','empty',active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
       for(const match of focus){
         const card=el('article','card');fixture(card,match);
         const data=match.prediction?.modules?.[active];
@@ -544,27 +537,9 @@
         if(!vipCode||$('v4-app').hidden)return;
         // Refresh VIP authorization as before; all JSON requests bypass browser cache.
         vipMember=await checkMember(vipCode);
-        // Independent discovery status: an empty/failed sale day must not be
-        // hidden by the engine's intentionally retained prior-day snapshot.
-        const discovery=await getJson(DATA_BASE+'sale-day-status.json').catch(()=>null);
-        const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-        const unconfirmed=discovery?.sale_day===today && discovery.status==='UNCONFIRMED';
         const live=await getJson(DATA_BASE+'latest.json');
         if(!Array.isArray(live.matches))throw Error('最新报告格式错误');
         // Keep the newest date live across midnight, but never hijack an explicitly chosen historical date.
-        if(followLatestDay&&unconfirmed&&live.sale_day!==today){
-          const selector=$('day-select');
-          if(!Array.from(selector.options).some(o=>o.value===today)){
-            const option=document.createElement('option');option.value=today;
-            option.textContent=today.slice(5,7)+'月'+today.slice(8,10)+'日';selector.prepend(option);
-          }
-          selectedDay=today;selector.value=today;
-          report={sale_day:today,matches:[],status:'UNCONFIRMED',pool_verification:'UNVERIFIED'};
-          reportFingerprint='unconfirmed:'+discovery.checked_at;
-          render();
-          $('pool-count').textContent='今日赛事暂未确认';
-          return;
-        }
         if(followLatestDay&&selectedDay!==live.sale_day){
           selectedDay=live.sale_day;
           const selector=$('day-select');
