@@ -88,7 +88,10 @@ def main(src, dst):
         if incoming is None:
             raise SystemExit(f"Invalid engine JSON: {relative}")
         if isinstance(incoming, dict) and isinstance(incoming.get("matches"), list):
-            incoming = merge(incoming, read(target))
+            # latest.json may switch to a different sale day; never append prior-day fixtures.
+            # Engine latest is authoritative; sale-day files retain their settlement merge.
+            if relative.as_posix() != "latest.json":
+                incoming = merge(incoming, read(target))
         target.parent.mkdir(parents=True, exist_ok=True)
         output = json.dumps(incoming, ensure_ascii=False, indent=2) + "\n"
         if not target.exists() or target.read_text(encoding="utf-8") != output:
