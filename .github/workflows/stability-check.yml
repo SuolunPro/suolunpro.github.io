@@ -17,7 +17,7 @@ jobs:
           test=Path('engine-validation.html').read_text()
           # Production may contain newer UI changes; validate both pages independently.
           assert home.strip() and test.strip(), 'Empty production or validation page'
-          for marker in ('vip-code','member-code-members.json','./data/engine4/','模型调试与验证阶段','重要声明','ftHandicapRiskNote'):
+          for marker in ('vip-code','member-code-members.json','./data/engine4/','赛事分析说明','重要声明','ftHandicapRiskNote'):
               assert marker in home, marker
           for marker in ("['胜平负'","['让球'","['半全场'","['比分'","['总进球'","['冷门预警'"):
               assert marker in home, marker
