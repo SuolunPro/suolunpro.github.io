@@ -277,7 +277,22 @@
     }
     updateVisitCount();
     const DATA_BASE='./data/engine4/';
-    let vipCode=sessionStorage.getItem('ninety_member_code')||'';
+    const VIP_REMEMBER_KEY='ninety_member_remember_v1';
+    const VIP_REMEMBER_MS=15*24*60*60*1000;
+    function rememberedVipCode(){
+      try{
+        const item=JSON.parse(localStorage.getItem(VIP_REMEMBER_KEY)||'null');
+        if(!item||typeof item.code!=='string'||!Number.isFinite(item.saved_at)||Date.now()-item.saved_at>=VIP_REMEMBER_MS||Date.now()<item.saved_at){
+          localStorage.removeItem(VIP_REMEMBER_KEY);return '';
+        }
+        return item.code;
+      }catch(_){try{localStorage.removeItem(VIP_REMEMBER_KEY)}catch(_){}return ''}
+    }
+    function rememberVipCode(code){
+      try{localStorage.setItem(VIP_REMEMBER_KEY,JSON.stringify({code,saved_at:Date.now()}))}catch(_){}
+    }
+    function forgetVipCode(){try{localStorage.removeItem(VIP_REMEMBER_KEY)}catch(_){}}
+    let vipCode=rememberedVipCode();
     const parseExpiry=value=>new Date(String(value||'').replace(' ','T').replace(/\+00$/,'Z'));
     async function getJson(path){
       const response=await fetch(path+(path.includes('?')?'&':'?')+'t='+Date.now(),{cache:'no-store'});
@@ -301,20 +316,20 @@
       vipExpiryTimer=null;
       const deadline=parseExpiry(expiresAt).getTime();
       if(!Number.isFinite(deadline)||deadline<=Date.now()){
-        vipShowGate(VIP_EXPIRED_MESSAGE);
+        vipShowGate(VIP_EXPIRED_MESSAGE,true);
         return false;
       }
       // Browser timers have a maximum delay; re-arm for long memberships.
       vipExpiryTimer=setTimeout(()=>{
         if(!vipMember)return;
-        if(parseExpiry(vipMember.expires_at).getTime()<=Date.now())vipShowGate(VIP_EXPIRED_MESSAGE);
+        if(parseExpiry(vipMember.expires_at).getTime()<=Date.now())vipShowGate(VIP_EXPIRED_MESSAGE,true);
         else scheduleVipExpiry(vipMember.expires_at);
       },Math.min(deadline-Date.now(),2147483647));
       return true;
     }
-    function vipShowGate(message=''){
+    function vipShowGate(message='',preserveRemembered=false){
       clearTimeout(vipExpiryTimer);vipExpiryTimer=null;
-      vipCode='';vipMember=null;sessionStorage.removeItem('ninety_member_code');
+      vipCode='';vipMember=null;if(!preserveRemembered)forgetVipCode();
       $('v4-app').hidden=true;$('vip-gate').hidden=false;$('vip-error').textContent=message;
     }
     async function loadDays(){
@@ -373,10 +388,10 @@
       try{
         vipCode=$('vip-code').value.trim().toLowerCase();
         await checkMember(vipCode);
-        sessionStorage.setItem('ninety_member_code',vipCode);$('vip-code').value='';
+        rememberVipCode(vipCode);$('vip-code').value='';
         await vipEnter();
       }catch(error){
-        vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_code'?'会员账号无效。请在原邮箱前添加 vip+（包含加号），例如 vip+123456@qq.com。':'会员名单暂时无法加载，请稍后重试。');
+        vipShowGate(error.message==='vip_inactive'?'会员已到期或未启用，请联系管理员。':error.message==='invalid_code'?'会员账号无效。请在原邮箱前添加 vip+（包含加号），例如 vip+123456@qq.com。':'会员名单暂时无法加载，请稍后重试。',error.message==='vip_inactive');
       }finally{button.disabled=false}
     });
     async function vipProfile(){
@@ -430,7 +445,7 @@
     $('v4-account').onclick=vipProfile;$('v4-profile').onclick=vipProfile;
     async function initAuth(){
       if(!vipCode)return;
-      try{await vipEnter()}catch(_){vipShowGate('登录状态已失效，请重新登录。')}
+      try{await vipEnter()}catch(error){vipShowGate(error.message==='vip_inactive'?VIP_EXPIRED_MESSAGE:'登录状态已失效，请重新登录。',error.message==='vip_inactive'||!['invalid_code','vip_inactive'].includes(error.message))}
     }
 
     const modules=[
@@ -736,7 +751,7 @@
         if(!followLatestDay&&selectedDay!==dayAtStart)return;
         if(selectedDay!==effectiveDay)return;
         if(!vipMember||parseExpiry(vipMember.expires_at).getTime()<=Date.now()){
-          vipShowGate(VIP_EXPIRED_MESSAGE);return;
+          vipShowGate(VIP_EXPIRED_MESSAGE,true);return;
         }
         await loadIndependentReviews(data);
         const fingerprint=reportSignature(data);
@@ -770,14 +785,14 @@
     document.addEventListener('visibilitychange',()=>{
       if(document.hidden||!vipCode||$('v4-app').hidden)return;
       if(!vipMember||parseExpiry(vipMember.expires_at).getTime()<=Date.now()){
-        vipShowGate(VIP_EXPIRED_MESSAGE);return;
+        vipShowGate(VIP_EXPIRED_MESSAGE,true);return;
       }
       load({silent:true});
     });
     window.addEventListener('focus',()=>{
       if(!vipCode||$('v4-app').hidden)return;
       if(!vipMember||parseExpiry(vipMember.expires_at).getTime()<=Date.now()){
-        vipShowGate(VIP_EXPIRED_MESSAGE);return;
+        vipShowGate(VIP_EXPIRED_MESSAGE,true);return;
       }
       load({silent:true});
     });
