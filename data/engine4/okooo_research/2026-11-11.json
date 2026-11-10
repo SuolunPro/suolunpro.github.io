@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-11",
-  "retrieved_at": "2026-11-10T19:12:37.263055+00:00",
+  "retrieved_at": "2026-11-10T19:16:47.700880+00:00",
   "url": "https://www.okooo.com/jingcai/2026-11-11/",
   "purpose": "research_only_not_prematch",
   "records": [
@@ -1256,6 +1256,12 @@
       "match_no": "005",
       "okooo_id": "1346342",
       "source_url": "https://www.okooo.com/soccer/match/1346342/exchanges/",
+      "error": "HTTP Error 405: Not Allowed"
+    },
+    {
+      "match_no": "005",
+      "okooo_id": "1346342",
+      "source_url": "https://www.okooo.com/soccer/match/1346342/exchanges/",
       "http_status": 200,
       "has_transaction_table": true,
       "has_index_table": true,
@@ -1869,6 +1875,108 @@
       "market_data_state": "pending_or_missing",
       "source_captured_at": "2026-11-10T19:09:33.702891+00:00",
       "source_timestamp_verified": false
+    },
+    {
+      "match_no": "006",
+      "okooo_id": "1346706",
+      "source_url": "https://www.okooo.com/soccer/match/1346706/exchanges/",
+      "http_status": 200,
+      "has_transaction_table": true,
+      "has_index_table": true,
+      "has_betfair": true,
+      "status": "market_data_pending_or_unavailable",
+      "index_team_labels": [
+        "巴恩斯利",
+        "平局",
+        "奥德汉姆"
+      ],
+      "index_row_lengths": [
+        15,
+        15,
+        15
+      ],
+      "transaction_rows": [
+        {
+          "team": "巴恩斯利",
+          "bfOdds": null,
+          "bfVolume": null,
+          "bfProfitLoss": null,
+          "jcOdds": 1.75,
+          "jcSavedVolume": 18798618.0,
+          "jcProfitLoss": 851062.0,
+          "savedPopularity": 1877.0,
+          "doerPct": 58.31
+        },
+        {
+          "team": "平局",
+          "bfOdds": null,
+          "bfVolume": null,
+          "bfProfitLoss": null,
+          "jcOdds": 3.72,
+          "jcSavedVolume": 645442.0,
+          "jcProfitLoss": 31347599.0,
+          "savedPopularity": 797.0,
+          "doerPct": 24.76
+        },
+        {
+          "team": "奥德汉姆",
+          "bfOdds": null,
+          "bfVolume": null,
+          "bfProfitLoss": null,
+          "jcOdds": 3.35,
+          "jcSavedVolume": 14304583.0,
+          "jcProfitLoss": -14171710.0,
+          "savedPopularity": 545.0,
+          "doerPct": 16.93
+        }
+      ],
+      "index_rows": [
+        {
+          "team": "巴恩斯利",
+          "avgOdds": 1.84,
+          "avgProb": 49.45,
+          "bfShare": null,
+          "jcSavedShare": 55.7,
+          "northShare": 13.56,
+          "bfHotCold": null,
+          "jcHotCold": 13.0,
+          "bfMarketIndex": null,
+          "jcMarketIndex": 40.0,
+          "bfProfitIndex": null,
+          "jcProfitIndex": 3.0
+        },
+        {
+          "team": "平局",
+          "avgOdds": 3.93,
+          "avgProb": 23.15,
+          "bfShare": null,
+          "jcSavedShare": 1.91,
+          "northShare": 77.3,
+          "bfHotCold": null,
+          "jcHotCold": -91.0,
+          "bfMarketIndex": null,
+          "jcMarketIndex": 3.0,
+          "bfProfitIndex": null,
+          "jcProfitIndex": 93.0
+        },
+        {
+          "team": "奥德汉姆",
+          "avgOdds": 3.32,
+          "avgProb": 27.4,
+          "bfShare": null,
+          "jcSavedShare": 42.39,
+          "northShare": 9.14,
+          "bfHotCold": null,
+          "jcHotCold": 53.0,
+          "bfMarketIndex": null,
+          "jcMarketIndex": 58.0,
+          "bfProfitIndex": null,
+          "jcProfitIndex": -42.0
+        }
+      ],
+      "market_data_state": "pending_or_missing",
+      "source_captured_at": "2026-11-10T19:16:51.054101+00:00",
+      "source_timestamp_verified": false
     }
   ],
   "schedule_url": "https://www.okooo.com/jingcai/2026-11-11/",
@@ -1879,14 +1987,14 @@
   "schedule_title": "竞足赛程_足球赛事推荐-澳客",
   "unique_okooo_ids": 6,
   "parse_status_counts": {
-    "market_data_pending_or_unavailable": 5,
+    "market_data_pending_or_unavailable": 1,
     "not_parsed": 0
   },
-  "pending_or_missing_count": 5,
+  "pending_or_missing_count": 1,
   "parsed_count": 0,
-  "failed_count": 1,
+  "failed_count": 5,
   "all_fixtures_checked": true,
-  "betfair_count": 5,
-  "avg99_count": 5,
+  "betfair_count": 1,
+  "avg99_count": 1,
   "warning": "Only timestamped, identity-matched snapshots before kickoff may enter formal predictions."
 }
