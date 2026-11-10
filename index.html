@@ -158,17 +158,43 @@
       .app .metric b{font-size:clamp(16px,4.4vw,20px)}
       .app .metric span{font-size:clamp(9px,2.4vw,11px);white-space:normal}
     }
+
+    /* Ninety Mark 4.0: visual-only VIP login refresh. Keep auth and trial IDs unchanged. */
+    .vip-gate{min-height:100dvh;padding:clamp(18px,5vw,42px) 16px;background:radial-gradient(ellipse at 50% 8%,#173554 0%,#091b30 45%,#06101e 100%);align-items:center}
+    .vip-panel{width:min(470px,100%);padding:clamp(22px,5vw,34px);background:linear-gradient(150deg,#12283f,#0b1b2d 72%);border:1px solid #d2ad66;border-radius:22px;box-shadow:0 18px 55px #0007;color:#f6f7fb}
+    .vip-brand{display:flex;justify-content:center;align-items:center;gap:14px;margin:0 auto 13px}
+    .vip-brand img{width:64px;height:64px;object-fit:cover;border:1px solid #d9b979;border-radius:15px}
+    .vip-brand strong{display:block;font-size:clamp(25px,7vw,33px);letter-spacing:2px;color:#f3d391;white-space:nowrap}
+    .vip-brand sup{font-size:10px;vertical-align:top}.vip-brand small{display:block;letter-spacing:3px;color:#d7b777;font-size:12px;margin-top:3px}
+    .vip-kicker{text-align:center;font-size:17px;font-weight:800;letter-spacing:2px}.vip-tagline{text-align:center;color:#d7b777;font-size:12px;margin:7px 0 24px}
+    .vip-card-title{text-align:center;color:#f2d08c;font-weight:800;font-size:clamp(18px,5vw,23px);line-height:1.4}
+    .vip-panel .vip-intro{text-align:center;font-size:13px;color:#cbd6e5;margin:7px 0 24px}
+    .vip-panel .vip-input-label{font-size:14px;font-weight:700;margin:0;color:#f4f5f8}
+    .vip-panel #vip-code{box-sizing:border-box;margin-top:10px;padding:15px 14px;background:#172c44;border:1px solid #6d8199;border-radius:11px;color:#fff;font-size:16px;outline-offset:3px}
+    .vip-panel #vip-code:focus{border-color:#e6c27d;box-shadow:0 0 0 3px #d6ad6033}.vip-panel #vip-code::placeholder{color:#a9b8ca}
+    .vip-panel .vip-hint{margin:10px 0 18px;font-size:12px;color:#c5d0dd;line-height:1.8}.vip-hint b,.vip-hint strong{color:#f4d18a}
+    .vip-panel #vip-login{margin:0;padding:15px 10px;background:linear-gradient(115deg,#f5d792,#caa35c);border:1px solid #f5d792;border-radius:12px;color:#0c1929;font-size:16px;box-shadow:0 5px 16px #0003;cursor:pointer}
+    .vip-panel #vip-register-toggle{position:relative;margin-top:13px;padding:12px 26px 12px 10px;background:#132940;color:#f3d18b;border:1px solid #dfbb75;border-radius:12px;font-size:15px;line-height:1.4;cursor:pointer}
+    .vip-panel #vip-register-toggle span{position:absolute;right:13px;top:12px;font-size:23px}.vip-panel #vip-register-toggle small{display:block;font-size:11px;font-weight:400;color:#c5d0dd;margin-top:4px}
+    .vip-benefits{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:26px 0 12px;text-align:center}
+    .vip-benefits>div{min-width:0;padding:0 3px;border-right:1px solid #60738a66}.vip-benefits>div:last-child{border:0}.vip-benefits b{display:block;color:#e8c77f;font-size:23px;margin-bottom:7px}.vip-benefits strong{display:block;font-size:11px;white-space:nowrap}.vip-benefits small{display:block;color:#a9b8c8;font-size:10px;margin-top:5px}
+    .vip-panel .vip-legal{margin:23px 0 0;padding-top:15px;border-top:1px solid #ffffff1a;text-align:center;font-size:10px;line-height:1.7;color:#a9b8c8}
+    @media(max-width:380px){.vip-panel{padding:21px 17px}.vip-brand img{width:54px;height:54px}.vip-brand strong{font-size:25px}.vip-benefits strong{font-size:10px}}
   </style>
 </head>
 <body>
   <section id="vip-gate" class="vip-gate" aria-label="尊贵月卡VIP登录">
     <form id="vip-form" class="vip-panel">
-      <div class="brand"><img class="logo" src="./assets/ninety-mark-avatar.jpg" width="40" height="40" alt=""><div><strong>九十刻度</strong><small>NINETY MARK</small></div></div>
-      <h1>欢迎来到九十刻度</h1><p style="font-size:14px;color:#e9d5ad;margin:0 0 12px">专业足球数据分析 · 让每一场比赛更有参考价值</p><p>请使用原注册邮箱登录：在邮箱最前面添加 <strong>vip+</strong>（必须包含加号）。</p>
-      <div class="vip-example"><div>原注册邮箱：<strong>123456@qq.com</strong></div><div>正确登录账号：<strong>vip+123456@qq.com</strong></div><small>注意：vip 为小写字母，+ 号不能省略；无需重新注册。</small></div>
-      <label>会员登录账号<input id="vip-code" type="text" autocomplete="username" placeholder="例如：vip+123456@qq.com" maxlength="100" required></label>
-      <button id="vip-login" type="submit">登录并查看预测</button>
-      <button id="vip-register-toggle" type="button" aria-expanded="false" aria-controls="vip-register-info" style="width:100%;margin-top:10px;background:#fff;color:#b9252c;border:1px solid #b9252c;border-radius:9px;padding:11px;font-weight:800;cursor:pointer">🎁 新用户免费体验1天VIP</button>
+      <div class="vip-brand"><img src="./assets/ninety-mark-avatar.jpg" width="64" height="64" alt="九十刻度标志"><div><strong>九十刻度<sup>®</sup></strong><small>NINETY MARK</small></div></div>
+      <div class="vip-kicker">专业足球数据分析平台</div>
+      <div class="vip-tagline">数据驱动分析 · 多维度赛事研判</div>
+      <div class="vip-card-title">专业足球分析 · 尽在九十刻度</div>
+      <p class="vip-intro">登录会员账号，查看专业赛事分析</p>
+      <label for="vip-code" class="vip-input-label">会员账号<input id="vip-code" type="text" autocomplete="username" placeholder="vip+123456@qq.com" maxlength="100" required></label>
+      <p class="vip-hint">原注册邮箱前添加 <b>vip+</b>（包含加号）<br>示例：<strong>vip+123456@qq.com</strong></p>
+      <button id="vip-login" type="submit">登录并查看赛事分析 →</button>
+      <button id="vip-register-toggle" type="button" aria-expanded="false" aria-controls="vip-register-info">🎁 新用户免费体验1天VIP <span aria-hidden="true">›</span><small>首次体验请联系客服申请开通</small></button>
+      <div class="vip-benefits"><div><b>▱</b><strong>七大分析模块</strong><small>多维度研判</small></div><div><b>ϟ</b><strong>实时赛事更新</strong><small>赛前动态追踪</small></div><div><b>▥</b><strong>历史表现追踪</strong><small>命中率与复盘</small></div></div>
       <div id="vip-register-info" hidden style="margin-top:12px;padding:14px;background:#fff8f8;border:1px solid #f2d7d9;border-radius:10px;text-align:left;color:#333;font-size:13px;line-height:1.85">
         <strong style="font-size:15px;color:#b9252c">新用户开户注册</strong>
         <p style="margin:6px 0;color:#333">目前采用管理员人工开户注册，暂不开放自助注册。首次注册可申请免费领取1天VIP体验，每位新用户限领一次。</p>
