@@ -1,38 +1,36 @@
 {
   "sale_day": "2026-11-11",
-  "generated_at": "2026-11-11T12:31:42+08:00",
+  "generated_at": "2026-11-11T13:00:00+08:00",
   "matches": [
     {
       "match_no": "001",
       "home": "横滨水手",
       "away": "鹿岛鹿角",
       "kickoff": "2026-11-11 18:00",
-      "status": "COMPLETED",
+      "status": "INSUFFICIENT",
       "top1": "负",
       "top2": [],
       "confidence": "暂定",
       "risk_level": "中",
       "details": {
-        "recent_form": "未确认",
+        "recent_form": "横滨水手近5场2胜3平0负；鹿岛鹿角近5场2胜1平2负（截至11月7日；含联赛、杯赛、亚冠）",
         "home_away": "未确认",
         "standings": "未确认",
         "attack_defense": "未确认",
         "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
         "squad": "正式首发未确认",
         "schedule": "日本联赛杯官方赛程确认本场为八强首回合，双方将在11月15日进行次回合。",
-        "h2h": "未确认",
+        "h2h": "官方近5次交锋可核实：2025年5月横滨3-1鹿岛、2025年12月鹿岛2-1横滨、2026年2月鹿岛1-0横滨、2026年5月横滨1-1鹿岛（点球4-5）、2026年8月横滨3-4鹿岛",
         "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
         "draw_risk": "杯赛90分钟平局风险不可忽略",
         "motivation_risk": "两回合淘汰赛首回合，需考虑保守策略"
       },
       "conclusion": "首回合赛制已核实；近期战绩、阵容及独立攻防统计未确认",
       "unconfirmed": [
-        "独立完整近5-10场战绩",
         "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
-        "独立赔率时间序列",
-        "历史交锋"
+        "独立赔率时间序列"
       ],
       "sources": [
         {
@@ -44,6 +42,24 @@
           "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
           "kind": "九十刻度模型派生数据，非独立证据",
           "captured_at": "2026-11-11T03:10:41.513884+00:00"
+        },
+        {
+          "url": "https://www.jleague.jp/en/club/yokohamafm/",
+          "kind": "日本J联赛官方球队战绩",
+          "checked_at": "2026-11-11",
+          "evidence": "赛前最近5场及主客场比赛比分"
+        },
+        {
+          "url": "https://www.jleague.jp/en/club/kashima/",
+          "kind": "日本J联赛官方球队战绩",
+          "checked_at": "2026-11-11",
+          "evidence": "赛前最近5场及主客场比赛比分"
+        },
+        {
+          "url": "https://www.jleague.jp/en/match/leaguecup/2026/111103/",
+          "kind": "日本J联赛官方交锋",
+          "checked_at": "2026-11-11",
+          "evidence": "历史交锋"
         }
       ],
       "ft_review": {
@@ -96,18 +112,18 @@
           "provisional": true
         }
       },
-      "audit_status": "建议排除",
+      "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
       "reviewed_at": "2026-11-11T12:31:42+08:00",
-      "customer_summary": "日本联赛杯官方赛程确认本场为八强首回合，双方将在11月15日进行次回合。主队受让一球具备容错空间，首回合仍需防范保守踢法。"
+      "customer_summary": "横滨近五场两胜三平，鹿岛同期两胜一平两负，双方近期交锋胜负交替。杯赛首回合仍需防范平局及轮换，暂不列入精选。"
     },
     {
       "match_no": "002",
       "home": "神户胜利",
       "away": "町田泽维",
       "kickoff": "2026-11-11 18:00",
-      "status": "COMPLETED",
+      "status": "PENDING",
       "top1": "负",
       "top2": [],
       "confidence": "暂定",
@@ -196,9 +212,9 @@
           "provisional": true
         }
       },
-      "audit_status": "建议排除",
+      "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
       "reviewed_at": "2026-11-11T12:31:42+08:00",
       "customer_summary": "日本联赛杯官方确认神户与町田进行八强首回合，次回合定于11月15日。主队让一球要求净胜至少两球，首回合更倾向让负但需警惕主场优势。"
     },
@@ -207,7 +223,7 @@
       "home": "川崎前锋",
       "away": "柏太阳神",
       "kickoff": "2026-11-11 18:00",
-      "status": "COMPLETED",
+      "status": "PENDING",
       "top1": "负",
       "top2": [],
       "confidence": "暂定",
@@ -296,9 +312,9 @@
           "provisional": true
         }
       },
-      "audit_status": "建议排除",
+      "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
       "reviewed_at": "2026-11-11T12:31:42+08:00",
       "customer_summary": "日本联赛杯官方赛程显示川崎与柏太阳神交锋属于八强首回合。川崎受让一球降低了方向要求，但缺少可靠近期攻防数据支持。"
     },
@@ -307,7 +323,7 @@
       "home": "浦和红钻",
       "away": "大阪樱花",
       "kickoff": "2026-11-11 18:30",
-      "status": "COMPLETED",
+      "status": "PENDING",
       "top1": "胜",
       "top2": [],
       "confidence": "暂定",
@@ -396,9 +412,9 @@
           "provisional": true
         }
       },
-      "audit_status": "建议排除",
+      "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
       "reviewed_at": "2026-11-11T12:31:42+08:00",
       "customer_summary": "日本联赛杯官方赛程确认浦和与大阪樱花将在八强首回合交锋。主队让一球需要净胜两球才可打出让胜，倾向让负并防平局。"
     },
@@ -407,14 +423,14 @@
       "home": "谢周三",
       "away": "阿克灵顿",
       "kickoff": "2026-11-12 03:00",
-      "status": "COMPLETED",
+      "status": "INSUFFICIENT",
       "top1": "胜",
       "top2": [],
       "confidence": "暂定",
       "risk_level": "中高",
       "details": {
-        "recent_form": "谢周三近五场不胜，阿克灵顿此前十场不败被终结",
-        "home_away": "未确认",
+        "recent_form": "谢周三最近6场1胜2平3负，阿克灵顿最近6场2胜3平1负（赛前截至11月8日/7日）",
+        "home_away": "Sky Sports赛前最近6场逐场列有主客及比分，可逐场核实；未核实完整赛季主客场胜平负",
         "standings": "未确认",
         "attack_defense": "未确认",
         "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
@@ -427,7 +443,6 @@
       },
       "conclusion": "谢周三近五场未胜，阿克灵顿近期状态更好；轮换尚未确认",
       "unconfirmed": [
-        "独立完整近5-10场战绩",
         "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
@@ -444,6 +459,16 @@
           "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
           "kind": "九十刻度模型派生数据，非独立证据",
           "captured_at": "2026-11-11T03:11:14.553372+00:00"
+        },
+        {
+          "url": "https://www.skysports.com/football/sheffield-wednesday-vs-accrington-stanley/6936302183592075232",
+          "kind": "赛前近六场比分及主客",
+          "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.sportsmole.co.uk/football/efl-trophy/sheffield-wednesday-vs-accrington-stanley_game_262004.html",
+          "kind": "赛前状态及英锦赛小组表现",
+          "checked_at": "2026-11-11"
         }
       ],
       "ft_review": {
@@ -496,18 +521,18 @@
           "provisional": true
         }
       },
-      "audit_status": "建议排除",
+      "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
       "reviewed_at": "2026-11-11T12:31:42+08:00",
-      "customer_summary": "谢周三英锦赛前两轮全胜且已经出线，阿克灵顿两场均在常规时间战平。主队已有出线资格且存在轮换顾虑，倾向让负但仍需防主胜。"
+      "customer_summary": "谢周三近六场一胜两平三负，阿克灵顿两胜三平一负，客队近况占优。主队已提前出线且存在轮换风险，让负值得关注但不列精选。"
     },
     {
       "match_no": "006",
       "home": "巴恩斯利",
       "away": "奥德汉姆",
       "kickoff": "2026-11-12 03:00",
-      "status": "COMPLETED",
+      "status": "INSUFFICIENT",
       "top1": "胜",
       "top2": [],
       "confidence": "暂定",
@@ -596,11 +621,12 @@
           "provisional": true
         }
       },
-      "audit_status": "建议排除",
+      "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
       "reviewed_at": "2026-11-11T12:31:42+08:00",
       "customer_summary": "巴恩斯利上轮足总杯七比二取胜，奥德汉姆本赛季客场八战仅胜一场。主队有反弹迹象，但奥德汉姆已提前晋级，净胜两球仍有不确定性。"
     }
-  ]
+  ],
+  "manual_run_note": "手动触发补采：001、005独立基础事实已增补，仍未满足完整研判；其他场次待下一轮继续。generated_at为记录整理标识，非实际运行时钟。"
 }
