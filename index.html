@@ -220,7 +220,7 @@
       <section class="toolbar">
         <div class="toolbar-top"><span class="count" id="pool-count">正在读取赛事数据</span></div>
         <div class="metrics">
-          <div class="metric"><b id="hit-rate">—</b><span>当日评测命中率</span></div>
+          <div class="metric"><b id="hit-rate">—</b><span id="hit-rate-label">当日评测命中率</span></div>
           <div class="metric"><b id="hit-count">—</b><span>命中 / 有效评测</span></div>
           <div class="metric"><b id="pending">—</b><span>未核验赛果</span></div>
         </div>
@@ -465,6 +465,7 @@
       for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
     function stats(){
+      $('hit-rate-label').textContent=active==='独立研判'?'当天精选场次命中率':'当日评测命中率';
       if(active==='独立研判'){
         // Independent featured selections have their own denominator; never mix with engine 今日优选.
         // Only frozen pre-kickoff completed reviews qualify, and only verified 90-minute results settle.
