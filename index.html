@@ -691,7 +691,7 @@
       const selection=review?.status==='COMPLETED'?(map[pick]||pick||'待研判'):(review?.status==='INSUFFICIENT'&&pick?'暂定'+(map[pick]||pick)+'（待核实）':'待研判');
       panel.append(el('div','intel-pickline','建议：'+selection));
       const reason=review?.customer_summary||review?.comprehensive_reason;
-      const brief=typeof reason==='string'&&reason.trim()?reason.trim().slice(0,120):'赛前研判资料正在更新。';
+      const brief=typeof reason==='string'&&reason.trim()?reason.trim().slice(0,110):'赛前研判资料正在更新。';
       panel.append(el('div','intel-brief',brief));
       if(match.prediction?.modules?.['冷门预警']?.triggered===true)
         panel.append(el('div','intel-tag warn','冷门预警已触发 · 不列入精选'));
@@ -703,7 +703,16 @@
       for(const [name,key] of fields){
         const value=review?.details?.[key];
         if(typeof value==='string'&&value.trim()){
-          body.append(el('p','',name+'：'+value.trim().replace(/4\\.0/g,'九十刻度')));
+          let display=value.trim().replace(/4\\.0/g,'九十刻度');
+          if(key==='standings'&&display==='未确认'&&review?.details?.recent_form&&review?.details?.attack_defense)
+            display='已取得近期战绩及进失球，可作阶段性实力比较；赛前排名尚待核验。';
+          if(key==='market'&&display.includes('共享原始市场数据')){
+            const w=display.match(/威廉希尔初赔 ([^；]+)，即时赔 ([^；]+)/);
+            const a=display.match(/澳门初盘 ([^；]+)，即时盘 ([^；]+)/);
+            display=(w?'威廉初赔 '+w[1]+' → 即时 '+w[2]+'。':'')+(a?'澳门初盘 '+a[1]+' → 即时 '+a[2]+'。':'')+'市场走势仅据已采集时点，非临场盘口。';
+          }
+          if(key==='squad'&&display.includes('未确认'))display='首发及伤停仍待核实，不代表确认存在伤停。';
+          body.append(el('p','',name+'：'+display));
           count++;
         }
       }
