@@ -1,0 +1,606 @@
+{
+  "sale_day": "2026-11-11",
+  "generated_at": "2026-11-11T12:31:42+08:00",
+  "matches": [
+    {
+      "match_no": "001",
+      "home": "横滨水手",
+      "away": "鹿岛鹿角",
+      "kickoff": "2026-11-11 18:00",
+      "status": "COMPLETED",
+      "top1": "负",
+      "top2": [],
+      "confidence": "暂定",
+      "risk_level": "中",
+      "details": {
+        "recent_form": "未确认",
+        "home_away": "未确认",
+        "standings": "未确认",
+        "attack_defense": "未确认",
+        "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
+        "squad": "正式首发未确认",
+        "schedule": "日本联赛杯官方赛程确认本场为八强首回合，双方将在11月15日进行次回合。",
+        "h2h": "未确认",
+        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
+        "draw_risk": "杯赛90分钟平局风险不可忽略",
+        "motivation_risk": "两回合淘汰赛首回合，需考虑保守策略"
+      },
+      "conclusion": "首回合赛制已核实；近期战绩、阵容及独立攻防统计未确认",
+      "unconfirmed": [
+        "独立完整近5-10场战绩",
+        "完整主客场攻防及积分",
+        "独立xG逐场赛前核验",
+        "确认首发伤停",
+        "独立赔率时间序列",
+        "历史交锋"
+      ],
+      "sources": [
+        {
+          "url": "https://www.jleague.jp/leaguecup/match/",
+          "kind": "独立联网赛前证据",
+          "checked_at": "2026-11-11T04:31:42Z"
+        },
+        {
+          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
+          "kind": "九十刻度模型派生数据，非独立证据",
+          "captured_at": "2026-11-11T03:10:41.513884+00:00"
+        }
+      ],
+      "ft_review": {
+        "model_top1": "负",
+        "independent_top1": "负",
+        "verdict": "方向一致",
+        "reason": "首回合赛制已核实；近期战绩、阵容及独立攻防统计未确认"
+      },
+      "handicap_review": {
+        "official_handicap": 1,
+        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
+        "model_top1": "让胜",
+        "top1": "让胜",
+        "verdict": "方向一致",
+        "reason": "主队受让一球具备容错空间，首回合仍需防范保守踢法。"
+      },
+      "comprehensive_pick": "让胜",
+      "comprehensive_reason": "首回合赛制已核实；近期战绩、阵容及独立攻防统计未确认；主队受让一球具备容错空间，首回合仍需防范保守踢法。 现有市场与xG为引擎派生信息，不当作独立验证。",
+      "score": 50,
+      "score_coverage": 0.2,
+      "score_breakdown": {
+        "model_40": {
+          "score": 20,
+          "max": 40,
+          "evidence": "模型方向及赔率已读取",
+          "provisional": true
+        },
+        "form_20": {
+          "score": 10,
+          "max": 20,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "home_away_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "squad_schedule_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "赛制/战意部分独立核实",
+          "provisional": true
+        },
+        "market_10": {
+          "score": 5,
+          "max": 10,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        }
+      },
+      "audit_status": "建议排除",
+      "selected": false,
+      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "customer_summary": "日本联赛杯官方赛程确认本场为八强首回合，双方将在11月15日进行次回合。主队受让一球具备容错空间，首回合仍需防范保守踢法。"
+    },
+    {
+      "match_no": "002",
+      "home": "神户胜利",
+      "away": "町田泽维",
+      "kickoff": "2026-11-11 18:00",
+      "status": "COMPLETED",
+      "top1": "负",
+      "top2": [],
+      "confidence": "暂定",
+      "risk_level": "中高",
+      "details": {
+        "recent_form": "未确认",
+        "home_away": "未确认",
+        "standings": "未确认",
+        "attack_defense": "未确认",
+        "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
+        "squad": "正式首发未确认",
+        "schedule": "日本联赛杯官方确认神户与町田进行八强首回合，次回合定于11月15日。",
+        "h2h": "未确认",
+        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
+        "draw_risk": "杯赛90分钟平局风险不可忽略",
+        "motivation_risk": "两回合淘汰赛首回合，需考虑保守策略"
+      },
+      "conclusion": "首回合赛制已核实；独立近期数据不足；模型与独立胜平负分歧",
+      "unconfirmed": [
+        "独立完整近5-10场战绩",
+        "完整主客场攻防及积分",
+        "独立xG逐场赛前核验",
+        "确认首发伤停",
+        "独立赔率时间序列",
+        "历史交锋"
+      ],
+      "sources": [
+        {
+          "url": "https://www.jleague.jp/leaguecup/match/",
+          "kind": "独立联网赛前证据",
+          "checked_at": "2026-11-11T04:31:42Z"
+        },
+        {
+          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
+          "kind": "九十刻度模型派生数据，非独立证据",
+          "captured_at": "2026-11-11T03:10:53.473282+00:00"
+        }
+      ],
+      "ft_review": {
+        "model_top1": "胜",
+        "independent_top1": "负",
+        "verdict": "方向分歧",
+        "reason": "首回合赛制已核实；独立近期数据不足；模型与独立胜平负分歧"
+      },
+      "handicap_review": {
+        "official_handicap": -1,
+        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
+        "model_top1": "让负",
+        "top1": "让负",
+        "verdict": "方向一致",
+        "reason": "主队让一球要求净胜至少两球，首回合更倾向让负但需警惕主场优势。"
+      },
+      "comprehensive_pick": "让负",
+      "comprehensive_reason": "首回合赛制已核实；独立近期数据不足；模型与独立胜平负分歧；主队让一球要求净胜至少两球，首回合更倾向让负但需警惕主场优势。 现有市场与xG为引擎派生信息，不当作独立验证。",
+      "score": 56,
+      "score_coverage": 0.2,
+      "score_breakdown": {
+        "model_40": {
+          "score": 26,
+          "max": 40,
+          "evidence": "模型方向及赔率已读取",
+          "provisional": true
+        },
+        "form_20": {
+          "score": 10,
+          "max": 20,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "home_away_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "squad_schedule_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "赛制/战意部分独立核实",
+          "provisional": true
+        },
+        "market_10": {
+          "score": 5,
+          "max": 10,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        }
+      },
+      "audit_status": "建议排除",
+      "selected": false,
+      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "customer_summary": "日本联赛杯官方确认神户与町田进行八强首回合，次回合定于11月15日。主队让一球要求净胜至少两球，首回合更倾向让负但需警惕主场优势。"
+    },
+    {
+      "match_no": "003",
+      "home": "川崎前锋",
+      "away": "柏太阳神",
+      "kickoff": "2026-11-11 18:00",
+      "status": "COMPLETED",
+      "top1": "负",
+      "top2": [],
+      "confidence": "暂定",
+      "risk_level": "中",
+      "details": {
+        "recent_form": "未确认",
+        "home_away": "未确认",
+        "standings": "未确认",
+        "attack_defense": "未确认",
+        "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
+        "squad": "正式首发未确认",
+        "schedule": "日本联赛杯官方赛程显示川崎与柏太阳神交锋属于八强首回合。",
+        "h2h": "未确认",
+        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
+        "draw_risk": "杯赛90分钟平局风险不可忽略",
+        "motivation_risk": "两回合淘汰赛首回合，需考虑保守策略"
+      },
+      "conclusion": "仅赛制已独立核实，阵容近况未确认",
+      "unconfirmed": [
+        "独立完整近5-10场战绩",
+        "完整主客场攻防及积分",
+        "独立xG逐场赛前核验",
+        "确认首发伤停",
+        "独立赔率时间序列",
+        "历史交锋"
+      ],
+      "sources": [
+        {
+          "url": "https://www.jleague.jp/leaguecup/match/",
+          "kind": "独立联网赛前证据",
+          "checked_at": "2026-11-11T04:31:42Z"
+        },
+        {
+          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
+          "kind": "九十刻度模型派生数据，非独立证据",
+          "captured_at": "2026-11-11T03:11:01.044511+00:00"
+        }
+      ],
+      "ft_review": {
+        "model_top1": "负",
+        "independent_top1": "负",
+        "verdict": "方向一致",
+        "reason": "仅赛制已独立核实，阵容近况未确认"
+      },
+      "handicap_review": {
+        "official_handicap": 1,
+        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
+        "model_top1": "让胜",
+        "top1": "让胜",
+        "verdict": "方向一致",
+        "reason": "川崎受让一球降低了方向要求，但缺少可靠近期攻防数据支持。"
+      },
+      "comprehensive_pick": "让胜",
+      "comprehensive_reason": "仅赛制已独立核实，阵容近况未确认；川崎受让一球降低了方向要求，但缺少可靠近期攻防数据支持。 现有市场与xG为引擎派生信息，不当作独立验证。",
+      "score": 52,
+      "score_coverage": 0.2,
+      "score_breakdown": {
+        "model_40": {
+          "score": 22,
+          "max": 40,
+          "evidence": "模型方向及赔率已读取",
+          "provisional": true
+        },
+        "form_20": {
+          "score": 10,
+          "max": 20,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "home_away_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "squad_schedule_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "赛制/战意部分独立核实",
+          "provisional": true
+        },
+        "market_10": {
+          "score": 5,
+          "max": 10,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        }
+      },
+      "audit_status": "建议排除",
+      "selected": false,
+      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "customer_summary": "日本联赛杯官方赛程显示川崎与柏太阳神交锋属于八强首回合。川崎受让一球降低了方向要求，但缺少可靠近期攻防数据支持。"
+    },
+    {
+      "match_no": "004",
+      "home": "浦和红钻",
+      "away": "大阪樱花",
+      "kickoff": "2026-11-11 18:30",
+      "status": "COMPLETED",
+      "top1": "胜",
+      "top2": [],
+      "confidence": "暂定",
+      "risk_level": "中",
+      "details": {
+        "recent_form": "未确认",
+        "home_away": "未确认",
+        "standings": "未确认",
+        "attack_defense": "未确认",
+        "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
+        "squad": "正式首发未确认",
+        "schedule": "日本联赛杯官方赛程确认浦和与大阪樱花将在八强首回合交锋。",
+        "h2h": "未确认",
+        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
+        "draw_risk": "杯赛90分钟平局风险不可忽略",
+        "motivation_risk": "两回合淘汰赛首回合，需考虑保守策略"
+      },
+      "conclusion": "首回合赛制已核实，独立攻防与首发未确认",
+      "unconfirmed": [
+        "独立完整近5-10场战绩",
+        "完整主客场攻防及积分",
+        "独立xG逐场赛前核验",
+        "确认首发伤停",
+        "独立赔率时间序列",
+        "历史交锋"
+      ],
+      "sources": [
+        {
+          "url": "https://www.jleague.jp/leaguecup/match/",
+          "kind": "独立联网赛前证据",
+          "checked_at": "2026-11-11T04:31:42Z"
+        },
+        {
+          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
+          "kind": "九十刻度模型派生数据，非独立证据",
+          "captured_at": "2026-11-11T03:11:10.363779+00:00"
+        }
+      ],
+      "ft_review": {
+        "model_top1": "胜",
+        "independent_top1": "胜",
+        "verdict": "方向一致",
+        "reason": "首回合赛制已核实，独立攻防与首发未确认"
+      },
+      "handicap_review": {
+        "official_handicap": -1,
+        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
+        "model_top1": "让负",
+        "top1": "让负",
+        "verdict": "方向一致",
+        "reason": "主队让一球需要净胜两球才可打出让胜，倾向让负并防平局。"
+      },
+      "comprehensive_pick": "让负",
+      "comprehensive_reason": "首回合赛制已核实，独立攻防与首发未确认；主队让一球需要净胜两球才可打出让胜，倾向让负并防平局。 现有市场与xG为引擎派生信息，不当作独立验证。",
+      "score": 55,
+      "score_coverage": 0.2,
+      "score_breakdown": {
+        "model_40": {
+          "score": 25,
+          "max": 40,
+          "evidence": "模型方向及赔率已读取",
+          "provisional": true
+        },
+        "form_20": {
+          "score": 10,
+          "max": 20,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "home_away_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "squad_schedule_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "赛制/战意部分独立核实",
+          "provisional": true
+        },
+        "market_10": {
+          "score": 5,
+          "max": 10,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        }
+      },
+      "audit_status": "建议排除",
+      "selected": false,
+      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "customer_summary": "日本联赛杯官方赛程确认浦和与大阪樱花将在八强首回合交锋。主队让一球需要净胜两球才可打出让胜，倾向让负并防平局。"
+    },
+    {
+      "match_no": "005",
+      "home": "谢周三",
+      "away": "阿克灵顿",
+      "kickoff": "2026-11-12 03:00",
+      "status": "COMPLETED",
+      "top1": "胜",
+      "top2": [],
+      "confidence": "暂定",
+      "risk_level": "中高",
+      "details": {
+        "recent_form": "谢周三近五场不胜，阿克灵顿此前十场不败被终结",
+        "home_away": "未确认",
+        "standings": "未确认",
+        "attack_defense": "未确认",
+        "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
+        "squad": "正式首发未确认",
+        "schedule": "谢周三英锦赛前两轮全胜且已经出线，阿克灵顿两场均在常规时间战平。",
+        "h2h": "未确认",
+        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
+        "draw_risk": "杯赛90分钟平局风险不可忽略",
+        "motivation_risk": "英锦赛小组出线形势影响战意"
+      },
+      "conclusion": "谢周三近五场未胜，阿克灵顿近期状态更好；轮换尚未确认",
+      "unconfirmed": [
+        "独立完整近5-10场战绩",
+        "完整主客场攻防及积分",
+        "独立xG逐场赛前核验",
+        "确认首发伤停",
+        "独立赔率时间序列",
+        "历史交锋"
+      ],
+      "sources": [
+        {
+          "url": "https://news.williamhill.com/football/efl-trophy-predictions-wednesday-11th-november-2026/",
+          "kind": "独立联网赛前证据",
+          "checked_at": "2026-11-11T04:31:42Z"
+        },
+        {
+          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
+          "kind": "九十刻度模型派生数据，非独立证据",
+          "captured_at": "2026-11-11T03:11:14.553372+00:00"
+        }
+      ],
+      "ft_review": {
+        "model_top1": "胜",
+        "independent_top1": "胜",
+        "verdict": "方向一致",
+        "reason": "谢周三近五场未胜，阿克灵顿近期状态更好；轮换尚未确认"
+      },
+      "handicap_review": {
+        "official_handicap": -1,
+        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
+        "model_top1": "让胜",
+        "top1": "让负",
+        "verdict": "方向分歧",
+        "reason": "主队已有出线资格且存在轮换顾虑，倾向让负但仍需防主胜。"
+      },
+      "comprehensive_pick": "让负",
+      "comprehensive_reason": "谢周三近五场未胜，阿克灵顿近期状态更好；轮换尚未确认；主队已有出线资格且存在轮换顾虑，倾向让负但仍需防主胜。 现有市场与xG为引擎派生信息，不当作独立验证。",
+      "score": 53.5,
+      "score_coverage": 0.35,
+      "score_breakdown": {
+        "model_40": {
+          "score": 18,
+          "max": 40,
+          "evidence": "模型方向及赔率已读取",
+          "provisional": true
+        },
+        "form_20": {
+          "score": 13,
+          "max": 20,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "home_away_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "squad_schedule_15": {
+          "score": 10,
+          "max": 15,
+          "evidence": "赛制/战意部分独立核实",
+          "provisional": true
+        },
+        "market_10": {
+          "score": 5,
+          "max": 10,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        }
+      },
+      "audit_status": "建议排除",
+      "selected": false,
+      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "customer_summary": "谢周三英锦赛前两轮全胜且已经出线，阿克灵顿两场均在常规时间战平。主队已有出线资格且存在轮换顾虑，倾向让负但仍需防主胜。"
+    },
+    {
+      "match_no": "006",
+      "home": "巴恩斯利",
+      "away": "奥德汉姆",
+      "kickoff": "2026-11-12 03:00",
+      "status": "COMPLETED",
+      "top1": "胜",
+      "top2": [],
+      "confidence": "暂定",
+      "risk_level": "中",
+      "details": {
+        "recent_form": "巴恩斯利此前11场不胜，足总杯7:2结束低迷",
+        "home_away": "奥德汉姆赛季客场8场1胜2平5负",
+        "standings": "未确认",
+        "attack_defense": "巴恩斯利足总杯上轮打进7球，奥德汉姆客场8场中5场丢至少2球",
+        "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
+        "squad": "正式首发未确认",
+        "schedule": "巴恩斯利上轮足总杯七比二取胜，奥德汉姆本赛季客场八战仅胜一场。",
+        "h2h": "未确认",
+        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
+        "draw_risk": "杯赛90分钟平局风险不可忽略",
+        "motivation_risk": "英锦赛小组出线形势影响战意"
+      },
+      "conclusion": "巴恩斯利此前连续11场不胜，奥德汉姆客场防守较弱；首发未确认",
+      "unconfirmed": [
+        "独立完整近5-10场战绩",
+        "完整主客场攻防及积分",
+        "独立xG逐场赛前核验",
+        "确认首发伤停",
+        "独立赔率时间序列",
+        "历史交锋"
+      ],
+      "sources": [
+        {
+          "url": "https://www.sportinglife.com/football/news/wednesday-best-bets-efl-trophy-tips-for-november-11-2026/235334",
+          "kind": "独立联网赛前证据",
+          "checked_at": "2026-11-11T04:31:42Z"
+        },
+        {
+          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
+          "kind": "九十刻度模型派生数据，非独立证据",
+          "captured_at": "2026-11-11T03:11:17.530409+00:00"
+        }
+      ],
+      "ft_review": {
+        "model_top1": "胜",
+        "independent_top1": "胜",
+        "verdict": "方向一致",
+        "reason": "巴恩斯利此前连续11场不胜，奥德汉姆客场防守较弱；首发未确认"
+      },
+      "handicap_review": {
+        "official_handicap": -1,
+        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
+        "model_top1": "让负",
+        "top1": "让负",
+        "verdict": "方向一致",
+        "reason": "主队有反弹迹象，但奥德汉姆已提前晋级，净胜两球仍有不确定性。"
+      },
+      "comprehensive_pick": "让负",
+      "comprehensive_reason": "巴恩斯利此前连续11场不胜，奥德汉姆客场防守较弱；首发未确认；主队有反弹迹象，但奥德汉姆已提前晋级，净胜两球仍有不确定性。 现有市场与xG为引擎派生信息，不当作独立验证。",
+      "score": 58,
+      "score_coverage": 0.35,
+      "score_breakdown": {
+        "model_40": {
+          "score": 22,
+          "max": 40,
+          "evidence": "模型方向及赔率已读取",
+          "provisional": true
+        },
+        "form_20": {
+          "score": 13,
+          "max": 20,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "home_away_15": {
+          "score": 8,
+          "max": 15,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        },
+        "squad_schedule_15": {
+          "score": 10,
+          "max": 15,
+          "evidence": "赛制/战意部分独立核实",
+          "provisional": true
+        },
+        "market_10": {
+          "score": 5,
+          "max": 10,
+          "evidence": "仅部分独立证据或中性缺失赋分",
+          "provisional": true
+        }
+      },
+      "audit_status": "建议排除",
+      "selected": false,
+      "selection_reason": "暂定评分未达到75分，未发布精选；缺失维度中性赋分，不以覆盖率单独否决",
+      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "customer_summary": "巴恩斯利上轮足总杯七比二取胜，奥德汉姆本赛季客场八战仅胜一场。主队有反弹迹象，但奥德汉姆已提前晋级，净胜两球仍有不确定性。"
+    }
+  ]
+}
