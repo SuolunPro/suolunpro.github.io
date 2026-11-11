@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-11",
-  "retrieved_at": "2026-11-11T01:07:18.302697+00:00",
+  "retrieved_at": "2026-11-11T03:09:23.996484+00:00",
   "url": "https://www.okooo.com/jingcai/2026-11-11/",
   "purpose": "research_only_not_prematch",
   "records": [
@@ -518,6 +518,40 @@
       ],
       "market_data_state": "pending_or_missing",
       "source_captured_at": "2026-11-11T01:07:20.852007+00:00",
+      "source_timestamp_verified": false
+    },
+    {
+      "match_no": "001",
+      "okooo_id": "1350649",
+      "source_url": "https://www.okooo.com/soccer/match/1350649/exchanges/",
+      "http_status": 200,
+      "has_transaction_table": true,
+      "has_index_table": true,
+      "has_betfair": true,
+      "status": "invalid_share",
+      "share_values": [
+        null,
+        24.32,
+        75.68
+      ],
+      "share_total": 100.0,
+      "index_team_labels": [
+        "横滨水手",
+        "平局",
+        "鹿岛鹿角"
+      ],
+      "transaction_team_labels": [
+        "横滨水手",
+        "平局",
+        "鹿岛鹿角"
+      ],
+      "index_row_lengths": [
+        15,
+        15,
+        15
+      ],
+      "market_data_state": "parse_review_required",
+      "source_captured_at": "2026-11-11T03:09:26.704359+00:00",
       "source_timestamp_verified": false
     },
     {
@@ -1139,6 +1173,40 @@
       "source_timestamp_verified": false
     },
     {
+      "match_no": "002",
+      "okooo_id": "1350423",
+      "source_url": "https://www.okooo.com/soccer/match/1350423/exchanges/",
+      "http_status": 200,
+      "has_transaction_table": true,
+      "has_index_table": true,
+      "has_betfair": true,
+      "status": "invalid_share",
+      "share_values": [
+        37.27,
+        62.73,
+        null
+      ],
+      "share_total": 100.0,
+      "index_team_labels": [
+        "町田泽维亚",
+        "平局",
+        "神户胜利"
+      ],
+      "transaction_team_labels": [
+        "町田泽维亚",
+        "平局",
+        "神户胜利"
+      ],
+      "index_row_lengths": [
+        15,
+        15,
+        15
+      ],
+      "market_data_state": "parse_review_required",
+      "source_captured_at": "2026-11-11T03:09:26.578214+00:00",
+      "source_timestamp_verified": false
+    },
+    {
       "match_no": "003",
       "okooo_id": "1350538",
       "source_url": "https://www.okooo.com/soccer/match/1350538/exchanges/",
@@ -1757,6 +1825,99 @@
       "source_timestamp_verified": false
     },
     {
+      "match_no": "003",
+      "okooo_id": "1350538",
+      "source_url": "https://www.okooo.com/soccer/match/1350538/exchanges/",
+      "http_status": 200,
+      "has_transaction_table": true,
+      "has_index_table": true,
+      "has_betfair": true,
+      "status": "parsed_unverified",
+      "transaction_rows": [
+        {
+          "team": "川崎前锋",
+          "bfOdds": 2.98,
+          "bfVolume": 36.0,
+          "bfProfitLoss": 242.0,
+          "jcOdds": 2.62,
+          "jcSavedVolume": 13723759.0,
+          "jcProfitLoss": 6532147.0,
+          "savedPopularity": 1805.0,
+          "doerPct": 31.21
+        },
+        {
+          "team": "平局",
+          "bfOdds": 4.4,
+          "bfVolume": 77.0,
+          "bfProfitLoss": 10.0,
+          "jcOdds": 3.55,
+          "jcSavedVolume": 8465680.0,
+          "jcProfitLoss": 12435232.0,
+          "savedPopularity": 2076.0,
+          "doerPct": 35.89
+        },
+        {
+          "team": "柏太阳神",
+          "bfOdds": 2.36,
+          "bfVolume": 236.0,
+          "bfProfitLoss": -208.0,
+          "jcOdds": 2.1,
+          "jcSavedVolume": 20298957.0,
+          "jcProfitLoss": -139414.0,
+          "savedPopularity": 1903.0,
+          "doerPct": 32.9
+        }
+      ],
+      "index_rows": [
+        {
+          "team": "川崎前锋",
+          "avgOdds": 2.72,
+          "avgProb": 33.67,
+          "bfShare": 10.32,
+          "jcSavedShare": 32.3,
+          "northShare": 5.33,
+          "bfHotCold": -69.0,
+          "jcHotCold": -5.0,
+          "bfMarketIndex": 11.0,
+          "jcMarketIndex": 33.0,
+          "bfProfitIndex": 69.0,
+          "jcProfitIndex": 15.0
+        },
+        {
+          "team": "平局",
+          "avgOdds": 3.65,
+          "avgProb": 25.09,
+          "bfShare": 22.06,
+          "jcSavedShare": 19.92,
+          "northShare": 89.76,
+          "bfHotCold": -12.0,
+          "jcHotCold": -20.0,
+          "bfMarketIndex": 34.0,
+          "jcMarketIndex": 28.0,
+          "bfProfitIndex": 3.0,
+          "jcProfitIndex": 29.0
+        },
+        {
+          "team": "柏太阳神",
+          "avgOdds": 2.22,
+          "avgProb": 41.24,
+          "bfShare": 67.62,
+          "jcSavedShare": 47.78,
+          "northShare": 4.91,
+          "bfHotCold": 64.0,
+          "jcHotCold": 16.0,
+          "bfMarketIndex": 56.0,
+          "jcMarketIndex": 39.0,
+          "bfProfitIndex": -60.0,
+          "jcProfitIndex": -0.0
+        }
+      ],
+      "exchange_scale": "较小",
+      "market_data_state": "available_unverified",
+      "source_captured_at": "2026-11-11T03:09:26.599458+00:00",
+      "source_timestamp_verified": true
+    },
+    {
       "match_no": "004",
       "okooo_id": "1350539",
       "source_url": "https://www.okooo.com/soccer/match/1350539/exchanges/",
@@ -2372,6 +2533,108 @@
       ],
       "market_data_state": "pending_or_missing",
       "source_captured_at": "2026-11-11T01:07:20.812074+00:00",
+      "source_timestamp_verified": false
+    },
+    {
+      "match_no": "004",
+      "okooo_id": "1350539",
+      "source_url": "https://www.okooo.com/soccer/match/1350539/exchanges/",
+      "http_status": 200,
+      "has_transaction_table": true,
+      "has_index_table": true,
+      "has_betfair": true,
+      "status": "market_data_pending_or_unavailable",
+      "index_team_labels": [
+        "浦和红钻",
+        "平局",
+        "大阪樱花"
+      ],
+      "index_row_lengths": [
+        15,
+        15,
+        15
+      ],
+      "transaction_rows": [
+        {
+          "team": "浦和红钻",
+          "bfOdds": null,
+          "bfVolume": null,
+          "bfProfitLoss": null,
+          "jcOdds": 1.79,
+          "jcSavedVolume": 17835048.0,
+          "jcProfitLoss": 13289012.0,
+          "savedPopularity": 1870.0,
+          "doerPct": 34.47
+        },
+        {
+          "team": "平局",
+          "bfOdds": null,
+          "bfVolume": null,
+          "bfProfitLoss": null,
+          "jcOdds": 3.6,
+          "jcSavedVolume": 17816649.0,
+          "jcProfitLoss": -18926188.0,
+          "savedPopularity": 2155.0,
+          "doerPct": 39.72
+        },
+        {
+          "team": "大阪樱花",
+          "bfOdds": null,
+          "bfVolume": null,
+          "bfProfitLoss": null,
+          "jcOdds": 3.3,
+          "jcSavedVolume": 9562051.0,
+          "jcProfitLoss": 13658980.0,
+          "savedPopularity": 1400.0,
+          "doerPct": 25.81
+        }
+      ],
+      "index_rows": [
+        {
+          "team": "浦和红钻",
+          "avgOdds": 1.86,
+          "avgProb": 49.06,
+          "bfShare": null,
+          "jcSavedShare": 39.45,
+          "northShare": 12.96,
+          "bfHotCold": null,
+          "jcHotCold": -21.0,
+          "bfMarketIndex": null,
+          "jcMarketIndex": 25.0,
+          "bfProfitIndex": null,
+          "jcProfitIndex": 29.0
+        },
+        {
+          "team": "平局",
+          "avgOdds": 3.66,
+          "avgProb": 24.93,
+          "bfShare": null,
+          "jcSavedShare": 39.41,
+          "northShare": 78.05,
+          "bfHotCold": null,
+          "jcHotCold": 56.0,
+          "bfMarketIndex": null,
+          "jcMarketIndex": 50.0,
+          "bfProfitIndex": null,
+          "jcProfitIndex": -42.0
+        },
+        {
+          "team": "大阪樱花",
+          "avgOdds": 3.51,
+          "avgProb": 26.01,
+          "bfShare": null,
+          "jcSavedShare": 21.15,
+          "northShare": 8.99,
+          "bfHotCold": null,
+          "jcHotCold": -15.0,
+          "bfMarketIndex": null,
+          "jcMarketIndex": 25.0,
+          "bfProfitIndex": null,
+          "jcProfitIndex": 30.0
+        }
+      ],
+      "market_data_state": "pending_or_missing",
+      "source_captured_at": "2026-11-11T03:09:26.592690+00:00",
       "source_timestamp_verified": false
     },
     {
@@ -3095,6 +3358,108 @@
       "source_timestamp_verified": false
     },
     {
+      "match_no": "005",
+      "okooo_id": "1346342",
+      "source_url": "https://www.okooo.com/soccer/match/1346342/exchanges/",
+      "http_status": 200,
+      "has_transaction_table": true,
+      "has_index_table": true,
+      "has_betfair": true,
+      "status": "market_data_pending_or_unavailable",
+      "index_team_labels": [
+        "谢周三",
+        "平局",
+        "阿克宁顿"
+      ],
+      "index_row_lengths": [
+        15,
+        15,
+        15
+      ],
+      "transaction_rows": [
+        {
+          "team": "谢周三",
+          "bfOdds": null,
+          "bfVolume": null,
+          "bfProfitLoss": null,
+          "jcOdds": 1.37,
+          "jcSavedVolume": 22196586.0,
+          "jcProfitLoss": 18085868.0,
+          "savedPopularity": 2736.0,
+          "doerPct": 65.45
+        },
+        {
+          "team": "平局",
+          "bfOdds": null,
+          "bfVolume": null,
+          "bfProfitLoss": null,
+          "jcOdds": 4.4,
+          "jcSavedVolume": 16298810.0,
+          "jcProfitLoss": -23219573.0,
+          "savedPopularity": 1033.0,
+          "doerPct": 24.71
+        },
+        {
+          "team": "阿克宁顿",
+          "bfOdds": null,
+          "bfVolume": null,
+          "bfProfitLoss": null,
+          "jcOdds": 5.5,
+          "jcSavedVolume": 9999795.0,
+          "jcProfitLoss": -6503682.0,
+          "savedPopularity": 411.0,
+          "doerPct": 9.83
+        }
+      ],
+      "index_rows": [
+        {
+          "team": "谢周三",
+          "avgOdds": 1.5,
+          "avgProb": 60.81,
+          "bfShare": null,
+          "jcSavedShare": 45.77,
+          "northShare": 7.48,
+          "bfHotCold": null,
+          "jcHotCold": -24.0,
+          "bfMarketIndex": null,
+          "jcMarketIndex": 19.0,
+          "bfProfitIndex": null,
+          "jcProfitIndex": 37.0
+        },
+        {
+          "team": "平局",
+          "avgOdds": 4.33,
+          "avgProb": 21.06,
+          "bfShare": null,
+          "jcSavedShare": 33.61,
+          "northShare": 88.08,
+          "bfHotCold": null,
+          "jcHotCold": 61.0,
+          "bfMarketIndex": null,
+          "jcMarketIndex": 46.0,
+          "bfProfitIndex": null,
+          "jcProfitIndex": -48.0
+        },
+        {
+          "team": "阿克宁顿",
+          "avgOdds": 5.03,
+          "avgProb": 18.13,
+          "bfShare": null,
+          "jcSavedShare": 20.62,
+          "northShare": 4.44,
+          "bfHotCold": null,
+          "jcHotCold": 10.0,
+          "bfMarketIndex": null,
+          "jcMarketIndex": 35.0,
+          "bfProfitIndex": null,
+          "jcProfitIndex": -13.0
+        }
+      ],
+      "market_data_state": "pending_or_missing",
+      "source_captured_at": "2026-11-11T03:09:26.737376+00:00",
+      "source_timestamp_verified": false
+    },
+    {
       "match_no": "006",
       "okooo_id": "1346706",
       "source_url": "https://www.okooo.com/soccer/match/1346706/exchanges/",
@@ -3711,6 +4076,281 @@
       "market_data_state": "pending_or_missing",
       "source_captured_at": "2026-11-11T01:07:21.670326+00:00",
       "source_timestamp_verified": false
+    },
+    {
+      "match_no": "006",
+      "okooo_id": "1346706",
+      "source_url": "https://www.okooo.com/soccer/match/1346706/exchanges/",
+      "http_status": 200,
+      "has_transaction_table": true,
+      "has_index_table": true,
+      "has_betfair": true,
+      "status": "parsed_unverified",
+      "transaction_rows": [
+        {
+          "team": "巴恩斯利",
+          "bfOdds": 1.82,
+          "bfVolume": 22352.0,
+          "bfProfitLoss": -16850.0,
+          "jcOdds": 1.71,
+          "jcSavedVolume": 25693096.0,
+          "jcProfitLoss": 3745376.0,
+          "savedPopularity": 2400.0,
+          "doerPct": 59.51
+        },
+        {
+          "team": "平局",
+          "bfOdds": 5.1,
+          "bfVolume": 271.0,
+          "bfProfitLoss": 22449.0,
+          "jcOdds": 3.78,
+          "jcSavedVolume": 7672252.0,
+          "jcProfitLoss": 18679457.0,
+          "savedPopularity": 977.0,
+          "doerPct": 24.23
+        },
+        {
+          "team": "奥德汉姆",
+          "bfOdds": 4.0,
+          "bfVolume": 1208.0,
+          "bfProfitLoss": 18999.0,
+          "jcOdds": 3.45,
+          "jcSavedVolume": 14315222.0,
+          "jcProfitLoss": -1706946.0,
+          "savedPopularity": 656.0,
+          "doerPct": 16.27
+        }
+      ],
+      "index_rows": [
+        {
+          "team": "巴恩斯利",
+          "avgOdds": 1.83,
+          "avgProb": 49.94,
+          "bfShare": 93.79,
+          "jcSavedShare": 53.89,
+          "northShare": 8.81,
+          "bfHotCold": 88.0,
+          "jcHotCold": 8.0,
+          "bfMarketIndex": 87.0,
+          "jcMarketIndex": 36.0,
+          "bfProfitIndex": -71.0,
+          "jcProfitIndex": 8.0
+        },
+        {
+          "team": "平局",
+          "avgOdds": 3.97,
+          "avgProb": 23.02,
+          "bfShare": 1.14,
+          "jcSavedShare": 16.09,
+          "northShare": 88.3,
+          "bfHotCold": -95.0,
+          "jcHotCold": -30.0,
+          "bfMarketIndex": 3.0,
+          "jcMarketIndex": 24.0,
+          "bfProfitIndex": 94.0,
+          "jcProfitIndex": 39.0
+        },
+        {
+          "team": "奥德汉姆",
+          "avgOdds": 3.38,
+          "avgProb": 27.04,
+          "bfShare": 5.07,
+          "jcSavedShare": 30.02,
+          "northShare": 2.89,
+          "bfHotCold": -81.0,
+          "jcHotCold": 11.0,
+          "bfMarketIndex": 10.0,
+          "jcMarketIndex": 40.0,
+          "bfProfitIndex": 80.0,
+          "jcProfitIndex": -4.0
+        }
+      ],
+      "exchange_scale": "较小",
+      "market_data_state": "available_unverified",
+      "source_captured_at": "2026-11-11T03:09:27.583425+00:00",
+      "source_timestamp_verified": true
+    },
+    {
+      "match_no": "003",
+      "okooo_id": "1350538",
+      "source_url": "https://www.okooo.com/soccer/match/1350538/exchanges/",
+      "error": "HTTP Error 405: Not Allowed",
+      "status": "parsed_unverified",
+      "transaction_rows": [
+        {
+          "team": "川崎前锋",
+          "bfOdds": 2.98,
+          "bfVolume": 36.0,
+          "bfProfitLoss": 242.0,
+          "jcOdds": 2.62,
+          "jcSavedVolume": 13723759.0,
+          "jcProfitLoss": 6532147.0,
+          "savedPopularity": 1805.0,
+          "doerPct": 31.21
+        },
+        {
+          "team": "平局",
+          "bfOdds": 4.4,
+          "bfVolume": 77.0,
+          "bfProfitLoss": 10.0,
+          "jcOdds": 3.55,
+          "jcSavedVolume": 8465680.0,
+          "jcProfitLoss": 12435232.0,
+          "savedPopularity": 2076.0,
+          "doerPct": 35.89
+        },
+        {
+          "team": "柏太阳神",
+          "bfOdds": 2.36,
+          "bfVolume": 236.0,
+          "bfProfitLoss": -208.0,
+          "jcOdds": 2.1,
+          "jcSavedVolume": 20298957.0,
+          "jcProfitLoss": -139414.0,
+          "savedPopularity": 1903.0,
+          "doerPct": 32.9
+        }
+      ],
+      "index_rows": [
+        {
+          "team": "川崎前锋",
+          "avgOdds": 2.72,
+          "avgProb": 33.67,
+          "bfShare": 10.32,
+          "jcSavedShare": 32.3,
+          "northShare": 5.33,
+          "bfHotCold": -69.0,
+          "jcHotCold": -5.0,
+          "bfMarketIndex": 11.0,
+          "jcMarketIndex": 33.0,
+          "bfProfitIndex": 69.0,
+          "jcProfitIndex": 15.0
+        },
+        {
+          "team": "平局",
+          "avgOdds": 3.65,
+          "avgProb": 25.09,
+          "bfShare": 22.06,
+          "jcSavedShare": 19.92,
+          "northShare": 89.76,
+          "bfHotCold": -12.0,
+          "jcHotCold": -20.0,
+          "bfMarketIndex": 34.0,
+          "jcMarketIndex": 28.0,
+          "bfProfitIndex": 3.0,
+          "jcProfitIndex": 29.0
+        },
+        {
+          "team": "柏太阳神",
+          "avgOdds": 2.22,
+          "avgProb": 41.24,
+          "bfShare": 67.62,
+          "jcSavedShare": 47.78,
+          "northShare": 4.91,
+          "bfHotCold": 64.0,
+          "jcHotCold": 16.0,
+          "bfMarketIndex": 56.0,
+          "jcMarketIndex": 39.0,
+          "bfProfitIndex": -60.0,
+          "jcProfitIndex": -0.0
+        }
+      ],
+      "source_captured_at": "2026-11-11T03:10:08.900609+00:00",
+      "source_timestamp_verified": true,
+      "has_betfair": true,
+      "market_data_state": "available_unverified",
+      "collection_method": "playwright"
+    },
+    {
+      "match_no": "006",
+      "okooo_id": "1346706",
+      "source_url": "https://www.okooo.com/soccer/match/1346706/exchanges/",
+      "error": "HTTP Error 405: Not Allowed",
+      "status": "parsed_unverified",
+      "transaction_rows": [
+        {
+          "team": "巴恩斯利",
+          "bfOdds": 1.82,
+          "bfVolume": 22352.0,
+          "bfProfitLoss": -16850.0,
+          "jcOdds": 1.71,
+          "jcSavedVolume": 25693096.0,
+          "jcProfitLoss": 3745376.0,
+          "savedPopularity": 2400.0,
+          "doerPct": 59.51
+        },
+        {
+          "team": "平局",
+          "bfOdds": 5.1,
+          "bfVolume": 271.0,
+          "bfProfitLoss": 22449.0,
+          "jcOdds": 3.78,
+          "jcSavedVolume": 7672252.0,
+          "jcProfitLoss": 18679457.0,
+          "savedPopularity": 977.0,
+          "doerPct": 24.23
+        },
+        {
+          "team": "奥德汉姆",
+          "bfOdds": 4.0,
+          "bfVolume": 1208.0,
+          "bfProfitLoss": 18999.0,
+          "jcOdds": 3.45,
+          "jcSavedVolume": 14315222.0,
+          "jcProfitLoss": -1706946.0,
+          "savedPopularity": 656.0,
+          "doerPct": 16.27
+        }
+      ],
+      "index_rows": [
+        {
+          "team": "巴恩斯利",
+          "avgOdds": 1.83,
+          "avgProb": 49.94,
+          "bfShare": 93.79,
+          "jcSavedShare": 53.89,
+          "northShare": 8.81,
+          "bfHotCold": 88.0,
+          "jcHotCold": 8.0,
+          "bfMarketIndex": 87.0,
+          "jcMarketIndex": 36.0,
+          "bfProfitIndex": -71.0,
+          "jcProfitIndex": 8.0
+        },
+        {
+          "team": "平局",
+          "avgOdds": 3.97,
+          "avgProb": 23.02,
+          "bfShare": 1.14,
+          "jcSavedShare": 16.09,
+          "northShare": 88.3,
+          "bfHotCold": -95.0,
+          "jcHotCold": -30.0,
+          "bfMarketIndex": 3.0,
+          "jcMarketIndex": 24.0,
+          "bfProfitIndex": 94.0,
+          "jcProfitIndex": 39.0
+        },
+        {
+          "team": "奥德汉姆",
+          "avgOdds": 3.38,
+          "avgProb": 27.04,
+          "bfShare": 5.07,
+          "jcSavedShare": 30.02,
+          "northShare": 2.89,
+          "bfHotCold": -81.0,
+          "jcHotCold": 11.0,
+          "bfMarketIndex": 10.0,
+          "jcMarketIndex": 40.0,
+          "bfProfitIndex": 80.0,
+          "jcProfitIndex": -4.0
+        }
+      ],
+      "source_captured_at": "2026-11-11T03:10:26.291184+00:00",
+      "source_timestamp_verified": true,
+      "has_betfair": true,
+      "market_data_state": "available_unverified",
+      "collection_method": "playwright"
     }
   ],
   "schedule_url": "https://www.okooo.com/jingcai/2026-11-11/",
@@ -3721,10 +4361,12 @@
   "schedule_title": "竞足赛程_足球赛事推荐-澳客",
   "unique_okooo_ids": 6,
   "parse_status_counts": {
-    "market_data_pending_or_unavailable": 6
+    "invalid_share": 2,
+    "market_data_pending_or_unavailable": 2,
+    "parsed_unverified": 2
   },
-  "pending_or_missing_count": 6,
-  "parsed_count": 0,
+  "pending_or_missing_count": 2,
+  "parsed_count": 2,
   "failed_count": 0,
   "all_fixtures_checked": true,
   "betfair_count": 6,
