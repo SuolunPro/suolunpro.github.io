@@ -232,6 +232,7 @@
           <div>九十刻度4.0结合球队实力、市场赔率及进球概率等数据提供赛前分析。未开赛预测随有效数据更新，开赛后保留赛前记录，赛果核实后更新评测。</div>
           <div style="margin-top:4px">建议赛前2—4小时查看最新分析。赛事存在不确定性，预测仅供参考，不构成投注建议或收益保证。</div>
         </aside>
+        <div id="review-update-notice" role="status" style="display:none;margin:10px 0 14px;padding:11px 13px;border:1px solid #f1d9b0;border-radius:10px;background:#fff8ec;color:#795726;font-size:13px;line-height:1.6"><strong>⏰ 精选研判更新时间</strong><div>每日北京时间12:30后陆续更新当天精选研判。12:30前显示“待更新”属正常情况；12:30后仍未发布时，请稍后刷新。以页面实际发布内容为准，不保证准点完成。</div></div>
         <div class="cards" id="matches"><div class="empty">正在加载今日赛事…</div></div>
         <footer class="site-disclaimer" role="note" aria-label="重要声明" style="margin:18px 0 8px;padding:13px 14px;background:#fff;border:1px solid #e8e8e8;border-radius:12px;color:#666;font-size:12px;line-height:1.65">
           <h2 style="margin:0 0 6px;text-align:center;color:#333;font-size:14px">▲ 重要声明</h2>
@@ -465,6 +466,7 @@
       for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
     function stats(){
+      const updateNotice=$('review-update-notice');if(updateNotice)updateNotice.style.display=active==='独立研判'?'block':'none';
       $('hit-rate-label').textContent=active==='独立研判'?'当天精选场次命中率':'当日评测命中率';
       if(active==='独立研判'){
         // Independent featured selections have their own denominator; never mix with engine 今日优选.
