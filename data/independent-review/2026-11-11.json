@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-11",
-  "generated_at": "2026-11-11T09:33:14Z",
+  "generated_at": "2026-11-11T09:56:57.865Z",
   "matches": [
     {
       "match_no": "001",
@@ -106,8 +106,8 @@
         "verdict": "方向一致",
         "reason": "威廉客胜2.04升至2.15，横滨主场近况稳健，受让一球有容错；鹿岛客胜资金71.15%，首回合仍有净胜两球尾险。"
       },
-      "comprehensive_pick": "客胜",
-      "comprehensive_reason": "威廉客胜2.04升至2.15，横滨主场近况稳健，受让一球有容错；鹿岛客胜资金71.15%，首回合仍有净胜两球尾险。",
+      "comprehensive_pick": "让胜",
+      "comprehensive_reason": "维持精选：主队受让一球，独立研判与原模型让胜同路；威廉客胜赔率上升、澳门浅盘及横滨主场韧性支持受让方向。必发客胜资金集中和WATCH属于已知风险，未发现新增重大反向证据。",
       "score": 48,
       "score_coverage": 52.5,
       "score_breakdown": {
@@ -143,10 +143,10 @@
         }
       },
       "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
-      "selected": false,
-      "selection_reason": "非精选：杯赛首回合、客胜资金集中，当前WATCH",
+      "selected": true,
+      "selection_reason": "维持精选：主队受让一球，独立研判与原模型让胜同路；威廉客胜赔率上升、澳门浅盘及横滨主场韧性支持受让方向。必发客胜资金集中和WATCH属于已知风险，未发现新增重大反向证据。",
       "reviewed_at": "2026-11-11T09:33:14Z",
-      "customer_summary": "建议：客胜；威廉客胜2.04升至2.15，横滨主场近况稳健，受让一球有容错；鹿岛客胜资金71.15%，首回合仍有净胜两球尾险。",
+      "customer_summary": "横滨主场表现稳健，澳门浅盘且威廉客胜赔率上升。建议：让胜；仍需防鹿岛净胜两球。",
       "cold_warning_audit": {
         "source": "engine4 prediction.modules.冷门预警",
         "status": "WATCH",
@@ -164,12 +164,18 @@
         "history_status": "UNVERIFIED",
         "hard_excluded": false
       },
-      "review_version": "dynamic-crosscheck-v3",
+      "review_version": "consensus-material-change-2026-11-11",
       "consensus": {
         "ft": "方向一致",
         "handicap": "方向一致"
       },
-      "risk_audit": "杯赛首回合、客胜资金集中，当前WATCH",
+      "risk_audit": {
+        "decision": "维持精选",
+        "material_new_counterevidence": false,
+        "history_warning_verified": false,
+        "known_risks": "WATCH、必发客胜资金集中、首回合净胜两球风险",
+        "reason": "既有风险不重复当作新增重大反向证据"
+      },
       "gpt_review": {
         "reviewed_at": "2026-11-11T09:33:14Z",
         "source_captured_at": "2026-11-11T09:04:48.123766+00:00",
@@ -178,6 +184,382 @@
         "confidence": "中",
         "evidence": "威廉客胜2.04升至2.15，横滨主场近况稳健，受让一球有容错；鹿岛客胜资金71.15%，首回合仍有净胜两球尾险。",
         "risk": "杯赛首回合、客胜资金集中，当前WATCH",
+        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
+        "unconfirmed": [
+          "历史逐场xG比赛日期未逐项独立核验",
+          "部分正式首发未确认"
+        ]
+      }
+    },
+    {
+      "match_no": "005",
+      "home": "谢周三",
+      "away": "阿克灵顿",
+      "kickoff": "2026-11-12 03:00",
+      "status": "COMPLETED",
+      "top1": "胜",
+      "top2": [],
+      "confidence": "暂定",
+      "risk_level": "中高",
+      "details": {
+        "recent_form": "FotMob赛前已完赛最近5场（含不同赛事）：谢周三0胜2平3负，进3失8；阿克灵顿2胜2平1负，进10失5。",
+        "home_away": "FotMob赛前各自最近5个对应主客场（可能跨赛事）：谢周三主场2胜3平0负，进9失2；阿克灵顿客场1胜3平1负，进8失4。",
+        "standings": "英锦赛A组：谢周三前两战全胜已晋级；阿克灵顿两场常规时间均平、点球获胜，积4分，仍需争取晋级。",
+        "attack_defense": "近5场谢周三场均进0.6失1.6；阿克灵顿场均进2.0失1.0。不同赛事混合，非独立xG。",
+        "market": "共享原始市场数据（来自九十刻度已采集记录，非第二独立来源）：威廉希尔初赔 1.67 / 3.70 / 3.90，即时赔 1.50 / 3.90 / 4.80；澳门初盘 0.98 1 0.80，即时盘 0.78 1 1.00；体彩普通SP 1.35/4.4/5.85；官方让球-1，让球SP 2.12/3.65/2.54。采集时间 2026-11-11T07:32:56.603905+00:00；仅代表该时点，不冒充临场数据。",
+        "squad": "11月11日赛前当地报道确认谢周三多名伤员缺席，主教练可能大幅轮换；实际首发仍待确认。",
+        "schedule": "谢周三英锦赛前两轮全胜且已经出线，阿克灵顿两场均在常规时间战平。",
+        "h2h": "赛前统计报道显示谢周三历史交锋占优，具体交锋日期尚待逐场复核。",
+        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
+        "draw_risk": "杯赛90分钟平局风险不可忽略",
+        "motivation_risk": "谢周三已晋级但争夺小组头名，周末还有联赛；阿克灵顿仍争取晋级，双方战意与轮换风险需同时考虑。"
+      },
+      "conclusion": "谢周三杯赛两胜已出线且近期主场不败，但阿克灵顿客场表现与晋级动机形成反向风险；暂定主胜，需防平负。",
+      "unconfirmed": [
+        "独立xG逐场赛前核验",
+        "确认首发伤停",
+        "FotMob赛季长期攻防和赛前积分榜快照未核实",
+        "长期同联赛主客场强度、赛前积分榜快照仍未确认",
+        "共享威廉/澳门初即盘已读取；机构官网独立复核及临场走势仍未完成",
+        "五维正式评分口径待纠偏，临时总分不可用于精选"
+      ],
+      "sources": [
+        {
+          "url": "https://news.williamhill.com/football/efl-trophy-predictions-wednesday-11th-november-2026/",
+          "kind": "独立联网赛前证据",
+          "checked_at": "2026-11-11T04:31:42Z"
+        },
+        {
+          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
+          "kind": "九十刻度模型派生数据，非独立证据",
+          "captured_at": "2026-11-11T03:11:14.553372+00:00"
+        },
+        {
+          "url": "https://www.skysports.com/football/sheffield-wednesday-vs-accrington-stanley/6936302183592075232",
+          "kind": "赛前近六场比分及主客",
+          "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.sportsmole.co.uk/football/efl-trophy/sheffield-wednesday-vs-accrington-stanley_game_262004.html",
+          "kind": "赛前状态及英锦赛小组表现",
+          "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6014408",
+          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
+          "checked_at": "2026-11-11T05:26:00Z",
+          "evidence": "已核对赛事ID、双方球队与开赛时间"
+        },
+        {
+          "url": "https://www.sportinglife.com/football/news/wednesday-best-bets-efl-trophy-tips-for-november-11-2026/235334",
+          "kind": "11月10日赛前球队状态、客场与市场评论",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://www.freetips.com/football/sheffield-wednesday-vs-accrington-live-stream-tips-20261110-0008/",
+          "kind": "11月10日赛前主场、交锋与赛事统计；观点需交叉审计",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://news.williamhill.com/football/efl-trophy-predictions-wednesday-11th-november-2026/",
+          "kind": "赛前杯赛积分及攻防信息；非William Hill盘口时间序列",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/teams?id=10163",
+          "kind": "FotMob球队历史赛程逐场比分（仅采开赛前已完赛记录）",
+          "checked_at": "2026-11-11",
+          "evidence": "比赛日期、主客身份、完赛比分、最近5场进失球"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/teams?id=8671",
+          "kind": "FotMob球队历史赛程逐场比分（仅采开赛前已完赛记录）",
+          "checked_at": "2026-11-11",
+          "evidence": "比赛日期、主客身份、完赛比分、最近5场进失球"
+        },
+        {
+          "url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
+          "kind": "共享原始市场数据",
+          "captured_at": "2026-11-11T07:32:56.603905+00:00",
+          "note": "来源为引擎市场采集记录，仍需原赔率机构页面独立复核"
+        },
+        {
+          "url": "https://www.thestar.co.uk/sport/football/sheffield-wednesday/sheffield-wednesday-accrington-stanley-9343396",
+          "kind": "赛前当地报道：伤停、轮换与小组形势",
+          "checked_at": "2026-11-11T08:33:25Z"
+        }
+      ],
+      "ft_review": {
+        "model_top1": "胜",
+        "independent_top1": "胜",
+        "verdict": "方向一致",
+        "reason": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。"
+      },
+      "handicap_review": {
+        "official_handicap": -1,
+        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
+        "model_top1": "让胜",
+        "top1": "让胜",
+        "verdict": "方向一致",
+        "reason": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。"
+      },
+      "comprehensive_pick": "主胜",
+      "comprehensive_reason": "维持精选：威廉主胜1.67降至1.44，澳门维持主让一球，双方主胜同路。赛前报道证实多名伤缺及轮换可能，属已知重要风险；目前未核实足以推翻主胜的新增首发或盘口反转。",
+      "score": 56.5,
+      "score_coverage": 52.5,
+      "score_breakdown": {
+        "model_40": {
+          "score": 26.02,
+          "max": 40,
+          "evidence": "原模型胜方向概率65.0%，按40×概率计分；仅校准输入，非独立证据",
+          "provisional": true
+        },
+        "form_20": {
+          "score": 10,
+          "max": 20,
+          "evidence": "近5场比分已核验；胜负强弱未做跨赛事强度校准，保守中性计分",
+          "provisional": true
+        },
+        "home_away_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "主客场比分已核验；对手强度未校准，保守中性计分",
+          "provisional": true
+        },
+        "squad_schedule_15": {
+          "score": 8,
+          "max": 15,
+          "evidence": "赛制赛程已核验，阵容仍未确认",
+          "provisional": true
+        },
+        "market_10": {
+          "score": 5,
+          "max": 10,
+          "evidence": "已复用威廉、澳门初即时盘原始记录，独立机构页面未复核；中性计分",
+          "provisional": true
+        }
+      },
+      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
+      "selected": true,
+      "selection_reason": "维持精选：威廉主胜1.67降至1.44，澳门维持主让一球，双方主胜同路。赛前报道证实多名伤缺及轮换可能，属已知重要风险；目前未核实足以推翻主胜的新增首发或盘口反转。",
+      "reviewed_at": "2026-11-11T09:33:14Z",
+      "customer_summary": "威廉主胜赔率持续下调，澳门维持主让一球。建议：主胜；需防伤停轮换影响。",
+      "cold_warning_audit": {
+        "source": "engine4 prediction.modules.冷门预警",
+        "status": "NOT_TRIGGERED",
+        "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [],
+        "watch": [],
+        "history_checked": false,
+        "history_status": "UNVERIFIED",
+        "hard_excluded": false
+      },
+      "review_version": "consensus-material-change-2026-11-11",
+      "consensus": {
+        "ft": "方向一致",
+        "handicap": "方向一致"
+      },
+      "risk_audit": {
+        "decision": "维持精选",
+        "material_new_counterevidence": false,
+        "history_warning_verified": false,
+        "known_risks": "伤停及轮换风险",
+        "reason": "既有风险不重复当作新增重大反向证据"
+      },
+      "gpt_review": {
+        "reviewed_at": "2026-11-11T09:33:14Z",
+        "source_captured_at": "2026-11-11T09:05:31.399745+00:00",
+        "ft_top1": "胜",
+        "handicap_top1": "让胜",
+        "confidence": "中",
+        "evidence": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。",
+        "risk": "轮换与阵容缺口、缺必发及可核实xG",
+        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
+        "unconfirmed": [
+          "历史逐场xG比赛日期未逐项独立核验",
+          "部分正式首发未确认"
+        ]
+      }
+    },
+    {
+      "match_no": "006",
+      "home": "巴恩斯利",
+      "away": "奥德汉姆",
+      "kickoff": "2026-11-12 03:00",
+      "status": "COMPLETED",
+      "top1": "胜",
+      "top2": [],
+      "confidence": "暂定",
+      "risk_level": "中",
+      "details": {
+        "recent_form": "FotMob赛前已完赛最近5场（含不同赛事）：巴恩斯利1胜1平3负，进11失9；奥德汉姆2胜1平2负，进4失6。",
+        "home_away": "FotMob赛前各自最近5个对应主客场（可能跨赛事）：巴恩斯利主场1胜2平2负，进13失10；奥德汉姆客场1胜1平3负，进2失8。",
+        "standings": "英锦赛G组巴恩斯利两战全负已出局，奥德汉姆两战全胜提前出线；巴恩斯利联赛此前排名第23（赛前报道口径）。",
+        "attack_defense": "近5场巴恩斯利场均进2.2失1.8；奥德汉姆场均进0.8失1.2。不同赛事混合，非独立xG。",
+        "market": "共享原始市场数据（来自九十刻度已采集记录，非第二独立来源）：威廉希尔初赔 2.10 / 3.50 / 2.70，即时赔 1.70 / 4.00 / 3.40；澳门初盘 0.80 0/0.5 0.98，即时盘 0.94 0.5/1 0.84；体彩普通SP 1.57/4.15/3.85；官方让球-1，让球SP 2.8/3.4/2.05；澳客必发成交量 23890/712/2724。采集时间 2026-11-11T07:33:01.521359+00:00；仅代表该时点，不冒充临场数据。",
+        "squad": "赛前报道提到巴恩斯利前锋Ben Hamed Toure、Fabio Jalo伤缺；奥德汉姆部分伤员及轮换仍需官方核实。",
+        "schedule": "巴恩斯利上轮足总杯七比二取胜，奥德汉姆本赛季客场八战仅胜一场。",
+        "h2h": "未确认",
+        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
+        "draw_risk": "杯赛90分钟平局风险不可忽略",
+        "motivation_risk": "英锦赛小组出线形势影响战意"
+      },
+      "conclusion": "巴恩斯利大胜止颓，但杯赛两场失8球且已经出局；奥德汉姆客场防守偏弱又已提前晋级，暂定主胜，净胜两球证据不足。",
+      "unconfirmed": [
+        "独立xG逐场赛前核验",
+        "确认首发伤停",
+        "历史交锋",
+        "长期同联赛主客场强度、赛前积分榜快照仍未确认",
+        "共享威廉/澳门初即盘已读取；机构官网独立复核及临场走势仍未完成",
+        "五维正式评分口径待纠偏，临时总分不可用于精选"
+      ],
+      "sources": [
+        {
+          "url": "https://www.sportinglife.com/football/news/wednesday-best-bets-efl-trophy-tips-for-november-11-2026/235334",
+          "kind": "独立联网赛前证据",
+          "checked_at": "2026-11-11T04:31:42Z"
+        },
+        {
+          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
+          "kind": "九十刻度模型派生数据，非独立证据",
+          "captured_at": "2026-11-11T03:11:17.530409+00:00"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6015570",
+          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
+          "checked_at": "2026-11-11T05:26:00Z",
+          "evidence": "已核对赛事ID、双方球队与开赛时间"
+        },
+        {
+          "url": "https://www.sportinglife.com/football/news/wednesday-best-bets-efl-trophy-tips-for-november-11-2026/235334",
+          "kind": "11月10日赛前近况、客场和进失球统计",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://www.sportsmole.co.uk/football/barnsley/efl-trophy/preview/barnsley-vs-oldham-prediction-team-news-lineups_608810.html",
+          "kind": "11月10日赛前赛事排名、伤停、战意",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://news.williamhill.com/football/efl-trophy-predictions-wednesday-11th-november-2026/",
+          "kind": "赛前杯赛积分及媒体预测，非William Hill盘口",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/teams?id=8283",
+          "kind": "FotMob球队历史赛程逐场比分（仅采开赛前已完赛记录）",
+          "checked_at": "2026-11-11",
+          "evidence": "比赛日期、主客身份、完赛比分、最近5场进失球"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/teams?id=9785",
+          "kind": "FotMob球队历史赛程逐场比分（仅采开赛前已完赛记录）",
+          "checked_at": "2026-11-11",
+          "evidence": "比赛日期、主客身份、完赛比分、最近5场进失球"
+        },
+        {
+          "url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
+          "kind": "共享原始市场数据",
+          "captured_at": "2026-11-11T07:33:01.521359+00:00",
+          "note": "来源为引擎市场采集记录，仍需原赔率机构页面独立复核"
+        },
+        {
+          "url": "https://www.okooo.com/soccer/match/1346706/exchanges/",
+          "kind": "共享必发原始交易记录",
+          "captured_at": "2026-11-11T07:31:15.526374+00:00"
+        }
+      ],
+      "ft_review": {
+        "model_top1": "胜",
+        "independent_top1": "胜",
+        "verdict": "方向一致",
+        "reason": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。"
+      },
+      "handicap_review": {
+        "official_handicap": -1,
+        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
+        "model_top1": "让负",
+        "top1": "让负",
+        "verdict": "方向一致",
+        "reason": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。"
+      },
+      "comprehensive_pick": "主胜",
+      "comprehensive_reason": "维持精选：威廉主胜2.10降至1.70，澳门由主让平半升至半一，双方主胜同路。必发主胜82.63%过热及杯赛轮换为已知风险，未见足以单独推翻主胜的新增反向证据。",
+      "score": 52.9,
+      "score_coverage": 52.5,
+      "score_breakdown": {
+        "model_40": {
+          "score": 22.4,
+          "max": 40,
+          "evidence": "原模型胜方向概率56.0%，按40×概率计分；仅校准输入，非独立证据",
+          "provisional": true
+        },
+        "form_20": {
+          "score": 10,
+          "max": 20,
+          "evidence": "近5场比分已核验；胜负强弱未做跨赛事强度校准，保守中性计分",
+          "provisional": true
+        },
+        "home_away_15": {
+          "score": 7.5,
+          "max": 15,
+          "evidence": "主客场比分已核验；对手强度未校准，保守中性计分",
+          "provisional": true
+        },
+        "squad_schedule_15": {
+          "score": 8,
+          "max": 15,
+          "evidence": "赛制赛程已核验，阵容仍未确认",
+          "provisional": true
+        },
+        "market_10": {
+          "score": 5,
+          "max": 10,
+          "evidence": "已复用威廉、澳门初即时盘原始记录，独立机构页面未复核；中性计分",
+          "provisional": true
+        }
+      },
+      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
+      "selected": true,
+      "selection_reason": "维持精选：威廉主胜2.10降至1.70，澳门由主让平半升至半一，双方主胜同路。必发主胜82.63%过热及杯赛轮换为已知风险，未见足以单独推翻主胜的新增反向证据。",
+      "reviewed_at": "2026-11-11T09:33:14Z",
+      "customer_summary": "威廉主胜赔率明显下调，澳门盘口升至主让半一。建议：主胜；必发资金过热需警惕。",
+      "cold_warning_audit": {
+        "source": "engine4 prediction.modules.冷门预警",
+        "status": "NOT_TRIGGERED",
+        "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [
+          "澳客必发赛前资金比例 82.63%/5.98%/11.39%；成交量 33148/2397/4571"
+        ],
+        "watch": [],
+        "history_checked": false,
+        "history_status": "UNVERIFIED",
+        "hard_excluded": false
+      },
+      "review_version": "consensus-material-change-2026-11-11",
+      "consensus": {
+        "ft": "方向一致",
+        "handicap": "方向一致"
+      },
+      "risk_audit": {
+        "decision": "维持精选",
+        "material_new_counterevidence": false,
+        "history_warning_verified": false,
+        "known_risks": "必发过热、杯赛轮换风险",
+        "reason": "既有风险不重复当作新增重大反向证据"
+      },
+      "gpt_review": {
+        "reviewed_at": "2026-11-11T09:33:14Z",
+        "source_captured_at": "2026-11-11T09:05:33.699512+00:00",
+        "ft_top1": "胜",
+        "handicap_top1": "让负",
+        "confidence": "中",
+        "evidence": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。",
+        "risk": "必发主胜过热、杯赛阵容不确定",
         "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
         "unconfirmed": [
           "历史逐场xG比赛日期未逐项独立核验",
@@ -704,370 +1086,6 @@
           "部分正式首发未确认"
         ]
       }
-    },
-    {
-      "match_no": "005",
-      "home": "谢周三",
-      "away": "阿克灵顿",
-      "kickoff": "2026-11-12 03:00",
-      "status": "COMPLETED",
-      "top1": "胜",
-      "top2": [],
-      "confidence": "暂定",
-      "risk_level": "中高",
-      "details": {
-        "recent_form": "FotMob赛前已完赛最近5场（含不同赛事）：谢周三0胜2平3负，进3失8；阿克灵顿2胜2平1负，进10失5。",
-        "home_away": "FotMob赛前各自最近5个对应主客场（可能跨赛事）：谢周三主场2胜3平0负，进9失2；阿克灵顿客场1胜3平1负，进8失4。",
-        "standings": "英锦赛A组：谢周三前两战全胜已晋级；阿克灵顿两场常规时间均平、点球获胜，积4分，仍需争取晋级。",
-        "attack_defense": "近5场谢周三场均进0.6失1.6；阿克灵顿场均进2.0失1.0。不同赛事混合，非独立xG。",
-        "market": "共享原始市场数据（来自九十刻度已采集记录，非第二独立来源）：威廉希尔初赔 1.67 / 3.70 / 3.90，即时赔 1.50 / 3.90 / 4.80；澳门初盘 0.98 1 0.80，即时盘 0.78 1 1.00；体彩普通SP 1.35/4.4/5.85；官方让球-1，让球SP 2.12/3.65/2.54。采集时间 2026-11-11T07:32:56.603905+00:00；仅代表该时点，不冒充临场数据。",
-        "squad": "11月11日赛前当地报道确认谢周三多名伤员缺席，主教练可能大幅轮换；实际首发仍待确认。",
-        "schedule": "谢周三英锦赛前两轮全胜且已经出线，阿克灵顿两场均在常规时间战平。",
-        "h2h": "赛前统计报道显示谢周三历史交锋占优，具体交锋日期尚待逐场复核。",
-        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
-        "draw_risk": "杯赛90分钟平局风险不可忽略",
-        "motivation_risk": "谢周三已晋级但争夺小组头名，周末还有联赛；阿克灵顿仍争取晋级，双方战意与轮换风险需同时考虑。"
-      },
-      "conclusion": "谢周三杯赛两胜已出线且近期主场不败，但阿克灵顿客场表现与晋级动机形成反向风险；暂定主胜，需防平负。",
-      "unconfirmed": [
-        "独立xG逐场赛前核验",
-        "确认首发伤停",
-        "FotMob赛季长期攻防和赛前积分榜快照未核实",
-        "长期同联赛主客场强度、赛前积分榜快照仍未确认",
-        "共享威廉/澳门初即盘已读取；机构官网独立复核及临场走势仍未完成",
-        "五维正式评分口径待纠偏，临时总分不可用于精选"
-      ],
-      "sources": [
-        {
-          "url": "https://news.williamhill.com/football/efl-trophy-predictions-wednesday-11th-november-2026/",
-          "kind": "独立联网赛前证据",
-          "checked_at": "2026-11-11T04:31:42Z"
-        },
-        {
-          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
-          "kind": "九十刻度模型派生数据，非独立证据",
-          "captured_at": "2026-11-11T03:11:14.553372+00:00"
-        },
-        {
-          "url": "https://www.skysports.com/football/sheffield-wednesday-vs-accrington-stanley/6936302183592075232",
-          "kind": "赛前近六场比分及主客",
-          "checked_at": "2026-11-11"
-        },
-        {
-          "url": "https://www.sportsmole.co.uk/football/efl-trophy/sheffield-wednesday-vs-accrington-stanley_game_262004.html",
-          "kind": "赛前状态及英锦赛小组表现",
-          "checked_at": "2026-11-11"
-        },
-        {
-          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6014408",
-          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
-          "checked_at": "2026-11-11T05:26:00Z",
-          "evidence": "已核对赛事ID、双方球队与开赛时间"
-        },
-        {
-          "url": "https://www.sportinglife.com/football/news/wednesday-best-bets-efl-trophy-tips-for-november-11-2026/235334",
-          "kind": "11月10日赛前球队状态、客场与市场评论",
-          "checked_at": "2026-11-11T05:26:00Z"
-        },
-        {
-          "url": "https://www.freetips.com/football/sheffield-wednesday-vs-accrington-live-stream-tips-20261110-0008/",
-          "kind": "11月10日赛前主场、交锋与赛事统计；观点需交叉审计",
-          "checked_at": "2026-11-11T05:26:00Z"
-        },
-        {
-          "url": "https://news.williamhill.com/football/efl-trophy-predictions-wednesday-11th-november-2026/",
-          "kind": "赛前杯赛积分及攻防信息；非William Hill盘口时间序列",
-          "checked_at": "2026-11-11T05:26:00Z"
-        },
-        {
-          "url": "https://www.fotmob.com/api/data/teams?id=10163",
-          "kind": "FotMob球队历史赛程逐场比分（仅采开赛前已完赛记录）",
-          "checked_at": "2026-11-11",
-          "evidence": "比赛日期、主客身份、完赛比分、最近5场进失球"
-        },
-        {
-          "url": "https://www.fotmob.com/api/data/teams?id=8671",
-          "kind": "FotMob球队历史赛程逐场比分（仅采开赛前已完赛记录）",
-          "checked_at": "2026-11-11",
-          "evidence": "比赛日期、主客身份、完赛比分、最近5场进失球"
-        },
-        {
-          "url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
-          "kind": "共享原始市场数据",
-          "captured_at": "2026-11-11T07:32:56.603905+00:00",
-          "note": "来源为引擎市场采集记录，仍需原赔率机构页面独立复核"
-        },
-        {
-          "url": "https://www.thestar.co.uk/sport/football/sheffield-wednesday/sheffield-wednesday-accrington-stanley-9343396",
-          "kind": "赛前当地报道：伤停、轮换与小组形势",
-          "checked_at": "2026-11-11T08:33:25Z"
-        }
-      ],
-      "ft_review": {
-        "model_top1": "胜",
-        "independent_top1": "胜",
-        "verdict": "方向一致",
-        "reason": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。"
-      },
-      "handicap_review": {
-        "official_handicap": -1,
-        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
-        "model_top1": "让胜",
-        "top1": "让胜",
-        "verdict": "方向一致",
-        "reason": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。"
-      },
-      "comprehensive_pick": "主胜",
-      "comprehensive_reason": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。",
-      "score": 56.5,
-      "score_coverage": 52.5,
-      "score_breakdown": {
-        "model_40": {
-          "score": 26.02,
-          "max": 40,
-          "evidence": "原模型胜方向概率65.0%，按40×概率计分；仅校准输入，非独立证据",
-          "provisional": true
-        },
-        "form_20": {
-          "score": 10,
-          "max": 20,
-          "evidence": "近5场比分已核验；胜负强弱未做跨赛事强度校准，保守中性计分",
-          "provisional": true
-        },
-        "home_away_15": {
-          "score": 7.5,
-          "max": 15,
-          "evidence": "主客场比分已核验；对手强度未校准，保守中性计分",
-          "provisional": true
-        },
-        "squad_schedule_15": {
-          "score": 8,
-          "max": 15,
-          "evidence": "赛制赛程已核验，阵容仍未确认",
-          "provisional": true
-        },
-        "market_10": {
-          "score": 5,
-          "max": 10,
-          "evidence": "已复用威廉、澳门初即时盘原始记录，独立机构页面未复核；中性计分",
-          "provisional": true
-        }
-      },
-      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
-      "selected": false,
-      "selection_reason": "非精选：轮换与阵容缺口、缺必发及可核实xG",
-      "reviewed_at": "2026-11-11T09:33:14Z",
-      "customer_summary": "建议：主胜；威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。",
-      "cold_warning_audit": {
-        "source": "engine4 prediction.modules.冷门预警",
-        "status": "NOT_TRIGGERED",
-        "triggered": false,
-        "level": "未触发",
-        "channels": [],
-        "evidence": [],
-        "watch": [],
-        "history_checked": false,
-        "history_status": "UNVERIFIED",
-        "hard_excluded": false
-      },
-      "review_version": "dynamic-crosscheck-v3",
-      "consensus": {
-        "ft": "方向一致",
-        "handicap": "方向一致"
-      },
-      "risk_audit": "轮换与阵容缺口、缺必发及可核实xG",
-      "gpt_review": {
-        "reviewed_at": "2026-11-11T09:33:14Z",
-        "source_captured_at": "2026-11-11T09:05:31.399745+00:00",
-        "ft_top1": "胜",
-        "handicap_top1": "让胜",
-        "confidence": "中",
-        "evidence": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。",
-        "risk": "轮换与阵容缺口、缺必发及可核实xG",
-        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
-        "unconfirmed": [
-          "历史逐场xG比赛日期未逐项独立核验",
-          "部分正式首发未确认"
-        ]
-      }
-    },
-    {
-      "match_no": "006",
-      "home": "巴恩斯利",
-      "away": "奥德汉姆",
-      "kickoff": "2026-11-12 03:00",
-      "status": "COMPLETED",
-      "top1": "胜",
-      "top2": [],
-      "confidence": "暂定",
-      "risk_level": "中",
-      "details": {
-        "recent_form": "FotMob赛前已完赛最近5场（含不同赛事）：巴恩斯利1胜1平3负，进11失9；奥德汉姆2胜1平2负，进4失6。",
-        "home_away": "FotMob赛前各自最近5个对应主客场（可能跨赛事）：巴恩斯利主场1胜2平2负，进13失10；奥德汉姆客场1胜1平3负，进2失8。",
-        "standings": "英锦赛G组巴恩斯利两战全负已出局，奥德汉姆两战全胜提前出线；巴恩斯利联赛此前排名第23（赛前报道口径）。",
-        "attack_defense": "近5场巴恩斯利场均进2.2失1.8；奥德汉姆场均进0.8失1.2。不同赛事混合，非独立xG。",
-        "market": "共享原始市场数据（来自九十刻度已采集记录，非第二独立来源）：威廉希尔初赔 2.10 / 3.50 / 2.70，即时赔 1.70 / 4.00 / 3.40；澳门初盘 0.80 0/0.5 0.98，即时盘 0.94 0.5/1 0.84；体彩普通SP 1.57/4.15/3.85；官方让球-1，让球SP 2.8/3.4/2.05；澳客必发成交量 23890/712/2724。采集时间 2026-11-11T07:33:01.521359+00:00；仅代表该时点，不冒充临场数据。",
-        "squad": "赛前报道提到巴恩斯利前锋Ben Hamed Toure、Fabio Jalo伤缺；奥德汉姆部分伤员及轮换仍需官方核实。",
-        "schedule": "巴恩斯利上轮足总杯七比二取胜，奥德汉姆本赛季客场八战仅胜一场。",
-        "h2h": "未确认",
-        "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
-        "draw_risk": "杯赛90分钟平局风险不可忽略",
-        "motivation_risk": "英锦赛小组出线形势影响战意"
-      },
-      "conclusion": "巴恩斯利大胜止颓，但杯赛两场失8球且已经出局；奥德汉姆客场防守偏弱又已提前晋级，暂定主胜，净胜两球证据不足。",
-      "unconfirmed": [
-        "独立xG逐场赛前核验",
-        "确认首发伤停",
-        "历史交锋",
-        "长期同联赛主客场强度、赛前积分榜快照仍未确认",
-        "共享威廉/澳门初即盘已读取；机构官网独立复核及临场走势仍未完成",
-        "五维正式评分口径待纠偏，临时总分不可用于精选"
-      ],
-      "sources": [
-        {
-          "url": "https://www.sportinglife.com/football/news/wednesday-best-bets-efl-trophy-tips-for-november-11-2026/235334",
-          "kind": "独立联网赛前证据",
-          "checked_at": "2026-11-11T04:31:42Z"
-        },
-        {
-          "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
-          "kind": "九十刻度模型派生数据，非独立证据",
-          "captured_at": "2026-11-11T03:11:17.530409+00:00"
-        },
-        {
-          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6015570",
-          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
-          "checked_at": "2026-11-11T05:26:00Z",
-          "evidence": "已核对赛事ID、双方球队与开赛时间"
-        },
-        {
-          "url": "https://www.sportinglife.com/football/news/wednesday-best-bets-efl-trophy-tips-for-november-11-2026/235334",
-          "kind": "11月10日赛前近况、客场和进失球统计",
-          "checked_at": "2026-11-11T05:26:00Z"
-        },
-        {
-          "url": "https://www.sportsmole.co.uk/football/barnsley/efl-trophy/preview/barnsley-vs-oldham-prediction-team-news-lineups_608810.html",
-          "kind": "11月10日赛前赛事排名、伤停、战意",
-          "checked_at": "2026-11-11T05:26:00Z"
-        },
-        {
-          "url": "https://news.williamhill.com/football/efl-trophy-predictions-wednesday-11th-november-2026/",
-          "kind": "赛前杯赛积分及媒体预测，非William Hill盘口",
-          "checked_at": "2026-11-11T05:26:00Z"
-        },
-        {
-          "url": "https://www.fotmob.com/api/data/teams?id=8283",
-          "kind": "FotMob球队历史赛程逐场比分（仅采开赛前已完赛记录）",
-          "checked_at": "2026-11-11",
-          "evidence": "比赛日期、主客身份、完赛比分、最近5场进失球"
-        },
-        {
-          "url": "https://www.fotmob.com/api/data/teams?id=9785",
-          "kind": "FotMob球队历史赛程逐场比分（仅采开赛前已完赛记录）",
-          "checked_at": "2026-11-11",
-          "evidence": "比赛日期、主客身份、完赛比分、最近5场进失球"
-        },
-        {
-          "url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
-          "kind": "共享原始市场数据",
-          "captured_at": "2026-11-11T07:33:01.521359+00:00",
-          "note": "来源为引擎市场采集记录，仍需原赔率机构页面独立复核"
-        },
-        {
-          "url": "https://www.okooo.com/soccer/match/1346706/exchanges/",
-          "kind": "共享必发原始交易记录",
-          "captured_at": "2026-11-11T07:31:15.526374+00:00"
-        }
-      ],
-      "ft_review": {
-        "model_top1": "胜",
-        "independent_top1": "胜",
-        "verdict": "方向一致",
-        "reason": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。"
-      },
-      "handicap_review": {
-        "official_handicap": -1,
-        "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
-        "model_top1": "让负",
-        "top1": "让负",
-        "verdict": "方向一致",
-        "reason": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。"
-      },
-      "comprehensive_pick": "主胜",
-      "comprehensive_reason": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。",
-      "score": 52.9,
-      "score_coverage": 52.5,
-      "score_breakdown": {
-        "model_40": {
-          "score": 22.4,
-          "max": 40,
-          "evidence": "原模型胜方向概率56.0%，按40×概率计分；仅校准输入，非独立证据",
-          "provisional": true
-        },
-        "form_20": {
-          "score": 10,
-          "max": 20,
-          "evidence": "近5场比分已核验；胜负强弱未做跨赛事强度校准，保守中性计分",
-          "provisional": true
-        },
-        "home_away_15": {
-          "score": 7.5,
-          "max": 15,
-          "evidence": "主客场比分已核验；对手强度未校准，保守中性计分",
-          "provisional": true
-        },
-        "squad_schedule_15": {
-          "score": 8,
-          "max": 15,
-          "evidence": "赛制赛程已核验，阵容仍未确认",
-          "provisional": true
-        },
-        "market_10": {
-          "score": 5,
-          "max": 10,
-          "evidence": "已复用威廉、澳门初即时盘原始记录，独立机构页面未复核；中性计分",
-          "provisional": true
-        }
-      },
-      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
-      "selected": false,
-      "selection_reason": "非精选：必发主胜过热、杯赛阵容不确定",
-      "reviewed_at": "2026-11-11T09:33:14Z",
-      "customer_summary": "建议：主胜；威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。",
-      "cold_warning_audit": {
-        "source": "engine4 prediction.modules.冷门预警",
-        "status": "NOT_TRIGGERED",
-        "triggered": false,
-        "level": "未触发",
-        "channels": [],
-        "evidence": [
-          "澳客必发赛前资金比例 82.63%/5.98%/11.39%；成交量 33148/2397/4571"
-        ],
-        "watch": [],
-        "history_checked": false,
-        "history_status": "UNVERIFIED",
-        "hard_excluded": false
-      },
-      "review_version": "dynamic-crosscheck-v3",
-      "consensus": {
-        "ft": "方向一致",
-        "handicap": "方向一致"
-      },
-      "risk_audit": "必发主胜过热、杯赛阵容不确定",
-      "gpt_review": {
-        "reviewed_at": "2026-11-11T09:33:14Z",
-        "source_captured_at": "2026-11-11T09:05:33.699512+00:00",
-        "ft_top1": "胜",
-        "handicap_top1": "让负",
-        "confidence": "中",
-        "evidence": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。",
-        "risk": "必发主胜过热、杯赛阵容不确定",
-        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
-        "unconfirmed": [
-          "历史逐场xG比赛日期未逐项独立核验",
-          "部分正式首发未确认"
-        ]
-      }
     }
   ],
   "review_run": {
@@ -1075,5 +1093,6 @@
     "source_generated_at": "2026-11-11T07:33:30.802333+00:00",
     "selection_count": 3,
     "warning_history_note": "Historical trigger records not independently verified; current module status checked."
-  }
+  },
+  "review_note": "仅基于赛前可追溯证据纠正重复风险否决；历史正式预警全周期未完整核实；不修改已开赛冻结记录。"
 }
