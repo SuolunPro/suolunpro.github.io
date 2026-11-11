@@ -123,32 +123,30 @@
       "home": "神户胜利",
       "away": "町田泽维",
       "kickoff": "2026-11-11 18:00",
-      "status": "PENDING",
+      "status": "INSUFFICIENT",
       "top1": "负",
       "top2": [],
       "confidence": "暂定",
       "risk_level": "中高",
       "details": {
-        "recent_form": "未确认",
+        "recent_form": "神户胜利最近5场3胜2平（11月8日浦和2-2、11月3日拉查布里3-2、10月31日名古屋3-1、10月27日大田1-0、10月24日町田0-0）；町田泽维最近5场2胜3平（11月8日广岛0-0、11月5日上海申花2-1、11月1日大阪钢巴0-0、10月29日上海申花1-0、10月24日神户0-0）。含亚冠。",
         "home_away": "未确认",
         "standings": "未确认",
         "attack_defense": "未确认",
         "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
         "squad": "正式首发未确认",
         "schedule": "日本联赛杯官方确认神户与町田进行八强首回合，次回合定于11月15日。",
-        "h2h": "未确认",
+        "h2h": "10月24日双方联赛神户主场0-0町田。",
         "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
         "draw_risk": "杯赛90分钟平局风险不可忽略",
         "motivation_risk": "两回合淘汰赛首回合，需考虑保守策略"
       },
       "conclusion": "首回合赛制已核实；独立近期数据不足；模型与独立胜平负分歧",
       "unconfirmed": [
-        "独立完整近5-10场战绩",
         "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
-        "独立赔率时间序列",
-        "历史交锋"
+        "独立赔率时间序列"
       ],
       "sources": [
         {
@@ -160,6 +158,18 @@
           "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
           "kind": "九十刻度模型派生数据，非独立证据",
           "captured_at": "2026-11-11T03:10:53.473282+00:00"
+        },
+        {
+          "url": "https://www.jleague.jp/en/club/kobe/",
+          "kind": "日本J联赛官方球队赛前比赛记录",
+          "evidence": "截至2026-11-11开赛前最近5场比分及比赛日期",
+          "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.jleague.jp/en/club/machida/",
+          "kind": "日本J联赛官方球队赛前比赛记录",
+          "evidence": "截至2026-11-11开赛前最近5场比分及比赛日期",
+          "checked_at": "2026-11-11"
         }
       ],
       "ft_review": {
@@ -214,41 +224,39 @@
       },
       "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
+      "selection_reason": "基础战绩已补采，但独立赔率、阵容及完整攻防证据仍不足，不列精选；原暂定评分未重算。",
       "reviewed_at": "2026-11-11T12:31:42+08:00",
-      "customer_summary": "日本联赛杯官方确认神户与町田进行八强首回合，次回合定于11月15日。主队让一球要求净胜至少两球，首回合更倾向让负但需警惕主场优势。"
+      "customer_summary": "神户近五场三胜两平，町田两胜三平，双方十月交锋互交白卷。杯赛首回合存在平局及轮换风险，暂不列入精选。"
     },
     {
       "match_no": "003",
       "home": "川崎前锋",
       "away": "柏太阳神",
       "kickoff": "2026-11-11 18:00",
-      "status": "PENDING",
+      "status": "INSUFFICIENT",
       "top1": "负",
       "top2": [],
       "confidence": "暂定",
       "risk_level": "中",
       "details": {
-        "recent_form": "未确认",
+        "recent_form": "川崎前锋最近5场3胜2负（11月7日柏太阳神1-2、11月1日横滨水手2-4、10月28日鸟栖2-0、10月25日冈山2-1、10月21日神户2-1）；柏太阳神最近5场4胜1平（11月7日川崎2-1、11月3日大田2-0、10月31日浦和4-0、10月27日拉查布里0-0、10月24日鹿岛3-2）。含亚冠。",
         "home_away": "未确认",
         "standings": "未确认",
         "attack_defense": "未确认",
         "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
         "squad": "正式首发未确认",
         "schedule": "日本联赛杯官方赛程显示川崎与柏太阳神交锋属于八强首回合。",
-        "h2h": "未确认",
+        "h2h": "11月7日柏太阳神主场2-1川崎前锋。",
         "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
         "draw_risk": "杯赛90分钟平局风险不可忽略",
         "motivation_risk": "两回合淘汰赛首回合，需考虑保守策略"
       },
       "conclusion": "仅赛制已独立核实，阵容近况未确认",
       "unconfirmed": [
-        "独立完整近5-10场战绩",
         "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
-        "独立赔率时间序列",
-        "历史交锋"
+        "独立赔率时间序列"
       ],
       "sources": [
         {
@@ -260,6 +268,18 @@
           "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
           "kind": "九十刻度模型派生数据，非独立证据",
           "captured_at": "2026-11-11T03:11:01.044511+00:00"
+        },
+        {
+          "url": "https://www.jleague.jp/en/club/kawasakif/",
+          "kind": "日本J联赛官方球队赛前比赛记录",
+          "evidence": "截至2026-11-11开赛前最近5场比分及比赛日期",
+          "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.jleague.jp/en/club/kashiwa/",
+          "kind": "日本J联赛官方球队赛前比赛记录",
+          "evidence": "截至2026-11-11开赛前最近5场比分及比赛日期",
+          "checked_at": "2026-11-11"
         }
       ],
       "ft_review": {
@@ -314,36 +334,35 @@
       },
       "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
+      "selection_reason": "基础战绩已补采，但独立赔率、阵容及完整攻防证据仍不足，不列精选；原暂定评分未重算。",
       "reviewed_at": "2026-11-11T12:31:42+08:00",
-      "customer_summary": "日本联赛杯官方赛程显示川崎与柏太阳神交锋属于八强首回合。川崎受让一球降低了方向要求，但缺少可靠近期攻防数据支持。"
+      "customer_summary": "川崎近五场三胜两负，柏太阳神四胜一平，柏队上轮直接交锋二比一取胜。杯赛首回合仍有轮换及平局风险，暂不列入精选。"
     },
     {
       "match_no": "004",
       "home": "浦和红钻",
       "away": "大阪樱花",
       "kickoff": "2026-11-11 18:30",
-      "status": "PENDING",
+      "status": "INSUFFICIENT",
       "top1": "胜",
       "top2": [],
       "confidence": "暂定",
       "risk_level": "中",
       "details": {
-        "recent_form": "未确认",
+        "recent_form": "浦和红钻最近5场3胜1平1负（11月8日神户2-2、10月31日柏太阳神0-4、10月28日名古屋2-1、10月25日长崎1-0、10月21日千叶3-2）；大阪樱花最近5场2胜2平1负（11月8日大阪钢巴3-2、10月31日鹿岛1-4、10月28日水户3-1、10月25日千叶2-2、10月21日名古屋1-1）。",
         "home_away": "未确认",
         "standings": "未确认",
         "attack_defense": "未确认",
         "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
         "squad": "正式首发未确认",
         "schedule": "日本联赛杯官方赛程确认浦和与大阪樱花将在八强首回合交锋。",
-        "h2h": "未确认",
+        "h2h": "最近5次直接交锋尚未核实。",
         "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
         "draw_risk": "杯赛90分钟平局风险不可忽略",
         "motivation_risk": "两回合淘汰赛首回合，需考虑保守策略"
       },
       "conclusion": "首回合赛制已核实，独立攻防与首发未确认",
       "unconfirmed": [
-        "独立完整近5-10场战绩",
         "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
@@ -360,6 +379,18 @@
           "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
           "kind": "九十刻度模型派生数据，非独立证据",
           "captured_at": "2026-11-11T03:11:10.363779+00:00"
+        },
+        {
+          "url": "https://www.jleague.jp/en/club/urawa/",
+          "kind": "日本J联赛官方球队赛前比赛记录",
+          "evidence": "截至2026-11-11开赛前最近5场比分及比赛日期",
+          "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.jleague.jp/en/club/cosaka/",
+          "kind": "日本J联赛官方球队赛前比赛记录",
+          "evidence": "截至2026-11-11开赛前最近5场比分及比赛日期",
+          "checked_at": "2026-11-11"
         }
       ],
       "ft_review": {
@@ -414,9 +445,9 @@
       },
       "audit_status": "数据不足",
       "selected": false,
-      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
+      "selection_reason": "基础战绩已补采，但独立赔率、阵容及完整攻防证据仍不足，不列精选；原暂定评分未重算。",
       "reviewed_at": "2026-11-11T12:31:42+08:00",
-      "customer_summary": "日本联赛杯官方赛程确认浦和与大阪樱花将在八强首回合交锋。主队让一球需要净胜两球才可打出让胜，倾向让负并防平局。"
+      "customer_summary": "浦和近五场三胜一平一负，大阪樱花两胜两平一负，双方近期均有失球较多场次。杯赛首回合方向仍需市场和阵容验证，暂不列入精选。"
     },
     {
       "match_no": "005",
