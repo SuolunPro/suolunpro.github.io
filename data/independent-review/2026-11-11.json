@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-11",
-  "generated_at": "2026-11-11T08:33:25Z",
+  "generated_at": "2026-11-11T08:52:13.664Z",
   "matches": [
     {
       "match_no": "001",
@@ -144,9 +144,23 @@
       },
       "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
       "selected": false,
-      "selection_reason": "五维正式评分口径尚未完成可复算纠偏；当前分数仅为历史临时试算，不作为75分精选依据。",
+      "selection_reason": "本次复核：受让一球有容错，但鹿岛客胜市场受支持，受让方向仍需防客队净胜两球；历史冷门触发记录未核实。 当前冷门模块状态：NOT_TRIGGERED；历史触发记录未核实，暂不发布正式精选。",
       "reviewed_at": "2026-11-11T15:34:00+08:00",
-      "customer_summary": "横滨水手2胜3平0负，进12失9；鹿岛鹿角2胜1平2负，进9失6。盘口初即时数据已复用，但阵容及对手强度仍待核实，暂不精选。"
+      "customer_summary": "暂不精选：受让一球有容错，但鹿岛客胜市场受支持，受让方向仍需防客队净胜两球；历史冷门触发记录未核实。",
+      "cold_warning_audit": {
+        "source": "engine4 prediction.modules.冷门预警",
+        "status": "NOT_TRIGGERED",
+        "triggered": false,
+        "history_checked": false,
+        "history_status": "UNVERIFIED",
+        "hard_excluded": false
+      },
+      "review_version": "gpt-collected-data-crosscheck-v1",
+      "consensus": {
+        "ft": "方向一致",
+        "handicap": "方向一致"
+      },
+      "risk_audit": "受让一球有容错，但鹿岛客胜市场受支持，受让方向仍需防客队净胜两球；历史冷门触发记录未核实。"
     },
     {
       "match_no": "002",
@@ -279,9 +293,23 @@
       },
       "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
       "selected": false,
-      "selection_reason": "五维正式评分口径尚未完成可复算纠偏；当前分数仅为历史临时试算，不作为75分精选依据。",
+      "selection_reason": "本次复核：当前仅WATCH非正式预警；胜平负与GPT判断分歧，首回合平局风险较高。 当前冷门模块状态：WATCH；历史触发记录未核实，暂不发布正式精选。",
       "reviewed_at": "2026-11-11T15:34:00+08:00",
-      "customer_summary": "神户胜利3胜2平0负，进9失5；町田泽维2胜3平0负，进3失1。盘口初即时数据已复用，但阵容及对手强度仍待核实，暂不精选。"
+      "customer_summary": "暂不精选：当前仅WATCH非正式预警；胜平负与GPT判断分歧，首回合平局风险较高。",
+      "cold_warning_audit": {
+        "source": "engine4 prediction.modules.冷门预警",
+        "status": "WATCH",
+        "triggered": false,
+        "history_checked": false,
+        "history_status": "UNVERIFIED",
+        "hard_excluded": false
+      },
+      "review_version": "gpt-collected-data-crosscheck-v1",
+      "consensus": {
+        "ft": "方向分歧",
+        "handicap": "方向一致"
+      },
+      "risk_audit": "当前仅WATCH非正式预警；胜平负与GPT判断分歧，首回合平局风险较高。"
     },
     {
       "match_no": "003",
@@ -419,9 +447,23 @@
       },
       "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
       "selected": false,
-      "selection_reason": "五维正式评分口径尚未完成可复算纠偏；当前分数仅为历史临时试算，不作为75分精选依据。",
+      "selection_reason": "本次复核：威廉和澳门支持客队，但必发平局异常偏热，xG差距很小，不作为高确定性精选。 当前冷门模块状态：NOT_TRIGGERED；历史触发记录未核实，暂不发布正式精选。",
       "reviewed_at": "2026-11-11T15:34:00+08:00",
-      "customer_summary": "川崎前锋3胜0平2负，进9失8；柏太阳神4胜1平0负，进11失3。盘口初即时数据已复用，但阵容及对手强度仍待核实，暂不精选。"
+      "customer_summary": "暂不精选：威廉和澳门支持客队，但必发平局异常偏热，xG差距很小，不作为高确定性精选。",
+      "cold_warning_audit": {
+        "source": "engine4 prediction.modules.冷门预警",
+        "status": "NOT_TRIGGERED",
+        "triggered": false,
+        "history_checked": false,
+        "history_status": "UNVERIFIED",
+        "hard_excluded": false
+      },
+      "review_version": "gpt-collected-data-crosscheck-v1",
+      "consensus": {
+        "ft": "方向一致",
+        "handicap": "方向一致"
+      },
+      "risk_audit": "威廉和澳门支持客队，但必发平局异常偏热，xG差距很小，不作为高确定性精选。"
     },
     {
       "match_no": "004",
@@ -555,9 +597,23 @@
       },
       "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
       "selected": false,
-      "selection_reason": "五维正式评分口径尚未完成可复算纠偏；当前分数仅为历史临时试算，不作为75分精选依据。",
+      "selection_reason": "本次复核：主队占优但威廉主胜略升，首回合赛制增加平局风险，暂不精选。 当前冷门模块状态：NOT_TRIGGERED；历史触发记录未核实，暂不发布正式精选。",
       "reviewed_at": "2026-11-11T15:34:00+08:00",
-      "customer_summary": "浦和红钻3胜1平1负，进8失9；大阪樱花2胜2平1负，进10失10。盘口初即时数据已复用，但阵容及对手强度仍待核实，暂不精选。"
+      "customer_summary": "暂不精选：主队占优但威廉主胜略升，首回合赛制增加平局风险，暂不精选。",
+      "cold_warning_audit": {
+        "source": "engine4 prediction.modules.冷门预警",
+        "status": "NOT_TRIGGERED",
+        "triggered": false,
+        "history_checked": false,
+        "history_status": "UNVERIFIED",
+        "hard_excluded": false
+      },
+      "review_version": "gpt-collected-data-crosscheck-v1",
+      "consensus": {
+        "ft": "方向一致",
+        "handicap": "方向一致"
+      },
+      "risk_audit": "主队占优但威廉主胜略升，首回合赛制增加平局风险，暂不精选。"
     },
     {
       "match_no": "005",
@@ -709,9 +765,23 @@
       },
       "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
       "selected": false,
-      "selection_reason": "五维正式评分口径尚未完成可复算纠偏；当前分数仅为历史临时试算，不作为75分精选依据。",
+      "selection_reason": "本次复核：主胜市场支持明显，但阵容伤停、轮换和战意存在独立反向证据，历史冷门触发记录未核实。 当前冷门模块状态：NOT_TRIGGERED；历史触发记录未核实，暂不发布正式精选。",
       "reviewed_at": "2026-11-11T15:34:00+08:00",
-      "customer_summary": "谢周三已提前晋级，赛前报道指出球队伤停较多且可能轮换。主胜有市场支持，但阵容及客队争晋级的战意使让球方向仍需谨慎。"
+      "customer_summary": "暂不精选：主胜市场支持明显，但阵容伤停、轮换和战意存在独立反向证据，历史冷门触发记录未核实。",
+      "cold_warning_audit": {
+        "source": "engine4 prediction.modules.冷门预警",
+        "status": "NOT_TRIGGERED",
+        "triggered": false,
+        "history_checked": false,
+        "history_status": "UNVERIFIED",
+        "hard_excluded": false
+      },
+      "review_version": "gpt-collected-data-crosscheck-v1",
+      "consensus": {
+        "ft": "方向一致",
+        "handicap": "方向分歧"
+      },
+      "risk_audit": "主胜市场支持明显，但阵容伤停、轮换和战意存在独立反向证据，历史冷门触发记录未核实。"
     },
     {
       "match_no": "006",
@@ -853,9 +923,29 @@
       },
       "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
       "selected": false,
-      "selection_reason": "五维正式评分口径尚未完成可复算纠偏；当前分数仅为历史临时试算，不作为75分精选依据。",
+      "selection_reason": "本次复核：主胜赔率大幅下调，但必发热门过热，双方战意及轮换不确定，历史冷门触发记录未核实。 当前冷门模块状态：NOT_TRIGGERED；历史触发记录未核实，暂不发布正式精选。",
       "reviewed_at": "2026-11-11T15:34:00+08:00",
-      "customer_summary": "巴恩斯利1胜1平3负，进11失9；奥德汉姆2胜1平2负，进4失6。盘口初即时数据已复用，但阵容及对手强度仍待核实，暂不精选。"
+      "customer_summary": "暂不精选：主胜赔率大幅下调，但必发热门过热，双方战意及轮换不确定，历史冷门触发记录未核实。",
+      "cold_warning_audit": {
+        "source": "engine4 prediction.modules.冷门预警",
+        "status": "NOT_TRIGGERED",
+        "triggered": false,
+        "history_checked": false,
+        "history_status": "UNVERIFIED",
+        "hard_excluded": false
+      },
+      "review_version": "gpt-collected-data-crosscheck-v1",
+      "consensus": {
+        "ft": "方向一致",
+        "handicap": "方向一致"
+      },
+      "risk_audit": "主胜赔率大幅下调，但必发热门过热，双方战意及轮换不确定，历史冷门触发记录未核实。"
     }
-  ]
+  ],
+  "review_run": {
+    "mode": "manual_trigger",
+    "source_generated_at": "2026-11-11T07:33:30.802333+00:00",
+    "selection_count": 0,
+    "reason": "Current cold-warning status checked for all 6; historical trigger records unavailable; conservative non-publication."
+  }
 }
