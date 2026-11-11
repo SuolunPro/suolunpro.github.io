@@ -465,7 +465,36 @@
       for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
     function stats(){
-      if(active==='独立研判'){$('hit-rate').textContent='—';$('hit-count').textContent='—';$('pending').textContent='—';return;}
+      if(active==='独立研判'){
+        // Independent featured selections have their own denominator; never mix with engine 今日优选.
+        // Only frozen pre-kickoff completed reviews qualify, and only verified 90-minute results settle.
+        const selected=report.matches.filter(m=>{
+          const review=m.independent_review||m.prediction?.independent_review;
+          const warning=m.prediction?.modules?.['冷门预警'];
+          if(review?.status!=='COMPLETED'||review.selected!==true||warning?.triggered===true)return false;
+          const reviewAt=review.reviewed_at||review.predicted_at||review.generated_at||null;
+          const saleReviewAt=report.independent_review_generated_at||null;
+          const timestamp=reviewAt||saleReviewAt;
+          if(!timestamp)return false; // No auditable pre-match timestamp: do not claim a hit.
+          const kickoff=new Date(String(m.kickoff).replace(' ','T')+'+08:00').getTime();
+          const reviewed=new Date(timestamp).getTime();
+          return Number.isFinite(kickoff)&&Number.isFinite(reviewed)&&reviewed<kickoff;
+        });
+        let hit=0,total=0;
+        for(const m of selected){
+          if(!m.settlement||m.result_verification?.status!=='VERIFIED')continue;
+          const review=m.independent_review||m.prediction?.independent_review;
+          const pick=({主胜:'胜',平局:'平',客胜:'负'})[review.comprehensive_pick]||review.comprehensive_pick;
+          const module=String(pick).startsWith('让')?'让球':'胜平负';
+          const actual=m.settlement?.module_results?.[module]?.actual;
+          if(!['胜','平','负','让胜','让平','让负'].includes(pick)||!['胜','平','负','让胜','让平','让负'].includes(actual))continue;
+          total++;if(pick===actual)hit++;
+        }
+        $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
+        $('hit-count').textContent=hit+'/'+total;
+        $('pending').textContent=selected.length-total;
+        return;
+      }
       const stat=report.metrics?.module_stats?.[active];
       // Count only this module's formally settled pre-match selections.
       const statuses=report.matches.map(match=>match.settlement?.module_results?.[active]?.status)
@@ -604,6 +633,7 @@
       try{
         const reviews=await getJson('./data/independent-review/'+encodeURIComponent(data.sale_day)+'.json');
         if(reviews.sale_day!==data.sale_day||!Array.isArray(reviews.matches))return;
+        data.independent_review_generated_at=reviews.generated_at;
         const byId=new Map(reviews.matches.filter(r=>r.status==='COMPLETED').map(r=>[String(r.match_no),r]));
         for(const match of data.matches){
           const review=byId.get(String(match.match_no));
