@@ -671,7 +671,7 @@
         const reviews=await getJson('./data/independent-review/'+encodeURIComponent(data.sale_day)+'.json');
         if(reviews.sale_day!==data.sale_day||!Array.isArray(reviews.matches))return;
         data.independent_review_generated_at=reviews.generated_at;
-        const byId=new Map(reviews.matches.filter(r=>r.status==='COMPLETED').map(r=>[String(r.match_no),r]));
+        const byId=new Map(reviews.matches.filter(r=>['COMPLETED','INSUFFICIENT','PENDING'].includes(r.status)).map(r=>[String(r.match_no),r]));
         for(const match of data.matches){
           const review=byId.get(String(match.match_no));
           if(review&&review.home===match.home&&review.away===match.away)match.independent_review=review;
@@ -688,7 +688,7 @@
       const direction=isHandicap?'让球':'胜平负';
       const numberText=isHandicap&&handicap!=null?'（'+(Number(handicap)>0?'+':'')+handicap+'）':'';
       const map={胜:'主胜',平:'平局',负:'客胜'};
-      const selection=map[pick]||pick||'待研判';
+      const selection=review?.status==='COMPLETED'?(map[pick]||pick||'待研判'):(review?.status==='INSUFFICIENT'&&pick?'暂定'+(map[pick]||pick)+'（待核实）':'待研判');
       panel.append(el('div','intel-pickline','建议：'+selection));
       const reason=review?.customer_summary||review?.comprehensive_reason;
       const brief=typeof reason==='string'&&reason.trim()?reason.trim().slice(0,120):'赛前研判资料正在更新。';
