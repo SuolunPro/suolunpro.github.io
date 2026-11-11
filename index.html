@@ -552,12 +552,33 @@
         const delta=match.pair_probability_change?.[active];
         const valid=delta&&Array.isArray(delta.picks)&&items.every((p,i)=>p===delta.picks[i]);
         const trend=el('div','v4-pair-trend');
-        trend.style.cssText='margin-top:8px;font-size:12px;line-height:1.7;color:#586174';
-        const signed=n=>!Number.isFinite(n)?'—':Math.abs(n)<0.005?'→ 0.00':(n>0?'↑ ':'↓ ')+Math.abs(n).toFixed(2);
-        if(valid&&items.every(p=>Number.isFinite(delta.delta?.[p]))&&Number.isFinite(delta.total_delta)){
-          trend.textContent=items.map(p=>p+' '+signed(delta.delta[p])+'个百分点').join('　 ·　 ')+
-            '　｜　双选合计 '+signed(delta.total_delta)+'个百分点';
-        }else trend.textContent='概率变化：暂无可比赛前记录';
+        trend.style.cssText='margin-top:12px;';
+        const title=el('div','', '赛前概率变化');
+        title.style.cssText='font-size:12px;color:#737b87;margin-bottom:7px;font-weight:600;';
+        trend.append(title);
+        const validNumbers=valid&&items.every(p=>Number.isFinite(delta.delta?.[p]))&&Number.isFinite(delta.total_delta);
+        if(validNumbers){
+          const row=el('div','');
+          row.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;';
+          const addCell=(name,value)=>{
+            const cell=el('div','');
+            cell.style.cssText='min-width:0;text-align:center;padding:9px 3px;border:1px solid #e9ebef;border-radius:10px;background:#fafbfc;';
+            const heading=el('div','',name);
+            heading.style.cssText='font-size:11px;color:#737b87;white-space:nowrap;';
+            const sign=Math.abs(value)<0.005?'→':value>0?'↑':'↓';
+            const number=el('div','',sign+' '+(Math.abs(value)<0.005?'0.00':(value>0?'+':'-')+Math.abs(value).toFixed(2))+'%');
+            number.style.cssText='font-size:14px;font-weight:700;margin-top:4px;white-space:nowrap;color:'+(Math.abs(value)<0.005?'#667085':value>0?'#d92d35':'#15935a')+';';
+            cell.append(heading,number);row.append(cell);
+          };
+          addCell('Top1 '+label(items[0]),delta.delta[items[0]]);
+          addCell('Top2 '+label(items[1]),delta.delta[items[1]]);
+          addCell('双选合计',delta.total_delta);
+          trend.append(row);
+        }else{
+          const empty=el('div','', '暂无变化记录');
+          empty.style.cssText='font-size:12px;color:#98a0aa;';
+          trend.append(empty);
+        }
         analysis.append(trend);
       }
       card.append(analysis)
