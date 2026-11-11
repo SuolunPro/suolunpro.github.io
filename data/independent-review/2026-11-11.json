@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-11",
-  "generated_at": "2026-11-11T08:55:20.239Z",
+  "generated_at": "2026-11-11T09:33:14Z",
   "matches": [
     {
       "match_no": "001",
@@ -96,7 +96,7 @@
         "model_top1": "负",
         "independent_top1": "负",
         "verdict": "方向一致",
-        "reason": "首回合赛制已核实；近期战绩、阵容及独立攻防统计未确认"
+        "reason": "威廉客胜2.04升至2.15，横滨主场近况稳健，受让一球有容错；鹿岛客胜资金71.15%，首回合仍有净胜两球尾险。"
       },
       "handicap_review": {
         "official_handicap": 1,
@@ -104,10 +104,10 @@
         "model_top1": "让胜",
         "top1": "让胜",
         "verdict": "方向一致",
-        "reason": "主队受让一球具备容错空间，首回合仍需防范保守踢法。"
+        "reason": "威廉客胜2.04升至2.15，横滨主场近况稳健，受让一球有容错；鹿岛客胜资金71.15%，首回合仍有净胜两球尾险。"
       },
-      "comprehensive_pick": "让胜",
-      "comprehensive_reason": "横滨主场近期不败，受让一球容错较高；鹿岛客胜赔率获支持，仍须防客队净胜两球。",
+      "comprehensive_pick": "客胜",
+      "comprehensive_reason": "威廉客胜2.04升至2.15，横滨主场近况稳健，受让一球有容错；鹿岛客胜资金71.15%，首回合仍有净胜两球尾险。",
       "score": 48,
       "score_coverage": 52.5,
       "score_breakdown": {
@@ -142,25 +142,48 @@
           "provisional": true
         }
       },
-      "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
-      "selected": true,
-      "selection_reason": "综合精选：横滨主场近期不败，受让一球容错较高；鹿岛客胜赔率获支持，仍须防客队净胜两球。 冷门预警当前未触发；历史触发记录未核实。",
-      "reviewed_at": "2026-11-11T08:55:20.236Z",
-      "customer_summary": "建议：让胜；横滨主场近期不败，受让一球容错较高；鹿岛客胜赔率获支持，仍须防客队净胜两球。",
+      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
+      "selected": false,
+      "selection_reason": "非精选：杯赛首回合、客胜资金集中，当前WATCH",
+      "reviewed_at": "2026-11-11T09:33:14Z",
+      "customer_summary": "建议：客胜；威廉客胜2.04升至2.15，横滨主场近况稳健，受让一球有容错；鹿岛客胜资金71.15%，首回合仍有净胜两球尾险。",
       "cold_warning_audit": {
         "source": "engine4 prediction.modules.冷门预警",
-        "status": "NOT_TRIGGERED",
+        "status": "WATCH",
         "triggered": false,
+        "level": "关注",
+        "channels": [],
+        "evidence": [
+          "澳客必发赛前资金比例 5.98%/22.87%/71.15%；成交量 40/153/476",
+          "必发盈亏审计：客胜盈亏-416，盈亏指数-62，资金占比71.15%"
+        ],
+        "watch": [
+          "必发盈亏关注：客胜盈亏-416，指数-62；独立市场尚未确认，不作正式触发"
+        ],
         "history_checked": false,
         "history_status": "UNVERIFIED",
         "hard_excluded": false
       },
-      "review_version": "gpt-crosscheck-final-v2",
+      "review_version": "dynamic-crosscheck-v3",
       "consensus": {
         "ft": "方向一致",
         "handicap": "方向一致"
       },
-      "risk_audit": "受让一球有容错，但鹿岛客胜市场受支持，受让方向仍需防客队净胜两球；历史冷门触发记录未核实。"
+      "risk_audit": "杯赛首回合、客胜资金集中，当前WATCH",
+      "gpt_review": {
+        "reviewed_at": "2026-11-11T09:33:14Z",
+        "source_captured_at": "2026-11-11T09:04:48.123766+00:00",
+        "ft_top1": "负",
+        "handicap_top1": "让胜",
+        "confidence": "中",
+        "evidence": "威廉客胜2.04升至2.15，横滨主场近况稳健，受让一球有容错；鹿岛客胜资金71.15%，首回合仍有净胜两球尾险。",
+        "risk": "杯赛首回合、客胜资金集中，当前WATCH",
+        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
+        "unconfirmed": [
+          "历史逐场xG比赛日期未逐项独立核验",
+          "部分正式首发未确认"
+        ]
+      }
     },
     {
       "match_no": "002",
@@ -243,9 +266,9 @@
       ],
       "ft_review": {
         "model_top1": "胜",
-        "independent_top1": "负",
+        "independent_top1": "平",
         "verdict": "方向分歧",
-        "reason": "首回合赛制已核实；独立近期数据不足；模型与独立胜平负分歧"
+        "reason": "威廉主胜2.20升至2.45，平局3.10降至2.90；神户主场稳健而町田客场防守稳定，首回合防平。"
       },
       "handicap_review": {
         "official_handicap": -1,
@@ -253,10 +276,10 @@
         "model_top1": "让负",
         "top1": "让负",
         "verdict": "方向一致",
-        "reason": "主队让一球要求净胜至少两球，首回合更倾向让负但需警惕主场优势。"
+        "reason": "威廉主胜2.20升至2.45，平局3.10降至2.90；神户主场稳健而町田客场防守稳定，首回合防平。"
       },
       "comprehensive_pick": "让负",
-      "comprehensive_reason": "胜平负独立研判与引擎不同路，且平局风险关注。",
+      "comprehensive_reason": "威廉主胜2.20升至2.45，平局3.10降至2.90；神户主场稳健而町田客场防守稳定，首回合防平。",
       "score": 46.5,
       "score_coverage": 52.5,
       "score_breakdown": {
@@ -291,25 +314,51 @@
           "provisional": true
         }
       },
-      "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
+      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
       "selected": false,
-      "selection_reason": "非精选：胜平负独立研判与引擎不同路，且平局风险关注。",
-      "reviewed_at": "2026-11-11T08:55:20.239Z",
-      "customer_summary": "非精选；胜平负独立研判与引擎不同路，且平局风险关注。",
+      "selection_reason": "非精选：正式冷门预警已触发，硬性排除。",
+      "reviewed_at": "2026-11-11T09:33:14Z",
+      "customer_summary": "建议：让负；威廉主胜2.20升至2.45，平局3.10降至2.90；神户主场稳健而町田客场防守稳定，首回合防平。",
       "cold_warning_audit": {
         "source": "engine4 prediction.modules.冷门预警",
-        "status": "WATCH",
-        "triggered": false,
+        "status": "TRIGGERED",
+        "triggered": true,
+        "level": "高",
+        "channels": [
+          "E2"
+        ],
+        "evidence": [
+          "竞彩平局隐含比例31.3%；威廉平局公平比例上升2.3个百分点"
+        ],
+        "watch": [
+          "高平风险观察：平局隐含比例31.3%且官方让球-1",
+          "市场异动观察：威廉主方向公平比例下降3.7个百分点，Bet365、皇冠盘口退让；未达到D通道高水位条件",
+          "FotMob历史xG方向与体彩SP首选背离，需人工复核；非独立冷门触发条件"
+        ],
         "history_checked": false,
         "history_status": "UNVERIFIED",
-        "hard_excluded": false
+        "hard_excluded": true
       },
-      "review_version": "gpt-crosscheck-final-v2",
+      "review_version": "dynamic-crosscheck-v3",
       "consensus": {
         "ft": "方向分歧",
         "handicap": "方向一致"
       },
-      "risk_audit": "当前仅WATCH非正式预警；胜平负与GPT判断分歧，首回合平局风险较高。"
+      "risk_audit": "主胜走弱、正式E2预警硬排除",
+      "gpt_review": {
+        "reviewed_at": "2026-11-11T09:33:14Z",
+        "source_captured_at": "2026-11-11T09:04:59.822994+00:00",
+        "ft_top1": "平",
+        "handicap_top1": "让负",
+        "confidence": "中低",
+        "evidence": "威廉主胜2.20升至2.45，平局3.10降至2.90；神户主场稳健而町田客场防守稳定，首回合防平。",
+        "risk": "主胜走弱、正式E2预警硬排除",
+        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
+        "unconfirmed": [
+          "历史逐场xG比赛日期未逐项独立核验",
+          "部分正式首发未确认"
+        ]
+      }
     },
     {
       "match_no": "003",
@@ -399,7 +448,7 @@
         "model_top1": "负",
         "independent_top1": "负",
         "verdict": "方向一致",
-        "reason": "仅赛制已独立核实，阵容近况未确认"
+        "reason": "威廉客胜2.29降至2.15，澳门转客队浅让；必发平局资金43.92%、盈亏指数-89，平局风险显著。"
       },
       "handicap_review": {
         "official_handicap": 1,
@@ -407,10 +456,10 @@
         "model_top1": "让胜",
         "top1": "让胜",
         "verdict": "方向一致",
-        "reason": "川崎受让一球降低了方向要求，但缺少可靠近期攻防数据支持。"
+        "reason": "威廉客胜2.29降至2.15，澳门转客队浅让；必发平局资金43.92%、盈亏指数-89，平局风险显著。"
       },
-      "comprehensive_pick": "让胜",
-      "comprehensive_reason": "必发平局资金异常偏热，双方历史xG接近，风险较大。",
+      "comprehensive_pick": "客胜",
+      "comprehensive_reason": "威廉客胜2.29降至2.15，澳门转客队浅让；必发平局资金43.92%、盈亏指数-89，平局风险显著。",
       "score": 48.1,
       "score_coverage": 52.5,
       "score_breakdown": {
@@ -445,25 +494,48 @@
           "provisional": true
         }
       },
-      "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
+      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
       "selected": false,
-      "selection_reason": "非精选：必发平局资金异常偏热，双方历史xG接近，风险较大。",
-      "reviewed_at": "2026-11-11T08:55:20.239Z",
-      "customer_summary": "非精选；必发平局资金异常偏热，双方历史xG接近，风险较大。",
+      "selection_reason": "非精选：必发平局异常，首回合防平，当前WATCH",
+      "reviewed_at": "2026-11-11T09:33:14Z",
+      "customer_summary": "建议：客胜；威廉客胜2.29降至2.15，澳门转客队浅让；必发平局资金43.92%、盈亏指数-89，平局风险显著。",
       "cold_warning_audit": {
         "source": "engine4 prediction.modules.冷门预警",
-        "status": "NOT_TRIGGERED",
+        "status": "WATCH",
         "triggered": false,
+        "level": "关注",
+        "channels": [],
+        "evidence": [
+          "澳客必发赛前资金比例 7.42%/43.92%/48.66%；成交量 36/213/236",
+          "必发盈亏审计：平局盈亏-431，盈亏指数-89，资金占比43.92%"
+        ],
+        "watch": [
+          "必发盈亏关注：平局盈亏-431，指数-89；独立市场尚未确认，不作正式触发"
+        ],
         "history_checked": false,
         "history_status": "UNVERIFIED",
         "hard_excluded": false
       },
-      "review_version": "gpt-crosscheck-final-v2",
+      "review_version": "dynamic-crosscheck-v3",
       "consensus": {
         "ft": "方向一致",
         "handicap": "方向一致"
       },
-      "risk_audit": "威廉和澳门支持客队，但必发平局异常偏热，xG差距很小，不作为高确定性精选。"
+      "risk_audit": "必发平局异常，首回合防平，当前WATCH",
+      "gpt_review": {
+        "reviewed_at": "2026-11-11T09:33:14Z",
+        "source_captured_at": "2026-11-11T09:05:13.389730+00:00",
+        "ft_top1": "负",
+        "handicap_top1": "让胜",
+        "confidence": "中低",
+        "evidence": "威廉客胜2.29降至2.15，澳门转客队浅让；必发平局资金43.92%、盈亏指数-89，平局风险显著。",
+        "risk": "必发平局异常，首回合防平，当前WATCH",
+        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
+        "unconfirmed": [
+          "历史逐场xG比赛日期未逐项独立核验",
+          "部分正式首发未确认"
+        ]
+      }
     },
     {
       "match_no": "004",
@@ -549,7 +621,7 @@
         "model_top1": "胜",
         "independent_top1": "胜",
         "verdict": "方向一致",
-        "reason": "首回合赛制已核实，独立攻防与首发未确认"
+        "reason": "浦和近期攻防及历史xG样本占优，澳门维持主让半球；威廉主胜1.80升至1.85，首回合穿盘不稳。"
       },
       "handicap_review": {
         "official_handicap": -1,
@@ -557,10 +629,10 @@
         "model_top1": "让负",
         "top1": "让负",
         "verdict": "方向一致",
-        "reason": "主队让一球需要净胜两球才可打出让胜，倾向让负并防平局。"
+        "reason": "浦和近期攻防及历史xG样本占优，澳门维持主让半球；威廉主胜1.80升至1.85，首回合穿盘不稳。"
       },
-      "comprehensive_pick": "让负",
-      "comprehensive_reason": "主胜赔率略升且仅半球盘口，两回合首回合防平局。",
+      "comprehensive_pick": "主胜",
+      "comprehensive_reason": "浦和近期攻防及历史xG样本占优，澳门维持主让半球；威廉主胜1.80升至1.85，首回合穿盘不稳。",
       "score": 49.8,
       "score_coverage": 52.5,
       "score_breakdown": {
@@ -595,25 +667,43 @@
           "provisional": true
         }
       },
-      "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
+      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
       "selected": false,
-      "selection_reason": "非精选：主胜赔率略升且仅半球盘口，两回合首回合防平局。",
-      "reviewed_at": "2026-11-11T08:55:20.239Z",
-      "customer_summary": "非精选；主胜赔率略升且仅半球盘口，两回合首回合防平局。",
+      "selection_reason": "非精选：首回合保守策略、平局尾险、主胜赔率略升",
+      "reviewed_at": "2026-11-11T09:33:14Z",
+      "customer_summary": "建议：主胜；浦和近期攻防及历史xG样本占优，澳门维持主让半球；威廉主胜1.80升至1.85，首回合穿盘不稳。",
       "cold_warning_audit": {
         "source": "engine4 prediction.modules.冷门预警",
         "status": "NOT_TRIGGERED",
         "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [],
+        "watch": [],
         "history_checked": false,
         "history_status": "UNVERIFIED",
         "hard_excluded": false
       },
-      "review_version": "gpt-crosscheck-final-v2",
+      "review_version": "dynamic-crosscheck-v3",
       "consensus": {
         "ft": "方向一致",
         "handicap": "方向一致"
       },
-      "risk_audit": "主队占优但威廉主胜略升，首回合赛制增加平局风险，暂不精选。"
+      "risk_audit": "首回合保守策略、平局尾险、主胜赔率略升",
+      "gpt_review": {
+        "reviewed_at": "2026-11-11T09:33:14Z",
+        "source_captured_at": "2026-11-11T09:05:22.948075+00:00",
+        "ft_top1": "胜",
+        "handicap_top1": "让负",
+        "confidence": "中",
+        "evidence": "浦和近期攻防及历史xG样本占优，澳门维持主让半球；威廉主胜1.80升至1.85，首回合穿盘不稳。",
+        "risk": "首回合保守策略、平局尾险、主胜赔率略升",
+        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
+        "unconfirmed": [
+          "历史逐场xG比赛日期未逐项独立核验",
+          "部分正式首发未确认"
+        ]
+      }
     },
     {
       "match_no": "005",
@@ -717,18 +807,18 @@
         "model_top1": "胜",
         "independent_top1": "胜",
         "verdict": "方向一致",
-        "reason": "谢周三杯赛两胜已出线且近期主场不败，但阿克灵顿客场表现与晋级动机形成反向风险；暂定主胜，需防平负。"
+        "reason": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。"
       },
       "handicap_review": {
         "official_handicap": -1,
         "official_sp": "独立官方SP未确认；引擎含第三方采集SP",
         "model_top1": "让胜",
-        "top1": "让负",
-        "verdict": "方向分歧",
-        "reason": "主队已有出线资格且存在轮换顾虑，倾向让负但仍需防主胜。"
+        "top1": "让胜",
+        "verdict": "方向一致",
+        "reason": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。"
       },
       "comprehensive_pick": "主胜",
-      "comprehensive_reason": "威廉主胜由1.67降至1.50，澳门维持主让一球；轮换伤停与杯赛战意是主要风险。",
+      "comprehensive_reason": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。",
       "score": 56.5,
       "score_coverage": 52.5,
       "score_breakdown": {
@@ -763,25 +853,43 @@
           "provisional": true
         }
       },
-      "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
-      "selected": true,
-      "selection_reason": "综合精选：威廉主胜由1.67降至1.50，澳门维持主让一球；轮换伤停与杯赛战意是主要风险。 冷门预警当前未触发；历史触发记录未核实。",
-      "reviewed_at": "2026-11-11T08:55:20.239Z",
-      "customer_summary": "建议：主胜；威廉主胜由1.67降至1.50，澳门维持主让一球；轮换伤停与杯赛战意是主要风险。",
+      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
+      "selected": false,
+      "selection_reason": "非精选：轮换与阵容缺口、缺必发及可核实xG",
+      "reviewed_at": "2026-11-11T09:33:14Z",
+      "customer_summary": "建议：主胜；威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。",
       "cold_warning_audit": {
         "source": "engine4 prediction.modules.冷门预警",
         "status": "NOT_TRIGGERED",
         "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [],
+        "watch": [],
         "history_checked": false,
         "history_status": "UNVERIFIED",
         "hard_excluded": false
       },
-      "review_version": "gpt-crosscheck-final-v2",
+      "review_version": "dynamic-crosscheck-v3",
       "consensus": {
         "ft": "方向一致",
-        "handicap": "方向分歧"
+        "handicap": "方向一致"
       },
-      "risk_audit": "主胜市场支持明显，但阵容伤停、轮换和战意存在独立反向证据，历史冷门触发记录未核实。"
+      "risk_audit": "轮换与阵容缺口、缺必发及可核实xG",
+      "gpt_review": {
+        "reviewed_at": "2026-11-11T09:33:14Z",
+        "source_captured_at": "2026-11-11T09:05:31.399745+00:00",
+        "ft_top1": "胜",
+        "handicap_top1": "让胜",
+        "confidence": "中",
+        "evidence": "威廉主胜1.67降至1.44，澳门维持主让一球，市场明显支持；但谢周三杯赛轮换伤停不确定。",
+        "risk": "轮换与阵容缺口、缺必发及可核实xG",
+        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
+        "unconfirmed": [
+          "历史逐场xG比赛日期未逐项独立核验",
+          "部分正式首发未确认"
+        ]
+      }
     },
     {
       "match_no": "006",
@@ -875,7 +983,7 @@
         "model_top1": "胜",
         "independent_top1": "胜",
         "verdict": "方向一致",
-        "reason": "巴恩斯利大胜止颓，但杯赛两场失8球且已经出局；奥德汉姆客场防守偏弱又已提前晋级，暂定主胜，净胜两球证据不足。"
+        "reason": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。"
       },
       "handicap_review": {
         "official_handicap": -1,
@@ -883,10 +991,10 @@
         "model_top1": "让负",
         "top1": "让负",
         "verdict": "方向一致",
-        "reason": "主队有反弹迹象，但奥德汉姆已提前晋级，净胜两球仍有不确定性。"
+        "reason": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。"
       },
       "comprehensive_pick": "主胜",
-      "comprehensive_reason": "威廉主胜由2.10降至1.70，澳门由主让平半升至半一；必发主胜过热且双方轮换不确定。",
+      "comprehensive_reason": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。",
       "score": 52.9,
       "score_coverage": 52.5,
       "score_breakdown": {
@@ -921,25 +1029,45 @@
           "provisional": true
         }
       },
-      "audit_status": "待纠偏：现存评分按11月11日临时公式生成，与11月10日定性试评分不可比较；独立事实覆盖率暂按52.5%记录。基础赛前资料已采集，但尚未完成一致的五维正式评分及全部双方向审计。",
-      "selected": true,
-      "selection_reason": "综合精选：威廉主胜由2.10降至1.70，澳门由主让平半升至半一；必发主胜过热且双方轮换不确定。 冷门预警当前未触发；历史触发记录未核实。",
-      "reviewed_at": "2026-11-11T08:55:20.239Z",
-      "customer_summary": "建议：主胜；威廉主胜由2.10降至1.70，澳门由主让平半升至半一；必发主胜过热且双方轮换不确定。",
+      "audit_status": "同路风险复审完成；历史正式预警全周期记录未核实；正式五维评分仍待纠偏",
+      "selected": false,
+      "selection_reason": "非精选：必发主胜过热、杯赛阵容不确定",
+      "reviewed_at": "2026-11-11T09:33:14Z",
+      "customer_summary": "建议：主胜；威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。",
       "cold_warning_audit": {
         "source": "engine4 prediction.modules.冷门预警",
         "status": "NOT_TRIGGERED",
         "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [
+          "澳客必发赛前资金比例 82.63%/5.98%/11.39%；成交量 33148/2397/4571"
+        ],
+        "watch": [],
         "history_checked": false,
         "history_status": "UNVERIFIED",
         "hard_excluded": false
       },
-      "review_version": "gpt-crosscheck-final-v2",
+      "review_version": "dynamic-crosscheck-v3",
       "consensus": {
         "ft": "方向一致",
         "handicap": "方向一致"
       },
-      "risk_audit": "主胜赔率大幅下调，但必发热门过热，双方战意及轮换不确定，历史冷门触发记录未核实。"
+      "risk_audit": "必发主胜过热、杯赛阵容不确定",
+      "gpt_review": {
+        "reviewed_at": "2026-11-11T09:33:14Z",
+        "source_captured_at": "2026-11-11T09:05:33.699512+00:00",
+        "ft_top1": "胜",
+        "handicap_top1": "让负",
+        "confidence": "中",
+        "evidence": "威廉主胜2.10降至1.70，澳门升至主让半一；必发主胜资金82.63%、盈亏-16567，过热风险显著。",
+        "risk": "必发主胜过热、杯赛阵容不确定",
+        "raw_inputs": "William/澳门初即时、体彩SP、官方让球、已有必发和FotMob历史逐场xG、原已保存赛前球队资料",
+        "unconfirmed": [
+          "历史逐场xG比赛日期未逐项独立核验",
+          "部分正式首发未确认"
+        ]
+      }
     }
   ],
   "review_run": {
