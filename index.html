@@ -547,7 +547,20 @@
         cell.append(el('span','',`Top${index+1}`),el('b','',label(value)),el('span','v4-prob',pct(probabilities?.[String(value)])));
         if(actualHit)cell.append(el('span','hit-check','✓'));grid.append(cell)
       });
-      const analysis=el('div','analysis');analysis.append(grid);card.append(analysis)
+      const analysis=el('div','analysis');analysis.append(grid);
+      if((active==='胜平负'||active==='让球')&&items.length===2){
+        const delta=match.pair_probability_change?.[active];
+        const valid=delta&&Array.isArray(delta.picks)&&items.every((p,i)=>p===delta.picks[i]);
+        const trend=el('div','v4-pair-trend');
+        trend.style.cssText='margin-top:8px;font-size:12px;line-height:1.7;color:#586174';
+        const signed=n=>!Number.isFinite(n)?'—':Math.abs(n)<0.005?'→ 0.00':(n>0?'↑ ':'↓ ')+Math.abs(n).toFixed(2);
+        if(valid&&items.every(p=>Number.isFinite(delta.delta?.[p]))&&Number.isFinite(delta.total_delta)){
+          trend.textContent=items.map(p=>p+' '+signed(delta.delta[p])+'个百分点').join('　 ·　 ')+
+            '　｜　双选合计 '+signed(delta.total_delta)+'个百分点';
+        }else trend.textContent='概率变化：暂无可比赛前记录';
+        analysis.append(trend);
+      }
+      card.append(analysis)
     }
     function ftHandicapRiskNote(card,match){
       const modules=match.prediction?.modules||{};
