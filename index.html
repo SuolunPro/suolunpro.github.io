@@ -548,6 +548,35 @@
         if(actualHit)cell.append(el('span','hit-check','✓'));grid.append(cell)
       });
       const analysis=el('div','analysis');analysis.append(grid);
+      if(active==='让球'&&items.length===2&&match.prediction?.modules?.['让球']?.source==='FotMob历史完赛xG'){
+        const module=match.prediction.modules['让球'];
+        const xg=match.fotmob_xg||{};
+        const market=module.market_probabilities||{};
+        const marketEntries=['让胜','让平','让负'].filter(k=>Number.isFinite(market[k]));
+        const marketTop=marketEntries.length===3?marketEntries.reduce((a,b)=>market[a]>=market[b]?a:b):null;
+        const net=Number.isFinite(xg.home_lambda)&&Number.isFinite(xg.away_lambda)?xg.home_lambda-xg.away_lambda:null;
+        const trend=el('div','v4-pair-trend');
+        trend.style.cssText='margin-top:12px;';
+        const title=el('div','','让球概率依据');
+        title.style.cssText='font-size:12px;color:#737b87;margin-bottom:7px;font-weight:600;';
+        trend.append(title);
+        const row=el('div','');
+        row.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;';
+        const addCell=(heading,value)=>{
+          const cell=el('div','');
+          cell.style.cssText='min-width:0;text-align:center;padding:9px 3px;border:1px solid #e9ebef;border-radius:10px;background:#fafbfc;';
+          const h=el('div','',heading);
+          h.style.cssText='font-size:11px;color:#737b87;white-space:nowrap;';
+          const v=el('div','',value);
+          v.style.cssText='font-size:13px;font-weight:700;margin-top:4px;white-space:nowrap;color:#344054;';
+          cell.append(h,v);row.append(cell);
+        };
+        addCell('预计净胜球',net===null?'未确认':(net>0?'+':'')+net.toFixed(2)+'球');
+        addCell('SP市场倾向',marketTop||'未确认');
+        // Only compare confirmed market and model directions; do not invent a calibrated risk score.
+        addCell('盘口风险',!marketTop?'未评估':marketTop===items[0]?'方向一致':'方向背离');
+        trend.append(row);analysis.append(trend);card.append(analysis);return;
+      }
       if((active==='胜平负'||active==='让球')&&items.length===2){
         const delta=match.pair_probability_change?.[active];
         const valid=delta&&Array.isArray(delta.picks)&&items.every((p,i)=>p===delta.picks[i]);
