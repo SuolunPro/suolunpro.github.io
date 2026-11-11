@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-11",
-  "generated_at": "2026-11-11T12:31:42+08:00",
+  "generated_at": "2026-11-11T13:26:00+08:00",
   "matches": [
     {
       "match_no": "001",
@@ -30,7 +30,8 @@
         "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
-        "独立赔率时间序列"
+        "独立赔率时间序列",
+        "FotMob球队完整历史统计尚未逐字段解析"
       ],
       "sources": [
         {
@@ -60,6 +61,12 @@
           "kind": "日本J联赛官方交锋",
           "checked_at": "2026-11-11",
           "evidence": "历史交锋"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6538690",
+          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
+          "checked_at": "2026-11-11T05:26:00Z",
+          "evidence": "已核对赛事ID、双方球队与开赛时间"
         }
       ],
       "ft_review": {
@@ -112,10 +119,10 @@
           "provisional": true
         }
       },
-      "audit_status": "数据不足",
+      "audit_status": "资料补采中",
       "selected": false,
-      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
-      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "selection_reason": "独立资料仍不足，未达到COMPLETED精选硬门槛",
+      "reviewed_at": "2026-11-11T05:26:00Z",
       "customer_summary": "横滨近五场两胜三平，鹿岛同期两胜一平两负，双方近期交锋胜负交替。杯赛首回合仍需防范平局及轮换，暂不列入精选。"
     },
     {
@@ -146,7 +153,8 @@
         "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
-        "独立赔率时间序列"
+        "独立赔率时间序列",
+        "FotMob球队完整历史统计尚未逐字段解析"
       ],
       "sources": [
         {
@@ -170,6 +178,12 @@
           "kind": "日本J联赛官方球队赛前比赛记录",
           "evidence": "截至2026-11-11开赛前最近5场比分及比赛日期",
           "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6538689",
+          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
+          "checked_at": "2026-11-11T05:26:00Z",
+          "evidence": "已核对赛事ID、双方球队与开赛时间"
         }
       ],
       "ft_review": {
@@ -222,10 +236,10 @@
           "provisional": true
         }
       },
-      "audit_status": "数据不足",
+      "audit_status": "资料补采中",
       "selected": false,
-      "selection_reason": "基础战绩已补采，但独立赔率、阵容及完整攻防证据仍不足，不列精选；原暂定评分未重算。",
-      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "selection_reason": "独立资料仍不足，未达到COMPLETED精选硬门槛",
+      "reviewed_at": "2026-11-11T05:26:00Z",
       "customer_summary": "神户近五场三胜两平，町田两胜三平，双方十月交锋互交白卷。杯赛首回合存在平局及轮换风险，暂不列入精选。"
     },
     {
@@ -256,7 +270,8 @@
         "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
-        "独立赔率时间序列"
+        "独立赔率时间序列",
+        "FotMob球队完整历史统计尚未逐字段解析"
       ],
       "sources": [
         {
@@ -280,6 +295,12 @@
           "kind": "日本J联赛官方球队赛前比赛记录",
           "evidence": "截至2026-11-11开赛前最近5场比分及比赛日期",
           "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6538688",
+          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
+          "checked_at": "2026-11-11T05:26:00Z",
+          "evidence": "已核对赛事ID、双方球队与开赛时间"
         }
       ],
       "ft_review": {
@@ -332,10 +353,10 @@
           "provisional": true
         }
       },
-      "audit_status": "数据不足",
+      "audit_status": "资料补采中",
       "selected": false,
-      "selection_reason": "基础战绩已补采，但独立赔率、阵容及完整攻防证据仍不足，不列精选；原暂定评分未重算。",
-      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "selection_reason": "独立资料仍不足，未达到COMPLETED精选硬门槛",
+      "reviewed_at": "2026-11-11T05:26:00Z",
       "customer_summary": "川崎近五场三胜两负，柏太阳神四胜一平，柏队上轮直接交锋二比一取胜。杯赛首回合仍有轮换及平局风险，暂不列入精选。"
     },
     {
@@ -367,7 +388,8 @@
         "独立xG逐场赛前核验",
         "确认首发伤停",
         "独立赔率时间序列",
-        "历史交锋"
+        "历史交锋",
+        "FotMob球队完整历史统计尚未逐字段解析"
       ],
       "sources": [
         {
@@ -391,6 +413,12 @@
           "kind": "日本J联赛官方球队赛前比赛记录",
           "evidence": "截至2026-11-11开赛前最近5场比分及比赛日期",
           "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6538691",
+          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
+          "checked_at": "2026-11-11T05:26:00Z",
+          "evidence": "已核对赛事ID、双方球队与开赛时间"
         }
       ],
       "ft_review": {
@@ -443,10 +471,10 @@
           "provisional": true
         }
       },
-      "audit_status": "数据不足",
+      "audit_status": "资料补采中",
       "selected": false,
-      "selection_reason": "基础战绩已补采，但独立赔率、阵容及完整攻防证据仍不足，不列精选；原暂定评分未重算。",
-      "reviewed_at": "2026-11-11T12:31:42+08:00",
+      "selection_reason": "独立资料仍不足，未达到COMPLETED精选硬门槛",
+      "reviewed_at": "2026-11-11T05:26:00Z",
       "customer_summary": "浦和近五场三胜一平一负，大阪樱花两胜两平一负，双方近期均有失球较多场次。杯赛首回合方向仍需市场和阵容验证，暂不列入精选。"
     },
     {
@@ -461,24 +489,24 @@
       "risk_level": "中高",
       "details": {
         "recent_form": "谢周三最近6场1胜2平3负，阿克灵顿最近6场2胜3平1负（赛前截至11月8日/7日）",
-        "home_away": "Sky Sports赛前最近6场逐场列有主客及比分，可逐场核实；未核实完整赛季主客场胜平负",
-        "standings": "未确认",
-        "attack_defense": "未确认",
-        "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
-        "squad": "正式首发未确认",
+        "home_away": "赛前报道显示谢周三近7个主场不败；阿克灵顿此前4个客场不败。两种时间窗口不同，不宜直接视作胜率比较。",
+        "standings": "英锦赛A组：谢周三前两战全胜已晋级；阿克灵顿两场常规时间均平、点球获胜，积4分，仍需争取晋级。",
+        "attack_defense": "谢周三前两场英锦赛打进4球失1球；阿克灵顿两场合计进4球失4球，样本仅两场。",
+        "market": "11月10日12:30 GMT的独立赛前文章认为阿克灵顿客胜有赔率价值；另有分析倾向谢周三主胜，意见分歧。非William Hill同机构初即临盘口。",
+        "squad": "赛前报道提到谢周三可能轮换；部分媒体伤停名单相互冲突，正式首发及伤停暂不确认。",
         "schedule": "谢周三英锦赛前两轮全胜且已经出线，阿克灵顿两场均在常规时间战平。",
-        "h2h": "未确认",
+        "h2h": "赛前统计报道显示谢周三历史交锋占优，具体交锋日期尚待逐场复核。",
         "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
         "draw_risk": "杯赛90分钟平局风险不可忽略",
         "motivation_risk": "英锦赛小组出线形势影响战意"
       },
-      "conclusion": "谢周三近五场未胜，阿克灵顿近期状态更好；轮换尚未确认",
+      "conclusion": "谢周三杯赛两胜已出线且近期主场不败，但阿克灵顿客场表现与晋级动机形成反向风险；暂定主胜，需防平负。",
       "unconfirmed": [
-        "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
         "独立赔率时间序列",
-        "历史交锋"
+        "FotMob球队完整历史统计尚未逐字段解析",
+        "完整赛季主客场攻防与逐场交锋仍未核实"
       ],
       "sources": [
         {
@@ -500,13 +528,34 @@
           "url": "https://www.sportsmole.co.uk/football/efl-trophy/sheffield-wednesday-vs-accrington-stanley_game_262004.html",
           "kind": "赛前状态及英锦赛小组表现",
           "checked_at": "2026-11-11"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6014408",
+          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
+          "checked_at": "2026-11-11T05:26:00Z",
+          "evidence": "已核对赛事ID、双方球队与开赛时间"
+        },
+        {
+          "url": "https://www.sportinglife.com/football/news/wednesday-best-bets-efl-trophy-tips-for-november-11-2026/235334",
+          "kind": "11月10日赛前球队状态、客场与市场评论",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://www.freetips.com/football/sheffield-wednesday-vs-accrington-live-stream-tips-20261110-0008/",
+          "kind": "11月10日赛前主场、交锋与赛事统计；观点需交叉审计",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://news.williamhill.com/football/efl-trophy-predictions-wednesday-11th-november-2026/",
+          "kind": "赛前杯赛积分及攻防信息；非William Hill盘口时间序列",
+          "checked_at": "2026-11-11T05:26:00Z"
         }
       ],
       "ft_review": {
         "model_top1": "胜",
         "independent_top1": "胜",
         "verdict": "方向一致",
-        "reason": "谢周三近五场未胜，阿克灵顿近期状态更好；轮换尚未确认"
+        "reason": "谢周三杯赛两胜已出线且近期主场不败，但阿克灵顿客场表现与晋级动机形成反向风险；暂定主胜，需防平负。"
       },
       "handicap_review": {
         "official_handicap": -1,
@@ -552,11 +601,11 @@
           "provisional": true
         }
       },
-      "audit_status": "数据不足",
+      "audit_status": "资料补采中",
       "selected": false,
-      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
-      "reviewed_at": "2026-11-11T12:31:42+08:00",
-      "customer_summary": "谢周三近六场一胜两平三负，阿克灵顿两胜三平一负，客队近况占优。主队已提前出线且存在轮换风险，让负值得关注但不列精选。"
+      "selection_reason": "独立资料仍不足，未达到COMPLETED精选硬门槛",
+      "reviewed_at": "2026-11-11T05:26:00Z",
+      "customer_summary": "谢周三英锦赛两战全胜已出线，阿克灵顿仍需争取晋级且近期客场不败。暂倾向主胜，但轮换与客队战意带来明显风险。"
     },
     {
       "match_no": "006",
@@ -569,26 +618,27 @@
       "confidence": "暂定",
       "risk_level": "中",
       "details": {
-        "recent_form": "巴恩斯利此前11场不胜，足总杯7:2结束低迷",
-        "home_away": "奥德汉姆赛季客场8场1胜2平5负",
-        "standings": "未确认",
-        "attack_defense": "巴恩斯利足总杯上轮打进7球，奥德汉姆客场8场中5场丢至少2球",
-        "market": "九十刻度模型采集的赔率仅用于交叉审计，不属于独立联网证据",
-        "squad": "正式首发未确认",
+        "recent_form": "巴恩斯利此前11场不胜，足总杯7比2击败奥尔德肖特；奥德汉姆近期曾在足总杯加时淘汰谢周三。",
+        "home_away": "赛前报道：奥德汉姆本赛季前8个客场1胜2平5负，其中5场失球至少2个。",
+        "standings": "英锦赛G组巴恩斯利两战全负已出局，奥德汉姆两战全胜提前出线；巴恩斯利联赛此前排名第23（赛前报道口径）。",
+        "attack_defense": "巴恩斯利英锦赛前两场分别失4球，两场共失8球；此前连续10场有进球但长期未零封。",
+        "market": "赛前William Hill新闻专栏预测巴恩斯利2比1取胜；这是媒体观点，不是已核实的William Hill赔率盘口链。",
+        "squad": "赛前报道提到巴恩斯利前锋Ben Hamed Toure、Fabio Jalo伤缺；奥德汉姆部分伤员及轮换仍需官方核实。",
         "schedule": "巴恩斯利上轮足总杯七比二取胜，奥德汉姆本赛季客场八战仅胜一场。",
         "h2h": "未确认",
         "favorite_trap": "需警惕杯赛轮换及热门定价偏差",
         "draw_risk": "杯赛90分钟平局风险不可忽略",
         "motivation_risk": "英锦赛小组出线形势影响战意"
       },
-      "conclusion": "巴恩斯利此前连续11场不胜，奥德汉姆客场防守较弱；首发未确认",
+      "conclusion": "巴恩斯利大胜止颓，但杯赛两场失8球且已经出局；奥德汉姆客场防守偏弱又已提前晋级，暂定主胜，净胜两球证据不足。",
       "unconfirmed": [
         "独立完整近5-10场战绩",
-        "完整主客场攻防及积分",
         "独立xG逐场赛前核验",
         "确认首发伤停",
         "独立赔率时间序列",
-        "历史交锋"
+        "历史交锋",
+        "FotMob球队完整历史统计尚未逐字段解析",
+        "完整赛季主客场攻防及逐场交锋尚未核实"
       ],
       "sources": [
         {
@@ -600,13 +650,34 @@
           "url": "https://github.com/SuolunPro/90scale-engine/blob/main/data/engine4/latest.json",
           "kind": "九十刻度模型派生数据，非独立证据",
           "captured_at": "2026-11-11T03:11:17.530409+00:00"
+        },
+        {
+          "url": "https://www.fotmob.com/api/data/matchDetails?matchId=6015570",
+          "kind": "FotMob赛事身份与赛程核验；未作为独立攻防统计",
+          "checked_at": "2026-11-11T05:26:00Z",
+          "evidence": "已核对赛事ID、双方球队与开赛时间"
+        },
+        {
+          "url": "https://www.sportinglife.com/football/news/wednesday-best-bets-efl-trophy-tips-for-november-11-2026/235334",
+          "kind": "11月10日赛前近况、客场和进失球统计",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://www.sportsmole.co.uk/football/barnsley/efl-trophy/preview/barnsley-vs-oldham-prediction-team-news-lineups_608810.html",
+          "kind": "11月10日赛前赛事排名、伤停、战意",
+          "checked_at": "2026-11-11T05:26:00Z"
+        },
+        {
+          "url": "https://news.williamhill.com/football/efl-trophy-predictions-wednesday-11th-november-2026/",
+          "kind": "赛前杯赛积分及媒体预测，非William Hill盘口",
+          "checked_at": "2026-11-11T05:26:00Z"
         }
       ],
       "ft_review": {
         "model_top1": "胜",
         "independent_top1": "胜",
         "verdict": "方向一致",
-        "reason": "巴恩斯利此前连续11场不胜，奥德汉姆客场防守较弱；首发未确认"
+        "reason": "巴恩斯利大胜止颓，但杯赛两场失8球且已经出局；奥德汉姆客场防守偏弱又已提前晋级，暂定主胜，净胜两球证据不足。"
       },
       "handicap_review": {
         "official_handicap": -1,
@@ -652,11 +723,11 @@
           "provisional": true
         }
       },
-      "audit_status": "数据不足",
+      "audit_status": "资料补采中",
       "selected": false,
-      "selection_reason": "独立证据尚未充分核实，暂不晋级精选；保留原有暂定分数",
-      "reviewed_at": "2026-11-11T12:31:42+08:00",
-      "customer_summary": "巴恩斯利上轮足总杯七比二取胜，奥德汉姆本赛季客场八战仅胜一场。主队有反弹迹象，但奥德汉姆已提前晋级，净胜两球仍有不确定性。"
+      "selection_reason": "独立资料仍不足，未达到COMPLETED精选硬门槛",
+      "reviewed_at": "2026-11-11T05:26:00Z",
+      "customer_summary": "巴恩斯利上轮足总杯七比二获胜，但英锦赛两战共失八球且已出局。暂倾向主胜，奥德汉姆已晋级可能轮换，仍需防平局。"
     }
   ]
 }
