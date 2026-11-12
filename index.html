@@ -724,7 +724,9 @@
     function isIndependentFeatured(match){
       if(match.independent_review?.selected!==true||match.prediction?.modules?.['冷门预警']?.triggered===true)return false;
       if(String(report?.sale_day||'')<'2026-11-12')return true;
-      return match.prediction?.modules?.['今日优选']?.status==='SELECTED'&&!independentMajorRiskStack(match);
+      // Independent review owns the featured decision; 今日优选 is a separate module.
+      // Keep the existing hard exclusion for a formally triggered upset warning above.
+      return true;
     }
     function independentReview(card,match){
       const review=match.independent_review||match.prediction?.independent_review;
