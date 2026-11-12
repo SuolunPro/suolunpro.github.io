@@ -444,5 +444,66 @@
       "review_version": "blind-then-consensus-v1"
     }
   ],
-  "history_warning_verified": false
+  "history_warning_verified": false,
+  "blind_review_snapshot": {
+    "stage": "PRE_MODEL_COMPARISON",
+    "source": "90scale-engine/data/engine4/latest.json",
+    "engine_generated_at": "2026-11-12T02:18:43.740434+00:00",
+    "reviewed_at": "2026-11-12T13:34:22+08:00",
+    "missing": [
+      "全部必发交易",
+      "全部独立FotMob历史xG",
+      "近期战绩/主客场/伤停/战意独立原始字段"
+    ],
+    "matches": [
+      {
+        "match_no": "001",
+        "ft_top1": "客胜",
+        "handicap_top1": "让胜",
+        "confidence": "中",
+        "evidence": "威廉客胜1.80→1.75，澳门客让半球升半一；体彩普通客胜最低",
+        "risk": "客胜可能只赢一球，主队+1让胜尾险"
+      },
+      {
+        "match_no": "002",
+        "ft_top1": "主胜",
+        "handicap_top1": "让负",
+        "confidence": "低",
+        "evidence": "体彩主胜2.05最低；威廉主胜2.20→2.29、澳门主让平半升水；官方让负1.58",
+        "risk": "主胜不稳，平局/客胜风险"
+      },
+      {
+        "match_no": "003",
+        "ft_top1": "主胜",
+        "handicap_top1": "让负",
+        "confidence": "中低",
+        "evidence": "威廉主胜2.00→1.95，澳门主让平半升半球；官方让负1.77",
+        "risk": "主胜未必净胜两球，平局尾险"
+      },
+      {
+        "match_no": "004",
+        "ft_top1": "主胜",
+        "handicap_top1": "让胜",
+        "confidence": "中高",
+        "evidence": "威廉主胜1.36→1.25，澳门主让一球/球半升一球半；官方主胜1.20",
+        "risk": "净胜一球及轮换风险，澳门数据较旧"
+      },
+      {
+        "match_no": "005",
+        "ft_top1": "主胜",
+        "handicap_top1": "让负",
+        "confidence": "中",
+        "evidence": "官方主胜1.15，威廉主胜1.22→1.25，澳门主让一球半/两球；官方让负2.00",
+        "risk": "赢球不等于赢三球，澳门4天前更新"
+      },
+      {
+        "match_no": "006",
+        "ft_top1": "客胜",
+        "handicap_top1": "让胜",
+        "confidence": "低",
+        "evidence": "威廉客胜1.20，澳门客让两球；官方主队+2让胜2.37、让负2.19",
+        "risk": "普通SP缺失，净胜两球临界"
+      }
+    ]
+  }
 }
