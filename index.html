@@ -485,7 +485,7 @@
       const predicted=ouPrediction(match);
       if(!predicted||match.result_verification?.status!=='VERIFIED')return null;
       const ft=match.settlement?.ft;
-      const m=typeof ft==='string'?ft.match(/^(\\d+)\\s*:\\s*(\\d+)$/):null;
+      const m=typeof ft==='string'?ft.match(/^(\d+)\s*:\s*(\d+)$/):null;
       if(!m)return null;
       const total=Number(m[1])+Number(m[2]);
       return {total,hit:(predicted.over>=predicted.under)===(total>=3)};
