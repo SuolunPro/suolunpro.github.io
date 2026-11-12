@@ -19,11 +19,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check overdue matches and dispatch private verifier
         env:
-          ENGINE_TOKEN: ${{ secrets.ENGINE4_READ_TOKEN }}
+          ENGINE_TOKEN: ${{ secrets.ENGINE4_ACTIONS_TOKEN }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
-          test -n "$ENGINE_TOKEN" || { echo "::error::ENGINE4_READ_TOKEN missing"; exit 1; }
+          if [ -z "$ENGINE_TOKEN" ]; then echo "::warning::ENGINE4_ACTIONS_TOKEN missing; watchdog inactive"; exit 0; fi
           due=$(python - <<'PY'
           import json
           from pathlib import Path
@@ -65,7 +65,7 @@ jobs:
             https://api.github.com/repos/SuolunPro/90scale-engine/actions/workflows/engine4-verify-results.yml/dispatches \
             -d '{"ref":"main"}')
           if [ "$code" != "204" ]; then
-            echo "::error::Private verifier dispatch rejected (HTTP $code); check Actions write permission on ENGINE4_READ_TOKEN"
+            echo "::error::Private verifier dispatch rejected (HTTP $code); check Actions write permission on ENGINE4_ACTIONS_TOKEN"
             exit 1
           fi
           echo "Private verifier dispatch accepted; overdue=$due"
