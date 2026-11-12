@@ -707,11 +707,29 @@
         }
       }catch(_){/* No published review for this date yet. */}
     }
-    function isIndependentFeatured(match){return match.independent_review?.selected===true&&match.prediction?.modules?.['冷门预警']?.triggered!==true&&(String(report?.sale_day||'')<'2026-11-12'||match.prediction?.modules?.['今日优选']?.status==='SELECTED');}
+    function independentMajorRiskStack(match){
+      // Prospective presentation gate only: do not rewrite frozen reviews.
+      const review=match.independent_review||match.prediction?.independent_review||{};
+      const details=review.details||{};
+      const squad=String(details.squad||'');
+      const schedule=String(details.schedule||'')+' '+String(details.motivation_risk||'');
+      const all=squad+' '+schedule;
+      const injuries=/(多名.{0,12}(伤|缺阵|缺席)|多人.{0,12}(伤|缺阵|缺席)|multiple.{0,20}injur)/i.test(squad);
+      const rotation=/(大幅轮换|大量轮换|大规模轮换|大面积轮换|可能.{0,8}轮换|轮换.{0,8}可能|heavy rotation)/i.test(all);
+      const qualified=/(已.{0,5}(提前)?(晋级|出线)|提前.{0,5}(晋级|出线)|already qualified)/i.test(schedule);
+      const opponentNeed=/(客队.{0,15}(争取|力争|必须|仍需).{0,10}(晋级|出线)|对手.{0,15}(争取|力争|必须|仍需).{0,10}(晋级|出线)|阿克灵顿.{0,15}(争取|力争|仍需).{0,10}(晋级|出线))/i.test(schedule);
+      const unconfirmed=/(首发.{0,8}(待确认|未确认|尚未确认)|实际首发仍待确认)/.test(squad);
+      return injuries&&rotation&&qualified&&opponentNeed&&unconfirmed;
+    }
+    function isIndependentFeatured(match){
+      if(match.independent_review?.selected!==true||match.prediction?.modules?.['冷门预警']?.triggered===true)return false;
+      if(String(report?.sale_day||'')<'2026-11-12')return true;
+      return match.prediction?.modules?.['今日优选']?.status==='SELECTED'&&!independentMajorRiskStack(match);
+    }
     function independentReview(card,match){
       const review=match.independent_review||match.prediction?.independent_review;
       const panel=el('section','intel-review');
-      const title=el('div','intel-title');title.append(el('span','','精选研判'),el('span','intel-test','测试'));panel.append(title);if(isIndependentFeatured(match)){panel.append(el('div','intel-featured','★ 今日精选'));}else{panel.append(el('div','intel-ordinary','普通研判 · 非精选'));}
+      const title=el('div','intel-title');title.append(el('span','','精选研判'),el('span','intel-test','测试'));panel.append(title);if(isIndependentFeatured(match)){panel.append(el('div','intel-featured','★ 今日精选'));}else{panel.append(el('div','intel-ordinary','普通研判 · 非精选'));if(String(report?.sale_day||'')>='2026-11-12'&&independentMajorRiskStack(match))panel.append(el('div','intel-tag warn','伤停、轮换与战意风险叠加 · 不列入精选'));}
       const pick=review?.comprehensive_pick;
       const handicap=match.prediction?.modules?.['让球']?.handicap;
       const isHandicap=typeof pick==='string'&&pick.startsWith('让');
