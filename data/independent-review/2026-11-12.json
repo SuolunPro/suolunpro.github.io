@@ -2,7 +2,7 @@
   "sale_day": "2026-11-12",
   "generated_at": "2026-11-12T05:34:22.000Z",
   "engine_generated_at": "2026-11-12T02:18:43.740434+00:00",
-  "review_version": "blind-stage-v1-plus-risk-audit",
+  "review_version": "blind-stage-v1-rechecked",
   "stage": "final_review",
   "matches": [
     {
@@ -63,10 +63,12 @@
         "source_generated_at": "2026-11-12T02:18:43.740434+00:00"
       },
       "consensus": {
-        "ft": true,
-        "handicap": true,
-        "engine_ft_top1": "主胜",
-        "engine_handicap_top1": "让胜"
+        "ft_gpt_top1": "主胜",
+        "ft_engine_top1": "主胜",
+        "ft_aligned": true,
+        "handicap_gpt_top1": "让胜",
+        "handicap_engine_top1": "让胜",
+        "handicap_aligned": true
       },
       "risk_audit": {
         "warning_status": "NOT_TRIGGERED",
@@ -77,7 +79,7 @@
         "watch": [],
         "hard_excluded": false,
         "historical_warning_verified": false,
-        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "historical_warning_note": "未取得完整赛事周期历史预警冻结记录；当前已知003正式触发E2",
         "missing": [
           "必发交易",
           "FotMob历史独立xG",
@@ -89,7 +91,9 @@
         "warning_evidence": [],
         "warning_watch": [],
         "hard_exclusion": false,
-        "review_reason": "威廉主胜持续压低，澳门主让升至一球半，普通主胜方向证据集中；净胜球尾险使主胜优于让胜。"
+        "review_reason": "威廉主胜持续压低，澳门主让升至一球半，普通主胜方向证据集中；净胜球尾险使主胜优于让胜。",
+        "market_captured_at": "2026-11-12T00:39:40.716102+00:00",
+        "independent_review_recorded_at": "2026-11-12T06:34:29.420Z"
       },
       "review_version": "blind-then-consensus-v1"
     },
@@ -151,10 +155,12 @@
         "source_generated_at": "2026-11-12T02:18:43.740434+00:00"
       },
       "consensus": {
-        "ft": true,
-        "handicap": true,
-        "engine_ft_top1": "主胜",
-        "engine_handicap_top1": "让负"
+        "ft_gpt_top1": "主胜",
+        "ft_engine_top1": "主胜",
+        "ft_aligned": true,
+        "handicap_gpt_top1": "让负",
+        "handicap_engine_top1": "让负",
+        "handicap_aligned": true
       },
       "risk_audit": {
         "warning_status": "NOT_TRIGGERED",
@@ -165,7 +171,7 @@
         "watch": [],
         "hard_excluded": false,
         "historical_warning_verified": false,
-        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "historical_warning_note": "未取得完整赛事周期历史预警冻结记录；当前已知003正式触发E2",
         "missing": [
           "必发交易",
           "FotMob历史独立xG",
@@ -177,7 +183,9 @@
         "warning_evidence": [],
         "warning_watch": [],
         "hard_exclusion": false,
-        "review_reason": "威廉与体彩均支持主胜，澳门仍为深盘；官方让两球净胜球不确定，主胜优于让球方向。"
+        "review_reason": "威廉与体彩均支持主胜，澳门仍为深盘；官方让两球净胜球不确定，主胜优于让球方向。",
+        "market_captured_at": "2026-11-12T00:39:43.322869+00:00",
+        "independent_review_recorded_at": "2026-11-12T06:34:29.420Z"
       },
       "review_version": "blind-then-consensus-v1"
     },
@@ -239,10 +247,12 @@
         "source_generated_at": "2026-11-12T02:18:43.740434+00:00"
       },
       "consensus": {
-        "ft": true,
-        "handicap": true,
-        "engine_ft_top1": "客胜",
-        "engine_handicap_top1": "让胜"
+        "ft_gpt_top1": "客胜",
+        "ft_engine_top1": "客胜",
+        "ft_aligned": true,
+        "handicap_gpt_top1": "让胜",
+        "handicap_engine_top1": "让胜",
+        "handicap_aligned": true
       },
       "risk_audit": {
         "warning_status": "NOT_TRIGGERED",
@@ -253,7 +263,7 @@
         "watch": [],
         "hard_excluded": false,
         "historical_warning_verified": false,
-        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "historical_warning_note": "未取得完整赛事周期历史预警冻结记录；当前已知003正式触发E2",
         "missing": [
           "必发交易",
           "FotMob历史独立xG",
@@ -265,7 +275,9 @@
         "warning_evidence": [],
         "warning_watch": [],
         "hard_exclusion": false,
-        "review_reason": "客胜虽获威廉及澳门支持，但主队受让一球后的让胜与客胜方向存在净胜球冲突，缺少必发与独立xG，尾险较高。"
+        "review_reason": "客胜虽获威廉及澳门支持，但主队受让一球后的让胜与客胜方向存在净胜球冲突，缺少必发与独立xG，尾险较高。",
+        "market_captured_at": "2026-11-12T00:39:30.083158+00:00",
+        "independent_review_recorded_at": "2026-11-12T06:34:29.420Z"
       },
       "review_version": "blind-then-consensus-v1"
     },
@@ -327,10 +339,12 @@
         "source_generated_at": "2026-11-12T02:18:43.740434+00:00"
       },
       "consensus": {
-        "ft": true,
-        "handicap": true,
-        "engine_ft_top1": "主胜",
-        "engine_handicap_top1": "让负"
+        "ft_gpt_top1": "主胜",
+        "ft_engine_top1": "主胜",
+        "ft_aligned": true,
+        "handicap_gpt_top1": "让负",
+        "handicap_engine_top1": "让负",
+        "handicap_aligned": true
       },
       "risk_audit": {
         "warning_status": "NOT_TRIGGERED",
@@ -341,7 +355,7 @@
         "watch": [],
         "hard_excluded": false,
         "historical_warning_verified": false,
-        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "historical_warning_note": "未取得完整赛事周期历史预警冻结记录；当前已知003正式触发E2",
         "missing": [
           "必发交易",
           "FotMob历史独立xG",
@@ -353,7 +367,9 @@
         "warning_evidence": [],
         "warning_watch": [],
         "hard_exclusion": false,
-        "review_reason": "主队仅微弱占优，威廉主胜走高且澳门主队升水；主让一球难穿，平局和客胜风险偏大。"
+        "review_reason": "主队仅微弱占优，威廉主胜走高且澳门主队升水；主让一球难穿，平局和客胜风险偏大。",
+        "market_captured_at": "2026-11-12T00:39:34.801534+00:00",
+        "independent_review_recorded_at": "2026-11-12T06:34:29.420Z"
       },
       "review_version": "blind-then-consensus-v1"
     },
@@ -415,10 +431,12 @@
         "source_generated_at": "2026-11-12T02:18:43.740434+00:00"
       },
       "consensus": {
-        "ft": true,
-        "handicap": true,
-        "engine_ft_top1": "主胜",
-        "engine_handicap_top1": "让负"
+        "ft_gpt_top1": "主胜",
+        "ft_engine_top1": "主胜",
+        "ft_aligned": true,
+        "handicap_gpt_top1": "让负",
+        "handicap_engine_top1": "让负",
+        "handicap_aligned": true
       },
       "risk_audit": {
         "warning_status": "TRIGGERED",
@@ -433,7 +451,7 @@
         "watch": [],
         "hard_excluded": true,
         "historical_warning_verified": false,
-        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "historical_warning_note": "未取得完整赛事周期历史预警冻结记录；当前已知003正式触发E2",
         "missing": [
           "必发交易",
           "FotMob历史独立xG",
@@ -449,7 +467,9 @@
         ],
         "warning_watch": [],
         "hard_exclusion": true,
-        "review_reason": "现有冷门预警正式触发E2，赛事周期永久硬排除；不因让负同路而精选。"
+        "review_reason": "现有冷门预警正式触发E2，赛事周期永久硬排除；不因让负同路而精选。",
+        "market_captured_at": "2026-11-12T00:39:37.992091+00:00",
+        "independent_review_recorded_at": "2026-11-12T06:34:29.420Z"
       },
       "review_version": "blind-then-consensus-v1"
     },
@@ -512,10 +532,12 @@
         "source_generated_at": "2026-11-12T02:18:43.740434+00:00"
       },
       "consensus": {
-        "ft": null,
-        "handicap": false,
-        "engine_ft_top1": null,
-        "engine_handicap_top1": "让负"
+        "ft_gpt_top1": "客胜",
+        "ft_engine_top1": null,
+        "ft_aligned": false,
+        "handicap_gpt_top1": "让胜",
+        "handicap_engine_top1": "让负",
+        "handicap_aligned": false
       },
       "risk_audit": {
         "warning_status": "NOT_EVALUATED",
@@ -526,7 +548,7 @@
         "watch": [],
         "hard_excluded": false,
         "historical_warning_verified": false,
-        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "historical_warning_note": "未取得完整赛事周期历史预警冻结记录；当前已知003正式触发E2",
         "missing": [
           "必发交易",
           "FotMob历史独立xG",
@@ -538,7 +560,9 @@
         "warning_evidence": [],
         "warning_watch": [],
         "hard_exclusion": false,
-        "review_reason": "体彩普通胜平负未开售，让球Top1与独立方向不一致，且深盘净胜两球临界风险大。"
+        "review_reason": "体彩普通胜平负未开售，让球Top1与独立方向不一致，且深盘净胜两球临界风险大。",
+        "market_captured_at": "2026-11-12T00:39:47.408963+00:00",
+        "independent_review_recorded_at": "2026-11-12T06:34:29.420Z"
       },
       "review_version": "blind-then-consensus-v1"
     }
@@ -720,5 +744,6 @@
         ]
       }
     ]
-  }
+  },
+  "reviewed_at": "2026-11-12T06:34:44.718Z"
 }
