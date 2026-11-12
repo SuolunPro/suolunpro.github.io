@@ -604,5 +604,121 @@
         "risk": "普通SP缺失，净胜两球临界"
       }
     ]
+  },
+  "blind_first_pass": {
+    "captured_from_engine_at": "2026-11-12T02:18:43.740434+00:00",
+    "recorded_at": "2026-11-12T06:34:29.420Z",
+    "stage": "pre_model_comparison",
+    "source": "engine raw fields only; prediction.modules FT/handicap Top1 and probabilities not read in this stage",
+    "matches": [
+      {
+        "match_no": "001",
+        "source_id": "502981457",
+        "home": "土耳其",
+        "away": "比利时",
+        "kickoff": "2026-11-13 01:00",
+        "market_captured_at": "2026-11-12T00:39:30.083158+00:00",
+        "ft_top1": "客胜",
+        "handicap_top1": "让胜",
+        "confidence": "中",
+        "main_evidence": "威廉客胜1.80降1.75、澳门客让半球升半一，客队优势明确；官方主受让一球的让胜仍具边际空间",
+        "counter_risk": "客队若净胜2球，主受让一球方向失效；无必发和阵容验证",
+        "missing": [
+          "必发交易",
+          "FotMob历史xG",
+          "近期战绩/主客场/伤停/战意独立原始字段"
+        ]
+      },
+      {
+        "match_no": "002",
+        "source_id": "502981555",
+        "home": "亚美尼亚",
+        "away": "塞浦路斯",
+        "kickoff": "2026-11-13 01:00",
+        "market_captured_at": "2026-11-12T00:39:34.801534+00:00",
+        "ft_top1": "主胜",
+        "handicap_top1": "让负",
+        "confidence": "低",
+        "main_evidence": "体彩主胜2.05略占优，主让一球下让负1.58反映主队穿盘能力不足",
+        "counter_risk": "威廉主胜2.20升2.29、澳门主队高水，主胜方向有明显反向信号",
+        "missing": [
+          "必发交易",
+          "FotMob历史xG",
+          "近期战绩/主客场/伤停/战意独立原始字段"
+        ]
+      },
+      {
+        "match_no": "003",
+        "source_id": "502981556",
+        "home": "阿尔巴尼",
+        "away": "芬兰",
+        "kickoff": "2026-11-13 03:45",
+        "market_captured_at": "2026-11-12T00:39:37.992091+00:00",
+        "ft_top1": "主胜",
+        "handicap_top1": "让负",
+        "confidence": "中低",
+        "main_evidence": "威廉主胜2.00降1.95、澳门升主让半球，主队略占优势；主让一球下让负1.77较有保护",
+        "counter_risk": "平局赔率下调、主队赢一球风险与让负方向相冲突；无独立基本面",
+        "missing": [
+          "必发交易",
+          "FotMob历史xG",
+          "近期战绩/主客场/伤停/战意独立原始字段"
+        ]
+      },
+      {
+        "match_no": "004",
+        "source_id": "502981558",
+        "home": "黑山",
+        "away": "拉脱维亚",
+        "kickoff": "2026-11-13 03:45",
+        "market_captured_at": "2026-11-12T00:39:40.716102+00:00",
+        "ft_top1": "主胜",
+        "handicap_top1": "让胜",
+        "confidence": "中高",
+        "main_evidence": "威廉主胜1.36降1.25、澳门主让一球/球半升一球半，主队优势得到双市场支持",
+        "counter_risk": "大热低赔率、净胜一球及轮换动机未核实；让胜比主胜风险大",
+        "missing": [
+          "必发交易",
+          "FotMob历史xG",
+          "近期战绩/主客场/伤停/战意独立原始字段"
+        ]
+      },
+      {
+        "match_no": "005",
+        "source_id": "502981460",
+        "home": "英格兰",
+        "away": "克罗地亚",
+        "kickoff": "2026-11-13 03:45",
+        "market_captured_at": "2026-11-12T00:39:43.322869+00:00",
+        "ft_top1": "主胜",
+        "handicap_top1": "让负",
+        "confidence": "中高",
+        "main_evidence": "威廉主胜维持约1.25、澳门主让一球半/两球，主队赢球市场基础较强",
+        "counter_risk": "体彩让两球，穿盘需要净胜3+；威廉主胜由1.22微升1.25，缺阵战意未核实",
+        "missing": [
+          "必发交易",
+          "FotMob历史xG",
+          "近期战绩/主客场/伤停/战意独立原始字段"
+        ]
+      },
+      {
+        "match_no": "006",
+        "source_id": "502981459",
+        "home": "捷克",
+        "away": "西班牙",
+        "kickoff": "2026-11-13 03:45",
+        "market_captured_at": "2026-11-12T00:39:47.408963+00:00",
+        "ft_top1": "客胜",
+        "handicap_top1": "让胜",
+        "confidence": "中",
+        "main_evidence": "威廉客胜1.20、澳门客让两球，客队取胜实力预期强；体彩主受让两球让胜2.37有一定价值空间",
+        "counter_risk": "客队可能净胜3+，且体彩普通胜平负未开售；缺少独立进球差证据",
+        "missing": [
+          "必发交易",
+          "FotMob历史xG",
+          "近期战绩/主客场/伤停/战意独立原始字段"
+        ]
+      }
+    ]
   }
 }
