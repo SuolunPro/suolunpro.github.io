@@ -745,30 +745,6 @@
       panel.append(el('div','intel-brief',brief));
       if(match.prediction?.modules?.['冷门预警']?.triggered===true)
         panel.append(el('div','intel-tag warn','冷门预警已触发 · 不列入精选'));
-      const details=document.createElement('details');
-      details.append(el('summary','','查看依据'));
-      const body=el('div','intel-detail');
-      const fields=[['近期状态','recent_form'],['主客场表现','home_away'],['实力对比','standings'],['攻防能力','attack_defense'],['市场走势','market'],['阵容伤停','squad'],['赛程战意','schedule'],['历史交锋','h2h']];
-      let count=0;
-      for(const [name,key] of fields){
-        const value=review?.details?.[key];
-        if(typeof value==='string'&&value.trim()){
-          let display=value.trim().replace(/4\\.0/g,'九十刻度');
-          if(key==='standings'&&display==='未确认'&&review?.details?.recent_form&&review?.details?.attack_defense)
-            display='已取得近期战绩及进失球，可作阶段性实力比较；赛前排名尚待核验。';
-          if(key==='market'&&display.includes('共享原始市场数据')){
-            const w=display.match(/威廉希尔初赔 ([^；]+)，即时赔 ([^；]+)/);
-            const a=display.match(/澳门初盘 ([^；]+)，即时盘 ([^；]+)/);
-            display=(w?'威廉初赔 '+w[1]+' → 即时 '+w[2]+'。':'')+(a?'澳门初盘 '+a[1]+' → 即时 '+a[2]+'。':'')+'市场走势仅据已采集时点，非临场盘口。';
-          }
-          if(key==='squad'&&display.includes('未确认'))display='首发及伤停仍待核实，不代表确认存在伤停。';
-          body.append(el('p','',name+'：'+display));
-          count++;
-        }
-      }
-      if(!count)body.append(el('p','','赛前依据正在核实。'));
-      details.append(body);
-      panel.append(details);
       card.append(panel);
     }
     function verdict(card,match){
