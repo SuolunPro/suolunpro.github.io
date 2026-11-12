@@ -728,21 +728,6 @@
       // Keep the existing hard exclusion for a formally triggered upset warning above.
       return true;
     }
-    function professionalReviewBrief(review){
-      const d=review?.details||{};
-      const clean=v=>String(v||'').replace(/^(FotMob赛前已完赛最近5场（含不同赛事）|FotMob赛前各自最近5个对应主客场（可能跨赛事）|共享原始市场数据[^：]*|近5场)/,'').trim();
-      const short=(v,n=92)=>{const t=clean(v).split(/[；。]/)[0];return t.length>n?t.slice(0,n)+'…':t};
-      // Only quote verified, stored evidence. No invented injury, xG or form claims.
-      const football=[d.squad,d.motivation_risk,d.attack_defense,d.home_away,d.recent_form,d.schedule]
-        .map(v=>short(v,95)).filter(v=>v&& !/^(正式首发未确认|首发待确认)$/.test(v));
-      const distinct=[...new Set(football)];
-      const first=distinct.length?distinct[0].replace(/[，,;；。]+$/,'')+'。':'球队攻防及阵容证据尚不完整，暂不作确定性判断。';
-      const risk=short(d.draw_risk||d.favorite_trap,55);
-      const market=short(d.market,80);
-      // Do not quote the entire bookmaker feed as the second sentence.
-      const second=risk?risk.replace(/[，,;；。]+$/,'')+'；盘口仅作为辅助验证。':market?'市场赔率仅作辅助验证，仍需关注阵容与比赛节奏变化。':'市场与阵容证据未充分核实，需谨慎评估。';
-      return first+' '+second;
-    }
     function independentReview(card,match){
       const review=match.independent_review||match.prediction?.independent_review;
       const panel=el('section','intel-review');
@@ -756,7 +741,7 @@
       const selection=review?.status==='COMPLETED'?(map[pick]||pick||'待研判'):(review?.status==='INSUFFICIENT'&&pick?'暂定'+(map[pick]||pick)+'（待核实）':'待研判');
       panel.append(el('div','intel-pickline','建议：'+selection));
       const reason=review?.customer_summary||review?.comprehensive_reason;
-      const brief=String(report?.sale_day||'')>='2026-11-12'&&review?.details?professionalReviewBrief(review):(typeof reason==='string'&&reason.trim()?reason.trim().slice(0,110):'赛前研判资料正在更新。');
+      const brief=typeof reason==='string'&&reason.trim()?reason.trim().slice(0,110):'赛前研判资料正在更新。';
       panel.append(el('div','intel-brief',brief));
       if(match.prediction?.modules?.['冷门预警']?.triggered===true)
         panel.append(el('div','intel-tag warn','冷门预警已触发 · 不列入精选'));
