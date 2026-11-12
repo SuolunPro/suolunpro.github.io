@@ -646,9 +646,25 @@
             number.style.cssText='font-size:14px;font-weight:700;margin-top:4px;white-space:nowrap;color:'+(Math.abs(value)<0.005?'#667085':value>0?'#d92d35':'#15935a')+';';
             cell.append(heading,number);row.append(cell);
           };
-          addCell('Top1 '+label(items[0]),delta.delta[items[0]]);
-          addCell('Top2 '+label(items[1]),delta.delta[items[1]]);
-          addCell('双选合计',delta.total_delta);
+          if(active==='胜平负'){
+            // Three outcomes must share one baseline; their percentage-point deltas sum to zero.
+            const all=['胜','平','负'];
+            const missing=all.find(p=>!Number.isFinite(delta.delta?.[p]));
+            const third=all.find(p=>!items.includes(p));
+            const thirdDelta=missing===third ? -delta.delta[items[0]]-delta.delta[items[1]] : (missing ? null : delta.delta[third]);
+            if(Number.isFinite(thirdDelta)){
+              const changes={...delta.delta,[third]:thirdDelta};
+              all.forEach(p=>addCell(label(p)+'变化',changes[p]));
+            }else{
+              addCell('Top1 '+label(items[0]),delta.delta[items[0]]);
+              addCell('Top2 '+label(items[1]),delta.delta[items[1]]);
+              addCell('双选合计',delta.total_delta);
+            }
+          }else{
+            addCell('Top1 '+label(items[0]),delta.delta[items[0]]);
+            addCell('Top2 '+label(items[1]),delta.delta[items[1]]);
+            addCell('双选合计',delta.total_delta);
+          }
           trend.append(row);
         }else{
           const empty=el('div','', '暂无变化记录');
