@@ -821,7 +821,7 @@
               const strong=seven>=0.09;
               const alert=el('div','v4-note v4-seven-goal-alert');
               alert.style.cssText='margin:5px 0 8px;font-weight:600;color:'+(strong?'#c45120':'#9a6a08');
-              let message=(strong?'7+重点预警':'7+关注')+'｜'+(seven*100).toFixed(2)+'%';
+              let message=(match.settlement?'历史回看 · ':'')+(strong?'7+重点预警':'7+关注')+'｜'+(seven*100).toFixed(2)+'%';
               const ft=match.settlement?.ft;
               const score=typeof ft==='string'?ft.match(/^(\\d+)\\s*:\\s*(\\d+)$/):null;
               if(score){
