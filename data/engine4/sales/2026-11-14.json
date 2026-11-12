@@ -21,7 +21,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:08:49.654008+00:00",
+        "captured_at": "2026-11-12T22:47:31.004642+00:00",
         "william": {
           "initial": "3.20 / 3.30 / 2.00",
           "current": "3.10 / 3.25 / 2.04",
@@ -31,7 +31,7 @@
           "Bet365": {
             "initial": "0.78 -0.5 1.03",
             "current": "1.00 -0/0.5 0.80",
-            "time": "16小时前"
+            "time": "17小时前"
           },
           "澳门": {
             "initial": "0.99 -0/0.5 0.79",
@@ -55,7 +55,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:08:51.731676+00:00",
+      "predicted_at": "2026-11-12T22:47:36.754930+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -63,7 +63,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -85,7 +85,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:08:52.646505+00:00",
+        "captured_at": "2026-11-12T22:47:38.618882+00:00",
         "william": {
           "initial": "1.80 / 3.60 / 3.50",
           "current": "1.65 / 4.00 / 4.00",
@@ -122,7 +122,7 @@
         "reason": "历史完赛xG样本不足：主0场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:09:03.795562+00:00",
+      "predicted_at": "2026-11-12T22:47:49.204391+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -130,7 +130,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -152,11 +152,11 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:09:04.718122+00:00",
+        "captured_at": "2026-11-12T22:47:51.068091+00:00",
         "william": {
           "initial": "3.90 / 3.60 / 1.73",
-          "current": "3.60 / 3.50 / 1.83",
-          "time": "3小时前"
+          "current": "3.50 / 3.40 / 1.85",
+          "time": "14分钟前"
         },
         "asia": {
           "Bet365": {
@@ -167,16 +167,76 @@
           "皇冠": {
             "initial": "0.98 -0.5 0.84",
             "current": "0.92 -0.5 0.90",
-            "time": "3小时前"
+            "time": "4小时前"
           }
         }
       },
+      "fotmob_match_id": 6497224,
+      "fotmob_home_team_id": 6715,
+      "fotmob_away_team_id": 8256,
       "fotmob_xg": {
-        "status": "UNAVAILABLE",
-        "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
-        "source": "FotMob"
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 6497224,
+        "home_team_id": 6715,
+        "away_team_id": 8256,
+        "home_lambda": 0.9345,
+        "away_lambda": 1.6445,
+        "samples": {
+          "home": [
+            {
+              "match_id": 4653711,
+              "xgf": 0.33,
+              "xga": 2.07
+            },
+            {
+              "match_id": 4667788,
+              "xgf": 1.21,
+              "xga": 0.64
+            },
+            {
+              "match_id": 4667785,
+              "xgf": 2.13,
+              "xga": 0.05
+            },
+            {
+              "match_id": 4667783,
+              "xgf": 0.59,
+              "xga": 0.78
+            }
+          ],
+          "away": [
+            {
+              "match_id": 4653846,
+              "xgf": 2.61,
+              "xga": 1.05
+            },
+            {
+              "match_id": 4653711,
+              "xgf": 2.07,
+              "xga": 0.33
+            },
+            {
+              "match_id": 4667768,
+              "xgf": 4.33,
+              "xga": 1.04
+            },
+            {
+              "match_id": 4667767,
+              "xgf": 1.75,
+              "xga": 0.23
+            },
+            {
+              "match_id": 4667764,
+              "xgf": 1.26,
+              "xga": 1.37
+            }
+          ]
+        },
+        "captured_at": "2026-11-12T22:47:54.942778+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-12T22:09:06.335134+00:00",
+      "predicted_at": "2026-11-12T22:47:59.489120+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -184,7 +244,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -206,16 +266,19 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:09:07.264438+00:00",
+        "captured_at": "2026-11-12T22:48:01.355758+00:00",
         "william": null,
         "asia": {}
       },
+      "fotmob_match_id": 6539350,
+      "fotmob_home_team_id": 5822,
+      "fotmob_away_team_id": 5823,
       "fotmob_xg": {
         "status": "UNAVAILABLE",
-        "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
+        "reason": "历史完赛xG样本不足：主0场、客4场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:09:10.370338+00:00",
+      "predicted_at": "2026-11-12T22:48:10.283302+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -223,7 +286,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -245,7 +308,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:09:11.286150+00:00",
+        "captured_at": "2026-11-12T22:48:12.149363+00:00",
         "william": {
           "initial": "1.53 / 4.20 / 5.00",
           "current": "1.53 / 4.20 / 5.00",
@@ -255,7 +318,7 @@
           "Bet365": {
             "initial": "0.83 1 0.98",
             "current": "0.83 1 0.98",
-            "time": "23小时前"
+            "time": "1天前"
           },
           "澳门": {
             "initial": "0.83 1 0.95",
@@ -265,7 +328,7 @@
           "皇冠": {
             "initial": "0.86 1 0.96",
             "current": "0.79 1 1.03",
-            "time": "23小时前"
+            "time": "1天前"
           },
           "威廉希尔": {
             "initial": "0.85 1 0.85",
@@ -282,7 +345,7 @@
         "reason": "历史完赛xG样本不足：主0场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:09:23.230100+00:00",
+      "predicted_at": "2026-11-12T22:48:23.390681+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -290,7 +353,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -312,7 +375,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:09:24.288564+00:00",
+        "captured_at": "2026-11-12T22:48:26.160364+00:00",
         "william": {
           "initial": "2.45 / 3.00 / 2.80",
           "current": "2.90 / 2.88 / 2.40",
@@ -341,12 +404,67 @@
           }
         }
       },
+      "fotmob_match_id": 5181808,
+      "fotmob_home_team_id": 8268,
+      "fotmob_away_team_id": 8565,
       "fotmob_xg": {
-        "status": "UNAVAILABLE",
-        "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
-        "source": "FotMob"
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 5181808,
+        "home_team_id": 8268,
+        "away_team_id": 8565,
+        "home_lambda": 0.9538,
+        "away_lambda": 1.3337,
+        "samples": {
+          "home": [
+            {
+              "match_id": 5181806,
+              "xgf": 0.33,
+              "xga": 1.9
+            },
+            {
+              "match_id": 5181804,
+              "xgf": 0.48,
+              "xga": 1.47
+            },
+            {
+              "match_id": 5181802,
+              "xgf": 0.96,
+              "xga": 0.2
+            },
+            {
+              "match_id": 5181800,
+              "xgf": 1.71,
+              "xga": 1.1
+            }
+          ],
+          "away": [
+            {
+              "match_id": 5181807,
+              "xgf": 1.36,
+              "xga": 1.39
+            },
+            {
+              "match_id": 5181804,
+              "xgf": 1.47,
+              "xga": 0.48
+            },
+            {
+              "match_id": 5181803,
+              "xgf": 1.14,
+              "xga": 0.99
+            },
+            {
+              "match_id": 5181801,
+              "xgf": 2.03,
+              "xga": 1.29
+            }
+          ]
+        },
+        "captured_at": "2026-11-12T22:48:32.270058+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-12T22:09:29.696036+00:00",
+      "predicted_at": "2026-11-12T22:48:36.227583+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -354,7 +472,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -376,7 +494,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:09:30.624959+00:00",
+        "captured_at": "2026-11-12T22:48:39.245673+00:00",
         "william": {
           "initial": "1.22 / 5.80 / 10.00",
           "current": "1.22 / 6.00 / 9.50",
@@ -386,7 +504,7 @@
           "Bet365": {
             "initial": "0.88 1.5/2 0.98",
             "current": "0.83 1.5/2 1.03",
-            "time": "39分钟前"
+            "time": "1小时前"
           },
           "澳门": {
             "initial": "0.90 1.5/2 0.94",
@@ -401,7 +519,7 @@
           "威廉希尔": {
             "initial": "0.80 1.5/2 0.91",
             "current": "0.75 1.5/2 0.85",
-            "time": "1小时前"
+            "time": "2小时前"
           }
         }
       },
@@ -410,7 +528,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:09:32.331643+00:00",
+      "predicted_at": "2026-11-12T22:48:41.562610+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -418,7 +536,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -440,7 +558,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:09:33.285553+00:00",
+        "captured_at": "2026-11-12T22:48:43.952933+00:00",
         "william": {
           "initial": "1.91 / 3.75 / 3.30",
           "current": "1.95 / 3.75 / 3.25",
@@ -477,7 +595,7 @@
         "reason": "历史完赛xG样本不足：主0场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:09:44.399866+00:00",
+      "predicted_at": "2026-11-12T22:48:53.991369+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -485,7 +603,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -507,7 +625,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:09:45.315116+00:00",
+        "captured_at": "2026-11-12T22:48:55.855703+00:00",
         "william": {
           "initial": "1.85 / 3.75 / 3.40",
           "current": "1.91 / 3.75 / 3.40",
@@ -544,7 +662,7 @@
         "reason": "历史完赛xG样本不足：主0场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:09:55.817433+00:00",
+      "predicted_at": "2026-11-12T22:49:04.397003+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -552,7 +670,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -574,7 +692,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:09:56.731059+00:00",
+        "captured_at": "2026-11-12T22:49:06.261279+00:00",
         "william": {
           "initial": "1.40 / 4.59 / 6.00",
           "current": "1.40 / 4.59 / 6.00",
@@ -609,7 +727,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:09:58.878521+00:00",
+      "predicted_at": "2026-11-12T22:49:11.369624+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -617,7 +735,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -639,7 +757,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:09:59.807468+00:00",
+        "captured_at": "2026-11-12T22:49:13.147516+00:00",
         "william": {
           "initial": "1.55 / 3.80 / 5.00",
           "current": "1.55 / 3.80 / 5.00",
@@ -668,12 +786,72 @@
           }
         }
       },
+      "fotmob_match_id": 5181821,
+      "fotmob_home_team_id": 8255,
+      "fotmob_away_team_id": 5791,
       "fotmob_xg": {
-        "status": "UNAVAILABLE",
-        "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
-        "source": "FotMob"
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 5181821,
+        "home_team_id": 8255,
+        "away_team_id": 5791,
+        "home_lambda": 1.3518,
+        "away_lambda": 1.417,
+        "samples": {
+          "home": [
+            {
+              "match_id": 5181818,
+              "xgf": 0.57,
+              "xga": 0.92
+            },
+            {
+              "match_id": 5181817,
+              "xgf": 1.37,
+              "xga": 1.62
+            },
+            {
+              "match_id": 5181814,
+              "xgf": 1.69,
+              "xga": 1.43
+            },
+            {
+              "match_id": 5181812,
+              "xgf": 2.78,
+              "xga": 0.2
+            },
+            {
+              "match_id": 4653708,
+              "xgf": 0.32,
+              "xga": 2.8
+            }
+          ],
+          "away": [
+            {
+              "match_id": 5181819,
+              "xgf": 2.17,
+              "xga": 1.0
+            },
+            {
+              "match_id": 5181817,
+              "xgf": 1.62,
+              "xga": 1.37
+            },
+            {
+              "match_id": 5181815,
+              "xgf": 1.72,
+              "xga": 0.32
+            },
+            {
+              "match_id": 5181813,
+              "xgf": 0.25,
+              "xga": 2.74
+            }
+          ]
+        },
+        "captured_at": "2026-11-12T22:49:18.341324+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-12T22:10:04.506881+00:00",
+      "predicted_at": "2026-11-12T22:49:23.324689+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -681,7 +859,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -703,11 +881,11 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:10:05.466385+00:00",
+        "captured_at": "2026-11-12T22:49:25.158362+00:00",
         "william": {
           "initial": "1.44 / 4.00 / 5.80",
           "current": "1.50 / 4.00 / 5.00",
-          "time": "3小时前"
+          "time": "4小时前"
         },
         "asia": {
           "Bet365": {
@@ -737,7 +915,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:10:08.875789+00:00",
+      "predicted_at": "2026-11-12T22:49:29.212108+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -745,7 +923,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -767,7 +945,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:10:09.829595+00:00",
+        "captured_at": "2026-11-12T22:49:31.090085+00:00",
         "william": {
           "initial": "3.50 / 3.40 / 1.91",
           "current": "3.75 / 3.50 / 1.80",
@@ -796,12 +974,77 @@
           }
         }
       },
+      "fotmob_match_id": 5181845,
+      "fotmob_home_team_id": 9730,
+      "fotmob_away_team_id": 8568,
       "fotmob_xg": {
-        "status": "UNAVAILABLE",
-        "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
-        "source": "FotMob"
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 5181845,
+        "home_team_id": 9730,
+        "away_team_id": 8568,
+        "home_lambda": 0.886,
+        "away_lambda": 1.962,
+        "samples": {
+          "home": [
+            {
+              "match_id": 5181844,
+              "xgf": 0.56,
+              "xga": 2.84
+            },
+            {
+              "match_id": 5181842,
+              "xgf": 0.56,
+              "xga": 3.47
+            },
+            {
+              "match_id": 5181839,
+              "xgf": 0.95,
+              "xga": 2.59
+            },
+            {
+              "match_id": 5181838,
+              "xgf": 0.51,
+              "xga": 0.83
+            },
+            {
+              "match_id": 5067289,
+              "xgf": 0.48,
+              "xga": 1.4
+            }
+          ],
+          "away": [
+            {
+              "match_id": 5181843,
+              "xgf": 1.57,
+              "xga": 1.17
+            },
+            {
+              "match_id": 5181842,
+              "xgf": 3.47,
+              "xga": 0.56
+            },
+            {
+              "match_id": 5181840,
+              "xgf": 1.19,
+              "xga": 2.11
+            },
+            {
+              "match_id": 5181837,
+              "xgf": 0.73,
+              "xga": 0.31
+            },
+            {
+              "match_id": 5067300,
+              "xgf": 1.53,
+              "xga": 1.65
+            }
+          ]
+        },
+        "captured_at": "2026-11-12T22:49:34.620391+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-12T22:10:12.711890+00:00",
+      "predicted_at": "2026-11-12T22:49:40.011644+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -809,7 +1052,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -831,7 +1074,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:10:13.672599+00:00",
+        "captured_at": "2026-11-12T22:49:41.878281+00:00",
         "william": {
           "initial": "1.44 / 4.50 / 5.80",
           "current": "1.44 / 4.20 / 5.50",
@@ -841,7 +1084,7 @@
           "Bet365": {
             "initial": "0.98 1/1.5 0.88",
             "current": "0.80 1 1.05",
-            "time": "3小时前"
+            "time": "4小时前"
           },
           "澳门": {
             "initial": "1.03 1/1.5 0.81",
@@ -851,7 +1094,7 @@
           "皇冠": {
             "initial": "0.91 1/1.5 0.97",
             "current": "0.83 1 0.99",
-            "time": "12分钟前"
+            "time": "51分钟前"
           },
           "威廉希尔": {
             "initial": "0.83 1/1.5 0.75",
@@ -860,12 +1103,77 @@
           }
         }
       },
+      "fotmob_match_id": 5181870,
+      "fotmob_home_team_id": 8361,
+      "fotmob_away_team_id": 8238,
       "fotmob_xg": {
-        "status": "UNAVAILABLE",
-        "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
-        "source": "FotMob"
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 5181870,
+        "home_team_id": 8361,
+        "away_team_id": 8238,
+        "home_lambda": 1.339,
+        "away_lambda": 1.301,
+        "samples": {
+          "home": [
+            {
+              "match_id": 5181867,
+              "xgf": 1.78,
+              "xga": 0.45
+            },
+            {
+              "match_id": 5181865,
+              "xgf": 2.25,
+              "xga": 0.76
+            },
+            {
+              "match_id": 5181864,
+              "xgf": 1.04,
+              "xga": 2.52
+            },
+            {
+              "match_id": 5181862,
+              "xgf": 1.93,
+              "xga": 0.85
+            },
+            {
+              "match_id": 4653844,
+              "xgf": 0.63,
+              "xga": 1.69
+            }
+          ],
+          "away": [
+            {
+              "match_id": 5181868,
+              "xgf": 2.15,
+              "xga": 0.26
+            },
+            {
+              "match_id": 5181865,
+              "xgf": 0.76,
+              "xga": 2.25
+            },
+            {
+              "match_id": 5181863,
+              "xgf": 1.39,
+              "xga": 0.62
+            },
+            {
+              "match_id": 5181861,
+              "xgf": 1.09,
+              "xga": 1.41
+            },
+            {
+              "match_id": 5067302,
+              "xgf": 1.35,
+              "xga": 1.22
+            }
+          ]
+        },
+        "captured_at": "2026-11-12T22:49:45.711677+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-12T22:10:16.446325+00:00",
+      "predicted_at": "2026-11-12T22:49:49.502046+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -873,7 +1181,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -895,7 +1203,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:10:17.376239+00:00",
+        "captured_at": "2026-11-12T22:49:51.366302+00:00",
         "william": {
           "initial": "2.50 / 3.20 / 2.63",
           "current": "1.95 / 3.30 / 3.50",
@@ -904,8 +1212,8 @@
         "asia": {
           "Bet365": {
             "initial": "0.83 0 1.03",
-            "current": "1.00 0.5 0.85",
-            "time": "1天前"
+            "current": "0.85 0.5 1.00",
+            "time": "16分钟前"
           },
           "澳门": {
             "initial": "0.95 0.5 0.83",
@@ -986,10 +1294,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-12T22:10:19.615732+00:00",
+        "captured_at": "2026-11-12T22:49:54.934527+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-12T22:10:28.289642+00:00",
+      "predicted_at": "2026-11-12T22:50:01.653164+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -997,7 +1305,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     },
     {
@@ -1019,17 +1327,17 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-12T22:10:29.217723+00:00",
+        "captured_at": "2026-11-12T22:50:03.519538+00:00",
         "william": {
           "initial": "3.00 / 3.10 / 2.25",
           "current": "6.00 / 4.40 / 1.44",
-          "time": "6小时前"
+          "time": "7小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 -0/0.5 1.03",
-            "current": "0.83 -1/1.5 1.03",
-            "time": "6小时前"
+            "current": "0.85 -1/1.5 1.00",
+            "time": "16分钟前"
           },
           "澳门": {
             "initial": "0.82 -1 0.96",
@@ -1039,12 +1347,12 @@
           "皇冠": {
             "initial": "0.86 -1 1.02",
             "current": "0.83 -1/1.5 1.05",
-            "time": "16小时前"
+            "time": "17小时前"
           },
           "威廉希尔": {
             "initial": "0.72 -0/0.5 0.91",
             "current": "0.70 -1/1.5 0.95",
-            "time": "6小时前"
+            "time": "7小时前"
           }
         }
       },
@@ -1054,7 +1362,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-12T22:10:31.833135+00:00",
+      "predicted_at": "2026-11-12T22:50:06.355283+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -1062,7 +1370,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-12T22:10:34.034299+00:00"
+        "checked_at": "2026-11-12T22:50:07.620162+00:00"
       }
     }
   ],
@@ -1310,5 +1618,5 @@
       }
     }
   },
-  "generated_at": "2026-11-12T22:13:57.311735+00:00"
+  "generated_at": "2026-11-12T22:50:07.620162+00:00"
 }
