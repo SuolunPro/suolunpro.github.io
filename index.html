@@ -707,10 +707,11 @@
         }
       }catch(_){/* No published review for this date yet. */}
     }
+    function isIndependentFeatured(match){return match.independent_review?.selected===true&&match.prediction?.modules?.['冷门预警']?.triggered!==true&&(String(report?.sale_day||'')<'2026-11-12'||match.prediction?.modules?.['今日优选']?.status==='SELECTED');}
     function independentReview(card,match){
       const review=match.independent_review||match.prediction?.independent_review;
       const panel=el('section','intel-review');
-      const title=el('div','intel-title');title.append(el('span','','精选研判'),el('span','intel-test','测试'));panel.append(title);if(review?.selected===true&&match.prediction?.modules?.['今日优选']?.status==='SELECTED'&&match.prediction?.modules?.['冷门预警']?.triggered!==true){panel.append(el('div','intel-featured','★ 今日精选'));}else{panel.append(el('div','intel-ordinary','普通研判 · 非精选'));}
+      const title=el('div','intel-title');title.append(el('span','','精选研判'),el('span','intel-test','测试'));panel.append(title);if(isIndependentFeatured(match)){panel.append(el('div','intel-featured','★ 今日精选'));}else{panel.append(el('div','intel-ordinary','普通研判 · 非精选'));}
       const pick=review?.comprehensive_pick;
       const handicap=match.prediction?.modules?.['让球']?.handicap;
       const isHandicap=typeof pick==='string'&&pick.startsWith('让');
@@ -771,14 +772,14 @@
       if(!report)return;
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`今日赛事 ${report.matches.length} 场`;
-      const isReviewSelected=m=>m.independent_review?.selected===true&&m.prediction?.modules?.['冷门预警']?.triggered!==true;
+      const isReviewSelected=isIndependentFeatured;
       const focus=active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
       if(active==='独立研判'){
         const completed=focus.filter(m=>m.independent_review?.status==='COMPLETED').length;
-        const selected=focus.filter(m=>m.independent_review?.selected===true&&m.prediction?.modules?.['冷门预警']?.triggered!==true).length;
+        const selected=focus.filter(m=>isIndependentFeatured(m)).length;
         root.append(el('div','intel-summary',`全池 ${focus.length} 场 · 已完成 ${completed} 场 · 最终精选 ${selected} 场 · 其余待复核或未入选`));
       }
       if(!focus.length){root.append(el('div','empty',active==='独立研判'?'当前日期暂无赛事':active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
