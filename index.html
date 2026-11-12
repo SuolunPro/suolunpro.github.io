@@ -710,7 +710,7 @@
     function independentReview(card,match){
       const review=match.independent_review||match.prediction?.independent_review;
       const panel=el('section','intel-review');
-      const title=el('div','intel-title');title.append(el('span','','精选研判'),el('span','intel-test','测试'));panel.append(title);if(review?.selected===true&&match.prediction?.modules?.['冷门预警']?.triggered!==true){panel.append(el('div','intel-featured','★ 今日精选'));}else{panel.append(el('div','intel-ordinary','普通研判 · 非精选'));}
+      const title=el('div','intel-title');title.append(el('span','','精选研判'),el('span','intel-test','测试'));panel.append(title);if(review?.selected===true&&match.prediction?.modules?.['今日优选']?.status==='SELECTED'&&match.prediction?.modules?.['冷门预警']?.triggered!==true){panel.append(el('div','intel-featured','★ 今日精选'));}else{panel.append(el('div','intel-ordinary','普通研判 · 非精选'));}
       const pick=review?.comprehensive_pick;
       const handicap=match.prediction?.modules?.['让球']?.handicap;
       const isHandicap=typeof pick==='string'&&pick.startsWith('让');
