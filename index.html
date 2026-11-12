@@ -10,6 +10,10 @@
   <style>
     /* Keep the same shell, navigation, fixture and choice grid as the main site. */
     .app{padding-bottom:75px}
+    /* Normalize anchor and button tab alignment on mobile Safari. */
+    .bottom-inner>.nav{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:0;line-height:1.35}
+    .bottom-inner>.nav i{display:block;width:100%;text-align:center}
+
     .hero{background:var(--red)}
     .hero:before,.hero:after{display:none}
     .brandbar{padding:10px 14px 7px}
