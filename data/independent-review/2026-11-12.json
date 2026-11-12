@@ -1,106 +1,10 @@
 {
   "sale_day": "2026-11-12",
-  "generated_at": "2026-11-12T04:33:37.123Z",
+  "generated_at": "2026-11-12T04:33:55.228Z",
   "engine_generated_at": "2026-11-12T02:18:43.740434+00:00",
   "review_version": "blind-stage-v1",
-  "stage": "blind_saved_before_engine_top1_read",
+  "stage": "final_review",
   "matches": [
-    {
-      "match_no": "001",
-      "source_id": "502981457",
-      "home": "土耳其",
-      "away": "比利时",
-      "kickoff": "2026-11-13 01:00",
-      "status": "赛前",
-      "top1": null,
-      "top2": null,
-      "details": "",
-      "ft_review": {},
-      "handicap_review": {},
-      "comprehensive_pick": null,
-      "comprehensive_reason": "",
-      "selected": false,
-      "selection_reason": "待同路与风险审计",
-      "customer_summary": "",
-      "gpt_review": {
-        "ft_top1": "客胜",
-        "handicap_top1": "让胜",
-        "confidence": "中",
-        "evidence": "比利时欧赔占优、澳门客让半一；主队受让一球有容错",
-        "counter_risk": "客队净胜两球风险",
-        "market_captured_at": "2026-11-12T00:39:30.083158+00:00",
-        "blind_stage": true,
-        "missing": [
-          "必发交易未采集",
-          "FotMob xG不可用",
-          "近期战绩/伤停/战意未见独立原始字段"
-        ]
-      }
-    },
-    {
-      "match_no": "002",
-      "source_id": "502981555",
-      "home": "亚美尼亚",
-      "away": "塞浦路斯",
-      "kickoff": "2026-11-13 01:00",
-      "status": "赛前",
-      "top1": null,
-      "top2": null,
-      "details": "",
-      "ft_review": {},
-      "handicap_review": {},
-      "comprehensive_pick": null,
-      "comprehensive_reason": "",
-      "selected": false,
-      "selection_reason": "待同路与风险审计",
-      "customer_summary": "",
-      "gpt_review": {
-        "ft_top1": "主胜",
-        "handicap_top1": "让负",
-        "confidence": "低",
-        "evidence": "主队赔率略占优但威廉主胜升赔、澳门主让平半高水",
-        "counter_risk": "平局和客队不败风险",
-        "market_captured_at": "2026-11-12T00:39:34.801534+00:00",
-        "blind_stage": true,
-        "missing": [
-          "必发交易未采集",
-          "FotMob xG不可用",
-          "近期战绩/伤停/战意未见独立原始字段"
-        ]
-      }
-    },
-    {
-      "match_no": "003",
-      "source_id": "502981556",
-      "home": "阿尔巴尼",
-      "away": "芬兰",
-      "kickoff": "2026-11-13 03:45",
-      "status": "赛前",
-      "top1": null,
-      "top2": null,
-      "details": "",
-      "ft_review": {},
-      "handicap_review": {},
-      "comprehensive_pick": null,
-      "comprehensive_reason": "",
-      "selected": false,
-      "selection_reason": "待同路与风险审计",
-      "customer_summary": "",
-      "gpt_review": {
-        "ft_top1": "主胜",
-        "handicap_top1": "让负",
-        "confidence": "中",
-        "evidence": "威廉主胜小幅降赔、澳门由平半升半球",
-        "counter_risk": "主队赢一球仍让负；平局尾险",
-        "market_captured_at": "2026-11-12T00:39:37.992091+00:00",
-        "blind_stage": true,
-        "missing": [
-          "必发交易未采集",
-          "FotMob xG不可用",
-          "近期战绩/伤停/战意未见独立原始字段"
-        ]
-      }
-    },
     {
       "match_no": "004",
       "source_id": "502981558",
@@ -108,16 +12,35 @@
       "away": "拉脱维亚",
       "kickoff": "2026-11-13 03:45",
       "status": "赛前",
-      "top1": null,
-      "top2": null,
-      "details": "",
-      "ft_review": {},
-      "handicap_review": {},
-      "comprehensive_pick": null,
-      "comprehensive_reason": "",
-      "selected": false,
-      "selection_reason": "待同路与风险审计",
-      "customer_summary": "",
+      "top1": "主胜",
+      "top2": [
+        "主胜",
+        "平"
+      ],
+      "details": "威廉主胜由1.36降至1.25，澳门升至主让一球半，胜平负方向一致；深盘让胜风险较大，优先主胜。",
+      "ft_review": {
+        "model_top1": "主胜",
+        "independent_top1": "主胜",
+        "verdict": "方向一致",
+        "reason": "威廉主胜降至1.25，澳门升至主让一球半"
+      },
+      "handicap_review": {
+        "official_handicap": -1,
+        "official_sp": [
+          1.78,
+          3.45,
+          3.48
+        ],
+        "model_top1": "让胜",
+        "top1": "让胜",
+        "verdict": "方向一致",
+        "reason": "深盘赢球未必净胜两球"
+      },
+      "comprehensive_pick": "主胜",
+      "comprehensive_reason": "威廉主胜由1.36降至1.25，澳门升至主让一球半，胜平负方向一致；深盘让胜风险较大，优先主胜。",
+      "selected": true,
+      "selection_reason": "精选：威廉主胜由1.36降至1.25，澳门升至主让一球半，胜平负方向一致；深盘让胜风险较大，优先主胜。",
+      "customer_summary": "建议：主胜；威廉主胜由1.36降至1.25，澳门升至主让一球半，胜平负方向一致；深盘让胜风险较大，优先主胜。",
       "gpt_review": {
         "ft_top1": "主胜",
         "handicap_top1": "让胜",
@@ -131,7 +54,28 @@
           "FotMob xG不可用",
           "近期战绩/伤停/战意未见独立原始字段"
         ]
-      }
+      },
+      "consensus": {
+        "ft": true,
+        "handicap": true
+      },
+      "risk_audit": {
+        "warning_status": "NOT_TRIGGERED",
+        "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [],
+        "watch": [],
+        "hard_excluded": false,
+        "historical_warning_verified": false,
+        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "missing": [
+          "必发交易未采集",
+          "FotMob xG不可用",
+          "近期战绩/伤停/战意未见独立原始字段"
+        ]
+      },
+      "review_version": "blind-then-consensus-v1"
     },
     {
       "match_no": "005",
@@ -140,16 +84,35 @@
       "away": "克罗地亚",
       "kickoff": "2026-11-13 03:45",
       "status": "赛前",
-      "top1": null,
-      "top2": null,
-      "details": "",
-      "ft_review": {},
-      "handicap_review": {},
-      "comprehensive_pick": null,
-      "comprehensive_reason": "",
-      "selected": false,
-      "selection_reason": "待同路与风险审计",
-      "customer_summary": "",
+      "top1": "主胜",
+      "top2": [
+        "主胜",
+        "平"
+      ],
+      "details": "英格兰主胜市场优势明显，澳门维持主让一球半/两球；官方让-2的穿盘不确定，选择主胜而非让球。",
+      "ft_review": {
+        "model_top1": "主胜",
+        "independent_top1": "主胜",
+        "verdict": "方向一致",
+        "reason": "英格兰普通主胜优势明显，但官方让-2及澳门一球半/两球"
+      },
+      "handicap_review": {
+        "official_handicap": -2,
+        "official_sp": [
+          2.66,
+          3.8,
+          2
+        ],
+        "model_top1": "让负",
+        "top1": "让负",
+        "verdict": "方向一致",
+        "reason": "净胜两球落入让平，轮换与深盘风险"
+      },
+      "comprehensive_pick": "主胜",
+      "comprehensive_reason": "英格兰主胜市场优势明显，澳门维持主让一球半/两球；官方让-2的穿盘不确定，选择主胜而非让球。",
+      "selected": true,
+      "selection_reason": "精选：英格兰主胜市场优势明显，澳门维持主让一球半/两球；官方让-2的穿盘不确定，选择主胜而非让球。",
+      "customer_summary": "建议：主胜；英格兰主胜市场优势明显，澳门维持主让一球半/两球；官方让-2的穿盘不确定，选择主胜而非让球。",
       "gpt_review": {
         "ft_top1": "主胜",
         "handicap_top1": "让负",
@@ -163,7 +126,248 @@
           "FotMob xG不可用",
           "近期战绩/伤停/战意未见独立原始字段"
         ]
-      }
+      },
+      "consensus": {
+        "ft": true,
+        "handicap": true
+      },
+      "risk_audit": {
+        "warning_status": "NOT_TRIGGERED",
+        "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [],
+        "watch": [],
+        "hard_excluded": false,
+        "historical_warning_verified": false,
+        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "missing": [
+          "必发交易未采集",
+          "FotMob xG不可用",
+          "近期战绩/伤停/战意未见独立原始字段"
+        ]
+      },
+      "review_version": "blind-then-consensus-v1"
+    },
+    {
+      "match_no": "001",
+      "source_id": "502981457",
+      "home": "土耳其",
+      "away": "比利时",
+      "kickoff": "2026-11-13 01:00",
+      "status": "赛前",
+      "top1": "客胜",
+      "top2": [
+        "客胜",
+        "主胜"
+      ],
+      "details": "受让一球方向同路，但澳门客让半一、威廉客胜降赔，客队净胜两球风险不低，缺必发与阵容验证。",
+      "ft_review": {
+        "model_top1": "客胜",
+        "independent_top1": "客胜",
+        "verdict": "方向一致",
+        "reason": "比利时欧赔占优、澳门客让半一；主队受让一球有容错"
+      },
+      "handicap_review": {
+        "official_handicap": 1,
+        "official_sp": [
+          1.94,
+          3.8,
+          2.77
+        ],
+        "model_top1": "让胜",
+        "top1": "让胜",
+        "verdict": "方向一致",
+        "reason": "客队净胜两球风险"
+      },
+      "comprehensive_pick": "让胜",
+      "comprehensive_reason": "受让一球方向同路，但澳门客让半一、威廉客胜降赔，客队净胜两球风险不低，缺必发与阵容验证。",
+      "selected": false,
+      "selection_reason": "非精选：受让一球方向同路，但澳门客让半一、威廉客胜降赔，客队净胜两球风险不低，缺必发与阵容验证。",
+      "customer_summary": "建议：让胜；受让一球方向同路，但澳门客让半一、威廉客胜降赔，客队净胜两球风险不低，缺必发与阵容验证。",
+      "gpt_review": {
+        "ft_top1": "客胜",
+        "handicap_top1": "让胜",
+        "confidence": "中",
+        "evidence": "比利时欧赔占优、澳门客让半一；主队受让一球有容错",
+        "counter_risk": "客队净胜两球风险",
+        "market_captured_at": "2026-11-12T00:39:30.083158+00:00",
+        "blind_stage": true,
+        "missing": [
+          "必发交易未采集",
+          "FotMob xG不可用",
+          "近期战绩/伤停/战意未见独立原始字段"
+        ]
+      },
+      "consensus": {
+        "ft": true,
+        "handicap": true
+      },
+      "risk_audit": {
+        "warning_status": "NOT_TRIGGERED",
+        "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [],
+        "watch": [],
+        "hard_excluded": false,
+        "historical_warning_verified": false,
+        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "missing": [
+          "必发交易未采集",
+          "FotMob xG不可用",
+          "近期战绩/伤停/战意未见独立原始字段"
+        ]
+      },
+      "review_version": "blind-then-consensus-v1"
+    },
+    {
+      "match_no": "002",
+      "source_id": "502981555",
+      "home": "亚美尼亚",
+      "away": "塞浦路斯",
+      "kickoff": "2026-11-13 01:00",
+      "status": "赛前",
+      "top1": "主胜",
+      "top2": [
+        "主胜",
+        "客胜"
+      ],
+      "details": "主胜及让负同路，但威廉主胜升赔、澳门主让平半高水，平局与主队不胜风险偏高。",
+      "ft_review": {
+        "model_top1": "主胜",
+        "independent_top1": "主胜",
+        "verdict": "方向一致",
+        "reason": "主队赔率略占优但威廉主胜升赔、澳门主让平半高水"
+      },
+      "handicap_review": {
+        "official_handicap": -1,
+        "official_sp": [
+          4.4,
+          3.6,
+          1.58
+        ],
+        "model_top1": "让负",
+        "top1": "让负",
+        "verdict": "方向一致",
+        "reason": "平局和客队不败风险"
+      },
+      "comprehensive_pick": "让负",
+      "comprehensive_reason": "主胜及让负同路，但威廉主胜升赔、澳门主让平半高水，平局与主队不胜风险偏高。",
+      "selected": false,
+      "selection_reason": "非精选：主胜及让负同路，但威廉主胜升赔、澳门主让平半高水，平局与主队不胜风险偏高。",
+      "customer_summary": "建议：让负；主胜及让负同路，但威廉主胜升赔、澳门主让平半高水，平局与主队不胜风险偏高。",
+      "gpt_review": {
+        "ft_top1": "主胜",
+        "handicap_top1": "让负",
+        "confidence": "低",
+        "evidence": "主队赔率略占优但威廉主胜升赔、澳门主让平半高水",
+        "counter_risk": "平局和客队不败风险",
+        "market_captured_at": "2026-11-12T00:39:34.801534+00:00",
+        "blind_stage": true,
+        "missing": [
+          "必发交易未采集",
+          "FotMob xG不可用",
+          "近期战绩/伤停/战意未见独立原始字段"
+        ]
+      },
+      "consensus": {
+        "ft": true,
+        "handicap": true
+      },
+      "risk_audit": {
+        "warning_status": "NOT_TRIGGERED",
+        "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [],
+        "watch": [],
+        "hard_excluded": false,
+        "historical_warning_verified": false,
+        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "missing": [
+          "必发交易未采集",
+          "FotMob xG不可用",
+          "近期战绩/伤停/战意未见独立原始字段"
+        ]
+      },
+      "review_version": "blind-then-consensus-v1"
+    },
+    {
+      "match_no": "003",
+      "source_id": "502981556",
+      "home": "阿尔巴尼",
+      "away": "芬兰",
+      "kickoff": "2026-11-13 03:45",
+      "status": "赛前",
+      "top1": "主胜",
+      "top2": [
+        "主胜",
+        "平"
+      ],
+      "details": "虽然方向同路，现有E2正式冷门预警触发，硬性排除。",
+      "ft_review": {
+        "model_top1": "主胜",
+        "independent_top1": "主胜",
+        "verdict": "方向一致",
+        "reason": "威廉主胜小幅降赔、澳门由平半升半球"
+      },
+      "handicap_review": {
+        "official_handicap": -1,
+        "official_sp": [
+          3.82,
+          3.2,
+          1.77
+        ],
+        "model_top1": "让负",
+        "top1": "让负",
+        "verdict": "方向一致",
+        "reason": "主队赢一球仍让负；平局尾险"
+      },
+      "comprehensive_pick": "让负",
+      "comprehensive_reason": "虽然方向同路，现有E2正式冷门预警触发，硬性排除。",
+      "selected": false,
+      "selection_reason": "非精选：虽然方向同路，现有E2正式冷门预警触发，硬性排除。",
+      "customer_summary": "建议：让负；虽然方向同路，现有E2正式冷门预警触发，硬性排除。",
+      "gpt_review": {
+        "ft_top1": "主胜",
+        "handicap_top1": "让负",
+        "confidence": "中",
+        "evidence": "威廉主胜小幅降赔、澳门由平半升半球",
+        "counter_risk": "主队赢一球仍让负；平局尾险",
+        "market_captured_at": "2026-11-12T00:39:37.992091+00:00",
+        "blind_stage": true,
+        "missing": [
+          "必发交易未采集",
+          "FotMob xG不可用",
+          "近期战绩/伤停/战意未见独立原始字段"
+        ]
+      },
+      "consensus": {
+        "ft": true,
+        "handicap": true
+      },
+      "risk_audit": {
+        "warning_status": "TRIGGERED",
+        "triggered": true,
+        "level": "高",
+        "channels": [
+          "E2"
+        ],
+        "evidence": [
+          "竞彩平局隐含比例28.0%；威廉平局公平比例上升1.8个百分点"
+        ],
+        "watch": [],
+        "hard_excluded": true,
+        "historical_warning_verified": false,
+        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "missing": [
+          "必发交易未采集",
+          "FotMob xG不可用",
+          "近期战绩/伤停/战意未见独立原始字段"
+        ]
+      },
+      "review_version": "blind-then-consensus-v1"
     },
     {
       "match_no": "006",
@@ -172,16 +376,35 @@
       "away": "西班牙",
       "kickoff": "2026-11-13 03:45",
       "status": "赛前",
-      "top1": null,
-      "top2": null,
-      "details": "",
-      "ft_review": {},
-      "handicap_review": {},
-      "comprehensive_pick": null,
-      "comprehensive_reason": "",
+      "top1": "让负",
+      "top2": [
+        "让负",
+        "让平"
+      ],
+      "details": "普通胜平负未开售；让球独立倾向让胜与模型让负不同路，且客让两球存在穿盘风险。",
+      "ft_review": {
+        "model_top1": null,
+        "independent_top1": "客胜",
+        "verdict": "方向分歧或未开售",
+        "reason": "西班牙欧赔1.20，澳门客让两球；主队受让两球有一定缓冲"
+      },
+      "handicap_review": {
+        "official_handicap": 2,
+        "official_sp": [
+          2.37,
+          3.83,
+          2.19
+        ],
+        "model_top1": "让负",
+        "top1": "让胜",
+        "verdict": "方向分歧",
+        "reason": "客队净胜三球及以上风险"
+      },
+      "comprehensive_pick": "让胜",
+      "comprehensive_reason": "普通胜平负未开售；让球独立倾向让胜与模型让负不同路，且客让两球存在穿盘风险。",
       "selected": false,
-      "selection_reason": "待同路与风险审计",
-      "customer_summary": "",
+      "selection_reason": "非精选：普通胜平负未开售；让球独立倾向让胜与模型让负不同路，且客让两球存在穿盘风险。",
+      "customer_summary": "建议：让胜；普通胜平负未开售；让球独立倾向让胜与模型让负不同路，且客让两球存在穿盘风险。",
       "gpt_review": {
         "ft_top1": "客胜",
         "handicap_top1": "让胜",
@@ -196,7 +419,30 @@
           "近期战绩/伤停/战意未见独立原始字段",
           "体彩普通SP缺失"
         ]
-      }
+      },
+      "consensus": {
+        "ft": false,
+        "handicap": false
+      },
+      "risk_audit": {
+        "warning_status": "NOT_EVALUATED",
+        "triggered": false,
+        "level": null,
+        "channels": [],
+        "evidence": [],
+        "watch": [],
+        "hard_excluded": false,
+        "historical_warning_verified": false,
+        "historical_warning_note": "赛事周期完整历史触发记录未取得",
+        "missing": [
+          "必发交易未采集",
+          "FotMob xG不可用",
+          "近期战绩/伤停/战意未见独立原始字段",
+          "体彩普通SP缺失"
+        ]
+      },
+      "review_version": "blind-then-consensus-v1"
     }
-  ]
+  ],
+  "history_warning_verified": false
 }
