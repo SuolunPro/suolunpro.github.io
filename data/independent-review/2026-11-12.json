@@ -1,8 +1,8 @@
 {
   "sale_day": "2026-11-12",
-  "generated_at": "2026-11-12T19:30:47+08:00",
-  "engine_generated_at": "2026-11-12T10:03:29.797802+00:00",
-  "review_version": "blind-consensus-risk-v2",
+  "generated_at": "2026-11-12T20:27:45+08:00",
+  "engine_generated_at": "2026-11-12T12:03:25.055731+00:00",
+  "review_version": "same-route-dynamic-2026-11-12-2027",
   "stage": "final_review",
   "matches": [
     {
@@ -13,16 +13,17 @@
       "kickoff": "2026-11-13 03:45",
       "status": "COMPLETED",
       "top1": "主胜",
-      "top2": [
-        "主胜",
-        "平"
-      ],
+      "top2": "让胜",
       "details": "William主胜1.36降至1.25，澳门升至主让一球半，必发主胜占80.91%，普通主胜多源同向；让胜受净胜球尾险制约，精选主胜。",
       "ft_review": {
         "model_top1": "主胜",
         "independent_top1": "主胜",
         "verdict": "方向一致",
-        "reason": "William主胜1.36降1.25，澳门主让球半，必发主胜资金80.91%"
+        "reason": "William主胜1.36降1.25，澳门主让球半，必发主胜资金80.91%",
+        "gpt_top1": "主胜",
+        "engine_top1": "主胜",
+        "same_direction": true,
+        "confidence": "中高"
       },
       "handicap_review": {
         "official_handicap": -1,
@@ -34,13 +35,17 @@
         "model_top1": "让胜",
         "top1": "让胜",
         "verdict": "方向一致",
-        "reason": "主胜低赔且深盘净胜球尾险，阵容与xG缺失"
+        "reason": "主胜低赔且深盘净胜球尾险，阵容与xG缺失",
+        "gpt_top1": "让胜",
+        "engine_top1": "让胜",
+        "same_direction": true,
+        "confidence": "中高"
       },
       "comprehensive_pick": "主胜",
-      "comprehensive_reason": "威廉主胜1.36降至1.25，澳门主让一球半，必发主胜资金81.09%，主胜方向多源支持；让胜须净胜至少两球，优先普通主胜。",
+      "comprehensive_reason": "威廉主胜由1.36降至1.25，澳门主让1.25升至1.5，必发主胜成交83.76%；普通主胜同路且市场支持一致，优于净胜球门槛更高的让胜。",
       "selected": true,
-      "selection_reason": "独立主胜与引擎同路，赔率、亚盘与资金支持，重大风险可控。",
-      "customer_summary": "建议：主胜。威廉主胜持续降赔、澳门升至主让一球半，主胜方向获市场支持。",
+      "selection_reason": "同路且市场多源支持，未见重大反向证据",
+      "customer_summary": "威廉主胜由1.36降至1.25，澳门主让1.25升至1.5，必发主胜成交83.76%；普通主胜同路且市场支持一致，优于净胜球门槛更高的让胜。",
       "gpt_review": {
         "ft_top1": "主胜",
         "handicap_top1": "让胜",
@@ -62,15 +67,26 @@
         "source_generated_at": "2026-11-12T10:03:29.797802+00:00",
         "blind_recorded_at": "2026-11-12T19:30:47+08:00",
         "blind_primary_evidence": "威廉主胜1.36降至1.25，澳门主让1.25升至1.5，必发主胜81.09%。",
-        "blind_reverse_risk": "让胜要求至少赢两球，临场轮换、战意及独立xG未核实，单边热度较高。"
+        "blind_reverse_risk": "让胜要求至少赢两球，临场轮换、战意及独立xG未核实，单边热度较高。",
+        "blind_review": {
+          "match_no": "004",
+          "ft_top1": "主胜",
+          "handicap_top1": "让胜",
+          "confidence": "中高",
+          "evidence": "威廉主胜1.36降至1.25，澳门主让1.25升1.5，必发主胜成交83.76%",
+          "reverse_risk": "低赔热门及平局尾险；让胜要求净胜至少2球",
+          "source_generated_at": "2026-11-12T12:03:25.055731+00:00",
+          "market_captured_at": "2026-11-12T12:02:04Z~12:02:23Z",
+          "review_recorded_at": "2026-11-12T20:27:45+08:00",
+          "blind_to_engine_top1": true
+        },
+        "blind_frozen_commit": "b69da055018efc8a9c7400fd2fcd53886ce3c619",
+        "reviewed_at": "2026-11-12T20:27:45+08:00"
       },
       "consensus": {
         "ft_same": true,
         "handicap_same": true,
-        "engine_ft_top1": "主胜",
-        "engine_handicap_top1": "让胜",
-        "blind_ft_top1": "主胜",
-        "blind_handicap_top1": "让胜"
+        "eligible_same_direction": true
       },
       "risk_audit": {
         "warning_status": "NOT_TRIGGERED",
@@ -78,128 +94,30 @@
         "level": "未触发",
         "channels": [],
         "evidence": [
-          "澳客必发赛前资金比例 81.09%/14.81%/4.1%；成交量 77891/14229/3935"
+          "澳客必发赛前资金比例 83.76%/12.65%/3.59%；成交量 103095/15568/4425"
         ],
         "watch": [],
         "hard_excluded": false,
         "historical_warning_verified": false,
-        "historical_warning_note": "历史全量冻结记录尚未核实；已知002、003本赛事周期正式触发，永久排除",
+        "historical_warning_note": "未完成赛事周期全量历史核验；已知002、003曾正式触发，永久排除",
         "missing": [
-          "FotMob历史xG不可用",
-          "近期战绩、主客场、伤停、战意独立原始字段未见"
+          "FotMob历史xG缺失",
+          "近期战绩、主客场、伤停、战意独立原始字段未提供"
         ],
         "warning_triggered": false,
         "warning_level": "未触发",
         "warning_channels": [],
         "warning_evidence": [
-          "澳客必发赛前资金比例 80.91%/14.79%/4.3%；成交量 71424/13054/3796"
+          "澳客必发赛前资金比例 83.76%/12.65%/3.59%；成交量 103095/15568/4425"
         ],
         "warning_watch": [],
         "hard_exclusion": false,
-        "review_reason": "威廉主胜1.36降至1.25，澳门主让一球半，必发主胜资金81.09%，主胜方向多源支持；让胜须净胜至少两球，优先普通主胜。",
-        "market_captured_at": "2026-11-12T10:02:25.391291+00:00",
+        "review_reason": "威廉主胜由1.36降至1.25，澳门主让1.25升至1.5，必发主胜成交83.76%；普通主胜同路且市场支持一致，优于净胜球门槛更高的让胜。",
+        "market_captured_at": "2026-11-12T12:02:12.657161+00:00",
         "independent_review_recorded_at": "2026-11-12T18:31:23+08:00",
-        "bifa_captured_at": "2026-11-12T10:01:13.450175+00:00"
+        "bifa_captured_at": "2026-11-12T12:00:38.161882+00:00"
       },
-      "review_version": "blind-consensus-risk-v2"
-    },
-    {
-      "match_no": "005",
-      "source_id": "502981460",
-      "home": "英格兰",
-      "away": "克罗地亚",
-      "kickoff": "2026-11-13 03:45",
-      "status": "COMPLETED",
-      "top1": "主胜",
-      "top2": [
-        "主胜",
-        "平"
-      ],
-      "details": "William主胜仍处1.25低位、澳门主让一球半/两球，必发主胜占88.14%；尽管赔率轻微回升、让球高水及过热需警惕，普通主胜仍优于让两球方向。",
-      "ft_review": {
-        "model_top1": "主胜",
-        "independent_top1": "主胜",
-        "verdict": "方向一致",
-        "reason": "William主胜1.25，澳门主让球半/两球，必发主胜资金88.14%"
-      },
-      "handicap_review": {
-        "official_handicap": -2,
-        "official_sp": [
-          2.3,
-          4.1,
-          2.17
-        ],
-        "model_top1": "让负",
-        "top1": "让负",
-        "verdict": "方向一致",
-        "reason": "William主胜1.22升1.25，澳门主让高水1.02，过热且让两球穿盘风险"
-      },
-      "comprehensive_pick": "主胜",
-      "comprehensive_reason": "威廉主胜仍为1.25，澳门主让一球半/两球，必发主胜资金88.55%；盘口高水、机构退让与热门过热限制让球信心，选择普通主胜。",
-      "selected": true,
-      "selection_reason": "独立主胜与引擎同路，赔率、亚盘与资金支持，重大风险可控。",
-      "customer_summary": "建议：主胜。英格兰主胜低赔仍有支撑，但盘口高水及资金过热，避免深盘穿盘方向。",
-      "gpt_review": {
-        "ft_top1": "主胜",
-        "handicap_top1": "让负",
-        "confidence": "中",
-        "evidence": "威廉主胜1.22→1.25、澳门主让1.75且主队高水0.98、必发主胜88.55%",
-        "counter_risk": "赔率小幅上升、两家盘口退让、资金过热；只考虑普通主胜",
-        "market_captured_at": "2026-11-12T10:02:28.093576+00:00",
-        "blind_stage": true,
-        "missing": [
-          "FotMob历史xG不可用",
-          "近期战绩/主客场/伤停/战意独立原始字段缺失"
-        ],
-        "blind_ft_top1": "主胜",
-        "blind_handicap_top1": "让负",
-        "blind_confidence": "中高",
-        "blind_evidence": "官方主胜1.15，威廉主胜1.22→1.25，澳门主让一球半/两球；官方让负2.00",
-        "blind_risk": "赢球不等于赢三球，澳门4天前更新",
-        "blind_reviewed_at": "2026-11-12T18:31:23+08:00",
-        "source_generated_at": "2026-11-12T10:03:29.797802+00:00",
-        "blind_recorded_at": "2026-11-12T19:30:47+08:00",
-        "blind_primary_evidence": "威廉主胜1.22升至1.25但仍明显低赔，澳门主让1.75高水，必发主胜88.55%。",
-        "blind_reverse_risk": "主胜热度过高、盘口退让与高水，不宜依赖净胜两球以上；让负只是净胜不足两球的对冲倾向。"
-      },
-      "consensus": {
-        "ft_same": true,
-        "handicap_same": true,
-        "engine_ft_top1": "主胜",
-        "engine_handicap_top1": "让负",
-        "blind_ft_top1": "主胜",
-        "blind_handicap_top1": "让负"
-      },
-      "risk_audit": {
-        "warning_status": "NOT_TRIGGERED",
-        "triggered": false,
-        "level": "未触发",
-        "channels": [],
-        "evidence": [
-          "澳客必发赛前资金比例 88.55%/6.3%/5.15%；成交量 894140/63612/52053"
-        ],
-        "watch": [],
-        "hard_excluded": false,
-        "historical_warning_verified": false,
-        "historical_warning_note": "历史全量冻结记录尚未核实；已知002、003本赛事周期正式触发，永久排除",
-        "missing": [
-          "FotMob历史xG不可用",
-          "近期战绩、主客场、伤停、战意独立原始字段未见"
-        ],
-        "warning_triggered": false,
-        "warning_level": "未触发",
-        "warning_channels": [],
-        "warning_evidence": [
-          "澳客必发赛前资金比例 88.14%/6.74%/5.12%；成交量 731227/55941/42448"
-        ],
-        "warning_watch": [],
-        "hard_exclusion": false,
-        "review_reason": "威廉主胜仍为1.25，澳门主让一球半/两球，必发主胜资金88.55%；盘口高水、机构退让与热门过热限制让球信心，选择普通主胜。",
-        "market_captured_at": "2026-11-12T10:02:28.093576+00:00",
-        "independent_review_recorded_at": "2026-11-12T18:31:23+08:00",
-        "bifa_captured_at": "2026-11-12T10:01:16.632624+00:00"
-      },
-      "review_version": "blind-consensus-risk-v2"
+      "review_version": "same-route-dynamic-2026-11-12-2027"
     },
     {
       "match_no": "001",
@@ -209,16 +127,17 @@
       "kickoff": "2026-11-13 01:00",
       "status": "COMPLETED",
       "top1": "客胜",
-      "top2": [
-        "客胜",
-        "主胜"
-      ],
+      "top2": "让胜",
       "details": "客胜虽获William支持，但必发客胜资金86.37%过热；官方主队+1时净胜一球对应让平，独立让负与模型让胜不同路，非精选。",
       "ft_review": {
         "model_top1": "客胜",
         "independent_top1": "客胜",
         "verdict": "方向一致",
-        "reason": "William客胜1.80持平，澳门主队受让半球，必发客胜资金86.37%"
+        "reason": "William客胜1.80持平，澳门主队受让半球，必发客胜资金86.37%",
+        "gpt_top1": "客胜",
+        "engine_top1": "客胜",
+        "same_direction": true,
+        "confidence": "中"
       },
       "handicap_review": {
         "official_handicap": 1,
@@ -230,13 +149,17 @@
         "model_top1": "让胜",
         "top1": "让负",
         "verdict": "方向不一致",
-        "reason": "客胜过热；客队仅胜一球对应主队+1让平，盘口穿透不稳"
+        "reason": "客胜过热；客队仅胜一球对应主队+1让平，盘口穿透不稳",
+        "gpt_top1": "让胜",
+        "engine_top1": "让胜",
+        "same_direction": true,
+        "confidence": "中"
       },
       "comprehensive_pick": "客胜",
-      "comprehensive_reason": "客胜虽同路，但威廉客胜赔率上调，澳门仅主受让半球，必发客胜资金86.04%偏热且原模块WATCH，平局与仅赢一球风险未消除。",
+      "comprehensive_reason": "普通客胜虽同路，但威廉客赔1.80升至1.85，必发客胜资金85.07%过热、盈亏为负，原预警WATCH且平局尾险未消除。",
       "selected": false,
-      "selection_reason": "客胜虽同路，但威廉客胜赔率上调，澳门仅主受让半球，必发客胜资金86.04%偏热且原模块WATCH，平局与仅赢一球风险未消除。",
-      "customer_summary": "建议：客胜。比利时仍有市场优势，但客胜资金高度集中且赔率回升，平局风险不低。",
+      "selection_reason": "普通客胜虽同路，但威廉客赔1.80升至1.85，必发客胜资金85.07%过热、盈亏为负，原预警WATCH且平局尾险未消除。",
+      "customer_summary": "普通客胜虽同路，但威廉客赔1.80升至1.85，必发客胜资金85.07%过热、盈亏为负，原预警WATCH且平局尾险未消除。",
       "gpt_review": {
         "ft_top1": "客胜",
         "handicap_top1": "让胜",
@@ -258,15 +181,26 @@
         "source_generated_at": "2026-11-12T10:03:29.797802+00:00",
         "blind_recorded_at": "2026-11-12T19:30:47+08:00",
         "blind_primary_evidence": "威廉客胜1.80升至1.85，澳门主受让半球未扩大；客队优势存在但资金过热。",
-        "blind_reverse_risk": "必发客胜资金86.04%，平局及客队仅赢一球尾险，主队+1时让负意味着客胜两球以上，证据不足。"
+        "blind_reverse_risk": "必发客胜资金86.04%，平局及客队仅赢一球尾险，主队+1时让负意味着客胜两球以上，证据不足。",
+        "blind_review": {
+          "match_no": "001",
+          "ft_top1": "客胜",
+          "handicap_top1": "让胜",
+          "confidence": "中",
+          "evidence": "威廉客胜1.80升1.85，澳门客让半球维持；必发客胜成交85.07%高度集中",
+          "reverse_risk": "客胜热度过高、William退让且竞彩平局资金显著",
+          "source_generated_at": "2026-11-12T12:03:25.055731+00:00",
+          "market_captured_at": "2026-11-12T12:02:04Z~12:02:23Z",
+          "review_recorded_at": "2026-11-12T20:27:45+08:00",
+          "blind_to_engine_top1": true
+        },
+        "blind_frozen_commit": "b69da055018efc8a9c7400fd2fcd53886ce3c619",
+        "reviewed_at": "2026-11-12T20:27:45+08:00"
       },
       "consensus": {
         "ft_same": true,
-        "handicap_same": false,
-        "engine_ft_top1": "客胜",
-        "engine_handicap_top1": "让胜",
-        "blind_ft_top1": "客胜",
-        "blind_handicap_top1": "让负"
+        "handicap_same": true,
+        "eligible_same_direction": true
       },
       "risk_audit": {
         "warning_status": "WATCH",
@@ -274,36 +208,36 @@
         "level": "关注",
         "channels": [],
         "evidence": [
-          "澳客必发赛前资金比例 8.15%/5.81%/86.04%；成交量 71144/50696/750705",
-          "必发盈亏审计：客胜盈亏-628865，盈亏指数-72，资金占比86.04%"
+          "澳客必发赛前资金比例 8.79%/6.14%/85.07%；成交量 86467/60397/836874",
+          "必发盈亏审计：客胜盈亏-673273，盈亏指数-68，资金占比85.07%"
         ],
         "watch": [
-          "必发盈亏关注：客胜盈亏-628865，指数-72；独立市场尚未确认，不作正式触发"
+          "必发盈亏关注：客胜盈亏-673273，指数-68；独立市场尚未确认，不作正式触发"
         ],
         "hard_excluded": false,
         "historical_warning_verified": false,
-        "historical_warning_note": "历史全量冻结记录尚未核实；已知002、003本赛事周期正式触发，永久排除",
+        "historical_warning_note": "未完成赛事周期全量历史核验；已知002、003曾正式触发，永久排除",
         "missing": [
-          "FotMob历史xG不可用",
-          "近期战绩、主客场、伤停、战意独立原始字段未见"
+          "FotMob历史xG缺失",
+          "近期战绩、主客场、伤停、战意独立原始字段未提供"
         ],
         "warning_triggered": false,
         "warning_level": "关注",
         "warning_channels": [],
         "warning_evidence": [
-          "澳客必发赛前资金比例 7.76%/5.87%/86.37%；成交量 57459/43460/639388",
-          "必发盈亏审计：客胜盈亏-487318，盈亏指数-66，资金占比86.37%"
+          "澳客必发赛前资金比例 8.79%/6.14%/85.07%；成交量 86467/60397/836874",
+          "必发盈亏审计：客胜盈亏-673273，盈亏指数-68，资金占比85.07%"
         ],
         "warning_watch": [
-          "必发盈亏关注：客胜盈亏-487318，指数-66；独立市场尚未确认，不作正式触发"
+          "必发盈亏关注：客胜盈亏-673273，指数-68；独立市场尚未确认，不作正式触发"
         ],
         "hard_exclusion": false,
-        "review_reason": "客胜虽同路，但威廉客胜赔率上调，澳门仅主受让半球，必发客胜资金86.04%偏热且原模块WATCH，平局与仅赢一球风险未消除。",
-        "market_captured_at": "2026-11-12T10:02:13.866019+00:00",
+        "review_reason": "普通客胜虽同路，但威廉客赔1.80升至1.85，必发客胜资金85.07%过热、盈亏为负，原预警WATCH且平局尾险未消除。",
+        "market_captured_at": "2026-11-12T12:02:04.411870+00:00",
         "independent_review_recorded_at": "2026-11-12T18:31:23+08:00",
-        "bifa_captured_at": "2026-11-12T10:01:03.876236+00:00"
+        "bifa_captured_at": "2026-11-12T12:00:28.429865+00:00"
       },
-      "review_version": "blind-consensus-risk-v2"
+      "review_version": "same-route-dynamic-2026-11-12-2027"
     },
     {
       "match_no": "002",
@@ -312,17 +246,18 @@
       "away": "塞浦路斯",
       "kickoff": "2026-11-13 01:00",
       "status": "COMPLETED",
-      "top1": "让负",
-      "top2": [
-        "主胜",
-        "客胜"
-      ],
+      "top1": "客胜",
+      "top2": "让负",
       "details": "William与澳门均出现主队走弱，然而三项赔率接近且必发平局占44.14%；现有E2正式触发，硬性排除。",
       "ft_review": {
         "model_top1": "客胜",
         "independent_top1": "客胜",
         "verdict": "方向一致",
-        "reason": "William主胜2.20升2.50、客胜3.00降2.63，澳门主让平半退平手"
+        "reason": "William主胜2.20升2.50、客胜3.00降2.63，澳门主让平半退平手",
+        "gpt_top1": "客胜",
+        "engine_top1": "客胜",
+        "same_direction": true,
+        "confidence": "低"
       },
       "handicap_review": {
         "official_handicap": -1,
@@ -334,13 +269,17 @@
         "model_top1": "让负",
         "top1": "让负",
         "verdict": "方向一致",
-        "reason": "三项接近，必发平局占44.14%，客胜缺乏明确优势"
+        "reason": "三项接近，必发平局占44.14%，客胜缺乏明确优势",
+        "gpt_top1": "让负",
+        "engine_top1": "让负",
+        "same_direction": true,
+        "confidence": "低"
       },
       "comprehensive_pick": "让负",
-      "comprehensive_reason": "客胜与让负同路，然而William主胜走高、澳门退至平手，平局交易39.96%且原冷门预警E2正式触发，永久排除。",
+      "comprehensive_reason": "客胜与让负虽同路，威廉与澳门明显转向客队但平局赔率接近，原冷门预警A/E2正式触发，永久排除。",
       "selected": false,
-      "selection_reason": "客胜与让负同路，然而William主胜走高、澳门退至平手，平局交易39.96%且原冷门预警E2正式触发，永久排除。",
-      "customer_summary": "建议：让负。澳门退盘且平局资金偏热，冷门预警正式触发，不列入精选。",
+      "selection_reason": "客胜与让负虽同路，威廉与澳门明显转向客队但平局赔率接近，原冷门预警A/E2正式触发，永久排除。",
+      "customer_summary": "客胜与让负虽同路，威廉与澳门明显转向客队但平局赔率接近，原冷门预警A/E2正式触发，永久排除。",
       "gpt_review": {
         "ft_top1": "客胜",
         "handicap_top1": "让负",
@@ -362,56 +301,71 @@
         "source_generated_at": "2026-11-12T10:03:29.797802+00:00",
         "blind_recorded_at": "2026-11-12T19:30:47+08:00",
         "blind_primary_evidence": "威廉主胜2.20升至2.50、客胜3.00降至2.63，澳门由主让平半退至平手。",
-        "blind_reverse_risk": "胜平负接近三向均衡，平局交易占比39.96%，客队穿主让-1对应的让负虽宽松但不能视为稳胆。"
+        "blind_reverse_risk": "胜平负接近三向均衡，平局交易占比39.96%，客队穿主让-1对应的让负虽宽松但不能视为稳胆。",
+        "blind_review": {
+          "match_no": "002",
+          "ft_top1": "客胜",
+          "handicap_top1": "让负",
+          "confidence": "低",
+          "evidence": "威廉由主胜2.20转为客胜2.50，澳门主让平半退至平手且客低水",
+          "reverse_risk": "三项赔率接近、平局尾险很高，盘口反转未必代表稳定客胜",
+          "source_generated_at": "2026-11-12T12:03:25.055731+00:00",
+          "market_captured_at": "2026-11-12T12:02:04Z~12:02:23Z",
+          "review_recorded_at": "2026-11-12T20:27:45+08:00",
+          "blind_to_engine_top1": true
+        },
+        "blind_frozen_commit": "b69da055018efc8a9c7400fd2fcd53886ce3c619",
+        "reviewed_at": "2026-11-12T20:27:45+08:00"
       },
       "consensus": {
         "ft_same": true,
         "handicap_same": true,
-        "engine_ft_top1": "客胜",
-        "engine_handicap_top1": "让负",
-        "blind_ft_top1": "客胜",
-        "blind_handicap_top1": "让负"
+        "eligible_same_direction": true
       },
       "risk_audit": {
         "warning_status": "TRIGGERED",
         "triggered": true,
         "level": "高",
         "channels": [
+          "A",
           "E2"
         ],
         "evidence": [
-          "澳客必发赛前资金比例 36.75%/39.96%/23.29%；成交量 61965/67378/39260",
-          "竞彩平局隐含比例31.3%；威廉平局公平比例上升1.8个百分点"
+          "澳客必发赛前资金比例 39.31%/36.43%/24.26%；成交量 73425/68049/45318",
+          "A：必发最高资金方向为反向胜负 主胜",
+          "竞彩平局隐含比例32.3%；威廉平局公平比例上升3.0个百分点"
         ],
         "watch": [
-          "高平风险观察：平局隐含比例31.3%且官方让球-1"
+          "高平风险观察：平局隐含比例32.3%且官方让球-1"
         ],
         "hard_excluded": true,
         "historical_warning_verified": false,
-        "historical_warning_note": "历史全量冻结记录尚未核实；已知002、003本赛事周期正式触发，永久排除",
+        "historical_warning_note": "未完成赛事周期全量历史核验；已知002、003曾正式触发，永久排除",
         "missing": [
-          "FotMob历史xG不可用",
-          "近期战绩、主客场、伤停、战意独立原始字段未见"
+          "FotMob历史xG缺失",
+          "近期战绩、主客场、伤停、战意独立原始字段未提供"
         ],
         "warning_triggered": true,
         "warning_level": "高",
         "warning_channels": [
+          "A",
           "E2"
         ],
         "warning_evidence": [
-          "澳客必发赛前资金比例 34.45%/44.14%/21.41%；成交量 47129/60380/29284",
-          "竞彩平局隐含比例30.3%；威廉平局公平比例上升1.8个百分点"
+          "澳客必发赛前资金比例 39.31%/36.43%/24.26%；成交量 73425/68049/45318",
+          "A：必发最高资金方向为反向胜负 主胜",
+          "竞彩平局隐含比例32.3%；威廉平局公平比例上升3.0个百分点"
         ],
         "warning_watch": [
-          "高平风险观察：平局隐含比例30.3%且官方让球-1"
+          "高平风险观察：平局隐含比例32.3%且官方让球-1"
         ],
         "hard_exclusion": true,
-        "review_reason": "客胜与让负同路，然而William主胜走高、澳门退至平手，平局交易39.96%且原冷门预警E2正式触发，永久排除。",
-        "market_captured_at": "2026-11-12T10:02:19.607741+00:00",
+        "review_reason": "客胜与让负虽同路，威廉与澳门明显转向客队但平局赔率接近，原冷门预警A/E2正式触发，永久排除。",
+        "market_captured_at": "2026-11-12T12:02:06.511933+00:00",
         "independent_review_recorded_at": "2026-11-12T18:31:23+08:00",
-        "bifa_captured_at": "2026-11-12T10:01:07.077881+00:00"
+        "bifa_captured_at": "2026-11-12T12:00:32.026869+00:00"
       },
-      "review_version": "blind-consensus-risk-v2"
+      "review_version": "same-route-dynamic-2026-11-12-2027"
     },
     {
       "match_no": "003",
@@ -420,17 +374,18 @@
       "away": "芬兰",
       "kickoff": "2026-11-13 03:45",
       "status": "COMPLETED",
-      "top1": "让负",
-      "top2": [
-        "主胜",
-        "平"
-      ],
+      "top1": "主胜",
+      "top2": "让负",
       "details": "主胜赔率上升、澳门主队水位抬升，平局风险突出；E2正式触发且必发缺失，硬性排除。",
       "ft_review": {
         "model_top1": "主胜",
         "independent_top1": "主胜",
         "verdict": "方向一致",
-        "reason": "William主胜2.00升2.20，澳门主让平半水位上升"
+        "reason": "William主胜2.00升2.20，澳门主让平半水位上升",
+        "gpt_top1": "主胜",
+        "engine_top1": "主胜",
+        "same_direction": true,
+        "confidence": "中低"
       },
       "handicap_review": {
         "official_handicap": -1,
@@ -442,13 +397,17 @@
         "model_top1": "让负",
         "top1": "让负",
         "verdict": "方向一致",
-        "reason": "主胜优势减弱、平局尾险突出，必发缺失"
+        "reason": "主胜优势减弱、平局尾险突出，必发缺失",
+        "gpt_top1": "让负",
+        "engine_top1": "让负",
+        "same_direction": true,
+        "confidence": "中低"
       },
       "comprehensive_pick": "让负",
-      "comprehensive_reason": "主胜和让负均同路，但主胜赔率上升、平赔下降，澳门主让平半未加强，必发缺失且E2正式预警，永久排除。",
+      "comprehensive_reason": "主胜与让负同路，但威廉主胜升赔、平赔降至2.75，澳门主让水位走弱且必发缺失；E2正式触发，永久排除。",
       "selected": false,
-      "selection_reason": "主胜和让负均同路，但主胜赔率上升、平赔下降，澳门主让平半未加强，必发缺失且E2正式预警，永久排除。",
-      "customer_summary": "建议：让负。主胜赔率走高、平赔下降，平局尾险突出且冷门预警正式触发。",
+      "selection_reason": "主胜与让负同路，但威廉主胜升赔、平赔降至2.75，澳门主让水位走弱且必发缺失；E2正式触发，永久排除。",
+      "customer_summary": "主胜与让负同路，但威廉主胜升赔、平赔降至2.75，澳门主让水位走弱且必发缺失；E2正式触发，永久排除。",
       "gpt_review": {
         "ft_top1": "主胜",
         "handicap_top1": "让负",
@@ -471,15 +430,26 @@
         "source_generated_at": "2026-11-12T10:03:29.797802+00:00",
         "blind_recorded_at": "2026-11-12T19:30:47+08:00",
         "blind_primary_evidence": "威廉主胜2.00升至2.10，澳门主让平半高水下调，主胜略占优。",
-        "blind_reverse_risk": "平赔3.10降至2.88，平局尾险上升；必发未采集。"
+        "blind_reverse_risk": "平赔3.10降至2.88，平局尾险上升；必发未采集。",
+        "blind_review": {
+          "match_no": "003",
+          "ft_top1": "主胜",
+          "handicap_top1": "让负",
+          "confidence": "中低",
+          "evidence": "威廉主胜2.00升2.15，澳门主让平半水位上升；竞彩让负1.63",
+          "reverse_risk": "主队赢球空间不大、平赔2.75偏低，必发缺失",
+          "source_generated_at": "2026-11-12T12:03:25.055731+00:00",
+          "market_captured_at": "2026-11-12T12:02:04Z~12:02:23Z",
+          "review_recorded_at": "2026-11-12T20:27:45+08:00",
+          "blind_to_engine_top1": true
+        },
+        "blind_frozen_commit": "b69da055018efc8a9c7400fd2fcd53886ce3c619",
+        "reviewed_at": "2026-11-12T20:27:45+08:00"
       },
       "consensus": {
         "ft_same": true,
         "handicap_same": true,
-        "engine_ft_top1": "主胜",
-        "engine_handicap_top1": "让负",
-        "blind_ft_top1": "主胜",
-        "blind_handicap_top1": "让负"
+        "eligible_same_direction": true
       },
       "risk_audit": {
         "warning_status": "TRIGGERED",
@@ -489,18 +459,18 @@
           "E2"
         ],
         "evidence": [
-          "竞彩平局隐含比例30.3%；威廉平局公平比例上升2.2个百分点"
+          "竞彩平局隐含比例30.3%；威廉平局公平比例上升3.8个百分点"
         ],
         "watch": [
           "高平风险观察：平局隐含比例30.3%且官方让球-1"
         ],
         "hard_excluded": true,
         "historical_warning_verified": false,
-        "historical_warning_note": "历史全量冻结记录尚未核实；已知002、003本赛事周期正式触发，永久排除",
+        "historical_warning_note": "未完成赛事周期全量历史核验；已知002、003曾正式触发，永久排除",
         "missing": [
+          "FotMob历史xG缺失",
           "必发交易缺失",
-          "FotMob历史xG不可用",
-          "近期战绩、主客场、伤停、战意独立原始字段未见"
+          "近期战绩、主客场、伤停、战意独立原始字段未提供"
         ],
         "warning_triggered": true,
         "warning_level": "高",
@@ -508,18 +478,132 @@
           "E2"
         ],
         "warning_evidence": [
-          "竞彩平局隐含比例31.3%；威廉平局公平比例上升2.9个百分点"
+          "竞彩平局隐含比例30.3%；威廉平局公平比例上升3.8个百分点"
         ],
         "warning_watch": [
-          "高平风险观察：平局隐含比例31.3%且官方让球-1"
+          "高平风险观察：平局隐含比例30.3%且官方让球-1"
         ],
         "hard_exclusion": true,
-        "review_reason": "主胜和让负均同路，但主胜赔率上升、平赔下降，澳门主让平半未加强，必发缺失且E2正式预警，永久排除。",
-        "market_captured_at": "2026-11-12T10:02:22.494850+00:00",
+        "review_reason": "主胜与让负同路，但威廉主胜升赔、平赔降至2.75，澳门主让水位走弱且必发缺失；E2正式触发，永久排除。",
+        "market_captured_at": "2026-11-12T12:02:09.635139+00:00",
         "independent_review_recorded_at": "2026-11-12T18:31:23+08:00",
         "bifa_captured_at": null
       },
-      "review_version": "blind-consensus-risk-v2"
+      "review_version": "same-route-dynamic-2026-11-12-2027"
+    },
+    {
+      "match_no": "005",
+      "source_id": "502981460",
+      "home": "英格兰",
+      "away": "克罗地亚",
+      "kickoff": "2026-11-13 03:45",
+      "status": "COMPLETED",
+      "top1": "主胜",
+      "top2": "让负",
+      "details": "William主胜仍处1.25低位、澳门主让一球半/两球，必发主胜占88.14%；尽管赔率轻微回升、让球高水及过热需警惕，普通主胜仍优于让两球方向。",
+      "ft_review": {
+        "model_top1": "主胜",
+        "independent_top1": "主胜",
+        "verdict": "方向一致",
+        "reason": "William主胜1.25，澳门主让球半/两球，必发主胜资金88.14%",
+        "gpt_top1": "主胜",
+        "engine_top1": "主胜",
+        "same_direction": true,
+        "confidence": "中"
+      },
+      "handicap_review": {
+        "official_handicap": -2,
+        "official_sp": [
+          2.3,
+          4.1,
+          2.17
+        ],
+        "model_top1": "让负",
+        "top1": "让负",
+        "verdict": "方向一致",
+        "reason": "William主胜1.22升1.25，澳门主让高水1.02，过热且让两球穿盘风险",
+        "gpt_top1": "让负",
+        "engine_top1": "让负",
+        "same_direction": true,
+        "confidence": "中"
+      },
+      "comprehensive_pick": "主胜",
+      "comprehensive_reason": "普通主胜虽同路，但威廉主胜1.22升至1.29，Bet365、皇冠及威廉亚洲盘退让，必发主胜成交87.21%拥挤；三重反向证据不宜精选。",
+      "selected": false,
+      "selection_reason": "普通主胜虽同路，但威廉主胜1.22升至1.29，Bet365、皇冠及威廉亚洲盘退让，必发主胜成交87.21%拥挤；三重反向证据不宜精选。",
+      "customer_summary": "普通主胜虽同路，但威廉主胜1.22升至1.29，Bet365、皇冠及威廉亚洲盘退让，必发主胜成交87.21%拥挤；三重反向证据不宜精选。",
+      "gpt_review": {
+        "ft_top1": "主胜",
+        "handicap_top1": "让负",
+        "confidence": "中",
+        "evidence": "威廉主胜1.22→1.25、澳门主让1.75且主队高水0.98、必发主胜88.55%",
+        "counter_risk": "赔率小幅上升、两家盘口退让、资金过热；只考虑普通主胜",
+        "market_captured_at": "2026-11-12T10:02:28.093576+00:00",
+        "blind_stage": true,
+        "missing": [
+          "FotMob历史xG不可用",
+          "近期战绩/主客场/伤停/战意独立原始字段缺失"
+        ],
+        "blind_ft_top1": "主胜",
+        "blind_handicap_top1": "让负",
+        "blind_confidence": "中高",
+        "blind_evidence": "官方主胜1.15，威廉主胜1.22→1.25，澳门主让一球半/两球；官方让负2.00",
+        "blind_risk": "赢球不等于赢三球，澳门4天前更新",
+        "blind_reviewed_at": "2026-11-12T18:31:23+08:00",
+        "source_generated_at": "2026-11-12T10:03:29.797802+00:00",
+        "blind_recorded_at": "2026-11-12T19:30:47+08:00",
+        "blind_primary_evidence": "威廉主胜1.22升至1.25但仍明显低赔，澳门主让1.75高水，必发主胜88.55%。",
+        "blind_reverse_risk": "主胜热度过高、盘口退让与高水，不宜依赖净胜两球以上；让负只是净胜不足两球的对冲倾向。",
+        "blind_review": {
+          "match_no": "005",
+          "ft_top1": "主胜",
+          "handicap_top1": "让负",
+          "confidence": "中",
+          "evidence": "威廉主胜1.22升至1.29，澳门仍主让1.75但高水，必发主胜87.21%",
+          "reverse_risk": "强热门退赔、盘口多家退让及资金拥挤，主胜仍有明显诱热风险",
+          "source_generated_at": "2026-11-12T12:03:25.055731+00:00",
+          "market_captured_at": "2026-11-12T12:02:04Z~12:02:23Z",
+          "review_recorded_at": "2026-11-12T20:27:45+08:00",
+          "blind_to_engine_top1": true
+        },
+        "blind_frozen_commit": "b69da055018efc8a9c7400fd2fcd53886ce3c619",
+        "reviewed_at": "2026-11-12T20:27:45+08:00"
+      },
+      "consensus": {
+        "ft_same": true,
+        "handicap_same": true,
+        "eligible_same_direction": true
+      },
+      "risk_audit": {
+        "warning_status": "NOT_TRIGGERED",
+        "triggered": false,
+        "level": "未触发",
+        "channels": [],
+        "evidence": [
+          "澳客必发赛前资金比例 87.21%/6.2%/6.59%；成交量 1.21725e+06/86604/91953"
+        ],
+        "watch": [],
+        "hard_excluded": false,
+        "historical_warning_verified": false,
+        "historical_warning_note": "未完成赛事周期全量历史核验；已知002、003曾正式触发，永久排除",
+        "missing": [
+          "FotMob历史xG缺失",
+          "近期战绩、主客场、伤停、战意独立原始字段未提供"
+        ],
+        "warning_triggered": false,
+        "warning_level": "未触发",
+        "warning_channels": [],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 87.21%/6.2%/6.59%；成交量 1.21725e+06/86604/91953"
+        ],
+        "warning_watch": [],
+        "hard_exclusion": false,
+        "review_reason": "普通主胜虽同路，但威廉主胜1.22升至1.29，Bet365、皇冠及威廉亚洲盘退让，必发主胜成交87.21%拥挤；三重反向证据不宜精选。",
+        "market_captured_at": "2026-11-12T12:02:16.446697+00:00",
+        "independent_review_recorded_at": "2026-11-12T18:31:23+08:00",
+        "bifa_captured_at": "2026-11-12T12:00:41.234273+00:00"
+      },
+      "review_version": "same-route-dynamic-2026-11-12-2027"
     },
     {
       "match_no": "006",
@@ -528,17 +612,18 @@
       "away": "西班牙",
       "kickoff": "2026-11-13 03:45",
       "status": "COMPLETED",
-      "top1": "让胜",
-      "top2": [
-        "让负",
-        "让平"
-      ],
+      "top1": "客胜",
+      "top2": "让胜",
       "details": "William客胜1.20但澳门客让两球退至球半/两球，必发客胜占91.38%；普通SP未开售、让球方向不同路且冷门模块未评估，非精选。",
       "ft_review": {
         "model_top1": null,
         "independent_top1": "客胜",
         "verdict": "方向不一致",
-        "reason": "William客胜1.20，澳门客让两球退球半/两球，必发客胜资金91.38%"
+        "reason": "William客胜1.20，澳门客让两球退球半/两球，必发客胜资金91.38%",
+        "gpt_top1": "客胜",
+        "engine_top1": null,
+        "same_direction": false,
+        "confidence": "低"
       },
       "handicap_review": {
         "official_handicap": 2,
@@ -550,13 +635,17 @@
         "model_top1": "让胜",
         "top1": "让胜",
         "verdict": "方向一致",
-        "reason": "普通SP缺失，退盘且资金过热，官方主队+2结果不稳"
+        "reason": "普通SP缺失，退盘且资金过热，官方主队+2结果不稳",
+        "gpt_top1": "让胜",
+        "engine_top1": "让胜",
+        "same_direction": true,
+        "confidence": "低"
       },
       "comprehensive_pick": "让胜",
-      "comprehensive_reason": "普通胜平负未开售；澳门客让两球退至球半/两球，必发客胜91.05%集中，主队+2让胜虽同路但净胜球边界不稳，非精选。",
+      "comprehensive_reason": "普通胜平负未开售，虽让胜同路但澳门客让两球退至1.75，必发客胜89.63%，+2让胜受净胜球边界影响且冷门预警未评估。",
       "selected": false,
-      "selection_reason": "普通胜平负未开售；澳门客让两球退至球半/两球，必发客胜91.05%集中，主队+2让胜虽同路但净胜球边界不稳，非精选。",
-      "customer_summary": "建议：让胜。澳门客让盘口退让，但客胜资金过度集中、净胜球边界不稳，不列入精选。",
+      "selection_reason": "普通胜平负未开售，虽让胜同路但澳门客让两球退至1.75，必发客胜89.63%，+2让胜受净胜球边界影响且冷门预警未评估。",
+      "customer_summary": "普通胜平负未开售，虽让胜同路但澳门客让两球退至1.75，必发客胜89.63%，+2让胜受净胜球边界影响且冷门预警未评估。",
       "gpt_review": {
         "ft_top1": "客胜",
         "handicap_top1": "让胜",
@@ -579,15 +668,26 @@
         "source_generated_at": "2026-11-12T10:03:29.797802+00:00",
         "blind_recorded_at": "2026-11-12T19:30:47+08:00",
         "blind_primary_evidence": "威廉客胜1.20维持，澳门由客让2球退至1.75，必发客胜91.05%。",
-        "blind_reverse_risk": "官方普通SP未开售，主队+2下让胜需要客队不超过赢一球，市场强弱与让球边界冲突，缺少稳健证据。"
+        "blind_reverse_risk": "官方普通SP未开售，主队+2下让胜需要客队不超过赢一球，市场强弱与让球边界冲突，缺少稳健证据。",
+        "blind_review": {
+          "match_no": "006",
+          "ft_top1": "客胜",
+          "handicap_top1": "让胜",
+          "confidence": "低",
+          "evidence": "威廉客胜1.20升1.22，澳门客让2退至1.75，必发客胜89.63%",
+          "reverse_risk": "官方普通SP缺失；深盘退让、客队热度极高，+2让胜须防客赢2球以上",
+          "source_generated_at": "2026-11-12T12:03:25.055731+00:00",
+          "market_captured_at": "2026-11-12T12:02:04Z~12:02:23Z",
+          "review_recorded_at": "2026-11-12T20:27:45+08:00",
+          "blind_to_engine_top1": true
+        },
+        "blind_frozen_commit": "b69da055018efc8a9c7400fd2fcd53886ce3c619",
+        "reviewed_at": "2026-11-12T20:27:45+08:00"
       },
       "consensus": {
         "ft_same": false,
         "handicap_same": true,
-        "engine_ft_top1": null,
-        "engine_handicap_top1": "让胜",
-        "blind_ft_top1": "客胜",
-        "blind_handicap_top1": "让胜"
+        "eligible_same_direction": true
       },
       "risk_audit": {
         "warning_status": "NOT_EVALUATED",
@@ -598,11 +698,11 @@
         "watch": [],
         "hard_excluded": false,
         "historical_warning_verified": false,
-        "historical_warning_note": "历史全量冻结记录尚未核实；已知002、003本赛事周期正式触发，永久排除",
+        "historical_warning_note": "未完成赛事周期全量历史核验；已知002、003曾正式触发，永久排除",
         "missing": [
-          "体彩普通SP未开售",
-          "FotMob历史xG不可用",
-          "近期战绩、主客场、伤停、战意独立原始字段未见"
+          "FotMob历史xG缺失",
+          "体彩普通SP缺失",
+          "近期战绩、主客场、伤停、战意独立原始字段未提供"
         ],
         "warning_triggered": false,
         "warning_level": "未评估",
@@ -610,12 +710,12 @@
         "warning_evidence": [],
         "warning_watch": [],
         "hard_exclusion": false,
-        "review_reason": "普通胜平负未开售；澳门客让两球退至球半/两球，必发客胜91.05%集中，主队+2让胜虽同路但净胜球边界不稳，非精选。",
-        "market_captured_at": "2026-11-12T10:02:32.287131+00:00",
+        "review_reason": "普通胜平负未开售，虽让胜同路但澳门客让两球退至1.75，必发客胜89.63%，+2让胜受净胜球边界影响且冷门预警未评估。",
+        "market_captured_at": "2026-11-12T12:02:23.475540+00:00",
         "independent_review_recorded_at": "2026-11-12T18:31:23+08:00",
-        "bifa_captured_at": "2026-11-12T10:01:19.814220+00:00"
+        "bifa_captured_at": "2026-11-12T12:00:44.739392+00:00"
       },
-      "review_version": "blind-consensus-risk-v2"
+      "review_version": "same-route-dynamic-2026-11-12-2027"
     }
   ],
   "history_warning_verified": false,
