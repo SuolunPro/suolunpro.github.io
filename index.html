@@ -823,7 +823,7 @@
               alert.style.cssText='margin:5px 0 8px;font-weight:600;color:'+(strong?'#c45120':'#9a6a08');
               let message=(match.settlement?'历史回看 · ':'')+(strong?'7+重点预警':'7+关注')+'｜'+(seven*100).toFixed(2)+'%';
               const ft=match.settlement?.ft;
-              const score=typeof ft==='string'?ft.match(/^(\\d+)\\s*:\\s*(\\d+)$/):null;
+              const score=typeof ft==='string'?ft.match(/^(\d+)\s*:\s*(\d+)$/):null;
               if(score){
                 const goals=Number(score[1])+Number(score[2]);
                 message+='　'+(goals>=7?'✓命中':'✕未中')+'（'+goals+'球）';
