@@ -646,9 +646,9 @@
             number.style.cssText='font-size:14px;font-weight:700;margin-top:4px;white-space:nowrap;color:'+(Math.abs(value)<0.005?'#667085':value>0?'#d92d35':'#15935a')+';';
             cell.append(heading,number);row.append(cell);
           };
-          if(active==='胜平负'){
-            // Three outcomes must share one baseline; their percentage-point deltas sum to zero.
-            const all=['胜','平','负'];
+          if(active==='胜平负'||active==='让球'){
+            // Three mutually exclusive outcomes share one comparison baseline.
+            const all=active==='胜平负'?['胜','平','负']:['让胜','让平','让负'];
             const missing=all.find(p=>!Number.isFinite(delta.delta?.[p]));
             const third=all.find(p=>!items.includes(p));
             const thirdDelta=missing===third ? -delta.delta[items[0]]-delta.delta[items[1]] : (missing ? null : delta.delta[third]);
