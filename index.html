@@ -452,7 +452,7 @@
 
     const modules=[
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
-      ['比分','全场比分'],['总进球','泊松进球'],['冷门预警','冷门预警'],['独立研判','精选研判（测试）']
+      ['比分','全场比分'],['总进球','泊松进球'],['大小球研判','大小球研判'],['冷门预警','冷门预警'],['独立研判','精选研判（测试）']
     ];
     let report=null,active='胜平负',selectedDay='';
     const label=value=>value==null?'—':String(value);
@@ -465,9 +465,56 @@
       const root=$('models');root.replaceChildren();
       for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
+
+    // O/U 2.5: pure projection of the already-frozen goal probabilities; no new fetch or workflow.
+    function ouPrediction(match){
+      if(match.prediction?.status!=='PREDICTED')return null;
+      const goals=match.prediction?.modules?.['总进球'];
+      const p=goals?.probabilities;
+      if(!p)return null;
+      const keys=['0','1','2','3','4','5','6','7+'];
+      if(keys.some(k=>p[k]==null||!Number.isFinite(Number(p[k]))||Number(p[k])<0))return null;
+      const sum=keys.reduce((v,k)=>v+Number(p[k]),0);
+      if(Math.abs(sum-1)>0.03)return null;
+      const over=keys.slice(3).reduce((v,k)=>v+Number(p[k]),0)/sum;
+      const under=1-over,confidence=Math.max(over,under);
+      const stars=confidence>=0.70?5:confidence>=0.65?4:confidence>=0.60?3:confidence>=0.55?2:1;
+      return {over,under,confidence,stars,direction:over>=under?'大2.5球':'小2.5球',expected:goals.estimated_total_goals};
+    }
+    function ouResult(match){
+      const predicted=ouPrediction(match);
+      if(!predicted||match.result_verification?.status!=='VERIFIED')return null;
+      const ft=match.settlement?.ft;
+      const m=typeof ft==='string'?ft.match(/^(\\d+)\\s*:\\s*(\\d+)$/):null;
+      if(!m)return null;
+      const total=Number(m[1])+Number(m[2]);
+      return {total,hit:(predicted.over>=predicted.under)===(total>=3)};
+    }
+    function ouCard(card,match){
+      const p=ouPrediction(match);
+      if(!p){card.append(el('div','v4-verdict','本场暂无可用的总进球概率'));return}
+      const levels=['','低','偏低','中等','较高','高'];
+      const heading=el('div','v4-note', '预测：'+p.direction+'｜信心：'+'★'.repeat(p.stars)+'☆'.repeat(5-p.stars)+' '+levels[p.stars]);
+      heading.style.cssText='font-weight:700;font-size:15px;margin:8px 0';
+      card.append(heading);
+      card.append(el('div','v4-note','大球概率：'+(100*p.over).toFixed(1)+'%｜小球概率：'+(100*p.under).toFixed(1)+'%'));
+      if(Number.isFinite(Number(p.expected)))card.append(el('div','v4-note','预计进球：'+Number(p.expected).toFixed(2)+'球'));
+      const result=ouResult(match);
+      const box=el('div','v4-verdict'+(result?(result.hit?' hit':' miss'):''),result?(result.hit?'✓ 命中':'✕ 未中')+'（实际'+result.total+'球）':'等待赛果核验');
+      card.append(box);
+    }
     function stats(){
       const updateNotice=$('review-update-notice');if(updateNotice)updateNotice.style.display=active==='独立研判'?'block':'none';
       $('hit-rate-label').textContent=active==='独立研判'?'当天精选场次命中率':'当日评测命中率';
+      if(active==='大小球研判'){
+        const picks=report.matches.map(m=>({p:ouPrediction(m),r:ouResult(m)})).filter(x=>x.p);
+        const settled=picks.filter(x=>x.r),hit=settled.filter(x=>x.r.hit).length;
+        $('hit-rate-label').textContent='当日大小球命中率';
+        $('hit-rate').textContent=settled.length?(100*hit/settled.length).toFixed(1)+'%':'—';
+        $('hit-count').textContent=hit+'/'+settled.length;
+        $('pending').textContent=picks.length-settled.length;
+        return;
+      }
       if(active==='独立研判'){
         // Independent featured selections have their own denominator; never mix with engine 今日优选.
         // Only frozen pre-kickoff completed reviews qualify, and only verified 90-minute results settle.
@@ -782,6 +829,7 @@
       for(const match of focus){
         const card=el('article','card');fixture(card,match);
         if(active==='独立研判'){independentReview(card,match);root.append(card);continue;}
+        if(active==='大小球研判'){ouCard(card,match);root.append(card);continue;}
         const data=match.prediction?.modules?.[active];
         if(match.prediction?.status!=='PREDICTED'||!data)card.append(el('div','v4-verdict v4-error','暂无预测'));
         else if(active==='胜平负'&&data.status==='NOT_ON_SALE')card.append(el('div','v4-verdict','普通胜平负未开售 · 请查看全场让球'));
