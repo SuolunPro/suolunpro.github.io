@@ -1,0 +1,71 @@
+name: Wake overdue engine result verifier
+on:
+  schedule:
+    - cron: '9,19,29,39,49,59 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/engine4-overdue-wakeup.yml']
+permissions:
+  contents: read
+concurrency:
+  group: engine4-overdue-wakeup
+  cancel-in-progress: false
+jobs:
+  wake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check overdue matches and dispatch private verifier
+        env:
+          ENGINE_TOKEN: ${{ secrets.ENGINE4_READ_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          test -n "$ENGINE_TOKEN" || { echo "::error::ENGINE4_READ_TOKEN missing"; exit 1; }
+          due=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          from datetime import datetime, timedelta, timezone
+          now=datetime.now(timezone.utc)
+          bjt=timezone(timedelta(hours=8))
+          found=[]
+          for path in Path('data/engine4/sales').glob('*.json'):
+              try:
+                  if (now.astimezone(bjt).date()-datetime.fromisoformat(path.stem).date()).days > 14:
+                      continue
+                  rows=json.loads(path.read_text()).get('matches',[])
+              except (OSError,ValueError,TypeError):
+                  continue
+              for m in rows:
+                  if not m.get('predicted_at') or m.get('settlement'):
+                      continue
+                  try:
+                      kickoff=datetime.fromisoformat(m['kickoff'].replace(' ','T'))
+                      if kickoff.tzinfo is None: kickoff=kickoff.replace(tzinfo=bjt)
+                      if now >= kickoff.astimezone(timezone.utc)+timedelta(minutes=120):
+                          found.append(path.stem+':'+str(m.get('match_no')))
+                  except (KeyError,ValueError,TypeError):
+                      continue
+          print(len(found))
+          print('Due fixtures:', ','.join(found[:20]),file=__import__('sys').stderr)
+          PY
+          )
+          if [ "$EVENT_NAME" != "push" ] && [ "$due" -eq 0 ]; then
+            echo 'No overdue fixtures'
+            exit 0
+          fi
+          # Push is a one-time permission and delivery probe on installation.
+          code=$(curl --silent --show-error --output /tmp/dispatch-response --write-out '%{http_code}' \
+            --retry 2 --retry-delay 2 -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer $ENGINE_TOKEN" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            https://api.github.com/repos/SuolunPro/90scale-engine/actions/workflows/engine4-verify-results.yml/dispatches \
+            -d '{"ref":"main"}')
+          if [ "$code" != "204" ]; then
+            echo "::error::Private verifier dispatch rejected (HTTP $code); check Actions write permission on ENGINE4_READ_TOKEN"
+            exit 1
+          fi
+          echo "Private verifier dispatch accepted; overdue=$due"
