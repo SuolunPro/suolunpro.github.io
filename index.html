@@ -814,7 +814,7 @@
       panel.append(el('div','intel-pickline',warnedPickAllowed?'建议：让负（-1） · 非精选':warned?'冷门方向：'+warningDirection+'（不列入精选）':bet?.mode==='none'?'暂不推荐':'建议：'+selection));
       const reason=review?.customer_summary||review?.comprehensive_reason;
       const rawBrief=typeof reason==='string'?reason.trim():'';
-      const cleanedBrief=rawBrief.replace(/^建议：[^。；\\n]+[。；]?\\s*/,'').replace(/^暂不推荐[。；]?\\s*/,'');
+      const cleanedBrief=rawBrief.replace(/^建议：[^。；\n]+[。；]?\s*/,'').replace(/^暂不推荐[。；]?\s*/,'');
       const brief=(cleanedBrief||rawBrief||'赛前研判资料正在更新。').slice(0,110);
       panel.append(el('div','intel-brief',brief));
       if(match.prediction?.modules?.['冷门预警']?.triggered===true)
