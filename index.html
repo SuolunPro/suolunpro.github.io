@@ -184,7 +184,10 @@
     .vip-panel #vip-register-toggle span{position:absolute;right:13px;top:12px;font-size:23px}.vip-panel #vip-register-toggle small{display:block;font-size:11px;font-weight:400;color:#c5d0dd;margin-top:4px}
     .vip-benefits{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:26px 0 12px;text-align:center}
     .vip-benefits>div{min-width:0;padding:0 3px;border-right:1px solid #60738a66}.vip-benefits>div:last-child{border:0}.vip-benefits b{display:block;color:#e8c77f;font-size:23px;margin-bottom:7px}.vip-benefits strong{display:block;font-size:11px;white-space:nowrap}.vip-benefits small{display:block;color:#a9b8c8;font-size:10px;margin-top:5px}
-    .vip-panel .vip-legal{margin:23px 0 0;padding-top:15px;border-top:1px solid #ffffff1a;text-align:center;font-size:10px;line-height:1.7;color:#a9b8c8}
+    .vip-panel .vip-legal{margin:25px 0 0;padding-top:15px;border-top:1px solid #ffffff1a;text-align:center;font-size:12px;line-height:1.65;color:#a9b8c8}
+    .vip-panel .vip-brand{margin-bottom:29px}
+    .vip-panel .vip-hint{margin:8px 0 20px;line-height:1.5}
+    .vip-panel #vip-register-toggle{margin-top:20px}
     @media(max-width:380px){.vip-panel{padding:21px 17px}.vip-brand img{width:54px;height:54px}.vip-brand strong{font-size:25px}.vip-benefits strong{font-size:10px}}
   </style>
 </head>
@@ -192,16 +195,11 @@
   <section id="vip-gate" class="vip-gate" aria-label="尊贵月卡VIP登录">
     <form id="vip-form" class="vip-panel">
       <div class="vip-brand"><img src="./assets/ninety-mark-avatar.jpg" width="64" height="64" alt="九十刻度标志"><div><strong>九十刻度<sup>®</sup></strong><small>NINETY MARK</small></div></div>
-      <div class="vip-kicker">专业足球数据分析平台</div>
-      <div class="vip-tagline">数据驱动分析 · 多维度赛事研判</div>
-      <div class="vip-card-title">专业足球分析 · 尽在九十刻度</div>
-      <p class="vip-intro">登录会员账号，查看专业赛事分析</p>
       <label for="vip-code" class="vip-input-label">会员账号<input id="vip-code" type="text" autocomplete="username" placeholder="vip+123456@qq.com" maxlength="100" required></label>
-      <p class="vip-hint">原注册邮箱前添加 <b>vip+</b>（包含加号）<br>示例：<strong>vip+123456@qq.com</strong></p>
-      <button id="vip-login" type="submit">登录并查看赛事分析 →</button>
-      <p style="margin:9px 0 3px;text-align:center;font-size:12px;color:#58616b;line-height:1.6">✓ 登录后自动记住账号15天 · 会员到期自动停止访问</p>
-      <button id="vip-register-toggle" type="button" aria-expanded="false" aria-controls="vip-register-info">🎁 新用户免费体验1天VIP <span aria-hidden="true">›</span><small>首次体验请联系客服申请开通</small></button>
-      <div class="vip-benefits"><div><b>▱</b><strong>七大分析模块</strong><small>多维度研判</small></div><div><b>ϟ</b><strong>实时赛事更新</strong><small>赛前动态追踪</small></div><div><b>▥</b><strong>历史表现追踪</strong><small>命中率与复盘</small></div></div>
+      <p class="vip-hint">原邮箱前添加 <b>vip+</b></p>
+      <button id="vip-login" type="submit">进入九十刻度 →</button>
+      <p style="margin:9px 0 3px;text-align:center;font-size:12px;color:#58616b;line-height:1.6">✓ 记住账号15天</p>
+      <button id="vip-register-toggle" type="button" aria-expanded="false" aria-controls="vip-register-info">🎁 新用户免费体验1天VIP <span aria-hidden="true">›</span></button>
       <div id="vip-register-info" hidden style="margin-top:12px;padding:14px;background:#fff8f8;border:1px solid #f2d7d9;border-radius:10px;text-align:left;color:#333;font-size:13px;line-height:1.85">
         <strong style="font-size:15px;color:#b9252c">新用户开户注册</strong>
         <p style="margin:6px 0;color:#333">目前采用管理员人工开户注册，暂不开放自助注册。首次注册可申请免费领取1天VIP体验，每位新用户限领一次。</p>
@@ -210,7 +208,7 @@
         <small style="display:block;margin-top:8px;color:#777">赛事分析仅供参考，体验权限由管理员人工开通。</small>
       </div>
       <p id="vip-error" role="alert"></p>
-      <p class="vip-legal">九十刻度® 致力于专业足球数据研究与赛事趋势分析。所有分析结果仅供参考，不构成投注建议，亦不保证预测准确性或收益。</p>
+      <p class="vip-legal">九十刻度® 专注于足球数据研究与赛事趋势分析。<br>平台分析结果仅供参考，不构成投注建议，不保证预测准确性或收益。请理性判断，注意风险。</p>
     </form>
   </section>
   <div class="app" id="v4-app" hidden>
