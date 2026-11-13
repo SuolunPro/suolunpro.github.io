@@ -1,8 +1,8 @@
 {
   "sale_day": "2026-11-13",
-  "review_version": "gpt-consensus-v2",
+  "review_version": "gpt-consensus-v2-alert-sync-20261113-1530",
   "phase": "PARTIAL_INTELLIGENCE",
-  "engine_generated_at": "2026-11-13T02:44:46.484689+00:00",
+  "engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
   "pre_review_frozen_at": "2026-11-13T04:26:46+00:00",
   "pre_reviews": [
     {
@@ -320,7 +320,14 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": false,
+        "warning_channels": [],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 92.55%/3.84%/3.62%；成交量 133943/5552/5237"
+        ],
+        "warning_watch": [],
+        "warning_checked_at": "2026-11-13T06:50:27.926589+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -463,7 +470,14 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": false,
+        "warning_channels": [],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 12.36%/16.57%/71.07%；成交量 12163/16303/69914"
+        ],
+        "warning_watch": [],
+        "warning_checked_at": "2026-11-13T06:50:40.335314+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -788,7 +802,12 @@
           "injuries",
           "motivation",
           "official_ft_sp"
-        ]
+        ],
+        "warning_triggered": false,
+        "warning_channels": [],
+        "warning_evidence": [],
+        "warning_watch": [],
+        "warning_checked_at": null
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -1114,7 +1133,14 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": false,
+        "warning_channels": [],
+        "warning_evidence": [],
+        "warning_watch": [
+          "高平风险观察：平局隐含比例30.5%且官方让球-1"
+        ],
+        "warning_checked_at": "2026-11-13T06:52:52.470532+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -1250,7 +1276,14 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": false,
+        "warning_channels": [],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 8.57%/18.04%/73.4%；成交量 4250/8949/36414"
+        ],
+        "warning_watch": [],
+        "warning_checked_at": "2026-11-13T06:50:24.827301+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -1569,7 +1602,14 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": false,
+        "warning_channels": [],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 1.53%/1.73%/96.74%；成交量 21298/24070/1.34517e+06"
+        ],
+        "warning_watch": [],
+        "warning_checked_at": "2026-11-13T06:50:31.016926+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -1899,7 +1939,23 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": true,
+        "warning_channels": [
+          "D",
+          "E2"
+        ],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 60.19%/31.84%/7.97%；成交量 99646/52717/13189",
+          "威廉主方向升赔；Bet365、皇冠盘口退让至少0.25球且主方向水位≥1",
+          "竞彩平局隐含比例31.0%；威廉平局公平比例上升3.3个百分点"
+        ],
+        "warning_watch": [
+          "高平风险观察：平局隐含比例31.0%且官方让球-1",
+          "市场异动观察：威廉主方向公平比例下降12.9个百分点，Bet365、皇冠盘口退让；未达到D通道高水位条件",
+          "FotMob历史xG方向与体彩SP首选背离，需人工复核；非独立冷门触发条件"
+        ],
+        "warning_checked_at": "2026-11-13T06:50:34.129385+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -2207,7 +2263,7 @@
         "eligible_same_direction": true
       },
       "risk_audit": {
-        "warning_status": "NOT_TRIGGERED",
+        "warning_status": "WATCH",
         "triggered": false,
         "level": "未触发",
         "channels": [],
@@ -2225,7 +2281,16 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": false,
+        "warning_channels": [],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 88.17%/5.38%/6.45%；成交量 30339/1851/2221"
+        ],
+        "warning_watch": [
+          "市场异动观察：威廉主方向公平比例下降5.0个百分点，Bet365、皇冠、威廉希尔盘口退让；未达到D通道高水位条件"
+        ],
+        "warning_checked_at": "2026-11-13T06:50:37.239938+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -2501,10 +2566,10 @@
         "reason": "威廉主胜1.44升1.53，澳门退盘1.25至1，热门过热"
       },
       "comprehensive_pick": "主胜",
-      "comprehensive_reason": "近5场（含不同赛事）荷兰2胜3平0负、希腊2胜2平1负；主胜同路但威廉1.44升1.53、澳门退至主让一球，原预警WATCH，热度及净胜球风险较大。",
+      "comprehensive_reason": "荷兰近期5场2胜3平，但威廉主胜升赔、澳门由主让一球/球半退至一球；九十刻度冷门预警D通道正式触发，本赛事周期永久排除。",
       "selected": false,
-      "selection_reason": "近5场（含不同赛事）荷兰2胜3平0负、希腊2胜2平1负；主胜同路但威廉1.44升1.53、澳门退至主让一球，原预警WATCH，热度及净胜球风险较大。",
-      "customer_summary": "建议：主胜。近5场（含不同赛事）荷兰2胜3平0负、希腊2胜2平1负；主胜同路但威廉1.44升1.53、澳门退至主让一球，原预警WATCH，热度及净胜球风险较大。",
+      "selection_reason": "荷兰近期5场2胜3平，但威廉主胜升赔、澳门由主让一球/球半退至一球；九十刻度冷门预警D通道正式触发，本赛事周期永久排除。",
+      "customer_summary": "建议：主胜。荷兰近期5场2胜3平，但盘口退让且正式冷门预警已触发，不列入精选。",
       "gpt_review": {
         "match_no": "009",
         "source_id": "502981461",
@@ -2533,7 +2598,7 @@
         "eligible_same_direction": true
       },
       "risk_audit": {
-        "warning_status": "WATCH",
+        "warning_status": "TRIGGERED",
         "triggered": false,
         "level": "关注",
         "channels": [],
@@ -2543,7 +2608,7 @@
         "watch": [
           "市场异动观察：威廉主方向公平比例下降3.4个百分点，Bet365、澳门、皇冠、威廉希尔盘口退让；未达到D通道高水位条件"
         ],
-        "hard_excluded": false,
+        "hard_excluded": true,
         "historical_warning_verified": false,
         "historical_warning_note": "本赛事周期历史冻结预警记录未能完整读取；不据此将全部场次阻断；当前正式触发006硬排除",
         "market_captured_at": "2026-11-13T02:01:36.314867+00:00",
@@ -2553,7 +2618,19 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": true,
+        "warning_channels": [
+          "D"
+        ],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 82.04%/10.1%/7.86%；成交量 389036/47899/37266",
+          "威廉主方向升赔；Bet365、皇冠盘口退让至少0.25球且主方向水位≥1"
+        ],
+        "warning_watch": [
+          "市场异动观察：威廉主方向公平比例下降5.0个百分点，Bet365、澳门、皇冠、威廉希尔盘口退让；未达到D通道高水位条件"
+        ],
+        "warning_checked_at": "2026-11-13T06:49:39.386580+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -2861,7 +2938,7 @@
         "eligible_same_direction": true
       },
       "risk_audit": {
-        "warning_status": "NOT_TRIGGERED",
+        "warning_status": "WATCH",
         "triggered": false,
         "level": "未触发",
         "channels": [],
@@ -2877,7 +2954,17 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": false,
+        "warning_channels": [],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 97.17%/1.18%/1.64%；成交量 2304/28/39",
+          "必发盈亏审计：主胜盈亏-1361，盈亏指数-57，资金占比97.17%"
+        ],
+        "warning_watch": [
+          "必发盈亏关注：主胜盈亏-1361，指数-57；独立市场尚未确认，不作正式触发"
+        ],
+        "warning_checked_at": "2026-11-13T06:49:39.865314+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -3185,7 +3272,7 @@
         "eligible_same_direction": true
       },
       "risk_audit": {
-        "warning_status": "NOT_TRIGGERED",
+        "warning_status": "WATCH",
         "triggered": false,
         "level": "未触发",
         "channels": [],
@@ -3201,7 +3288,17 @@
           "home_away",
           "injuries",
           "motivation"
-        ]
+        ],
+        "warning_triggered": false,
+        "warning_channels": [],
+        "warning_evidence": [
+          "澳客必发赛前资金比例 53.54%/39.51%/6.95%；成交量 1927/1422/250",
+          "必发盈亏审计：平局盈亏-3653，盈亏指数-102，资金占比39.51%"
+        ],
+        "warning_watch": [
+          "必发盈亏关注：平局盈亏-3653，指数-102；独立市场尚未确认，不作正式触发"
+        ],
+        "warning_checked_at": "2026-11-13T06:49:40.870698+00:00"
       },
       "review_version": "gpt-consensus-v2",
       "news_intelligence": [
@@ -3448,10 +3545,10 @@
     }
   ],
   "stage": "FINAL",
-  "reviewed_at": "2026-11-13T06:50:45.707Z",
+  "reviewed_at": "2026-11-13T07:30:24+00:00",
   "generated_at": "2026-11-13T04:26:46+00:00",
   "history_warning_verified": false,
-  "history_warning_note": "本赛事周期历史冻结预警记录未能完整读取；不据此将全部场次阻断；当前正式触发006硬排除",
+  "history_warning_note": "历史正式触发记录未完成全量核验；本轮006、009已知正式触发并永久排除。",
   "news_intelligence_verification": {
     "status": "PARTIAL_11_OF_11_ATTEMPTED",
     "attempted_matches": [
