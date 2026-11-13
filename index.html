@@ -862,12 +862,14 @@
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
+      // Build the cards off-DOM to avoid repeated Safari layout/reflow on long single-pick days.
+      const cards=document.createDocumentFragment();
       if(active==='独立研判'){
         const completed=focus.filter(m=>m.independent_review?.status==='COMPLETED').length;
         const selected=focus.filter(m=>isIndependentFeatured(m)).length;
-        root.append(el('div','intel-summary',`全池 ${focus.length} 场 · 已完成 ${completed} 场 · 最终精选 ${selected} 场 · 其余待复核或未入选`));
+        cards.append(el('div','intel-summary',`全池 ${focus.length} 场 · 已完成 ${completed} 场 · 最终精选 ${selected} 场 · 其余待复核或未入选`));
       }
-      if(!focus.length){root.append(el('div','empty',active==='单选精选'?'今日暂无单选精选':active==='独立研判'?'当前日期暂无赛事':active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
+      if(!focus.length){cards.append(el('div','empty',active==='单选精选'?'今日暂无单选精选':active==='独立研判'?'当前日期暂无赛事':active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));root.append(cards);return}
       for(const match of focus){
         const card=el('article','card');fixture(card,match);
         if(active==='单选精选'){
@@ -883,10 +885,10 @@
             card.append(el('div','v4-note','完赛比分：'+match.settlement.ft+' · 90分钟结果：'+result.actual));
             card.append(el('div','v4-verdict '+(result.status==='HIT'?'hit':'miss'),result.status==='HIT'?'✓ 命中':'✕ 未命中'));
           }else card.append(el('div','v4-verdict','等待赛果核验'));
-          root.append(card);continue;
+          cards.append(card);continue;
         }
-        if(active==='独立研判'){independentReview(card,match);root.append(card);continue;}
-        if(active==='大小球研判'){ouCard(card,match);root.append(card);continue;}
+        if(active==='独立研判'){independentReview(card,match);cards.append(card);continue;}
+        if(active==='大小球研判'){ouCard(card,match);cards.append(card);continue;}
         const data=match.prediction?.modules?.[active];
         if(match.prediction?.status!=='PREDICTED'||!data)card.append(el('div','v4-verdict v4-error','暂无预测'));
         else if(active==='胜平负'&&data.status==='NOT_ON_SALE')card.append(el('div','v4-verdict','普通胜平负未开售 · 请查看全场让球'));
@@ -944,8 +946,9 @@
           choices(card,match,(active==='比分'&&data.top4)||data.top2||data.top3||[],data.probabilities)
           if(active==='胜平负')ftHandicapRiskNote(card,match);
         }
-        verdict(card,match);root.append(card)
+        verdict(card,match);cards.append(card)
       }
+      root.append(cards);
     }
     let refreshInFlight=false,pendingRefresh=false,lastAutoDayCheck=0;
     // Follow the newest sale day automatically until the visitor explicitly selects history.
