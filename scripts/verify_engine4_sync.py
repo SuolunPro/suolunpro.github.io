@@ -40,6 +40,17 @@ def check(src, dst):
             actual_total = (website.get("metrics") or {}).get("total")
             if expected_total is not None and (actual_total != expected_total or actual_total != len(website["matches"])):
                 raise RuntimeError("Latest daily metrics count mismatch")
+        web_ids = [identity(m) for m in website.get("matches", [])]
+        engine_ids = [identity(m) for m in engine.get("matches", [])]
+        if len(web_ids) != len(set(web_ids)):
+            raise RuntimeError(f"Duplicate website fixture in {relative}")
+        if len(engine_ids) != len(set(engine_ids)):
+            raise RuntimeError(f"Duplicate engine fixture in {relative}")
+        if len(web_ids) != len(engine_ids) or set(web_ids) != set(engine_ids):
+            raise RuntimeError(f"Sale-day fixture count or identity mismatch in {relative}")
+        total = (website.get("metrics") or {}).get("total")
+        if total is not None and total != len(web_ids):
+            raise RuntimeError(f"Sales metrics.total mismatch in {relative}")
         web_matches = {identity(m):m for m in website.get("matches",[])}
         for m in engine.get("matches",[]):
             match = web_matches.get(identity(m))
