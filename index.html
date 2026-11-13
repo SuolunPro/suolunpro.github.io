@@ -473,7 +473,7 @@
     const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
     function navigation(){
       const root=$('models');root.replaceChildren();
-      for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
+      for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render();if(key==='单选精选'){reportFingerprint='';load({silent:true})}};root.append(button)}
     }
 
     // O/U 2.5: pure projection of the already-frozen goal probabilities; no new fetch or workflow.
