@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-13",
-  "review_version": "gpt-consensus-v2-alert-sync-20261113-1530",
+  "review_version": "full-pool-single-first-double-if-needed-v1",
   "phase": "PARTIAL_INTELLIGENCE",
   "engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
   "pre_review_frozen_at": "2026-11-13T04:26:46+00:00",
@@ -387,6 +387,19 @@
           "motivation"
         ],
         "reason": "verified FotMob identity unavailable"
+      },
+      "bet_recommendation": {
+        "mode": "single",
+        "market": "胜平负",
+        "picks": [
+          "胜"
+        ],
+        "label": "主胜",
+        "model_coverage": 0.8048,
+        "reason": "苏格兰足协确认麦克托米奈回归，球队仍需争取升级附加赛资格；但后防有人伤退，且主胜资金高度集中，深盘风险不可忽视。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.588Z",
+        "selected": true
       }
     },
     {
@@ -419,11 +432,11 @@
         "confidence": "中",
         "reason": "必发客胜资金74.39%，客胜仅0.5/0.75盘口，净胜两球不稳"
       },
-      "comprehensive_pick": "客胜",
-      "comprehensive_reason": "瑞士中场扎卡因小腿伤缺席，斯洛文尼亚后防有停赛缺口；瑞士客场仍有平局尾险，避免高估净胜球。",
+      "comprehensive_pick": "客胜＋平",
+      "comprehensive_reason": "斯洛文尼亚两名后卫停赛，瑞士中场扎卡亦因伤缺席；客胜方向保留，加平局保护。",
       "selected": true,
-      "selection_reason": "瑞士中场扎卡因小腿伤缺席，斯洛文尼亚后防有停赛缺口；瑞士客场仍有平局尾险，避免高估净胜球。",
-      "customer_summary": "建议：客胜。斯洛文尼亚两名后卫泽茨、扬扎停赛，后防完整度下降；但瑞士中场扎卡同样因伤缺席，客队优势仍需防范平局。",
+      "selection_reason": "斯洛文尼亚两名后卫停赛，瑞士中场扎卡亦因伤缺席；客胜方向保留，加平局保护。",
+      "customer_summary": "建议：客胜＋平。斯洛文尼亚两名后卫停赛，瑞士中场扎卡亦因伤缺席；客胜方向保留，加平局保护。",
       "gpt_review": {
         "match_no": "008",
         "source_id": "502981508",
@@ -719,6 +732,20 @@
             ]
           }
         }
+      },
+      "bet_recommendation": {
+        "mode": "double",
+        "market": "胜平负",
+        "picks": [
+          "负",
+          "平"
+        ],
+        "label": "客胜＋平",
+        "model_coverage": 0.8446,
+        "reason": "斯洛文尼亚两名后卫停赛，瑞士中场扎卡亦因伤缺席；客胜方向保留，加平局保护。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": true
       }
     },
     {
@@ -751,11 +778,11 @@
         "confidence": "高",
         "reason": "官方主队+3，穿盘不稳；历史xG与强弱赔率冲突"
       },
-      "comprehensive_pick": "让负",
-      "comprehensive_reason": "近5场（含不同赛事）新加坡2胜0平3负、巴拉圭2胜2平1负；普通胜平负未开售，官方主队+3与强势客胜赔率并存；让球方向不同路，历史xG与盘口反差较大。",
+      "comprehensive_pick": null,
+      "comprehensive_reason": "普通胜平负未开售，官方主队+3的让球方向与独立研判、引擎判断相反，缺少可确认的同路方向。",
       "selected": false,
-      "selection_reason": "近5场（含不同赛事）新加坡2胜0平3负、巴拉圭2胜2平1负；普通胜平负未开售，官方主队+3与强势客胜赔率并存；让球方向不同路，历史xG与盘口反差较大。",
-      "customer_summary": "建议：让负。近5场（含不同赛事）新加坡2胜0平3负、巴拉圭2胜2平1负；普通胜平负未开售，官方主队+3与强势客胜赔率并存；让球方向不同路，历史xG与盘口反差较大。",
+      "selection_reason": "普通胜平负未开售，官方主队+3的让球方向与独立研判、引擎判断相反，缺少可确认的同路方向。",
+      "customer_summary": "暂不推荐。普通胜平负未开售，官方主队+3的让球方向与独立研判、引擎判断相反，缺少可确认的同路方向。",
       "gpt_review": {
         "match_no": "001",
         "source_id": "503111272",
@@ -1050,6 +1077,17 @@
             ]
           }
         }
+      },
+      "bet_recommendation": {
+        "mode": "none",
+        "market": null,
+        "picks": [],
+        "label": "暂不推荐",
+        "model_coverage": null,
+        "reason": "普通胜平负未开售，官方主队+3的让球方向与独立研判、引擎判断相反，缺少可确认的同路方向。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": false
       }
     },
     {
@@ -1082,11 +1120,11 @@
         "confidence": "低",
         "reason": "平赔2.80且澳门平手，三向接近"
       },
-      "comprehensive_pick": "主胜",
-      "comprehensive_reason": "建议：主胜。球队近期赛果、主客场与伤停尚未核实，情报不足；当前盘口分歧，列为非精选。",
+      "comprehensive_pick": null,
+      "comprehensive_reason": "胜平负三向接近，近期状态、主客场和伤停尚未核实；让球虽偏让负，证据不足以明确推荐。",
       "selected": false,
-      "selection_reason": "建议：主胜。球队近期赛果、主客场与伤停尚未核实，情报不足；当前盘口分歧，列为非精选。",
-      "customer_summary": "建议：主胜。球队近期赛果、主客场与伤停尚未核实，情报不足；当前盘口分歧，列为非精选。",
+      "selection_reason": "胜平负三向接近，近期状态、主客场和伤停尚未核实；让球虽偏让负，证据不足以明确推荐。",
+      "customer_summary": "暂不推荐。胜平负三向接近，近期状态、主客场和伤停尚未核实；让球虽偏让负，证据不足以明确推荐。",
       "gpt_review": {
         "match_no": "002",
         "source_id": "502981560",
@@ -1193,6 +1231,17 @@
           "motivation"
         ],
         "reason": "verified FotMob identity unavailable"
+      },
+      "bet_recommendation": {
+        "mode": "none",
+        "market": null,
+        "picks": [],
+        "label": "暂不推荐",
+        "model_coverage": null,
+        "reason": "胜平负三向接近，近期状态、主客场和伤停尚未核实；让球虽偏让负，证据不足以明确推荐。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": false
       }
     },
     {
@@ -1225,11 +1274,11 @@
         "confidence": "中",
         "reason": "必发客胜资金75.24%偏热，主队+1时净胜一球风险"
       },
-      "comprehensive_pick": "客胜",
-      "comprehensive_reason": "近5场（含不同赛事）保加利亚1胜2平2负、冰岛2胜2平1负；客胜同路但客胜必发资金75.24%集中，客队历史xG占优仍有平局尾险；让球方向不同路。",
+      "comprehensive_pick": "客胜＋平",
+      "comprehensive_reason": "冰岛近5场2胜2平1负、保加利亚1胜2平2负；客胜资金集中且平局尾险较高，增加平局保护，仍为非精选。",
       "selected": false,
-      "selection_reason": "近5场（含不同赛事）保加利亚1胜2平2负、冰岛2胜2平1负；客胜同路但客胜必发资金75.24%集中，客队历史xG占优仍有平局尾险；让球方向不同路。",
-      "customer_summary": "建议：客胜。近5场（含不同赛事）保加利亚1胜2平2负、冰岛2胜2平1负；客胜同路但客胜必发资金75.24%集中，客队历史xG占优仍有平局尾险；让球方向不同路。",
+      "selection_reason": "冰岛近5场2胜2平1负、保加利亚1胜2平2负；客胜资金集中且平局尾险较高，增加平局保护，仍为非精选。",
+      "customer_summary": "建议：客胜＋平。冰岛近5场2胜2平1负、保加利亚1胜2平2负；客胜资金集中且平局尾险较高，增加平局保护，仍为非精选。",
       "gpt_review": {
         "match_no": "003",
         "source_id": "502981562",
@@ -1519,6 +1568,20 @@
             ]
           }
         }
+      },
+      "bet_recommendation": {
+        "mode": "double",
+        "market": "胜平负",
+        "picks": [
+          "负",
+          "平"
+        ],
+        "label": "客胜＋平",
+        "model_coverage": 0.819,
+        "reason": "冰岛近5场2胜2平1负、保加利亚1胜2平2负；客胜资金集中且平局尾险较高，增加平局保护，仍为非精选。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": false
       }
     },
     {
@@ -1551,11 +1614,11 @@
         "confidence": "高",
         "reason": "必发客胜资金96.91%极端集中，客队赢两球以上不稳"
       },
-      "comprehensive_pick": "客胜",
-      "comprehensive_reason": "近5场（含不同赛事）塞尔维亚0胜0平5负、德国1胜3平1负；客胜同路且威廉持续降赔，但必发客胜96.91%极端集中，强队轮换及净胜球风险难以核实。",
+      "comprehensive_pick": "客胜＋平",
+      "comprehensive_reason": "塞尔维亚近5场0胜0平5负，但德国客胜资金极度集中、阵容轮换尚未核实；增加平局保护，仍为非精选。",
       "selected": false,
-      "selection_reason": "近5场（含不同赛事）塞尔维亚0胜0平5负、德国1胜3平1负；客胜同路且威廉持续降赔，但必发客胜96.91%极端集中，强队轮换及净胜球风险难以核实。",
-      "customer_summary": "建议：客胜。近5场（含不同赛事）塞尔维亚0胜0平5负、德国1胜3平1负；客胜同路且威廉持续降赔，但必发客胜96.91%极端集中，强队轮换及净胜球风险难以核实。",
+      "selection_reason": "塞尔维亚近5场0胜0平5负，但德国客胜资金极度集中、阵容轮换尚未核实；增加平局保护，仍为非精选。",
+      "customer_summary": "建议：客胜＋平。塞尔维亚近5场0胜0平5负，但德国客胜资金极度集中、阵容轮换尚未核实；增加平局保护，仍为非精选。",
       "gpt_review": {
         "match_no": "005",
         "source_id": "502981462",
@@ -1845,6 +1908,20 @@
             ]
           }
         }
+      },
+      "bet_recommendation": {
+        "mode": "double",
+        "market": "胜平负",
+        "picks": [
+          "负",
+          "平"
+        ],
+        "label": "客胜＋平",
+        "model_coverage": 0.9105,
+        "reason": "塞尔维亚近5场0胜0平5负，但德国客胜资金极度集中、阵容轮换尚未核实；增加平局保护，仍为非精选。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": false
       }
     },
     {
@@ -2207,6 +2284,19 @@
         "warning_direction": "主队不胜",
         "selected": false,
         "note": "预警方向与引擎让球首选一致"
+      },
+      "bet_recommendation": {
+        "mode": "single",
+        "market": "让球",
+        "picks": [
+          "让负"
+        ],
+        "label": "让负",
+        "model_coverage": 0.6879,
+        "reason": "建议：让负。冷门预警指向卢森堡不胜，威廉主胜升赔且多家亚盘退让；平局及爱沙尼亚取分均落在主队-1的让负方向。非精选。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": false
       }
     },
     {
@@ -2239,11 +2329,11 @@
         "confidence": "中",
         "reason": "威廉主胜1.25升1.33，澳门主让1.5高水，历史xG优势偏小"
       },
-      "comprehensive_pick": "主胜",
-      "comprehensive_reason": "近5场（含不同赛事）斯洛伐克3胜2平0负、法罗群岛1胜4平0负；主胜同路但威廉1.25升1.33、澳门主让1.5高水，历史xG优势有限，深盘及平局尾险。",
+      "comprehensive_pick": "主胜＋平",
+      "comprehensive_reason": "斯洛伐克近5场3胜2平，但盘口退让、平局尾险仍在；主胜加平局保护，仍为非精选。",
       "selected": false,
-      "selection_reason": "近5场（含不同赛事）斯洛伐克3胜2平0负、法罗群岛1胜4平0负；主胜同路但威廉1.25升1.33、澳门主让1.5高水，历史xG优势有限，深盘及平局尾险。",
-      "customer_summary": "建议：主胜。近5场（含不同赛事）斯洛伐克3胜2平0负、法罗群岛1胜4平0负；主胜同路但威廉1.25升1.33、澳门主让1.5高水，历史xG优势有限，深盘及平局尾险。",
+      "selection_reason": "斯洛伐克近5场3胜2平，但盘口退让、平局尾险仍在；主胜加平局保护，仍为非精选。",
+      "customer_summary": "建议：主胜＋平。斯洛伐克近5场3胜2平，但盘口退让、平局尾险仍在；主胜加平局保护，仍为非精选。",
       "gpt_review": {
         "match_no": "007",
         "source_id": "502981559",
@@ -2542,6 +2632,20 @@
             ]
           }
         }
+      },
+      "bet_recommendation": {
+        "mode": "double",
+        "market": "胜平负",
+        "picks": [
+          "胜",
+          "平"
+        ],
+        "label": "主胜＋平",
+        "model_coverage": 0.9164,
+        "reason": "斯洛伐克近5场3胜2平，但盘口退让、平局尾险仍在；主胜加平局保护，仍为非精选。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": false
       }
     },
     {
@@ -2891,6 +2995,19 @@
         "warning_direction": "主队不胜",
         "selected": false,
         "note": "市场与xG概率分歧，非精选"
+      },
+      "bet_recommendation": {
+        "mode": "single",
+        "market": "让球",
+        "picks": [
+          "让负"
+        ],
+        "label": "让负",
+        "model_coverage": 0.5382,
+        "reason": "建议：让负。冷门预警指向荷兰不胜，威廉主胜升赔且多家亚盘退让；但市场与历史xG对让负概率分歧较大，列为非精选。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": false
       }
     },
     {
@@ -2923,11 +3040,11 @@
         "confidence": "中",
         "reason": "历史xG两队接近，乌拉圭对抗能力与净胜球风险"
       },
-      "comprehensive_pick": "主胜",
-      "comprehensive_reason": "近5场（含不同赛事）阿根廷4胜0平1负、乌拉圭2胜1平2负；主胜同路且威廉与澳门支持，但阿根廷与乌拉圭历史xG接近、必发缺失，胜负优势缺少独立验证。",
+      "comprehensive_pick": "主胜＋平",
+      "comprehensive_reason": "阿根廷近5场4胜，但双方历史xG接近且必发缺失；加入平局保护，仍为非精选。",
       "selected": false,
-      "selection_reason": "近5场（含不同赛事）阿根廷4胜0平1负、乌拉圭2胜1平2负；主胜同路且威廉与澳门支持，但阿根廷与乌拉圭历史xG接近、必发缺失，胜负优势缺少独立验证。",
-      "customer_summary": "建议：主胜。近5场（含不同赛事）阿根廷4胜0平1负、乌拉圭2胜1平2负；主胜同路且威廉与澳门支持，但阿根廷与乌拉圭历史xG接近、必发缺失，胜负优势缺少独立验证。",
+      "selection_reason": "阿根廷近5场4胜，但双方历史xG接近且必发缺失；加入平局保护，仍为非精选。",
+      "customer_summary": "建议：主胜＋平。阿根廷近5场4胜，但双方历史xG接近且必发缺失；加入平局保护，仍为非精选。",
       "gpt_review": {
         "match_no": "010",
         "source_id": "503109624",
@@ -3225,6 +3342,20 @@
             ]
           }
         }
+      },
+      "bet_recommendation": {
+        "mode": "double",
+        "market": "胜平负",
+        "picks": [
+          "胜",
+          "平"
+        ],
+        "label": "主胜＋平",
+        "model_coverage": 0.869,
+        "reason": "阿根廷近5场4胜，但双方历史xG接近且必发缺失；加入平局保护，仍为非精选。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": false
       }
     },
     {
@@ -3257,11 +3388,11 @@
         "confidence": "中",
         "reason": "缺少历史xG与必发，深盘净胜球证据不足"
       },
-      "comprehensive_pick": "主胜",
-      "comprehensive_reason": "近5场（含不同赛事）哥伦比亚2胜2平1负、智利2胜0平3负；主胜同路且威廉略降赔，但必发与历史xG均缺失、澳门盘口较旧，缺乏充分交叉证据。",
+      "comprehensive_pick": "主胜＋平",
+      "comprehensive_reason": "哥伦比亚近5场2胜2平1负，必发与历史xG缺失且盘口资料较旧；加入平局保护，仍为非精选。",
       "selected": false,
-      "selection_reason": "近5场（含不同赛事）哥伦比亚2胜2平1负、智利2胜0平3负；主胜同路且威廉略降赔，但必发与历史xG均缺失、澳门盘口较旧，缺乏充分交叉证据。",
-      "customer_summary": "建议：主胜。近5场（含不同赛事）哥伦比亚2胜2平1负、智利2胜0平3负；主胜同路且威廉略降赔，但必发与历史xG均缺失、澳门盘口较旧，缺乏充分交叉证据。",
+      "selection_reason": "哥伦比亚近5场2胜2平1负，必发与历史xG缺失且盘口资料较旧；加入平局保护，仍为非精选。",
+      "customer_summary": "建议：主胜＋平。哥伦比亚近5场2胜2平1负，必发与历史xG缺失且盘口资料较旧；加入平局保护，仍为非精选。",
       "gpt_review": {
         "match_no": "011",
         "source_id": "503111411",
@@ -3559,11 +3690,25 @@
             ]
           }
         }
+      },
+      "bet_recommendation": {
+        "mode": "double",
+        "market": "胜平负",
+        "picks": [
+          "胜",
+          "平"
+        ],
+        "label": "主胜＋平",
+        "model_coverage": 0.8991,
+        "reason": "哥伦比亚近5场2胜2平1负，必发与历史xG缺失且盘口资料较旧；加入平局保护，仍为非精选。",
+        "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00",
+        "decision_at": "2026-11-13T07:53:59.590Z",
+        "selected": false
       }
     }
   ],
   "stage": "FINAL",
-  "reviewed_at": "2026-11-13T07:30:24+00:00",
+  "reviewed_at": "2026-11-13T07:53:59.590Z",
   "generated_at": "2026-11-13T04:26:46+00:00",
   "history_warning_verified": false,
   "history_warning_note": "历史正式触发记录未完成全量核验；本轮006、009已知正式触发并永久排除。",
@@ -3618,5 +3763,13 @@
     "injuries_full_pool_verified": false,
     "kelly_verified": false,
     "source": "engine4/intelligence/2026-11-13.json"
+  },
+  "bet_recommendation_policy": {
+    "scope": "sale-day full pool including non-selected",
+    "single_first": true,
+    "double_when": "specific adjacent draw or handicap protection supported by match evidence",
+    "no_forced_pick": true,
+    "selected_count": 2,
+    "source_engine_generated_at": "2026-11-13T06:56:40.083267+00:00"
   }
 }
