@@ -165,6 +165,15 @@
       .app .metric span{font-size:clamp(9px,2.4vw,11px);white-space:normal}
     }
 
+    /* Minimal premium footer: preserve visitor counter and policy links. */
+    .site-disclaimer .site-legal-links{display:flex;justify-content:center;align-items:center;gap:12px;color:#a0a6ae;font-size:12px}
+    .site-disclaimer .site-legal-links a,.site-disclaimer .site-legal-links a:visited{color:#8a919b;text-decoration:none}
+    .site-disclaimer .site-legal-links a:hover,.site-disclaimer .site-legal-links a:focus-visible,.site-disclaimer .site-legal-links a:active{color:#b89555}
+    .site-disclaimer .site-visit-brand{font-size:13px;font-weight:700;color:#b89555}
+    .site-disclaimer .site-visit-brand sup{font-size:9px}
+    .site-disclaimer .site-visit-divider{color:#b4bac1;margin:0 5px}
+    .site-disclaimer .site-visit-label{color:#8a919b}
+    .site-disclaimer #visit-count{color:#b89555;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
     /* Ninety Mark 4.0: visual-only VIP login refresh. Keep auth and trial IDs unchanged. */
     .vip-gate{min-height:100dvh;padding:clamp(18px,5vw,42px) 16px;background:radial-gradient(ellipse at 50% 8%,#173554 0%,#091b30 45%,#06101e 100%);align-items:center}
     .vip-panel{width:min(470px,100%);padding:clamp(22px,5vw,34px);background:linear-gradient(150deg,#12283f,#0b1b2d 72%);border:1px solid #d2ad66;border-radius:22px;box-shadow:0 18px 55px #0007;color:#f6f7fb}
@@ -239,8 +248,8 @@
         <div class="cards" id="matches"><div class="empty">正在加载今日赛事…</div></div>
         <footer class="site-disclaimer" role="note" aria-label="重要声明" style="margin:16px 0 8px;padding:13px 14px;background:#fff;border:1px solid #e8e8e8;border-radius:12px;color:#737b85;font-size:12px;line-height:1.7;text-align:center">
           <p style="margin:0 0 8px">九十刻度® 提供足球数据与赛事趋势分析，仅供参考，不构成投注建议，不保证预测准确性或收益。平台不提供投注服务，请理性判断并遵守当地法律法规。</p>
-          <div style="margin-top:8px"><a href="./legal.html#terms">用户服务协议</a>　·　<a href="./legal.html#privacy">隐私政策</a></div>
-          <div class="site-visit-count" style="margin-top:10px;padding-top:9px;border-top:1px solid #eee;color:#7b8390;font-size:12px">九十刻度<sup>®</sup>　访问量 <span id="visit-count">31,000</span></div>
+          <div class="site-legal-links" style="margin-top:10px"><a href="./legal.html#terms">用户协议</a><span aria-hidden="true">｜</span><a href="./legal.html#privacy">隐私政策</a></div>
+          <div class="site-visit-count" style="margin-top:13px;font-size:12px"><strong class="site-visit-brand">九十刻度<sup>®</sup></strong><span class="site-visit-divider" aria-hidden="true"> · </span><span class="site-visit-label">累计访问 </span><span id="visit-count">31,000</span></div>
         </footer>
       </section>
     </main>
