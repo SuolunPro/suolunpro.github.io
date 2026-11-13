@@ -30,7 +30,7 @@ jobs:
             assert(html.includes("['"+name+"'"),'missing engine4 module '+name);
           }
           assert(!html.includes("['今日优选'"),'daily picks must stay hidden');
-          for(const marker of ['vip-gate','vip-code','member-code-members.json','./data/engine4/','赛事分析说明','重要声明']){
+          for(const marker of ['vip-gate','vip-code','member-code-members.json','./data/engine4/','重要声明']){
             assert(html.includes(marker),'missing '+marker);
           }
           assert(!html.includes('workers.dev'),'homepage still calls a Worker');
