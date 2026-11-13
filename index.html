@@ -813,7 +813,9 @@
       const warnedPickAllowed=warned&&handicap===-1&&warningDirection==='主队不胜'&&pick==='让负'&&review?.selected===false;
       panel.append(el('div','intel-pickline',warnedPickAllowed?'建议：让负（-1） · 非精选':warned?'冷门方向：'+warningDirection+'（不列入精选）':bet?.mode==='none'?'暂不推荐':'建议：'+selection));
       const reason=review?.customer_summary||review?.comprehensive_reason;
-      const brief=typeof reason==='string'&&reason.trim()?reason.trim().slice(0,110):'赛前研判资料正在更新。';
+      const rawBrief=typeof reason==='string'?reason.trim():'';
+      const cleanedBrief=rawBrief.replace(/^建议：[^。；\\n]+[。；]?\\s*/,'').replace(/^暂不推荐[。；]?\\s*/,'');
+      const brief=(cleanedBrief||rawBrief||'赛前研判资料正在更新。').slice(0,110);
       panel.append(el('div','intel-brief',brief));
       if(match.prediction?.modules?.['冷门预警']?.triggered===true)
         panel.append(el('div','intel-tag warn','冷门预警已触发 · 不列入精选'));
