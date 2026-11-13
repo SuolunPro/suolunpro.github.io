@@ -20,6 +20,11 @@
     .models{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;padding:6px 12px 10px;overflow:visible}
     .model{grid-column:span 3;display:flex;align-items:center;justify-content:center;min-width:0;min-height:42px;padding:8px 2px;border:1px solid #ffffff29;border-radius:8px;background:#ffffff17;color:#fff;font-size:clamp(11px,2.9vw,13px);font-weight:600;line-height:1.3;white-space:nowrap;text-align:center;cursor:pointer}
     .model:nth-child(n+5){grid-column:span 4}
+    .model:nth-child(n+5){grid-column:span 3}
+    .models .model:last-child{grid-column:span 4}
+    .single-pick-note{margin:9px 0;font-size:16px;font-weight:800;color:#1c344e}
+    .single-pick-meta{font-size:12px;color:#647082;line-height:1.6}
+    .metrics.single-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
     .model.active{background:#fff;color:var(--deep);border-color:#fff;font-weight:800}
     .v4-datebar{border-top:1px solid #ffffff24;padding:8px 14px 10px;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:10px}
     .v4-datebar span:last-child{color:#ffdbdb}
@@ -227,6 +232,7 @@
           <div class="metric"><b id="hit-rate">—</b><span id="hit-rate-label">当日评测命中率</span></div>
           <div class="metric"><b id="hit-count">—</b><span>命中 / 有效评测</span></div>
           <div class="metric"><b id="pending">—</b><span>未核验赛果</span></div>
+          <div class="metric" id="single-cumulative-box" hidden><b id="single-cumulative">—</b><span>累计命中率</span></div>
         </div>
       </section>
       <section class="content">
@@ -456,9 +462,9 @@
 
     const modules=[
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
-      ['比分','全场比分'],['总进球','泊松进球'],['大小球研判','大小球研判'],['冷门预警','冷门预警'],['独立研判','精选研判（测试）']
+      ['比分','全场比分'],['总进球','泊松进球'],['大小球研判','大小球研判'],['冷门预警','冷门预警'],['独立研判','精选研判（测试）'],['单选精选','单选精选']
     ];
-    let report=null,active='胜平负',selectedDay='';
+    let report=null,active='胜平负',selectedDay='',singleCumulative=null;
     const label=value=>value==null?'—':String(value);
     const stamp=value=>{if(!value)return '—';const date=new Date(value);if(Number.isNaN(date.getTime()))return label(value);return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date).replace(/\//g,'-')};
     const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!=null)node.textContent=String(text);return node};
@@ -509,7 +515,20 @@
     }
     function stats(){
       const updateNotice=$('review-update-notice');if(updateNotice)updateNotice.style.display=active==='独立研判'?'block':'none';
+      $('single-cumulative-box').hidden=active!=='单选精选';
+      document.querySelector('.metrics').classList.toggle('single-metrics',active==='单选精选');
       $('hit-rate-label').textContent=active==='独立研判'?'当天精选场次命中率':'当日评测命中率';
+      if(active==='单选精选'){
+        const picks=report.matches.filter(m=>m.single_pick?.status==='SELECTED');
+        const outcomes=picks.map(m=>m.settlement?.module_results?.['单选精选']?.status).filter(s=>s==='HIT'||s==='MISS');
+        const hit=outcomes.filter(s=>s==='HIT').length,total=outcomes.length;
+        $('hit-rate-label').textContent='当日单选命中率';
+        $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
+        $('hit-count').textContent=hit+'/'+total;
+        $('pending').textContent=picks.length-total;
+        $('single-cumulative').textContent=singleCumulative?.total?(100*singleCumulative.hit/singleCumulative.total).toFixed(1)+'% ('+singleCumulative.hit+'/'+singleCumulative.total+')':'0/0 · 暂无正式样本';
+        return;
+      }
       if(active==='大小球研判'){
         const picks=report.matches.map(m=>({p:ouPrediction(m),r:ouResult(m)})).filter(x=>x.p);
         const settled=picks.filter(x=>x.r),hit=settled.filter(x=>x.r.hit).length;
@@ -843,7 +862,8 @@
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`今日赛事 ${report.matches.length} 场`;
       const isReviewSelected=isIndependentFeatured;
-      const focus=active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
+      const focus=active==='单选精选'?report.matches.filter(match=>match.single_pick?.status==='SELECTED'):
+        active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
@@ -852,9 +872,20 @@
         const selected=focus.filter(m=>isIndependentFeatured(m)).length;
         root.append(el('div','intel-summary',`全池 ${focus.length} 场 · 已完成 ${completed} 场 · 最终精选 ${selected} 场 · 其余待复核或未入选`));
       }
-      if(!focus.length){root.append(el('div','empty',active==='独立研判'?'当前日期暂无赛事':active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
+      if(!focus.length){root.append(el('div','empty',active==='单选精选'?'今日暂无单选精选':active==='独立研判'?'当前日期暂无赛事':active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));return}
       for(const match of focus){
         const card=el('article','card');fixture(card,match);
+        if(active==='单选精选'){
+          const pick=match.single_pick;
+          card.append(el('div','single-pick-note',pick.level+' · '+pick.direction));
+          card.append(el('div','single-pick-meta','赛前冻结：'+stamp(pick.frozen_at)));
+          const result=match.settlement?.module_results?.['单选精选'];
+          if(result?.status==='HIT'||result?.status==='MISS'){
+            card.append(el('div','v4-note','完赛比分：'+match.settlement.ft+' · 90分钟结果：'+result.actual));
+            card.append(el('div','v4-verdict '+(result.status==='HIT'?'hit':'miss'),result.status==='HIT'?'✓ 命中':'✕ 未命中'));
+          }else card.append(el('div','v4-verdict','等待赛果核验'));
+          root.append(card);continue;
+        }
         if(active==='独立研判'){independentReview(card,match);root.append(card);continue;}
         if(active==='大小球研判'){ouCard(card,match);root.append(card);continue;}
         const data=match.prediction?.modules?.[active];
@@ -924,6 +955,14 @@
       // Covers changed predictions, per-module settlement and status even when generated_at is reused.
       return JSON.stringify([data.sale_day,data.generated_at,data.matches]);
     }
+    async function loadSingleCumulative(day,live,data){
+      const index=await getJson(DATA_BASE+'sales/index.json');
+      const days=(index.days||[]).filter(d=>d<=day&&/^20\d{2}-\d{2}-\d{2}$/.test(d));
+      const documents=await Promise.all(days.map(d=>d===data.sale_day?data:d===live.sale_day?live:getJson(DATA_BASE+'sales/'+d+'.json')));
+      const statuses=documents.flatMap(doc=>(doc.matches||[]).filter(m=>m.single_pick?.status==='SELECTED')
+        .map(m=>m.settlement?.module_results?.['单选精选']?.status)).filter(s=>s==='HIT'||s==='MISS');
+      return {hit:statuses.filter(s=>s==='HIT').length,total:statuses.length};
+    }
     async function load(options={}){
       if(refreshInFlight)return;
       refreshInFlight=true;
@@ -956,6 +995,7 @@
           vipShowGate(VIP_EXPIRED_MESSAGE,true);return;
         }
         await loadIndependentReviews(data);
+        if(active==='单选精选')singleCumulative=await loadSingleCumulative(effectiveDay,live,data);
         const fingerprint=reportSignature(data);
         if(fingerprint!==reportFingerprint||!options.silent){
           report=data;reportFingerprint=fingerprint;render();
