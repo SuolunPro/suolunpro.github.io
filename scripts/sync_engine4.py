@@ -17,7 +17,7 @@ def stamp(value):
         return 0
 
 def key(match):
-    return (str(match.get("sale_day") or ""), str(match.get("source_id") or ""), str(match.get("kickoff") or ""), str(match.get("home") or ""), str(match.get("away") or ""))
+    return (str(match.get("source_id") or ""), str(match.get("kickoff") or ""), str(match.get("home") or ""), str(match.get("away") or ""))
 
 def merge(source, existing):
     if not isinstance(existing, dict):
@@ -28,6 +28,43 @@ def merge(source, existing):
         base, other = existing, source
     else:
         base, other = source, existing
+    # Legacy sales files may already contain duplicate versions of a fixture.
+    # Reject conflicting verified results; prefer the latest valid prematch version.
+    import copy
+    base, other = copy.deepcopy(base), copy.deepcopy(other)
+    def dedupe(doc):
+        selected = {}
+        for m in doc.get("matches", []):
+            if not isinstance(m, dict):
+                raise ValueError("Invalid fixture")
+            k = key(m)
+            if not k[0] or not k[1]:
+                raise ValueError("Missing fixture identity")
+            prev = selected.get(k)
+            if prev is None:
+                selected[k] = m
+                continue
+            if (m.get("result_verification") or {}).get("status") == "VERIFIED" and (prev.get("result_verification") or {}).get("status") == "VERIFIED" and m.get("settlement") != prev.get("settlement"):
+                raise ValueError("Conflicting verified settlements")
+            # Preserve verified settlement while choosing a pre-kickoff prediction.
+            try:
+                kickoff = datetime.fromisoformat(m["kickoff"].replace(" ", "T")).replace(tzinfo=timezone(timedelta(hours=8))).timestamp()
+            except (KeyError, ValueError, TypeError):
+                raise ValueError("Cannot verify kickoff for duplicate")
+            def valid(x):
+                t = stamp(x.get("predicted_at"))
+                return bool(t and t < kickoff)
+            if valid(m) and (not valid(prev) or stamp(m.get("predicted_at")) > stamp(prev.get("predicted_at"))):
+                chosen, alternate = m, prev
+            else:
+                chosen, alternate = prev, m
+            if (alternate.get("result_verification") or {}).get("status") == "VERIFIED" and (chosen.get("result_verification") or {}).get("status") != "VERIFIED":
+                chosen["settlement"] = alternate.get("settlement")
+                chosen["result_verification"] = alternate["result_verification"]
+            selected[k] = chosen
+        doc["matches"] = list(selected.values())
+        return doc
+    base, other = dedupe(base), dedupe(other)
     old_matches = {key(m): m for m in other.get("matches", []) if isinstance(m, dict)}
     for index, match in enumerate(base.get("matches", [])):
         old = old_matches.get(key(match))
@@ -72,6 +109,11 @@ def merge(source, existing):
                 "status": "VERIFIED",
                 "checked_at": match["settlement"].get("verified_at"),
             }
+    ids = [key(m) for m in base.get("matches", [])]
+    if len(ids) != len(set(ids)):
+        raise ValueError("Duplicate fixture after merge")
+    if isinstance(base.get("metrics"), dict) and base["metrics"].get("total") is not None and base["metrics"]["total"] != len(ids):
+        raise ValueError("Sales snapshot count mismatch")
     return base
 
 def main(src, dst):
