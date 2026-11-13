@@ -874,15 +874,10 @@
         const card=el('article','card');fixture(card,match);
         if(active==='单选精选'){
           const pick=match.single_pick;
-          card.append(el('div','single-pick-note',pick.level+' · '+pick.direction));
-          card.append(el('div','single-pick-meta','赛前冻结：'+stamp(pick.frozen_at)));
-          if(pick.origin==='AUDITED_FROZEN_IMPORT'){
-            card.append(el('div','single-pick-meta','原三级口径 · 赛前冻结记录重算；当时未发布本模块'));
-            if(pick.risk_flags?.length)card.append(el('div','single-pick-meta','现行风险复核：'+pick.risk_flags.join('；')));
-          }
+          // Customer view: show the frozen single direction only; keep audit evidence in JSON.
+          card.append(el('div','single-pick-note','单选推荐：'+pick.direction));
           const result=match.settlement?.module_results?.['单选精选'];
           if(result?.status==='HIT'||result?.status==='MISS'){
-            card.append(el('div','v4-note','完赛比分：'+match.settlement.ft+' · 90分钟结果：'+result.actual));
             card.append(el('div','v4-verdict '+(result.status==='HIT'?'hit':'miss'),result.status==='HIT'?'✓ 命中':'✕ 未命中'));
           }else card.append(el('div','v4-verdict','等待赛果核验'));
           cards.append(card);continue;
