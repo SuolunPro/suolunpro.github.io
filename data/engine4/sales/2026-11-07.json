@@ -2055,7 +2055,7 @@
           "今日优选Top2": true,
           "今日优选": true,
           "冷门预警": null,
-          "单选精选": null
+          "单选精选": true
         },
         "module_results": {
           "胜平负": {
@@ -2145,15 +2145,68 @@
           },
           "单选精选": {
             "actual": "胜",
-            "direction": null,
-            "hit": null,
-            "status": "NO_FORMAL_SELECTION"
+            "direction": "胜",
+            "hit": true,
+            "status": "HIT"
           }
         }
       },
       "result_verification": {
         "status": "VERIFIED",
         "checked_at": "2026-11-07T15:29:59.507138+00:00"
+      },
+      "single_pick": {
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
+        "direction": "胜",
+        "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:37:27.464969+00:00",
+        "published_before_kickoff": false,
+        "match_id": "503041394",
+        "sale_day": "2026-11-07",
+        "match_no": "005",
+        "home": "珀斯",
+        "away": "纽喷气机",
+        "kickoff": "2026-11-07 18:45",
+        "frozen_at": "2026-11-07T10:43:06.090112+00:00",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [
+          "独立xG缺失"
+        ],
+        "evidence": {
+          "spf_probabilities": {
+            "胜": 0.4369,
+            "平": 0.2342,
+            "负": 0.3289
+          },
+          "score_top4": [
+            "1:1",
+            "2:1",
+            "1:2",
+            "1:0"
+          ],
+          "score_probabilities": {
+            "1:1": 0.11384,
+            "2:1": 0.089791,
+            "1:2": 0.076521,
+            "1:0": 0.064167
+          },
+          "fusion_probabilities": {
+            "胜": 0.4420188416846006,
+            "平": 0.2824118184009596,
+            "负": 0.2755693399144398
+          },
+          "cold_status": "NOT_TRIGGERED",
+          "institution_support": [
+            39.11,
+            24.24,
+            36.65
+          ],
+          "institution_captured_at": "2026-11-07T10:39:46.220804+00:00",
+          "market_captured_at": "2026-11-07T10:43:03.507611+00:00",
+          "bifa_captured_at": "2026-11-07T10:39:46.220804+00:00"
+        },
+        "evidence_sha256": "29d7ca5d9ae6eb9fd6b961b53e3b15350dc21106b9f940402d2aa5be7edb5a23"
       },
       "pair_probability_change": {
         "胜平负": {
@@ -3940,6 +3993,57 @@
         "status": "VERIFIED",
         "checked_at": "2026-11-07T16:12:21.358120+00:00"
       },
+      "single_pick": {
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
+        "direction": "胜",
+        "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:37:27.464969+00:00",
+        "published_before_kickoff": false,
+        "match_id": "502993863",
+        "sale_day": "2026-11-07",
+        "match_no": "009",
+        "home": "都灵",
+        "away": "莱切",
+        "kickoff": "2026-11-07 22:00",
+        "frozen_at": "2026-11-07T11:08:16.184471+00:00",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [],
+        "evidence": {
+          "spf_probabilities": {
+            "胜": 0.5739,
+            "平": 0.2373,
+            "负": 0.1888
+          },
+          "score_top4": [
+            "1:1",
+            "2:1",
+            "1:2",
+            "1:0"
+          ],
+          "score_probabilities": {
+            "1:1": 0.117551,
+            "2:1": 0.084136,
+            "1:2": 0.083701,
+            "1:0": 0.062062
+          },
+          "fusion_probabilities": {
+            "胜": 0.4973371060584256,
+            "平": 0.28781246942006045,
+            "负": 0.21485042452151387
+          },
+          "cold_status": "NOT_TRIGGERED",
+          "institution_support": [
+            52.46,
+            26.08,
+            21.46
+          ],
+          "institution_captured_at": "2026-11-07T11:07:38.891713+00:00",
+          "market_captured_at": "2026-11-07T11:08:12.043921+00:00",
+          "bifa_captured_at": "2026-11-07T11:07:38.891713+00:00"
+        },
+        "evidence_sha256": "0af8b6427b19080485be8ec54b8ca424fa2a2fa3bd8cb4775e5c625d7c15a665"
+      },
       "settlement": {
         "ht": "0:0",
         "ft": "1:1",
@@ -3963,7 +4067,7 @@
           "今日优选Top2": true,
           "今日优选": true,
           "冷门预警": null,
-          "单选精选": null
+          "单选精选": false
         },
         "module_results": {
           "胜平负": {
@@ -4053,9 +4157,9 @@
           },
           "单选精选": {
             "actual": "平",
-            "direction": null,
-            "hit": null,
-            "status": "NO_FORMAL_SELECTION"
+            "direction": "胜",
+            "hit": false,
+            "status": "MISS"
           }
         }
       },
@@ -5225,6 +5329,57 @@
         "status": "VERIFIED",
         "checked_at": "2026-11-07T16:35:59.279876+00:00"
       },
+      "single_pick": {
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
+        "direction": "胜",
+        "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:37:27.464969+00:00",
+        "published_before_kickoff": false,
+        "match_id": "503018865",
+        "sale_day": "2026-11-07",
+        "match_no": "011",
+        "home": "莱红牛",
+        "away": "奥格斯堡",
+        "kickoff": "2026-11-07 22:30",
+        "frozen_at": "2026-11-07T11:08:25.411321+00:00",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [],
+        "evidence": {
+          "spf_probabilities": {
+            "胜": 0.7018,
+            "平": 0.1567,
+            "负": 0.1415
+          },
+          "score_top4": [
+            "2:1",
+            "2:2",
+            "1:1",
+            "3:1"
+          ],
+          "score_probabilities": {
+            "2:1": 0.075975,
+            "2:2": 0.071492,
+            "1:1": 0.071257,
+            "3:1": 0.058323
+          },
+          "fusion_probabilities": {
+            "胜": 0.5932740376181658,
+            "平": 0.33597596238183414,
+            "负": 0.07075
+          },
+          "cold_status": "NOT_TRIGGERED",
+          "institution_support": [
+            65.85,
+            17.87,
+            16.28
+          ],
+          "institution_captured_at": "2026-11-07T11:07:39.843259+00:00",
+          "market_captured_at": "2026-11-07T11:08:20.354238+00:00",
+          "bifa_captured_at": "2026-11-07T11:07:39.843259+00:00"
+        },
+        "evidence_sha256": "3660a767c88262ced15950c37d2acf977c08770bd439d87432ff1e528b28f8a5"
+      },
       "settlement": {
         "ht": "3:1",
         "ft": "5:2",
@@ -5248,7 +5403,7 @@
           "今日优选Top2": true,
           "今日优选": true,
           "冷门预警": null,
-          "单选精选": null
+          "单选精选": true
         },
         "module_results": {
           "胜平负": {
@@ -5338,9 +5493,9 @@
           },
           "单选精选": {
             "actual": "胜",
-            "direction": null,
-            "hit": null,
-            "status": "NO_FORMAL_SELECTION"
+            "direction": "胜",
+            "hit": true,
+            "status": "HIT"
           }
         }
       },
@@ -6502,6 +6657,60 @@
         "status": "VERIFIED",
         "checked_at": "2026-11-07T16:35:59.279876+00:00"
       },
+      "single_pick": {
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
+        "direction": "胜",
+        "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:37:27.464969+00:00",
+        "published_before_kickoff": false,
+        "match_id": "503018858",
+        "sale_day": "2026-11-07",
+        "match_no": "013",
+        "home": "多特蒙德",
+        "away": "埃尔沃斯贝格",
+        "kickoff": "2026-11-07 22:30",
+        "frozen_at": "2026-11-07T11:08:33.439332+00:00",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [
+          "冷门观察",
+          "当时市场风险闸门未通过"
+        ],
+        "evidence": {
+          "spf_probabilities": {
+            "胜": 0.7636,
+            "平": 0.144,
+            "负": 0.0924
+          },
+          "score_top4": [
+            "1:1",
+            "2:1",
+            "1:2",
+            "3:1"
+          ],
+          "score_probabilities": {
+            "1:1": 0.095234,
+            "2:1": 0.085667,
+            "1:2": 0.072792,
+            "3:1": 0.055483
+          },
+          "fusion_probabilities": {
+            "胜": 0.6100680415038683,
+            "平": 0.22601260123683597,
+            "负": 0.16391935725929566
+          },
+          "cold_status": "WATCH",
+          "institution_support": [
+            72.08,
+            16.39,
+            11.53
+          ],
+          "institution_captured_at": "2026-11-07T11:07:40.526235+00:00",
+          "market_captured_at": "2026-11-07T11:08:29.524853+00:00",
+          "bifa_captured_at": "2026-11-07T11:07:40.526235+00:00"
+        },
+        "evidence_sha256": "d3c4819b40ea72f8fd35436b7741ec1caec66923e55976d1226ab1729d8be3ed"
+      },
       "settlement": {
         "ht": "0:0",
         "ft": "2:1",
@@ -6525,7 +6734,7 @@
           "今日优选Top2": null,
           "今日优选": null,
           "冷门预警": null,
-          "单选精选": null
+          "单选精选": true
         },
         "module_results": {
           "胜平负": {
@@ -6612,9 +6821,9 @@
           },
           "单选精选": {
             "actual": "胜",
-            "direction": null,
-            "hit": null,
-            "status": "NO_FORMAL_SELECTION"
+            "direction": "胜",
+            "hit": true,
+            "status": "HIT"
           }
         }
       },
@@ -7143,10 +7352,12 @@
         "checked_at": "2026-11-07T16:35:59.279876+00:00"
       },
       "single_pick": {
-        "status": "SELECTED",
-        "level": "⭐ 高信心单选",
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
         "direction": "负",
         "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:12:57.905086+00:00",
+        "published_before_kickoff": false,
         "match_id": "503018863",
         "sale_day": "2026-11-07",
         "match_no": "014",
@@ -7154,9 +7365,9 @@
         "away": "拜仁",
         "kickoff": "2026-11-07 22:30",
         "frozen_at": "2026-11-07T11:08:37.860808+00:00",
-        "version": "SINGLE_FUSION_TOP4_V2",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [],
         "evidence": {
-          "spf_top1": "负",
           "spf_probabilities": {
             "胜": 0.102,
             "平": 0.1281,
@@ -7174,29 +7385,22 @@
             "1:3": 0.071025,
             "0:2": 0.066832
           },
+          "fusion_probabilities": {
+            "胜": 0.051,
+            "平": 0.19989304131225674,
+            "负": 0.7490569586877432
+          },
           "cold_status": "NOT_TRIGGERED",
-          "cold_checked": [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E2"
-          ],
           "institution_support": [
             11.5,
             14.63,
             73.87
           ],
           "institution_captured_at": "2026-11-07T11:07:41.509945+00:00",
-          "william_current": "8.00 / 6.00 / 1.25",
           "market_captured_at": "2026-11-07T11:08:33.443765+00:00",
-          "bifa_captured_at": "2026-11-07T11:07:41.509945+00:00",
-          "xg_top1": "负",
-          "risk_gate": "SELECTED"
+          "bifa_captured_at": "2026-11-07T11:07:41.509945+00:00"
         },
-        "evidence_sha256": "ead2a1232134d8ee1ea3abcc98c7e1ece3b9e35be59084050e929426031a9ea4",
-        "imported_at": "2026-11-13T10:12:57.905086+00:00",
-        "published_before_kickoff": false
+        "evidence_sha256": "663053a64f19ba480b539be1307d666e50abdebfa5a90e9d4591f3b2f5b714f0"
       },
       "settlement": {
         "ht": "0:1",
@@ -7840,10 +8044,12 @@
         "checked_at": "2026-11-07T20:34:26.142748+00:00"
       },
       "single_pick": {
-        "status": "SELECTED",
-        "level": "⭐ 高信心单选",
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
         "direction": "胜",
         "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:12:57.905086+00:00",
+        "published_before_kickoff": false,
         "match_id": "503003943",
         "sale_day": "2026-11-07",
         "match_no": "016",
@@ -7851,9 +8057,9 @@
         "away": "纽卡斯尔",
         "kickoff": "2026-11-07 23:00",
         "frozen_at": "2026-11-07T11:08:47.111935+00:00",
-        "version": "SINGLE_FUSION_TOP4_V2",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [],
         "evidence": {
-          "spf_top1": "胜",
           "spf_probabilities": {
             "胜": 0.4717,
             "平": 0.2507,
@@ -7871,29 +8077,22 @@
             "1:0": 0.093405,
             "2:0": 0.082648
           },
+          "fusion_probabilities": {
+            "胜": 0.5762604002295946,
+            "平": 0.2849395997704055,
+            "负": 0.1388
+          },
           "cold_status": "NOT_TRIGGERED",
-          "cold_checked": [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E2"
-          ],
           "institution_support": [
             46.79,
             25.97,
             27.24
           ],
           "institution_captured_at": "2026-11-07T11:07:40.825947+00:00",
-          "william_current": "1.91 / 3.60 / 3.40",
           "market_captured_at": "2026-11-07T11:08:42.248878+00:00",
-          "bifa_captured_at": "2026-11-07T11:07:40.825947+00:00",
-          "xg_top1": "胜",
-          "risk_gate": "SELECTED"
+          "bifa_captured_at": "2026-11-07T11:07:40.825947+00:00"
         },
-        "evidence_sha256": "12477e51254ef46ad4833adadc31bdd46e41d0458736155e10a85033599e294d",
-        "imported_at": "2026-11-13T10:12:57.905086+00:00",
-        "published_before_kickoff": false
+        "evidence_sha256": "bf5f8a6d8b85070390534c265f59517aaf52a647361768a5b1e8c6f596d99f4b"
       },
       "settlement": {
         "ht": "0:0",
@@ -9715,10 +9914,12 @@
         "checked_at": "2026-11-07T20:34:26.142748+00:00"
       },
       "single_pick": {
-        "status": "SELECTED",
-        "level": "⭐ 高信心单选",
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
         "direction": "负",
         "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:12:57.905086+00:00",
+        "published_before_kickoff": false,
         "match_id": "502993862",
         "sale_day": "2026-11-07",
         "match_no": "022",
@@ -9726,9 +9927,9 @@
         "away": "博洛尼亚",
         "kickoff": "2026-11-08 01:00",
         "frozen_at": "2026-11-07T11:09:07.599461+00:00",
-        "version": "SINGLE_FUSION_TOP4_V2",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [],
         "evidence": {
-          "spf_top1": "负",
           "spf_probabilities": {
             "胜": 0.1668,
             "平": 0.2404,
@@ -9746,29 +9947,22 @@
             "0:2": 0.072175,
             "0:1": 0.068722
           },
+          "fusion_probabilities": {
+            "胜": 0.0834,
+            "平": 0.2785086259612712,
+            "负": 0.6380913740387288
+          },
           "cold_status": "NOT_TRIGGERED",
-          "cold_checked": [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E2"
-          ],
           "institution_support": [
             19.26,
             26.21,
             54.53
           ],
           "institution_captured_at": "2026-11-07T11:07:42.508200+00:00",
-          "william_current": "4.80 / 3.40 / 1.70",
           "market_captured_at": "2026-11-07T11:09:03.234444+00:00",
-          "bifa_captured_at": "2026-11-07T11:07:42.508200+00:00",
-          "xg_top1": "负",
-          "risk_gate": "SELECTED"
+          "bifa_captured_at": "2026-11-07T11:07:42.508200+00:00"
         },
-        "evidence_sha256": "89d53f1fa008fe4a83535e133d0221c6c460e1f18a280aa74a038cbc95ae9350",
-        "imported_at": "2026-11-13T10:12:57.905086+00:00",
-        "published_before_kickoff": false
+        "evidence_sha256": "a801fd7ba71dc0b7f6fff5f31fe2647670044141a710ac97ad3b21814e5fe26f"
       },
       "settlement": {
         "ht": "0:0",
@@ -10413,6 +10607,57 @@
         "status": "VERIFIED",
         "checked_at": "2026-11-07T20:34:26.142748+00:00"
       },
+      "single_pick": {
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
+        "direction": "负",
+        "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:37:27.464969+00:00",
+        "published_before_kickoff": false,
+        "match_id": "503003947",
+        "sale_day": "2026-11-07",
+        "match_no": "023",
+        "home": "诺丁汉",
+        "away": "曼城",
+        "kickoff": "2026-11-08 01:30",
+        "frozen_at": "2026-11-07T11:09:12.158969+00:00",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [],
+        "evidence": {
+          "spf_probabilities": {
+            "胜": 0.1848,
+            "平": 0.21,
+            "负": 0.6053
+          },
+          "score_top4": [
+            "1:1",
+            "1:2",
+            "2:1",
+            "0:1"
+          ],
+          "score_probabilities": {
+            "1:1": 0.128795,
+            "1:2": 0.083717,
+            "2:1": 0.08312,
+            "0:1": 0.076008
+          },
+          "fusion_probabilities": {
+            "胜": 0.20422865138305887,
+            "平": 0.27827924873533527,
+            "负": 0.5175420998816058
+          },
+          "cold_status": "NOT_TRIGGERED",
+          "institution_support": [
+            21.04,
+            23.91,
+            55.05
+          ],
+          "institution_captured_at": "2026-11-07T11:07:43.083317+00:00",
+          "market_captured_at": "2026-11-07T11:09:07.602756+00:00",
+          "bifa_captured_at": "2026-11-07T11:07:43.083317+00:00"
+        },
+        "evidence_sha256": "0b9a3c75d124eb91df66b38c62e32506513de465ddbeae2f612f9c62fe1f6840"
+      },
       "settlement": {
         "ht": "2:0",
         "ft": "3:1",
@@ -10436,7 +10681,7 @@
           "今日优选Top2": false,
           "今日优选": false,
           "冷门预警": null,
-          "单选精选": null
+          "单选精选": false
         },
         "module_results": {
           "胜平负": {
@@ -10526,9 +10771,9 @@
           },
           "单选精选": {
             "actual": "胜",
-            "direction": null,
-            "hit": null,
-            "status": "NO_FORMAL_SELECTION"
+            "direction": "负",
+            "hit": false,
+            "status": "MISS"
           }
         }
       },
@@ -12328,10 +12573,12 @@
         "checked_at": "2026-11-07T20:34:26.142748+00:00"
       },
       "single_pick": {
-        "status": "SELECTED",
-        "level": "⭐ 高信心单选",
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
         "direction": "负",
         "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:12:57.905086+00:00",
+        "published_before_kickoff": false,
         "match_id": "502995390",
         "sale_day": "2026-11-07",
         "match_no": "026",
@@ -12339,9 +12586,9 @@
         "away": "巴黎FC",
         "kickoff": "2026-11-08 02:00",
         "frozen_at": "2026-11-07T11:09:26.103068+00:00",
-        "version": "SINGLE_FUSION_TOP4_V2",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [],
         "evidence": {
-          "spf_top1": "负",
           "spf_probabilities": {
             "胜": 0.1879,
             "平": 0.2193,
@@ -12359,29 +12606,22 @@
             "0:1": 0.076555,
             "0:2": 0.071198
           },
+          "fusion_probabilities": {
+            "胜": 0.09395,
+            "平": 0.27638454009518904,
+            "负": 0.629665459904811
+          },
           "cold_status": "NOT_TRIGGERED",
-          "cold_checked": [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E2"
-          ],
           "institution_support": [
             21.3,
             24.14,
             54.56
           ],
           "institution_captured_at": "2026-11-07T11:07:42.971435+00:00",
-          "william_current": "4.40 / 3.80 / 1.67",
           "market_captured_at": "2026-11-07T11:09:22.439186+00:00",
-          "bifa_captured_at": "2026-11-07T11:07:42.971435+00:00",
-          "xg_top1": "负",
-          "risk_gate": "SELECTED"
+          "bifa_captured_at": "2026-11-07T11:07:42.971435+00:00"
         },
-        "evidence_sha256": "08c7131efd329a1bb84ed396fe2f43eae239a12ff4168a5e84febf426929f0b2",
-        "imported_at": "2026-11-13T10:12:57.905086+00:00",
-        "published_before_kickoff": false
+        "evidence_sha256": "3916d9955495aba57cb249d28382a37e231c8d0af9dfcd5e96c1c0ad21208825"
       },
       "settlement": {
         "ht": "0:0",
@@ -13020,6 +13260,59 @@
         "status": "VERIFIED",
         "checked_at": "2026-11-07T20:34:26.142748+00:00"
       },
+      "single_pick": {
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
+        "direction": "胜",
+        "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:37:27.464969+00:00",
+        "published_before_kickoff": false,
+        "match_id": "503023521",
+        "sale_day": "2026-11-07",
+        "match_no": "027",
+        "home": "艾华卡",
+        "away": "卡沙比亚",
+        "kickoff": "2026-11-08 02:00",
+        "frozen_at": "2026-11-07T11:09:30.444400+00:00",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [
+          "当时市场风险闸门未通过"
+        ],
+        "evidence": {
+          "spf_probabilities": {
+            "胜": 0.5488,
+            "平": 0.2582,
+            "负": 0.193
+          },
+          "score_top4": [
+            "1:1",
+            "2:1",
+            "1:0",
+            "2:0"
+          ],
+          "score_probabilities": {
+            "1:1": 0.118562,
+            "2:1": 0.094575,
+            "1:0": 0.077863,
+            "2:0": 0.074645
+          },
+          "fusion_probabilities": {
+            "胜": 0.6122728001203352,
+            "平": 0.2912271998796647,
+            "负": 0.0965
+          },
+          "cold_status": "NOT_TRIGGERED",
+          "institution_support": [
+            51.89,
+            26.54,
+            21.57
+          ],
+          "institution_captured_at": "2026-11-07T11:07:43.425056+00:00",
+          "market_captured_at": "2026-11-07T11:09:26.106302+00:00",
+          "bifa_captured_at": "2026-11-07T11:07:43.425056+00:00"
+        },
+        "evidence_sha256": "3f93672612e29bac6063fc7a523dff8978e57d1fb9266e7dac413ed6f771c864"
+      },
       "settlement": {
         "ht": "0:1",
         "ft": "1:1",
@@ -13043,7 +13336,7 @@
           "今日优选Top2": null,
           "今日优选": null,
           "冷门预警": null,
-          "单选精选": null
+          "单选精选": false
         },
         "module_results": {
           "胜平负": {
@@ -13130,9 +13423,9 @@
           },
           "单选精选": {
             "actual": "平",
-            "direction": null,
-            "hit": null,
-            "status": "NO_FORMAL_SELECTION"
+            "direction": "胜",
+            "hit": false,
+            "status": "MISS"
           }
         }
       },
@@ -13661,10 +13954,12 @@
         "checked_at": "2026-11-07T23:18:53.743896+00:00"
       },
       "single_pick": {
-        "status": "SELECTED",
-        "level": "⭐ 高信心单选",
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
         "direction": "胜",
         "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:12:57.905086+00:00",
+        "published_before_kickoff": false,
         "match_id": "502993855",
         "sale_day": "2026-11-07",
         "match_no": "028",
@@ -13672,9 +13967,9 @@
         "away": "萨索洛",
         "kickoff": "2026-11-08 03:45",
         "frozen_at": "2026-11-07T11:09:34.888803+00:00",
-        "version": "SINGLE_FUSION_TOP4_V2",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [],
         "evidence": {
-          "spf_top1": "胜",
           "spf_probabilities": {
             "胜": 0.763,
             "平": 0.1427,
@@ -13692,29 +13987,22 @@
             "3:1": 0.070428,
             "2:0": 0.059328
           },
+          "fusion_probabilities": {
+            "胜": 0.7483195636201865,
+            "平": 0.20453043637981355,
+            "负": 0.04715
+          },
           "cold_status": "NOT_TRIGGERED",
-          "cold_checked": [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E2"
-          ],
           "institution_support": [
             72.83,
             16.21,
             10.96
           ],
           "institution_captured_at": "2026-11-07T11:07:43.738774+00:00",
-          "william_current": "1.29 / 5.50 / 8.50",
           "market_captured_at": "2026-11-07T11:09:30.447599+00:00",
-          "bifa_captured_at": "2026-11-07T11:07:43.738774+00:00",
-          "xg_top1": "胜",
-          "risk_gate": "SELECTED"
+          "bifa_captured_at": "2026-11-07T11:07:43.738774+00:00"
         },
-        "evidence_sha256": "b3d305eec518709e0e35cc4fbca02f287e1a4a63bc7edb983e9d966ecb34958c",
-        "imported_at": "2026-11-13T10:12:57.905086+00:00",
-        "published_before_kickoff": false
+        "evidence_sha256": "056617f3f760645c39d59bb4cd147761279d92844c86f4db104d89f88e1815ca"
       },
       "settlement": {
         "ht": "2:0",
@@ -14888,6 +15176,57 @@
         "status": "VERIFIED",
         "checked_at": "2026-11-07T20:34:26.142748+00:00"
       },
+      "single_pick": {
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
+        "direction": "胜",
+        "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:37:27.464969+00:00",
+        "published_before_kickoff": false,
+        "match_id": "503008329",
+        "sale_day": "2026-11-07",
+        "match_no": "017",
+        "home": "伯明翰",
+        "away": "斯旺西",
+        "kickoff": "2026-11-07 23:00",
+        "frozen_at": "2026-11-07T11:08:51.951021+00:00",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [],
+        "evidence": {
+          "spf_probabilities": {
+            "胜": 0.5351,
+            "平": 0.2544,
+            "负": 0.2105
+          },
+          "score_top4": [
+            "1:1",
+            "2:1",
+            "1:2",
+            "1:0"
+          ],
+          "score_probabilities": {
+            "1:1": 0.114295,
+            "2:1": 0.08424,
+            "1:2": 0.083076,
+            "1:0": 0.058941
+          },
+          "fusion_probabilities": {
+            "胜": 0.4777689973924687,
+            "平": 0.29500844041438606,
+            "负": 0.22722256219314524
+          },
+          "cold_status": "NOT_TRIGGERED",
+          "institution_support": [
+            50.98,
+            25.99,
+            23.03
+          ],
+          "institution_captured_at": "2026-11-07T11:07:40.867972+00:00",
+          "market_captured_at": "2026-11-07T11:08:47.115083+00:00",
+          "bifa_captured_at": "2026-11-07T11:07:40.867972+00:00"
+        },
+        "evidence_sha256": "1ad66b934f3bb99abdae29d14a13b554a42516aa0dd4468bf43f9e8a4b5bb64a"
+      },
       "settlement": {
         "ht": "1:0",
         "ft": "2:1",
@@ -14911,7 +15250,7 @@
           "今日优选Top2": true,
           "今日优选": true,
           "冷门预警": null,
-          "单选精选": null
+          "单选精选": true
         },
         "module_results": {
           "胜平负": {
@@ -15001,9 +15340,9 @@
           },
           "单选精选": {
             "actual": "胜",
-            "direction": null,
-            "hit": null,
-            "status": "NO_FORMAL_SELECTION"
+            "direction": "胜",
+            "hit": true,
+            "status": "HIT"
           }
         }
       },
@@ -15525,6 +15864,59 @@
         "status": "VERIFIED",
         "checked_at": "2026-11-07T20:34:26.142748+00:00"
       },
+      "single_pick": {
+        "status": "HISTORICAL_COHORT",
+        "level": "原三级融合记录",
+        "direction": "负",
+        "origin": "AUDITED_FROZEN_IMPORT",
+        "imported_at": "2026-11-13T10:37:27.464969+00:00",
+        "published_before_kickoff": false,
+        "match_id": "502912325",
+        "sale_day": "2026-11-07",
+        "match_no": "021",
+        "home": "代格福什",
+        "away": "哥德堡盖斯",
+        "kickoff": "2026-11-08 00:30",
+        "frozen_at": "2026-11-07T11:09:03.231206+00:00",
+        "version": "HISTORICAL_FUSION_50_50_V1",
+        "risk_flags": [
+          "当时市场风险闸门未通过"
+        ],
+        "evidence": {
+          "spf_probabilities": {
+            "胜": 0.2841,
+            "平": 0.2702,
+            "负": 0.4457
+          },
+          "score_top4": [
+            "1:1",
+            "1:2",
+            "0:1",
+            "2:1"
+          ],
+          "score_probabilities": {
+            "1:1": 0.120671,
+            "1:2": 0.092626,
+            "0:1": 0.076549,
+            "2:1": 0.073017
+          },
+          "fusion_probabilities": {
+            "胜": 0.2426623523202972,
+            "平": 0.3013762530211126,
+            "负": 0.45596139465859015
+          },
+          "cold_status": "NOT_TRIGGERED",
+          "institution_support": [
+            29.29,
+            27.39,
+            43.32
+          ],
+          "institution_captured_at": "2026-11-07T11:07:41.984624+00:00",
+          "market_captured_at": "2026-11-07T11:08:59.111482+00:00",
+          "bifa_captured_at": "2026-11-07T11:07:41.984624+00:00"
+        },
+        "evidence_sha256": "24b084a40bb7adc1e7020c22ec0beac9928e4d2fbf5980e87e40bd1ca711fb4c"
+      },
       "settlement": {
         "ht": "0:0",
         "ft": "1:2",
@@ -15548,7 +15940,7 @@
           "今日优选Top2": null,
           "今日优选": null,
           "冷门预警": null,
-          "单选精选": null
+          "单选精选": true
         },
         "module_results": {
           "胜平负": {
@@ -15635,9 +16027,9 @@
           },
           "单选精选": {
             "actual": "负",
-            "direction": null,
-            "hit": null,
-            "status": "NO_FORMAL_SELECTION"
+            "direction": "负",
+            "hit": true,
+            "status": "HIT"
           }
         }
       },
@@ -17287,9 +17679,9 @@
         "rate": 0.8
       },
       "单选精选": {
-        "hit": 4,
-        "total": 5,
-        "rate": 0.8
+        "hit": 9,
+        "total": 13,
+        "rate": 0.6923
       }
     },
     "module_stats": {
@@ -17453,23 +17845,23 @@
         }
       },
       "单选精选": {
-        "predicted": 5,
-        "verified": 5,
+        "predicted": 13,
+        "verified": 13,
         "pending": 0,
         "evaluation": {
-          "hit": 4,
-          "total": 5,
-          "rate": 0.8
+          "hit": 9,
+          "total": 13,
+          "rate": 0.6923
         },
         "rates": {
           "": {
-            "hit": 4,
-            "total": 5,
-            "rate": 0.8
+            "hit": 9,
+            "total": 13,
+            "rate": 0.6923
           }
         }
       }
     }
   },
-  "generated_at": "2026-11-13T10:18:22.708425+00:00"
+  "generated_at": "2026-11-13T10:43:17.711830+00:00"
 }
