@@ -515,10 +515,10 @@
       const updateNotice=$('review-update-notice');if(updateNotice)updateNotice.style.display=active==='独立研判'?'block':'none';
       $('hit-rate-label').textContent=active==='独立研判'?'当天精选场次命中率':'当日评测命中率';
       if(active==='单选精选'){
-        const picks=report.matches.filter(m=>m.single_pick?.status==='SELECTED');
+        const picks=report.matches.filter(m=>['SELECTED','HISTORICAL_COHORT'].includes(m.single_pick?.status));
         const outcomes=picks.map(m=>m.settlement?.module_results?.['单选精选']?.status).filter(s=>s==='HIT'||s==='MISS');
         const hit=outcomes.filter(s=>s==='HIT').length,total=outcomes.length;
-        $('hit-rate-label').textContent='当日单选命中率';
+        $('hit-rate-label').textContent=picks.some(m=>m.single_pick?.status==='HISTORICAL_COHORT')?'当日原三级样本命中率':'当日单选命中率';
         $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
         $('hit-count').textContent=hit+'/'+total;
         $('pending').textContent=picks.length-total;
@@ -857,7 +857,7 @@
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
       const isReviewSelected=isIndependentFeatured;
-      const focus=active==='单选精选'?report.matches.filter(match=>match.single_pick?.status==='SELECTED'):
+      const focus=active==='单选精选'?report.matches.filter(match=>['SELECTED','HISTORICAL_COHORT'].includes(match.single_pick?.status)):
         active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
@@ -874,7 +874,10 @@
           const pick=match.single_pick;
           card.append(el('div','single-pick-note',pick.level+' · '+pick.direction));
           card.append(el('div','single-pick-meta','赛前冻结：'+stamp(pick.frozen_at)));
-          if(pick.origin==='AUDITED_FROZEN_IMPORT')card.append(el('div','single-pick-meta','赛前冻结记录导入 · 当时未发布本模块'));
+          if(pick.origin==='AUDITED_FROZEN_IMPORT'){
+            card.append(el('div','single-pick-meta','原三级口径 · 赛前冻结记录重算；当时未发布本模块'));
+            if(pick.risk_flags?.length)card.append(el('div','single-pick-meta','现行风险复核：'+pick.risk_flags.join('；')));
+          }
           const result=match.settlement?.module_results?.['单选精选'];
           if(result?.status==='HIT'||result?.status==='MISS'){
             card.append(el('div','v4-note','完赛比分：'+match.settlement.ft+' · 90分钟结果：'+result.actual));
