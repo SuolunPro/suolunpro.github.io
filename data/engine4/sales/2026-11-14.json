@@ -29,22 +29,22 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:41:49.019923+00:00",
+        "captured_at": "2026-11-13T12:42:01.552185+00:00",
         "william": {
           "initial": "3.20 / 3.30 / 2.00",
           "current": "3.25 / 3.30 / 1.95",
-          "time": "3小时前"
+          "time": "5小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.78 -0.5 1.03",
             "current": "1.03 -0/0.5 0.78",
-            "time": "5小时前"
+            "time": "7小时前"
           },
           "澳门": {
             "initial": "0.99 -0/0.5 0.79",
             "current": "0.99 -0/0.5 0.79",
-            "time": "6小时前"
+            "time": "8小时前"
           },
           "皇冠": {
             "initial": "1.01 -0/0.5 0.81",
@@ -63,7 +63,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:41:51.502988+00:00",
+      "predicted_at": "2026-11-13T12:42:04.979972+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -109,27 +109,24 @@
           ],
           "changed_top1": false
         },
-        "daily_pick_shadow_v2": {
-          "version": "DAILY_DOUBLE_V2_SHADOW_0_1",
+        "single_pick_risk_gate": {
           "status": "BLOCKED",
           "selection": null,
-          "shadow_choices": [
-            "负",
-            "胜"
+          "candidate": null,
+          "reason": "欧亚背离风险：威廉首选赔率下降，但亚洲盘口退让（Bet365、威廉希尔）；撤销精选及候选资格；两家以上亚洲盘口对 Top1 退让：Bet365、威廉希尔",
+          "evidence": [
+            "原版门槛审计：SP Top1 48.7%（低于旧55%门槛）",
+            "原版赔率区间审计：1.95（超出旧1.45–1.75）",
+            "SP Top1 负 去水隐含比例 48.7%",
+            "威廉同方向赔率 1.95",
+            "亚洲盘口可读 4 家，退让 2 家",
+            "威廉首选初赔 2.00 → 即时 1.95；欧亚背离风险排除"
           ],
-          "market_coverage": 0.7493,
-          "omitted_direction": "平",
-          "omitted_market_risk": 0.2507,
-          "signals": [
-            "盘口退让 2 家",
-            "独立历史xG缺失：不进行伪独立概率加权"
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
           ],
-          "blockers": [
-            "至少两家亚洲机构对首选退让"
-          ],
-          "source": "赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助",
-          "official": false,
-          "settlement_eligible": false
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
         },
         "method": "胜平负 SP 去水；比分/进球/半全场采用赛前胜平负 SP 反推的泊松估算，缺少可用FotMob历史xG",
         "confidence": "低（缺少必发与独立赛前xG）",
@@ -263,7 +260,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-13T10:41:49.019923+00:00",
+            "market_captured_at": "2026-11-13T12:42:01.552185+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）",
@@ -274,25 +271,6 @@
               "E2"
             ],
             "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
-          },
-          "今日优选": {
-            "status": "BLOCKED",
-            "selection": null,
-            "candidate": null,
-            "reason": "欧亚背离风险：威廉首选赔率下降，但亚洲盘口退让（Bet365、威廉希尔）；撤销精选及候选资格；两家以上亚洲盘口对 Top1 退让：Bet365、威廉希尔",
-            "evidence": [
-              "原版门槛审计：SP Top1 48.7%（低于旧55%门槛）",
-              "原版赔率区间审计：1.95（超出旧1.45–1.75）",
-              "SP Top1 负 去水隐含比例 48.7%",
-              "威廉同方向赔率 1.95",
-              "亚洲盘口可读 4 家，退让 2 家",
-              "威廉首选初赔 2.00 → 即时 1.95；欧亚背离风险排除"
-            ],
-            "missing": [
-              "独立赛前模型 A 档/SINGLE/HUR",
-              "必发资金方向与份额"
-            ],
-            "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
           }
         },
         "fotmob_audit": {
@@ -311,7 +289,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -341,11 +319,11 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:41:51.514509+00:00",
+        "captured_at": "2026-11-13T12:42:04.987581+00:00",
         "william": {
           "initial": "1.80 / 3.60 / 3.50",
           "current": "1.67 / 3.90 / 4.00",
-          "time": "1小时前"
+          "time": "3小时前"
         },
         "asia": {
           "Bet365": {
@@ -356,7 +334,7 @@
           "澳门": {
             "initial": "0.84 0.5/1 0.94",
             "current": "0.84 0.5/1 0.94",
-            "time": "2天前"
+            "time": "3天前"
           },
           "皇冠": {
             "initial": "0.92 0.5/1 0.90",
@@ -366,7 +344,7 @@
           "威廉希尔": {
             "initial": "0.91 0.5/1 0.80",
             "current": "0.85 0.5/1 0.85",
-            "time": "1小时前"
+            "time": "3小时前"
           }
         }
       },
@@ -378,7 +356,7 @@
         "reason": "历史完赛xG样本不足：主0场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:41:55.680901+00:00",
+      "predicted_at": "2026-11-13T12:42:14.472631+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -424,27 +402,30 @@
           ],
           "changed_top1": false
         },
-        "daily_pick_shadow_v2": {
-          "version": "DAILY_DOUBLE_V2_SHADOW_0_1",
-          "status": "SHADOW_CANDIDATE",
-          "selection": [
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
             "胜",
             "平"
           ],
-          "shadow_choices": [
+          "top2": [
             "胜",
             "平"
           ],
-          "market_coverage": 0.7958,
-          "omitted_direction": "负",
-          "omitted_market_risk": 0.2042,
-          "signals": [
-            "独立历史xG缺失：不进行伪独立概率加权"
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 58.2%（达到旧55%门槛）",
+            "原版赔率区间审计：1.67（位于旧区间）",
+            "SP Top1 胜 去水隐含比例 58.2%",
+            "威廉同方向赔率 1.67",
+            "亚洲盘口可读 4 家，退让 0 家"
           ],
-          "blockers": [],
-          "source": "赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助",
-          "official": false,
-          "settlement_eligible": false
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
         },
         "method": "胜平负 SP 去水；比分/进球/半全场采用赛前胜平负 SP 反推的泊松估算，缺少可用FotMob历史xG",
         "confidence": "低（缺少必发与独立赛前xG）",
@@ -578,7 +559,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-13T10:41:51.514509+00:00",
+            "market_captured_at": "2026-11-13T12:42:04.987581+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）",
@@ -589,31 +570,6 @@
               "E2"
             ],
             "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
-          },
-          "今日优选": {
-            "status": "CANDIDATE",
-            "selection": null,
-            "candidate": [
-              "胜",
-              "平"
-            ],
-            "top2": [
-              "胜",
-              "平"
-            ],
-            "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
-            "evidence": [
-              "原版门槛审计：SP Top1 58.2%（达到旧55%门槛）",
-              "原版赔率区间审计：1.67（位于旧区间）",
-              "SP Top1 胜 去水隐含比例 58.2%",
-              "威廉同方向赔率 1.67",
-              "亚洲盘口可读 4 家，退让 0 家"
-            ],
-            "missing": [
-              "独立赛前模型 A 档/SINGLE/HUR",
-              "必发资金方向与份额"
-            ],
-            "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
           }
         },
         "fotmob_audit": {
@@ -632,7 +588,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -654,27 +610,27 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:41:56.856684+00:00",
+        "captured_at": "2026-11-13T12:42:16.327155+00:00",
         "william": {
           "initial": "3.90 / 3.60 / 1.73",
           "current": "3.60 / 3.50 / 1.85",
-          "time": "28分钟前"
+          "time": "2小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 -0.5/1 0.98",
             "current": "0.90 -0.5 0.90",
-            "time": "15小时前"
+            "time": "17小时前"
           },
           "皇冠": {
             "initial": "0.98 -0.5 0.84",
             "current": "0.92 -0.5 0.90",
-            "time": "16小时前"
+            "time": "18小时前"
           },
           "威廉希尔": {
             "initial": "0.85 -0.5 0.85",
             "current": "0.85 -0.5 0.85",
-            "time": "7小时前"
+            "time": "9小时前"
           }
         }
       },
@@ -740,10 +696,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-13T10:42:00.206386+00:00",
+        "captured_at": "2026-11-13T12:42:20.681295+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-13T10:42:03.044191+00:00",
+      "predicted_at": "2026-11-13T12:42:26.008521+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -752,7 +708,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -774,27 +730,27 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:04.192358+00:00",
+        "captured_at": "2026-11-13T12:42:27.867023+00:00",
         "william": {
           "initial": "1.67 / 3.60 / 4.20",
-          "current": "1.55 / 4.00 / 4.80",
-          "time": "1小时前"
+          "current": "1.50 / 3.90 / 5.00",
+          "time": "34分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.85 0.5/1 0.95",
-            "current": "0.93 1 0.88",
-            "time": "1小时前"
+            "current": "0.85 1.5 0.95",
+            "time": "54分钟前"
           },
           "皇冠": {
             "initial": "0.95 1 0.87",
-            "current": "0.80 1 0.90",
-            "time": "1小时前"
+            "current": "0.75 1 0.95",
+            "time": "53分钟前"
           },
           "威廉希尔": {
             "initial": "0.80 0.5/1 0.91",
-            "current": "0.91 1 0.73",
-            "time": "1小时前"
+            "current": "0.83 1 0.75",
+            "time": "15分钟前"
           }
         }
       },
@@ -806,7 +762,7 @@
         "reason": "历史完赛xG样本不足：主0场、客4场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:42:08.919587+00:00",
+      "predicted_at": "2026-11-13T12:42:38.673562+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -815,7 +771,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -845,7 +801,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:08.919633+00:00",
+        "captured_at": "2026-11-13T12:42:38.673605+00:00",
         "william": {
           "initial": "1.53 / 4.20 / 5.00",
           "current": "1.53 / 4.20 / 5.00",
@@ -882,7 +838,7 @@
         "reason": "历史完赛xG样本不足：主0场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:42:13.789725+00:00",
+      "predicted_at": "2026-11-13T12:42:50.819587+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -928,27 +884,30 @@
           ],
           "changed_top1": false
         },
-        "daily_pick_shadow_v2": {
-          "version": "DAILY_DOUBLE_V2_SHADOW_0_1",
-          "status": "SHADOW_CANDIDATE",
-          "selection": [
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
             "胜",
             "平"
           ],
-          "shadow_choices": [
+          "top2": [
             "胜",
             "平"
           ],
-          "market_coverage": 0.8245,
-          "omitted_direction": "负",
-          "omitted_market_risk": 0.1755,
-          "signals": [
-            "独立历史xG缺失：不进行伪独立概率加权"
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 61.8%（达到旧55%门槛）",
+            "原版赔率区间审计：1.53（位于旧区间）",
+            "SP Top1 胜 去水隐含比例 61.8%",
+            "威廉同方向赔率 1.53",
+            "亚洲盘口可读 4 家，退让 0 家"
           ],
-          "blockers": [],
-          "source": "赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助",
-          "official": false,
-          "settlement_eligible": false
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
         },
         "method": "胜平负 SP 去水；比分/进球/半全场采用赛前胜平负 SP 反推的泊松估算，缺少可用FotMob历史xG",
         "confidence": "低（缺少必发与独立赛前xG）",
@@ -1082,7 +1041,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-13T10:42:08.919633+00:00",
+            "market_captured_at": "2026-11-13T12:42:38.673605+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）",
@@ -1093,31 +1052,6 @@
               "E2"
             ],
             "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
-          },
-          "今日优选": {
-            "status": "CANDIDATE",
-            "selection": null,
-            "candidate": [
-              "胜",
-              "平"
-            ],
-            "top2": [
-              "胜",
-              "平"
-            ],
-            "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
-            "evidence": [
-              "原版门槛审计：SP Top1 61.8%（达到旧55%门槛）",
-              "原版赔率区间审计：1.53（位于旧区间）",
-              "SP Top1 胜 去水隐含比例 61.8%",
-              "威廉同方向赔率 1.53",
-              "亚洲盘口可读 4 家，退让 0 家"
-            ],
-            "missing": [
-              "独立赛前模型 A 档/SINGLE/HUR",
-              "必发资金方向与份额"
-            ],
-            "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
           }
         },
         "fotmob_audit": {
@@ -1136,7 +1070,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -1158,32 +1092,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:14.963995+00:00",
+        "captured_at": "2026-11-13T12:42:52.684150+00:00",
         "william": {
           "initial": "2.45 / 3.00 / 2.80",
           "current": "2.90 / 2.90 / 2.40",
-          "time": "7小时前"
+          "time": "9小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.80 0 1.00",
             "current": "1.05 0 0.75",
-            "time": "4小时前"
+            "time": "6小时前"
           },
           "澳门": {
             "initial": "0.81 -0/0.5 1.03",
             "current": "1.02 0 0.82",
-            "time": "8小时前"
+            "time": "10小时前"
           },
           "皇冠": {
             "initial": "1.09 0/0.5 0.79",
             "current": "1.12 0 0.76",
-            "time": "5小时前"
+            "time": "7小时前"
           },
           "威廉希尔": {
             "initial": "0.73 0 1.00",
             "current": "0.65 -0/0.5 1.00",
-            "time": "4小时前"
+            "time": "6小时前"
           }
         }
       },
@@ -1244,10 +1178,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-13T10:42:20.435636+00:00",
+        "captured_at": "2026-11-13T12:42:58.372610+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-13T10:42:22.774741+00:00",
+      "predicted_at": "2026-11-13T12:43:02.503900+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -1256,7 +1190,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -1278,32 +1212,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:23.924229+00:00",
+        "captured_at": "2026-11-13T12:43:04.578938+00:00",
         "william": {
           "initial": "1.22 / 5.80 / 10.00",
-          "current": "1.22 / 6.00 / 10.00",
-          "time": "41分钟前"
+          "current": "1.22 / 6.50 / 10.00",
+          "time": "34分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.88 1.5/2 0.98",
-            "current": "0.85 1.5/2 1.00",
-            "time": "2分钟前"
+            "current": "1.00 2 0.85",
+            "time": "7分钟前"
           },
           "澳门": {
             "initial": "0.90 1.5/2 0.94",
             "current": "1.06 2 0.78",
-            "time": "8小时前"
+            "time": "10小时前"
           },
           "皇冠": {
             "initial": "0.86 1.5/2 1.02",
-            "current": "0.85 1.5/2 1.03",
-            "time": "5小时前"
+            "current": "1.00 2 0.88",
+            "time": "33分钟前"
           },
           "威廉希尔": {
             "initial": "0.80 1.5/2 0.91",
-            "current": "0.75 1.5/2 0.83",
-            "time": "29分钟前"
+            "current": "0.75 1.5/2 0.91",
+            "time": "2分钟前"
           }
         }
       },
@@ -1312,7 +1246,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:42:25.909351+00:00",
+      "predicted_at": "2026-11-13T12:43:07.293343+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -1321,7 +1255,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -1351,17 +1285,17 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:25.909389+00:00",
+        "captured_at": "2026-11-13T12:43:07.293379+00:00",
         "william": {
           "initial": "1.91 / 3.75 / 3.30",
-          "current": "1.95 / 3.75 / 3.25",
-          "time": "3天前"
+          "current": "1.91 / 3.80 / 3.25",
+          "time": "10分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.95 0.5 0.85",
-            "current": "0.95 0.5 0.85",
-            "time": "3天前"
+            "current": "0.93 0.5 0.88",
+            "time": "2分钟前"
           },
           "澳门": {
             "initial": "0.94 0.5 0.84",
@@ -1388,7 +1322,7 @@
         "reason": "历史完赛xG样本不足：主0场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:42:30.383089+00:00",
+      "predicted_at": "2026-11-13T12:43:17.070502+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -1403,14 +1337,14 @@
             "负": 0.277181
           },
           "current_probabilities": {
-            "胜": 0.471698,
-            "平": 0.245283,
-            "负": 0.283019
+            "胜": 0.478395,
+            "平": 0.240456,
+            "负": 0.281149
           },
           "probability_movement_pp": {
-            "胜": -0.72,
-            "平": 0.136,
-            "负": 0.584
+            "胜": -0.05,
+            "平": -0.346,
+            "负": 0.397
           },
           "base_probabilities": {
             "胜": 0.469302,
@@ -1418,9 +1352,9 @@
             "负": 0.29351
           },
           "calibrated_probabilities": {
-            "胜": 0.469901,
-            "平": 0.239212,
-            "负": 0.290887
+            "胜": 0.471575,
+            "平": 0.238005,
+            "负": 0.29042
           },
           "base_top1": "胜",
           "base_top2": [
@@ -1434,27 +1368,30 @@
           ],
           "changed_top1": false
         },
-        "daily_pick_shadow_v2": {
-          "version": "DAILY_DOUBLE_V2_SHADOW_0_1",
-          "status": "SHADOW_CANDIDATE",
-          "selection": [
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
             "胜",
             "负"
           ],
-          "shadow_choices": [
+          "top2": [
             "胜",
             "负"
           ],
-          "market_coverage": 0.7628,
-          "omitted_direction": "平",
-          "omitted_market_risk": 0.2372,
-          "signals": [
-            "独立历史xG缺失：不进行伪独立概率加权"
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 46.9%（低于旧55%门槛）",
+            "原版赔率区间审计：1.91（超出旧1.45–1.75）",
+            "SP Top1 胜 去水隐含比例 46.9%",
+            "威廉同方向赔率 1.91",
+            "亚洲盘口可读 4 家，退让 0 家"
           ],
-          "blockers": [],
-          "source": "赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助",
-          "official": false,
-          "settlement_eligible": false
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
         },
         "method": "胜平负 SP 去水；比分/进球/半全场采用赛前胜平负 SP 反推的泊松估算，缺少可用FotMob历史xG",
         "confidence": "低（缺少必发与独立赛前xG）",
@@ -1588,7 +1525,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-13T10:42:25.909389+00:00",
+            "market_captured_at": "2026-11-13T12:43:07.293379+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）",
@@ -1599,31 +1536,6 @@
               "E2"
             ],
             "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
-          },
-          "今日优选": {
-            "status": "CANDIDATE",
-            "selection": null,
-            "candidate": [
-              "胜",
-              "负"
-            ],
-            "top2": [
-              "胜",
-              "负"
-            ],
-            "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
-            "evidence": [
-              "原版门槛审计：SP Top1 46.9%（低于旧55%门槛）",
-              "原版赔率区间审计：1.95（超出旧1.45–1.75）",
-              "SP Top1 胜 去水隐含比例 46.9%",
-              "威廉同方向赔率 1.95",
-              "亚洲盘口可读 4 家，退让 0 家"
-            ],
-            "missing": [
-              "独立赛前模型 A 档/SINGLE/HUR",
-              "必发资金方向与份额"
-            ],
-            "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
           }
         },
         "fotmob_audit": {
@@ -1642,7 +1554,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -1672,7 +1584,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:30.394747+00:00",
+        "captured_at": "2026-11-13T12:43:17.078180+00:00",
         "william": {
           "initial": "1.85 / 3.75 / 3.40",
           "current": "1.91 / 3.75 / 3.40",
@@ -1682,7 +1594,7 @@
           "Bet365": {
             "initial": "0.88 0.5 0.93",
             "current": "0.88 0.5 0.93",
-            "time": "3天前"
+            "time": "4天前"
           },
           "澳门": {
             "initial": "0.88 0.5 0.90",
@@ -1709,7 +1621,7 @@
         "reason": "历史完赛xG样本不足：主0场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:42:35.419530+00:00",
+      "predicted_at": "2026-11-13T12:43:25.816527+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -1755,27 +1667,30 @@
           ],
           "changed_top1": false
         },
-        "daily_pick_shadow_v2": {
-          "version": "DAILY_DOUBLE_V2_SHADOW_0_1",
-          "status": "SHADOW_CANDIDATE",
-          "selection": [
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
             "胜",
             "负"
           ],
-          "shadow_choices": [
+          "top2": [
             "胜",
             "负"
           ],
-          "market_coverage": 0.7834,
-          "omitted_direction": "平",
-          "omitted_market_risk": 0.2166,
-          "signals": [
-            "独立历史xG缺失：不进行伪独立概率加权"
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 52.5%（低于旧55%门槛）",
+            "原版赔率区间审计：1.91（超出旧1.45–1.75）",
+            "SP Top1 胜 去水隐含比例 52.5%",
+            "威廉同方向赔率 1.91",
+            "亚洲盘口可读 4 家，退让 0 家"
           ],
-          "blockers": [],
-          "source": "赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助",
-          "official": false,
-          "settlement_eligible": false
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
         },
         "method": "胜平负 SP 去水；比分/进球/半全场采用赛前胜平负 SP 反推的泊松估算，缺少可用FotMob历史xG",
         "confidence": "低（缺少必发与独立赛前xG）",
@@ -1909,7 +1824,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-13T10:42:30.394747+00:00",
+            "market_captured_at": "2026-11-13T12:43:17.078180+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）",
@@ -1920,31 +1835,6 @@
               "E2"
             ],
             "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
-          },
-          "今日优选": {
-            "status": "CANDIDATE",
-            "selection": null,
-            "candidate": [
-              "胜",
-              "负"
-            ],
-            "top2": [
-              "胜",
-              "负"
-            ],
-            "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
-            "evidence": [
-              "原版门槛审计：SP Top1 52.5%（低于旧55%门槛）",
-              "原版赔率区间审计：1.91（超出旧1.45–1.75）",
-              "SP Top1 胜 去水隐含比例 52.5%",
-              "威廉同方向赔率 1.91",
-              "亚洲盘口可读 4 家，退让 0 家"
-            ],
-            "missing": [
-              "独立赛前模型 A 档/SINGLE/HUR",
-              "必发资金方向与份额"
-            ],
-            "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
           }
         },
         "fotmob_audit": {
@@ -1963,7 +1853,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -1993,7 +1883,7 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:35.431165+00:00",
+        "captured_at": "2026-11-13T12:43:25.824260+00:00",
         "william": {
           "initial": "1.40 / 4.59 / 6.00",
           "current": "1.40 / 4.59 / 6.00",
@@ -2003,7 +1893,7 @@
           "Bet365": {
             "initial": "0.90 1/1.5 0.90",
             "current": "0.90 1/1.5 0.90",
-            "time": "3天前"
+            "time": "4天前"
           },
           "澳门": {
             "initial": "0.87 1/1.5 0.91",
@@ -2018,7 +1908,7 @@
           "威廉希尔": {
             "initial": "0.85 1/1.5 0.85",
             "current": "0.85 1/1.5 0.85",
-            "time": "3小时前"
+            "time": "5小时前"
           }
         }
       },
@@ -2028,7 +1918,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:42:39.960484+00:00",
+      "predicted_at": "2026-11-13T12:43:31.981654+00:00",
       "prediction": {
         "status": "PREDICTED",
         "william_dynamic_shadow": {
@@ -2074,27 +1964,30 @@
           ],
           "changed_top1": false
         },
-        "daily_pick_shadow_v2": {
-          "version": "DAILY_DOUBLE_V2_SHADOW_0_1",
-          "status": "SHADOW_CANDIDATE",
-          "selection": [
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
             "胜",
             "平"
           ],
-          "shadow_choices": [
+          "top2": [
             "胜",
             "平"
           ],
-          "market_coverage": 0.8487,
-          "omitted_direction": "负",
-          "omitted_market_risk": 0.1513,
-          "signals": [
-            "独立历史xG缺失：不进行伪独立概率加权"
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 67.0%（达到旧55%门槛）",
+            "原版赔率区间审计：1.40（超出旧1.45–1.75）",
+            "SP Top1 胜 去水隐含比例 67.0%",
+            "威廉同方向赔率 1.40",
+            "亚洲盘口可读 4 家，退让 0 家"
           ],
-          "blockers": [],
-          "source": "赛前体彩SP+威廉+亚洲盘口；历史xG仅在核验可用时辅助",
-          "official": false,
-          "settlement_eligible": false
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
         },
         "method": "胜平负 SP 去水；比分/进球/半全场采用赛前胜平负 SP 反推的泊松估算，缺少可用FotMob历史xG",
         "confidence": "低（缺少必发与独立赛前xG）",
@@ -2228,7 +2121,7 @@
             "funding_direction": null,
             "hot_cold_index": null,
             "institution_support": null,
-            "market_captured_at": "2026-11-13T10:42:35.431165+00:00",
+            "market_captured_at": "2026-11-13T12:43:25.824260+00:00",
             "missing": [
               "必发资金方向（A/B/C未评估）",
               "严格赛前独立比分（E1未评估）",
@@ -2239,31 +2132,6 @@
               "E2"
             ],
             "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
-          },
-          "今日优选": {
-            "status": "CANDIDATE",
-            "selection": null,
-            "candidate": [
-              "胜",
-              "平"
-            ],
-            "top2": [
-              "胜",
-              "平"
-            ],
-            "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
-            "evidence": [
-              "原版门槛审计：SP Top1 67.0%（达到旧55%门槛）",
-              "原版赔率区间审计：1.40（超出旧1.45–1.75）",
-              "SP Top1 胜 去水隐含比例 67.0%",
-              "威廉同方向赔率 1.40",
-              "亚洲盘口可读 4 家，退让 0 家"
-            ],
-            "missing": [
-              "独立赛前模型 A 档/SINGLE/HUR",
-              "必发资金方向与份额"
-            ],
-            "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
           }
         },
         "fotmob_audit": {
@@ -2282,7 +2150,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -2304,17 +2172,17 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:41.083602+00:00",
+        "captured_at": "2026-11-13T12:43:34.151675+00:00",
         "william": {
           "initial": "1.55 / 3.80 / 5.00",
           "current": "1.55 / 3.90 / 5.50",
-          "time": "1小时前"
+          "time": "3小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.95 1 0.85",
-            "current": "0.95 1 0.85",
-            "time": "5小时前"
+            "current": "1.00 1 0.80",
+            "time": "6分钟前"
           },
           "澳门": {
             "initial": "1.03 1 0.81",
@@ -2324,12 +2192,12 @@
           "皇冠": {
             "initial": "0.98 1 0.84",
             "current": "1.06 1 0.82",
-            "time": "1小时前"
+            "time": "3小时前"
           },
           "威廉希尔": {
             "initial": "1.00 1 0.73",
             "current": "0.91 1 0.70",
-            "time": "3天前"
+            "time": "4天前"
           }
         }
       },
@@ -2395,10 +2263,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-13T10:42:44.473055+00:00",
+        "captured_at": "2026-11-13T12:43:37.409361+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-13T10:42:46.345885+00:00",
+      "predicted_at": "2026-11-13T12:43:43.265875+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -2407,7 +2275,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -2429,17 +2297,17 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:47.476749+00:00",
+        "captured_at": "2026-11-13T12:43:45.109535+00:00",
         "william": {
           "initial": "1.44 / 4.00 / 5.80",
           "current": "1.50 / 4.00 / 5.50",
-          "time": "1小时前"
+          "time": "3小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.88 1 0.93",
             "current": "0.83 1 0.98",
-            "time": "1分钟前"
+            "time": "2小时前"
           },
           "澳门": {
             "initial": "0.86 1 0.98",
@@ -2449,7 +2317,7 @@
           "皇冠": {
             "initial": "0.90 1 0.98",
             "current": "0.88 1 1.00",
-            "time": "6小时前"
+            "time": "8小时前"
           },
           "威廉希尔": {
             "initial": "0.85 1 0.85",
@@ -2463,7 +2331,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:42:51.851282+00:00",
+      "predicted_at": "2026-11-13T12:43:50.108882+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -2472,7 +2340,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -2494,17 +2362,17 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:42:53.001093+00:00",
+        "captured_at": "2026-11-13T12:43:52.055554+00:00",
         "william": {
           "initial": "3.50 / 3.40 / 1.91",
           "current": "3.80 / 3.60 / 1.80",
-          "time": "1小时前"
+          "time": "3小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 -0.5 0.98",
             "current": "1.00 -0.5 0.80",
-            "time": "15小时前"
+            "time": "17小时前"
           },
           "澳门": {
             "initial": "0.87 -0.5 0.97",
@@ -2514,7 +2382,7 @@
           "皇冠": {
             "initial": "0.80 -0.5 1.02",
             "current": "1.05 -0.5 0.83",
-            "time": "6小时前"
+            "time": "8小时前"
           },
           "威廉希尔": {
             "initial": "0.91 -0.5 0.80",
@@ -2590,10 +2458,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-13T10:42:56.292435+00:00",
+        "captured_at": "2026-11-13T12:43:55.743269+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-13T10:42:58.624926+00:00",
+      "predicted_at": "2026-11-13T12:44:01.208289+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -2602,7 +2470,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -2624,17 +2492,17 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:43:00.033682+00:00",
+        "captured_at": "2026-11-13T12:44:03.262174+00:00",
         "william": {
           "initial": "1.44 / 4.50 / 5.80",
           "current": "1.44 / 4.40 / 5.50",
-          "time": "1小时前"
+          "time": "3小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.98 1/1.5 0.88",
             "current": "0.80 1 1.05",
-            "time": "3小时前"
+            "time": "7分钟前"
           },
           "澳门": {
             "initial": "1.03 1/1.5 0.81",
@@ -2644,7 +2512,7 @@
           "皇冠": {
             "initial": "0.91 1/1.5 0.97",
             "current": "0.83 1 1.05",
-            "time": "1小时前"
+            "time": "3小时前"
           },
           "威廉希尔": {
             "initial": "0.83 1/1.5 0.75",
@@ -2720,10 +2588,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-13T10:43:04.261945+00:00",
+        "captured_at": "2026-11-13T12:44:08.154855+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-13T10:43:06.108329+00:00",
+      "predicted_at": "2026-11-13T12:44:12.866111+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -2732,7 +2600,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -2754,17 +2622,17 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:43:07.273206+00:00",
+        "captured_at": "2026-11-13T12:44:14.716346+00:00",
         "william": {
           "initial": "2.50 / 3.20 / 2.63",
           "current": "1.91 / 3.30 / 3.60",
-          "time": "10小时前"
+          "time": "12小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 0 1.03",
             "current": "0.98 0.5 0.88",
-            "time": "9小时前"
+            "time": "11小时前"
           },
           "澳门": {
             "initial": "0.95 0.5 0.83",
@@ -2773,13 +2641,13 @@
           },
           "皇冠": {
             "initial": "1.04 0.5 0.84",
-            "current": "1.01 0.5 0.87",
-            "time": "3天前"
+            "current": "0.97 0.5 0.91",
+            "time": "1小时前"
           },
           "威廉希尔": {
             "initial": "0.70 0 1.05",
             "current": "0.91 0.5 0.80",
-            "time": "10小时前"
+            "time": "12小时前"
           }
         }
       },
@@ -2845,10 +2713,10 @@
             }
           ]
         },
-        "captured_at": "2026-11-13T10:43:09.793448+00:00",
+        "captured_at": "2026-11-13T12:44:18.461407+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-13T10:43:12.254409+00:00",
+      "predicted_at": "2026-11-13T12:44:24.391823+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -2857,7 +2725,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -2879,32 +2747,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-13T10:43:13.594617+00:00",
+        "captured_at": "2026-11-13T12:44:26.244040+00:00",
         "william": {
           "initial": "3.00 / 3.10 / 2.25",
-          "current": "6.00 / 4.40 / 1.44",
-          "time": "19小时前"
+          "current": "6.00 / 4.50 / 1.40",
+          "time": "57分钟前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.83 -0/0.5 1.03",
-            "current": "0.83 -1/1.5 1.03",
-            "time": "42分钟前"
+            "current": "0.95 -1/1.5 0.90",
+            "time": "53分钟前"
           },
           "澳门": {
             "initial": "0.82 -1 0.96",
-            "current": "0.78 -1/1.5 1.00",
-            "time": "19小时前"
+            "current": "0.86 -1/1.5 0.92",
+            "time": "1小时前"
           },
           "皇冠": {
             "initial": "0.86 -1 1.02",
-            "current": "0.85 -1/1.5 1.03",
+            "current": "0.96 -1/1.5 0.92",
             "time": "1小时前"
           },
           "威廉希尔": {
             "initial": "0.72 -0/0.5 0.91",
-            "current": "0.70 -1/1.5 0.95",
-            "time": "19小时前"
+            "current": "0.73 -1/1.5 0.91",
+            "time": "47分钟前"
           }
         }
       },
@@ -2914,7 +2782,7 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-13T10:43:16.690305+00:00",
+      "predicted_at": "2026-11-13T12:44:29.317364+00:00",
       "prediction": {
         "status": "NO_PREDICTION",
         "reason": "普通胜平负及有效让球SP均缺失"
@@ -2923,7 +2791,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-13T10:43:17.711830+00:00"
+        "checked_at": "2026-11-13T12:44:30.095759+00:00"
       }
     },
     {
@@ -6101,5 +5969,5 @@
       }
     }
   },
-  "generated_at": "2026-11-13T10:43:17.711830+00:00"
+  "generated_at": "2026-11-13T12:44:30.095759+00:00"
 }
