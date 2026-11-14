@@ -1,5 +1,6 @@
 name: Sync verified 90scale engine data to website
 # Trigger website data sync after dual-sale-day engine publication.
+# 2026-11-14 safe recovery: sync verified settlements only, with fail-closed validation.
 # Result-only recovery: reconcile verified engine settlement after 2026-11-13 001.
 # Re-run synchronization to reconcile the corrected latest.json and validate counts.
 # Health-check requested safe reconciliation of duplicate sale-day snapshots; verification fails closed.
