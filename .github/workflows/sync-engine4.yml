@@ -13,6 +13,8 @@ on:
     paths:
       - '.github/workflows/sync-engine4.yml'
       - '.github/workflows/engine4-result-backfill.yml'
+      - 'scripts/sync_engine4.py'
+      - 'scripts/verify_engine4_sync.py'
   schedule:
     - cron: '3,13,23,33,43,53 * * * *'
 permissions:
