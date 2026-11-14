@@ -59,8 +59,11 @@ def check(src, dst):
             expected = m.get("settlement")
             if expected:
                 actual = match.get("settlement")
-                if not actual or actual.get("ft") != expected.get("ft") or actual.get("ht") != expected.get("ht"):
-                    raise RuntimeError(f"Settlement mismatch {identity(m)} in {relative}")
+                if not actual or any(actual.get(field) != expected.get(field)
+                                     for field in ("ft", "ht", "fotmob_match_id", "hits", "module_results")):
+                    raise RuntimeError(f"Settlement or module result mismatch {identity(m)} in {relative}")
+                if (match.get("result_verification") or {}).get("status") != "VERIFIED":
+                    raise RuntimeError(f"Verified settlement marked pending {identity(m)} in {relative}")
         print(f"Verified {relative}: {len(engine['matches'])} engine fixtures")
     print("Engine-to-website snapshot verification PASSED")
 
