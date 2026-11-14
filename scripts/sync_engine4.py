@@ -85,8 +85,14 @@ def merge(source, existing):
         other_settlement = old.get("settlement")
         current_verified = bool(current_settlement) and (match.get("result_verification") or {}).get("status") == "VERIFIED"
         other_verified = bool(other_settlement) and (old.get("result_verification") or {}).get("status") == "VERIFIED"
-        if other_verified and (not current_verified or
-            stamp(other_settlement.get("verified_at")) > stamp(current_settlement.get("verified_at"))):
+        if current_verified and other_verified and any(
+            current_settlement.get(field) != other_settlement.get(field)
+            for field in ("ht", "ft", "fotmob_match_id")
+        ):
+            raise ValueError(f"Conflicting verified result for {key(match)}")
+        # The engine snapshot is authoritative for recalculated module results.
+        # A later verification timestamp on an older site copy is not a newer model.
+        if other_verified and not current_verified:
             match["settlement"] = other_settlement
             match["result_verification"] = old["result_verification"]
             for field in ("fotmob_match_id", "fotmob_home_team_id", "fotmob_away_team_id"):
