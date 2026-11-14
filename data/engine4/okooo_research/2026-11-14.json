@@ -1,6 +1,6 @@
 {
   "sale_day": "2026-11-14",
-  "retrieved_at": "2026-11-14T07:45:55.624805+00:00",
+  "retrieved_at": "2026-11-14T08:29:00.460784+00:00",
   "url": "https://www.okooo.com/jingcai/2026-11-14/",
   "purpose": "research_only_not_prematch",
   "records": [
@@ -4787,27 +4787,127 @@
         }
       ],
       "collection_method": "playwright"
+    },
+    {
+      "match_no": "005",
+      "okooo_id": "1329243",
+      "source_url": "https://www.okooo.com/soccer/match/1329243/exchanges/",
+      "http_status": 200,
+      "has_transaction_table": true,
+      "has_index_table": true,
+      "has_betfair": true,
+      "status": "parsed_unverified",
+      "share_values": [
+        null,
+        3.92,
+        96.08
+      ],
+      "share_total": 100.0,
+      "index_team_labels": [
+        "布雷达",
+        "平局",
+        "埃门"
+      ],
+      "transaction_team_labels": [
+        "布雷达",
+        "平局",
+        "埃门"
+      ],
+      "index_row_lengths": [
+        15,
+        15,
+        15
+      ],
+      "kelly": {
+        "status": "unconfirmed"
+      },
+      "market_data_state": "available_unverified",
+      "source_captured_at": "2026-11-14T08:31:19.134151+00:00",
+      "source_timestamp_verified": true,
+      "transaction_rows": [
+        {
+          "team": "布雷达",
+          "bfOdds": 1.52,
+          "bfVolume": 724.0,
+          "bfProfitLoss": -35.0,
+          "jcOdds": 1.35,
+          "jcSavedVolume": 12079706.0,
+          "jcProfitLoss": 6255292.0,
+          "savedPopularity": 2275.0,
+          "doerPct": 55.69
+        },
+        {
+          "team": "平局",
+          "bfOdds": 4.8,
+          "bfVolume": 4.0,
+          "bfProfitLoss": 1046.0,
+          "jcOdds": 4.47,
+          "jcSavedVolume": 9305935.0,
+          "jcProfitLoss": -19034634.0,
+          "savedPopularity": 802.0,
+          "doerPct": 19.63
+        },
+        {
+          "team": "埃门",
+          "bfOdds": 6.0,
+          "bfVolume": 337.0,
+          "bfProfitLoss": -957.0,
+          "jcOdds": 5.7,
+          "jcSavedVolume": 1177254.0,
+          "jcProfitLoss": 15852547.0,
+          "savedPopularity": 1008.0,
+          "doerPct": 24.68
+        }
+      ],
+      "index_rows": [
+        {
+          "team": "布雷达",
+          "avgOdds": 1.47,
+          "avgProb": 62.35,
+          "bfShare": 67.98,
+          "jcSavedShare": 53.54,
+          "northShare": 24.34,
+          "bfHotCold": 9.0,
+          "jcHotCold": -13.0,
+          "bfMarketIndex": 35.0,
+          "jcMarketIndex": 25.0,
+          "bfProfitIndex": -3.0,
+          "jcProfitIndex": 28.0
+        },
+        {
+          "team": "平局",
+          "avgOdds": 4.48,
+          "avgProb": 20.46,
+          "bfShare": 0.38,
+          "jcSavedShare": 41.24,
+          "northShare": 62.42,
+          "bfHotCold": -98.0,
+          "jcHotCold": 100.0,
+          "bfMarketIndex": 1.0,
+          "jcMarketIndex": 64.0,
+          "bfProfitIndex": 98.0,
+          "jcProfitIndex": -84.0
+        },
+        {
+          "team": "埃门",
+          "avgOdds": 5.33,
+          "avgProb": 17.19,
+          "bfShare": 31.64,
+          "jcSavedShare": 5.22,
+          "northShare": 13.24,
+          "bfHotCold": 84.0,
+          "jcHotCold": -71.0,
+          "bfMarketIndex": 64.0,
+          "jcMarketIndex": 10.0,
+          "bfProfitIndex": -90.0,
+          "jcProfitIndex": 70.0
+        }
+      ],
+      "collection_method": "playwright"
     }
   ],
   "schedule_url": "https://www.okooo.com/jingcai/2026-11-14/",
-  "schedule_http_status": 200,
-  "schedule_fixture_count_raw": 32,
-  "schedule_match_count": 32,
-  "schedule_has_legacy_marker": true,
-  "schedule_title": "竞足赛程_足球赛事推荐-澳客",
-  "latest_fetch_records": 32,
-  "unique_okooo_ids": 32,
-  "parse_status_counts": {
-    "invalid_share": 1,
-    "market_data_pending_or_unavailable": 8,
-    "not_parsed": 0,
-    "parsed_unverified": 11
-  },
-  "pending_or_missing_count": 8,
-  "parsed_count": 11,
-  "failed_count": 12,
-  "all_fixtures_checked": true,
-  "betfair_count": 20,
-  "avg99_count": 20,
-  "warning": "Only timestamped, identity-matched snapshots before kickoff may enter formal predictions."
+  "error": "HTTP Error 405: Not Allowed",
+  "latest_fetch_records": 0,
+  "preserved_snapshot_count": 63
 }
