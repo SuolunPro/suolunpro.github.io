@@ -18,7 +18,7 @@ def identity(m):
 
 def check(src, dst):
     for path in sorted(src.rglob("*.json")):
-        if "history" in path.relative_to(src).parts:
+        if path.relative_to(src).parts[0] in ("history", "intelligence"):
             continue
         relative = path.relative_to(src)
         target = dst / relative
