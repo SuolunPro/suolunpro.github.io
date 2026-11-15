@@ -22,6 +22,8 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 import keyring
+import pystray
+from PIL import Image, ImageDraw
 from playwright.sync_api import sync_playwright
 
 from core import CN, current_sale_day, official_matches, canonical_bytes
@@ -155,9 +157,11 @@ class Window:
         self.last_upload = "—"
         self.interval_minutes = int(config["interval"])
         self.build()
+        self.tray = self.make_tray()
+        self.tray.run_detached()
         self.root.after(200, self.poll)
         if "--minimized" in sys.argv:
-            self.root.iconify()
+            self.root.withdraw()
         if self.auto.get():
             self.start()
 
@@ -187,7 +191,22 @@ class Window:
         ttk.Button(options, text="保存配置", command=self.save).pack(side="left")
         ttk.Button(options, text="打开本地诊断目录", command=lambda: os.startfile(ROOT) if sys.platform == "win32" else None).pack(side="left", padx=8)
         ttk.Label(frame, text="当前为验证版：未取得并核对页面成交数据前，采集结果为缺失，上传将拒绝。", foreground="#a64b00", wraplength=680).pack(anchor="w", pady=8)
-        self.root.protocol("WM_DELETE_WINDOW", self.root.iconify)
+        self.root.protocol("WM_DELETE_WINDOW", self.root.withdraw)
+
+    def make_tray(self):
+        img = Image.new("RGB", (64, 64), "#102846")
+        draw = ImageDraw.Draw(img)
+        draw.ellipse((10, 10, 54, 54), outline="#d5af5a", width=6)
+        draw.text((22, 21), "L", fill="white")
+        return pystray.Icon(APP, img, "九十刻度 LOTA 助手", menu=pystray.Menu(
+            pystray.MenuItem("显示窗口", lambda *_: self.root.after(0, self.root.deiconify)),
+            pystray.MenuItem("立即测试", lambda *_: self.root.after(0, self.once)),
+            pystray.MenuItem("退出", lambda *_: self.root.after(0, self.quit))))
+
+    def quit(self):
+        self.stop.set()
+        self.tray.stop()
+        self.root.destroy()
 
     def config(self):
         interval = int(self.vars["interval"].get())
