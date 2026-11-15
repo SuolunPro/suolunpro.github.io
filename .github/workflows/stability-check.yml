@@ -23,7 +23,11 @@ jobs:
               assert marker in home, marker
           assert "['今日优选'" not in home
           assert 'workers.dev' not in home
-          assert 'supabase.co' not in home.lower()
+          # Allow only the reviewed, read-only settlement staging endpoint.
+          # Keep rejecting any other direct Supabase references in production.
+          approved_staging='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1'
+          assert home.count(approved_staging) == 1, 'Missing or duplicated approved settlement staging endpoint'
+          assert 'supabase.co' not in home.lower().replace(approved_staging.lower(), ''), 'Unapproved Supabase reference'
           for marker in ('<<<<<<<','=======','>>>>>>>'):
               assert marker not in home
           print('stability-check: OK')
