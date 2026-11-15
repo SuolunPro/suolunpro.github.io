@@ -122,6 +122,31 @@ def merge(source, existing):
         raise ValueError("Sales snapshot count mismatch")
     return base
 
+def retain_verified_settlements(incoming, published):
+    """Keep Supabase-verified website results when the private prediction snapshot is older.
+
+    Only settlement fields are copied; frozen predictions remain authoritative
+    from the engine. A verified score conflict stops publication.
+    """
+    if not isinstance(published, dict) or incoming.get("sale_day") != published.get("sale_day"):
+        return incoming
+    prior = {key(m): m for m in published.get("matches", []) if isinstance(m, dict)}
+    for match in incoming.get("matches", []):
+        old = prior.get(key(match))
+        if not old or not old.get("settlement") or (old.get("result_verification") or {}).get("status") != "VERIFIED":
+            continue
+        existing = match.get("settlement")
+        verified = old["settlement"]
+        if existing:
+            if any(existing.get(field) != verified.get(field) for field in ("ft", "ht", "fotmob_match_id")):
+                raise ValueError("Conflicting verified result: " + str(key(match)))
+            continue
+        import copy
+        match["settlement"] = copy.deepcopy(verified)
+        match["result_verification"] = copy.deepcopy(old["result_verification"])
+    return incoming
+
+
 def main(src, dst):
     if not src.is_dir():
         raise SystemExit("Engine snapshot directory missing")
@@ -136,6 +161,8 @@ def main(src, dst):
         if incoming is None:
             raise SystemExit(f"Invalid engine JSON: {relative}")
         if isinstance(incoming, dict) and isinstance(incoming.get("matches"), list):
+            if relative.as_posix() == "latest.json":
+                incoming = retain_verified_settlements(incoming, read(target))
             # latest.json may switch to a different sale day; never append prior-day fixtures.
             # Engine latest is authoritative; sale-day files retain their settlement merge.
             if relative.as_posix() != "latest.json":
@@ -144,6 +171,17 @@ def main(src, dst):
         output = json.dumps(incoming, ensure_ascii=False, indent=2) + "\n"
         if not target.exists() or target.read_text(encoding="utf-8") != output:
             target.write_text(output, encoding="utf-8")
+            count += 1
+    # The public Supabase publisher may have settled a fixture in sales while
+    # the private engine latest.json is still pending. Reconcile after sales sync.
+    latest_path = dst / "latest.json"
+    latest = read(latest_path)
+    if isinstance(latest, dict) and latest.get("sale_day"):
+        dated = read(dst / "sales" / (latest["sale_day"] + ".json"))
+        before = json.dumps(latest, ensure_ascii=False, sort_keys=True)
+        latest = retain_verified_settlements(latest, dated)
+        if json.dumps(latest, ensure_ascii=False, sort_keys=True) != before:
+            latest_path.write_text(json.dumps(latest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             count += 1
     # Keep date navigation aligned with all available sale-day reports, including empty days.
     sales = dst / "sales"
