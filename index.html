@@ -954,6 +954,29 @@
       // A short server-side update marker avoids serializing every match on each refresh.
       return String(data.sale_day)+'|'+String(data.generated_at||'')+'|'+String(data.matches?.length||0);
     }
+    // Supabase settlement bridge: compare-only until independent production settlement is approved.
+    // Never overwrite a frozen prediction or official GitHub settlement from staging data.
+    const SUPABASE_SETTLEMENT_STAGING='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1';
+    async function checkSupabaseSettlementStaging(data){
+      if(!data||!Array.isArray(data.matches)||!/^20\\d{2}-\\d{2}-\\d{2}$/.test(data.sale_day))return;
+      try{
+        const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),3500);
+        let response;
+        try{response=await fetch(SUPABASE_SETTLEMENT_STAGING+'?sale_day='+encodeURIComponent(data.sale_day),{signal:controller.signal,cache:'no-store'});}
+        finally{clearTimeout(timeout);}
+        if(!response.ok)return;
+        const audit=await response.json();
+        if(audit.mode!=='verified_staging_not_official'||audit.sale_day!==data.sale_day||!Array.isArray(audit.results))return;
+        const byNo=new Map(data.matches.map(m=>[String(m.match_no),m]));
+        const checked=audit.results.filter(x=>{
+          const m=byNo.get(String(x.match_no));
+          return m?.settlement?.ht===x.ht&&m?.settlement?.ft===x.ft&&
+            Object.keys(x.hits||{}).every(k=>m.settlement.hits?.[k]===x.hits[k]);
+        });
+        // Diagnostics only: official settlement remains the sole customer-visible source.
+        data.supabase_settlement_audit={verified_matching:checked.length,staging_count:audit.results.length};
+      }catch(error){console.warn('Supabase结算影子核对暂不可用',error);}
+    }
     async function load(options={}){
       const sequence=++loadSequence;
       const dayAtStart=selectedDay;
@@ -995,6 +1018,7 @@
           }
         }
         if(sequence!==loadSequence)return;
+        await checkSupabaseSettlementStaging(data);
         if(active==='独立研判')await loadIndependentReviews(data);
         if(sequence!==loadSequence)return;
         const fingerprint=reportSignature(data);
