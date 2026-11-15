@@ -15,7 +15,7 @@ python -m unittest -v test_core
 pyinstaller --noconfirm --clean --onefile --windowed --name 90scale-lota-assistant --hidden-import keyring.backends.Windows --collect-all rapidocr --collect-all onnxruntime app.py
 ```
 
-EXE 位于 `dist/90scale-lota-assistant.exe`。Chrome 必须已安装。首次点击“立即测试”会打开独立 Chrome 配置目录；用户只在 LOTA 正常登录页面自行登录普通账号。应用不导出会话或 Cookie。诊断结果（可见画面的 OCR 坐标文本和截图）只保存在 `%LOCALAPPDATA%\90scale-lota-assistant`，不上传。OCR 仅供核对，不自动认定成交数据准确。
+EXE 位于 `dist/90scale-lota-assistant.exe`。Chrome 必须已安装。首次点击“首次登录”，在打开的独立 Chrome 窗口里正常登录普通账号，完成后关闭该 Chrome 窗口，再点“立即测试”。ChatGPT 云浏览器的登录不会转移到 Windows EXE。应用不导出会话或 Cookie。诊断结果（可见画面的 OCR 坐标文本和截图）只保存在 `%LOCALAPPDATA%\90scale-lota-assistant`，不上传。OCR 仅供核对，不自动认定成交数据准确。
 
 设置限定仓库的 fine-grained GitHub Token（Contents: Read and write），在界面保存。Token 存入 Windows 凭据管理器；其他配置写入本地 JSON。当前“测试连接”只验证仓库可访问，“测试上传”会拒绝，因为尚无可公开分发且逐项核对的真实业务数据。GitHub 写入函数仅接受 `data/lota/test/` 路径、有效结构和真实记录；相同内容不产生重复提交。正式预测 JSON、模型和网站前端均不读取本目录。
 
