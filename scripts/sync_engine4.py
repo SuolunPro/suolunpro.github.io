@@ -129,7 +129,7 @@ def main(src, dst):
     for path in sorted(src.rglob("*.json")):
         relative = path.relative_to(src)
         # History snapshots are immutable; don't repeatedly copy large run archives.
-        if relative.parts[0] == "history":
+        if relative.parts[0] in ("history", "intelligence"):
             continue
         target = dst / relative
         incoming = read(path)
