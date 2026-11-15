@@ -602,8 +602,9 @@
         }
         team.append(crest,el('span','team-name',label(name)));teams.append(team)
       }
-      const score=el('div','score',match.settlement?.ft||'VS');
-      score.append(el('span','',match.settlement?`半场 ${label(match.settlement.ht)} · 正式赛果`:'赛前预测'));
+      const preview=!match.settlement?match.supabase_verified_score:null;
+      const score=el('div','score',match.settlement?.ft||preview?.ft||'VS');
+      score.append(el('span','',match.settlement?`半场 ${label(match.settlement.ht)} · 正式赛果`:preview?`半场 ${label(preview.ht)} · 已核验比分，模块结算同步中`:'赛前预测'));
       row.append(teams,score);card.append(row)
     }
     function choices(card,match,items,probabilities){
@@ -970,11 +971,20 @@
         const byNo=new Map(data.matches.map(m=>[String(m.match_no),m]));
         const checked=audit.results.filter(x=>{
           const m=byNo.get(String(x.match_no));
-          return m?.settlement?.ht===x.ht&&m?.settlement?.ft===x.ft&&
-            Object.keys(x.hits||{}).every(k=>m.settlement.hits?.[k]===x.hits[k]);
+          return m?.settlement?.ht===x.ht&&m?.settlement?.ft===x.ft;
         });
-        // Diagnostics only: official settlement remains the sole customer-visible source.
+        let changed=false;
+        for(const x of audit.results){
+          const m=byNo.get(String(x.match_no));
+          if(!m||m.settlement||x.independent_verified!==true||x.published_settlement_present!==false)continue;
+          if(!/^[0-9]+:[0-9]+$/.test(x.ft)||!/^[0-9]+:[0-9]+$/.test(x.ht))continue;
+          if(!m.supabase_verified_score||m.supabase_verified_score.ft!==x.ft){
+            m.supabase_verified_score={ft:x.ft,ht:x.ht,source:'supabase_independent_verified',official_settlement:false};
+            changed=true;
+          }
+        }
         data.supabase_settlement_audit={verified_matching:checked.length,staging_count:audit.results.length};
+        if(changed&&report===data&&vipMember&&parseExpiry(vipMember.expires_at).getTime()>Date.now())render();
       }catch(error){console.warn('Supabase结算影子核对暂不可用',error);}
     }
     async function load(options={}){
