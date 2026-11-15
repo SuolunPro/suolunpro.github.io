@@ -3,7 +3,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'tools/lota-assistant/**'
+      - 'tools/lota-assistant/*.py'
+      - 'tools/lota-assistant/requirements.txt'
       - '.github/workflows/build-lota-assistant.yml'
 permissions:
   contents: read
