@@ -140,6 +140,23 @@ def diagnostic_probe(officials: list[dict]) -> dict:
             context.close()
 
 
+def initial_login():
+    """Allow a one-time ordinary login in the EXE's separate local profile."""
+    ROOT.mkdir(parents=True, exist_ok=True)
+    with sync_playwright() as p:
+        context = p.chromium.launch_persistent_context(str(PROFILE), channel="chrome", headless=False,
+                                                       viewport={"width": 1366, "height": 900})
+        page = context.pages[0] if context.pages else context.new_page()
+        try:
+            page.goto(URL, wait_until="domcontentloaded", timeout=45000)
+            # The user performs login themselves. Never inspect credential DOM,
+            # read cookies or export browser storage. Close this window to finish.
+            page.wait_for_event("close", timeout=600000)
+            return "本地 Chrome 登录窗口已关闭；会话保存在本机配置目录"
+        finally:
+            context.close()
+
+
 def startup(enabled: bool):
     # HKCU Run requires no administrator rights. The installed EXE path is used.
     if sys.platform != "win32":
@@ -193,7 +210,8 @@ class Window:
         for var in (self.status, self.counts, self.times):
             ttk.Label(frame, textvariable=var, wraplength=680).pack(anchor="w", pady=5)
         row = ttk.Frame(frame); row.pack(fill="x", pady=8)
-        for label, fn in (("开始采集", self.start), ("停止采集", self.halt), ("立即测试", self.once),
+        for label, fn in (("首次登录", lambda: self.worker(initial_login)),
+                          ("开始采集", self.start), ("停止采集", self.halt), ("立即测试", self.once),
                           ("测试连接", self.test_connection), ("测试上传", self.test_upload)):
             ttk.Button(row, text=label, command=fn).pack(side="left", padx=3)
         settings = ttk.LabelFrame(frame, text="GitHub 连接设置（仅测试目录）", padding=10)
