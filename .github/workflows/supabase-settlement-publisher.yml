@@ -1,5 +1,9 @@
 name: Supabase verified settlement publisher (public)
 on:
+  push:
+    paths:
+      - 'scripts/publish-supabase-settlement.cjs'
+      - '.github/workflows/supabase-settlement-publisher.yml'
   workflow_dispatch:
   schedule:
     - cron: '17,47 * * * *'
