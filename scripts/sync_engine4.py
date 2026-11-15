@@ -19,6 +19,38 @@ def stamp(value):
 def key(match):
     return (str(match.get("source_id") or ""), str(match.get("kickoff") or ""), str(match.get("home") or ""), str(match.get("away") or ""))
 
+def reconcile_metrics(doc):
+    """Count the merged public settlements, including Supabase-only results."""
+    metrics = doc.get("metrics")
+    if not isinstance(metrics, dict):
+        return doc
+    matches = doc.get("matches", [])
+    metrics["total"] = len(matches)
+    metrics["settled"] = sum(bool(m.get("settlement")) for m in matches)
+    metrics["pending"] = len(matches) - metrics["settled"]
+    for name in metrics.get("module_hits", {}):
+        values = [m.get("settlement", {}).get("hits", {}).get(name)
+                  for m in matches if isinstance(m.get("settlement"), dict)]
+        values = [v for v in values if isinstance(v, bool)]
+        hit, total = sum(values), len(values)
+        metrics["module_hits"][name] = {"hit": hit, "total": total,
+                                        "rate": round(hit / total, 4) if total else None}
+    metrics["top1_hit_rate"] = metrics.get("module_hits", {}).get("胜平负Top1", {}).get("rate")
+    for name, stat in metrics.get("module_stats", {}).items():
+        statuses = [m["settlement"].get("module_results", {}).get(name, {}).get("status")
+                    for m in matches if isinstance(m.get("settlement"), dict)]
+        statuses = [s for s in statuses if s in ("HIT", "MISS")]
+        hit, total = statuses.count("HIT"), len(statuses)
+        stat["verified"] = total
+        stat["pending"] = max(0, (stat.get("predicted") or 0) - total)
+        stat["evaluation"] = {"hit": hit, "total": total,
+                              "rate": round(hit / total, 4) if total else None}
+        for suffix in stat.get("rates", {}):
+            row = metrics.get("module_hits", {}).get(name + suffix)
+            if row:
+                stat["rates"][suffix] = row.copy()
+    return doc
+
 def merge(source, existing):
     if not isinstance(existing, dict):
         return source
@@ -120,7 +152,7 @@ def merge(source, existing):
         raise ValueError("Duplicate fixture after merge")
     if isinstance(base.get("metrics"), dict) and base["metrics"].get("total") is not None and base["metrics"]["total"] != len(ids):
         raise ValueError("Sales snapshot count mismatch")
-    return base
+    return reconcile_metrics(base)
 
 def retain_verified_settlements(incoming, published):
     """Keep Supabase-verified website results when the private prediction snapshot is older.
@@ -144,7 +176,7 @@ def retain_verified_settlements(incoming, published):
         import copy
         match["settlement"] = copy.deepcopy(verified)
         match["result_verification"] = copy.deepcopy(old["result_verification"])
-    return incoming
+    return reconcile_metrics(incoming)
 
 
 def main(src, dst):
