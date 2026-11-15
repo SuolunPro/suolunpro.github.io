@@ -1,11 +1,8 @@
 name: Wake overdue engine result verifier
+# Disabled legacy automation: Supabase verifies results and public publisher owns settlement.
+# Retained for audit only; do not dispatch private verifier or calculate results.
 on:
-  schedule:
-    - cron: '9,19,29,39,49,59 * * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/engine4-overdue-wakeup.yml']
 permissions:
   contents: read
 concurrency:
@@ -13,6 +10,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   wake:
+    if: ${{ false }} # Retired legacy workflow; must not execute even on manual dispatch.
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
