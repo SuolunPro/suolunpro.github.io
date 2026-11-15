@@ -26,3 +26,33 @@ test('live deployment, independent score and module settlement',async({page})=>{
  }
  expect(errors).toEqual([]);
 });
+
+test('historical day isolation, refresh and no duplicate official settlement',async({page})=>{
+ const source=await (await page.request.get('https://suolunpro.github.io/index.html')).text();
+ const start=source.indexOf('function independentSettlement('),end=source.indexOf('async function checkSupabaseSettlementStaging',start);
+ expect(start).toBeGreaterThan(0);
+ const fn=source.slice(start,end);
+ for(const day of ['2026-11-14','2026-11-15']){
+  const res=await page.request.get(base+'/data/engine4/sales/'+day+'.json');
+  expect(res.ok()).toBe(true);
+  const data=await res.json();
+  expect(data.sale_day).toBe(day);
+  const audit=await page.request.get('https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1?sale_day='+day);
+  expect(audit.ok()).toBe(true);
+  const body=await audit.json();expect(body.sale_day).toBe(day);
+  for(const x of body.results){
+   const m=data.matches.find(m=>String(m.match_no)===String(x.match_no));
+   if(!m||m.settlement||x.published_settlement_present!==false)continue;
+   const v=await page.evaluate(({m,x,fn})=>new Function(fn+';return independentSettlement;')()(m,x),{m,x,fn});
+   if(v){expect(Object.keys(v.hits)).toHaveLength(16);expect(Object.keys(v.module_results)).toHaveLength(8);}
+  }
+ }
+ const published=await (await page.request.get(base+'/data/engine4/sales/2026-11-15.json')).json();
+ const official=published.matches.find(m=>m.settlement);
+ if(official){
+  const original=JSON.stringify(official.settlement);
+  const audit=await (await page.request.get('https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1?sale_day=2026-11-15')).json();
+  const x=audit.results.find(x=>String(x.match_no)===String(official.match_no));
+  if(x){const candidate=await page.evaluate(({m,x,fn})=>new Function(fn+';return independentSettlement;')()(m,x),{m:official,x,fn});expect(JSON.stringify(official.settlement)).toBe(original);expect(candidate?.ft||x.ft).toBe(official.settlement.ft);}
+ }
+});
