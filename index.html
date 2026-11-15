@@ -953,7 +953,7 @@
     const dayCache=new Map();
     function reportSignature(data){
       // A short server-side update marker avoids serializing every match on each refresh.
-      return String(data.sale_day)+'|'+String(data.generated_at||'')+'|'+String(data.matches?.length||0);
+      return String(data.sale_day)+'|'+String(data.generated_at||'')+'|'+String(data.matches?.length||0)+'|'+String(data.matches?.filter(m=>m.settlement).length||0);
     }
     // Supabase settlement bridge: compare-only until independent production settlement is approved.
     // Never overwrite a frozen prediction or official GitHub settlement from staging data.
