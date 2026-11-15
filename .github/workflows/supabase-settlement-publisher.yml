@@ -11,7 +11,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: public-supabase-settlement-publisher
+  group: engine4-site-data-writer
   cancel-in-progress: false
 jobs:
   publish:
