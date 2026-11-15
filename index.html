@@ -959,7 +959,7 @@
     // Never overwrite a frozen prediction or official GitHub settlement from staging data.
     const SUPABASE_SETTLEMENT_STAGING='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1';
     function independentSettlement(m,x){
-      const parse=v=>{const a=/^(\\d+):(\\d+)$/.exec(v||'');return a?[+a[1],+a[2]]:null;};
+      const parse=v=>{const a=/^(\d+):(\d+)$/.exec(v||'');return a?[+a[1],+a[2]]:null;};
       const ft=parse(x.ft),ht=parse(x.ht);if(!ft||!ht||ht.some((n,i)=>n>ft[i]))return null;
       const ko=Date.parse(String(m.kickoff||'').replace(' ','T')+'+08:00');
       const pred=Date.parse(m.predicted_at||'');
