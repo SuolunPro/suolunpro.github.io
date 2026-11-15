@@ -13,6 +13,34 @@ const dates=fs.readdirSync(path.join(root,'data/engine4/sales'))
  .filter(day=>day<=today)
  .sort().reverse();
 const url='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1';
+function refreshMetrics(doc){
+ const metrics=doc.metrics;
+ if(!metrics)return;
+ metrics.total=doc.matches.length;
+ metrics.settled=doc.matches.filter(m=>Boolean(m.settlement)).length;
+ metrics.pending=metrics.total-metrics.settled;
+ for(const [name,old] of Object.entries(metrics.module_hits||{})){
+  let hit=0,total=0;
+  for(const m of doc.matches){
+   const value=m.settlement?.hits?.[name];
+   if(typeof value==='boolean'){total++;if(value)hit++}
+  }
+  metrics.module_hits[name]={hit,total,rate:total?+(hit/total).toFixed(4):null};
+ }
+ metrics.top1_hit_rate=metrics.module_hits?.['胜平负Top1']?.rate??null;
+ for(const [name,stat] of Object.entries(metrics.module_stats||{})){
+  const statuses=doc.matches.map(m=>m.settlement?.module_results?.[name]?.status)
+   .filter(s=>s==='HIT'||s==='MISS');
+  const hit=statuses.filter(s=>s==='HIT').length,total=statuses.length;
+  stat.verified=total;
+  stat.pending=Math.max(0,(Number(stat.predicted)||0)-total);
+  stat.evaluation={hit,total,rate:total?+(hit/total).toFixed(4):null};
+  for(const key of Object.keys(stat.rates||{})){
+   const row=metrics.module_hits[name+key];
+   if(row)stat.rates[key]={...row};
+  }
+ }
+}
 async function main(){
  let written=0,conflicts=0;
  for(const day of dates){
@@ -27,7 +55,7 @@ async function main(){
   if(audit.mode!=='verified_staging_not_official'||audit.sale_day!==day||!Array.isArray(audit.results))throw Error('Invalid staging '+day);
   let updated=0;
   for(const x of audit.results){
-   if(x.independent_verified!==true||x.published_settlement_present!==false)continue;
+   if(x.independent_verified!==true)continue;
    const m=doc.matches.find(m=>String(m.match_no)===String(x.match_no));
    if(!m)continue;
    if(m.settlement){if(m.settlement.ft!==x.ft||m.settlement.ht!==x.ht){conflicts++;console.error('CONFLICT',day,m.match_no)}continue}
@@ -38,6 +66,7 @@ async function main(){
    updated++;
   }
   if(updated){
+   refreshMetrics(doc);
    fs.writeFileSync(file,JSON.stringify(doc,null,2)+'\n');
    const latestFile=path.join(root,'data/engine4/latest.json');
    if(fs.existsSync(latestFile)){
@@ -47,6 +76,7 @@ async function main(){
       const fresh=doc.matches.find(x=>String(x.match_no)===String(m.match_no));
       if(fresh?.settlement&&!m.settlement){m.settlement=fresh.settlement;m.result_verification=fresh.result_verification}
      }
+     refreshMetrics(latest);
      fs.writeFileSync(latestFile,JSON.stringify(latest,null,2)+'\n');
     }
    }
