@@ -25,6 +25,7 @@ import keyring
 import pystray
 from PIL import Image, ImageDraw
 from playwright.sync_api import sync_playwright
+from rapidocr import RapidOCR
 
 from core import CN, current_sale_day, official_matches, canonical_bytes
 
@@ -63,7 +64,11 @@ def get_official(repo: str, branch: str):
     url = f"https://api.github.com/repos/{repo}/contents/data/engine4/latest.json?ref={quote(branch)}"
     info = api(url)
     payload = json.loads(base64.b64decode(info["content"]))
-    day = current_sale_day()
+    # The sales day can span midnight in China; the engine's explicit sales day
+    # remains authoritative while its scheduled fixtures are still relevant.
+    day = payload["sale_day"]
+    if abs((datetime.now(CN).date() - datetime.fromisoformat(day).date()).days) > 1:
+        raise ValueError("正式竞彩销售日过期")
     return day, official_matches(payload, day)
 
 
@@ -94,6 +99,19 @@ def upload(repo: str, branch: str, directory: str, token: str, payload: dict):
     return result["commit"]["html_url"]
 
 
+def ocr_visible_screenshot(path: Path) -> list[dict]:
+    result = RapidOCR()(str(path))
+    tokens = []
+    for box, value, score in zip(result.boxes if result.boxes is not None else [],
+                                 result.txts if result.txts is not None else [],
+                                 result.scores if result.scores is not None else []):
+        x = round(sum(float(point[0]) for point in box) / 4)
+        y = round(sum(float(point[1]) for point in box) / 4)
+        if score >= 0.6:
+            tokens.append({"text": value, "x": x, "y": y, "confidence": round(float(score), 3)})
+    return tokens
+
+
 def diagnostic_probe(officials: list[dict]) -> dict:
     """Open normal browser session; inspect visible Flutter semantics only.
 
@@ -109,12 +127,15 @@ def diagnostic_probe(officials: list[dict]) -> dict:
             page.goto(URL, wait_until="domcontentloaded", timeout=45000)
             page.locator("flt-semantics-placeholder").first.click(timeout=4000) if page.locator("flt-semantics-placeholder").count() else None
             page.wait_for_timeout(3500)
-            # DOM text can be incomplete for Flutter canvas. It is diagnostic only.
-            visible = page.locator("body").inner_text(timeout=5000)
-            page.screenshot(path=str(ROOT / "lota-local-review.png"), full_page=False)
-            (ROOT / "lota-visible-text.txt").write_text(visible[:30000], encoding="utf-8")
+            screenshot = ROOT / "lota-local-review.png"
+            page.screenshot(path=str(screenshot), full_page=False)
+            tokens = ocr_visible_screenshot(screenshot)
+            # Only visible screenshot text is retained. Flutter's hidden DOM can
+            # contain login fields, so it must never be dumped into diagnostics.
+            (ROOT / "lota-ocr-local.json").write_text(json.dumps(tokens, ensure_ascii=False, indent=2), encoding="utf-8")
+            visible = " ".join(t["text"] for t in tokens)
             hits = [m["match_no"] for m in officials if m["home"] in visible and m["away"] in visible]
-            return {"visible_matches": hits, "text_length": len(visible), "url": page.url}
+            return {"visible_matches": hits, "ocr_tokens": len(tokens), "url": page.url}
         finally:
             context.close()
 
