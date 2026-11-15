@@ -1,4 +1,6 @@
 name: Supabase verified settlement publisher (public)
+# Supabase verified results are replayed on every run; a concurrent prediction sync
+# must never cause a verified settlement to be dropped.
 on:
   push:
     paths:
@@ -6,7 +8,7 @@ on:
       - '.github/workflows/supabase-settlement-publisher.yml'
   workflow_dispatch:
   schedule:
-    - cron: '7,17,27,37,47,57 * * * *'
+    - cron: '17,47 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -23,14 +25,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Publish independently verified settlement to public snapshots
-        run: node scripts/publish-supabase-settlement.cjs
-      - name: Commit changed settlement snapshots
+      - name: Replay, validate and publish verified settlements
         run: |
           set -euo pipefail
           git config user.name '90scale-settlement[bot]'
           git config user.email 'actions@users.noreply.github.com'
           for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            node scripts/publish-supabase-settlement.cjs
             git add data/engine4/sales data/engine4/latest.json
             if git diff --cached --quiet; then
               echo 'No new verified settlements'
@@ -38,14 +41,11 @@ jobs:
             fi
             git commit -m 'data: publish Supabase verified settlement'
             if git push origin HEAD:main; then
-              echo 'Verified settlements published'
+              echo 'Supabase settlements published'
               exit 0
             fi
-            echo "::warning::Publish attempt ${attempt}/5 failed; refresh public snapshot and recalculate"
-            git fetch origin main
-            git reset --hard origin/main
-            node scripts/publish-supabase-settlement.cjs
-            sleep 10
+            echo "::warning::Concurrent site update; replaying verified results ($attempt/5)"
+            sleep 5
           done
-          echo '::error::Supabase settlement publication failed after five attempts'
+          echo '::error::Verified settlement publication failed after five replays'
           exit 1
