@@ -958,7 +958,7 @@
     // Never overwrite a frozen prediction or official GitHub settlement from staging data.
     const SUPABASE_SETTLEMENT_STAGING='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1';
     async function checkSupabaseSettlementStaging(data){
-      if(!data||!Array.isArray(data.matches)||!/^20\\d{2}-\\d{2}-\\d{2}$/.test(data.sale_day))return;
+      if(!data||!Array.isArray(data.matches)||!/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(data.sale_day))return;
       try{
         const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),3500);
         let response;
