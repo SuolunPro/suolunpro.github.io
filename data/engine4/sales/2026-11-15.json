@@ -266,7 +266,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.109373,
               "2:1": 0.094588,
@@ -302,8 +302,8 @@
               "7+": 0.044985
             },
             "top3_probabilities": {
-              "2": 0.208233,
               "3": 0.222531,
+              "2": 0.208233,
               "4": 0.178359
             }
           },
@@ -400,10 +400,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0,
-            "让平": 0
+            "让负": 0.0,
+            "让平": 0.0
           },
-          "total_delta": 0
+          "total_delta": 0.0
         }
       },
       "result_verification": {
@@ -784,7 +784,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.126134,
               "2:1": 0.092031,
@@ -820,9 +820,9 @@
               "7+": 0.025359
             },
             "top3_probabilities": {
-              "1": 0.167764,
               "2": 0.236798,
-              "3": 0.222827
+              "3": 0.222827,
+              "1": 0.167764
             }
           },
           "半全场": {
@@ -918,10 +918,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0,
-            "让平": 0
+            "让负": 0.0,
+            "让平": 0.0
           },
-          "total_delta": 0
+          "total_delta": 0.0
         }
       },
       "result_verification": {
@@ -1302,7 +1302,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.118606,
               "1:2": 0.095543,
@@ -1436,10 +1436,10 @@
             "让平"
           ],
           "delta": {
-            "让胜": 0,
-            "让平": 0
+            "让胜": 0.0,
+            "让平": 0.0
           },
-          "total_delta": 0
+          "total_delta": 0.0
         }
       },
       "result_verification": {
@@ -1821,7 +1821,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.121211,
               "2:1": 0.085746,
@@ -1955,10 +1955,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0,
-            "让平": 0
+            "让负": 0.0,
+            "让平": 0.0
           },
-          "total_delta": 0
+          "total_delta": 0.0
         }
       },
       "result_verification": {
@@ -2092,7 +2092,7 @@
       "spf": [
         2.97,
         3.3,
-        2
+        2.0
       ],
       "rqspf": [
         1.59,
@@ -2277,7 +2277,7 @@
             "home_expected_goals": 1.102,
             "away_expected_goals": 1.404,
             "xg_samples": null,
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.136322,
               "0:1": 0.104414,
@@ -2310,9 +2310,9 @@
               "7+": 0.014375
             },
             "top3_probabilities": {
-              "1": 0.204386,
               "2": 0.256169,
-              "3": 0.214048
+              "3": 0.214048,
+              "1": 0.204386
             }
           },
           "半全场": {
@@ -2396,7 +2396,7 @@
             "让平"
           ],
           "delta": {
-            "让胜": 1,
+            "让胜": 1.0,
             "让平": 0.65
           },
           "total_delta": 1.65
@@ -2404,16 +2404,123 @@
       },
       "result_verification": {
         "status": "VERIFIED",
-        "checked_at": "2026-11-15T15:37:03.091Z"
+        "checked_at": "2026-11-15T16:28:18.841270+00:00"
       },
       "settlement": {
         "ht": "1:0",
         "ft": "2:1",
-        "verified_at": "2026-11-15T15:37:03.091Z",
+        "verified_at": "2026-11-15T16:28:18.841270+00:00",
         "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5832952",
         "fotmob_match_id": 5832952,
         "scope": "90min_regular_ft",
-        "result_source": "supabase_verified_audit"
+        "hits": {
+          "胜平负Top1": false,
+          "胜平负Top2": true,
+          "让球Top1": true,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": true,
+          "半全场Top1": false,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "今日优选": null,
+          "冷门预警": null,
+          "单选精选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "负",
+              "胜"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "2:1",
+            "picks": [
+              "1:1",
+              "0:1",
+              "0:0",
+              "1:2"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 3,
+            "picks": [
+              2,
+              3,
+              1
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "半全场": {
+            "actual": "胜-胜",
+            "picks": [
+              "负-负",
+              "胜-胜",
+              "平-平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "胜",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
       }
     },
     {
@@ -2426,7 +2533,7 @@
       "spf": [
         3.25,
         3.02,
-        2
+        2.0
       ],
       "rqspf": [
         1.6,
@@ -2668,7 +2775,7 @@
               "home": 5,
               "away": 4
             },
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.133769,
               "0:1": 0.126953,
@@ -2704,8 +2811,8 @@
               "7+": 0.010934
             },
             "top3_probabilities": {
-              "1": 0.221293,
               "2": 0.262454,
+              "1": 0.221293,
               "3": 0.207513
             }
           },
@@ -2768,7 +2875,7 @@
           "home_xgf": 0.81,
           "home_xga": 1.924,
           "away_xgf": 1.01,
-          "away_xga": 1,
+          "away_xga": 1.0,
           "xg_top1": "负",
           "xg_probabilities": {
             "胜": 0.2325,
@@ -2806,16 +2913,131 @@
             "让平"
           ],
           "delta": {
-            "让胜": 0,
-            "让平": 0
+            "让胜": 0.0,
+            "让平": 0.0
           },
-          "total_delta": 0
+          "total_delta": 0.0
         }
       },
       "result_verification": {
-        "status": "PENDING",
-        "reason": "NOT_DUE",
-        "checked_at": "2026-11-15T15:04:59.394158+00:00"
+        "status": "VERIFIED",
+        "checked_at": "2026-11-15T16:28:18.841270+00:00"
+      },
+      "settlement": {
+        "ht": "0:0",
+        "ft": "0:0",
+        "verified_at": "2026-11-15T16:28:18.841270+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5181932",
+        "fotmob_match_id": 5181932,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": false,
+          "胜平负Top2": true,
+          "让球Top1": true,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": true,
+          "比分Top4": true,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": false,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "今日优选": null,
+          "冷门预警": true,
+          "单选精选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "平",
+            "picks": [
+              "负",
+              "平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "0:0",
+            "picks": [
+              "1:1",
+              "0:1",
+              "0:0",
+              "0:2"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true,
+              "Top4": true
+            },
+            "status": "HIT"
+          },
+          "总进球": {
+            "actual": 0,
+            "picks": [
+              2,
+              1,
+              3
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "平-平",
+            "picks": [
+              "负-负",
+              "平-负",
+              "平-平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "平",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "平",
+            "direction": "主队不败",
+            "upset_occurred": true,
+            "hit": true,
+            "status": "HIT"
+          },
+          "单选精选": {
+            "actual": "平",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
       }
     },
     {
@@ -3077,7 +3299,7 @@
               "home": 5,
               "away": 4
             },
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.106269,
               "1:2": 0.097536,
@@ -3113,8 +3335,8 @@
               "7+": 0.044589
             },
             "top3_probabilities": {
-              "2": 0.208742,
               "3": 0.222623,
+              "2": 0.208742,
               "4": 0.178071
             }
           },
@@ -3264,16 +3486,131 @@
             "让平"
           ],
           "delta": {
-            "让胜": 0,
-            "让平": 0
+            "让胜": 0.0,
+            "让平": 0.0
           },
-          "total_delta": 0
+          "total_delta": 0.0
         }
       },
       "result_verification": {
-        "status": "PENDING",
-        "reason": "NOT_DUE",
-        "checked_at": "2026-11-15T15:04:59.394158+00:00"
+        "status": "VERIFIED",
+        "checked_at": "2026-11-15T16:28:18.841270+00:00"
+      },
+      "settlement": {
+        "ht": "0:1",
+        "ft": "1:4",
+        "verified_at": "2026-11-15T16:28:18.841270+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5181931",
+        "fotmob_match_id": 5181931,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": false,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": true,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "今日优选": null,
+          "冷门预警": null,
+          "单选精选": true
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "负",
+            "picks": [
+              "负",
+              "胜"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让负",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": false
+            },
+            "status": "MISS"
+          },
+          "比分": {
+            "actual": "1:4",
+            "picks": [
+              "1:1",
+              "1:2",
+              "0:2",
+              "0:1"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 5,
+            "picks": [
+              3,
+              2,
+              4
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "负-负",
+            "picks": [
+              "负-负",
+              "平-负",
+              "胜-胜"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "负",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "负",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "负",
+            "direction": "负",
+            "hit": true,
+            "status": "HIT"
+          }
+        }
       }
     },
     {
@@ -3530,7 +3867,7 @@
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-15T15:04:59.394158+00:00"
+        "checked_at": "2026-11-15T16:28:18.841270+00:00"
       }
     },
     {
@@ -3790,7 +4127,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.120612,
               "2:1": 0.092246,
@@ -3924,16 +4261,16 @@
             "让平"
           ],
           "delta": {
-            "让负": 0,
-            "让平": 0
+            "让负": 0.0,
+            "让平": 0.0
           },
-          "total_delta": 0
+          "total_delta": 0.0
         }
       },
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-15T15:04:59.394158+00:00"
+        "checked_at": "2026-11-15T16:28:18.841270+00:00"
       }
     },
     {
@@ -4193,7 +4530,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.104439,
               "2:1": 0.084663,
@@ -4229,8 +4566,8 @@
               "7+": 0.057211
             },
             "top3_probabilities": {
-              "2": 0.193612,
               "3": 0.218846,
+              "2": 0.193612,
               "4": 0.185527
             }
           },
@@ -4329,16 +4666,16 @@
             "让平"
           ],
           "delta": {
-            "让负": 0,
-            "让平": 0
+            "让负": 0.0,
+            "让平": 0.0
           },
-          "total_delta": 0
+          "total_delta": 0.0
         }
       },
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-15T15:04:59.394158+00:00"
+        "checked_at": "2026-11-15T16:28:18.841270+00:00"
       }
     },
     {
@@ -4605,7 +4942,7 @@
               "home": 5,
               "away": 5
             },
-            "matrix_probability_mass": 1,
+            "matrix_probability_mass": 1.0,
             "probabilities": {
               "1:1": 0.104316,
               "2:1": 0.083163,
@@ -4641,8 +4978,8 @@
               "7+": 0.057567
             },
             "top3_probabilities": {
-              "2": 0.193215,
               "3": 0.21872,
+              "2": 0.193215,
               "4": 0.185693
             }
           },
@@ -4739,80 +5076,80 @@
             "让平"
           ],
           "delta": {
-            "让负": 0,
-            "让平": 0
+            "让负": 0.0,
+            "让平": 0.0
           },
-          "total_delta": 0
+          "total_delta": 0.0
         }
       },
       "result_verification": {
         "status": "PENDING",
         "reason": "NOT_DUE",
-        "checked_at": "2026-11-15T15:04:59.394158+00:00"
+        "checked_at": "2026-11-15T16:28:18.841270+00:00"
       }
     }
   ],
-  "generated_at": "2026-11-15T15:04:59.394158+00:00",
+  "generated_at": "2026-11-15T16:28:18.841270+00:00",
   "metrics": {
     "total": 11,
-    "settled": 4,
-    "pending": 7,
-    "top1_hit_rate": 0.5,
+    "settled": 7,
+    "pending": 4,
+    "top1_hit_rate": 0.4286,
     "module_hits": {
       "胜平负Top1": {
-        "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "hit": 3,
+        "total": 7,
+        "rate": 0.4286
       },
       "胜平负Top2": {
-        "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "hit": 5,
+        "total": 7,
+        "rate": 0.7143
       },
       "让球Top1": {
-        "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "hit": 4,
+        "total": 7,
+        "rate": 0.5714
       },
       "让球Top2": {
-        "hit": 4,
-        "total": 4,
-        "rate": 1
+        "hit": 6,
+        "total": 7,
+        "rate": 0.8571
       },
       "比分Top1": {
         "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "total": 7,
+        "rate": 0.2857
       },
       "比分Top3": {
-        "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "hit": 3,
+        "total": 7,
+        "rate": 0.4286
       },
       "比分Top4": {
-        "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "hit": 3,
+        "total": 7,
+        "rate": 0.4286
       },
       "总进球Top1": {
         "hit": 1,
-        "total": 4,
-        "rate": 0.25
+        "total": 7,
+        "rate": 0.1429
       },
       "总进球Top3": {
-        "hit": 2,
-        "total": 4,
-        "rate": 0.5
+        "hit": 3,
+        "total": 7,
+        "rate": 0.4286
       },
       "半全场Top1": {
-        "hit": 1,
-        "total": 4,
-        "rate": 0.25
+        "hit": 2,
+        "total": 7,
+        "rate": 0.2857
       },
       "半全场Top3": {
-        "hit": 1,
-        "total": 4,
-        "rate": 0.25
+        "hit": 4,
+        "total": 7,
+        "rate": 0.5714
       },
       "今日优选Top1": {
         "hit": 0,
@@ -4830,129 +5167,129 @@
         "rate": null
       },
       "冷门预警": {
-        "hit": 0,
-        "total": 0,
-        "rate": null
+        "hit": 1,
+        "total": 1,
+        "rate": 1.0
       },
       "单选精选": {
-        "hit": 0,
-        "total": 0,
-        "rate": null
+        "hit": 1,
+        "total": 1,
+        "rate": 1.0
       }
     },
     "module_stats": {
       "胜平负": {
         "predicted": 10,
-        "verified": 4,
-        "pending": 6,
+        "verified": 7,
+        "pending": 3,
         "evaluation": {
-          "hit": 2,
-          "total": 4,
-          "rate": 0.5
+          "hit": 5,
+          "total": 7,
+          "rate": 0.7143
         },
         "rates": {
           "Top1": {
-            "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "hit": 3,
+            "total": 7,
+            "rate": 0.4286
           },
           "Top2": {
-            "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "hit": 5,
+            "total": 7,
+            "rate": 0.7143
           }
         }
       },
       "让球": {
         "predicted": 11,
-        "verified": 4,
-        "pending": 7,
+        "verified": 7,
+        "pending": 4,
         "evaluation": {
-          "hit": 4,
-          "total": 4,
-          "rate": 1
+          "hit": 6,
+          "total": 7,
+          "rate": 0.8571
         },
         "rates": {
           "Top1": {
-            "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "hit": 4,
+            "total": 7,
+            "rate": 0.5714
           },
           "Top2": {
-            "hit": 4,
-            "total": 4,
-            "rate": 1
+            "hit": 6,
+            "total": 7,
+            "rate": 0.8571
           }
         }
       },
       "比分": {
         "predicted": 11,
-        "verified": 4,
-        "pending": 7,
+        "verified": 7,
+        "pending": 4,
         "evaluation": {
-          "hit": 2,
-          "total": 4,
-          "rate": 0.5
+          "hit": 3,
+          "total": 7,
+          "rate": 0.4286
         },
         "rates": {
           "Top1": {
             "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "total": 7,
+            "rate": 0.2857
           },
           "Top3": {
-            "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "hit": 3,
+            "total": 7,
+            "rate": 0.4286
           },
           "Top4": {
-            "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "hit": 3,
+            "total": 7,
+            "rate": 0.4286
           }
         }
       },
       "总进球": {
         "predicted": 11,
-        "verified": 4,
-        "pending": 7,
+        "verified": 7,
+        "pending": 4,
         "evaluation": {
-          "hit": 2,
-          "total": 4,
-          "rate": 0.5
+          "hit": 3,
+          "total": 7,
+          "rate": 0.4286
         },
         "rates": {
           "Top1": {
             "hit": 1,
-            "total": 4,
-            "rate": 0.25
+            "total": 7,
+            "rate": 0.1429
           },
           "Top3": {
-            "hit": 2,
-            "total": 4,
-            "rate": 0.5
+            "hit": 3,
+            "total": 7,
+            "rate": 0.4286
           }
         }
       },
       "半全场": {
         "predicted": 11,
-        "verified": 4,
-        "pending": 7,
+        "verified": 7,
+        "pending": 4,
         "evaluation": {
-          "hit": 1,
-          "total": 4,
-          "rate": 0.25
+          "hit": 4,
+          "total": 7,
+          "rate": 0.5714
         },
         "rates": {
           "Top1": {
-            "hit": 1,
-            "total": 4,
-            "rate": 0.25
+            "hit": 2,
+            "total": 7,
+            "rate": 0.2857
           },
           "Top3": {
-            "hit": 1,
-            "total": 4,
-            "rate": 0.25
+            "hit": 4,
+            "total": 7,
+            "rate": 0.5714
           }
         }
       },
@@ -4985,35 +5322,35 @@
       },
       "冷门预警": {
         "predicted": 1,
-        "verified": 0,
-        "pending": 1,
+        "verified": 1,
+        "pending": 0,
         "evaluation": {
-          "hit": 0,
-          "total": 0,
-          "rate": null
+          "hit": 1,
+          "total": 1,
+          "rate": 1.0
         },
         "rates": {
           "": {
-            "hit": 0,
-            "total": 0,
-            "rate": null
+            "hit": 1,
+            "total": 1,
+            "rate": 1.0
           }
         }
       },
       "单选精选": {
         "predicted": 1,
-        "verified": 0,
-        "pending": 1,
+        "verified": 1,
+        "pending": 0,
         "evaluation": {
-          "hit": 0,
-          "total": 0,
-          "rate": null
+          "hit": 1,
+          "total": 1,
+          "rate": 1.0
         },
         "rates": {
           "": {
-            "hit": 0,
-            "total": 0,
-            "rate": null
+            "hit": 1,
+            "total": 1,
+            "rate": 1.0
           }
         }
       }
