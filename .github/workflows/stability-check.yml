@@ -21,7 +21,9 @@ jobs:
               assert marker in home, marker
           for marker in ("['胜平负'","['让球'","['半全场'","['比分'","['总进球'","['冷门预警'"):
               assert marker in home, marker
-          assert "['今日优选'" not in home
+          # Historical settlement may reference 今日优选; only forbid restoring its UI tab.
+          assert "['今日优选'," not in home, 'Legacy featured tab restored'
+          assert "active==='今日优选'" not in home, 'Legacy featured view restored'
           assert 'workers.dev' not in home
           # Allow only the reviewed, read-only settlement staging endpoint.
           # Keep rejecting any other direct Supabase references in production.
