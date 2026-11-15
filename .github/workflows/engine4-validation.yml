@@ -1,14 +1,8 @@
 name: 90scale 4.0 website validation
+# Disabled legacy automation: Supabase verifies results and public publisher owns settlement.
+# Retained for audit only; do not dispatch private verifier or calculate results.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'engine4/**'
-      - '.github/workflows/engine4-validation.yml'
-  schedule:
-    - cron: '0,15,30,45 4-17 * * *'
-    - cron: '0,10,20,30,40,50 0-6,14-23 * * *'
 permissions:
   contents: write
 concurrency:
@@ -16,6 +10,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   update:
+    if: ${{ false }} # Retired legacy workflow; must not execute even on manual dispatch.
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
