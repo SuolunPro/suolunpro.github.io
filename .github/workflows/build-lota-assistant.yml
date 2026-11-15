@@ -23,7 +23,7 @@ jobs:
       - name: Validate matching and publication gates
         run: python -m unittest -v test_core
       - name: Build executable
-        run: pyinstaller --noconfirm --clean --onefile --windowed --name 90scale-lota-assistant --hidden-import keyring.backends.Windows app.py
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name 90scale-lota-assistant --hidden-import keyring.backends.Windows --collect-all rapidocr --collect-all onnxruntime app.py
       - uses: actions/upload-artifact@v4
         with:
           name: 90scale-lota-assistant-windows-validation
