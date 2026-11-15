@@ -1009,6 +1009,31 @@
         if(changed&&report===data&&vipMember&&parseExpiry(vipMember.expires_at).getTime()>Date.now()){reportFingerprint=reportSignature(data);render();}
       }catch(error){console.warn('Supabase结算影子核对暂不可用',error);}
     }
+    // Historical V3 replay records live outside regenerated sales reports so that
+    // settlement refreshes cannot silently erase the selected matches.
+    async function restoreFrozenSinglePicks(data){
+      if(data?.sale_day!=='2026-11-14'||!Array.isArray(data.matches))return data;
+      try{
+        const overlay=await getJson(DATA_BASE+'single-pick-overrides/2026-11-14.json');
+        if(overlay.sale_day!==data.sale_day||!Array.isArray(overlay.records))return data;
+        const byId=new Map(overlay.records.map(item=>[String(item.source_id),item]));
+        for(const match of data.matches){
+          const saved=byId.get(String(match.source_id));
+          if(!saved||String(saved.match_no)!==String(match.match_no))continue;
+          if(!match.single_pick||match.single_pick.status!=='SELECTED'){
+            match.single_pick=structuredClone(saved.single_pick);
+          }
+          const result=match.settlement?.module_results?.['单选精选'];
+          if(match.settlement&&(!result||!['HIT','MISS'].includes(result.status))){
+            match.settlement.module_results??={};
+            match.settlement.hits??={};
+            match.settlement.module_results['单选精选']=structuredClone(saved.settlement.module_results['单选精选']);
+            match.settlement.hits['单选精选']=saved.settlement.hits['单选精选'];
+          }
+        }
+      }catch(error){console.warn('精选单选历史保留数据暂不可用',error)}
+      return data;
+    }
     async function load(options={}){
       const sequence=++loadSequence;
       const dayAtStart=selectedDay;
@@ -1049,6 +1074,7 @@
             dayCache.set(dayAtStart,{data,at:Date.now()});
           }
         }
+        data=await restoreFrozenSinglePicks(data);
         if(sequence!==loadSequence)return;
         // Do not block match rendering on the optional Supabase audit endpoint.
         void checkSupabaseSettlementStaging(data);
