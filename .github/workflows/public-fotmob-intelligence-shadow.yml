@@ -1,6 +1,10 @@
 name: Public FotMob intelligence shadow collector
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/public-fotmob-intelligence-shadow.yml'
 permissions:
   contents: write
 concurrency:
