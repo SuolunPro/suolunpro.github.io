@@ -958,6 +958,28 @@
     // Supabase settlement bridge: compare-only until independent production settlement is approved.
     // Never overwrite a frozen prediction or official GitHub settlement from staging data.
     const SUPABASE_SETTLEMENT_STAGING='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1';
+    function independentSettlement(m,x){
+      const parse=v=>{const a=/^(\\d+):(\\d+)$/.exec(v||'');return a?[+a[1],+a[2]]:null;};
+      const ft=parse(x.ft),ht=parse(x.ht);if(!ft||!ht||ht.some((n,i)=>n>ft[i]))return null;
+      const ko=Date.parse(String(m.kickoff||'').replace(' ','T')+'+08:00');
+      const pred=Date.parse(m.predicted_at||'');
+      if(!Number.isFinite(ko)||!Number.isFinite(pred)||pred>=ko||Date.now()<ko+7200000||m.prediction?.status!=='PREDICTED')return null;
+      if(!m.fotmob_match_id||Number(m.fotmob_match_id)!==Number(x.fotmob_match_id))return null;
+      const out=(a,b)=>a>b?'胜':a===b?'平':'负',sp=out(...ft),hs=out(...ht)+'-'+sp,score=x.ft;
+      const mod=m.prediction.modules||{},arr=(name,key)=>Array.isArray(mod[name]?.[key])?mod[name][key]:null;
+      const t2=arr('胜平负','top2'),rq=Number.isInteger(m.handicap)?'让'+out(ft[0]+m.handicap,ft[1]):null,hand=arr('让球','top2'),sc3=arr('比分','top3'),sc4=arr('比分','top4'),g3=arr('总进球','top3'),half=arr('半全场','top3');
+      const first=(a,v)=>a?a[0]===v:null,inc=(a,v,n)=>a&&a.length>=n?a.slice(0,n).includes(v):null;
+      const total=ft[0]+ft[1],goals=total>=7?'7+':total;
+      const selection=mod['今日优选']?.selection,sel=Array.isArray(selection)?selection:selection==null?[]:[selection];
+      const cold=mod['冷门预警']||{},coldActual=cold.direction==='主队不胜'?sp!=='胜':cold.direction==='主队不败'?sp!=='负':null;
+      const pick=m.single_pick||{};
+      const hits={'胜平负Top1':mod['胜平负']?.top1==null?null:mod['胜平负'].top1===sp,'胜平负Top2':inc(t2,sp,2),'让球Top1':rq?first(hand,rq):null,'让球Top2':rq?inc(hand,rq,2):null,'比分Top1':first(sc3,score),'比分Top3':inc(sc3,score,3),'比分Top4':inc(sc4,score,4),'总进球Top1':first(g3,goals),'总进球Top3':inc(g3,goals,3),'半全场Top1':first(half,hs),'半全场Top3':inc(half,hs,3),'今日优选Top1':sel.length?sel[0]===sp:null,'今日优选Top2':sel.length>=2?sel.slice(0,2).includes(sp):null,'冷门预警':cold.triggered===true?coldActual:null,'单选精选':['SELECTED','HISTORICAL_COHORT'].includes(pick.status)?pick.direction===sp:null};
+      hits['今日优选']=hits['今日优选Top2']??hits['今日优选Top1'];
+      const status=(v,empty='NO_FORMAL_SELECTION')=>v===true?'HIT':v===false?'MISS':empty;
+      const detail=(name,actual,picks,fields)=>{const values={};for(const f of fields)values[f]=hits[name+f];const primary=fields.slice().reverse().map(f=>values[f]).find(v=>v!=null);return {actual,picks:picks??null,hits:values,status:status(primary)};};
+      const module_results={'胜平负':detail('胜平负',sp,t2,['Top1','Top2']),'让球':detail('让球',rq,hand,['Top1','Top2']),'比分':detail('比分',score,sc4?.length?sc4:sc3,['Top1','Top3','Top4']),'总进球':detail('总进球',goals,g3,['Top1','Top3']),'半全场':detail('半全场',hs,half,['Top1','Top3']),'今日优选':{actual:sp,picks:sel,hits:{Top1:hits['今日优选Top1'],Top2:hits['今日优选Top2']},hit:hits['今日优选'],status:status(hits['今日优选'])},'冷门预警':{actual:sp,direction:cold.triggered===true?cold.direction??null:null,upset_occurred:cold.triggered===true?coldActual:null,hit:hits['冷门预警'],status:status(hits['冷门预警'],'NO_FORMAL_TRIGGER')},'单选精选':{actual:sp,direction:pick.direction??null,hit:hits['单选精选'],status:status(hits['单选精选'])}};
+      return {ht:x.ht,ft:x.ft,verified_at:x.calculated_at,source_url:'https://www.fotmob.com/api/data/matchDetails?matchId='+x.fotmob_match_id,fotmob_match_id:x.fotmob_match_id,scope:'90min_regular_ft',hits,module_results};
+    }
     async function checkSupabaseSettlementStaging(data){
       if(!data||!Array.isArray(data.matches)||!/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(data.sale_day))return;
       try{
@@ -977,14 +999,14 @@
         for(const x of audit.results){
           const m=byNo.get(String(x.match_no));
           if(!m||m.settlement||x.independent_verified!==true||x.published_settlement_present!==false)continue;
-          if(!/^[0-9]+:[0-9]+$/.test(x.ft)||!/^[0-9]+:[0-9]+$/.test(x.ht))continue;
-          if(!m.supabase_verified_score||m.supabase_verified_score.ft!==x.ft){
-            m.supabase_verified_score={ft:x.ft,ht:x.ht,source:'supabase_independent_verified',official_settlement:false};
-            changed=true;
-          }
+          const verified=independentSettlement(m,x);
+          if(!verified)continue;
+          m.settlement=verified;
+          m.result_verification={status:'VERIFIED',checked_at:x.calculated_at,source:'supabase_independent'};
+          changed=true;
         }
         data.supabase_settlement_audit={verified_matching:checked.length,staging_count:audit.results.length};
-        if(changed&&report===data&&vipMember&&parseExpiry(vipMember.expires_at).getTime()>Date.now())render();
+        if(changed&&report===data&&vipMember&&parseExpiry(vipMember.expires_at).getTime()>Date.now()){reportFingerprint=reportSignature(data);render();}
       }catch(error){console.warn('Supabase结算影子核对暂不可用',error);}
     }
     async function load(options={}){
