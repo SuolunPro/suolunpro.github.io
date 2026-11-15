@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+// Public-repository settlement publisher: no private Actions minutes or external PAT.
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const root=path.resolve(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const start=html.indexOf('function independentSettlement('),end=html.indexOf('async function checkSupabaseSettlementStaging',start);
+if(start<0||end<start)throw Error('Missing settlement function');
+const calculate=vm.runInNewContext('('+html.slice(start,end).trim()+')',{Date,Number,Array,Math});
+const today=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
+const dates=Array.from({length:4},(_,i)=>new Date(Date.parse(today+'T00:00:00Z')-i*86400000).toISOString().slice(0,10));
+const url='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1';
+async function main(){
+ let written=0,conflicts=0;
+ for(const day of dates){
+  const file=path.join(root,'data/engine4/sales',day+'.json');
+  if(!fs.existsSync(file))continue;
+  const doc=JSON.parse(fs.readFileSync(file,'utf8'));
+  if(doc.sale_day!==day||!Array.isArray(doc.matches))throw Error('Invalid snapshot '+day);
+  const response=await fetch(url+'?sale_day='+day,{signal:AbortSignal.timeout(12000)});
+  if(!response.ok)throw Error('Supabase staging HTTP '+response.status+' for '+day);
+  const audit=await response.json();
+  if(audit.mode!=='verified_staging_not_official'||audit.sale_day!==day||!Array.isArray(audit.results))throw Error('Invalid staging '+day);
+  let updated=0;
+  for(const x of audit.results){
+   if(x.independent_verified!==true||x.published_settlement_present!==false)continue;
+   const m=doc.matches.find(m=>String(m.match_no)===String(x.match_no));
+   if(!m)continue;
+   if(m.settlement){if(m.settlement.ft!==x.ft||m.settlement.ht!==x.ht){conflicts++;console.error('CONFLICT',day,m.match_no)}continue}
+   const settlement=calculate(m,x);
+   if(!settlement)continue;
+   m.settlement=settlement;
+   m.result_verification={status:'VERIFIED',checked_at:x.calculated_at,source:'supabase_independent'};
+   updated++;
+  }
+  if(updated){
+   fs.writeFileSync(file,JSON.stringify(doc,null,2)+'\n');
+   const latestFile=path.join(root,'data/engine4/latest.json');
+   if(fs.existsSync(latestFile)){
+    const latest=JSON.parse(fs.readFileSync(latestFile,'utf8'));
+    if(latest.sale_day===day){
+     for(const m of latest.matches||[]){
+      const fresh=doc.matches.find(x=>String(x.match_no)===String(m.match_no));
+      if(fresh?.settlement&&!m.settlement){m.settlement=fresh.settlement;m.result_verification=fresh.result_verification}
+     }
+     fs.writeFileSync(latestFile,JSON.stringify(latest,null,2)+'\n');
+    }
+   }
+   written+=updated;
+  }
+  console.log(day,'newly published',updated,'verified staging rows',audit.results.length);
+ }
+ console.log(JSON.stringify({written,conflicts,dates}));
+ if(conflicts)process.exitCode=2;
+}
+main().catch(e=>{console.error(e);process.exitCode=1});
