@@ -1018,7 +1018,8 @@
           }
         }
         if(sequence!==loadSequence)return;
-        await checkSupabaseSettlementStaging(data);
+        // Do not block match rendering on the optional Supabase audit endpoint.
+        void checkSupabaseSettlementStaging(data);
         if(active==='独立研判')await loadIndependentReviews(data);
         if(sequence!==loadSequence)return;
         const fingerprint=reportSignature(data);
