@@ -1,6 +1,10 @@
 name: Public source connectivity probe
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/public-source-probe.yml'
   schedule:
     - cron: '30 4 * * *'
 permissions:
