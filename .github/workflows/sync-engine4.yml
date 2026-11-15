@@ -20,7 +20,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: sync-90scale-engine
+  group: engine4-site-data-writer
   cancel-in-progress: false
 jobs:
   sync:
