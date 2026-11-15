@@ -6,7 +6,12 @@ const start=html.indexOf('function independentSettlement('),end=html.indexOf('as
 if(start<0||end<start)throw Error('Missing settlement function');
 const calculate=vm.runInNewContext('('+html.slice(start,end).trim()+')',{Date,Number,Array,Math});
 const today=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
-const dates=Array.from({length:4},(_,i)=>new Date(Date.parse(today+'T00:00:00Z')-i*86400000).toISOString().slice(0,10));
+// Scan every retained sale day for unresolved results, not just the last four days.
+const dates=fs.readdirSync(path.join(root,'data/engine4/sales'))
+ .filter(name=>/^\d{4}-\d{2}-\d{2}\.json$/.test(name))
+ .map(name=>name.slice(0,10))
+ .filter(day=>day<=today)
+ .sort().reverse();
 const url='https://zssourkgabcxibggwhqm.supabase.co/functions/v1/ninety-public-settlement-staging-v1';
 async function main(){
  let written=0,conflicts=0;
@@ -15,6 +20,7 @@ async function main(){
   if(!fs.existsSync(file))continue;
   const doc=JSON.parse(fs.readFileSync(file,'utf8'));
   if(doc.sale_day!==day||!Array.isArray(doc.matches))throw Error('Invalid snapshot '+day);
+  if(!doc.matches.some(m=>m.predicted_at&&!m.settlement))continue;
   const response=await fetch(url+'?sale_day='+day,{signal:AbortSignal.timeout(12000)});
   if(!response.ok)throw Error('Supabase staging HTTP '+response.status+' for '+day);
   const audit=await response.json();
