@@ -616,6 +616,38 @@
         if(actualHit)cell.append(el('span','hit-check','✓'));grid.append(cell)
       });
       const analysis=el('div','analysis');analysis.append(grid);
+      if(active==='让球'){
+        const handicapModule=match.prediction?.modules?.['让球']||{};
+        const directions=['让胜','让平','让负'];
+        const validSet=data=>data&&directions.every(k=>typeof data[k]==='number'&&Number.isFinite(data[k])&&data[k]>=0&&data[k]<=1);
+        const model=handicapModule.xg_probabilities;
+        const market=handicapModule.market_probabilities;
+        const sets=[['模型概率（历史xG）',model],['市场概率（体彩SP）',market]].filter(([,data])=>validSet(data));
+        if(sets.length){
+          const box=el('div','v4-handicap-dual-probabilities');
+          box.style.cssText='margin-top:12px;';
+          sets.forEach(([heading,data])=>{
+            const title=el('div','',heading);
+            title.style.cssText='font-size:12px;color:#737b87;margin:9px 0 7px;font-weight:600;';
+            const cells=el('div','');
+            cells.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;';
+            directions.forEach(k=>{
+              const cell=el('div','');
+              cell.style.cssText='min-width:0;text-align:center;padding:9px 3px;border:1px solid #e9ebef;border-radius:10px;background:#fafbfc;';
+              const name=el('div','',k),value=el('div','',(data[k]*100).toFixed(2)+'%');
+              name.style.cssText='font-size:11px;color:#737b87;';
+              value.style.cssText='font-size:14px;font-weight:700;margin-top:4px;color:#344054;';
+              cell.append(name,value);cells.append(cell);
+            });
+            box.append(title,cells);
+          });
+          analysis.append(box);
+        }else{
+          analysis.append(el('div','', '暂无有效让球概率数据'));
+        }
+        card.append(analysis);
+        return;
+      }
       if(active==='让球'&&items.length===2&&match.prediction?.modules?.['让球']?.source==='FotMob历史完赛xG'){
         const module=match.prediction.modules['让球'];
         const xg=match.fotmob_xg||{};
