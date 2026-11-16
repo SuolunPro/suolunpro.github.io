@@ -617,50 +617,51 @@
       });
       const analysis=el('div','analysis');analysis.append(grid);
       if(active==='让球'){
-        const handicapModule=match.prediction?.modules?.['让球']||{};
-        const directions=['让胜','让平','让负'];
-        const validSet=data=>data&&directions.every(k=>typeof data[k]==='number'&&Number.isFinite(data[k])&&data[k]>=0&&data[k]<=1);
-        const model=handicapModule.xg_probabilities;
-        const market=handicapModule.market_probabilities;
-        const sets=[['预测概率',model],['参考概率',market]].filter(([,data])=>validSet(data));
-        if(sets.length){
-          const box=el('div','v4-handicap-dual-probabilities');
+        const module=match.prediction?.modules?.['让球']||{};
+        const dirs=['让胜','让平','让负'];
+        const valid=data=>data&&dirs.every(k=>typeof data[k]==='number'&&Number.isFinite(data[k])&&data[k]>=0&&data[k]<=1);
+        const market=module.market_probabilities,model=module.xg_probabilities;
+        const selected=valid(market)?market:valid(model)?model:null;
+        if(selected){
+          const box=el('div','v4-handicap-market-summary');
           box.style.cssText='margin-top:12px;';
-          sets.forEach(([heading,data])=>{
-            const title=el('div','',heading);
-            title.style.cssText='font-size:12px;color:#737b87;margin:9px 0 7px;font-weight:600;';
-            const cells=el('div','');
-            cells.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;';
-            directions.forEach(k=>{
-              const cell=el('div','');
-              cell.style.cssText='min-width:0;text-align:center;padding:9px 3px;border:1px solid #e9ebef;border-radius:10px;background:#fafbfc;';
-              const name=el('div','',k),value=el('div','',(data[k]*100).toFixed(2)+'%');
-              name.style.cssText='font-size:11px;color:#737b87;';
-              value.style.cssText='font-size:14px;font-weight:700;margin-top:4px;color:#344054;';
-              cell.append(name,value);cells.append(cell);
-            });
-            box.append(title,cells);
+          const title=el('div','',valid(market)?'市场概率':'预测概率');
+          title.style.cssText='font-size:12px;color:#737b87;margin-bottom:7px;font-weight:600;';
+          const cells=el('div','');
+          cells.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;';
+          dirs.forEach(k=>{
+            const cell=el('div','');
+            cell.style.cssText='min-width:0;text-align:center;padding:9px 3px;border:1px solid #e9ebef;border-radius:10px;background:#fafbfc;';
+            const name=el('div','',k),value=el('div','',(selected[k]*100).toFixed(2)+'%');
+            name.style.cssText='font-size:11px;color:#737b87;';
+            value.style.cssText='font-size:14px;font-weight:700;margin-top:4px;color:#344054;';
+            cell.append(name,value);cells.append(cell);
           });
-          analysis.append(box);
-          const movement=match.pair_probability_change?.['让球']?.market_delta;
-          if(validSet(market)&&movement&&directions.every(k=>typeof movement[k]==='number'&&Number.isFinite(movement[k]))){
-            const title=el('div','','市场概率变化');
-            title.style.cssText='font-size:12px;color:#737b87;margin:12px 0 7px;font-weight:600;';
-            const cells=el('div','');
-            cells.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;';
-            directions.forEach(k=>{
-              const v=movement[k],cell=el('div','');
-              cell.style.cssText='min-width:0;text-align:center;padding:9px 3px;border:1px solid #e9ebef;border-radius:10px;background:#fafbfc;';
-              const name=el('div','',k+'变化');
-              name.style.cssText='font-size:11px;color:#737b87;';
-              const val=el('div','',(Math.abs(v)<0.005?'→':v>0?'↑':'↓')+' '+(v>0?'+':'')+v.toFixed(2)+'%');
-              val.style.cssText='font-size:14px;font-weight:700;margin-top:4px;color:'+(v>0?'#dc2626':v<0?'#16a34a':'#737b87')+';';
-              cell.append(name,val);cells.append(cell);
-            });
-            analysis.append(title,cells);
+          box.append(title,cells);
+          if(valid(market)&&valid(model)){
+            const top=data=>dirs.reduce((a,k)=>data[k]>data[a]?k:a,dirs[0]);
+            const same=top(market)===top(model);
+            const alignment=el('div','', '方向对比：'+(same?'同向':'反向'));
+            alignment.style.cssText='font-size:12px;font-weight:600;margin-top:9px;color:'+(same?'#15803d':'#b45309')+';';
+            box.append(alignment);
           }
-        }else{
-          analysis.append(el('div','', '暂无有效让球概率数据'));
+          const delta=match.pair_probability_change?.['让球']?.market_delta;
+          if(valid(market)&&delta&&dirs.every(k=>typeof delta[k]==='number'&&Number.isFinite(delta[k]))){
+            const caption=el('div','','赛前市场变化');
+            caption.style.cssText='font-size:12px;color:#737b87;margin:12px 0 7px;font-weight:600;';
+            const row=el('div','');
+            row.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;';
+            dirs.forEach(k=>{
+              const v=delta[k],cell=el('div','');
+              cell.style.cssText='text-align:center;padding:8px 2px;border:1px solid #e9ebef;border-radius:10px;';
+              const name=el('div','',k+'变化'),value=el('div','',(Math.abs(v)<0.005?'→':v>0?'↑':'↓')+' '+(v>0?'+':'')+v.toFixed(2)+'%');
+              name.style.cssText='font-size:11px;color:#737b87;';
+              value.style.cssText='font-size:13px;font-weight:700;margin-top:4px;color:'+(v>0?'#dc2626':v<0?'#16a34a':'#737b87')+';';
+              cell.append(name,value);row.append(cell);
+            });
+            box.append(caption,row);
+          }
+          analysis.append(box);
         }
         card.append(analysis);
         return;
