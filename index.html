@@ -618,7 +618,7 @@
       const analysis=el('div','analysis');analysis.append(grid);
       if(active==='半全场'){
         const shadow=match.prediction?.modules?.['半全场']?.william_calibration;
-        if(shadow?.status==='SHADOW'&&Array.isArray(shadow.top3)&&shadow.top3.length===3&&shadow.probabilities){
+        if(['SHADOW','APPLIED'].includes(shadow?.status)&&Array.isArray(shadow.top3)&&shadow.top3.length===3&&shadow.probabilities){
           const toggle=el('button','','查看市场校准版 ▾');
           toggle.type='button';
           toggle.setAttribute('aria-expanded','false');
