@@ -19,7 +19,7 @@ jobs:
           now=dt.datetime.now(dt.timezone.utc)
           bj=now+dt.timedelta(hours=8)
           # Only while the normal prematch prediction schedule is active.
-          if not (9 <= bj.hour < 23):
+          if not (9 <= bj.hour < 22 or bj.hour == 22 and bj.minute <= 45):
               print("Outside prematch monitoring hours; skip."); quit()
           token=os.getenv("PRIVATE_ENGINE_TOKEN","")
           if not token:
