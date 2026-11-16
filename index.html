@@ -622,7 +622,7 @@
         const validSet=data=>data&&directions.every(k=>typeof data[k]==='number'&&Number.isFinite(data[k])&&data[k]>=0&&data[k]<=1);
         const model=handicapModule.xg_probabilities;
         const market=handicapModule.market_probabilities;
-        const sets=[['模型概率（历史xG）',model],['市场概率（体彩SP）',market]].filter(([,data])=>validSet(data));
+        const sets=[['预测概率',model],['参考概率',market]].filter(([,data])=>validSet(data));
         if(sets.length){
           const box=el('div','v4-handicap-dual-probabilities');
           box.style.cssText='margin-top:12px;';
