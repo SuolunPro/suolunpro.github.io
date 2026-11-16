@@ -1,0 +1,57 @@
+name: Prediction schedule watchdog (public)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23,53 1-14 * * *'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check missed private prediction run; retry once if authorized
+        env:
+          PRIVATE_ENGINE_TOKEN: ${{ secrets.PRIVATE_ENGINE_DISPATCH_TOKEN }}
+        run: |
+          python - <<'PY'
+          import datetime as dt, json, os, urllib.request, urllib.error
+          now=dt.datetime.now(dt.timezone.utc)
+          bj=now+dt.timedelta(hours=8)
+          # Only while the normal prematch prediction schedule is active.
+          if not (9 <= bj.hour < 23):
+              print("Outside prematch monitoring hours; skip."); quit()
+          token=os.getenv("PRIVATE_ENGINE_TOKEN","")
+          if not token:
+              print("WATCHDOG_NOT_CONFIGURED: missing PRIVATE_ENGINE_DISPATCH_TOKEN; no dispatch attempted.")
+              quit()
+          base="https://api.github.com/repos/SuolunPro/90scale-engine"
+          headers={"Authorization":"Bearer "+token,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}
+          def api(path,method="GET",data=None):
+              req=urllib.request.Request(base+path,headers=headers,method=method,data=data)
+              with urllib.request.urlopen(req,timeout=15) as r:
+                  return json.load(r) if r.status!=204 else {}
+          try:
+              runs=api("/actions/workflows/engine4.yml/runs?per_page=30").get("workflow_runs",[])
+              if not runs:
+                  raise RuntimeError("No workflow history returned")
+              recent=[]
+              for r in runs:
+                  t=dt.datetime.fromisoformat(r["created_at"].replace("Z","+00:00"))
+                  if now-t < dt.timedelta(minutes=100): recent.append((r,t))
+              if any(r["status"] in ("queued","in_progress","waiting","pending","requested") for r,t in recent):
+                  print("Prediction run active; skip."); quit()
+              if any(r["conclusion"]=="success" and now-t<dt.timedelta(minutes=75) for r,t in recent):
+                  print("Recent successful prediction run; skip."); quit()
+              if any(r["event"]=="workflow_dispatch" and now-t<dt.timedelta(minutes=100) for r,t in recent):
+                  print("Recent manual/recovery dispatch; no duplicate retry."); quit()
+              # A successful run can be old because no fixtures are on sale. Dispatch is
+              # limited to one recovery attempt per window; engine's own gate must check
+              # that there are active, unfrozen fixtures before changing predictions.
+              print("WATCHDOG_MISSED_RUN: no successful run within 75 min.")
+              api("/actions/workflows/engine4.yml/dispatches","POST",json.dumps({"ref":"main"}).encode())
+              print("WATCHDOG_RECOVERY_DISPATCHED: one attempt; check engine workflow result.")
+          except Exception as e:
+              print("WATCHDOG_CHECK_FAILED:",str(e))
+              raise
+          PY
