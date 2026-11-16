@@ -619,14 +619,14 @@
       if(active==='半全场'){
         const shadow=match.prediction?.modules?.['半全场']?.william_calibration;
         if(['SHADOW','APPLIED'].includes(shadow?.status)&&Array.isArray(shadow.top3)&&shadow.top3.length===3&&shadow.probabilities){
-          const toggle=el('button','','查看市场校准版 ▾');
+          const toggle=el('button','','市场校准 ▾');
           toggle.type='button';
           toggle.setAttribute('aria-expanded','false');
-          toggle.style.cssText='display:block;margin:12px auto 0;padding:9px 16px;border:1px solid #e4e7ec;border-radius:10px;background:#fff;color:#475467;font-size:13px;font-weight:600;cursor:pointer;';
+          toggle.style.cssText='display:block;margin:12px auto 0;padding:8px 18px;border:1px solid #e4e7ec;border-radius:999px;background:#f8fafc;color:#475467;font-size:13px;font-weight:600;cursor:pointer;';
           const panel=el('div','');
           panel.hidden=true;
           panel.style.cssText='margin-top:12px;';
-          const heading=el('div','','市场校准版 · Top3');
+          const heading=el('div','','市场校准预测');
           heading.style.cssText='font-size:12px;color:#667085;margin-bottom:8px;';
           const secondary=el('div','triplet');
           shadow.top3.forEach((value,index)=>{
@@ -638,7 +638,7 @@
           toggle.onclick=()=>{
             panel.hidden=!panel.hidden;
             toggle.setAttribute('aria-expanded',String(!panel.hidden));
-            toggle.textContent=panel.hidden?'查看市场校准版 ▾':'收起市场校准版 ▴';
+            toggle.textContent=panel.hidden?'市场校准 ▾':'收起校准 ▴';
           };
           analysis.append(toggle,panel);
         }
