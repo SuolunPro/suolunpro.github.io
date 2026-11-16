@@ -21,22 +21,27 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:51:37.836376+00:00",
+        "captured_at": "2026-11-16T00:43:06.108249+00:00",
         "william": {
           "initial": "71.00 / 26.00 / 1.02",
-          "current": "51.00 / 19.00 / 1.03",
-          "time": "6分钟前"
+          "current": "71.00 / 26.00 / 1.02",
+          "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "1.00 -3.5/4 0.80",
-            "current": "0.90 -4 0.90",
-            "time": "3分钟前"
+            "current": "0.88 -4/4.5 0.93",
+            "time": "1小时前"
           },
           "皇冠": {
             "initial": "1.02 -3.5/4 0.80",
-            "current": "1.06 -4 0.70",
-            "time": "10分钟前"
+            "current": "1.15 -4 0.62",
+            "time": "2小时前"
+          },
+          "威廉希尔": {
+            "initial": "0.83 -4 0.75",
+            "current": "0.75 -4/4.5 0.91",
+            "time": "1小时前"
           }
         }
       },
@@ -97,13 +102,117 @@
             }
           ]
         },
-        "captured_at": "2026-11-15T16:51:39.857348+00:00",
+        "captured_at": "2026-11-16T00:43:08.539746+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-15T16:51:41.395077+00:00",
+      "predicted_at": "2026-11-16T00:43:13.774391+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "负",
+            "top2": [
+              "负",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.0136,
+              "平": 0.0372,
+              "负": 0.9491
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "0:4",
+              "0:3",
+              "0:5"
+            ],
+            "top4": [
+              "0:4",
+              "0:3",
+              "0:5",
+              "0:6"
+            ],
+            "probabilities": {
+              "0:4": 0.108778,
+              "0:3": 0.097633,
+              "0:5": 0.096957,
+              "0:6": 0.072017
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              "7+",
+              5,
+              4
+            ],
+            "probabilities": {
+              "0": 0.006577,
+              "1": 0.033043,
+              "2": 0.083008,
+              "3": 0.139016,
+              "4": 0.174611,
+              "5": 0.175457,
+              "6": 0.146922,
+              "7+": 0.241366
+            },
+            "estimated_total_goals": 5.024,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "负-负",
+              "平-负",
+              "胜-负"
+            ],
+            "probabilities": {
+              "胜-胜": 0.006977,
+              "胜-平": 0.008594,
+              "胜-负": 0.022855,
+              "平-胜": 0.005377,
+              "平-平": 0.020021,
+              "平-负": 0.139503,
+              "负-胜": 0.001273,
+              "负-平": 0.008594,
+              "负-负": 0.786806
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": false,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -131,22 +240,27 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:51:42.655874+00:00",
+        "captured_at": "2026-11-16T00:43:15.061325+00:00",
         "william": {
           "initial": "1.91 / 3.10 / 3.70",
-          "current": "1.91 / 3.00 / 3.90",
-          "time": "1小时前"
+          "current": "1.85 / 3.10 / 4.00",
+          "time": "6小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "1.00 0.5 0.80",
-            "current": "1.00 0.5 0.80",
-            "time": "1小时前"
+            "current": "0.88 0.5 0.93",
+            "time": "0分钟前"
           },
           "皇冠": {
             "initial": "0.85 0.5 0.97",
-            "current": "0.85 0.5 0.97",
-            "time": "43分钟前"
+            "current": "0.88 0.5 0.94",
+            "time": "1小时前"
+          },
+          "威廉希尔": {
+            "initial": "0.91 0.5 0.75",
+            "current": "0.91 0.5 0.75",
+            "time": "7小时前"
           }
         }
       },
@@ -158,10 +272,114 @@
         "reason": "历史完赛xG样本不足：主0场、客0场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-15T16:51:47.570666+00:00",
+      "predicted_at": "2026-11-16T00:43:23.860009+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.4856,
+              "平": 0.2898,
+              "负": 0.2246
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "1:0",
+              "0:0",
+              "1:1"
+            ],
+            "top4": [
+              "1:0",
+              "0:0",
+              "1:1",
+              "2:0"
+            ],
+            "probabilities": {
+              "1:0": 0.153826,
+              "0:0": 0.137805,
+              "1:1": 0.137051,
+              "2:0": 0.10532
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              2,
+              1,
+              3
+            ],
+            "probabilities": {
+              "0": 0.127653,
+              "1": 0.262766,
+              "2": 0.270444,
+              "3": 0.185564,
+              "4": 0.095493,
+              "5": 0.039313,
+              "6": 0.013487,
+              "7+": 0.005279
+            },
+            "estimated_total_goals": 2.058,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "平-平",
+              "平-胜"
+            ],
+            "probabilities": {
+              "胜-胜": 0.286764,
+              "胜-平": 0.042499,
+              "胜-负": 0.009764,
+              "平-胜": 0.180943,
+              "平-平": 0.204801,
+              "平-负": 0.094097,
+              "负-胜": 0.017901,
+              "负-平": 0.042499,
+              "负-负": 0.120734
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": false,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -189,27 +407,27 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:51:48.819250+00:00",
+        "captured_at": "2026-11-16T00:43:25.381742+00:00",
         "william": {
           "initial": "1.57 / 3.60 / 4.80",
-          "current": "1.62 / 3.50 / 4.80",
-          "time": "37分钟前"
+          "current": "1.73 / 3.25 / 4.40",
+          "time": "4小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.78 0.5/1 1.03",
-            "current": "0.78 0.5/1 1.03",
-            "time": "1小时前"
+            "current": "1.00 0.5/1 0.80",
+            "time": "5小时前"
           },
           "皇冠": {
             "initial": "0.82 0.5/1 1.00",
-            "current": "0.82 0.5/1 1.00",
-            "time": "35分钟前"
+            "current": "1.04 0.5/1 0.78",
+            "time": "5小时前"
           },
           "威廉希尔": {
             "initial": "0.70 0.5/1 0.95",
-            "current": "0.75 0.5/1 0.91",
-            "time": "38分钟前"
+            "current": "0.95 0.5/1 0.70",
+            "time": "4小时前"
           }
         }
       },
@@ -218,10 +436,114 @@
         "reason": "球队缺少经核实的FotMob ID映射；日期及球队赛程未唯一确认",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-15T16:51:53.067845+00:00",
+      "predicted_at": "2026-11-16T00:43:29.065524+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.5193,
+              "平": 0.2765,
+              "负": 0.2042
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "1:0",
+              "1:1",
+              "0:0"
+            ],
+            "top4": [
+              "1:0",
+              "1:1",
+              "0:0",
+              "2:0"
+            ],
+            "probabilities": {
+              "1:0": 0.152722,
+              "1:1": 0.13284,
+              "0:0": 0.126981,
+              "2:0": 0.112797
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              2,
+              1,
+              3
+            ],
+            "probabilities": {
+              "0": 0.117141,
+              "1": 0.251195,
+              "2": 0.269328,
+              "3": 0.192513,
+              "4": 0.103205,
+              "5": 0.044262,
+              "6": 0.015819,
+              "7+": 0.006537
+            },
+            "estimated_total_goals": 2.144,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "平-平",
+              "平-胜"
+            ],
+            "probabilities": {
+              "胜-胜": 0.311784,
+              "胜-平": 0.041876,
+              "胜-负": 0.009341,
+              "平-胜": 0.188187,
+              "平-平": 0.192701,
+              "平-负": 0.085527,
+              "负-胜": 0.019378,
+              "负-平": 0.041876,
+              "负-负": 0.10933
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": false,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -249,32 +571,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:51:54.333450+00:00",
+        "captured_at": "2026-11-16T00:43:30.628131+00:00",
         "william": {
           "initial": "1.73 / 3.40 / 4.20",
           "current": "1.83 / 3.30 / 3.80",
-          "time": "17小时前"
+          "time": "1天前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.95 0.5/1 0.85",
             "current": "0.85 0.5 0.95",
-            "time": "16小时前"
+            "time": "23小时前"
           },
           "澳门": {
             "initial": "0.96 0.5/1 0.88",
             "current": "0.88 0.5 0.96",
-            "time": "17小时前"
+            "time": "1天前"
           },
           "皇冠": {
             "initial": "0.97 0.5/1 0.85",
             "current": "0.87 0.5 0.95",
-            "time": "18小时前"
+            "time": "1天前"
           },
           "威廉希尔": {
             "initial": "1.00 0.5/1 0.73",
             "current": "0.80 0.5 0.91",
-            "time": "18小时前"
+            "time": "1天前"
           }
         }
       },
@@ -345,13 +667,117 @@
             }
           ]
         },
-        "captured_at": "2026-11-15T16:51:56.917158+00:00",
+        "captured_at": "2026-11-16T00:43:33.759316+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-15T16:51:58.206884+00:00",
+      "predicted_at": "2026-11-16T00:43:36.285692+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.4911,
+              "平": 0.2724,
+              "负": 0.2365
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "1:1",
+              "1:0",
+              "0:0"
+            ],
+            "top4": [
+              "1:1",
+              "1:0",
+              "0:0",
+              "2:0"
+            ],
+            "probabilities": {
+              "1:1": 0.136007,
+              "1:0": 0.132509,
+              "0:0": 0.111647,
+              "2:0": 0.100078
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              2,
+              1,
+              3
+            ],
+            "probabilities": {
+              "0": 0.101572,
+              "1": 0.232294,
+              "2": 0.265627,
+              "3": 0.202495,
+              "4": 0.115776,
+              "5": 0.052956,
+              "6": 0.020185,
+              "7+": 0.009096
+            },
+            "estimated_total_goals": 2.287,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "平-平",
+              "平-胜"
+            ],
+            "probabilities": {
+              "胜-胜": 0.294266,
+              "胜-平": 0.045319,
+              "胜-负": 0.011939,
+              "平-胜": 0.175857,
+              "平-平": 0.181715,
+              "平-负": 0.09524,
+              "负-胜": 0.021006,
+              "负-平": 0.045319,
+              "负-负": 0.129338
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": true,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -379,32 +805,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:51:59.455367+00:00",
+        "captured_at": "2026-11-16T00:43:37.805758+00:00",
         "william": {
           "initial": "2.25 / 3.50 / 2.63",
           "current": "2.15 / 3.30 / 2.90",
-          "time": "17小时前"
+          "time": "1天前"
         },
         "asia": {
           "Bet365": {
             "initial": "1.00 0/0.5 0.80",
             "current": "0.93 0/0.5 0.88",
-            "time": "16小时前"
+            "time": "23小时前"
           },
           "澳门": {
             "initial": "1.04 0/0.5 0.80",
             "current": "0.90 0/0.5 0.94",
-            "time": "16小时前"
+            "time": "1天前"
           },
           "皇冠": {
             "initial": "0.74 0 1.08",
             "current": "0.89 0/0.5 0.93",
-            "time": "18小时前"
+            "time": "1天前"
           },
           "威廉希尔": {
             "initial": "1.00 0/0.5 0.73",
             "current": "0.83 0/0.5 0.75",
-            "time": "9小时前"
+            "time": "17小时前"
           }
         }
       },
@@ -475,13 +901,117 @@
             }
           ]
         },
-        "captured_at": "2026-11-15T16:52:02.452564+00:00",
+        "captured_at": "2026-11-16T00:43:41.191577+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-15T16:52:03.468371+00:00",
+      "predicted_at": "2026-11-16T00:43:42.412383+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "负"
+            ],
+            "probabilities": {
+              "胜": 0.4179,
+              "平": 0.2723,
+              "负": 0.3098
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "1:1",
+              "1:0",
+              "0:0"
+            ],
+            "top4": [
+              "1:1",
+              "1:0",
+              "0:0",
+              "0:1"
+            ],
+            "probabilities": {
+              "1:1": 0.139096,
+              "1:0": 0.106351,
+              "0:0": 0.098103,
+              "0:1": 0.086632
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              2,
+              1,
+              3
+            ],
+            "probabilities": {
+              "0": 0.0878,
+              "1": 0.21359,
+              "2": 0.2598,
+              "3": 0.210672,
+              "4": 0.128125,
+              "5": 0.062338,
+              "6": 0.025275,
+              "7+": 0.012401
+            },
+            "estimated_total_goals": 2.433,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "负-负",
+              "平-平"
+            ],
+            "probabilities": {
+              "胜-胜": 0.245985,
+              "胜-平": 0.049487,
+              "胜-负": 0.016756,
+              "平-胜": 0.150851,
+              "平-平": 0.173297,
+              "平-负": 0.11752,
+              "负-胜": 0.021069,
+              "负-平": 0.049487,
+              "负-负": 0.175549
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": true,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -509,32 +1039,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:52:04.723430+00:00",
+        "captured_at": "2026-11-16T00:43:43.730432+00:00",
         "william": {
           "initial": "2.40 / 3.70 / 2.40",
-          "current": "2.40 / 3.40 / 2.50",
-          "time": "21小时前"
+          "current": "2.29 / 3.50 / 2.50",
+          "time": "5小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.93 0 0.93",
             "current": "0.80 0 1.05",
-            "time": "4小时前"
+            "time": "12小时前"
           },
           "澳门": {
             "initial": "0.96 0 0.88",
             "current": "0.82 0 1.02",
-            "time": "3小时前"
+            "time": "11小时前"
           },
           "皇冠": {
             "initial": "0.94 0 0.88",
             "current": "0.82 0 1.00",
-            "time": "6小时前"
+            "time": "13小时前"
           },
           "威廉希尔": {
             "initial": "0.85 0 0.85",
-            "current": "0.75 0 0.85",
-            "time": "6小时前"
+            "current": "0.73 0 0.85",
+            "time": "5小时前"
           }
         }
       },
@@ -605,13 +1135,117 @@
             }
           ]
         },
-        "captured_at": "2026-11-15T16:52:07.172899+00:00",
+        "captured_at": "2026-11-16T00:43:46.794367+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-15T16:52:08.630384+00:00",
+      "predicted_at": "2026-11-16T00:43:50.052371+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "负"
+            ],
+            "probabilities": {
+              "胜": 0.3891,
+              "平": 0.2546,
+              "负": 0.3564
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "1:1",
+              "2:1",
+              "1:2"
+            ],
+            "top4": [
+              "1:1",
+              "2:1",
+              "1:2",
+              "1:0"
+            ],
+            "probabilities": {
+              "1:1": 0.129974,
+              "2:1": 0.08529,
+              "1:2": 0.080979,
+              "1:0": 0.079798
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              2,
+              3,
+              1
+            ],
+            "probabilities": {
+              "0": 0.063091,
+              "1": 0.174331,
+              "2": 0.240854,
+              "3": 0.221841,
+              "4": 0.153247,
+              "5": 0.08469,
+              "6": 0.039002,
+              "7+": 0.022944
+            },
+            "estimated_total_goals": 2.763,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "负-负",
+              "平-平"
+            ],
+            "probabilities": {
+              "胜-胜": 0.230177,
+              "胜-平": 0.052387,
+              "胜-负": 0.02204,
+              "平-胜": 0.135345,
+              "平-平": 0.149784,
+              "平-负": 0.125892,
+              "负-胜": 0.02354,
+              "负-平": 0.052387,
+              "负-负": 0.208449
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": true,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -639,32 +1273,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:52:09.887530+00:00",
+        "captured_at": "2026-11-16T00:43:51.591213+00:00",
         "william": {
           "initial": "8.00 / 5.00 / 1.30",
-          "current": "6.50 / 4.40 / 1.40",
-          "time": "9小时前"
+          "current": "6.50 / 4.59 / 1.36",
+          "time": "5小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.88 -1.5 0.98",
-            "current": "0.95 -1/1.5 0.90",
-            "time": "7小时前"
+            "current": "0.98 -1/1.5 0.88",
+            "time": "6小时前"
           },
           "澳门": {
             "initial": "0.84 -1.5 1.00",
             "current": "0.94 -1/1.5 0.90",
-            "time": "17小时前"
+            "time": "1天前"
           },
           "皇冠": {
             "initial": "0.85 -1.5 0.97",
             "current": "0.93 -1/1.5 0.89",
-            "time": "18小时前"
+            "time": "1天前"
           },
           "威廉希尔": {
             "initial": "0.80 -1.5 0.91",
-            "current": "0.80 -1/1.5 0.91",
-            "time": "17小时前"
+            "current": "0.85 -1/1.5 0.85",
+            "time": "5小时前"
           }
         }
       },
@@ -735,13 +1369,117 @@
             }
           ]
         },
-        "captured_at": "2026-11-15T16:52:12.093393+00:00",
+        "captured_at": "2026-11-16T00:43:54.153417+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-15T16:52:13.168403+00:00",
+      "predicted_at": "2026-11-16T00:43:55.355432+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "负",
+            "top2": [
+              "负",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.139,
+              "平": 0.1968,
+              "负": 0.6642
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "0:2",
+              "0:1",
+              "1:1"
+            ],
+            "top4": [
+              "0:2",
+              "0:1",
+              "1:1",
+              "1:2"
+            ],
+            "probabilities": {
+              "0:2": 0.117104,
+              "0:1": 0.104439,
+              "1:1": 0.101026,
+              "1:2": 0.097872
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              2,
+              3,
+              4
+            ],
+            "probabilities": {
+              "0": 0.053485,
+              "1": 0.156623,
+              "2": 0.229324,
+              "3": 0.223847,
+              "4": 0.163876,
+              "5": 0.095978,
+              "6": 0.046843,
+              "7+": 0.030025
+            },
+            "estimated_total_goals": 2.928,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "负-负",
+              "平-负",
+              "平-平"
+            ],
+            "probabilities": {
+              "胜-胜": 0.074859,
+              "胜-平": 0.038944,
+              "胜-负": 0.029929,
+              "平-胜": 0.054795,
+              "平-平": 0.118918,
+              "平-负": 0.197575,
+              "负-胜": 0.009322,
+              "负-平": 0.038944,
+              "负-负": 0.436715
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": true,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -769,32 +1507,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:52:14.393669+00:00",
+        "captured_at": "2026-11-16T00:43:56.655250+00:00",
         "william": {
           "initial": "1.83 / 3.10 / 4.20",
           "current": "1.91 / 3.10 / 3.90",
-          "time": "18小时前"
+          "time": "1天前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.85 0.5 0.95",
             "current": "0.95 0.5 0.85",
-            "time": "17小时前"
+            "time": "1天前"
           },
           "澳门": {
             "initial": "0.88 0.5 0.96",
             "current": "0.98 0.5 0.86",
-            "time": "17小时前"
+            "time": "1天前"
           },
           "皇冠": {
             "initial": "0.85 0.5 0.97",
             "current": "0.96 0.5 0.86",
-            "time": "20小时前"
+            "time": "1天前"
           },
           "威廉希尔": {
             "initial": "0.83 0.5 0.91",
             "current": "0.91 0.5 0.83",
-            "time": "20小时前"
+            "time": "1天前"
           }
         }
       },
@@ -865,13 +1603,117 @@
             }
           ]
         },
-        "captured_at": "2026-11-15T16:52:17.522263+00:00",
+        "captured_at": "2026-11-16T00:44:00.758084+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-15T16:52:18.836680+00:00",
+      "predicted_at": "2026-11-16T00:44:02.720237+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.4749,
+              "平": 0.2926,
+              "负": 0.2326
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "1:0",
+              "0:0",
+              "1:1"
+            ],
+            "top4": [
+              "1:0",
+              "0:0",
+              "1:1",
+              "2:0"
+            ],
+            "probabilities": {
+              "1:0": 0.152296,
+              "0:0": 0.139233,
+              "1:1": 0.138313,
+              "2:0": 0.102412
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              2,
+              1,
+              3
+            ],
+            "probabilities": {
+              "0": 0.128987,
+              "1": 0.264171,
+              "2": 0.270517,
+              "3": 0.184677,
+              "4": 0.094556,
+              "5": 0.038731,
+              "6": 0.01322,
+              "7+": 0.00514
+            },
+            "estimated_total_goals": 2.048,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "平-平",
+              "平-胜"
+            ],
+            "probabilities": {
+              "胜-胜": 0.279226,
+              "胜-平": 0.042875,
+              "胜-负": 0.010056,
+              "平-胜": 0.178005,
+              "平-平": 0.206827,
+              "平-负": 0.097149,
+              "负-胜": 0.017632,
+              "负-平": 0.042875,
+              "负-负": 0.125356
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": true,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -899,32 +1741,32 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:52:20.088792+00:00",
+        "captured_at": "2026-11-16T00:44:04.264384+00:00",
         "william": {
           "initial": "1.91 / 3.10 / 3.90",
           "current": "2.10 / 2.90 / 3.50",
-          "time": "6小时前"
+          "time": "13小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.90 0.5 0.90",
             "current": "0.80 0/0.5 1.00",
-            "time": "2小时前"
+            "time": "10小时前"
           },
           "澳门": {
             "initial": "0.94 0.5 0.90",
             "current": "0.84 0/0.5 1.00",
-            "time": "3小时前"
+            "time": "11小时前"
           },
           "皇冠": {
             "initial": "0.87 0.5 0.95",
             "current": "0.83 0/0.5 0.99",
-            "time": "3小时前"
+            "time": "11小时前"
           },
           "威廉希尔": {
             "initial": "0.85 0.5 0.85",
             "current": "0.73 0/0.5 0.91",
-            "time": "5小时前"
+            "time": "13小时前"
           }
         }
       },
@@ -995,13 +1837,117 @@
             }
           ]
         },
-        "captured_at": "2026-11-15T16:52:23.239639+00:00",
+        "captured_at": "2026-11-16T00:44:08.832122+00:00",
         "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
       },
-      "predicted_at": "2026-11-15T16:52:24.301711+00:00",
+      "predicted_at": "2026-11-16T00:44:11.302747+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.4303,
+              "平": 0.3116,
+              "负": 0.2582
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "0:0",
+              "1:0",
+              "1:1"
+            ],
+            "top4": [
+              "0:0",
+              "1:0",
+              "1:1",
+              "0:1"
+            ],
+            "probabilities": {
+              "0:0": 0.158961,
+              "1:0": 0.155154,
+              "1:1": 0.141631,
+              "0:1": 0.107051
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              1,
+              2,
+              3
+            ],
+            "probabilities": {
+              "0": 0.14847,
+              "1": 0.283188,
+              "2": 0.270072,
+              "3": 0.171709,
+              "4": 0.081878,
+              "5": 0.031234,
+              "6": 0.009929,
+              "7+": 0.003519
+            },
+            "estimated_total_goals": 1.907,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "平-平",
+              "平-胜"
+            ],
+            "probabilities": {
+              "胜-胜": 0.247131,
+              "胜-平": 0.042503,
+              "胜-负": 0.010098,
+              "平-胜": 0.167983,
+              "平-平": 0.226567,
+              "平-负": 0.108599,
+              "负-胜": 0.015153,
+              "负-平": 0.042503,
+              "负-负": 0.139464
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": true,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -1029,17 +1975,27 @@
       "bifa_status": "待更新",
       "market": {
         "source": "qiulaile.vip/match/odds",
-        "captured_at": "2026-11-15T16:52:25.557242+00:00",
+        "captured_at": "2026-11-16T00:44:12.590821+00:00",
         "william": {
           "initial": "3.80 / 3.00 / 1.95",
-          "current": "3.80 / 3.00 / 1.95",
+          "current": "3.50 / 2.90 / 2.00",
           "time": "1小时前"
         },
         "asia": {
           "Bet365": {
             "initial": "0.85 -0.5 0.95",
-            "current": "0.85 -0.5 0.95",
-            "time": "51分钟前"
+            "current": "1.00 -0/0.5 0.80",
+            "time": "1小时前"
+          },
+          "皇冠": {
+            "initial": "0.85 -0.5 0.97",
+            "current": "0.71 -0.5 1.12",
+            "time": "2小时前"
+          },
+          "威廉希尔": {
+            "initial": "0.75 -0.5 0.95",
+            "current": "0.95 -0/0.5 0.70",
+            "time": "1小时前"
           }
         }
       },
@@ -1051,10 +2007,114 @@
         "reason": "历史完赛xG样本不足：主0场、客4场",
         "source": "FotMob"
       },
-      "predicted_at": "2026-11-15T16:52:30.728556+00:00",
+      "predicted_at": "2026-11-16T00:44:21.504260+00:00",
       "prediction": {
-        "status": "NO_PREDICTION",
-        "reason": "普通胜平负及有效让球SP均缺失"
+        "status": "PREDICTED",
+        "method": "威廉希尔赛前欧赔去水备用市场概率（非体彩SP）",
+        "confidence": "备用市场概率；体彩SP未确认；不得进入精选单选",
+        "single_pick_risk_gate": {
+          "eligible": false,
+          "reason": "体彩SP缺失；William备用通道"
+        },
+        "modules": {
+          "胜平负": {
+            "top1": "负",
+            "top2": [
+              "负",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.2527,
+              "平": 0.305,
+              "负": 0.4423
+            },
+            "source": "William Hill",
+            "method": "威廉赛前即时欧赔去水（非体彩SP）"
+          },
+          "让球": {
+            "status": "NOT_ON_SALE",
+            "reason": "无有效体彩官方让球SP及让球线"
+          },
+          "比分": {
+            "top3": [
+              "0:1",
+              "0:0",
+              "1:1"
+            ],
+            "top4": [
+              "0:1",
+              "0:0",
+              "1:1",
+              "1:0"
+            ],
+            "probabilities": {
+              "0:1": 0.152881,
+              "0:0": 0.151081,
+              "1:1": 0.14115,
+              "1:0": 0.102067
+            },
+            "method": "威廉希尔赛前欧赔去水反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "总进球": {
+            "top3": [
+              1,
+              2,
+              3
+            ],
+            "probabilities": {
+              "0": 0.140625,
+              "1": 0.275858,
+              "2": 0.27057,
+              "3": 0.176922,
+              "4": 0.086765,
+              "5": 0.034041,
+              "6": 0.011129,
+              "7+": 0.00409
+            },
+            "estimated_total_goals": 1.962,
+            "method": "威廉希尔赛前欧赔反推泊松（非独立xG）",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "半全场": {
+            "top3": [
+              "负-负",
+              "平-平",
+              "平-负"
+            ],
+            "probabilities": {
+              "胜-胜": 0.136663,
+              "胜-平": 0.042941,
+              "胜-负": 0.016032,
+              "平-胜": 0.105764,
+              "平-平": 0.219128,
+              "平-负": 0.170342,
+              "负-胜": 0.010296,
+              "负-平": 0.042941,
+              "负-负": 0.255892
+            },
+            "method": "威廉希尔赛前欧赔反推泊松；旧索伦v1.3上下半场45/55假设",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "William Hill",
+            "xg_status": "UNAVAILABLE"
+          },
+          "冷门预警": {
+            "status": "NOT_EVALUATED",
+            "triggered": false,
+            "direction": null,
+            "reason": "体彩SP缺失；William备用概率不作为正式无冷门结论"
+          }
+        },
+        "coverage": {
+          "handicap_only": false,
+          "william": true,
+          "official_sp": false,
+          "independent_xg": false,
+          "macau_asia": false,
+          "bifa": false
+        }
       },
       "sale_day": "2026-11-17",
       "result_verification": {
@@ -1153,9 +2213,9 @@
     },
     "module_stats": {
       "胜平负": {
-        "predicted": 0,
+        "predicted": 10,
         "verified": 0,
-        "pending": 0,
+        "pending": 10,
         "evaluation": {
           "hit": 0,
           "total": 0,
@@ -1197,9 +2257,9 @@
         }
       },
       "比分": {
-        "predicted": 0,
+        "predicted": 10,
         "verified": 0,
-        "pending": 0,
+        "pending": 10,
         "evaluation": {
           "hit": 0,
           "total": 0,
@@ -1224,9 +2284,9 @@
         }
       },
       "总进球": {
-        "predicted": 0,
+        "predicted": 10,
         "verified": 0,
-        "pending": 0,
+        "pending": 10,
         "evaluation": {
           "hit": 0,
           "total": 0,
@@ -1246,9 +2306,9 @@
         }
       },
       "半全场": {
-        "predicted": 0,
+        "predicted": 10,
         "verified": 0,
-        "pending": 0,
+        "pending": 10,
         "evaluation": {
           "hit": 0,
           "total": 0,
@@ -1330,5 +2390,5 @@
       }
     }
   },
-  "generated_at": "2026-11-15T16:52:30.872828+00:00"
+  "generated_at": "2026-11-16T00:44:21.739488+00:00"
 }
