@@ -641,7 +641,7 @@
           if(valid(market)&&valid(model)){
             const top=data=>dirs.reduce((a,k)=>data[k]>data[a]?k:a,dirs[0]);
             const same=top(market)===top(model);
-            const alignment=el('div','', '方向对比：'+(same?'同向':'反向'));
+            const alignment=el('div','', '市场判断：'+(same?'市场支持 · 方向一致':'市场分歧 · 请谨慎参考'));
             alignment.style.cssText='font-size:12px;font-weight:600;margin-top:9px;color:'+(same?'#15803d':'#b45309')+';';
             box.append(alignment);
           }
