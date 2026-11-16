@@ -46,36 +46,36 @@ jobs:
               if any(r["event"]=="workflow_dispatch" and now-t<dt.timedelta(minutes=100) for r,t in recent):
                   print("Recent manual/recovery dispatch; no duplicate retry."); quit()
               # Fail closed: require a current sales-day snapshot with pre-kickoff fixtures.
-          import base64
-          snapshot=api("/contents/data/engine4/latest.json")
-          if snapshot.get("encoding")!="base64": raise RuntimeError("Snapshot unavailable")
-          doc=json.loads(base64.b64decode(snapshot["content"]).decode())
-          if doc.get("sale_day")!=bj.date().isoformat():
-              print("No current sale-day snapshot; skip."); quit()
-          eligible=[]
-          for m in doc.get("matches",[]):
-              if m.get("sale_day",doc["sale_day"])!=doc["sale_day"]: continue
-              try:
-                  k=dt.datetime.fromisoformat(m["kickoff"].replace(" ","T"))
-                  if k.tzinfo is None: k=k.replace(tzinfo=dt.timezone(dt.timedelta(hours=8)))
-                  deadline=k.astimezone(dt.timezone.utc)
-                  raw=m.get("sale_end") or m.get("sale_end_at") or m.get("stop_sale_at")
-                  if raw:
-                      e=dt.datetime.fromisoformat(raw.replace("Z","+00:00").replace(" ","T"))
-                      if e.tzinfo is None: e=e.replace(tzinfo=dt.timezone(dt.timedelta(hours=8)))
-                      deadline=min(deadline,e.astimezone(dt.timezone.utc))
-                  if now<deadline: eligible.append(m)
-              except (KeyError,ValueError,TypeError):
-                  print("Fixture time unverified; excluded.")
-          if not eligible:
-              print("No verified pre-kickoff fixtures; skip."); quit()
-          # A single dispatch per Beijing day is a conservative retry cap.
-          day_start=dt.datetime.combine(bj.date(),dt.time(),tzinfo=dt.timezone(dt.timedelta(hours=8))).astimezone(dt.timezone.utc)
-          if any(r["event"]=="workflow_dispatch" and dt.datetime.fromisoformat(r["created_at"].replace("Z","+00:00"))>=day_start for r in runs):
-              print("A dispatch already occurred today; skip."); quit()
-          print("WATCHDOG_MISSED_RUN: eligible="+str(len(eligible)))
-          api("/actions/workflows/engine4.yml/dispatches","POST",json.dumps({"ref":"main"}).encode())
-          print("WATCHDOG_RECOVERY_DISPATCHED: one attempt; check engine workflow result.")
+              import base64
+              snapshot=api("/contents/data/engine4/latest.json")
+              if snapshot.get("encoding")!="base64": raise RuntimeError("Snapshot unavailable")
+              doc=json.loads(base64.b64decode(snapshot["content"]).decode())
+              if doc.get("sale_day")!=bj.date().isoformat():
+                  print("No current sale-day snapshot; skip."); quit()
+              eligible=[]
+              for m in doc.get("matches",[]):
+                  if m.get("sale_day",doc["sale_day"])!=doc["sale_day"]: continue
+                  try:
+                      k=dt.datetime.fromisoformat(m["kickoff"].replace(" ","T"))
+                      if k.tzinfo is None: k=k.replace(tzinfo=dt.timezone(dt.timedelta(hours=8)))
+                      deadline=k.astimezone(dt.timezone.utc)
+                      raw=m.get("sale_end") or m.get("sale_end_at") or m.get("stop_sale_at")
+                      if raw:
+                          e=dt.datetime.fromisoformat(raw.replace("Z","+00:00").replace(" ","T"))
+                          if e.tzinfo is None: e=e.replace(tzinfo=dt.timezone(dt.timedelta(hours=8)))
+                          deadline=min(deadline,e.astimezone(dt.timezone.utc))
+                      if now<deadline: eligible.append(m)
+                  except (KeyError,ValueError,TypeError):
+                      print("Fixture time unverified; excluded.")
+              if not eligible:
+                  print("No verified pre-kickoff fixtures; skip."); quit()
+              # A single dispatch per Beijing day is a conservative retry cap.
+              day_start=dt.datetime.combine(bj.date(),dt.time(),tzinfo=dt.timezone(dt.timedelta(hours=8))).astimezone(dt.timezone.utc)
+              if any(r["event"]=="workflow_dispatch" and dt.datetime.fromisoformat(r["created_at"].replace("Z","+00:00"))>=day_start for r in runs):
+                  print("A dispatch already occurred today; skip."); quit()
+              print("WATCHDOG_MISSED_RUN: eligible="+str(len(eligible)))
+              api("/actions/workflows/engine4.yml/dispatches","POST",json.dumps({"ref":"main"}).encode())
+              print("WATCHDOG_RECOVERY_DISPATCHED: one attempt; check engine workflow result.")
           except Exception as e:
               print("WATCHDOG_CHECK_FAILED:",str(e))
               raise
