@@ -75,7 +75,7 @@ jobs:
               print("A dispatch already occurred today; skip."); quit()
           print("WATCHDOG_MISSED_RUN: eligible="+str(len(eligible)))
           api("/actions/workflows/engine4.yml/dispatches","POST",json.dumps({"ref":"main"}).encode())
-              print("WATCHDOG_RECOVERY_DISPATCHED: one attempt; check engine workflow result.")
+          print("WATCHDOG_RECOVERY_DISPATCHED: one attempt; check engine workflow result.")
           except Exception as e:
               print("WATCHDOG_CHECK_FAILED:",str(e))
               raise
