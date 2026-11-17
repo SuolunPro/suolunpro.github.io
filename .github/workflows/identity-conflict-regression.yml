@@ -1,0 +1,24 @@
+name: Identity conflict regression
+on:
+  push:
+    branches:
+      - fix/verified-identity-conflict-20261117
+  pull_request:
+    paths:
+      - scripts/sync_engine4.py
+      - tests/test_sync_engine4_identity_conflict.py
+      - .github/workflows/identity-conflict-regression.yml
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check Python syntax
+        run: python -m py_compile scripts/sync_engine4.py tests/test_sync_engine4_identity_conflict.py
+      - name: Run identity-conflict regression tests
+        run: python -m unittest discover -s tests -p 'test_sync_engine4_identity_conflict.py' -v

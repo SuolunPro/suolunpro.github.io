@@ -29,7 +29,16 @@ jobs:
           for(const name of ['胜平负','让球','半全场','比分','总进球','冷门预警']){
             assert(html.includes("['"+name+"'"),'missing engine4 module '+name);
           }
-          assert(!html.includes("['今日优选'"),'daily picks must stay hidden');
+          // Only the production navigation is customer-visible. Historical settlement
+          // keys for retired modules may remain for backwards compatibility.
+          const navigation=html.match(/const modules\s*=\s*\[([\s\S]*?)\];/);
+          assert(navigation,'production navigation not found');
+          for(const retired of ['今日优选','精选研判','独立研判']){
+            assert(!navigation[1].includes(retired),'retired module visible in navigation: '+retired);
+          }
+          for(const required of ['大小球研判','单选精选']){
+            assert(navigation[1].includes(required),'missing production navigation module '+required);
+          }
           for(const marker of ['vip-gate','vip-code','member-code-members.json','./data/engine4/','重要声明']){
             assert(html.includes(marker),'missing '+marker);
           }
