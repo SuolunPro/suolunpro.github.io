@@ -665,13 +665,8 @@
             cell.append(name,value);cells.append(cell);
           });
           box.append(title,cells);
-          if(valid(market)&&valid(model)){
-            const top=data=>dirs.reduce((a,k)=>data[k]>data[a]?k:a,dirs[0]);
-            const same=top(market)===top(model);
-            const alignment=el('div','', '市场判断：'+(same?'市场支持 · 方向一致':'市场分歧 · 请谨慎参考'));
-            alignment.style.cssText='font-size:12px;font-weight:600;margin-top:9px;color:'+(same?'#15803d':'#b45309')+';';
-            box.append(alignment);
-          }
+          box.append(marketDirectionLabel(dirs,market,model,items[0]));
+
           const delta=match.pair_probability_change?.['让球']?.market_delta;
           if(valid(market)&&delta&&dirs.every(k=>typeof delta[k]==='number'&&Number.isFinite(delta[k]))){
             const caption=el('div','','赛前市场变化');
@@ -773,11 +768,32 @@
       }
       card.append(analysis)
     }
+    function marketDirectionLabel(dirs,market,model,top1){
+      const valid=d=>d&&dirs.every(k=>Number.isFinite(d[k])&&d[k]>=0&&d[k]<=1)&&Math.abs(dirs.reduce((a,k)=>a+d[k],0)-1)<0.02;
+      const top=d=>{const ranked=dirs.slice().sort((a,b)=>d[b]-d[a]);return d[ranked[0]]>d[ranked[1]]?ranked[0]:null;};
+      let message='市场数据待更新',color='#737b87';
+      if(valid(market)){
+        const mt=top(market);
+        if(!mt)message='市场倾向：方向并列';
+        else {
+          const independent=valid(model)&&top(model);
+          if(!independent){message='市场倾向：'+mt;color='#2563eb';}
+          else if(mt===independent){message='市场支持：'+mt+'（与模型方向一致'+(mt===top1?'，Top1':'')+'）';color='#15803d';}
+          else {message='市场倾向：'+mt+'（模型倾向：'+independent+'，方向背离）';color='#b45309';}
+        }
+      }
+      const note=el('div','',message);
+      note.style.cssText='font-size:12px;font-weight:600;margin-top:9px;color:'+color+';';
+      return note;
+    }
     function ftHandicapRiskNote(card,match){
       const modules=match.prediction?.modules||{};
       const warning=modules['冷门预警']||{},handicap=modules['让球']||{};
       // Display-only legacy risk hints: never alter or recompute frozen predictions.
       const ft=modules['胜平负']||{};
+      const dirs=['胜','平','负'];
+      const audit=match.prediction?.fotmob_audit||{};
+      card.append(marketDirectionLabel(dirs,ft.market_probabilities||ft.probabilities,ft.xg_probabilities||(audit.status==='AVAILABLE'?audit.xg_probabilities:null),ft.top1||ft.top2?.[0]));
       const draw=ft.probabilities?.['平'];
       const officialLine=handicap.handicap;
       const highDraw=typeof draw==='number'&&Number.isFinite(draw)&&draw>=0.29&&officialLine===-1;
