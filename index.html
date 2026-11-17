@@ -971,7 +971,7 @@
         if(active==='单选精选'){
           const pick=match.single_pick;
           // Customer view: show the frozen single direction only; keep audit evidence in JSON.
-          card.append(el('div','single-pick-note','单选推荐：'+pick.direction));
+          card.append(el('div','single-pick-note','单选推荐：【'+(pick.play==='让球'?'让球 '+(pick.handicap>0?'+':'')+pick.handicap:'胜平负')+'】'+pick.direction));
           const result=match.settlement?.module_results?.['单选精选'];
           if(result?.status==='HIT'||result?.status==='MISS'){
             card.append(el('div','v4-verdict '+(result.status==='HIT'?'hit':'miss'),result.status==='HIT'?'✓ 命中':'✕ 未命中'));
@@ -1066,11 +1066,12 @@
       const selection=mod['今日优选']?.selection,sel=Array.isArray(selection)?selection:selection==null?[]:[selection];
       const cold=mod['冷门预警']||{},coldActual=cold.direction==='主队不胜'?sp!=='胜':cold.direction==='主队不败'?sp!=='负':null;
       const pick=m.single_pick||{};
-      const hits={'胜平负Top1':mod['胜平负']?.top1==null?null:mod['胜平负'].top1===sp,'胜平负Top2':inc(t2,sp,2),'让球Top1':rq?first(hand,rq):null,'让球Top2':rq?inc(hand,rq,2):null,'比分Top1':first(sc3,score),'比分Top3':inc(sc3,score,3),'比分Top4':inc(sc4,score,4),'总进球Top1':first(g3,goals),'总进球Top3':inc(g3,goals,3),'半全场Top1':first(half,hs),'半全场Top3':inc(half,hs,3),'今日优选Top1':sel.length?sel[0]===sp:null,'今日优选Top2':sel.length>=2?sel.slice(0,2).includes(sp):null,'冷门预警':cold.triggered===true?coldActual:null,'单选精选':['SELECTED','HISTORICAL_COHORT'].includes(pick.status)?pick.direction===sp:null};
+      const pickActual=pick.play==='让球'?(Number.isInteger(pick.handicap)&&pick.handicap===m.handicap?rq:null):sp;
+      const hits={'胜平负Top1':mod['胜平负']?.top1==null?null:mod['胜平负'].top1===sp,'胜平负Top2':inc(t2,sp,2),'让球Top1':rq?first(hand,rq):null,'让球Top2':rq?inc(hand,rq,2):null,'比分Top1':first(sc3,score),'比分Top3':inc(sc3,score,3),'比分Top4':inc(sc4,score,4),'总进球Top1':first(g3,goals),'总进球Top3':inc(g3,goals,3),'半全场Top1':first(half,hs),'半全场Top3':inc(half,hs,3),'今日优选Top1':sel.length?sel[0]===sp:null,'今日优选Top2':sel.length>=2?sel.slice(0,2).includes(sp):null,'冷门预警':cold.triggered===true?coldActual:null,'单选精选':['SELECTED','HISTORICAL_COHORT'].includes(pick.status)&&pickActual!=null?pick.direction===pickActual:null};
       hits['今日优选']=hits['今日优选Top2']??hits['今日优选Top1'];
       const status=(v,empty='NO_FORMAL_SELECTION')=>v===true?'HIT':v===false?'MISS':empty;
       const detail=(name,actual,picks,fields)=>{const values={};for(const f of fields)values[f]=hits[name+f];const primary=fields.slice().reverse().map(f=>values[f]).find(v=>v!=null);return {actual,picks:picks??null,hits:values,status:status(primary)};};
-      const module_results={'胜平负':detail('胜平负',sp,t2,['Top1','Top2']),'让球':detail('让球',rq,hand,['Top1','Top2']),'比分':detail('比分',score,sc4?.length?sc4:sc3,['Top1','Top3','Top4']),'总进球':detail('总进球',goals,g3,['Top1','Top3']),'半全场':detail('半全场',hs,half,['Top1','Top3']),'今日优选':{actual:sp,picks:sel,hits:{Top1:hits['今日优选Top1'],Top2:hits['今日优选Top2']},hit:hits['今日优选'],status:status(hits['今日优选'])},'冷门预警':{actual:sp,direction:cold.triggered===true?cold.direction??null:null,upset_occurred:cold.triggered===true?coldActual:null,hit:hits['冷门预警'],status:status(hits['冷门预警'],'NO_FORMAL_TRIGGER')},'单选精选':{actual:sp,direction:pick.direction??null,hit:hits['单选精选'],status:status(hits['单选精选'])}};
+      const module_results={'胜平负':detail('胜平负',sp,t2,['Top1','Top2']),'让球':detail('让球',rq,hand,['Top1','Top2']),'比分':detail('比分',score,sc4?.length?sc4:sc3,['Top1','Top3','Top4']),'总进球':detail('总进球',goals,g3,['Top1','Top3']),'半全场':detail('半全场',hs,half,['Top1','Top3']),'今日优选':{actual:sp,picks:sel,hits:{Top1:hits['今日优选Top1'],Top2:hits['今日优选Top2']},hit:hits['今日优选'],status:status(hits['今日优选'])},'冷门预警':{actual:sp,direction:cold.triggered===true?cold.direction??null:null,upset_occurred:cold.triggered===true?coldActual:null,hit:hits['冷门预警'],status:status(hits['冷门预警'],'NO_FORMAL_TRIGGER')},'单选精选':{actual:pickActual,direction:pick.direction??null,hit:hits['单选精选'],status:status(hits['单选精选'])}};
       return {ht:x.ht,ft:x.ft,verified_at:x.calculated_at,source_url:'https://www.fotmob.com/api/data/matchDetails?matchId='+x.fotmob_match_id,fotmob_match_id:x.fotmob_match_id,scope:'90min_regular_ft',hits,module_results};
     }
     async function checkSupabaseSettlementStaging(data){
