@@ -198,7 +198,39 @@ def main(src, dst):
             # latest.json may switch to a different sale day; never append prior-day fixtures.
             # Engine latest is authoritative; sale-day files retain their settlement merge.
             if relative.as_posix() != "latest.json":
-                incoming = merge(incoming, read(target))
+                published = read(target)
+                if isinstance(published, dict) and relative.parts[0] == "sales":
+                    incoming_by_id = {
+                        (str(m.get("source_id")), str(m.get("kickoff"))): m
+                        for m in incoming.get("matches", []) if isinstance(m, dict)
+                    }
+                    kept = []
+                    for old_match in published.get("matches", []):
+                        identity = (str(old_match.get("source_id")), str(old_match.get("kickoff")))
+                        new_match = incoming_by_id.get(identity)
+                        if new_match and key(old_match) != key(new_match):
+                            if old_match.get("settlement") or (old_match.get("result_verification") or {}).get("status") == "VERIFIED":
+                                raise ValueError("Verified fixture identity conflict: " + str(identity))
+                            approved = (
+                                relative.as_posix() == "sales/2026-11-17.json"
+                                and identity == ("503109631", "2026-11-17 21:10")
+                                and old_match.get("home") == new_match.get("home") == "日本"
+                                and old_match.get("away") == "乌拉圭"
+                                and new_match.get("away") == "巴拉圭"
+                            )
+                            if not approved:
+                                raise ValueError("Unapproved fixture identity conflict: " + str(identity))
+                            archive = dst / "identity_conflicts" / "2026-11-17_503109631_old.json"
+                            archive.parent.mkdir(parents=True, exist_ok=True)
+                            archived_payload = json.dumps(old_match, ensure_ascii=False, indent=2) + "\n"
+                            if archive.exists() and archive.read_text(encoding="utf-8") != archived_payload:
+                                raise ValueError("Identity conflict archive differs; refusing overwrite")
+                            if not archive.exists():
+                                archive.write_text(archived_payload, encoding="utf-8")
+                            continue
+                        kept.append(old_match)
+                    published["matches"] = kept
+                incoming = merge(incoming, published)
         target.parent.mkdir(parents=True, exist_ok=True)
         output = json.dumps(incoming, ensure_ascii=False, indent=2) + "\n"
         if not target.exists() or target.read_text(encoding="utf-8") != output:
