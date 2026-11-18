@@ -513,11 +513,16 @@
       const box=el('div','v4-verdict'+(result?(result.hit?' hit':' miss'):''),result?(result.hit?'✓ 命中':'✕ 未中')+'（实际'+result.total+'球）':'等待赛果核验');
       card.append(box);
     }
+    // Pre-kickoff manual publication withdrawal; raw prediction and settlement records remain unchanged.
+    function isPublishedSinglePick(m){
+      const withdrawn=report.sale_day==='2026-11-18'&&String(m.match_no).padStart(3,'0')==='003'&&String(m.source_id)==='502910967';
+      return !withdrawn&&['SELECTED','HISTORICAL_COHORT'].includes(m.single_pick?.status);
+    }
     function stats(){
       const updateNotice=$('review-update-notice');if(updateNotice)updateNotice.style.display=active==='独立研判'?'block':'none';
       $('hit-rate-label').textContent=active==='独立研判'?'当天精选场次命中率':'当日评测命中率';
       if(active==='单选精选'){
-        const picks=report.matches.filter(m=>['SELECTED','HISTORICAL_COHORT'].includes(m.single_pick?.status));
+        const picks=report.matches.filter(isPublishedSinglePick);
         const outcomes=picks.map(m=>m.settlement?.module_results?.['单选精选']?.status).filter(s=>s==='HIT'||s==='MISS');
         const hit=outcomes.filter(s=>s==='HIT').length,total=outcomes.length;
         $('hit-rate-label').textContent=picks.some(m=>m.single_pick?.status==='HISTORICAL_COHORT')?'当日原三级样本命中率':'当日单选命中率';
@@ -953,7 +958,7 @@
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
       const isReviewSelected=isIndependentFeatured;
-      const focus=active==='单选精选'?report.matches.filter(match=>['SELECTED','HISTORICAL_COHORT'].includes(match.single_pick?.status)):
+      const focus=active==='单选精选'?report.matches.filter(isPublishedSinglePick):
         active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
