@@ -2,7 +2,7 @@
 // Public-repository settlement publisher: no private Actions minutes or external PAT.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-const start=html.indexOf('function independentSettlement('),end=html.indexOf('async function checkSupabaseSettlementStaging',start);
+const start=html.indexOf('function independentSettlement('),end=html.indexOf('const verifiedScoreCache',start);
 if(start<0||end<start)throw Error('Missing settlement function');
 const calculate=vm.runInNewContext('('+html.slice(start,end).trim()+')',{Date,Number,Array,Math});
 const today=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
