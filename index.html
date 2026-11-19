@@ -573,6 +573,31 @@
         $('pending').textContent=selected.length-total;
         return;
       }
+      if(active==='冷门预警'){
+        // Customer-facing combined score; internally keep model and manual warnings distinct.
+        // Only count a verified 90-minute FT outcome, never a provisional score.
+        const warnings=report.matches.filter(m=>{
+          const w=m.prediction?.modules?.['冷门预警'];
+          return !!m.manual_cold_warning||(w?.status==='TRIGGERED'&&w.triggered===true&&['主队不败','主队不胜'].includes(w.direction));
+        });
+        let hit=0,total=0;
+        for(const m of warnings){
+          if(m.result_verification?.status!=='VERIFIED'||!m.settlement)continue;
+          const result=m.settlement.module_results?.['冷门预警'];
+          const manual=m.manual_cold_warning;
+          const direction=manual?.direction||m.prediction?.modules?.['冷门预警']?.direction;
+          const actual=m.settlement.module_results?.['胜平负']?.actual||result?.actual;
+          if(!['胜','平','负'].includes(actual))continue;
+          if(!['主队不胜','主队不败'].includes(direction))continue;
+          total++;
+          if(direction==='主队不胜'?actual!=='胜':actual!=='负')hit++;
+        }
+        $('hit-rate-label').textContent='当日冷门预警命中率';
+        $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
+        $('hit-count').textContent=hit+'/'+total;
+        $('pending').textContent=warnings.length-total;
+        return;
+      }
       const stat=report.metrics?.module_stats?.[active];
       // Count only this module's formally settled pre-match selections.
       const statuses=report.matches.map(match=>match.settlement?.module_results?.[active]?.status)
