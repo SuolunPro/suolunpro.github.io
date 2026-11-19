@@ -856,8 +856,7 @@
       const data=match.prediction?.modules?.[active]||{},analysis=el('div','analysis');
       if(active==='冷门预警'&&match.manual_cold_warning){
         const manual=match.manual_cold_warning;
-        analysis.append(el('div','v4-note','🔴 人工复核预警 · '+manual.direction+'（'+manual.focus+'）'));
-        analysis.append(el('div','v4-note','模型自动预警门槛尚未触发；此为人工复核提示。'));
+        analysis.append(el('div','v4-note','🔴 冷门预警：'+manual.direction+'（'+manual.focus+'）'));
         card.append(analysis);return;
       }
       if(active==='今日优选'){
