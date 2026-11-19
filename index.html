@@ -1020,7 +1020,9 @@
         if(active==='单选精选'){
           const pick=match.single_pick;
           // Customer view: show the frozen single direction only; keep audit evidence in JSON.
-          if(match.manual_cold_warning)card.append(el('div','v4-note','🔴 人工冷门预警：'+match.manual_cold_warning.direction+'（'+match.manual_cold_warning.focus+'）· 让球精选照常保留'));
+          const formalWarning=match.prediction?.modules?.['冷门预警'];
+          if(formalWarning?.status==='TRIGGERED'&&formalWarning.triggered===true&&['主队不胜','主队不败'].includes(formalWarning.direction))card.append(el('div','v4-note','🔴 冷门预警：'+formalWarning.direction));
+          else if(match.manual_cold_warning)card.append(el('div','v4-note','🔴 人工冷门预警：'+match.manual_cold_warning.direction+'（'+match.manual_cold_warning.focus+'）· 让球精选照常保留'));
           card.append(el('div','single-pick-note','单选推荐：【'+(pick.play==='让球'?'让球 '+(pick.handicap>0?'+':'')+pick.handicap:'胜平负')+'】'+pick.direction));
           const result=match.settlement?.module_results?.['单选精选'];
           if(result?.status==='HIT'||result?.status==='MISS'){
@@ -1180,6 +1182,12 @@
         if(overlay.sale_day!==data.sale_day||!Array.isArray(overlay.warnings))return data;
         for(const item of overlay.warnings){
           const match=data.matches.find(m=>String(m.match_no).padStart(3,'0')===String(item.match_no).padStart(3,'0')&&String(m.source_id)===String(item.source_id));
+          // Formal model warning takes precedence over an earlier manual review overlay.
+          const formal=match?.prediction?.modules?.['冷门预警'];
+          if(match&&formal?.status==='TRIGGERED'&&formal.triggered===true&&['主队不胜','主队不败'].includes(formal.direction)){
+            delete match.manual_cold_warning;
+            continue;
+          }
           if(match&&item.status==='MANUAL_REVIEW_WARNING')match.manual_cold_warning=item;
         }
       }catch(error){/* No manual override on other days. */}
