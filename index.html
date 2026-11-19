@@ -341,7 +341,7 @@
     }
     function vipShowGate(message='',preserveRemembered=false){
       clearTimeout(vipExpiryTimer);vipExpiryTimer=null;
-      vipCode='';vipMember=null;if(!preserveRemembered)forgetVipCode();
+      document.getElementById('tricoreAdminPanel')?.remove();vipCode='';vipMember=null;if(!preserveRemembered)forgetVipCode();
       $('v4-app').hidden=true;$('vip-gate').hidden=false;$('vip-error').textContent=message;
     }
     async function loadDays(){
@@ -362,6 +362,17 @@
       const me=await checkMember(vipCode);
       vipMember=me;
       if(!scheduleVipExpiry(me.expires_at))return;
+      document.getElementById('tricoreAdminPanel')?.remove();
+      if(me.email.toLowerCase()==='877229723@qq.com'){
+        const panel=document.createElement('details');panel.id='tricoreAdminPanel';panel.style.cssText='margin:12px;padding:14px;background:#fff;color:#222;border:1px solid #ddd;border-radius:12px';
+        const title=document.createElement('summary');title.textContent='九十刻度5.0 · 三核研发（管理员）';panel.append(title);
+        const note=document.createElement('p');note.textContent='11月19日历史冻结回放 · 非实时预测';panel.append(note);
+        for(const row of [['001 维多利亚—布拉干蒂诺RB','让胜','让负','PASS'],['002 圣保罗—弗鲁米嫩','让负','让负','PASS'],['003 奥兰多城—辛辛那提','让负','让负','PASS'],['004 西雅图—盐湖城','让负','胜','PASS']]){
+          const p=document.createElement('p');p.textContent=row[0]+' | 量化 '+row[1]+' | DeepSeek '+row[2]+' | GPT '+row[3];panel.append(p);
+        }
+        const link=document.createElement('a');link.href='https://github.com/SuolunPro/90scale-engine/blob/research/tricore-phase2-20261119/research/tricore5/v3/review-20261119.md';link.textContent='完整研发记录（需 GitHub 权限）';panel.append(link);
+        $('v4-app').prepend(panel);
+      }
       // iOS Safari can retain the keyboard/input visual zoom after hiding the login form.
       // Reset it once at the gate-to-app transition, then restore normal user zoom.
       const focused=document.activeElement;
