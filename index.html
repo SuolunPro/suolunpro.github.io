@@ -854,6 +854,12 @@
     }
     function special(card,match){
       const data=match.prediction?.modules?.[active]||{},analysis=el('div','analysis');
+      if(active==='冷门预警'&&match.manual_cold_warning){
+        const manual=match.manual_cold_warning;
+        analysis.append(el('div','v4-note','🔴 人工复核预警 · '+manual.direction+'（'+manual.focus+'）'));
+        analysis.append(el('div','v4-note','模型自动预警门槛尚未触发；此为人工复核提示。'));
+        card.append(analysis);return;
+      }
       if(active==='今日优选'){
         const top2=Array.isArray(data.selection)&&data.selection.length>=2?data.selection.slice(0,2):
           Array.isArray(data.top2)&&data.top2.length>=2?data.top2.slice(0,2):
@@ -962,7 +968,7 @@
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
       const isReviewSelected=isIndependentFeatured;
       const focus=active==='单选精选'?report.matches.filter(isPublishedSinglePick):
-        active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction)}):
+        active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return !!match.manual_cold_warning||(warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction))}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
@@ -979,6 +985,7 @@
         if(active==='单选精选'){
           const pick=match.single_pick;
           // Customer view: show the frozen single direction only; keep audit evidence in JSON.
+          if(match.manual_cold_warning)card.append(el('div','v4-note','🔴 人工冷门预警：'+match.manual_cold_warning.direction+'（'+match.manual_cold_warning.focus+'）· 让球精选照常保留'));
           card.append(el('div','single-pick-note','单选推荐：【'+(pick.play==='让球'?'让球 '+(pick.handicap>0?'+':'')+pick.handicap:'胜平负')+'】'+pick.direction));
           const result=match.settlement?.module_results?.['单选精选'];
           if(result?.status==='HIT'||result?.status==='MISS'){
@@ -1131,6 +1138,18 @@
     }
     // Historical V3 replay records live outside regenerated sales reports so that
     // settlement refreshes cannot silently erase the selected matches.
+    async function applyManualColdWarnings(data){
+      if(!data||!Array.isArray(data.matches))return data;
+      try{
+        const overlay=await getJson(DATA_BASE+'manual-cold-warnings/'+encodeURIComponent(data.sale_day)+'.json');
+        if(overlay.sale_day!==data.sale_day||!Array.isArray(overlay.warnings))return data;
+        for(const item of overlay.warnings){
+          const match=data.matches.find(m=>String(m.match_no).padStart(3,'0')===String(item.match_no).padStart(3,'0')&&String(m.source_id)===String(item.source_id));
+          if(match&&item.status==='MANUAL_REVIEW_WARNING')match.manual_cold_warning=item;
+        }
+      }catch(error){/* No manual override on other days. */}
+      return data;
+    }
     async function restoreFrozenSinglePicks(data){
       if(data?.sale_day!=='2026-11-14'||!Array.isArray(data.matches))return data;
       try{
@@ -1195,6 +1214,7 @@
           }
         }
         data=await restoreFrozenSinglePicks(data);
+        data=await applyManualColdWarnings(data);
         if(sequence!==loadSequence)return;
         // Merge verified results before rendering, even when the endpoint is temporarily unavailable.
         preserveVerifiedScores(data);
