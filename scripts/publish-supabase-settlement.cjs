@@ -42,7 +42,7 @@ function refreshMetrics(doc){
  }
 }
 async function main(){
- let written=0,conflicts=0;
+ let written=0,conflicts=0,missingVerified=[];
  for(const day of dates){
   const file=path.join(root,'data/engine4/sales',day+'.json');
   if(!fs.existsSync(file))continue;
@@ -65,6 +65,13 @@ async function main(){
    m.result_verification={status:'VERIFIED',checked_at:x.calculated_at,source:'supabase_independent'};
    updated++;
   }
+  for(const x of audit.results){
+   if(x.independent_verified!==true)continue;
+   const m=doc.matches.find(m=>String(m.match_no)===String(x.match_no));
+   if(m?.predicted_at && (!m.settlement || m.settlement.ft!==x.ft || m.settlement.ht!==x.ht)){
+    missingVerified.push(day+' '+x.match_no);
+   }
+  }
   if(updated){
    refreshMetrics(doc);
    fs.writeFileSync(file,JSON.stringify(doc,null,2)+'\n');
@@ -84,7 +91,8 @@ async function main(){
   }
   console.log(day,'newly published',updated,'verified staging rows',audit.results.length);
  }
- console.log(JSON.stringify({written,conflicts,dates}));
+ console.log(JSON.stringify({written,conflicts,missingVerified,dates}));
+ if(missingVerified.length){console.error('::error::Verified settlements not published:',missingVerified.join(', '));process.exitCode=2;}
  if(conflicts)process.exitCode=2;
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
