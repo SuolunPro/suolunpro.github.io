@@ -366,11 +366,41 @@
       if(me.email.toLowerCase()==='877229723@qq.com'){
         const panel=document.createElement('details');panel.id='tricoreAdminPanel';panel.style.cssText='margin:12px;padding:14px;background:#fff;color:#222;border:1px solid #ddd;border-radius:12px';
         const title=document.createElement('summary');title.textContent='九十刻度5.0 · 三核研发（管理员）';panel.append(title);
-        const note=document.createElement('p');note.textContent='11月19日历史冻结回放 · 非实时预测';panel.append(note);
-        for(const row of [['001 维多利亚—布拉干蒂诺RB','让胜','让负','PASS'],['002 圣保罗—弗鲁米嫩','让负','让负','PASS'],['003 奥兰多城—辛辛那提','让负','让负','PASS'],['004 西雅图—盐湖城','让负','胜','PASS']]){
-          const p=document.createElement('p');p.textContent=row[0]+' | 量化 '+row[1]+' | DeepSeek '+row[2]+' | GPT '+row[3];panel.append(p);
+        const note=document.createElement('p');note.textContent='正在检查5.0三核最新数据…';panel.append(note);
+        const rows=document.createElement('div');panel.append(rows);
+        const history=document.createElement('a');history.href='https://github.com/SuolunPro/90scale-engine/blob/research/tricore-phase2-20261119/research/tricore5/v3/review-20261119.md';history.textContent='11月19日历史冻结回放（独立查看）';panel.append(history);
+        let loading=false;
+        async function refreshTricore(){
+          if(loading||!panel.isConnected)return;
+          loading=true;
+          try{
+            const res=await fetch('data/tricore5/latest.json?t='+Date.now(),{cache:'no-store'});
+            if(!res.ok)throw Error('数据文件不可用（HTTP '+res.status+'）');
+            const data=await res.json();
+            if(!data||!/^20\\d{2}-\\d{2}-\\d{2}$/.test(data.date)||!Array.isArray(data.matches))throw Error('数据结构未通过校验');
+            const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Shanghai'});
+            if(data.date!==today)throw Error('最新数据日期为'+data.date+'，非今日'+today);
+            if(!data.matches.length)throw Error('今日暂无有效三核预测');
+            const frag=document.createDocumentFragment();
+            for(const match of data.matches){
+              const p=document.createElement('p');
+              const label=String(match.label||match.match||match.id||'未命名比赛');
+              const q=match.quant??match.quantitative;
+              const d=match.deepseek;
+              const g=match.gpt;
+              p.textContent=label+' | 量化 '+(q==null?'未确认':String(q))+' | DeepSeek '+(d==null?'未确认':String(d))+' | GPT '+(g==null?'未确认':String(g));
+              frag.append(p);
+            }
+            rows.replaceChildren(frag);
+            note.textContent='实时数据日期：'+data.date+' · 最近检查：'+new Date().toLocaleTimeString('zh-CN',{timeZone:'Asia/Shanghai'});
+          }catch(err){
+            rows.replaceChildren();
+            note.textContent='5.0今日三核预测未发布：'+err.message+'。不展示历史预测冒充实时结果。';
+          }finally{loading=false}
         }
-        const link=document.createElement('a');link.href='https://github.com/SuolunPro/90scale-engine/blob/research/tricore-phase2-20261119/research/tricore5/v3/review-20261119.md';link.textContent='完整研发记录（需 GitHub 权限）';panel.append(link);
+        panel.addEventListener('toggle',()=>{if(panel.open)refreshTricore()});
+        refreshTricore();
+        const tricoreTimer=setInterval(()=>{if(!panel.isConnected){clearInterval(tricoreTimer);return}if(panel.open)refreshTricore()},60000);
         $('v4-app').prepend(panel);
       }
       // iOS Safari can retain the keyboard/input visual zoom after hiding the login form.
