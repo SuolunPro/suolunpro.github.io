@@ -9,9 +9,9 @@ Deno.serve(async(req:Request)=>{
  if(auth.error||auth.data!==true)return Response.json({ok:false,error:"UNAUTHORIZED"},{status:403});
  try{
  const now=Date.now();
- const urls=["https://raw.githubusercontent.com/SuolunPro/suolunpro.github.io/main/data/engine4/latest.json"];
+ const urls=["https://raw.githubusercontent.com/SuolunPro/suolunpro.github.io/main/data/engine4/latest.json?v="+Math.floor(now/60000)];
  const today=new Date(now+8*3600000).toISOString().slice(0,10);
- for(let offset=0;offset<4;offset++){const day=new Date(Date.parse(today+"T00:00:00Z")-offset*86400000).toISOString().slice(0,10);urls.push("https://raw.githubusercontent.com/SuolunPro/suolunpro.github.io/main/data/engine4/sales/"+day+".json")}
+ for(let offset=0;offset<4;offset++){const day=new Date(Date.parse(today+"T00:00:00Z")-offset*86400000).toISOString().slice(0,10);urls.push("https://raw.githubusercontent.com/SuolunPro/suolunpro.github.io/main/data/engine4/sales/"+day+".json?v="+Math.floor(now/60000))}
  const docs:any[]=[];const seen=new Set<string>();const sourceErrors:any[]=[];
  for(const url of urls){try{const resp=await fetch(url,{signal:AbortSignal.timeout(8000)});if(!resp.ok){sourceErrors.push({url:url.split("/").pop(),status:resp.status});continue}const doc=await resp.json();if(!Array.isArray(doc.matches)||!/^2026-[0-9]{2}-[0-9]{2}$/.test(String(doc.sale_day||""))||seen.has(doc.sale_day))continue;seen.add(doc.sale_day);docs.push(doc)}catch(e){sourceErrors.push({url:url.split("/").pop(),error:String(e).slice(0,80)})}}
  if(!docs.length)return Response.json({ok:false,error:"NO_VALID_SNAPSHOTS",source_errors:sourceErrors},{status:502});
