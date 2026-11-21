@@ -876,7 +876,7 @@
       const ft=modules['胜平负']||{};
       const dirs=['胜','平','负'];
       const audit=match.prediction?.fotmob_audit||{};
-      card.append(marketDirectionLabel(dirs,ft.market_probabilities||ft.probabilities,ft.xg_probabilities||(audit.status==='AVAILABLE'?audit.xg_probabilities:null),ft.top1||ft.top2?.[0]));
+      // Market/model agreement badge hidden in member UI; underlying data and risk checks retained.
       const draw=ft.probabilities?.['平'];
       const officialLine=handicap.handicap;
       const highDraw=typeof draw==='number'&&Number.isFinite(draw)&&draw>=0.29&&officialLine===-1;
