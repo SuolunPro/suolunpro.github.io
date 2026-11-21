@@ -748,7 +748,7 @@
             cell.append(name,value);cells.append(cell);
           });
           box.append(title,cells);
-          box.append(marketDirectionLabel(dirs,market,model,items[0]));
+          // Member UI: hide handicap market-direction/model-divergence note; retain market probabilities and trends.
 
           const delta=match.pair_probability_change?.['让球']?.market_delta;
           if(valid(market)&&delta&&dirs.every(k=>typeof delta[k]==='number'&&Number.isFinite(delta[k]))){
