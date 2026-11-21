@@ -48,7 +48,10 @@ async function main(){
   if(!fs.existsSync(file))continue;
   const doc=JSON.parse(fs.readFileSync(file,'utf8'));
   if(doc.sale_day!==day||!Array.isArray(doc.matches))throw Error('Invalid snapshot '+day);
-  if(!doc.matches.some(m=>m.predicted_at&&!m.settlement))continue;
+  const latestFile=path.join(root,'data/engine4/latest.json');
+  const latest=JSON.parse(fs.readFileSync(latestFile,'utf8'));
+  const live=latest.sale_day===day;
+  if(![...doc.matches,...(live?latest.matches:[])].some(m=>m.predicted_at&&!m.settlement))continue;
   const response=await fetch(url+'?sale_day='+day,{signal:AbortSignal.timeout(12000)});
   if(!response.ok)throw Error('Supabase staging HTTP '+response.status+' for '+day);
   const audit=await response.json();
@@ -75,19 +78,18 @@ async function main(){
   if(updated){
    refreshMetrics(doc);
    fs.writeFileSync(file,JSON.stringify(doc,null,2)+'\n');
-   const latestFile=path.join(root,'data/engine4/latest.json');
-   if(fs.existsSync(latestFile)){
-    const latest=JSON.parse(fs.readFileSync(latestFile,'utf8'));
-    if(latest.sale_day===day){
+   written+=updated;
+  }
+  if(live){
+    let changed=false;
      for(const m of latest.matches||[]){
       const fresh=doc.matches.find(x=>String(x.match_no)===String(m.match_no));
-      if(fresh?.settlement&&!m.settlement){m.settlement=fresh.settlement;m.result_verification=fresh.result_verification}
+      if(fresh?.settlement&&!m.settlement&&fresh.home===m.home&&fresh.away===m.away&&fresh.kickoff===m.kickoff&&fresh.predicted_at===m.predicted_at&&JSON.stringify(fresh.prediction)===JSON.stringify(m.prediction)){m.settlement=fresh.settlement;m.result_verification=fresh.result_verification;changed=true}
      }
+    if(changed){
      refreshMetrics(latest);
      fs.writeFileSync(latestFile,JSON.stringify(latest,null,2)+'\n');
     }
-   }
-   written+=updated;
   }
   console.log(day,'newly published',updated,'verified staging rows',audit.results.length);
  }
