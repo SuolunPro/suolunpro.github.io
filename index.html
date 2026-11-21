@@ -501,9 +501,12 @@
       try{await vipEnter()}catch(error){vipShowGate(error.message==='vip_inactive'?VIP_EXPIRED_MESSAGE:'登录状态已失效，请重新登录。',error.message==='vip_inactive'||!['invalid_code','vip_inactive'].includes(error.message))}
     }
 
+    const showOverUnderPredictions = false;
     const modules=[
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
-      ['比分','全场比分'],['总进球','泊松进球'],['大小球研判','大小球研判'],['冷门预警','冷门预警'],['单选精选','精选单选']
+      ['比分','全场比分'],['总进球','泊松进球'],
+      ...(showOverUnderPredictions ? [['大小球研判','大小球研判']] : []),
+      ['冷门预警','冷门预警'],['单选精选','精选单选']
     ];
     let report=null,active='胜平负',selectedDay='';
     const label=value=>value==null?'—':String(value);
