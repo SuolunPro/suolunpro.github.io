@@ -33,9 +33,18 @@ jobs:
           set -euo pipefail
           git config user.name '90scale-settlement[bot]'
           git config user.email 'actions@users.noreply.github.com'
+          if curl --fail --silent --show-error --location --max-time 18 'https://qiulaile.vip/api/matches?matchType=0&mode=full' | jq -ce '{matches: [.matches[] | select(.matchTypeValue==0 and .state=="finished") | {id,matchTypeValue,home,away,league,dayLabel,kickoff,state,statusText,scoreText,halfScoreText,homeScore,awayScore}] | sort_by(.id)} | select(.matches|length>0)' > "$RUNNER_TEMP/finished.json"; then
+            echo 'Fetched completed fixtures'
+          else
+            rm -f "$RUNNER_TEMP/finished.json"
+          fi
           for attempt in 1 2 3 4 5; do
             git fetch origin main
             git reset --hard origin/main
+            if test -s "$RUNNER_TEMP/finished.json"; then
+              cp "$RUNNER_TEMP/finished.json" data/engine4/qiulaile-finished.json
+              git add data/engine4/qiulaile-finished.json
+            fi
             node scripts/publish-supabase-settlement.cjs
             git add data/engine4/sales data/engine4/latest.json
             if git diff --cached --quiet; then
