@@ -179,6 +179,51 @@ def retain_verified_settlements(incoming, published):
     return reconcile_metrics(incoming)
 
 
+def public_snapshot(doc, existing, instant):
+    """Freeze the published forecast while allowing verified settlements to advance."""
+    if not isinstance(doc, dict) or not isinstance(doc.get("matches"), list):
+        return
+    previous = {key(m): m for m in (existing or {}).get("matches", [])}
+    tz = timezone(timedelta(hours=8))
+    def local(value):
+        stamp = datetime.fromisoformat(str(value))
+        return stamp if stamp.tzinfo else stamp.replace(tzinfo=tz)
+
+    for row in doc["matches"]:
+        old = previous.get(key(row))
+        if old and old.get("prediction"):
+            try:
+                date = local(row.get("sale_day") or doc.get("sale_day"))
+                deadlines = [date.replace(hour=22 if date.weekday()<5 else 23,
+                                          minute=0, second=0, microsecond=0),
+                             local(row["kickoff"])]
+                for item in (old, row):
+                    for field in ("sale_end", "sale_end_at", "stop_sale_at"):
+                        if item.get(field):
+                            deadlines.append(local(item[field]))
+                closed = instant >= min(deadlines)
+            except (KeyError, TypeError, ValueError):
+                closed = True
+            if closed or any(item.get(flag) for item in (old,row)
+                             for flag in ("frozen", "frozen_at", "settlement")):
+                for field in ("prediction", "predicted_at", "single_pick"):
+                    if field in old:
+                        row[field] = old[field]
+                    else:
+                        row.pop(field,None)
+        prediction = row.get("prediction") or {}
+        prediction.pop("dynamic_goals_audit", None)
+        prediction.pop("william_dynamic_shadow", None)
+        modules = prediction.get("modules") or {}
+        for name in ("比分", "半全场", "总进球"):
+            module = modules.get(name) or {}
+            module.pop("william_calibration", None)
+            if module.get("method") == "动态比分":
+                for field in ("home_expected_goals", "away_expected_goals",
+                              "estimated_total_goals", "matrix_probability_mass"):
+                    module.pop(field,None)
+
+
 def main(src, dst):
     if not src.is_dir():
         raise SystemExit("Engine snapshot directory missing")
@@ -231,6 +276,7 @@ def main(src, dst):
                         kept.append(old_match)
                     published["matches"] = kept
                 incoming = merge(incoming, published)
+        public_snapshot(incoming, read(target), datetime.now(timezone.utc))
         target.parent.mkdir(parents=True, exist_ok=True)
         output = json.dumps(incoming, ensure_ascii=False, indent=2) + "\n"
         if not target.exists() or target.read_text(encoding="utf-8") != output:
