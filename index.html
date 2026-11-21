@@ -1145,7 +1145,10 @@
       const ko=Date.parse(String(m.kickoff||'').replace(' ','T')+'+08:00');
       const pred=Date.parse(m.predicted_at||'');
       if(!Number.isFinite(ko)||!Number.isFinite(pred)||pred>=ko||Date.now()<ko+7200000||m.prediction?.status!=='PREDICTED')return null;
-      if(!m.fotmob_match_id||Number(m.fotmob_match_id)!==Number(x.fotmob_match_id))return null;
+      // A missing frozen FotMob ID is allowed only for an independently verified staging row;
+      // a conflicting frozen ID is always rejected. The frozen snapshot remains unchanged.
+      if(x.independent_verified!==true||!Number.isSafeInteger(Number(x.fotmob_match_id))||Number(x.fotmob_match_id)<=0)return null;
+      if(m.fotmob_match_id!=null&&Number(m.fotmob_match_id)!==Number(x.fotmob_match_id))return null;
       const out=(a,b)=>a>b?'胜':a===b?'平':'负',sp=out(...ft),hs=out(...ht)+'-'+sp,score=x.ft;
       const mod=m.prediction.modules||{},arr=(name,key)=>Array.isArray(mod[name]?.[key])?mod[name][key]:null;
       const t2=arr('胜平负','top2'),rq=Number.isInteger(m.handicap)?'让'+out(ft[0]+m.handicap,ft[1]):null,hand=arr('让球','top2'),sc3=arr('比分','top3'),sc4=arr('比分','top4'),g3=arr('总进球','top3'),half=arr('半全场','top3');
