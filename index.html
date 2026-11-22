@@ -1076,8 +1076,16 @@
         const cards=document.createDocumentFragment();let wins=0,settled=0,total=0;
         for(const m of source.matches){
           const mod=m.prediction?.modules||{},r=archived?radarArchive.find(x=>x.day===day&&x.id===String(m.source_id)):null;
-          if(archived?r?.level!=='priority':mod['冷门预警']?.status!=='WATCH')continue;
-          const scores=archived?r.top4:mod['比分']?.top4,h=archived?r.handicap:m.handicap;
+          // Two independent admission paths: WATCH with handicap Top1 >= 55%, or formal cold-warning channel A.
+          // Historical WATCH uses the pre-match archived Top4; live fixtures use current prematch predictions.
+          const warning=mod['冷门预警']||{};
+          const formalA=warning.triggered===true && warning.status==='TRIGGERED' && Array.isArray(warning.channels) && warning.channels.includes('A');
+          const watch=archived?r?.level==='priority':warning.status==='WATCH';
+          const scores=archived&&watch?r.top4:mod['比分']?.top4,h=archived&&watch?r.handicap:m.handicap;
+          const handicapProbs=Object.values(mod['让球']?.probabilities||{}).map(Number);
+          const handicapTop1=handicapProbs.length===3&&handicapProbs.every(Number.isFinite)?Math.max(...handicapProbs):NaN;
+          const admitted=(watch&&handicapTop1>=0.55)||formalA;
+          if(!admitted)continue;
           if(!Number.isInteger(h)||!Array.isArray(scores)||scores.length!==4||new Set(scores).size!==4||!scores.every(s=>/^\d+:\d+$/.test(s)))continue;
           let draws=0,hand=0,count=0;
           for(const s of scores){const [a,b]=s.split(':').map(Number);if(a===b)draws++;if(a+h===b)hand++;if(a===b||a+h===b)count++;}
