@@ -1,0 +1,22 @@
+name: Double draw mobile acceptance
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'tests/double_draw_mobile.py'
+      - '.github/workflows/double-draw-mobile.yml'
+permissions:
+  contents: read
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install playwright
+      - run: python -m playwright install --with-deps chromium
+      - run: python tests/double_draw_mobile.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: double-draw-mobile
+          path: double-draw-*.png
