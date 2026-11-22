@@ -1090,15 +1090,8 @@
           let draws=0,hand=0,count=0;
           for(const s of scores){const [a,b]=s.split(':').map(Number);if(a===b)draws++;if(a+h===b)hand++;if(a===b||a+h===b)count++;}
           if(count<3)continue;
-          // Rank by the actual prematch probabilities, not by the count of Top4 scores.
-          // Top4 is only an admission gate: a 2-vs-1 score count does not imply a higher total probability.
-          const p=Number(mod['胜平负']?.probabilities?.['平']);
-          const q=Number(mod['让球']?.probabilities?.['让平']);
-          const validP=mod['胜平负']?.probabilities?.['平']!=null&&Number.isFinite(p)&&p>=0&&p<=1;
-          const validQ=mod['让球']?.probabilities?.['让平']!=null&&Number.isFinite(q)&&q>=0&&q<=1;
-          // Missing either probability: keep a neutral ordering and explicitly mark it unranked.
-          const ranked=validP&&validQ&&q>p?['让平','平']:['平','让平'];
-          const rankingReady=validP&&validQ;
+          // Double-draw is a two-direction selection, never a ranked single pick.
+          const ranked=['平','让平'];
           const verified=m.result_verification?.status==='VERIFIED'&&m.settlement?.scope==='90min_regular_ft';
           const ft=verified?m.settlement.ft:r?.ft;
           const final=/^\d+:\d+$/.test(ft||'');const [a,b]=final?ft.split(':').map(Number):[];
@@ -1106,12 +1099,10 @@
           const success=ranked.some(hit);total++;if(final){settled++;if(success)wins++;}
           const card=el('article','card');fixture(card,final?{...m,settlement:{...m.settlement,ft}}:{...m,settlement:null});
           const grid=el('div','triplet pair');
-          ranked.forEach((v,i)=>{const cell=el('div','datum'+(hit(v)?' hit':i===0?' primary':''));
-            cell.append(el('span','',rankingReady?(i?'次选':'首选'):'双平方向'),el('b','',v));
-            const prob=v==='平'?p:q;
-            if(rankingReady)cell.append(el('span','v4-prob',(prob*100).toFixed(1)+'%'));
+          ranked.forEach(v=>{const cell=el('div','datum'+(hit(v)?' hit':''));
+            cell.append(el('span','','双选方向'),el('b','',v));
             if(hit(v))cell.append(el('span','hit-check','✓'));grid.append(cell);});
-          const analysis=el('div','analysis');analysis.append(grid,el('div','v4-note','🔴 重点关注'+'　官方让球 '+(h>0?'+':'')+h));
+          const analysis=el('div','analysis');analysis.append(grid,el('div','v4-note','🔴 重点关注 · 平＋让平双选'+'　官方让球 '+(h>0?'+':'')+h));
           analysis.append(el('div','v4-note',final?(success?'✅ 评测成功 · '+ranked.filter(hit).join('／'):'❌ 评测失败'):'⏳ 待评测'));card.append(analysis);cards.append(card);
         }
         $('hit-rate-label').textContent='当日双平命中率';$('hit-rate').textContent=settled?(wins*100/settled).toFixed(1)+'%':'—';
