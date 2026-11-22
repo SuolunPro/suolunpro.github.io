@@ -540,7 +540,7 @@
     const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
     function navigation(){
       const root=$('models');root.replaceChildren();
-      for(const [key,name] of (radarAdmin()?[...modules,['双平雷达','🎯 双平雷达']]:modules)){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
+      for(const [key,name] of (radarAdmin()?[...modules,['双平预警','🎯 双平预警']]:modules)){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
 
     // O/U 2.5: pure projection of the already-frozen goal probabilities; no new fetch or workflow.
@@ -1065,8 +1065,8 @@
     async function renderRadar(){
       if(!radarAdmin())return;
       const source=report, day=source.sale_day, seq=++radarRequest, root=$('matches');
-      const current=()=>seq===radarRequest && report===source && active==='双平雷达' && radarAdmin();
-      $('section-title').textContent='🎯 双平雷达';
+      const current=()=>seq===radarRequest && report===source && active==='双平预警' && radarAdmin();
+      $('section-title').textContent='🎯 双平预警';
       root.replaceChildren();
       for(const id of ['hit-rate','hit-count','pending'])$(id).textContent='—';
       try{
@@ -1107,7 +1107,7 @@
         }
         $('hit-rate-label').textContent='当日双平命中率';$('hit-rate').textContent=settled?(wins*100/settled).toFixed(1)+'%':'—';
         $('hit-count').textContent=wins+' / '+settled;$('pending').textContent=total-settled;
-        $('section-title').textContent='🎯 双平雷达 · '+total+' 场';
+        $('section-title').textContent='🎯 双平预警 · '+total+' 场';
         if(!total)cards.append(el('div','empty','当日暂无重点关注赛事'));root.replaceChildren(cards);
       }catch(error){if(current())root.replaceChildren(el('div','error','雷达记录加载失败，请刷新重试'));}
     }
@@ -1115,8 +1115,8 @@
       if(!report)return;
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
-      if(active==='双平雷达' && !radarAdmin())active='胜平负';
-      if(active==='双平雷达'){renderRadar();return;}
+      if(active==='双平预警' && !radarAdmin())active='胜平负';
+      if(active==='双平预警'){renderRadar();return;}
       const isReviewSelected=isIndependentFeatured;
       const focus=active==='单选精选'?report.matches.filter(isPublishedSinglePick):
         active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return !!match.manual_cold_warning||(warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction))}):
