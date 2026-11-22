@@ -199,6 +199,28 @@
     .vip-panel #vip-register-toggle{margin-top:20px}
     @media(max-width:380px){.vip-panel{padding:21px 17px}.vip-brand img{width:54px;height:54px}.vip-brand strong{font-size:25px}.vip-benefits strong{font-size:10px}}
   </style>
+<style>
+#v4-app.radar-open .toolbar,#v4-app.radar-open .v4-model-notice{display:none}
+.radar-open #matches{display:block}
+.rd-tabs{display:flex;gap:18px;border-bottom:1px solid #ccd4dd;margin:4px 0 16px}
+.rd-tabs a{padding:12px 2px;color:#526477;font-weight:650;text-decoration:none}
+.rd-tabs a[aria-current=page]{color:#142d48;border-bottom:3px solid #bc914a}
+.rd-group{margin:18px 0 8px;font-size:16px;color:#192e44}
+.rd-sheet{border-top:2px solid #243e56;background:#fff}
+.rd-fixture{padding:13px 4px;border-bottom:1px solid #dbe2e8;line-height:1.5;color:#182d43}
+.rd-fixture small{color:#526477;font-variant-numeric:tabular-nums}
+.rd-teams{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:17px;font-weight:720;margin:4px 0 7px}
+.rd-teams span{font-weight:400;color:#697988;font-size:13px}
+.rd-detail{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:#435569}
+.rd-detail b{background:#edf2f6;padding:2px 7px;border-radius:4px;color:#223952;font-variant-numeric:tabular-nums}
+.rd-verdict{margin-top:7px;font-size:14px;color:#253c50}
+.rd-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13px}
+.rd-table caption{text-align:left;background:#152d44;color:white;padding:13px;font-size:16px;font-weight:700}
+.rd-table th,.rd-table td{padding:9px 2px;text-align:center;border-bottom:1px solid #d9e1e7}
+.rd-table th:first-child,.rd-table td:first-child{text-align:left}
+.rd-table th{color:#526477;font-size:12px}
+.rd-ledger summary{cursor:pointer;padding:12px 3px;color:#203a54;font-weight:650;border-bottom:1px solid #d4dde5}
+</style>
 </head>
 <body>
   <section id="vip-gate" class="vip-gate" aria-label="尊贵月卡VIP登录">
@@ -1071,25 +1093,46 @@
         }
         if(!valid())return;
         const panel=document.createDocumentFragment();
-        const link=el('a','model active',history?'返回当日雷达':'查看历史评测');
-        link.href=history?'#double-draw':'#double-draw-history';panel.append(link);
-        if(history){
-          for(const key of ['attention','priority']){
-            const group=rows.filter(r=>r.level===key), wins=group.filter(r=>r.result==='success').length,
-              losses=group.filter(r=>r.result==='failure').length, settled=wins+losses;
-            panel.append(el('div','card',radarNames[key]+' · '+group.length+'场　成功 '+wins+'　失败 '+losses+'　待评测 '+(group.length-settled)+'　成功率 '+(settled?(100*wins/settled).toFixed(1)+'%':'—')));
-          }
+        const tabs=el('nav','rd-tabs');
+        for(const [title,hash,selected] of [['当日雷达','#double-draw',!history],['历史评测','#double-draw-history',history]]){
+          const tab=el('a','',title);tab.href=hash;if(selected)tab.setAttribute('aria-current','page');tabs.append(tab);
         }
-        const shown=rows.filter(r=>r.level in radarNames);
-        if(!shown.length)panel.append(el('div','empty','当日暂无双平雷达记录'));
-        for(const r of shown){
-          const card=el('article','card');
-          card.append(el('strong','',r.day+' · '+r.no+' '+r.home+' vs '+r.away),
-            el('div','single-pick-note',radarNames[r.level]));
-          if(r.level==='insufficient')card.append(el('div','v4-note',r.reason+'，不计入正式评测'));
-          else card.append(el('div','v4-note','重点方向：平／让平 · 支持比分 '+r.support.join('、')),
-            el('div','v4-note',radarResults[r.result]+(r.ft?' · 90分钟 '+r.ft:'')));
-          panel.append(card);
+        panel.append(tabs);
+        const shown=rows.filter(r=>Object.hasOwn(radarNames,r.level));
+        const fixture=r=>{
+          const item=el('article','rd-fixture');
+          item.append(el('small','',r.no+'　'+(history?radarNames[r.level]:r.day.slice(5))));
+          const teams=el('div','rd-teams');teams.append(el('b','',r.home),el('span','','对'),el('b','',r.away));item.append(teams);
+          if(r.level==='insufficient')item.append(el('div','rd-verdict',r.reason+'，不计入正式评测'));
+          else{
+            const detail=el('div','rd-detail');detail.append(el('span','','平／让平 · 支持比分'));
+            for(const score of r.support)detail.append(el('b','',score));
+            item.append(detail,el('div','rd-verdict',radarResults[r.result]+(r.ft?'　90分钟 '+r.ft:'')));
+          }
+          return item;
+        };
+        if(history){
+          const table=el('table','rd-table');table.append(el('caption','','分级评测'));
+          const head=table.createTHead().insertRow();
+          for(const label of ['等级','场次','成功','失败','待评','成功率'])head.append(el('th','',label));
+          const body=table.createTBody();
+          for(const key of ['priority','attention']){
+            const group=shown.filter(r=>r.level===key),wins=group.filter(r=>r.result==='success').length,
+              losses=group.filter(r=>r.result==='failure').length,settled=wins+losses,tr=body.insertRow();
+            for(const val of [radarNames[key],group.length,wins,losses,group.length-settled,settled?(100*wins/settled).toFixed(1)+'%':'—'])tr.append(el('td','',val));
+          }
+          panel.append(table,el('h3','rd-group','逐日明细'));
+          for(const date of [...new Set(shown.map(r=>r.day))].sort().reverse()){
+            const daily=shown.filter(r=>r.day===date),list=el('details','rd-ledger');
+            list.append(el('summary','',date+'　·　'+daily.length+' 场'),...daily.map(fixture));panel.append(list);
+          }
+        }else{
+          for(const key of ['priority','attention','insufficient']){
+            const group=shown.filter(r=>r.level===key);if(!group.length)continue;
+            const sheet=el('div','rd-sheet');sheet.append(...group.map(fixture));
+            panel.append(el('h3','rd-group',radarNames[key]+'　'+group.length+' 场'),sheet);
+          }
+          if(!shown.length)panel.append(el('p','rd-verdict','当日暂无双平雷达记录'));
         }
         root.replaceChildren(panel);
       } catch(error){if(valid())root.replaceChildren(el('div','error','雷达记录加载失败，请刷新重试'));}
@@ -1103,6 +1146,7 @@
       if(!report)return;
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
+      $('v4-app').classList.toggle('radar-open',active==='双平雷达');
       if(active==='双平雷达'){renderRadar();return;}
       const isReviewSelected=isIndependentFeatured;
       const focus=active==='单选精选'?report.matches.filter(isPublishedSinglePick):
