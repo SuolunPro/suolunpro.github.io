@@ -383,6 +383,7 @@
     async function vipEnter(){
       const me=await checkMember(vipCode);
       vipMember=me;
+      navigation();
       if(!scheduleVipExpiry(me.expires_at))return;
       document.getElementById('tricoreAdminPanel')?.remove();
       if(me.email.toLowerCase()==='877229723@qq.com'){
@@ -539,7 +540,7 @@
     const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
     function navigation(){
       const root=$('models');root.replaceChildren();
-      for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
+      for(const [key,name] of (radarAdmin()?[...modules,['双平雷达','🎯 双平雷达']]:modules)){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
 
     // O/U 2.5: pure projection of the already-frozen goal probabilities; no new fetch or workflow.
@@ -1059,90 +1060,54 @@
       card.append(box);
       /* Technical timestamps are not shown to customers. */
     }
-    const radarNames = {attention:'🟠 关注', priority:'🔴 重点关注', insufficient:'⚠️ 数据不足'};
-    const radarResults = {success:'✅ 评测成功', failure:'❌ 评测失败', pending:'⏳ 待评测'};
-    let radarArchive, radarView = 0;
-    function radarRows(data){
-      return data.matches.filter(m=>m.prediction?.modules?.['冷门预警']?.status==='WATCH').map(m=>{
-        const r=m.double_draw_radar || {level:'insufficient',reason:'缺少赛前冻结雷达记录'};
-        const s=m.settlement;
-        const ft=s?.scope==='90min_regular_ft' && m.result_verification?.status==='VERIFIED' && /^\d+:\d+$/.test(s.ft) ? s.ft : null;
-        const [a,b]=(ft||'').split(':').map(Number);
-        return {...r,day:data.sale_day,no:m.match_no,home:m.home,away:m.away,ft,
-          result:ft?(a===b||a+r.handicap===b?'success':'failure'):'pending'};
-      });
-    }
+    const radarAdmin=()=>vipMember?.email?.toLowerCase()==='877229723@qq.com' && parseExpiry(vipMember.expires_at).getTime()>Date.now();
+    let radarArchive,radarRequest=0;
     async function renderRadar(){
-      const view=++radarView,day=report.sale_day,history=location.hash==='#double-draw-history';
-      const root=$('matches');
-      const valid=()=>view===radarView && active==='双平雷达' && report?.sale_day===day && !$('v4-app').hidden;
-      $('section-title').textContent=history?'双平雷达 · 历史评测':'🎯 双平雷达';
-      root.replaceChildren(el('div','empty','正在读取雷达记录…'));
-      try {
-        if(!radarArchive)radarArchive=await getJson('./assets/double-draw-20261106-21.json');
-        if(!valid())return;
-        let rows=history?radarArchive.slice():day<='2026-11-21'?radarArchive.filter(r=>r.day===day):radarRows(report);
-        if(history){
-          const dates=Array.from($('day-select').options,o=>o.value).filter(d=>d>'2026-11-21');
-          for(const d of dates){
-            const data=d===day?report:await getJson(DATA_BASE+'sales/'+d+'.json');
-            if(d!==day && data.matches.some(m=>m.double_draw_radar && !m.settlement))await checkSupabaseSettlementStaging(data);
-            if(!valid())return;
-            rows.push(...radarRows(data));
-          }
+      if(!radarAdmin())return;
+      const source=report, day=source.sale_day, seq=++radarRequest, root=$('matches');
+      const current=()=>seq===radarRequest && report===source && active==='双平雷达' && radarAdmin();
+      $('section-title').textContent='🎯 双平雷达';
+      root.replaceChildren();
+      for(const id of ['hit-rate','hit-count','pending'])$(id).textContent='—';
+      try{
+        const archived=day<='2026-11-21';
+        if(archived && !radarArchive)radarArchive=await getJson('./assets/double-draw-20261106-21.json');
+        if(!current())return;
+        const cards=document.createDocumentFragment();let wins=0,settled=0,total=0;
+        for(const m of source.matches){
+          const mod=m.prediction?.modules||{},r=archived?radarArchive.find(x=>x.day===day&&x.id===String(m.source_id)):null;
+          if(archived?!['priority','attention'].includes(r?.level):mod['冷门预警']?.status!=='WATCH')continue;
+          const scores=archived?r.top4:mod['比分']?.top4,h=archived?r.handicap:m.handicap;
+          if(!Number.isInteger(h)||!Array.isArray(scores)||scores.length!==4||new Set(scores).size!==4||!scores.every(s=>/^\d+:\d+$/.test(s)))continue;
+          let draws=0,hand=0,count=0;
+          for(const s of scores){const [a,b]=s.split(':').map(Number);if(a===b)draws++;if(a+h===b)hand++;if(a===b||a+h===b)count++;}
+          if(count<2)continue;
+          const p=mod['胜平负']?.probabilities?.['平'],q=mod['让球']?.probabilities?.['让平'];
+          const ranked=hand>draws || (hand===draws && Number.isFinite(q)&&Number.isFinite(p)&&q>p)?['让平','平']:['平','让平'];
+          const verified=m.result_verification?.status==='VERIFIED'&&m.settlement?.scope==='90min_regular_ft';
+          const ft=verified?m.settlement.ft:r?.ft;
+          const final=/^\d+:\d+$/.test(ft||'');const [a,b]=final?ft.split(':').map(Number):[];
+          const hit=v=>final&&(v==='平'?a===b:a+h===b);
+          const success=ranked.some(hit);total++;if(final){settled++;if(success)wins++;}
+          const card=el('article','card');fixture(card,final?{...m,settlement:{...m.settlement,ft}}:{...m,settlement:null});
+          const grid=el('div','triplet pair');
+          ranked.forEach((v,i)=>{const cell=el('div','datum'+(hit(v)?' hit':i===0?' primary':''));
+            cell.append(el('span','',i?'次选':'首选'),el('b','',v));
+            if(hit(v))cell.append(el('span','hit-check','✓'));grid.append(cell);});
+          const analysis=el('div','analysis');analysis.append(grid,el('div','v4-note',(count>=3?'🔴 重点关注':'🟠 关注')+'　官方让球 '+(h>0?'+':'')+h));
+          analysis.append(el('div','v4-note',final?(success?'✅ 评测成功 · '+ranked.filter(hit).join('／'):'❌ 评测失败'):'⏳ 待评测'));card.append(analysis);cards.append(card);
         }
-        if(!valid())return;
-        const panel=document.createDocumentFragment();
-        const tabs=el('nav','rd-tabs');
-        for(const [title,hash,selected] of [['当日雷达','#double-draw',!history],['历史评测','#double-draw-history',history]]){
-          const tab=el('a','',title);tab.href=hash;if(selected)tab.setAttribute('aria-current','page');tabs.append(tab);
-        }
-        panel.append(tabs);
-        const shown=rows.filter(r=>Object.hasOwn(radarNames,r.level));
-        const fixture=r=>{
-          const item=el('article','rd-fixture');
-          item.append(el('small','',r.no+'　'+(history?radarNames[r.level]:r.day.slice(5))));
-          const teams=el('div','rd-teams');teams.append(el('b','',r.home),el('span','','对'),el('b','',r.away));item.append(teams);
-          if(r.level==='insufficient')item.append(el('div','rd-verdict',r.reason+'，不计入正式评测'));
-          else{
-            const detail=el('div','rd-detail');detail.append(el('span','','平／让平 · 支持比分'));
-            for(const score of r.support)detail.append(el('b','',score));
-            item.append(detail,el('div','rd-verdict',radarResults[r.result]+(r.ft?'　90分钟 '+r.ft:'')));
-          }
-          return item;
-        };
-        if(history){
-          const table=el('table','rd-table');table.append(el('caption','','分级评测'));
-          const head=table.createTHead().insertRow();
-          for(const label of ['等级','场次','成功','失败','待评','成功率'])head.append(el('th','',label));
-          const body=table.createTBody();
-          for(const key of ['priority','attention']){
-            const group=shown.filter(r=>r.level===key),wins=group.filter(r=>r.result==='success').length,
-              losses=group.filter(r=>r.result==='failure').length,settled=wins+losses,tr=body.insertRow();
-            for(const val of [radarNames[key],group.length,wins,losses,group.length-settled,settled?(100*wins/settled).toFixed(1)+'%':'—'])tr.append(el('td','',val));
-          }
-          panel.append(table,el('h3','rd-group','逐日明细'));
-          for(const date of [...new Set(shown.map(r=>r.day))].sort().reverse()){
-            const daily=shown.filter(r=>r.day===date),list=el('details','rd-ledger');
-            list.append(el('summary','',date+'　·　'+daily.length+' 场'),...daily.map(fixture));panel.append(list);
-          }
-        }else{
-          for(const key of ['priority','attention','insufficient']){
-            const group=shown.filter(r=>r.level===key);if(!group.length)continue;
-            const sheet=el('div','rd-sheet');sheet.append(...group.map(fixture));
-            panel.append(el('h3','rd-group',radarNames[key]+'　'+group.length+' 场'),sheet);
-          }
-          if(!shown.length)panel.append(el('p','rd-verdict','当日暂无双平雷达记录'));
-        }
-        root.replaceChildren(panel);
-      } catch(error){if(valid())root.replaceChildren(el('div','error','雷达记录加载失败，请刷新重试'));}
+        $('hit-rate-label').textContent='当日双平命中率';$('hit-rate').textContent=settled?(wins*100/settled).toFixed(1)+'%':'—';
+        $('hit-count').textContent=wins+' / '+settled;$('pending').textContent=total-settled;
+        $('section-title').textContent='🎯 双平雷达 · '+total+' 场';
+        if(!total)cards.append(el('div','empty','当日暂无双平关注赛事'));root.replaceChildren(cards);
+      }catch(error){if(current())root.replaceChildren(el('div','error','雷达记录加载失败，请刷新重试'));}
     }
-
     function render(){
       if(!report)return;
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
-      $('v4-app').classList.toggle('radar-open',active==='双平雷达');
+      if(active==='双平雷达' && !radarAdmin())active='胜平负';
       if(active==='双平雷达'){renderRadar();return;}
       const isReviewSelected=isIndependentFeatured;
       const focus=active==='单选精选'?report.matches.filter(isPublishedSinglePick):
