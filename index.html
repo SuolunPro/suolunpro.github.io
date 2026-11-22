@@ -1100,10 +1100,10 @@
           const card=el('article','card');fixture(card,final?{...m,settlement:{...m.settlement,ft}}:{...m,settlement:null});
           const grid=el('div','triplet pair');
           ranked.forEach(v=>{const cell=el('div','datum'+(hit(v)?' hit':''));
-            cell.append(el('span','','双选方向'),el('b','',v));
+            cell.append(el('span','',v==='平'?'普通平局':'让球平局'),el('b','',v));
             if(hit(v))cell.append(el('span','hit-check','✓'));grid.append(cell);});
-          const analysis=el('div','analysis');analysis.append(grid,el('div','v4-note','🔴 重点关注 · 平＋让平双选'+'　官方让球 '+(h>0?'+':'')+h));
-          analysis.append(el('div','v4-note',final?(success?'✅ 评测成功 · '+ranked.filter(hit).join('／'):'❌ 评测失败'):'⏳ 待评测'));card.append(analysis);cards.append(card);
+          const analysis=el('div','analysis');analysis.append(grid,el('div','v4-note','🔴 双平重点关注 · 推荐：平＋让平'+'　官方让球 '+(h>0?'+':'')+h));
+          analysis.append(el('div','v4-note',final?(success?'✅ 双平命中 · '+ranked.filter(hit).join('／'):'双平未命中 · 赛果已核验'):'⏳ 等待赛果核验'));card.append(analysis);cards.append(card);
         }
         $('hit-rate-label').textContent='当日双平命中率';$('hit-rate').textContent=settled?(wins*100/settled).toFixed(1)+'%':'—';
         $('hit-count').textContent=wins+' / '+settled;$('pending').textContent=total-settled;
