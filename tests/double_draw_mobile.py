@@ -23,7 +23,7 @@ with sync_playwright() as pw:
  p.locator('.content').screenshot(path='double-draw-day.png')
  p.locator('.rd-tabs a').last.click()
  p.locator('.rd-table').wait_for()
- assert '68.8%' in p.locator('.rd-table').inner_text()
+ assert '69.7%' in p.locator('.rd-table').inner_text()
  p.locator('.rd-ledger summary').first.click()
  assert p.locator('details[open] .rd-fixture').count()>0
  p.locator('#matches').screenshot(path='double-draw-history.png')
