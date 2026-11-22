@@ -398,7 +398,7 @@
           loading=true;
           try{
             const res=await fetch('data/tricore5/latest.json?t='+Date.now(),{cache:'no-store'});
-            if(!res.ok)throw Error('数据文件不可用（HTTP '+res.status+'）');
+            if(!res.ok)throw Error(res.status===404?'今日三核发布文件尚未生成（404）':res.status===503?'站点暂时无法提供三核数据（503），请稍后重试':'三核数据读取失败（HTTP '+res.status+'）');
             const data=await res.json();
             if(!data||!/^20\\d{2}-\\d{2}-\\d{2}$/.test(data.date)||!Array.isArray(data.matches))throw Error('数据结构未通过校验');
             const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Shanghai'});
