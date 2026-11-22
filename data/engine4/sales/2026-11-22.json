@@ -357,10 +357,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0.0,
-            "让平": 0.0
+            "让负": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": 0.57,
             "让平": 0.29,
@@ -852,10 +852,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0.0,
-            "让平": 0.0
+            "让负": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": 0.13,
             "让平": 0.98,
@@ -1015,8 +1015,8 @@
           {
             "team": "特温特",
             "bfOdds": 1.11,
-            "bfVolume": 47031.0,
-            "bfProfitLoss": -3212.0,
+            "bfVolume": 47031,
+            "bfProfitLoss": -3212,
             "jcOdds": null,
             "jcSavedVolume": null,
             "jcProfitLoss": null,
@@ -1025,9 +1025,9 @@
           },
           {
             "team": "平局",
-            "bfOdds": 15.0,
-            "bfVolume": 1357.0,
-            "bfProfitLoss": 28637.0,
+            "bfOdds": 15,
+            "bfVolume": 1357,
+            "bfProfitLoss": 28637,
             "jcOdds": null,
             "jcSavedVolume": null,
             "jcProfitLoss": null,
@@ -1036,9 +1036,9 @@
           },
           {
             "team": "威廉二世",
-            "bfOdds": 30.0,
-            "bfVolume": 604.0,
-            "bfProfitLoss": 30872.0,
+            "bfOdds": 30,
+            "bfVolume": 604,
+            "bfProfitLoss": 30872,
             "jcOdds": null,
             "jcSavedVolume": null,
             "jcProfitLoss": null,
@@ -1051,14 +1051,14 @@
             "team": "特温特",
             "avgOdds": 1.07,
             "avgProb": 87.57,
-            "bfShare": 96.0,
+            "bfShare": 96,
             "jcSavedShare": null,
             "northShare": 17.16,
-            "bfHotCold": 10.0,
+            "bfHotCold": 10,
             "jcHotCold": null,
-            "bfMarketIndex": 58.0,
+            "bfMarketIndex": 58,
             "jcMarketIndex": null,
-            "bfProfitIndex": -7.0,
+            "bfProfitIndex": -7,
             "jcProfitIndex": null
           },
           {
@@ -1068,11 +1068,11 @@
             "bfShare": 2.77,
             "jcSavedShare": null,
             "northShare": 66.59,
-            "bfHotCold": -66.0,
+            "bfHotCold": -66,
             "jcHotCold": null,
-            "bfMarketIndex": 22.0,
+            "bfMarketIndex": 22,
             "jcMarketIndex": null,
-            "bfProfitIndex": 58.0,
+            "bfProfitIndex": 58,
             "jcProfitIndex": null
           },
           {
@@ -1082,11 +1082,11 @@
             "bfShare": 1.23,
             "jcSavedShare": null,
             "northShare": 16.25,
-            "bfHotCold": -72.0,
+            "bfHotCold": -72,
             "jcHotCold": null,
-            "bfMarketIndex": 20.0,
+            "bfMarketIndex": 20,
             "jcMarketIndex": null,
-            "bfProfitIndex": 63.0,
+            "bfProfitIndex": 63,
             "jcProfitIndex": null
           }
         ],
@@ -1173,7 +1173,7 @@
             {
               "match_id": 5781794,
               "xgf": 1.67,
-              "xga": 0.0
+              "xga": 0
             },
             {
               "match_id": 5781782,
@@ -1943,10 +1943,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0.0,
-            "让平": 0.0
+            "让负": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": -1.57,
             "让平": 0.56,
@@ -1954,6 +1954,128 @@
           },
           "market_previous_at": "2026-11-22T01:48:18.874941+00:00"
         }
+      },
+      "settlement": {
+        "ht": "0:0",
+        "ft": "4:0",
+        "verified_at": "2026-11-22T13:37:04.168638+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5749754",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5749754,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": false,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": false,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": null,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "胜",
+              "平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": false
+            },
+            "status": "MISS"
+          },
+          "比分": {
+            "actual": "4:0",
+            "picks": [
+              "1:1",
+              "1:0",
+              "2:1",
+              "2:0"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 4,
+            "picks": [
+              2,
+              3,
+              1
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "平-胜",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-胜"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "胜",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T13:37:04.168638+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -1988,34 +2110,34 @@
           {
             "team": "伯恩利",
             "bfOdds": 1.97,
-            "bfVolume": 73832.0,
-            "bfProfitLoss": -13948.0,
+            "bfVolume": 73832,
+            "bfProfitLoss": -13948,
             "jcOdds": 1.72,
-            "jcSavedVolume": 3257026.0,
-            "jcProfitLoss": -1218211.0,
-            "savedPopularity": 2082.0,
+            "jcSavedVolume": 3257026,
+            "jcProfitLoss": -1218211,
+            "savedPopularity": 2082,
             "doerPct": 50.94
           },
           {
             "team": "平局",
             "bfOdds": 3.9,
-            "bfVolume": 20084.0,
-            "bfProfitLoss": 53173.0,
+            "bfVolume": 20084,
+            "bfProfitLoss": 53173,
             "jcOdds": 3.3,
-            "jcSavedVolume": 861358.0,
-            "jcProfitLoss": 1541393.0,
-            "savedPopularity": 1344.0,
+            "jcSavedVolume": 861358,
+            "jcProfitLoss": 1541393,
+            "savedPopularity": 1344,
             "doerPct": 32.88
           },
           {
             "team": "布莱克本",
             "bfOdds": 4.2,
-            "bfVolume": 37585.0,
-            "bfProfitLoss": -26356.0,
+            "bfVolume": 37585,
+            "bfProfitLoss": -26356,
             "jcOdds": 3.92,
-            "jcSavedVolume": 265490.0,
-            "jcProfitLoss": 3343153.0,
-            "savedPopularity": 661.0,
+            "jcSavedVolume": 265490,
+            "jcProfitLoss": 3343153,
+            "savedPopularity": 661,
             "doerPct": 16.17
           }
         ],
@@ -2027,12 +2149,12 @@
             "bfShare": 56.15,
             "jcSavedShare": 74.3,
             "northShare": 7.31,
-            "bfHotCold": 13.0,
-            "jcHotCold": 50.0,
-            "bfMarketIndex": 38.0,
-            "jcMarketIndex": 59.0,
-            "bfProfitIndex": -11.0,
-            "jcProfitIndex": -28.0
+            "bfHotCold": 13,
+            "jcHotCold": 50,
+            "bfMarketIndex": 38,
+            "jcMarketIndex": 59,
+            "bfProfitIndex": -11,
+            "jcProfitIndex": -28
           },
           {
             "team": "平局",
@@ -2041,12 +2163,12 @@
             "bfShare": 15.27,
             "jcSavedShare": 19.65,
             "northShare": 89.95,
-            "bfHotCold": -40.0,
-            "jcHotCold": -22.0,
-            "bfMarketIndex": 21.0,
-            "jcMarketIndex": 30.0,
-            "bfProfitIndex": 40.0,
-            "jcProfitIndex": 35.0
+            "bfHotCold": -40,
+            "jcHotCold": -22,
+            "bfMarketIndex": 21,
+            "jcMarketIndex": 30,
+            "bfProfitIndex": 40,
+            "jcProfitIndex": 35
           },
           {
             "team": "布莱克本",
@@ -2055,12 +2177,12 @@
             "bfShare": 28.58,
             "jcSavedShare": 6.06,
             "northShare": 2.74,
-            "bfHotCold": 15.0,
-            "jcHotCold": -76.0,
-            "bfMarketIndex": 41.0,
-            "jcMarketIndex": 11.0,
-            "bfProfitIndex": -20.0,
-            "jcProfitIndex": 76.0
+            "bfHotCold": 15,
+            "jcHotCold": -76,
+            "bfMarketIndex": 41,
+            "jcMarketIndex": 11,
+            "bfProfitIndex": -20,
+            "jcProfitIndex": 76
           }
         ],
         "exchange_scale": null,
@@ -2156,7 +2278,7 @@
             {
               "match_id": 5836876,
               "xgf": 1.03,
-              "xga": 2.0
+              "xga": 2
             }
           ],
           "away": [
@@ -2488,10 +2610,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0.0,
-            "让平": 0.0
+            "让负": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": 0.01,
             "让平": 2.16,
@@ -2499,6 +2621,128 @@
           },
           "market_previous_at": "2026-11-22T01:48:26.251233+00:00"
         }
+      },
+      "settlement": {
+        "ht": "1:1",
+        "ft": "2:2",
+        "verified_at": "2026-11-22T14:07:03.886901+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5836935",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5836935,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": false,
+          "胜平负Top2": true,
+          "让球Top1": true,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": true,
+          "总进球Top1": false,
+          "总进球Top3": true,
+          "半全场Top1": false,
+          "半全场Top3": false,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": true,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "平",
+            "picks": [
+              "胜",
+              "平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让负",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "2:2",
+            "picks": [
+              "1:1",
+              "2:1",
+              "1:2",
+              "2:2"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": true
+            },
+            "status": "HIT"
+          },
+          "总进球": {
+            "actual": 4,
+            "picks": [
+              3,
+              2,
+              4
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "半全场": {
+            "actual": "平-平",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-胜"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "今日优选": {
+            "actual": "平",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "平",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "让负",
+            "direction": "让负",
+            "hit": true,
+            "status": "HIT"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T14:07:03.886901+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -2510,7 +2754,7 @@
       "kickoff": "2026-11-22 21:00",
       "spf": null,
       "rqspf": [
-        2.0,
+        2,
         4.5,
         2.4
       ],
@@ -2798,7 +3042,126 @@
           "bifa": false
         }
       },
-      "sale_day": "2026-11-22"
+      "sale_day": "2026-11-22",
+      "settlement": {
+        "ht": "0:2",
+        "ft": "3:2",
+        "verified_at": "2026-11-22T15:07:04.682744+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5868133",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5868133,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": null,
+          "胜平负Top2": null,
+          "让球Top1": false,
+          "让球Top2": false,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": true,
+          "半全场Top1": false,
+          "半全场Top3": false,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": null,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": null,
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "让球": {
+            "actual": "让负",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": false
+            },
+            "status": "MISS"
+          },
+          "比分": {
+            "actual": "3:2",
+            "picks": [
+              "2:0",
+              "3:0",
+              "2:1",
+              "1:0"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 5,
+            "picks": [
+              4,
+              3,
+              5
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "半全场": {
+            "actual": "负-胜",
+            "picks": [
+              "胜-胜",
+              "平-胜",
+              "平-平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "胜",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T15:07:04.682744+00:00",
+        "source": "supabase_independent"
+      }
     },
     {
       "match_no": "007",
@@ -3230,10 +3593,10 @@
             "让平"
           ],
           "delta": {
-            "让胜": 0.0,
-            "让平": 0.0
+            "让胜": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": -1.72,
             "让平": 2.79,
@@ -3241,6 +3604,128 @@
           },
           "market_previous_at": "2026-11-22T01:48:32.921037+00:00"
         }
+      },
+      "settlement": {
+        "ht": "1:1",
+        "ft": "1:5",
+        "verified_at": "2026-11-22T15:37:04.68895+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5781810",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5781810,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": false,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": false,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": true,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "负",
+            "picks": [
+              "负",
+              "平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让负",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": false
+            },
+            "status": "MISS"
+          },
+          "比分": {
+            "actual": "1:5",
+            "picks": [
+              "1:2",
+              "1:1",
+              "2:2",
+              "2:1"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 6,
+            "picks": [
+              3,
+              4,
+              2
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "平-负",
+            "picks": [
+              "负-负",
+              "胜-胜",
+              "平-负"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "负",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "负",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "负",
+            "direction": "负",
+            "hit": true,
+            "status": "HIT"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T15:37:04.68895+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -3275,34 +3760,34 @@
           {
             "team": "博洛尼亚",
             "bfOdds": 1.82,
-            "bfVolume": 449984.0,
-            "bfProfitLoss": -258969.0,
+            "bfVolume": 449984,
+            "bfProfitLoss": -258969,
             "jcOdds": 1.45,
-            "jcSavedVolume": 9684324.0,
-            "jcProfitLoss": 6720823.0,
-            "savedPopularity": 8583.0,
+            "jcSavedVolume": 9684324,
+            "jcProfitLoss": 6720823,
+            "savedPopularity": 8583,
             "doerPct": 69.79
           },
           {
             "team": "平局",
             "bfOdds": 3.85,
-            "bfVolume": 53830.0,
-            "bfProfitLoss": 352757.0,
+            "bfVolume": 53830,
+            "bfProfitLoss": 352757,
             "jcOdds": 3.85,
-            "jcSavedVolume": 5621078.0,
-            "jcProfitLoss": -878057.0,
-            "savedPopularity": 2517.0,
+            "jcSavedVolume": 5621078,
+            "jcProfitLoss": -878057,
+            "savedPopularity": 2517,
             "doerPct": 20.47
           },
           {
             "team": "乌迪内斯",
             "bfOdds": 5.2,
-            "bfVolume": 56188.0,
-            "bfProfitLoss": 267824.0,
+            "bfVolume": 56188,
+            "bfProfitLoss": 267824,
             "jcOdds": 5.25,
-            "jcSavedVolume": 5457691.0,
-            "jcProfitLoss": -7889785.0,
-            "savedPopularity": 1199.0,
+            "jcSavedVolume": 5457691,
+            "jcProfitLoss": -7889785,
+            "savedPopularity": 1199,
             "doerPct": 9.75
           }
         ],
@@ -3314,12 +3799,12 @@
             "bfShare": 80.35,
             "jcSavedShare": 46.64,
             "northShare": 29.55,
-            "bfHotCold": 47.0,
-            "jcHotCold": -14.0,
-            "bfMarketIndex": 62.0,
-            "jcMarketIndex": 22.0,
-            "bfProfitIndex": -46.0,
-            "jcProfitIndex": 32.0
+            "bfHotCold": 47,
+            "jcHotCold": -14,
+            "bfMarketIndex": 62,
+            "jcMarketIndex": 22,
+            "bfProfitIndex": -46,
+            "jcProfitIndex": 32
           },
           {
             "team": "平局",
@@ -3328,12 +3813,12 @@
             "bfShare": 9.61,
             "jcSavedShare": 27.07,
             "northShare": 32.75,
-            "bfHotCold": -62.0,
-            "jcHotCold": 6.0,
-            "bfMarketIndex": 16.0,
-            "jcMarketIndex": 34.0,
-            "bfProfitIndex": 63.0,
-            "jcProfitIndex": -4.0
+            "bfHotCold": -62,
+            "jcHotCold": 6,
+            "bfMarketIndex": 16,
+            "jcMarketIndex": 34,
+            "bfProfitIndex": 63,
+            "jcProfitIndex": -4
           },
           {
             "team": "乌迪内斯",
@@ -3342,12 +3827,12 @@
             "bfShare": 10.03,
             "jcSavedShare": 26.29,
             "northShare": 37.69,
-            "bfHotCold": -49.0,
-            "jcHotCold": 31.0,
-            "bfMarketIndex": 22.0,
-            "jcMarketIndex": 45.0,
-            "bfProfitIndex": 48.0,
-            "jcProfitIndex": -38.0
+            "bfHotCold": -49,
+            "jcHotCold": 31,
+            "bfMarketIndex": 22,
+            "jcMarketIndex": 45,
+            "bfProfitIndex": 48,
+            "jcProfitIndex": -38
           }
         ],
         "exchange_scale": null,
@@ -3442,7 +3927,7 @@
             },
             {
               "match_id": 5749702,
-              "xgf": 1.0,
+              "xgf": 1,
               "xga": 3.16
             }
           ],
@@ -3806,10 +4291,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0.0,
-            "让平": 0.0
+            "让负": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": 1.76,
             "让平": 2.47,
@@ -3817,6 +4302,128 @@
           },
           "market_previous_at": "2026-11-22T01:48:40.508110+00:00"
         }
+      },
+      "settlement": {
+        "ht": "1:0",
+        "ft": "1:1",
+        "verified_at": "2026-11-22T16:07:05.404198+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5749752",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5749752,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": false,
+          "胜平负Top2": true,
+          "让球Top1": true,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": true,
+          "比分Top4": true,
+          "总进球Top1": false,
+          "总进球Top3": true,
+          "半全场Top1": false,
+          "半全场Top3": false,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": false,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "平",
+            "picks": [
+              "胜",
+              "平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让负",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "1:1",
+            "picks": [
+              "2:1",
+              "1:1",
+              "2:0",
+              "1:0"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true,
+              "Top4": true
+            },
+            "status": "HIT"
+          },
+          "总进球": {
+            "actual": 2,
+            "picks": [
+              3,
+              2,
+              4
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "半全场": {
+            "actual": "胜-平",
+            "picks": [
+              "胜-胜",
+              "平-胜",
+              "负-负"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "今日优选": {
+            "actual": "平",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "平",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "平",
+            "direction": "胜",
+            "hit": false,
+            "status": "MISS"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T16:07:05.404198+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -3851,34 +4458,34 @@
           {
             "team": "萨索洛",
             "bfOdds": 2.88,
-            "bfVolume": 124655.0,
-            "bfProfitLoss": 285238.0,
+            "bfVolume": 124655,
+            "bfProfitLoss": 285238,
             "jcOdds": 2.75,
-            "jcSavedVolume": 534110.0,
-            "jcProfitLoss": 55337879.0,
-            "savedPopularity": 1573.0,
+            "jcSavedVolume": 534110,
+            "jcProfitLoss": 55337879,
+            "savedPopularity": 1573,
             "doerPct": 18.57
           },
           {
             "team": "平局",
             "bfOdds": 3.4,
-            "bfVolume": 131094.0,
-            "bfProfitLoss": 198524.0,
+            "bfVolume": 131094,
+            "bfProfitLoss": 198524,
             "jcOdds": 2.93,
-            "jcSavedVolume": 27168271.0,
-            "jcProfitLoss": -22796353.0,
-            "savedPopularity": 3456.0,
+            "jcSavedVolume": 27168271,
+            "jcProfitLoss": -22796353,
+            "savedPopularity": 3456,
             "doerPct": 40.81
           },
           {
             "team": "热那亚",
             "bfOdds": 2.82,
-            "bfVolume": 388495.0,
-            "bfProfitLoss": -451312.0,
+            "bfVolume": 388495,
+            "bfProfitLoss": -451312,
             "jcOdds": 2.3,
-            "jcSavedVolume": 29104300.0,
-            "jcProfitLoss": -10133209.0,
-            "savedPopularity": 3440.0,
+            "jcSavedVolume": 29104300,
+            "jcProfitLoss": -10133209,
+            "savedPopularity": 3440,
             "doerPct": 40.62
           }
         ],
@@ -3890,12 +4497,12 @@
             "bfShare": 19.35,
             "jcSavedShare": 0.94,
             "northShare": 4.39,
-            "bfHotCold": -44.0,
-            "jcHotCold": -97.0,
-            "bfMarketIndex": 19.0,
-            "jcMarketIndex": 1.0,
-            "bfProfitIndex": 44.0,
-            "jcProfitIndex": 97.0
+            "bfHotCold": -44,
+            "jcHotCold": -97,
+            "bfMarketIndex": 19,
+            "jcMarketIndex": 1,
+            "bfProfitIndex": 44,
+            "jcProfitIndex": 97
           },
           {
             "team": "平局",
@@ -3904,12 +4511,12 @@
             "bfShare": 20.35,
             "jcSavedShare": 47.83,
             "northShare": 48.48,
-            "bfHotCold": -29.0,
-            "jcHotCold": 68.0,
-            "bfMarketIndex": 23.0,
-            "jcMarketIndex": 54.0,
-            "bfProfitIndex": 31.0,
-            "jcProfitIndex": -40.0
+            "bfHotCold": -29,
+            "jcHotCold": 68,
+            "bfMarketIndex": 23,
+            "jcMarketIndex": 54,
+            "bfProfitIndex": 31,
+            "jcProfitIndex": -40
           },
           {
             "team": "热那亚",
@@ -3918,12 +4525,12 @@
             "bfShare": 60.3,
             "jcSavedShare": 51.23,
             "northShare": 47.12,
-            "bfHotCold": 64.0,
-            "jcHotCold": 39.0,
-            "bfMarketIndex": 58.0,
-            "jcMarketIndex": 45.0,
-            "bfProfitIndex": -70.0,
-            "jcProfitIndex": -18.0
+            "bfHotCold": 64,
+            "jcHotCold": 39,
+            "bfMarketIndex": 58,
+            "jcMarketIndex": 45,
+            "bfProfitIndex": -70,
+            "jcProfitIndex": -18
           }
         ],
         "exchange_scale": null,
@@ -4305,10 +4912,10 @@
             "让平"
           ],
           "delta": {
-            "让胜": 0.0,
-            "让平": 0.0
+            "让胜": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": -1.72,
             "让平": 1.43,
@@ -4316,6 +4923,128 @@
           },
           "market_previous_at": "2026-11-22T01:48:47.689289+00:00"
         }
+      },
+      "settlement": {
+        "ht": "0:2",
+        "ft": "0:2",
+        "verified_at": "2026-11-22T16:07:05.471076+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5749759",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5749759,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": false,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": true,
+          "总进球Top1": true,
+          "总进球Top3": true,
+          "半全场Top1": true,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": null,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "负",
+            "picks": [
+              "负",
+              "胜"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让负",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": false
+            },
+            "status": "MISS"
+          },
+          "比分": {
+            "actual": "0:2",
+            "picks": [
+              "1:1",
+              "0:1",
+              "1:2",
+              "0:2"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": true
+            },
+            "status": "HIT"
+          },
+          "总进球": {
+            "actual": 2,
+            "picks": [
+              2,
+              3,
+              1
+            ],
+            "hits": {
+              "Top1": true,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "半全场": {
+            "actual": "负-负",
+            "picks": [
+              "负-负",
+              "平-负",
+              "胜-胜"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "负",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "负",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "负",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T16:07:05.471076+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -4350,34 +5079,34 @@
           {
             "team": "奥格斯堡",
             "bfOdds": 2.9,
-            "bfVolume": 40070.0,
-            "bfProfitLoss": 72528.0,
+            "bfVolume": 40070,
+            "bfProfitLoss": 72528,
             "jcOdds": 2.8,
-            "jcSavedVolume": 799957.0,
-            "jcProfitLoss": 6146733.0,
-            "savedPopularity": 1353.0,
+            "jcSavedVolume": 799957,
+            "jcProfitLoss": 6146733,
+            "savedPopularity": 1353,
             "doerPct": 17.39
           },
           {
             "team": "平局",
             "bfOdds": 4.1,
-            "bfVolume": 66646.0,
-            "bfProfitLoss": -84518.0,
+            "bfVolume": 66646,
+            "bfProfitLoss": -84518,
             "jcOdds": 3.86,
-            "jcSavedVolume": 740599.0,
-            "jcProfitLoss": 5527901.0,
-            "savedPopularity": 2392.0,
+            "jcSavedVolume": 740599,
+            "jcProfitLoss": 5527901,
+            "savedPopularity": 2392,
             "doerPct": 30.74
           },
           {
             "team": "美因茨",
             "bfOdds": 2.46,
-            "bfVolume": 82015.0,
-            "bfProfitLoss": -13026.0,
+            "bfVolume": 82015,
+            "bfProfitLoss": -13026,
             "jcOdds": 1.91,
-            "jcSavedVolume": 6846057.0,
-            "jcProfitLoss": -4689356.0,
-            "savedPopularity": 4036.0,
+            "jcSavedVolume": 6846057,
+            "jcProfitLoss": -4689356,
+            "savedPopularity": 4036,
             "doerPct": 51.87
           }
         ],
@@ -4389,12 +5118,12 @@
             "bfShare": 21.23,
             "jcSavedShare": 9.54,
             "northShare": 75.71,
-            "bfHotCold": -40.0,
-            "jcHotCold": -72.0,
-            "bfMarketIndex": 20.0,
-            "jcMarketIndex": 12.0,
-            "bfProfitIndex": 38.0,
-            "jcProfitIndex": 73.0
+            "bfHotCold": -40,
+            "jcHotCold": -72,
+            "bfMarketIndex": 20,
+            "jcMarketIndex": 12,
+            "bfProfitIndex": 38,
+            "jcProfitIndex": 73
           },
           {
             "team": "平局",
@@ -4403,12 +5132,12 @@
             "bfShare": 35.31,
             "jcSavedShare": 8.83,
             "northShare": 2.23,
-            "bfHotCold": 43.0,
-            "jcHotCold": -63.0,
-            "bfMarketIndex": 46.0,
-            "jcMarketIndex": 16.0,
-            "bfProfitIndex": -45.0,
-            "jcProfitIndex": 66.0
+            "bfHotCold": 43,
+            "jcHotCold": -63,
+            "bfMarketIndex": 46,
+            "jcMarketIndex": 16,
+            "bfProfitIndex": -45,
+            "jcProfitIndex": 66
           },
           {
             "team": "美因茨",
@@ -4417,12 +5146,12 @@
             "bfShare": 43.46,
             "jcSavedShare": 81.63,
             "northShare": 22.06,
-            "bfHotCold": 8.0,
-            "jcHotCold": 102.0,
-            "bfMarketIndex": 34.0,
-            "jcMarketIndex": 72.0,
-            "bfProfitIndex": -7.0,
-            "jcProfitIndex": -56.0
+            "bfHotCold": 8,
+            "jcHotCold": 102,
+            "bfMarketIndex": 34,
+            "jcMarketIndex": 72,
+            "bfProfitIndex": -7,
+            "jcProfitIndex": -56
           }
         ],
         "exchange_scale": null,
@@ -4803,10 +5532,10 @@
             "让平"
           ],
           "delta": {
-            "让胜": 0.0,
-            "让平": 0.0
+            "让胜": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": -3.85,
             "让平": 1.65,
@@ -4814,6 +5543,128 @@
           },
           "market_previous_at": "2026-11-22T01:48:55.107185+00:00"
         }
+      },
+      "settlement": {
+        "ht": "2:0",
+        "ft": "3:1",
+        "verified_at": "2026-11-22T16:37:05.302995+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5881224",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5881224,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": false,
+          "胜平负Top2": true,
+          "让球Top1": true,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": true,
+          "半全场Top1": true,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": null,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "负",
+              "胜"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "3:1",
+            "picks": [
+              "1:1",
+              "2:1",
+              "1:2",
+              "2:2"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 4,
+            "picks": [
+              3,
+              2,
+              4
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "半全场": {
+            "actual": "胜-胜",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-胜"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "胜",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T16:37:05.302995+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -5088,9 +5939,9 @@
               "7+": 0.06961704872960595
             },
             "top3_probabilities": {
+              "2": 0.1806009220539347,
               "3": 0.21401601203126117,
-              "4": 0.19021021412097094,
-              "2": 0.1806009220539347
+              "4": 0.19021021412097094
             },
             "home_expected_goals": 1.6590471479556619,
             "away_expected_goals": 1.8960179579801884,
@@ -5217,7 +6068,7 @@
           "score_handicap_weights": {
             "让胜": 0.247016,
             "让平": 0.08471,
-            "让负": 0.0
+            "让负": 0
           },
           "xg_home_lambda": 1.663,
           "xg_away_lambda": 1.834,
@@ -5230,6 +6081,128 @@
           "predicted_at": "2026-11-21T08:57:53.105263+00:00"
         },
         "evidence_sha256": "1953c1ff1efddffd580d8d4fe359040bb74161d11d0479f180c7cf04b92facf9"
+      },
+      "settlement": {
+        "ht": "2:1",
+        "ft": "3:2",
+        "verified_at": "2026-11-22T17:17:06.655574+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5868137",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5868137,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": false,
+          "胜平负Top2": true,
+          "让球Top1": true,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": false,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": true,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "负",
+              "胜"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "3:2",
+            "picks": [
+              "1:1",
+              "1:2",
+              "2:1",
+              "2:2"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 5,
+            "picks": [
+              3,
+              4,
+              2
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "胜-胜",
+            "picks": [
+              "负-负",
+              "胜-胜",
+              "平-负"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "让胜",
+            "direction": "让胜",
+            "hit": true,
+            "status": "HIT"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T17:17:06.655574+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -5264,34 +6237,34 @@
           {
             "team": "利物浦",
             "bfOdds": 1.76,
-            "bfVolume": 1124116.0,
-            "bfProfitLoss": -188604.0,
+            "bfVolume": 1124116,
+            "bfProfitLoss": -188604,
             "jcOdds": 1.65,
-            "jcSavedVolume": 42605350.0,
-            "jcProfitLoss": 47494811.0,
-            "savedPopularity": 9524.0,
+            "jcSavedVolume": 42605350,
+            "jcProfitLoss": 47494811,
+            "savedPopularity": 9524,
             "doerPct": 50.78
           },
           {
             "team": "平局",
             "bfOdds": 4.4,
-            "bfVolume": 121348.0,
-            "bfProfitLoss": 1255909.0,
+            "bfVolume": 121348,
+            "bfProfitLoss": 1255909,
             "jcOdds": 3.85,
-            "jcSavedVolume": 37741411.0,
-            "jcProfitLoss": -27510794.0,
-            "savedPopularity": 5924.0,
+            "jcSavedVolume": 37741411,
+            "jcProfitLoss": -27510794,
+            "savedPopularity": 5924,
             "doerPct": 31.59
           },
           {
             "team": "曼联",
             "bfOdds": 4.7,
-            "bfVolume": 544376.0,
-            "bfProfitLoss": -768727.0,
+            "bfVolume": 544376,
+            "bfProfitLoss": -768727,
             "jcOdds": 3.65,
-            "jcSavedVolume": 37446877.0,
-            "jcProfitLoss": -18887463.0,
-            "savedPopularity": 3307.0,
+            "jcSavedVolume": 37446877,
+            "jcProfitLoss": -18887463,
+            "savedPopularity": 3307,
             "doerPct": 17.63
           }
         ],
@@ -5303,12 +6276,12 @@
             "bfShare": 62.81,
             "jcSavedShare": 36.17,
             "northShare": 19.64,
-            "bfHotCold": 15.0,
-            "jcHotCold": -34.0,
-            "bfMarketIndex": 39.0,
-            "jcMarketIndex": 20.0,
-            "bfProfitIndex": -11.0,
-            "jcProfitIndex": 40.0
+            "bfHotCold": 15,
+            "jcHotCold": -34,
+            "bfMarketIndex": 39,
+            "jcMarketIndex": 20,
+            "bfProfitIndex": -11,
+            "jcProfitIndex": 40
           },
           {
             "team": "平局",
@@ -5317,12 +6290,12 @@
             "bfShare": 6.78,
             "jcSavedShare": 32.04,
             "northShare": 12.59,
-            "bfHotCold": -70.0,
-            "jcHotCold": 40.0,
-            "bfMarketIndex": 11.0,
-            "jcMarketIndex": 41.0,
-            "bfProfitIndex": 70.0,
-            "jcProfitIndex": -23.0
+            "bfHotCold": -70,
+            "jcHotCold": 40,
+            "bfMarketIndex": 11,
+            "jcMarketIndex": 41,
+            "bfProfitIndex": 70,
+            "jcProfitIndex": -23
           },
           {
             "team": "曼联",
@@ -5331,12 +6304,12 @@
             "bfShare": 30.41,
             "jcSavedShare": 31.79,
             "northShare": 67.78,
-            "bfHotCold": 35.0,
-            "jcHotCold": 42.0,
-            "bfMarketIndex": 50.0,
-            "jcMarketIndex": 39.0,
-            "bfProfitIndex": -43.0,
-            "jcProfitIndex": -16.0
+            "bfHotCold": 35,
+            "jcHotCold": 42,
+            "bfMarketIndex": 50,
+            "jcMarketIndex": 39,
+            "bfProfitIndex": -43,
+            "jcProfitIndex": -16
           }
         ],
         "exchange_scale": null,
@@ -5589,9 +6562,9 @@
               "7+": 0.08014996215500081
             },
             "top3_probabilities": {
+              "2": 0.17070752616760784,
               "3": 0.2094612855924364,
-              "4": 0.19275964780380647,
-              "2": 0.17070752616760784
+              "4": 0.19275964780380647
             },
             "home_expected_goals": 2.0214997256053087,
             "away_expected_goals": 1.6595556495416288,
@@ -5635,9 +6608,9 @@
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              15.0,
-              -70.0,
-              35.0
+              15,
+              -70,
+              35
             ],
             "institution_support": [
               54.5,
@@ -5795,10 +6768,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0.0,
-            "让平": 0.0
+            "让负": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": -2.25,
             "让平": 0.44,
@@ -5806,6 +6779,128 @@
           },
           "market_previous_at": "2026-11-22T01:49:00.791957+00:00"
         }
+      },
+      "settlement": {
+        "ht": "2:0",
+        "ft": "4:0",
+        "verified_at": "2026-11-22T18:37:07.515574+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5795521",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5795521,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": false,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": true,
+          "半全场Top1": true,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": true,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "胜",
+              "负"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": false
+            },
+            "status": "MISS"
+          },
+          "比分": {
+            "actual": "4:0",
+            "picks": [
+              "2:1",
+              "1:1",
+              "2:2",
+              "1:2"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 4,
+            "picks": [
+              3,
+              4,
+              2
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "半全场": {
+            "actual": "胜-胜",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-胜"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "胜",
+            "direction": "胜",
+            "hit": true,
+            "status": "HIT"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T18:37:07.515574+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -6080,8 +7175,8 @@
               "7+": 0.05421133315941784
             },
             "top3_probabilities": {
-              "3": 0.21987819444520948,
               "2": 0.1970169415332406,
+              "3": 0.21987819444520948,
               "4": 0.18404414875279274
             },
             "home_expected_goals": 1.9353185616105066,
@@ -6217,6 +7312,128 @@
         },
         "evidence_sha256": "ae7f377c9eb87262c02a8b6ceb37f1e19dcda8d5d39aa5ac00a92259866d4578",
         "play": "胜平负"
+      },
+      "settlement": {
+        "ht": "0:0",
+        "ft": "4:0",
+        "verified_at": "2026-11-22T18:37:07.557099+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5881232",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5881232,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": false,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": true,
+          "半全场Top1": false,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": true,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "胜",
+              "平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": false
+            },
+            "status": "MISS"
+          },
+          "比分": {
+            "actual": "4:0",
+            "picks": [
+              "1:1",
+              "2:1",
+              "1:0",
+              "1:2"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 4,
+            "picks": [
+              3,
+              2,
+              4
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "半全场": {
+            "actual": "平-胜",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-胜"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "胜",
+            "direction": "胜",
+            "hit": true,
+            "status": "HIT"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T18:37:07.557099+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -6484,9 +7701,9 @@
               "7+": 0.0806324497482046
             },
             "top3_probabilities": {
+              "2": 0.17027641265652135,
               "3": 0.2092462971354773,
-              "4": 0.19285119492693104,
-              "2": 0.17027641265652135
+              "4": 0.19285119492693104
             },
             "home_expected_goals": 1.6640707211699803,
             "away_expected_goals": 2.022516760988785,
@@ -6569,7 +7786,129 @@
           "bifa": false
         }
       },
-      "sale_day": "2026-11-22"
+      "sale_day": "2026-11-22",
+      "settlement": {
+        "ht": "2:1",
+        "ft": "5:1",
+        "verified_at": "2026-11-22T19:07:10.417378+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5749750",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5749750,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": false,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": false,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": null,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "胜",
+              "平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": false
+            },
+            "status": "MISS"
+          },
+          "比分": {
+            "actual": "5:1",
+            "picks": [
+              "1:2",
+              "1:1",
+              "2:2",
+              "2:1"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 6,
+            "picks": [
+              3,
+              4,
+              2
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "胜-胜",
+            "picks": [
+              "负-负",
+              "胜-胜",
+              "平-负"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "胜",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T19:07:10.417378+00:00",
+        "source": "supabase_independent"
+      }
     },
     {
       "match_no": "015",
@@ -6580,7 +7919,7 @@
       "kickoff": "2026-11-23 02:15",
       "spf": [
         1.91,
-        4.0,
+        4,
         2.73
       ],
       "rqspf": [
@@ -6836,8 +8175,8 @@
               "7+": 0.14790396434762387
             },
             "top3_probabilities": {
-              "4": 0.19284927837406052,
               "3": 0.1781179688045382,
+              "4": 0.19284927837406052,
               "5": 0.16703915688689716
             },
             "home_expected_goals": 2.1808662045237366,
@@ -6958,10 +8297,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0.0,
-            "让平": 0.0
+            "让负": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": 1.46,
             "让平": 1.34,
@@ -6969,6 +8308,128 @@
           },
           "market_previous_at": "2026-11-22T01:49:09.002265+00:00"
         }
+      },
+      "settlement": {
+        "ht": "0:0",
+        "ft": "0:2",
+        "verified_at": "2026-11-22T20:17:06.553073+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5105056",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5105056,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": false,
+          "胜平负Top2": true,
+          "让球Top1": true,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": false,
+          "半全场Top3": false,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": null,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "负",
+            "picks": [
+              "胜",
+              "负"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让负",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "0:2",
+            "picks": [
+              "2:2",
+              "2:1",
+              "1:2",
+              "1:1"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 2,
+            "picks": [
+              4,
+              3,
+              5
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "平-负",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-胜"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "今日优选": {
+            "actual": "负",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "负",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "负",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-22T20:17:06.553073+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -7002,35 +8463,35 @@
         "transaction_rows": [
           {
             "team": "亚特兰大",
-            "bfOdds": 6.0,
-            "bfVolume": 77819.0,
-            "bfProfitLoss": 38916.0,
+            "bfOdds": 6,
+            "bfVolume": 77819,
+            "bfProfitLoss": 38916,
             "jcOdds": 5.7,
-            "jcSavedVolume": 354047.0,
-            "jcProfitLoss": 98269107.0,
-            "savedPopularity": 1566.0,
+            "jcSavedVolume": 354047,
+            "jcProfitLoss": 98269107,
+            "savedPopularity": 1566,
             "doerPct": 9.71
           },
           {
             "team": "平局",
             "bfOdds": 4.9,
-            "bfVolume": 27730.0,
-            "bfProfitLoss": 369953.0,
+            "bfVolume": 27730,
+            "bfProfitLoss": 369953,
             "jcOdds": 4.85,
-            "jcSavedVolume": 24452798.0,
-            "jcProfitLoss": -18308895.0,
-            "savedPopularity": 3160.0,
+            "jcSavedVolume": 24452798,
+            "jcProfitLoss": -18308895,
+            "savedPopularity": 3160,
             "doerPct": 19.59
           },
           {
             "team": "国际米兰",
             "bfOdds": 1.59,
-            "bfVolume": 400281.0,
-            "bfProfitLoss": -130617.0,
+            "bfVolume": 400281,
+            "bfProfitLoss": -130617,
             "jcOdds": 1.32,
-            "jcSavedVolume": 75480330.0,
-            "jcProfitLoss": 653139.0,
-            "savedPopularity": 11404.0,
+            "jcSavedVolume": 75480330,
+            "jcProfitLoss": 653139,
+            "savedPopularity": 11404,
             "doerPct": 70.7
           }
         ],
@@ -7042,12 +8503,12 @@
             "bfShare": 15.38,
             "jcSavedShare": 0.35,
             "northShare": 1.32,
-            "bfHotCold": -19.0,
-            "jcHotCold": -100.0,
-            "bfMarketIndex": 38.0,
-            "jcMarketIndex": 1.0,
-            "bfProfitIndex": 8.0,
-            "jcProfitIndex": 98.0
+            "bfHotCold": -19,
+            "jcHotCold": -100,
+            "bfMarketIndex": 38,
+            "jcMarketIndex": 1,
+            "bfProfitIndex": 8,
+            "jcProfitIndex": 98
           },
           {
             "team": "平局",
@@ -7056,12 +8517,12 @@
             "bfShare": 5.48,
             "jcSavedShare": 24.38,
             "northShare": 47.91,
-            "bfHotCold": -74.0,
-            "jcHotCold": 15.0,
-            "bfMarketIndex": 11.0,
-            "jcMarketIndex": 54.0,
-            "bfProfitIndex": 73.0,
-            "jcProfitIndex": -18.0
+            "bfHotCold": -74,
+            "jcHotCold": 15,
+            "bfMarketIndex": 11,
+            "jcMarketIndex": 54,
+            "bfProfitIndex": 73,
+            "jcProfitIndex": -18
           },
           {
             "team": "国际米兰",
@@ -7070,12 +8531,12 @@
             "bfShare": 79.13,
             "jcSavedShare": 75.26,
             "northShare": 50.76,
-            "bfHotCold": 32.0,
-            "jcHotCold": 25.0,
-            "bfMarketIndex": 51.0,
-            "jcMarketIndex": 45.0,
-            "bfProfitIndex": -26.0,
-            "jcProfitIndex": 1.0
+            "bfHotCold": 32,
+            "jcHotCold": 25,
+            "bfMarketIndex": 51,
+            "jcMarketIndex": 45,
+            "bfProfitIndex": -26,
+            "jcProfitIndex": 1
           }
         ],
         "exchange_scale": "适中",
@@ -7328,8 +8789,8 @@
               "7+": 0.044191648130686656
             },
             "top3_probabilities": {
-              "3": 0.22271251835440112,
               "2": 0.20925422815814354,
+              "3": 0.22271251835440112,
               "4": 0.1777772889047922
             },
             "home_expected_goals": 1.3767729716697188,
@@ -7374,9 +8835,9 @@
             "watch": [],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -19.0,
-              -74.0,
-              32.0
+              -19,
+              -74,
+              32
             ],
             "institution_support": [
               18.94,
@@ -7534,10 +8995,10 @@
             "让平"
           ],
           "delta": {
-            "让胜": 0.0,
-            "让平": 0.0
+            "让胜": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": -6.5,
             "让平": 2.55,
@@ -7579,34 +9040,34 @@
           {
             "team": "马赛",
             "bfOdds": 1.49,
-            "bfVolume": 75343.0,
-            "bfProfitLoss": -5481.0,
+            "bfVolume": 75343,
+            "bfProfitLoss": -5481,
             "jcOdds": 1.24,
-            "jcSavedVolume": 71677995.0,
-            "jcProfitLoss": 52835065.0,
-            "savedPopularity": 10583.0,
+            "jcSavedVolume": 71677995,
+            "jcProfitLoss": 52835065,
+            "savedPopularity": 10583,
             "doerPct": 75.08
           },
           {
             "team": "平局",
             "bfOdds": 5.2,
-            "bfVolume": 11425.0,
-            "bfProfitLoss": 47370.0,
+            "bfVolume": 11425,
+            "bfProfitLoss": 47370,
             "jcOdds": 5.05,
-            "jcSavedVolume": 64892267.0,
-            "jcProfitLoss": -185990169.0,
-            "savedPopularity": 2434.0,
+            "jcSavedVolume": 64892267,
+            "jcProfitLoss": -185990169,
+            "savedPopularity": 2434,
             "doerPct": 17.27
           },
           {
             "team": "勒芒",
             "bfOdds": 7.2,
-            "bfVolume": 20012.0,
-            "bfProfitLoss": -37306.0,
+            "bfVolume": 20012,
+            "bfProfitLoss": -37306,
             "jcOdds": 7.4,
-            "jcSavedVolume": 5145517.0,
-            "jcProfitLoss": 103638953.0,
-            "savedPopularity": 1079.0,
+            "jcSavedVolume": 5145517,
+            "jcProfitLoss": 103638953,
+            "savedPopularity": 1079,
             "doerPct": 7.65
           }
         ],
@@ -7618,12 +9079,12 @@
             "bfShare": 70.56,
             "jcSavedShare": 50.58,
             "northShare": 25.33,
-            "bfHotCold": 8.0,
-            "jcHotCold": -22.0,
-            "bfMarketIndex": 36.0,
-            "jcMarketIndex": 20.0,
-            "bfProfitIndex": -5.0,
-            "jcProfitIndex": 37.0
+            "bfHotCold": 8,
+            "jcHotCold": -22,
+            "bfMarketIndex": 36,
+            "jcMarketIndex": 20,
+            "bfProfitIndex": -5,
+            "jcProfitIndex": 37
           },
           {
             "team": "平局",
@@ -7631,13 +9092,13 @@
             "avgProb": 19.7,
             "bfShare": 10.7,
             "jcSavedShare": 45.79,
-            "northShare": 21.0,
-            "bfHotCold": -46.0,
-            "jcHotCold": 134.0,
-            "bfMarketIndex": 19.0,
-            "jcMarketIndex": 72.0,
-            "bfProfitIndex": 44.0,
-            "jcProfitIndex": -131.0
+            "northShare": 21,
+            "bfHotCold": -46,
+            "jcHotCold": 134,
+            "bfMarketIndex": 19,
+            "jcMarketIndex": 72,
+            "bfProfitIndex": 44,
+            "jcProfitIndex": -131
           },
           {
             "team": "勒芒",
@@ -7646,12 +9107,12 @@
             "bfShare": 18.74,
             "jcSavedShare": 3.63,
             "northShare": 53.67,
-            "bfHotCold": 26.0,
-            "jcHotCold": -80.0,
-            "bfMarketIndex": 46.0,
-            "jcMarketIndex": 8.0,
-            "bfProfitIndex": -35.0,
-            "jcProfitIndex": 73.0
+            "bfHotCold": 26,
+            "jcHotCold": -80,
+            "bfMarketIndex": 46,
+            "jcMarketIndex": 8,
+            "bfProfitIndex": -35,
+            "jcProfitIndex": 73
           }
         ],
         "exchange_scale": null,
@@ -7904,8 +9365,8 @@
               "7+": 0.04624812055656158
             },
             "top3_probabilities": {
-              "3": 0.222224995226826,
               "2": 0.20662543765850977,
+              "3": 0.222224995226826,
               "4": 0.17925170200430418
             },
             "home_expected_goals": 1.8584549155666068,
@@ -7950,9 +9411,9 @@
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              8.0,
-              -46.0,
-              26.0
+              8,
+              -46,
+              26
             ],
             "institution_support": [
               65.4,
@@ -8110,10 +9571,10 @@
             "让平"
           ],
           "delta": {
-            "让负": 0.0,
-            "让平": 0.0
+            "让负": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
             "让胜": 2.89,
             "让平": -0.32,
@@ -8388,9 +9849,9 @@
               "7+": 0.015857666342338206
             },
             "top3_probabilities": {
+              "1": 0.19818323811614605,
               "2": 0.2534420210669388,
-              "3": 0.2160722862776476,
-              "1": 0.19818323811614605
+              "3": 0.2160722862776476
             },
             "home_expected_goals": 1.313904259093063,
             "away_expected_goals": 1.2437491880507179,
@@ -8479,64 +9940,64 @@
   "generated_at": "2026-11-22T14:44:26.593465+00:00",
   "metrics": {
     "total": 18,
-    "settled": 3,
-    "pending": 15,
-    "top1_hit_rate": 0.5,
+    "settled": 15,
+    "pending": 3,
+    "top1_hit_rate": 0.5385,
     "module_hits": {
       "胜平负Top1": {
-        "hit": 1,
-        "total": 2,
-        "rate": 0.5
+        "hit": 7,
+        "total": 13,
+        "rate": 0.5385
       },
       "胜平负Top2": {
-        "hit": 2,
-        "total": 2,
-        "rate": 1.0
+        "hit": 13,
+        "total": 13,
+        "rate": 1
       },
       "让球Top1": {
-        "hit": 2,
-        "total": 3,
-        "rate": 0.6667
+        "hit": 7,
+        "total": 15,
+        "rate": 0.4667
       },
       "让球Top2": {
-        "hit": 2,
-        "total": 3,
-        "rate": 0.6667
+        "hit": 7,
+        "total": 15,
+        "rate": 0.4667
       },
       "比分Top1": {
         "hit": 0,
-        "total": 3,
-        "rate": 0.0
+        "total": 15,
+        "rate": 0
       },
       "比分Top3": {
-        "hit": 2,
-        "total": 3,
-        "rate": 0.6667
+        "hit": 3,
+        "total": 15,
+        "rate": 0.2
       },
       "比分Top4": {
-        "hit": 2,
-        "total": 3,
-        "rate": 0.6667
+        "hit": 5,
+        "total": 15,
+        "rate": 0.3333
       },
       "总进球Top1": {
-        "hit": 1,
-        "total": 3,
-        "rate": 0.3333
+        "hit": 2,
+        "total": 15,
+        "rate": 0.1333
       },
       "总进球Top3": {
-        "hit": 2,
-        "total": 3,
-        "rate": 0.6667
+        "hit": 9,
+        "total": 15,
+        "rate": 0.6
       },
       "半全场Top1": {
-        "hit": 0,
-        "total": 3,
-        "rate": 0.0
+        "hit": 3,
+        "total": 15,
+        "rate": 0.2
       },
       "半全场Top3": {
-        "hit": 1,
-        "total": 3,
-        "rate": 0.3333
+        "hit": 9,
+        "total": 15,
+        "rate": 0.6
       },
       "今日优选Top1": {
         "hit": 0,
@@ -8559,124 +10020,124 @@
         "rate": null
       },
       "单选精选": {
-        "hit": 1,
-        "total": 1,
-        "rate": 1.0
+        "hit": 6,
+        "total": 7,
+        "rate": 0.8571
       }
     },
     "module_stats": {
       "胜平负": {
         "predicted": 16,
-        "verified": 2,
-        "pending": 14,
+        "verified": 13,
+        "pending": 3,
         "evaluation": {
-          "hit": 2,
-          "total": 2,
-          "rate": 1.0
+          "hit": 13,
+          "total": 13,
+          "rate": 1
         },
         "rates": {
           "Top1": {
-            "hit": 1,
-            "total": 2,
-            "rate": 0.5
+            "hit": 7,
+            "total": 13,
+            "rate": 0.5385
           },
           "Top2": {
-            "hit": 2,
-            "total": 2,
-            "rate": 1.0
+            "hit": 13,
+            "total": 13,
+            "rate": 1
           }
         }
       },
       "让球": {
         "predicted": 18,
-        "verified": 3,
-        "pending": 15,
+        "verified": 15,
+        "pending": 3,
         "evaluation": {
-          "hit": 2,
-          "total": 3,
-          "rate": 0.6667
+          "hit": 7,
+          "total": 15,
+          "rate": 0.4667
         },
         "rates": {
           "Top1": {
-            "hit": 2,
-            "total": 3,
-            "rate": 0.6667
+            "hit": 7,
+            "total": 15,
+            "rate": 0.4667
           },
           "Top2": {
-            "hit": 2,
-            "total": 3,
-            "rate": 0.6667
+            "hit": 7,
+            "total": 15,
+            "rate": 0.4667
           }
         }
       },
       "比分": {
         "predicted": 18,
-        "verified": 3,
-        "pending": 15,
+        "verified": 15,
+        "pending": 3,
         "evaluation": {
-          "hit": 2,
-          "total": 3,
-          "rate": 0.6667
-        },
-        "rates": {
-          "Top1": {
-            "hit": 0,
-            "total": 3,
-            "rate": 0.0
-          },
-          "Top3": {
-            "hit": 2,
-            "total": 3,
-            "rate": 0.6667
-          },
-          "Top4": {
-            "hit": 2,
-            "total": 3,
-            "rate": 0.6667
-          }
-        }
-      },
-      "总进球": {
-        "predicted": 18,
-        "verified": 3,
-        "pending": 15,
-        "evaluation": {
-          "hit": 2,
-          "total": 3,
-          "rate": 0.6667
-        },
-        "rates": {
-          "Top1": {
-            "hit": 1,
-            "total": 3,
-            "rate": 0.3333
-          },
-          "Top3": {
-            "hit": 2,
-            "total": 3,
-            "rate": 0.6667
-          }
-        }
-      },
-      "半全场": {
-        "predicted": 18,
-        "verified": 3,
-        "pending": 15,
-        "evaluation": {
-          "hit": 1,
-          "total": 3,
+          "hit": 5,
+          "total": 15,
           "rate": 0.3333
         },
         "rates": {
           "Top1": {
             "hit": 0,
-            "total": 3,
-            "rate": 0.0
+            "total": 15,
+            "rate": 0
           },
           "Top3": {
-            "hit": 1,
-            "total": 3,
+            "hit": 3,
+            "total": 15,
+            "rate": 0.2
+          },
+          "Top4": {
+            "hit": 5,
+            "total": 15,
             "rate": 0.3333
+          }
+        }
+      },
+      "总进球": {
+        "predicted": 18,
+        "verified": 15,
+        "pending": 3,
+        "evaluation": {
+          "hit": 9,
+          "total": 15,
+          "rate": 0.6
+        },
+        "rates": {
+          "Top1": {
+            "hit": 2,
+            "total": 15,
+            "rate": 0.1333
+          },
+          "Top3": {
+            "hit": 9,
+            "total": 15,
+            "rate": 0.6
+          }
+        }
+      },
+      "半全场": {
+        "predicted": 18,
+        "verified": 15,
+        "pending": 3,
+        "evaluation": {
+          "hit": 9,
+          "total": 15,
+          "rate": 0.6
+        },
+        "rates": {
+          "Top1": {
+            "hit": 3,
+            "total": 15,
+            "rate": 0.2
+          },
+          "Top3": {
+            "hit": 9,
+            "total": 15,
+            "rate": 0.6
           }
         }
       },
@@ -8726,18 +10187,18 @@
       },
       "单选精选": {
         "predicted": 9,
-        "verified": 1,
-        "pending": 8,
+        "verified": 7,
+        "pending": 2,
         "evaluation": {
-          "hit": 1,
-          "total": 1,
-          "rate": 1.0
+          "hit": 6,
+          "total": 7,
+          "rate": 0.8571
         },
         "rates": {
           "": {
-            "hit": 1,
-            "total": 1,
-            "rate": 1.0
+            "hit": 6,
+            "total": 7,
+            "rate": 0.8571
           }
         }
       }
