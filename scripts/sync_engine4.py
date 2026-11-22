@@ -189,6 +189,7 @@ def public_snapshot(doc, existing, instant):
         stamp = datetime.fromisoformat(str(value))
         return stamp if stamp.tzinfo else stamp.replace(tzinfo=tz)
 
+    source_matches = __import__('copy').deepcopy(doc['matches'])
     for row in doc["matches"]:
         old = previous.get(key(row))
         if old and old.get("prediction"):
@@ -211,6 +212,31 @@ def public_snapshot(doc, existing, instant):
                         row[field] = old[field]
                     else:
                         row.pop(field,None)
+        # Restore display-only prematch goal expectations from the *same*
+        # frozen engine prediction. Never recalculate or replace its forecasts.
+        # The prior public sync stripped these fields from dynamic-score modules.
+        source_row = next((m for m in source_matches
+                           if key(m) == key(row)), None)
+        if source_row and row.get("predicted_at") == source_row.get("predicted_at"):
+            frozen_modules = (row.get("prediction") or {}).get("modules") or {}
+            source_modules = (source_row.get("prediction") or {}).get("modules") or {}
+            for name in ("比分", "半全场", "总进球"):
+                frozen_module = frozen_modules.get(name)
+                source_module = source_modules.get(name)
+                if not isinstance(frozen_module, dict) or not isinstance(source_module, dict):
+                    continue
+                # Verify unchanged forecast distribution and method before
+                # recovering only fields previously removed by the publisher.
+                if (frozen_module.get("method") != source_module.get("method")
+                        or frozen_module.get("probabilities") != source_module.get("probabilities")
+                        or frozen_module.get("top3") != source_module.get("top3")
+                        or frozen_module.get("top4") != source_module.get("top4")):
+                    continue
+                for field in ("home_expected_goals", "away_expected_goals",
+                              "estimated_total_goals"):
+                    value = source_module.get(field)
+                    if isinstance(value, (int, float)) and not isinstance(value, bool) and 0 < value < 30:
+                        frozen_module.setdefault(field, value)
         prediction = row.get("prediction") or {}
         prediction.pop("dynamic_goals_audit", None)
         prediction.pop("william_dynamic_shadow", None)
@@ -218,10 +244,7 @@ def public_snapshot(doc, existing, instant):
         for name in ("比分", "半全场", "总进球"):
             module = modules.get(name) or {}
             module.pop("william_calibration", None)
-            if module.get("method") == "动态比分":
-                for field in ("home_expected_goals", "away_expected_goals",
-                              "estimated_total_goals", "matrix_probability_mass"):
-                    module.pop(field,None)
+            module.pop("matrix_probability_mass", None)
 
 
 def main(src, dst):
