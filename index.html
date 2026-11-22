@@ -1076,12 +1076,12 @@
         const cards=document.createDocumentFragment();let wins=0,settled=0,total=0;
         for(const m of source.matches){
           const mod=m.prediction?.modules||{},r=archived?radarArchive.find(x=>x.day===day&&x.id===String(m.source_id)):null;
-          if(archived?!['priority','attention'].includes(r?.level):mod['冷门预警']?.status!=='WATCH')continue;
+          if(archived?r?.level!=='priority':mod['冷门预警']?.status!=='WATCH')continue;
           const scores=archived?r.top4:mod['比分']?.top4,h=archived?r.handicap:m.handicap;
           if(!Number.isInteger(h)||!Array.isArray(scores)||scores.length!==4||new Set(scores).size!==4||!scores.every(s=>/^\d+:\d+$/.test(s)))continue;
           let draws=0,hand=0,count=0;
           for(const s of scores){const [a,b]=s.split(':').map(Number);if(a===b)draws++;if(a+h===b)hand++;if(a===b||a+h===b)count++;}
-          if(count<2)continue;
+          if(count<3)continue;
           const p=mod['胜平负']?.probabilities?.['平'],q=mod['让球']?.probabilities?.['让平'];
           const ranked=hand>draws || (hand===draws && Number.isFinite(q)&&Number.isFinite(p)&&q>p)?['让平','平']:['平','让平'];
           const verified=m.result_verification?.status==='VERIFIED'&&m.settlement?.scope==='90min_regular_ft';
@@ -1094,13 +1094,13 @@
           ranked.forEach((v,i)=>{const cell=el('div','datum'+(hit(v)?' hit':i===0?' primary':''));
             cell.append(el('span','',i?'次选':'首选'),el('b','',v));
             if(hit(v))cell.append(el('span','hit-check','✓'));grid.append(cell);});
-          const analysis=el('div','analysis');analysis.append(grid,el('div','v4-note',(count>=3?'🔴 重点关注':'🟠 关注')+'　官方让球 '+(h>0?'+':'')+h));
+          const analysis=el('div','analysis');analysis.append(grid,el('div','v4-note','🔴 重点关注'+'　官方让球 '+(h>0?'+':'')+h));
           analysis.append(el('div','v4-note',final?(success?'✅ 评测成功 · '+ranked.filter(hit).join('／'):'❌ 评测失败'):'⏳ 待评测'));card.append(analysis);cards.append(card);
         }
         $('hit-rate-label').textContent='当日双平命中率';$('hit-rate').textContent=settled?(wins*100/settled).toFixed(1)+'%':'—';
         $('hit-count').textContent=wins+' / '+settled;$('pending').textContent=total-settled;
         $('section-title').textContent='🎯 双平雷达 · '+total+' 场';
-        if(!total)cards.append(el('div','empty','当日暂无双平关注赛事'));root.replaceChildren(cards);
+        if(!total)cards.append(el('div','empty','当日暂无重点关注赛事'));root.replaceChildren(cards);
       }catch(error){if(current())root.replaceChildren(el('div','error','雷达记录加载失败，请刷新重试'));}
     }
     function render(){
