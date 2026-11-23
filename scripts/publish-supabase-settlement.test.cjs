@@ -1,0 +1,12 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {validateResults}=require('./publish-supabase-settlement.cjs');
+const day='2026-11-21';
+const match={match_no:'001',fotmob_match_id:5803665};
+const row={match_no:'001',fotmob_match_id:5803665,ft:'2:2',ht:'1:0',independent_verified:true};
+test('verified external fixture matches daily record',()=>assert.equal(validateResults(day,[match],[row]).size,0));
+test('duplicate numbers fail before publication',()=>assert.throws(()=>validateResults(day,[match,match],[row])));
+test('duplicate source results fail before publication',()=>assert.throws(()=>validateResults(day,[match],[row,row])));
+test('external ID mismatch requires review',()=>assert.ok(validateResults(day,[match],[{...row,fotmob_match_id:1}]).has('001')));
+test('conflicting score requires review',()=>assert.ok(validateResults(day,[{...match,settlement:{ft:'0:0',ht:'0:0'}}],[row]).has('001')));
+test('repeated verified score passes unchanged',()=>assert.equal(validateResults(day,[{...match,settlement:{ft:'2:2',ht:'1:0'}}],[row]).size,0));
