@@ -126,4 +126,5 @@ async function main(){
  if(missingVerified.length){console.error('::error::Verified settlements not published:',missingVerified.join(', '));process.exitCode=2;}
  if(conflicts)process.exitCode=2;
 }
-main().catch(e=>{console.error(e);process.exitCode=1});
+module.exports={validateResults};
+if(require.main===module) main().catch(e=>{console.error(e);process.exitCode=1});
