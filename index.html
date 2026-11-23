@@ -1140,6 +1140,14 @@
           const pick=match.single_pick;
           // Customer view: show the frozen single direction only; keep audit evidence in JSON.
           card.append(el('div','single-pick-note','单选推荐：【'+(pick.play==='让球'?'让球 '+(pick.handicap>0?'+':'')+pick.handicap:'胜平负')+'】'+pick.direction));
+          // Display the official SP from the published match snapshot; never fabricate missing odds.
+          const spDirections=pick.play==='让球'?['让胜','让平','让负']:['胜','平','负'];
+          const spValues=pick.play==='让球'?match.rqspf:match.spf;
+          const spIndex=spDirections.indexOf(pick.direction);
+          const referenceSp=Array.isArray(spValues)&&spIndex>=0?Number(spValues[spIndex]):NaN;
+          const spText=Number.isFinite(referenceSp)&&referenceSp>1
+            ?referenceSp.toFixed(2):'暂无数据';
+          card.append(el('div','v4-note','参考SP：'+spText));
           const result=match.settlement?.module_results?.['单选精选'];
           if(result?.status==='HIT'||result?.status==='MISS'){
             card.append(el('div','v4-verdict '+(result.status==='HIT'?'hit':'miss'),result.status==='HIT'?'✓ 命中':'✕ 未命中'));
