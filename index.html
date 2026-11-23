@@ -582,7 +582,10 @@
     }
     // Pre-kickoff manual publication withdrawal; raw prediction and settlement records remain unchanged.
     function isPublishedSinglePick(m){
-      if(m.prediction?.modules?.['冷门预警']?.status==='WATCH')return false;
+      const coldStatus=m.prediction?.modules?.['冷门预警']?.status;
+      if(report.sale_day<'2026-11-23'){
+        if(coldStatus==='WATCH')return false;
+      }else if(m.single_pick?.play!=='让球'&&['WATCH','TRIGGERED'].includes(coldStatus))return false;
       const no=String(m.match_no).padStart(3,'0');
       const id=String(m.source_id);
       const withdrawn=(report.sale_day==='2026-11-18'&&no==='003'&&id==='502910967')
