@@ -41,6 +41,30 @@ function refreshMetrics(doc){
   }
  }
 }
+function uniqueNumbers(rows, day) {
+ const seen = new Set();
+ for (const row of rows) {
+  const key = String(row.match_no);
+  if (!/^\d{3}$/.test(key) || seen.has(key)) throw Error('Ambiguous lottery identity '+day+' '+key);
+  seen.add(key);
+ }
+}
+function validateResults(day, matches, results) {
+ uniqueNumbers(matches, day);
+ uniqueNumbers(results, day);
+ const blocked = new Set();
+ for (const row of results.filter(x=>x.independent_verified === true)) {
+  const m = matches.find(x=>String(x.match_no) === String(row.match_no));
+  if (!m) continue;
+  const pairs = [[m.source_id,row.qiulaile_id],[m.fotmob_match_id,row.fotmob_match_id]]
+    .filter(([a,b])=>a != null && b != null);
+  if (!pairs.length || pairs.some(([a,b])=>String(a)!==String(b)))
+   if (!m.settlement || pairs.length) blocked.add(String(row.match_no));
+  if (m.settlement && (m.settlement.ft!==row.ft || m.settlement.ht!==row.ht))
+   blocked.add(String(row.match_no));
+ }
+ return blocked;
+}
 async function main(){
  let written=0,conflicts=0,missingVerified=[];
  for(const day of dates){
@@ -56,9 +80,13 @@ async function main(){
   if(!response.ok)throw Error('Supabase staging HTTP '+response.status+' for '+day);
   const audit=await response.json();
   if(audit.mode!=='verified_staging_not_official'||audit.sale_day!==day||!Array.isArray(audit.results))throw Error('Invalid staging '+day);
+  const blocked=validateResults(day,doc.matches,audit.results);
+  if(live) for(const no of validateResults(day,latest.matches,audit.results)) blocked.add(no);
+  for(const no of blocked) console.error('Settlement identity or score requires review',day,no);
+  conflicts+=blocked.size;
   let updated=0;
   for(const x of audit.results){
-   if(x.independent_verified!==true)continue;
+   if(x.independent_verified!==true || blocked.has(String(x.match_no)))continue;
    const m=doc.matches.find(m=>String(m.match_no)===String(x.match_no));
    if(!m)continue;
    if(m.settlement){if(m.settlement.ft!==x.ft||m.settlement.ht!==x.ht){conflicts++;console.error('CONFLICT',day,m.match_no)}continue}
@@ -69,7 +97,7 @@ async function main(){
    updated++;
   }
   for(const x of audit.results){
-   if(x.independent_verified!==true)continue;
+   if(x.independent_verified!==true || blocked.has(String(x.match_no)))continue;
    const m=doc.matches.find(m=>String(m.match_no)===String(x.match_no));
    if(m?.predicted_at && (!m.settlement || m.settlement.ft!==x.ft || m.settlement.ht!==x.ht)){
     missingVerified.push(day+' '+x.match_no);
@@ -84,6 +112,7 @@ async function main(){
     let changed=false;
      for(const m of latest.matches||[]){
       const fresh=doc.matches.find(x=>String(x.match_no)===String(m.match_no));
+      if(blocked.has(String(m.match_no)))continue;
       if(fresh?.settlement&&!m.settlement&&fresh.home===m.home&&fresh.away===m.away&&fresh.kickoff===m.kickoff&&fresh.predicted_at===m.predicted_at&&JSON.stringify(fresh.prediction)===JSON.stringify(m.prediction)){m.settlement=fresh.settlement;m.result_verification=fresh.result_verification;changed=true}
      }
     if(changed){
