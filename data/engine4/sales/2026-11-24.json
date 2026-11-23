@@ -1,0 +1,2460 @@
+{
+  "sale_day": "2026-11-24",
+  "version": "4.0-prototype",
+  "matches": [
+    {
+      "match_no": "004",
+      "source_id": "503073158",
+      "league": "欧冠杯",
+      "home": "加拉塔萨",
+      "away": "维拉",
+      "kickoff": "2026-11-25 01:45",
+      "spf": [
+        2.52,
+        3.75,
+        2.1
+      ],
+      "rqspf": [
+        1.53,
+        4.25,
+        4.0
+      ],
+      "handicap": 1,
+      "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
+      "data_quality": {
+        "spf": true,
+        "rqspf": true
+      },
+      "bifa": null,
+      "bifa_status": "待更新",
+      "market": {
+        "source": "qiulaile.vip/match/odds",
+        "captured_at": "2026-11-23T07:48:50.977982+00:00",
+        "william": {
+          "initial": "2.50 / 3.70 / 2.40",
+          "current": "2.63 / 3.80 / 2.29",
+          "time": "1小时前"
+        },
+        "asia": {
+          "Bet365": {
+            "initial": "1.00 0 0.85",
+            "current": "0.83 -0/0.5 1.03",
+            "time": "9小时前"
+          },
+          "澳门": {
+            "initial": "1.00 0 0.84",
+            "current": "0.77 -0/0.5 1.07",
+            "time": "2小时前"
+          },
+          "皇冠": {
+            "initial": "0.99 0 0.89",
+            "current": "1.06 0 0.82",
+            "time": "9小时前"
+          },
+          "威廉希尔": {
+            "initial": "0.91 0 0.73",
+            "current": "0.70 -0/0.5 0.95",
+            "time": "1小时前"
+          }
+        },
+        "over_under": {
+          "Bet365": {
+            "initial": "0.90 3.25 0.95",
+            "current": "0.80 3.5 1.00",
+            "time": "1小时前"
+          },
+          "澳门": {
+            "initial": "0.89 3.25 0.91",
+            "current": "0.88 3.5 0.92",
+            "time": "5小时前"
+          },
+          "皇冠": {
+            "initial": "0.91 3.25 0.97",
+            "current": "0.87 3.5 1.01",
+            "time": "1小时前"
+          },
+          "威廉希尔": {
+            "initial": "1.05 3.5 0.70",
+            "current": "0.75 3.5 0.85",
+            "time": "1小时前"
+          }
+        }
+      },
+      "fotmob_home_team_id": 8637,
+      "fotmob_away_team_id": 10252,
+      "fotmob_match_id": 6106339,
+      "fotmob_xg": {
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 6106339,
+        "home_team_id": 8637,
+        "away_team_id": 10252,
+        "home_lambda": 1.983,
+        "away_lambda": 1.486,
+        "samples": {
+          "home": [
+            {
+              "match_id": 5904809,
+              "xgf": 1.7,
+              "xga": 0.88
+            },
+            {
+              "match_id": 5904800,
+              "xgf": 1.73,
+              "xga": 1.39
+            },
+            {
+              "match_id": 6106341,
+              "xgf": 0.98,
+              "xga": 2.2
+            },
+            {
+              "match_id": 5904790,
+              "xgf": 2.8,
+              "xga": 1.38
+            },
+            {
+              "match_id": 5904782,
+              "xgf": 2.15,
+              "xga": 0.28
+            }
+          ],
+          "away": [
+            {
+              "match_id": 5795516,
+              "xgf": 1.03,
+              "xga": 0.25
+            },
+            {
+              "match_id": 5795512,
+              "xgf": 2.88,
+              "xga": 3.55
+            },
+            {
+              "match_id": 6106263,
+              "xgf": 0.71,
+              "xga": 1.86
+            },
+            {
+              "match_id": 5795496,
+              "xgf": 1.83,
+              "xga": 2.24
+            },
+            {
+              "match_id": 6275374,
+              "xgf": 2.28,
+              "xga": 2.57
+            }
+          ]
+        },
+        "captured_at": "2026-11-23T07:48:53.285656+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
+      },
+      "predicted_at": "2026-11-23T07:48:59.296932+00:00",
+      "prediction": {
+        "status": "PREDICTED",
+        "single_pick_risk_gate": {
+          "status": "BLOCKED",
+          "selection": null,
+          "candidate": null,
+          "reason": "冷门预警或市场异动观察已排除",
+          "evidence": [
+            "原版门槛审计：SP Top1 41.8%（低于旧55%门槛）",
+            "原版赔率区间审计：2.29（超出旧1.45–1.75）",
+            "SP Top1 负 去水隐含比例 41.8%",
+            "威廉同方向赔率 2.29",
+            "亚洲盘口可读 4 家，退让 0 家"
+          ],
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
+        },
+        "xg_conflict_reason": null,
+        "method": "胜平负 SP 去水；比分/进球/半全场采用FotMob历史完赛xG逐场估算",
+        "confidence": "中低（历史xG样本有限且缺少必发）",
+        "modules": {
+          "胜平负": {
+            "top1": "负",
+            "top2": [
+              "负",
+              "胜"
+            ],
+            "probabilities": {
+              "胜": 0.3482,
+              "平": 0.234,
+              "负": 0.4178
+            }
+          },
+          "让球": {
+            "handicap": 1,
+            "top2": [
+              "让胜",
+              "让平"
+            ],
+            "status": "有数据",
+            "method": "FotMob历史完赛xG逐场估算；90分钟净胜球映射官方让球",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "probabilities": {
+              "让胜": 0.710105,
+              "让平": 0.15754,
+              "让负": 0.132355
+            },
+            "market_probabilities": {
+              "让胜": 0.573888,
+              "让平": 0.2066,
+              "让负": 0.219512
+            },
+            "xg_probabilities": {
+              "让胜": 0.710105,
+              "让平": 0.15754,
+              "让负": 0.132355
+            }
+          },
+          "比分": {
+            "top3": [
+              "1:1",
+              "2:1",
+              "1:2"
+            ],
+            "top4": [
+              "1:1",
+              "2:1",
+              "1:2",
+              "2:2"
+            ],
+            "method": "动态比分",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "home_expected_goals": 1.928990307061393,
+            "away_expected_goals": 1.623924437880881,
+            "xg_samples": {
+              "home": 5,
+              "away": 5
+            },
+            "probabilities": {
+              "1:1": 0.08971903512991483,
+              "2:1": 0.08653357456225313,
+              "1:2": 0.07284846684528097,
+              "2:2": 0.07026199321441512
+            }
+          },
+          "总进球": {
+            "top3": [
+              3,
+              4,
+              2
+            ],
+            "estimated_total_goals": 3.552914744942274,
+            "home_expected_goals": 1.928990307061393,
+            "away_expected_goals": 1.623924437880881,
+            "method": "动态比分",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "xg_samples": {
+              "home": 5,
+              "away": 5
+            },
+            "probabilities": {
+              "0": 0.028641036556131438,
+              "1": 0.10175916109071008,
+              "2": 0.18077081193606998,
+              "3": 0.21408776106094995,
+              "4": 0.19015889074628187,
+              "5": 0.13512366536286635,
+              "6": 0.08001381050972892,
+              "7+": 0.06944486273726147
+            },
+            "top3_probabilities": {
+              "3": 0.21408776106094995,
+              "4": 0.19015889074628187,
+              "2": 0.18077081193606998
+            }
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "负-负",
+              "平-胜"
+            ],
+            "method": "动态比分",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "half_split_assumption": "45/55（旧索伦v1.3固定假设，非实测）",
+            "probabilities": {
+              "胜-胜": 0.2815751002764656,
+              "胜-平": 0.05443945502775244,
+              "胜-负": 0.027148710472155505,
+              "平-胜": 0.13687310910808473,
+              "平-平": 0.10964210506147022,
+              "平-负": 0.10567000548501487,
+              "负-胜": 0.03423187189636125,
+              "负-平": 0.054439455027752444,
+              "负-负": 0.19598018764494293
+            },
+            "home_expected_goals": 1.928990307061393,
+            "away_expected_goals": 1.623924437880881
+          },
+          "冷门预警": {
+            "status": "WATCH",
+            "level": "关注",
+            "triggered": false,
+            "direction": null,
+            "watch_direction": null,
+            "channels": [],
+            "evidence": [],
+            "watch": [
+              "FotMob历史xG方向与体彩SP首选背离，需人工复核；非独立冷门触发条件"
+            ],
+            "funding_direction": null,
+            "hot_cold_index": null,
+            "institution_support": null,
+            "market_captured_at": "2026-11-23T07:48:50.977982+00:00",
+            "missing": [
+              "必发资金方向（A/B/C未评估）",
+              "严格赛前独立比分（E1未评估）",
+              "必发盈亏/盈亏指数（E3未评估）"
+            ],
+            "checked": [
+              "D",
+              "E2",
+              "F"
+            ],
+            "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
+          }
+        },
+        "fotmob_audit": {
+          "status": "AVAILABLE",
+          "source": "FotMob历史完赛xG",
+          "reason": null,
+          "home_xgf": 1.872,
+          "home_xga": 1.226,
+          "away_xgf": 1.746,
+          "away_xga": 2.094,
+          "xg_top1": "胜",
+          "xg_probabilities": {
+            "胜": 0.4928,
+            "平": 0.2173,
+            "负": 0.2899
+          },
+          "market_top1": "负",
+          "direction_conflict": true
+        },
+        "coverage": {
+          "independent_xg": true,
+          "william": true,
+          "macau_asia": true,
+          "bifa": false
+        }
+      },
+      "sale_day": "2026-11-24",
+      "double_draw_radar": {
+        "level": "priority",
+        "support": [
+          "1:1",
+          "1:2",
+          "2:2"
+        ],
+        "handicap": 1,
+        "top4": [
+          "1:1",
+          "2:1",
+          "1:2",
+          "2:2"
+        ],
+        "predicted_at": "2026-11-23T07:48:59.296932+00:00"
+      },
+      "single_pick": {
+        "status": "SELECTED",
+        "level": "⭐ 高信心单选",
+        "direction": "让胜",
+        "play": "让球",
+        "handicap": 1,
+        "origin": "LIVE_PREMATCH",
+        "match_id": "503073158",
+        "sale_day": "2026-11-24",
+        "match_no": "004",
+        "home": "加拉塔萨",
+        "away": "维拉",
+        "kickoff": "2026-11-25 01:45",
+        "frozen_at": "2026-11-23T07:48:59.296932+00:00",
+        "version": "SINGLE_DUAL_PLAY_V5",
+        "channels": [
+          "HANDICAP_TRIPLE"
+        ],
+        "evidence": {
+          "handicap": 1,
+          "rqspf": [
+            1.53,
+            4.25,
+            4.0
+          ],
+          "market_probabilities": {
+            "让胜": 0.5738880918220948,
+            "让平": 0.2065997130559541,
+            "让负": 0.21951219512195122
+          },
+          "score_top4": [
+            "1:1",
+            "2:1",
+            "1:2",
+            "2:2"
+          ],
+          "score_probabilities": {
+            "1:1": 0.08971903512991483,
+            "2:1": 0.08653357456225313,
+            "1:2": 0.07284846684528097,
+            "2:2": 0.07026199321441512
+          },
+          "score_handicap_weights": {
+            "让胜": 0.24651460290658309,
+            "让平": 0.07284846684528097,
+            "让负": 0.0
+          },
+          "xg_home_lambda": 1.983,
+          "xg_away_lambda": 1.486,
+          "xg_handicap_weights": {
+            "让胜": 0.7101049014234447,
+            "让平": 0.15753989398701543,
+            "让负": 0.13235500910310197
+          },
+          "cold_status": "WATCH",
+          "predicted_at": "2026-11-23T07:48:59.296932+00:00"
+        },
+        "evidence_sha256": "357cbd278c703c9351d43d5f5673903169c572b1ca2249fbe785d16dddfb5938"
+      }
+    },
+    {
+      "match_no": "007",
+      "source_id": "503073195",
+      "league": "欧冠杯",
+      "home": "莱红牛",
+      "away": "朗斯",
+      "kickoff": "2026-11-25 04:00",
+      "spf": [
+        1.28,
+        5.25,
+        6.0
+      ],
+      "rqspf": [
+        1.84,
+        4.0,
+        2.9
+      ],
+      "handicap": -1,
+      "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
+      "data_quality": {
+        "spf": true,
+        "rqspf": true
+      },
+      "bifa": null,
+      "bifa_status": "待更新",
+      "market": {
+        "source": "qiulaile.vip/match/odds",
+        "captured_at": "2026-11-23T07:48:59.309506+00:00",
+        "william": {
+          "initial": "1.44 / 5.00 / 5.50",
+          "current": "1.40 / 5.00 / 6.00",
+          "time": "1天前"
+        },
+        "asia": {
+          "Bet365": {
+            "initial": "0.83 1/1.5 1.03",
+            "current": "0.98 1.5 0.88",
+            "time": "22小时前"
+          },
+          "澳门": {
+            "initial": "0.87 1/1.5 0.97",
+            "current": "0.97 1.5 0.87",
+            "time": "4小时前"
+          },
+          "皇冠": {
+            "initial": "0.88 1/1.5 1.00",
+            "current": "1.00 1.5 0.88",
+            "time": "9小时前"
+          },
+          "威廉希尔": {
+            "initial": "0.80 1/1.5 0.91",
+            "current": "0.91 1.5 0.75",
+            "time": "2小时前"
+          }
+        },
+        "over_under": {
+          "Bet365": {
+            "initial": "1.00 3.75 0.85",
+            "current": "0.98 3.75 0.88",
+            "time": "32分钟前"
+          },
+          "澳门": {
+            "initial": "0.97 3.75 0.83",
+            "current": "0.97 3.75 0.83",
+            "time": "1天前"
+          },
+          "皇冠": {
+            "initial": "0.99 3.75 0.89",
+            "current": "0.99 3.75 0.89",
+            "time": "2天前"
+          },
+          "威廉希尔": {
+            "initial": "0.75 3.5 0.95",
+            "current": "0.73 3.5 0.95",
+            "time": "4天前"
+          }
+        }
+      },
+      "fotmob_home_team_id": 178475,
+      "fotmob_away_team_id": 8588,
+      "fotmob_match_id": 6106325,
+      "fotmob_xg": {
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 6106325,
+        "home_team_id": 178475,
+        "away_team_id": 8588,
+        "home_lambda": 2.424,
+        "away_lambda": 1.356,
+        "samples": {
+          "home": [
+            {
+              "match_id": 5881231,
+              "xgf": 5.94,
+              "xga": 0.86
+            },
+            {
+              "match_id": 5881222,
+              "xgf": 2.23,
+              "xga": 2.03
+            },
+            {
+              "match_id": 6106322,
+              "xgf": 0.87,
+              "xga": 2.2
+            },
+            {
+              "match_id": 5881212,
+              "xgf": 3.66,
+              "xga": 0.49
+            },
+            {
+              "match_id": 6162750,
+              "xgf": 2.31,
+              "xga": 1.34
+            }
+          ],
+          "away": [
+            {
+              "match_id": 5802991,
+              "xgf": 2.36,
+              "xga": 0.81
+            },
+            {
+              "match_id": 5802990,
+              "xgf": 2.05,
+              "xga": 2.19
+            },
+            {
+              "match_id": 6106416,
+              "xgf": 0.98,
+              "xga": 4.18
+            },
+            {
+              "match_id": 5802974,
+              "xgf": 0.19,
+              "xga": 1.63
+            },
+            {
+              "match_id": 5802967,
+              "xgf": 1.06,
+              "xga": 0.42
+            }
+          ]
+        },
+        "captured_at": "2026-11-23T07:49:01.415064+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
+      },
+      "predicted_at": "2026-11-23T07:49:08.646988+00:00",
+      "prediction": {
+        "status": "PREDICTED",
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
+            "胜",
+            "平"
+          ],
+          "top2": [
+            "胜",
+            "平"
+          ],
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 68.6%（达到旧55%门槛）",
+            "原版赔率区间审计：1.40（超出旧1.45–1.75）",
+            "SP Top1 胜 去水隐含比例 68.6%",
+            "威廉同方向赔率 1.40",
+            "亚洲盘口可读 4 家，退让 0 家"
+          ],
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
+        },
+        "xg_conflict_reason": null,
+        "method": "胜平负 SP 去水；比分/进球/半全场采用FotMob历史完赛xG逐场估算",
+        "confidence": "中低（历史xG样本有限且缺少必发）",
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.6863,
+              "平": 0.1673,
+              "负": 0.1464
+            }
+          },
+          "让球": {
+            "handicap": -1,
+            "top2": [
+              "让胜",
+              "让平"
+            ],
+            "status": "有数据",
+            "method": "FotMob历史完赛xG逐场估算；90分钟净胜球映射官方让球",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "probabilities": {
+              "让胜": 0.397768,
+              "让平": 0.212203,
+              "让负": 0.390029
+            },
+            "market_probabilities": {
+              "让胜": 0.477445,
+              "让平": 0.219625,
+              "让负": 0.302931
+            },
+            "xg_probabilities": {
+              "让胜": 0.397768,
+              "让平": 0.212203,
+              "让负": 0.390029
+            }
+          },
+          "比分": {
+            "top3": [
+              "2:1",
+              "1:1",
+              "3:1"
+            ],
+            "top4": [
+              "2:1",
+              "1:1",
+              "3:1",
+              "2:0"
+            ],
+            "method": "动态比分",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "home_expected_goals": 2.4377731367707782,
+            "away_expected_goals": 1.363704774530188,
+            "xg_samples": {
+              "home": 5,
+              "away": 5
+            },
+            "probabilities": {
+              "2:1": 0.09051406288258743,
+              "1:1": 0.07425962778676594,
+              "3:1": 0.0735509169983842,
+              "2:0": 0.06637364961471999
+            }
+          },
+          "总进球": {
+            "top3": [
+              3,
+              4,
+              2
+            ],
+            "estimated_total_goals": 3.8014779113009665,
+            "home_expected_goals": 2.4377731367707782,
+            "away_expected_goals": 1.363704774530188,
+            "method": "动态比分",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "xg_samples": {
+              "home": 5,
+              "away": 5
+            },
+            "probabilities": {
+              "0": 0.02233773425896061,
+              "1": 0.08491640337394962,
+              "2": 0.1614039158665962,
+              "3": 0.20452447365478166,
+              "4": 0.19437381722977723,
+              "5": 0.14778155454684988,
+              "6": 0.09363138588459478,
+              "7+": 0.09103071518449002
+            },
+            "top3_probabilities": {
+              "3": 0.20452447365478166,
+              "4": 0.19437381722977723,
+              "2": 0.1614039158665962
+            }
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "平-胜",
+              "负-负"
+            ],
+            "method": "动态比分",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "half_split_assumption": "45/55（旧索伦v1.3固定假设，非实测）",
+            "probabilities": {
+              "胜-胜": 0.4048084197407573,
+              "胜-平": 0.04738059970512038,
+              "胜-负": 0.01868869783889712,
+              "平-胜": 0.16483093092563192,
+              "平-平": 0.0917792593884163,
+              "平-负": 0.06788756332371969,
+              "负-胜": 0.041273597243723564,
+              "负-平": 0.047380599705120395,
+              "负-负": 0.11597033212861327
+            },
+            "home_expected_goals": 2.4377731367707782,
+            "away_expected_goals": 1.363704774530188
+          },
+          "冷门预警": {
+            "status": "NOT_TRIGGERED",
+            "level": "未触发",
+            "triggered": false,
+            "direction": null,
+            "watch_direction": null,
+            "channels": [],
+            "evidence": [],
+            "watch": [],
+            "funding_direction": null,
+            "hot_cold_index": null,
+            "institution_support": null,
+            "market_captured_at": "2026-11-23T07:48:59.309506+00:00",
+            "missing": [
+              "必发资金方向（A/B/C未评估）",
+              "严格赛前独立比分（E1未评估）",
+              "必发盈亏/盈亏指数（E3未评估）"
+            ],
+            "checked": [
+              "D",
+              "E2",
+              "F"
+            ],
+            "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
+          }
+        },
+        "fotmob_audit": {
+          "status": "AVAILABLE",
+          "source": "FotMob历史完赛xG",
+          "reason": null,
+          "home_xgf": 3.002,
+          "home_xga": 1.384,
+          "away_xgf": 1.328,
+          "away_xga": 1.846,
+          "xg_top1": "胜",
+          "xg_probabilities": {
+            "胜": 0.61,
+            "平": 0.1873,
+            "负": 0.2027
+          },
+          "market_top1": "胜",
+          "direction_conflict": false
+        },
+        "coverage": {
+          "independent_xg": true,
+          "william": true,
+          "macau_asia": true,
+          "bifa": false
+        }
+      },
+      "sale_day": "2026-11-24",
+      "single_pick": {
+        "status": "SELECTED",
+        "level": "⭐ 高信心单选",
+        "direction": "让胜",
+        "play": "让球",
+        "handicap": -1,
+        "origin": "LIVE_PREMATCH",
+        "match_id": "503073195",
+        "sale_day": "2026-11-24",
+        "match_no": "007",
+        "home": "莱红牛",
+        "away": "朗斯",
+        "kickoff": "2026-11-25 04:00",
+        "frozen_at": "2026-11-23T07:49:08.646988+00:00",
+        "version": "SINGLE_DUAL_PLAY_V5",
+        "channels": [
+          "HANDICAP_TRIPLE"
+        ],
+        "evidence": {
+          "handicap": -1,
+          "rqspf": [
+            1.84,
+            4.0,
+            2.9
+          ],
+          "market_probabilities": {
+            "让胜": 0.4774448468883767,
+            "让平": 0.21962462956865328,
+            "让负": 0.30293052354297006
+          },
+          "score_top4": [
+            "2:1",
+            "1:1",
+            "3:1",
+            "2:0"
+          ],
+          "score_probabilities": {
+            "2:1": 0.09051406288258743,
+            "1:1": 0.07425962778676594,
+            "3:1": 0.0735509169983842,
+            "2:0": 0.06637364961471999
+          },
+          "score_handicap_weights": {
+            "让胜": 0.1399245666131042,
+            "让平": 0.09051406288258743,
+            "让负": 0.07425962778676594
+          },
+          "xg_home_lambda": 2.424,
+          "xg_away_lambda": 1.356,
+          "xg_handicap_weights": {
+            "让胜": 0.39776703137069397,
+            "让平": 0.21220253664926292,
+            "让负": 0.3900287184524661
+          },
+          "cold_status": "NOT_TRIGGERED",
+          "predicted_at": "2026-11-23T07:49:08.646988+00:00"
+        },
+        "evidence_sha256": "ccfcf383c6fbd8471428c16b1deab64f2bc416ab489fe037951bde3b2c71cc99"
+      }
+    },
+    {
+      "match_no": "008",
+      "source_id": "503073123",
+      "league": "欧冠杯",
+      "home": "阿森纳",
+      "away": "多特蒙德",
+      "kickoff": "2026-11-25 04:00",
+      "spf": [
+        1.25,
+        4.8,
+        7.6
+      ],
+      "rqspf": [
+        1.9,
+        3.5,
+        3.05
+      ],
+      "handicap": -1,
+      "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
+      "data_quality": {
+        "spf": true,
+        "rqspf": true
+      },
+      "bifa": null,
+      "bifa_status": "待更新",
+      "market": {
+        "source": "qiulaile.vip/match/odds",
+        "captured_at": "2026-11-23T07:49:08.657506+00:00",
+        "william": {
+          "initial": "1.36 / 4.75 / 7.50",
+          "current": "1.36 / 4.59 / 7.50",
+          "time": "16小时前"
+        },
+        "asia": {
+          "Bet365": {
+            "initial": "0.83 1/1.5 1.03",
+            "current": "0.83 1/1.5 1.03",
+            "time": "50分钟前"
+          },
+          "澳门": {
+            "initial": "0.88 1/1.5 0.96",
+            "current": "0.88 1/1.5 0.96",
+            "time": "4小时前"
+          },
+          "皇冠": {
+            "initial": "0.85 1/1.5 1.03",
+            "current": "0.85 1/1.5 1.03",
+            "time": "2天前"
+          },
+          "威廉希尔": {
+            "initial": "0.80 1/1.5 0.91",
+            "current": "0.80 1/1.5 0.91",
+            "time": "2小时前"
+          }
+        },
+        "over_under": {
+          "Bet365": {
+            "initial": "0.85 2.75 1.00",
+            "current": "0.83 2.75 1.03",
+            "time": "1小时前"
+          },
+          "澳门": {
+            "initial": "0.81 2.75 0.99",
+            "current": "0.81 2.75 0.99",
+            "time": "1天前"
+          },
+          "皇冠": {
+            "initial": "0.85 2.75 1.03",
+            "current": "0.83 2.75 1.05",
+            "time": "2天前"
+          },
+          "威廉希尔": {
+            "initial": "0.62 2.5 1.14",
+            "current": "0.62 2.5 1.10",
+            "time": "16小时前"
+          }
+        }
+      },
+      "fotmob_home_team_id": 9825,
+      "fotmob_away_team_id": 9789,
+      "fotmob_match_id": 6106259,
+      "fotmob_xg": {
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 6106259,
+        "home_team_id": 9825,
+        "away_team_id": 9789,
+        "home_lambda": 1.65,
+        "away_lambda": 1.329,
+        "samples": {
+          "home": [
+            {
+              "match_id": 5795523,
+              "xgf": 1.49,
+              "xga": 1.71
+            },
+            {
+              "match_id": 5795505,
+              "xgf": 1.26,
+              "xga": 0.36
+            },
+            {
+              "match_id": 6106389,
+              "xgf": 1.49,
+              "xga": 2.11
+            },
+            {
+              "match_id": 5795501,
+              "xgf": 0.98,
+              "xga": 1.05
+            },
+            {
+              "match_id": 6275367,
+              "xgf": 2.83,
+              "xga": 0.27
+            }
+          ],
+          "away": [
+            {
+              "match_id": 5881227,
+              "xgf": 1.61,
+              "xga": 0.47
+            },
+            {
+              "match_id": 5881215,
+              "xgf": 1.57,
+              "xga": 1.22
+            },
+            {
+              "match_id": 6106271,
+              "xgf": 2.5,
+              "xga": 0.75
+            },
+            {
+              "match_id": 5881208,
+              "xgf": 0.74,
+              "xga": 4.48
+            },
+            {
+              "match_id": 6162740,
+              "xgf": 1.37,
+              "xga": 1.53
+            }
+          ]
+        },
+        "captured_at": "2026-11-23T07:49:10.601317+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
+      },
+      "predicted_at": "2026-11-23T07:49:15.620869+00:00",
+      "prediction": {
+        "status": "PREDICTED",
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
+            "胜",
+            "平"
+          ],
+          "top2": [
+            "胜",
+            "平"
+          ],
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 70.2%（达到旧55%门槛）",
+            "原版赔率区间审计：1.36（超出旧1.45–1.75）",
+            "SP Top1 胜 去水隐含比例 70.2%",
+            "威廉同方向赔率 1.36",
+            "亚洲盘口可读 4 家，退让 0 家"
+          ],
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
+        },
+        "xg_conflict_reason": null,
+        "method": "胜平负 SP 去水；比分/进球/半全场采用FotMob历史完赛xG逐场估算",
+        "confidence": "中低（历史xG样本有限且缺少必发）",
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.7018,
+              "平": 0.1828,
+              "负": 0.1154
+            }
+          },
+          "让球": {
+            "handicap": -1,
+            "top2": [
+              "让负",
+              "让平"
+            ],
+            "status": "有数据",
+            "method": "FotMob历史完赛xG逐场估算；90分钟净胜球映射官方让球",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "probabilities": {
+              "让胜": 0.23388,
+              "让平": 0.216359,
+              "让负": 0.549761
+            },
+            "market_probabilities": {
+              "让胜": 0.461721,
+              "让平": 0.250649,
+              "让负": 0.28763
+            },
+            "xg_probabilities": {
+              "让胜": 0.23388,
+              "让平": 0.216359,
+              "让负": 0.549761
+            }
+          },
+          "比分": {
+            "top3": [
+              "1:1",
+              "2:1",
+              "1:0"
+            ],
+            "top4": [
+              "1:1",
+              "2:1",
+              "1:0",
+              "2:0"
+            ],
+            "method": "动态比分",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "home_expected_goals": 1.7943736497947342,
+            "away_expected_goals": 1.184247169347575,
+            "xg_samples": {
+              "home": 5,
+              "away": 5
+            },
+            "probabilities": {
+              "1:1": 0.10808281640534383,
+              "2:1": 0.09697047887667548,
+              "1:0": 0.09126710977480217,
+              "2:0": 0.0818836484364142
+            }
+          },
+          "总进球": {
+            "top3": [
+              2,
+              3,
+              4
+            ],
+            "estimated_total_goals": 2.978620819142309,
+            "home_expected_goals": 1.7943736497947342,
+            "away_expected_goals": 1.184247169347575,
+            "method": "动态比分",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "xg_samples": {
+              "home": 5,
+              "away": 5
+            },
+            "probabilities": {
+              "0": 0.050862934698825184,
+              "1": 0.15150139621659645,
+              "2": 0.22563260644994101,
+              "3": 0.22402465968304583,
+              "4": 0.16682112883329772,
+              "5": 0.09937937748313638,
+              "6": 0.049335580460778745,
+              "7+": 0.03244231617437865
+            },
+            "top3_probabilities": {
+              "2": 0.22563260644994101,
+              "3": 0.22402465968304583,
+              "4": 0.16682112883329772
+            }
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "平-胜",
+              "负-负"
+            ],
+            "method": "动态比分",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "half_split_assumption": "45/55（旧索伦v1.3固定假设，非实测）",
+            "probabilities": {
+              "胜-胜": 0.3222905340815049,
+              "胜-平": 0.049982237994688324,
+              "胜-负": 0.017701482764553626,
+              "平-胜": 0.16419861742513892,
+              "平-平": 0.1319198277220524,
+              "平-负": 0.09097145869327382,
+              "负-胜": 0.030230306972989816,
+              "负-平": 0.04998223799468833,
+              "负-负": 0.14272329635110995
+            },
+            "home_expected_goals": 1.7943736497947342,
+            "away_expected_goals": 1.184247169347575
+          },
+          "冷门预警": {
+            "status": "NOT_TRIGGERED",
+            "level": "未触发",
+            "triggered": false,
+            "direction": null,
+            "watch_direction": null,
+            "channels": [],
+            "evidence": [],
+            "watch": [],
+            "funding_direction": null,
+            "hot_cold_index": null,
+            "institution_support": null,
+            "market_captured_at": "2026-11-23T07:49:08.657506+00:00",
+            "missing": [
+              "必发资金方向（A/B/C未评估）",
+              "严格赛前独立比分（E1未评估）",
+              "必发盈亏/盈亏指数（E3未评估）"
+            ],
+            "checked": [
+              "D",
+              "E2",
+              "F"
+            ],
+            "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
+          }
+        },
+        "fotmob_audit": {
+          "status": "AVAILABLE",
+          "source": "FotMob历史完赛xG",
+          "reason": null,
+          "home_xgf": 1.61,
+          "home_xga": 1.1,
+          "away_xgf": 1.558,
+          "away_xga": 1.69,
+          "xg_top1": "胜",
+          "xg_probabilities": {
+            "胜": 0.4502,
+            "平": 0.2406,
+            "负": 0.3092
+          },
+          "market_top1": "胜",
+          "direction_conflict": false
+        },
+        "coverage": {
+          "independent_xg": true,
+          "william": true,
+          "macau_asia": true,
+          "bifa": false
+        }
+      },
+      "sale_day": "2026-11-24"
+    },
+    {
+      "match_no": "009",
+      "source_id": "503073088",
+      "league": "欧冠杯",
+      "home": "曼城",
+      "away": "那不勒斯",
+      "kickoff": "2026-11-25 04:00",
+      "spf": [
+        1.19,
+        5.65,
+        8.2
+      ],
+      "rqspf": [
+        2.67,
+        4.2,
+        1.9
+      ],
+      "handicap": -2,
+      "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
+      "data_quality": {
+        "spf": true,
+        "rqspf": true
+      },
+      "bifa": null,
+      "bifa_status": "待更新",
+      "market": {
+        "source": "qiulaile.vip/match/odds",
+        "captured_at": "2026-11-23T07:49:15.632760+00:00",
+        "william": {
+          "initial": "1.25 / 6.00 / 10.00",
+          "current": "1.25 / 6.00 / 10.00",
+          "time": "6天前"
+        },
+        "asia": {
+          "Bet365": {
+            "initial": "0.83 1.5/2 1.03",
+            "current": "0.88 1.5/2 0.98",
+            "time": "15小时前"
+          },
+          "澳门": {
+            "initial": "0.84 1.5/2 1.00",
+            "current": "0.86 1.5/2 0.98",
+            "time": "4小时前"
+          },
+          "皇冠": {
+            "initial": "0.84 1.5/2 1.04",
+            "current": "0.90 1.5/2 0.98",
+            "time": "15小时前"
+          },
+          "威廉希尔": {
+            "initial": "0.80 1.5/2 0.91",
+            "current": "0.85 1.5/2 0.85",
+            "time": "2小时前"
+          }
+        },
+        "over_under": {
+          "Bet365": {
+            "initial": "0.91 3.5 0.91",
+            "current": "0.93 3.5 0.93",
+            "time": "5小时前"
+          },
+          "澳门": {
+            "initial": "0.89 3.5 0.91",
+            "current": "0.88 3.5 0.92",
+            "time": "5分钟前"
+          },
+          "皇冠": {
+            "initial": "0.88 3.5 1.00",
+            "current": "0.94 3.5 0.94",
+            "time": "6小时前"
+          },
+          "威廉希尔": {
+            "initial": "0.80 3.5 0.95",
+            "current": "0.85 3.5 0.80",
+            "time": "22小时前"
+          }
+        }
+      },
+      "fotmob_home_team_id": 8456,
+      "fotmob_away_team_id": 9875,
+      "fotmob_match_id": 6106256,
+      "fotmob_xg": {
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 6106256,
+        "home_team_id": 8456,
+        "away_team_id": 9875,
+        "home_lambda": 1.471,
+        "away_lambda": 1.325,
+        "samples": {
+          "home": [
+            {
+              "match_id": 5795522,
+              "xgf": 1.87,
+              "xga": 0.74
+            },
+            {
+              "match_id": 5795513,
+              "xgf": 1.76,
+              "xga": 1.06
+            },
+            {
+              "match_id": 6106322,
+              "xgf": 2.2,
+              "xga": 0.87
+            },
+            {
+              "match_id": 5795502,
+              "xgf": 1.64,
+              "xga": 1.0
+            },
+            {
+              "match_id": 6275368,
+              "xgf": 0.76,
+              "xga": 1.8
+            }
+          ],
+          "away": [
+            {
+              "match_id": 5749757,
+              "xgf": 1.74,
+              "xga": 0.53
+            },
+            {
+              "match_id": 5749746,
+              "xgf": 2.32,
+              "xga": 0.86
+            },
+            {
+              "match_id": 6106288,
+              "xgf": 1.42,
+              "xga": 3.13
+            },
+            {
+              "match_id": 5749735,
+              "xgf": 0.52,
+              "xga": 0.79
+            },
+            {
+              "match_id": 5749725,
+              "xgf": 1.78,
+              "xga": 1.17
+            }
+          ]
+        },
+        "captured_at": "2026-11-23T07:49:17.556435+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
+      },
+      "predicted_at": "2026-11-23T07:49:21.969909+00:00",
+      "prediction": {
+        "status": "PREDICTED",
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
+            "胜",
+            "平"
+          ],
+          "top2": [
+            "胜",
+            "平"
+          ],
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 73.8%（达到旧55%门槛）",
+            "原版赔率区间审计：1.25（超出旧1.45–1.75）",
+            "SP Top1 胜 去水隐含比例 73.8%",
+            "威廉同方向赔率 1.25",
+            "亚洲盘口可读 4 家，退让 0 家"
+          ],
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
+        },
+        "xg_conflict_reason": "大让球场次历史xG与赛前胜平负市场显著背离",
+        "method": "胜平负 SP 去水；比分/进球/半全场采用赛前胜平负 SP 反推的泊松估算；大让球场次历史xG与赛前胜平负市场显著背离",
+        "confidence": "低（缺少必发与独立赛前xG）",
+        "modules": {
+          "胜平负": {
+            "top1": "胜",
+            "top2": [
+              "胜",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.7376,
+              "平": 0.1554,
+              "负": 0.107
+            }
+          },
+          "让球": {
+            "handicap": -2,
+            "top2": [
+              "让负",
+              "让平"
+            ],
+            "status": "有数据",
+            "method": "体彩让球SP去水",
+            "source": "SP",
+            "xg_status": "UNAVAILABLE",
+            "probabilities": {
+              "让胜": 0.328842,
+              "让平": 0.209049,
+              "让负": 0.462109
+            },
+            "market_probabilities": {
+              "让胜": 0.328842,
+              "让平": 0.209049,
+              "让负": 0.462109
+            },
+            "xg_probabilities": {}
+          },
+          "比分": {
+            "top3": [
+              "2:0",
+              "2:1",
+              "3:0"
+            ],
+            "top4": [
+              "2:0",
+              "2:1",
+              "3:0",
+              "3:1"
+            ],
+            "legacy_method": "HJ38_SCORE_TOP4_COMPAT_V1",
+            "dc_rho": -0.08,
+            "legacy_input": "体彩SP去水概率（非旧版冻结P-final）",
+            "method": "赛前胜平负 SP 反推的泊松估算；大让球场次历史xG与赛前胜平负市场显著背离；旧版HJ3.8比分Top4兼容排序",
+            "source": "SP",
+            "xg_status": "UNAVAILABLE",
+            "xg_missing_reason": "大让球场次历史xG与赛前胜平负市场显著背离",
+            "home_expected_goals": 2.587,
+            "away_expected_goals": 0.893,
+            "xg_samples": null,
+            "probabilities": {
+              "2:0": 0.103061,
+              "2:1": 0.092077,
+              "3:0": 0.088864,
+              "3:1": 0.079394
+            }
+          },
+          "总进球": {
+            "top3": [
+              3,
+              4,
+              2
+            ],
+            "estimated_total_goals": 3.672,
+            "home_expected_goals": 2.73,
+            "away_expected_goals": 0.942,
+            "method": "市场大小球盘口泊松（无独立xG）",
+            "source": "O/U",
+            "xg_status": "UNAVAILABLE",
+            "xg_missing_reason": "大让球场次历史xG与赛前胜平负市场显著背离",
+            "xg_samples": null,
+            "probabilities": {
+              "0": 0.025424,
+              "1": 0.093359,
+              "2": 0.171409,
+              "3": 0.209808,
+              "4": 0.192607,
+              "5": 0.141453,
+              "6": 0.086571,
+              "7+": 0.079369
+            },
+            "top3_probabilities": {
+              "3": 0.209808,
+              "4": 0.192607,
+              "2": 0.171409
+            },
+            "team_goals_basis": "prematch_score_model_ratio",
+            "team_goals_type": "market_implied_not_xg",
+            "market_total_goals": 3.672,
+            "market_companies": [
+              "澳门",
+              "Bet365",
+              "威廉希尔",
+              "皇冠"
+            ],
+            "market_calibration_version": "OU-v2-two-sided-no-vig"
+          },
+          "半全场": {
+            "top3": [
+              "胜-胜",
+              "平-胜",
+              "平-平"
+            ],
+            "method": "赛前胜平负 SP 反推的泊松估算；大让球场次历史xG与赛前胜平负市场显著背离；旧索伦v1.3上下半场按45/55预期进球分配，联合比分转移计算",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "SP",
+            "xg_status": "UNAVAILABLE",
+            "half_split_assumption": "45/55（旧索伦v1.3固定假设，非实测）",
+            "probabilities": {
+              "胜-胜": 0.510327,
+              "胜-平": 0.034649,
+              "胜-负": 0.008672,
+              "平-胜": 0.192075,
+              "平-平": 0.086055,
+              "平-负": 0.040526,
+              "负-胜": 0.035203,
+              "负-平": 0.034649,
+              "负-负": 0.057845
+            }
+          },
+          "冷门预警": {
+            "status": "NOT_TRIGGERED",
+            "level": "未触发",
+            "triggered": false,
+            "direction": null,
+            "watch_direction": null,
+            "channels": [],
+            "evidence": [],
+            "watch": [],
+            "funding_direction": null,
+            "hot_cold_index": null,
+            "institution_support": null,
+            "market_captured_at": "2026-11-23T07:49:15.632760+00:00",
+            "missing": [
+              "必发资金方向（A/B/C未评估）",
+              "严格赛前独立比分（E1未评估）",
+              "必发盈亏/盈亏指数（E3未评估）"
+            ],
+            "checked": [
+              "D",
+              "E2",
+              "F"
+            ],
+            "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
+          }
+        },
+        "fotmob_audit": {
+          "status": "REJECTED_CONFLICT",
+          "source": null,
+          "reason": "大让球场次历史xG与赛前胜平负市场显著背离"
+        },
+        "coverage": {
+          "independent_xg": false,
+          "william": true,
+          "macau_asia": true,
+          "bifa": false
+        }
+      },
+      "sale_day": "2026-11-24"
+    },
+    {
+      "match_no": "010",
+      "source_id": "503073163",
+      "league": "欧冠杯",
+      "home": "布拉迪斯",
+      "away": "贝蒂斯",
+      "kickoff": "2026-11-25 04:00",
+      "spf": [
+        9.5,
+        6.1,
+        1.15
+      ],
+      "rqspf": [
+        2.04,
+        4.15,
+        2.45
+      ],
+      "handicap": 2,
+      "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
+      "data_quality": {
+        "spf": true,
+        "rqspf": true
+      },
+      "bifa": null,
+      "bifa_status": "待更新",
+      "market": {
+        "source": "qiulaile.vip/match/odds",
+        "captured_at": "2026-11-23T07:49:21.983798+00:00",
+        "william": {
+          "initial": "10.00 / 6.00 / 1.22",
+          "current": "10.00 / 6.00 / 1.25",
+          "time": "5天前"
+        },
+        "asia": {
+          "Bet365": {
+            "initial": "1.00 -1.5/2 0.85",
+            "current": "1.00 -1.5/2 0.85",
+            "time": "5天前"
+          },
+          "澳门": {
+            "initial": "1.00 -1.5/2 0.84",
+            "current": "1.02 -1.5/2 0.82",
+            "time": "4小时前"
+          },
+          "皇冠": {
+            "initial": "0.89 -1.5/2 0.99",
+            "current": "1.04 -1.5/2 0.84",
+            "time": "1天前"
+          },
+          "威廉希尔": {
+            "initial": "0.85 -1.5/2 0.75",
+            "current": "1.05 -1.5 0.65",
+            "time": "4天前"
+          }
+        },
+        "over_under": {
+          "Bet365": {
+            "initial": "0.95 3.5 0.90",
+            "current": "0.98 3.5 0.88",
+            "time": "4天前"
+          },
+          "澳门": {
+            "initial": "0.94 3.5 0.86",
+            "current": "0.91 3.5 0.89",
+            "time": "4小时前"
+          },
+          "皇冠": {
+            "initial": "1.00 3.5 0.88",
+            "current": "0.95 3.5 0.93",
+            "time": "1天前"
+          },
+          "威廉希尔": {
+            "initial": "0.91 3.5 0.80",
+            "current": "0.85 3.5 0.80",
+            "time": "4天前"
+          }
+        }
+      },
+      "fotmob_home_team_id": 6019,
+      "fotmob_away_team_id": 8603,
+      "fotmob_match_id": 6106394,
+      "fotmob_xg": {
+        "status": "UNAVAILABLE",
+        "reason": "历史完赛xG样本不足：主2场、客5场",
+        "source": "FotMob"
+      },
+      "predicted_at": "2026-11-23T07:49:29.845458+00:00",
+      "prediction": {
+        "status": "PREDICTED",
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
+            "负",
+            "平"
+          ],
+          "top2": [
+            "负",
+            "平"
+          ],
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 76.4%（达到旧55%门槛）",
+            "原版赔率区间审计：1.25（超出旧1.45–1.75）",
+            "SP Top1 负 去水隐含比例 76.4%",
+            "威廉同方向赔率 1.25",
+            "亚洲盘口可读 4 家，退让 1 家"
+          ],
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
+        },
+        "xg_conflict_reason": null,
+        "method": "胜平负 SP 去水；比分/进球/半全场采用赛前胜平负 SP 反推的泊松估算；缺少可用FotMob历史xG",
+        "confidence": "低（缺少必发与独立赛前xG）",
+        "modules": {
+          "胜平负": {
+            "top1": "负",
+            "top2": [
+              "负",
+              "平"
+            ],
+            "probabilities": {
+              "胜": 0.0924,
+              "平": 0.144,
+              "负": 0.7636
+            }
+          },
+          "让球": {
+            "handicap": 2,
+            "top2": [
+              "让胜",
+              "让平"
+            ],
+            "status": "有数据",
+            "method": "体彩让球SP去水",
+            "source": "SP",
+            "xg_status": "UNAVAILABLE",
+            "probabilities": {
+              "让胜": 0.430252,
+              "让平": 0.211497,
+              "让负": 0.358251
+            },
+            "market_probabilities": {
+              "让胜": 0.430252,
+              "让平": 0.211497,
+              "让负": 0.358251
+            },
+            "xg_probabilities": {}
+          },
+          "比分": {
+            "top3": [
+              "0:2",
+              "0:3",
+              "1:2"
+            ],
+            "top4": [
+              "0:2",
+              "0:3",
+              "1:2",
+              "1:3"
+            ],
+            "legacy_method": "HJ38_SCORE_TOP4_COMPAT_V1",
+            "dc_rho": -0.08,
+            "legacy_input": "体彩SP去水概率（非旧版冻结P-final）",
+            "method": "赛前胜平负 SP 反推的泊松估算；缺少可用FotMob历史xG；旧版HJ3.8比分Top4兼容排序",
+            "source": "SP",
+            "xg_status": "UNAVAILABLE",
+            "xg_missing_reason": "历史完赛xG样本不足：主2场、客5场",
+            "home_expected_goals": 0.845,
+            "away_expected_goals": 2.691,
+            "xg_samples": null,
+            "probabilities": {
+              "0:2": 0.105507,
+              "0:3": 0.094657,
+              "1:2": 0.089116,
+              "1:3": 0.079952
+            }
+          },
+          "总进球": {
+            "top3": [
+              3,
+              4,
+              2
+            ],
+            "estimated_total_goals": 3.65,
+            "home_expected_goals": 0.872,
+            "away_expected_goals": 2.778,
+            "method": "市场大小球盘口泊松（无独立xG）",
+            "source": "O/U",
+            "xg_status": "UNAVAILABLE",
+            "xg_missing_reason": "历史完赛xG样本不足：主2场、客5场",
+            "xg_samples": null,
+            "probabilities": {
+              "0": 0.026004,
+              "1": 0.094901,
+              "2": 0.173171,
+              "3": 0.210664,
+              "4": 0.192205,
+              "5": 0.140292,
+              "6": 0.085333,
+              "7+": 0.077432
+            },
+            "top3_probabilities": {
+              "3": 0.210664,
+              "4": 0.192205,
+              "2": 0.173171
+            },
+            "team_goals_basis": "prematch_score_model_ratio",
+            "team_goals_type": "market_implied_not_xg",
+            "market_total_goals": 3.65,
+            "market_companies": [
+              "澳门",
+              "Bet365",
+              "威廉希尔",
+              "皇冠"
+            ],
+            "market_calibration_version": "OU-v2-two-sided-no-vig"
+          },
+          "半全场": {
+            "top3": [
+              "负-负",
+              "平-负",
+              "平-平"
+            ],
+            "method": "赛前胜平负 SP 反推的泊松估算；缺少可用FotMob历史xG；旧索伦v1.3上下半场按45/55预期进球分配，联合比分转移计算",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "SP",
+            "xg_status": "UNAVAILABLE",
+            "half_split_assumption": "45/55（旧索伦v1.3固定假设，非实测）",
+            "probabilities": {
+              "胜-胜": 0.049579,
+              "胜-平": 0.031897,
+              "胜-负": 0.034578,
+              "平-胜": 0.035361,
+              "平-平": 0.080163,
+              "平-负": 0.193263,
+              "负-胜": 0.007495,
+              "负-平": 0.031897,
+              "负-负": 0.535765
+            }
+          },
+          "冷门预警": {
+            "status": "NOT_TRIGGERED",
+            "level": "未触发",
+            "triggered": false,
+            "direction": null,
+            "watch_direction": null,
+            "channels": [],
+            "evidence": [],
+            "watch": [],
+            "funding_direction": null,
+            "hot_cold_index": null,
+            "institution_support": null,
+            "market_captured_at": "2026-11-23T07:49:21.983798+00:00",
+            "missing": [
+              "必发资金方向（A/B/C未评估）",
+              "严格赛前独立比分（E1未评估）",
+              "必发盈亏/盈亏指数（E3未评估）"
+            ],
+            "checked": [
+              "D",
+              "E2",
+              "F"
+            ],
+            "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
+          }
+        },
+        "fotmob_audit": {
+          "status": "UNAVAILABLE",
+          "source": null,
+          "reason": "历史完赛xG样本不足：主2场、客5场"
+        },
+        "coverage": {
+          "independent_xg": false,
+          "william": true,
+          "macau_asia": true,
+          "bifa": false
+        }
+      },
+      "sale_day": "2026-11-24"
+    },
+    {
+      "match_no": "011",
+      "source_id": "503073154",
+      "league": "欧冠杯",
+      "home": "费耶诺德",
+      "away": "波尔图",
+      "kickoff": "2026-11-25 04:00",
+      "spf": [
+        2.72,
+        3.5,
+        2.06
+      ],
+      "rqspf": [
+        1.56,
+        4.0,
+        4.05
+      ],
+      "handicap": 1,
+      "source_url": "https://qiulaile.vip/api/matches?matchType=0&mode=full",
+      "data_quality": {
+        "spf": true,
+        "rqspf": true
+      },
+      "bifa": null,
+      "bifa_status": "待更新",
+      "market": {
+        "source": "qiulaile.vip/match/odds",
+        "captured_at": "2026-11-23T07:49:29.859567+00:00",
+        "william": {
+          "initial": "2.63 / 3.50 / 2.40",
+          "current": "2.63 / 3.50 / 2.40",
+          "time": "3天前"
+        },
+        "asia": {
+          "Bet365": {
+            "initial": "1.05 0 0.80",
+            "current": "0.80 -0/0.5 1.05",
+            "time": "10小时前"
+          },
+          "澳门": {
+            "initial": "1.01 0 0.83",
+            "current": "1.03 0 0.81",
+            "time": "4小时前"
+          },
+          "皇冠": {
+            "initial": "0.81 -0/0.5 1.07",
+            "current": "0.79 -0/0.5 1.09",
+            "time": "2天前"
+          },
+          "威廉希尔": {
+            "initial": "0.50 -0.5 1.30",
+            "current": "0.91 0 0.80",
+            "time": "2小时前"
+          }
+        },
+        "over_under": {
+          "Bet365": {
+            "initial": "0.98 3 0.88",
+            "current": "1.00 3 0.85",
+            "time": "10小时前"
+          },
+          "澳门": {
+            "initial": "0.94 3 0.86",
+            "current": "0.97 3 0.83",
+            "time": "4小时前"
+          },
+          "皇冠": {
+            "initial": "1.01 3 0.87",
+            "current": "1.00 3 0.88",
+            "time": "2天前"
+          },
+          "威廉希尔": {
+            "initial": "0.60 2.5 1.25",
+            "current": "0.56 2.5 1.20",
+            "time": "16小时前"
+          }
+        }
+      },
+      "fotmob_home_team_id": 10235,
+      "fotmob_away_team_id": 9773,
+      "fotmob_match_id": 6106307,
+      "fotmob_xg": {
+        "status": "AVAILABLE",
+        "source": "FotMob历史完赛xG",
+        "match_id": 6106307,
+        "home_team_id": 10235,
+        "away_team_id": 9773,
+        "home_lambda": 1.124,
+        "away_lambda": 1.846,
+        "samples": {
+          "home": [
+            {
+              "match_id": 5781806,
+              "xgf": 1.25,
+              "xga": 1.76
+            },
+            {
+              "match_id": 5781797,
+              "xgf": 1.18,
+              "xga": 1.85
+            },
+            {
+              "match_id": 6106306,
+              "xgf": 0.73,
+              "xga": 1.19
+            },
+            {
+              "match_id": 5781787,
+              "xgf": 3.02,
+              "xga": 0.86
+            },
+            {
+              "match_id": 5781783,
+              "xgf": 1.22,
+              "xga": 2.03
+            }
+          ],
+          "away": [
+            {
+              "match_id": 5887680,
+              "xgf": 1.79,
+              "xga": 1.06
+            },
+            {
+              "match_id": 6106288,
+              "xgf": 3.13,
+              "xga": 1.42
+            },
+            {
+              "match_id": 5887670,
+              "xgf": 3.32,
+              "xga": 0.55
+            },
+            {
+              "match_id": 5985963,
+              "xgf": 1.58,
+              "xga": 0.44
+            },
+            {
+              "match_id": 5887657,
+              "xgf": 0.95,
+              "xga": 0.37
+            }
+          ]
+        },
+        "captured_at": "2026-11-23T07:49:32.815816+00:00",
+        "method": "最近5场已结束比赛双方xG进攻与对手xG防守均值各占一半"
+      },
+      "predicted_at": "2026-11-23T07:49:40.076010+00:00",
+      "prediction": {
+        "status": "PREDICTED",
+        "single_pick_risk_gate": {
+          "status": "CANDIDATE",
+          "selection": null,
+          "candidate": [
+            "负",
+            "胜"
+          ],
+          "top2": [
+            "负",
+            "胜"
+          ],
+          "reason": "市场筛选候选；缺少赛前必发资金方向，暂不发布正式今日优选",
+          "evidence": [
+            "原版门槛审计：SP Top1 42.6%（低于旧55%门槛）",
+            "原版赔率区间审计：2.40（超出旧1.45–1.75）",
+            "SP Top1 负 去水隐含比例 42.6%",
+            "威廉同方向赔率 2.40",
+            "亚洲盘口可读 4 家，退让 1 家"
+          ],
+          "missing": [
+            "独立赛前模型 A 档/SINGLE/HUR",
+            "必发资金方向与份额"
+          ],
+          "model": "DAILY_VALUE_EVIDENCE_V2_SHADOW"
+        },
+        "xg_conflict_reason": null,
+        "method": "胜平负 SP 去水；比分/进球/半全场采用FotMob历史完赛xG逐场估算",
+        "confidence": "中低（历史xG样本有限且缺少必发）",
+        "modules": {
+          "胜平负": {
+            "top1": "负",
+            "top2": [
+              "负",
+              "胜"
+            ],
+            "probabilities": {
+              "胜": 0.3228,
+              "平": 0.2509,
+              "负": 0.4263
+            }
+          },
+          "让球": {
+            "handicap": 1,
+            "top2": [
+              "让胜",
+              "让平"
+            ],
+            "status": "有数据",
+            "method": "FotMob历史完赛xG逐场估算；90分钟净胜球映射官方让球",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "probabilities": {
+              "让胜": 0.457474,
+              "让平": 0.233465,
+              "让负": 0.309061
+            },
+            "market_probabilities": {
+              "让胜": 0.563322,
+              "让平": 0.219695,
+              "让负": 0.216983
+            },
+            "xg_probabilities": {
+              "让胜": 0.457474,
+              "让平": 0.233465,
+              "让负": 0.309061
+            }
+          },
+          "比分": {
+            "top3": [
+              "1:1",
+              "1:2",
+              "0:1"
+            ],
+            "top4": [
+              "1:1",
+              "1:2",
+              "0:1",
+              "0:2"
+            ],
+            "method": "动态比分",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "home_expected_goals": 1.1376666955354946,
+            "away_expected_goals": 1.868445480390145,
+            "xg_samples": {
+              "home": 5,
+              "away": 5
+            },
+            "probabilities": {
+              "1:1": 0.10518590421028051,
+              "1:2": 0.09826706366122469,
+              "0:1": 0.09245757533648287,
+              "0:2": 0.08637596938264139
+            }
+          },
+          "总进球": {
+            "top3": [
+              3,
+              2,
+              4
+            ],
+            "estimated_total_goals": 3.0061121759256393,
+            "home_expected_goals": 1.1376666955354946,
+            "away_expected_goals": 1.868445480390145,
+            "method": "动态比分",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "xg_missing_reason": null,
+            "xg_samples": {
+              "home": 5,
+              "away": 5
+            },
+            "probabilities": {
+              "0": 0.049483689145255166,
+              "1": 0.14875352044927095,
+              "2": 0.2235848845171785,
+              "3": 0.22404041456667276,
+              "4": 0.16837265453207573,
+              "5": 0.10122941737635881,
+              "6": 0.05071783068948845,
+              "7+": 0.033817588723699665
+            },
+            "top3_probabilities": {
+              "3": 0.22404041456667276,
+              "2": 0.2235848845171785,
+              "4": 0.16837265453207573
+            }
+          },
+          "半全场": {
+            "top3": [
+              "负-负",
+              "平-负",
+              "胜-胜"
+            ],
+            "method": "动态比分",
+            "algorithm_version": "HTFT-POISSON-JOINT-TOP4-v1.3",
+            "source": "FotMob历史完赛xG",
+            "xg_status": "AVAILABLE",
+            "half_split_assumption": "45/55（旧索伦v1.3固定假设，非实测）",
+            "probabilities": {
+              "胜-胜": 0.12953985758890302,
+              "胜-平": 0.04865181128304621,
+              "胜-负": 0.031101297961336857,
+              "平-胜": 0.08394417944851315,
+              "平-平": 0.12837804964515656,
+              "平-负": 0.170052676499242,
+              "负-胜": 0.01640579142685916,
+              "负-平": 0.048651811283046215,
+              "负-负": 0.34327452486389687
+            },
+            "home_expected_goals": 1.1376666955354946,
+            "away_expected_goals": 1.868445480390145
+          },
+          "冷门预警": {
+            "status": "NOT_TRIGGERED",
+            "level": "未触发",
+            "triggered": false,
+            "direction": null,
+            "watch_direction": null,
+            "channels": [],
+            "evidence": [],
+            "watch": [],
+            "funding_direction": null,
+            "hot_cold_index": null,
+            "institution_support": null,
+            "market_captured_at": "2026-11-23T07:49:29.859567+00:00",
+            "missing": [
+              "必发资金方向（A/B/C未评估）",
+              "严格赛前独立比分（E1未评估）",
+              "必发盈亏/盈亏指数（E3未评估）"
+            ],
+            "checked": [
+              "D",
+              "E2",
+              "F"
+            ],
+            "model": "SOREN_ABCDE_EVIDENCE_V2_PROFIT_AUDIT"
+          }
+        },
+        "fotmob_audit": {
+          "status": "AVAILABLE",
+          "source": "FotMob历史完赛xG",
+          "reason": null,
+          "home_xgf": 1.48,
+          "home_xga": 1.538,
+          "away_xgf": 2.154,
+          "away_xga": 0.768,
+          "xg_top1": "负",
+          "xg_probabilities": {
+            "胜": 0.23,
+            "平": 0.2275,
+            "负": 0.5425
+          },
+          "market_top1": "负",
+          "direction_conflict": false
+        },
+        "coverage": {
+          "independent_xg": true,
+          "william": true,
+          "macau_asia": true,
+          "bifa": false
+        }
+      },
+      "sale_day": "2026-11-24"
+    }
+  ],
+  "metrics": {
+    "total": 6,
+    "settled": 0,
+    "pending": 6,
+    "top1_hit_rate": null,
+    "module_hits": {
+      "胜平负Top1": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "胜平负Top2": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "让球Top1": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "让球Top2": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "比分Top1": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "比分Top3": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "比分Top4": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "总进球Top1": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "总进球Top3": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "半全场Top1": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "半全场Top3": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "今日优选Top1": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "今日优选Top2": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "今日优选": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "冷门预警": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      },
+      "单选精选": {
+        "hit": 0,
+        "total": 0,
+        "rate": null
+      }
+    },
+    "module_stats": {
+      "胜平负": {
+        "predicted": 6,
+        "verified": 0,
+        "pending": 6,
+        "evaluation": {
+          "hit": 0,
+          "total": 0,
+          "rate": null
+        },
+        "rates": {
+          "Top1": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          },
+          "Top2": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          }
+        }
+      },
+      "让球": {
+        "predicted": 6,
+        "verified": 0,
+        "pending": 6,
+        "evaluation": {
+          "hit": 0,
+          "total": 0,
+          "rate": null
+        },
+        "rates": {
+          "Top1": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          },
+          "Top2": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          }
+        }
+      },
+      "比分": {
+        "predicted": 6,
+        "verified": 0,
+        "pending": 6,
+        "evaluation": {
+          "hit": 0,
+          "total": 0,
+          "rate": null
+        },
+        "rates": {
+          "Top1": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          },
+          "Top3": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          },
+          "Top4": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          }
+        }
+      },
+      "总进球": {
+        "predicted": 6,
+        "verified": 0,
+        "pending": 6,
+        "evaluation": {
+          "hit": 0,
+          "total": 0,
+          "rate": null
+        },
+        "rates": {
+          "Top1": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          },
+          "Top3": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          }
+        }
+      },
+      "半全场": {
+        "predicted": 6,
+        "verified": 0,
+        "pending": 6,
+        "evaluation": {
+          "hit": 0,
+          "total": 0,
+          "rate": null
+        },
+        "rates": {
+          "Top1": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          },
+          "Top3": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          }
+        }
+      },
+      "今日优选": {
+        "predicted": 0,
+        "verified": 0,
+        "pending": 0,
+        "evaluation": {
+          "hit": 0,
+          "total": 0,
+          "rate": null
+        },
+        "rates": {
+          "Top1": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          },
+          "Top2": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          },
+          "": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          }
+        }
+      },
+      "冷门预警": {
+        "predicted": 0,
+        "verified": 0,
+        "pending": 0,
+        "evaluation": {
+          "hit": 0,
+          "total": 0,
+          "rate": null
+        },
+        "rates": {
+          "": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          }
+        }
+      },
+      "单选精选": {
+        "predicted": 2,
+        "verified": 0,
+        "pending": 2,
+        "evaluation": {
+          "hit": 0,
+          "total": 0,
+          "rate": null
+        },
+        "rates": {
+          "": {
+            "hit": 0,
+            "total": 0,
+            "rate": null
+          }
+        }
+      }
+    }
+  },
+  "generated_at": "2026-11-23T07:49:40.227455+00:00"
+}
