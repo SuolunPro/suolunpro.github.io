@@ -45,16 +45,18 @@ jobs:
               cp "$RUNNER_TEMP/finished.json" data/engine4/qiulaile-finished.json
               git add data/engine4/qiulaile-finished.json
             fi
-            node scripts/publish-supabase-settlement.cjs
+            publish_status=0
+            node scripts/publish-supabase-settlement.cjs || publish_status=$?
+            if [[ $publish_status != 0 && $publish_status != 2 ]]; then exit "$publish_status"; fi
             git add data/engine4/sales data/engine4/latest.json
             if git diff --cached --quiet; then
               echo 'No new verified settlements'
-              exit 0
+              exit "$publish_status"
             fi
             git commit -m 'data: publish Supabase verified settlement'
             if git push origin HEAD:main; then
               echo 'Supabase settlements published'
-              exit 0
+              exit "$publish_status"
             fi
             echo "::warning::Concurrent site update; replaying verified results ($attempt/5)"
             sleep 5
