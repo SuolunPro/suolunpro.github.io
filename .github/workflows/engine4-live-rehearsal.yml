@@ -31,43 +31,8 @@ jobs:
           run = lambda do |prefix|
             hits = steps.select { |s| s.fetch('name', '').start_with?(prefix) }
             abort "Unexpected step count" unless hits.size == 1
-            script = hits.first.fetch('run').gsub('
-            abort "Unresolved runner expression" if script.include?('
-            abort "Failed: #{prefix}" unless system('bash', '-eo', 'pipefail', '-c', script, out: File::NULL, err: File::NULL)
-          end
-          run.call('Decide whether prediction')
-          unless File.readlines(ENV.fetch('GITHUB_OUTPUT'), chomp: true).include?('predict=true')
-            puts 'NO_LIVE_REFRESH: no fresh forecast verified'
-            exit 0
-          end
-          ['Refresh Okooo', 'Install browser fallback', 'Recover missing prematch', 'Refresh today and tomorrow', 'Aggregate prematch', 'Audit newly generated', 'Verify published market', 'Enforce prematch market'].each(&run)
-          puts 'LIVE_PREDICTION_VERIFIED'
-          RUBY
- + '{{ steps.chromium-cache.outputs.cache-hit }}', 'false')
-            abort "Unresolved runner expression" if script.include?('${{')
-            abort "Failed: #{prefix}" unless system('bash', '-eo', 'pipefail', '-c', script, out: File::NULL, err: File::NULL)
-          end
-          run.call('Decide whether prediction')
-          unless File.readlines(ENV.fetch('GITHUB_OUTPUT'), chomp: true).include?('predict=true')
-            puts 'NO_LIVE_REFRESH: no fresh forecast verified'
-            exit 0
-          end
-          ['Refresh Okooo', 'Install browser fallback', 'Recover missing prematch', 'Refresh today and tomorrow', 'Aggregate prematch', 'Audit newly generated', 'Verify published market', 'Enforce prematch market'].each(&run)
-          puts 'LIVE_PREDICTION_VERIFIED'
-          RUBY
- + '{{')
-            abort "Failed: #{prefix}" unless system('bash', '-eo', 'pipefail', '-c', script, out: File::NULL, err: File::NULL)
-          end
-          run.call('Decide whether prediction')
-          unless File.readlines(ENV.fetch('GITHUB_OUTPUT'), chomp: true).include?('predict=true')
-            puts 'NO_LIVE_REFRESH: no fresh forecast verified'
-            exit 0
-          end
-          ['Refresh Okooo', 'Install browser fallback', 'Recover missing prematch', 'Refresh today and tomorrow', 'Aggregate prematch', 'Audit newly generated', 'Verify published market', 'Enforce prematch market'].each(&run)
-          puts 'LIVE_PREDICTION_VERIFIED'
-          RUBY
- + '{{ steps.chromium-cache.outputs.cache-hit }}', 'false')
-            abort "Unresolved runner expression" if script.include?('${{')
+            script = hits.first.fetch('run').gsub(36.chr + '{{ steps.chromium-cache.outputs.cache-hit }}', 'false')
+            abort "Unresolved runner expression" if script.include?(36.chr + '{{')
             abort "Failed: #{prefix}" unless system('bash', '-eo', 'pipefail', '-c', script, out: File::NULL, err: File::NULL)
           end
           run.call('Decide whether prediction')
