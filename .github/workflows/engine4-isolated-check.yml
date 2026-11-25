@@ -3,7 +3,8 @@ on:
   push:
     branches: [verify/engine4-public-runner-20261125]
     paths: ['.github/workflows/engine4-isolated-check.yml']
-permissions: {}
+permissions:
+  contents: read
 jobs:
   compatibility:
     runs-on: ubuntu-latest
@@ -21,3 +22,25 @@ jobs:
         run: |
           python3 -m unittest discover -s engine4/tests > "$RUNNER_TEMP/regression.log" 2>&1
           grep -E '^Ran [0-9]+ tests? in |^OK$' "$RUNNER_TEMP/regression.log"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: website
+          persist-credentials: false
+      - name: Rehearse snapshot publication in a temporary directory
+        shell: bash
+        run: |
+          cp -a website/data/engine4 "$RUNNER_TEMP/site"
+          python3 website/scripts/sync_engine4.py data/engine4 "$RUNNER_TEMP/site" > "$RUNNER_TEMP/sync.log" 2>&1
+          python3 website/scripts/verify_engine4_sync.py data/engine4 "$RUNNER_TEMP/site" > "$RUNNER_TEMP/verify.log" 2>&1
+      - name: Verify dedicated publication credential without writing
+        env:
+          WRITER: ${{ secrets.ENGINE4_PUBLISH_TOKEN }}
+        run: |
+          if [ -z "$WRITER" ]; then
+            echo "::error::ENGINE4_PUBLISH_TOKEN is unavailable"
+            exit 1
+          fi
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0=http.https://github.com/.extraheader
+          export GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'x-access-token:%s' "$WRITER" | base64 -w0)"
+          git push --dry-run origin HEAD:refs/heads/verify/isolated-publish-permission >/dev/null 2>&1
