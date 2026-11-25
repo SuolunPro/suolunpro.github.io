@@ -1,0 +1,23 @@
+name: Isolated engine compatibility check
+on:
+  push:
+    branches: [verify/engine4-public-runner-20261125]
+    paths: ['.github/workflows/engine4-isolated-check.yml']
+permissions: {}
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: SuolunPro/90scale-engine
+          ref: 6add4f262464cb08ac0451e2546cfb27b6c3dc7a
+          token: ${{ secrets.ENGINE4_READ_TOKEN }}
+          persist-credentials: false
+          show-progress: false
+      - name: Run engine regression suite without publishing
+        shell: bash
+        run: |
+          python3 -m unittest discover -s engine4/tests > "$RUNNER_TEMP/regression.log" 2>&1
+          grep -E '^Ran [0-9]+ tests? in |^OK$' "$RUNNER_TEMP/regression.log"
