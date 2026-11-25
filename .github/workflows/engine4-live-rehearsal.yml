@@ -1,0 +1,45 @@
+name: Rehearse live website predictions
+on:
+  push:
+    branches: [verify/engine4-public-runner-20261125]
+    paths: ['.github/workflows/engine4-live-rehearsal.yml']
+permissions: {}
+jobs:
+  rehearse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: SuolunPro/90scale-engine
+          token: ${{ secrets.ENGINE4_READ_TOKEN }}
+          ref: main
+          persist-credentials: false
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check live sale and run production calculation in isolated checkout
+        env:
+          ENGINE4_SKIP_RESULT_LOOKUP: '1'
+          MANUAL_REFRESH: 'true'
+          EVENT_NAME: workflow_dispatch
+          HEAD_MESSAGE: ''
+        run: |
+          ruby -ryaml - <<'RUBY'
+          steps = YAML.load_file('.github/workflows/engine4.yml').fetch('jobs').fetch('update').fetch('steps')
+          run = lambda do |prefix|
+            hits = steps.select { |s| s.fetch('name', '').start_with?(prefix) }
+            abort "Unexpected step count" unless hits.size == 1
+            script = hits.first.fetch('run').gsub(%q{${{ steps.chromium-cache.outputs.cache-hit }}}, 'false')
+            abort "Unresolved runner expression" if script.include?('${{')
+            abort "Failed: #{prefix}" unless system('bash', '-eo', 'pipefail', '-c', script, out: File::NULL, err: File::NULL)
+          end
+          run.call('Decide whether prediction')
+          unless File.readlines(ENV.fetch('GITHUB_OUTPUT'), chomp: true).include?('predict=true')
+            puts 'NO_LIVE_REFRESH: no fresh forecast verified'
+            exit 0
+          end
+          ['Refresh Okooo', 'Install browser fallback', 'Recover missing prematch', 'Refresh today and tomorrow', 'Aggregate prematch', 'Audit newly generated', 'Verify published market', 'Enforce prematch market'].each(&run)
+          puts 'LIVE_PREDICTION_VERIFIED'
+          RUBY
