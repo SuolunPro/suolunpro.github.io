@@ -690,7 +690,7 @@
     function fixture(card,match){
       const head=el('div','card-head'),id=el('div','match-id');
       id.append(el('span','league',label(match.league)),document.createTextNode(label(match.kickoff)+' · '+label(match.match_no)));
-      head.append(id,el('span','status'+(match.settlement?' verified':' pass'),match.settlement?'已核验':'待核验'));card.append(head);
+      head.append(id,el('span','status'+(match.settlement?' verified':' pass'),match.settlement?'已核验':match.collection_status==='PENDING_DATA'?'待补采':'待核验'));card.append(head);
       const row=el('div','fixture'),teams=el('div','team-list');
       // Only confirmed team-to-FotMob IDs are allowed; never guess a badge from a similar name.
       for(const [side,name] of [['home',match.home],['away',match.away]]){
