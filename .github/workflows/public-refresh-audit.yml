@@ -1,0 +1,50 @@
+name: Audit website forecast refresh
+on:
+  schedule:
+    - cron: '22,32 1,3-14 * * *'
+    - cron: '52 10-14 * * *'
+  workflow_run:
+    workflows: ['Build verified website predictions']
+    types: [completed]
+    branches: [main]
+  repository_dispatch:
+    types: [engine4_audit_requested]
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['triggers/engine4-sale-probe.json']
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: engine4-public-refresh-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: SuolunPro/90scale-engine
+          ref: main
+          token: ${{ secrets.ENGINE4_READ_TOKEN }}
+          persist-credentials: false
+          show-progress: false
+      - name: Validate live sale and evaluate compensation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUDIT_MODE: publish
+        run: |
+          grep -q '^# Public audit active' .github/workflows/engine4-refresh-audit.yml || exit 0
+          python -m unittest discover -s engine4/tests -p test_refresh_sale_gate.py >/tmp/regression.log 2>&1
+          bash ops/public_runner_refresh_audit.sh >/tmp/audit.log 2>&1
+          python -c "import json; d=json.load(open('/tmp/report.json')); print('VERIFIED',d['decision'],len(d['verified_live']),d['covered'],d['busy'])"
+      - name: Store diagnostic receipt in the private engine
+        env:
+          GH_TOKEN: ${{ secrets.ENGINE4_PUBLISH_TOKEN }}
+        run: |
+          test -s /tmp/report.json || exit 0
+          path="repos/SuolunPro/90scale-engine/contents/diagnostics/engine4-refresh/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          base64 -w0 /tmp/report.json | gh api -X PUT "$path" -f message="audit: public refresh $GITHUB_RUN_ID" -F content=@- --silent
