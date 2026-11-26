@@ -51,6 +51,7 @@ jobs:
             abort "Unresolved runner expression" if script.include?(36.chr + '{{')
             abort "Failed: #{prefix}" unless system('bash', '-eo', 'pipefail', '-c', script, out: File::NULL, err: File::NULL)
           end
+          run.call('Check code and tests')
           run.call('Decide whether prediction')
           unless File.readlines(ENV.fetch('GITHUB_OUTPUT'), chomp: true).include?('predict=true')
             puts 'NO_LIVE_REFRESH: no fresh forecast verified'
