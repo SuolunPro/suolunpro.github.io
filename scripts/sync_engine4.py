@@ -272,8 +272,18 @@ def main(src, dst):
                         (str(m.get("source_id")), str(m.get("kickoff"))): m
                         for m in incoming.get("matches", []) if isinstance(m, dict)
                     }
+                    promoted = {
+                        str(m.get("match_no")) for m in incoming.get("matches", [])
+                        if m.get("match_no") and m.get("predicted_at")
+                        and (m.get("prediction") or {}).get("status") == "PREDICTED"
+                    }
                     kept = []
                     for old_match in published.get("matches", []):
+                        if (old_match.get("collection_status") == "PENDING_DATA"
+                                and not old_match.get("predicted_at") and not old_match.get("settlement")
+                                and not old_match.get("frozen") and not old_match.get("frozen_at")
+                                and str(old_match.get("match_no")) in promoted):
+                            continue
                         identity = (str(old_match.get("source_id")), str(old_match.get("kickoff")))
                         new_match = incoming_by_id.get(identity)
                         if new_match and key(old_match) != key(new_match):
