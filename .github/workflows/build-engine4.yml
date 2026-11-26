@@ -6,6 +6,11 @@ on:
     - cron: '12,22 1,3-9 * * *'
     - cron: '12,22,42,52 10-14 * * *'
   workflow_dispatch:
+    inputs:
+      recovery:
+        type: boolean
+        default: false
+        description: Single retry after writer failure
 permissions: {}
 jobs:
   predict:
@@ -129,3 +134,14 @@ jobs:
               time.sleep(max(0,(target + dt.timedelta(minutes=10)-now).total_seconds()))
               subprocess.run(['gh','workflow','run','build-engine4.yml','--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main'],check=True)
           PY
+  compensate:
+    needs: predict
+    if: always() && needs.predict.result == 'failure' && inputs.recovery != true
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Retry failed refresh through the sale and snapshot gates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run build-engine4.yml --repo "$GITHUB_REPOSITORY" --ref main -f recovery=true
