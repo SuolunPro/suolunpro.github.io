@@ -20,6 +20,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Check live sale and run production calculation in isolated checkout
+        id: calculate
         env:
           ENGINE4_SKIP_RESULT_LOOKUP: '1'
           MANUAL_REFRESH: 'true'
@@ -43,3 +44,29 @@ jobs:
           ['Refresh Okooo', 'Install browser fallback', 'Recover missing prematch', 'Refresh today and tomorrow', 'Aggregate prematch', 'Audit newly generated', 'Verify published market', 'Enforce prematch market'].each(&run)
           puts 'LIVE_PREDICTION_VERIFIED'
           RUBY
+      - name: Verify frozen predictions and publish candidate to private validation branch
+        if: steps.calculate.outputs.predict == 'true'
+        env:
+          WRITER: ${{ secrets.ENGINE4_PUBLISH_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, subprocess
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          now = datetime.now(timezone(timedelta(hours=8)))
+          paths = subprocess.check_output(['git','diff','--name-only','HEAD','--','data/engine4/sales']).decode().splitlines()
+          for path in paths:
+              prior = json.loads(subprocess.check_output(['git','show','HEAD:'+path]))
+              curr = {m['match_no']:m for m in json.loads(Path(path).read_text())['matches']}
+              for m in prior['matches']:
+                  if prior['sale_day'] < now.date().isoformat() or m.get('settlement') or m.get('frozen'):
+                      assert curr[m['match_no']].get('prediction') == m.get('prediction'), 'Frozen prediction changed'
+          PY
+          git add -- data/engine4
+          git -c user.name=engine4-validation -c user.email=actions@users.noreply.github.com commit -qm 'Validate isolated prematch snapshot'
+          export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.https://github.com/.extraheader
+          export GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'x-access-token:%s' "$WRITER" | base64 -w0)"
+          ref="refs/heads/verify/public-runner-$GITHUB_RUN_ID"
+          git push -q origin "HEAD:$ref"
+          test "$(git ls-remote origin "$ref" | cut -f1)" = "$(git rev-parse HEAD)"
