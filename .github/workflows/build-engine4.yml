@@ -7,11 +7,11 @@ on:
     - cron: '12,22,42,52 10-14 * * *'
   workflow_dispatch:
 permissions: {}
-concurrency:
-  group: engine4-public-data-writer
-  cancel-in-progress: false
 jobs:
   predict:
+    concurrency:
+      group: engine4-public-data-writer
+      cancel-in-progress: false
     if: github.ref == 'refs/heads/main'
     outputs:
       published: ${{ steps.publish.outputs.published }}
@@ -107,3 +107,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh api -X POST "repos/$GITHUB_REPOSITORY/dispatches" -f event_type=engine4_data_updated
+  evening:
+    needs: predict
+    if: needs.predict.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      actions: write
+    steps:
+      - name: Wake next evening slot after its grace period
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import datetime as dt, os, subprocess, time
+          now = dt.datetime.now(dt.timezone(dt.timedelta(hours=8)))
+          stop = 23 if now.weekday() >= 5 else 22
+          slots = [now.replace(hour=h, minute=m, second=0, microsecond=0) for h in range(18,stop) for m in (12,42)]
+          target = next((s for s in slots if now < s <= now+dt.timedelta(minutes=30)), None)
+          if target:
+              time.sleep(max(0,(target + dt.timedelta(minutes=10)-now).total_seconds()))
+              subprocess.run(['gh','workflow','run','build-engine4.yml','--repo',os.environ['GITHUB_REPOSITORY'],'--ref','main'],check=True)
+          PY
