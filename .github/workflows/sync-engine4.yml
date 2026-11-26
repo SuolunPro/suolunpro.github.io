@@ -15,6 +15,7 @@ on:
       - '.github/workflows/engine4-result-backfill.yml'
       - 'scripts/sync_engine4.py'
       - 'scripts/verify_engine4_sync.py'
+      - 'scripts/build_growth.py'
   schedule:
     - cron: '3,13,23,33,43,53 * * * *'
 permissions:
@@ -69,6 +70,19 @@ jobs:
             python scripts/sync_engine4.py /tmp/90scale-engine/data/engine4 data/engine4
             python scripts/verify_engine4_sync.py /tmp/90scale-engine/data/engine4 data/engine4
             git add data/engine4
+            # Render separately so a portal failure cannot block verified data publication.
+            if [ -f scripts/build_growth.py ]; then
+              if portal_output="$(mktemp -d)" &&
+                 python scripts/build_growth.py --output "$portal_output" &&
+                 cp -R "$portal_output/football/." football/ &&
+                 cp "$portal_output/sitemap.xml" "$portal_output/robots.txt" . &&
+                 git add football sitemap.xml robots.txt; then
+                echo 'Public football portal generated'
+              else
+                echo '::warning::Public football portal generation failed; publishing verified engine data only'
+              fi
+              if [ -n "${portal_output:-}" ]; then rm -rf "$portal_output"; fi
+            fi
             if git diff --cached --quiet; then
               echo 'Already synchronized'
               exit 0
