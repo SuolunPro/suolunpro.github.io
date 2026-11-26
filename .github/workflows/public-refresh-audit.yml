@@ -1,0 +1,30 @@
+name: Isolated refresh audit
+on:
+  push:
+    branches: [verify/public-refresh-audit-20261126]
+    paths: ['.github/workflows/public-refresh-audit.yml']
+permissions:
+  contents: read
+concurrency:
+  group: engine4-public-refresh-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: SuolunPro/90scale-engine
+          ref: main
+          token: ${{ secrets.ENGINE4_READ_TOKEN }}
+          persist-credentials: false
+          show-progress: false
+      - name: Validate live sale and evaluate compensation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUDIT_MODE: shadow
+        run: |
+          python -m unittest discover -s engine4/tests -p test_refresh_sale_gate.py >/tmp/regression.log 2>&1
+          bash ops/public_runner_refresh_audit.sh >/tmp/audit.log 2>&1
+          python -c "import json; d=json.load(open('/tmp/report.json')); print('VERIFIED',d['decision'],len(d['verified_live']),d['covered'],d['busy'])"
