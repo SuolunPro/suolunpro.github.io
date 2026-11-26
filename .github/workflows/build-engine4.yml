@@ -1,0 +1,109 @@
+name: Build verified website predictions
+on:
+  repository_dispatch:
+    types: [engine4_prediction_requested]
+  schedule:
+    - cron: '12,22 1,3-9 * * *'
+    - cron: '12,22,42,52 10-14 * * *'
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: engine4-public-data-writer
+  cancel-in-progress: false
+jobs:
+  predict:
+    if: github.ref == 'refs/heads/main'
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: SuolunPro/90scale-engine
+          token: ${{ secrets.ENGINE4_READ_TOKEN }}
+          ref: main
+          persist-credentials: false
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check live sale and run production calculation in isolated checkout
+        id: calculate
+        env:
+          ENGINE4_SKIP_RESULT_LOOKUP: '1'
+          MANUAL_REFRESH: ${{ github.event.client_payload.manual || 'false' }}
+          EVENT_NAME: ${{ github.event.client_payload.event || 'schedule' }}
+          HEAD_MESSAGE: ${{ github.event.client_payload.message || '' }}
+        run: |
+          grep -q '^  relay-public:' .github/workflows/engine4.yml || exit 0
+          ruby -ryaml - <<'RUBY'
+          steps = YAML.load_file('.github/workflows/engine4.yml').fetch('jobs').fetch('update').fetch('steps')
+          run = lambda do |prefix|
+            hits = steps.select { |s| s.fetch('name', '').start_with?(prefix) }
+            abort "Unexpected step count" unless hits.size == 1
+            script = hits.first.fetch('run').gsub(36.chr + '{{ steps.chromium-cache.outputs.cache-hit }}', 'false')
+            abort "Unresolved runner expression" if script.include?(36.chr + '{{')
+            abort "Failed: #{prefix}" unless system('bash', '-eo', 'pipefail', '-c', script, out: File::NULL, err: File::NULL)
+          end
+          run.call('Decide whether prediction')
+          unless File.readlines(ENV.fetch('GITHUB_OUTPUT'), chomp: true).include?('predict=true')
+            puts 'NO_LIVE_REFRESH: no fresh forecast verified'
+            exit 0
+          end
+          ['Refresh Okooo', 'Install browser fallback', 'Recover missing prematch', 'Refresh today and tomorrow', 'Aggregate prematch', 'Audit newly generated', 'Verify published market', 'Enforce prematch market'].each(&run)
+          puts 'LIVE_PREDICTION_VERIFIED'
+          RUBY
+      - name: Verify frozen predictions and publish snapshot
+        id: publish
+        if: steps.calculate.outputs.predict == 'true'
+        env:
+          WRITER: ${{ secrets.ENGINE4_PUBLISH_TOKEN }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, subprocess
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          now = datetime.now(timezone(timedelta(hours=8)))
+          paths = subprocess.check_output(['git','diff','--name-only','HEAD','--','data/engine4/sales']).decode().splitlines()
+          for path in paths:
+              prior = json.loads(subprocess.check_output(['git','show','HEAD:'+path]))
+              curr = {m['match_no']:m for m in json.loads(Path(path).read_text())['matches']}
+              for m in prior['matches']:
+                  if prior['sale_day'] < now.date().isoformat() or m.get('settlement') or m.get('frozen'):
+                      assert curr[m['match_no']].get('prediction') == m.get('prediction'), 'Frozen prediction changed'
+          PY
+          mkdir -p data/engine4/history
+          cp data/engine4/latest.json "data/engine4/history/$(date -u +%Y%m%dT%H%M%SZ).json"
+          git add -- data/engine4
+          git -c user.name=engine4-validation -c user.email=actions@users.noreply.github.com commit -qm 'data: publish verified public runner prediction'
+          export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.https://github.com/.extraheader
+          export GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'x-access-token:%s' "$WRITER" | base64 -w0)"
+          base=$(git rev-parse HEAD^)
+          for attempt in 1 2 3; do
+            git fetch -q origin main
+            tip=$(git rev-parse FETCH_HEAD)
+            git show "$tip:.github/workflows/engine4.yml" | grep '^  relay-public:' >/dev/null
+            git diff --quiet "$base" "$tip" -- data/engine4 engine4 ops .github/workflows/engine4.yml || exit 1
+            git rebase --quiet --onto "$tip" "$base" HEAD
+            base="$tip"
+            if git push -q origin HEAD:main; then
+              git fetch -q origin main
+              git diff --quiet HEAD FETCH_HEAD -- data/engine4/latest.json
+              echo published=true >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          exit 1
+  notify:
+    needs: predict
+    if: needs.predict.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Notify website publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/$GITHUB_REPOSITORY/dispatches" -f event_type=engine4_data_updated
