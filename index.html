@@ -863,7 +863,7 @@
     }
     function ftHandicapRiskNote(card,match){
       const modules=match.prediction?.modules||{};
-      const warning=modules['冷门预警']||{},handicap=modules['让球']||{};
+      const warning=modules['冷门预警']||{},handicap=modules['让球']?.shadow_model||modules['让球']||{};
       // Display-only legacy risk hints: never alter or recompute frozen predictions.
       const ft=modules['胜平负']||{};
       const dirs=['胜','平','负'];
@@ -1050,7 +1050,8 @@
           const formalA=warning.triggered===true && warning.status==='TRIGGERED' && Array.isArray(warning.channels) && warning.channels.includes('A');
           const watch=archived?r?.level==='priority':warning.status==='WATCH';
           const scores=archived&&watch?r.top4:mod['比分']?.top4,h=archived&&watch?r.handicap:m.handicap;
-          const handicapProbs=Object.values(mod['让球']?.probabilities||{}).map(Number);
+          const radarHandicap=mod['让球']?.shadow_model||mod['让球'];
+          const handicapProbs=Object.values(radarHandicap?.probabilities||{}).map(Number);
           const handicapTop1=handicapProbs.length===3&&handicapProbs.every(Number.isFinite)?Math.max(...handicapProbs):NaN;
           const admitted=(watch&&handicapTop1>=0.55)||formalA;
           if(!admitted)continue;
