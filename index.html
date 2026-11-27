@@ -727,19 +727,23 @@
         if(selected){
           const box=el('div','v4-handicap-market-summary');
           box.style.cssText='margin-top:12px;';
-          const title=el('div','',valid(market)?'市场概率':'预测概率');
-          title.style.cssText='font-size:12px;color:#737b87;margin-bottom:7px;font-weight:600;';
-          const cells=el('div','');
-          cells.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;';
-          dirs.forEach(k=>{
-            const cell=el('div','');
-            cell.style.cssText='min-width:0;text-align:center;padding:9px 3px;border:1px solid #e9ebef;border-radius:10px;background:#fafbfc;';
-            const name=el('div','',k),value=el('div','',(selected[k]*100).toFixed(2)+'%');
-            name.style.cssText='font-size:11px;color:#737b87;';
-            value.style.cssText='font-size:14px;font-weight:700;margin-top:4px;color:#344054;';
-            cell.append(name,value);cells.append(cell);
-          });
-          box.append(title,cells);
+          // Duplicate market probability display omitted; retain fallback and market trends.
+          if(!valid(market)){
+            const title=el('div','',valid(market)?'市场概率':'预测概率');
+            title.style.cssText='font-size:12px;color:#737b87;margin-bottom:7px;font-weight:600;';
+            const cells=el('div','');
+            cells.style.cssText='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;';
+            dirs.forEach(k=>{
+              const cell=el('div','');
+              cell.style.cssText='min-width:0;text-align:center;padding:9px 3px;border:1px solid #e9ebef;border-radius:10px;background:#fafbfc;';
+              const name=el('div','',k),value=el('div','',(selected[k]*100).toFixed(2)+'%');
+              name.style.cssText='font-size:11px;color:#737b87;';
+              value.style.cssText='font-size:14px;font-weight:700;margin-top:4px;color:#344054;';
+              cell.append(name,value);cells.append(cell);
+            });
+            box.append(title,cells);
+          }
+
           // Member UI: hide handicap market-direction/model-divergence note; retain market probabilities and trends.
 
           const delta=match.pair_probability_change?.['让球']?.market_delta;
@@ -758,7 +762,7 @@
             });
             box.append(caption,row);
           }
-          analysis.append(box);
+          if(box.childNodes.length)analysis.append(box);
         }
         card.append(analysis);
         return;
