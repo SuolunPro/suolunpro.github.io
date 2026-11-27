@@ -16,6 +16,7 @@ on:
       - 'scripts/sync_engine4.py'
       - 'scripts/verify_engine4_sync.py'
       - 'scripts/build_growth.py'
+      - 'scripts/portal_seo.py'
   schedule:
     - cron: '3,13,23,33,43,53 * * * *'
 permissions:
@@ -60,6 +61,7 @@ jobs:
         run: |
           python scripts/verify_engine4_sync.py /tmp/90scale-engine/data/engine4 data/engine4
       - name: Publish website data
+        id: publish
         run: |
           set -euo pipefail
           git config user.name '90scale-site-sync[bot]'
@@ -89,8 +91,21 @@ jobs:
             fi
             git commit -m 'data: sync verified 90scale results to website'
             if git push origin HEAD:main; then
+              echo "published=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             sleep 3
           done
           exit 1
+      - name: Inspect public SEO and notify IndexNow
+        if: steps.publish.outputs.published == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          PORTAL_PUBLISHED: ${{ steps.publish.outputs.published }}
+        run: |
+          if [ "$PORTAL_PUBLISHED" = true ]; then
+            python scripts/portal_seo.py --previous HEAD^
+          else
+            python scripts/portal_seo.py
+          fi
