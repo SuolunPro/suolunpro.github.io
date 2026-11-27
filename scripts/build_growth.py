@@ -97,7 +97,11 @@ INTRO = """<div class="hero"><p>九十刻度 4.0</p><h1>足球赛前分析与赛
 <a class="button" href="/football/review/">查看历史成绩</a></div>
 <div class="grid"><section><h2>每日赛程</h2><p>按归档日期查看联赛、对阵和北京时间。</p><a href="/football/fixtures/">查看赛程</a></section>
 <section><h2>模型研究</h2><p>了解赛前冻结、赛果核验，以及怎样比较不同模型指标。</p><a href="/football/research/">阅读研究说明</a></section></div>
-<section><h2>会员功能</h2><p>会员可在原有网站查看单选参考、冷门预警和深度赛事分析。新用户可从原有入口联系管理员开户注册。</p><a href="/#vip-gate">会员登录及开户注册</a></section>"""
+<section><h2>会员功能</h2><p>会员可在原有网站查看单选参考、冷门预警和深度赛事分析。新用户可从原有入口联系管理员开户注册。</p><a href="/#vip-gate" data-portal-event="member_entry_click">会员登录及开户注册</a>
+<details><summary data-portal-event="admin_contact_click">查看管理员联系方式</summary>
+<p>客服微信 <strong id="portal-wechat">GoodLuck_H3</strong>
+<button id="portal-copy-wechat" type="button" data-portal-event="admin_contact_copy">复制微信号</button>
+<span id="portal-copy-status" role="status"></span></p></details></section>"""
 
 RESEARCH = """<section><h2>如何复核赛前模型的历史成绩</h2>
 <p>九十刻度 4.0 结合历史球队强度、预期进球和进球分布建模。复盘以现有赛前归档及核验后的 90 分钟常规时间赛果为依据。加时和点球大战不计入常规时间比分。</p>
@@ -105,6 +109,16 @@ RESEARCH = """<section><h2>如何复核赛前模型的历史成绩</h2>
 <h3>什么时候能比较两组成绩</h3><p>比较时应使用同一批赛事和相同结算口径，同时核对候选数量、有效样本与无评估场次。</p>
 <h3>怎样避免用赛后信息评价赛前判断</h3><p>记录冻结时间，在比赛结束后按相同口径核验。试验中的规则可在独立后续样本上验证，避免把用于挑选规则的比赛再次当作验证样本。</p>
 <p><a href="/football/review/">查看整体成绩与样本覆盖</a></p></section>"""
+
+
+ANALYTICS_NOTICE = """<details id="portal-analytics" class="portal-analytics">
+<summary>隐私与访问统计</summary>
+<p>经你同意，本站仅在公开门户使用 Microsoft Clarity 和统计 Cookie，了解访客数量、浏览量、访问来源、设备及大致地区，并记录会员入口和客服按钮的点击。</p>
+<p>Microsoft 会处理使用数据和经过遮罩的页面交互记录。你可以随时在这里关闭统计。<a href="https://privacy.microsoft.com/zh-cn/privacystatement">Microsoft 隐私声明</a></p>
+<button type="button" id="portal-analytics-allow">允许统计</button>
+<button type="button" id="portal-analytics-deny">关闭统计</button>
+<span id="portal-analytics-status" role="status"></span>
+</details>"""
 
 
 def render(slug, label, description, body, *, heading=True):
@@ -115,8 +129,10 @@ def render(slug, label, description, body, *, heading=True):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title><meta name="description" content="{description}">
 <link rel="canonical" href="{ORIGIN}{PORTAL}{slug}">
-<link rel="stylesheet" href="{PORTAL}portal.css"></head>
-<body><header><nav aria-label="主导航">{nav}<a href="/#vip-gate">会员入口</a></nav></header>
+<link rel="stylesheet" href="{PORTAL}portal.css">
+<script defer src="{PORTAL}analytics.js"></script></head>
+<body data-clarity-mask="true"><header><nav aria-label="主导航">{nav}<a href="/#vip-gate" data-portal-event="member_entry_click">会员入口</a></nav></header>
+{ANALYTICS_NOTICE}
 <main>{f"<h1>{label}</h1>" if heading else ""}{body}</main>
 <footer><a href="/legal.html">用户协议与隐私政策</a><span>九十刻度 · 足球数据与模型复盘</span></footer>
 </body></html>
