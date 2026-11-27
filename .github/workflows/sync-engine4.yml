@@ -77,8 +77,8 @@ jobs:
               if portal_output="$(mktemp -d)" &&
                  python scripts/build_growth.py --output "$portal_output" &&
                  cp -R "$portal_output/football/." football/ &&
-                 cp "$portal_output/sitemap.xml" "$portal_output/robots.txt" . &&
-                 git add football sitemap.xml robots.txt; then
+                 cp "$portal_output/sitemap.xml" "$portal_output/robots.txt" "$portal_output/llms.txt" . &&
+                 git add football sitemap.xml robots.txt llms.txt; then
                 echo 'Public football portal generated'
               else
                 echo '::warning::Public football portal generation failed; publishing verified engine data only'

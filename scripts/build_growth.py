@@ -11,6 +11,9 @@ from xml.etree import ElementTree as ET
 
 ORIGIN = "https://suolunpro.github.io"
 PORTAL = "/football/"
+BRAND = "九十刻度"
+BRAND_ALTERNATE = "90Scale"
+BRAND_DESCRIPTION = "九十刻度（90Scale）是足球赛前分析与赛后复盘平台。"
 BEIJING = timezone(timedelta(hours=8))
 COVERAGE_MODULES = (
     ("胜平负分析", "胜平负Top2", 2),
@@ -92,19 +95,19 @@ def review(archive, today):
 NAV = (("九十刻度", ""), ("每日赛程", "fixtures/"), ("历史复盘", "review/"),
        ("模型研究", "research/"))
 
-INTRO = """<div class="hero"><p>九十刻度 4.0</p><h1>足球赛前分析与赛后复盘</h1>
-<p>查阅每日赛程、常规时间赛果分布和模型历史成绩。历史成绩列出各模块的多候选结果覆盖率和有效样本。</p>
+INTRO = f"""<div class="hero"><p>{BRAND}（{BRAND_ALTERNATE}）</p><h1>足球赛前分析与赛后复盘</h1>
+<p>{BRAND_DESCRIPTION} 公开门户提供基础赛事赛程、常规时间赛果分布、模型历史覆盖率及复盘方法。</p>
 <a class="button" href="/football/review/">查看历史成绩</a></div>
 <div class="grid"><section><h2>每日赛程</h2><p>按归档日期查看联赛、对阵和北京时间。</p><a href="/football/fixtures/">查看赛程</a></section>
 <section><h2>模型研究</h2><p>了解赛前冻结、赛果核验，以及怎样比较不同模型指标。</p><a href="/football/research/">阅读研究说明</a></section></div>
-<section><h2>会员功能</h2><p>会员可在原有网站查看单选参考、冷门预警和深度赛事分析。新用户可从原有入口联系管理员开户注册。</p><a href="/#vip-gate" data-portal-event="member_entry_click">会员登录及开户注册</a>
+<section><h2>如何申请会员开户</h2><p>新用户可联系微信客服提交开户申请，由管理员核实后人工开通。本站暂未开放自助注册。已有会员可通过原有入口登录。</p><a href="/#vip-gate" data-portal-event="member_entry_click">会员登录及开户注册</a>
 <details><summary data-portal-event="admin_contact_click">查看管理员联系方式</summary>
 <p>客服微信 <strong id="portal-wechat">GoodLuck_H3</strong>
 <button id="portal-copy-wechat" type="button" data-portal-event="admin_contact_copy">复制微信号</button>
 <span id="portal-copy-status" role="status"></span></p></details></section>"""
 
-RESEARCH = """<section><h2>如何复核赛前模型的历史成绩</h2>
-<p>九十刻度 4.0 结合历史球队强度、预期进球和进球分布建模。复盘以现有赛前归档及核验后的 90 分钟常规时间赛果为依据。加时和点球大战不计入常规时间比分。</p>
+RESEARCH = """<section><h2>九十刻度如何开展足球赛前分析与复盘</h2>
+<p>九十刻度 4.0 结合历史球队强度、预期进球和进球分布做赛前分析。赛后将赛前冻结的候选结果与核验后的赛果比较。复盘按 90 分钟常规时间（含伤停补时）统计，加时赛和点球大战比分不计入。</p>
 <h3>如何阅读历史结果覆盖率</h3><p>实际结果落入该模块的赛前候选范围即计为覆盖。公开成绩展示多候选结果覆盖率，非单选准确率。各模块的候选数量见历史复盘页的统计口径。</p>
 <h3>什么时候能比较两组成绩</h3><p>比较时应使用同一批赛事和相同结算口径，同时核对候选数量、有效样本与无评估场次。</p>
 <h3>怎样避免用赛后信息评价赛前判断</h3><p>记录冻结时间，在比赛结束后按相同口径核验。试验中的规则可在独立后续样本上验证，避免把用于挑选规则的比赛再次当作验证样本。</p>
@@ -121,14 +124,35 @@ ANALYTICS_NOTICE = """<details id="portal-analytics" class="portal-analytics">
 </details>"""
 
 
-def render(slug, label, description, body, *, heading=True):
+def structured_data(url, label, description, page_type):
+    website_url = ORIGIN + PORTAL
+    brand_id = website_url + "#brand"
+    website_id = website_url + "#website"
+    graph = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {"@type": "Brand", "@id": brand_id, "name": BRAND, "alternateName": BRAND_ALTERNATE,
+             "url": website_url, "description": BRAND_DESCRIPTION},
+            {"@type": "WebSite", "@id": website_id, "url": website_url, "name": BRAND,
+             "alternateName": BRAND_ALTERNATE, "inLanguage": "zh-CN", "about": {"@id": brand_id}},
+            {"@type": page_type, "@id": url + "#webpage", "url": url, "name": label,
+             "description": description, "inLanguage": "zh-CN",
+             "isPartOf": {"@id": website_id}, "about": {"@id": brand_id}},
+        ],
+    }
+    return json.dumps(graph, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
+
+
+def render(slug, label, description, page_type, body, *, heading=True):
     nav = "".join(f'<a href="{PORTAL}{path}">{name}</a>' for name, path in NAV)
-    title = f"{label}｜九十刻度"
+    title = f"{label}｜{BRAND}"
+    url = ORIGIN + PORTAL + slug
     return f"""<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title><meta name="description" content="{description}">
-<link rel="canonical" href="{ORIGIN}{PORTAL}{slug}">
+<link rel="canonical" href="{url}">
+<script type="application/ld+json">{structured_data(url, label, description, page_type)}</script>
 <link rel="stylesheet" href="{PORTAL}portal.css">
 <script defer src="{PORTAL}analytics.js"></script></head>
 <body data-clarity-mask="true"><header><nav aria-label="主导航">{nav}<a href="/#vip-gate" data-portal-event="member_entry_click">会员入口</a></nav></header>
@@ -147,22 +171,32 @@ def generate(source, output, today):
     if not archive:
         raise ValueError("Sale-day archive is empty")
     pages = (
-        ("", "足球数据与模型复盘", "九十刻度公开门户提供每日足球赛程、已核验历史成绩和模型研究。", INTRO),
-        ("fixtures/", "每日足球赛程", "查看九十刻度已同步的足球联赛、对阵和北京时间。", schedule(archive, today)),
-        ("review/", "历史模型成绩与足球统计", "查看九十刻度已核验赛果、模型多候选结果覆盖率及进球分布。", review(archive, today)),
-        ("research/", "足球模型研究与复盘口径", "了解九十刻度的赛前冻结、常规时间赛果核验和历史成绩比较方法。", RESEARCH),
+        ("", "足球数据与模型复盘", "九十刻度（90Scale）公开门户提供每日足球赛程、已核验历史成绩和模型研究。", "WebPage", INTRO),
+        ("fixtures/", "每日足球赛程", "查看九十刻度已同步的足球联赛、对阵和北京时间。", "CollectionPage", schedule(archive, today)),
+        ("review/", "历史模型成绩与足球统计", "查看九十刻度已核验赛果、模型多候选结果覆盖率及进球分布。", "CollectionPage", review(archive, today)),
+        ("research/", "足球模型研究与复盘口径", "了解九十刻度的赛前冻结、常规时间赛果核验和历史成绩比较方法。", "WebPage", RESEARCH),
     )
     sitemap = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
-    for slug, label, description, body in pages:
+    llms = [f"# {BRAND}（{BRAND_ALTERNATE}）", "", f"> {BRAND_DESCRIPTION}", "", "## 公开页面", ""]
+    for slug, label, description, page_type, body in pages:
         folder = output / "football" / slug
         folder.mkdir(parents=True, exist_ok=True)
-        (folder / "index.html").write_text(render(slug, label, description, body, heading=bool(slug)), encoding="utf-8")
-        ET.SubElement(ET.SubElement(sitemap, "url"), "loc").text = ORIGIN + PORTAL + slug
+        html = render(slug, label, description, page_type, body, heading=bool(slug))
+        (folder / "index.html").write_text(html, encoding="utf-8")
+        url = ORIGIN + PORTAL + slug
+        ET.SubElement(ET.SubElement(sitemap, "url"), "loc").text = url
+        llms.append(f"- [{label}]({url}): {description}")
     ET.indent(sitemap)
     ET.ElementTree(sitemap).write(output / "sitemap.xml", encoding="utf-8", xml_declaration=True)
-    (output / "robots.txt").write_text(
-        f"User-agent: *\nDisallow: /data/\n\nSitemap: {ORIGIN}/sitemap.xml\n", encoding="utf-8"
-    )
+    (output / "llms.txt").write_text("\n".join(llms) + "\n", encoding="utf-8")
+
+    robots = ["User-agent: *", "Disallow: /data/", ""]
+    robots.extend(f"User-agent: {agent}" for agent in ("OAI-SearchBot", "Claude-SearchBot", "PerplexityBot"))
+    robots.extend(f"Allow: {PORTAL}{slug}$" for slug, *_ in pages)
+    robots.extend(("Allow: /sitemap.xml$", "Allow: /llms.txt$", "Disallow: /", ""))
+    robots.extend(f"User-agent: {agent}" for agent in ("GPTBot", "ClaudeBot", "Google-Extended"))
+    robots.extend(("Disallow: /", "", f"Sitemap: {ORIGIN}/sitemap.xml", ""))
+    (output / "robots.txt").write_text("\n".join(robots), encoding="utf-8")
 
 
 if __name__ == "__main__":
