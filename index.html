@@ -1109,7 +1109,8 @@
           const spDirections=pick.play==='让球'?['让胜','让平','让负']:['胜','平','负'];
           const spValues=pick.play==='让球'?match.rqspf:match.spf;
           const spIndex=spDirections.indexOf(pick.direction);
-          const referenceSp=Array.isArray(spValues)&&spIndex>=0?Number(spValues[spIndex]):NaN;
+          const referenceSp=pick.play==='让球'&&Number.isFinite(pick.official_sp)
+            ?pick.official_sp:(Array.isArray(spValues)&&spIndex>=0?Number(spValues[spIndex]):NaN);
           const spText=Number.isFinite(referenceSp)&&referenceSp>1
             ?referenceSp.toFixed(2):'暂无数据';
           card.append(el('div','v4-note','参考SP：'+spText));
