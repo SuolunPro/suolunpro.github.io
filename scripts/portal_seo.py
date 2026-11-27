@@ -11,8 +11,12 @@ from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
 
 from build_growth import ORIGIN, PORTAL, NAV
+from build_traffic import REPORT_SLUG, TOOLS
 
-PAGES = {f"{PORTAL}{slug}": f"{PORTAL[1:]}{slug}index.html" for _, slug in NAV}
+SLUGS = [slug for _, slug in NAV] + [slug for slug, *_ in TOOLS]
+SLUGS.extend(f"reports/{file.parent.name}/" for file in sorted(Path("football/reports").glob("week-*/index.html"))
+             if REPORT_SLUG.fullmatch(file.parent.name))
+PAGES = {f"{PORTAL}{slug}": f"{PORTAL[1:]}{slug}index.html" for slug in SLUGS}
 KEY_FILE = "0585570aa14c0953bd6d1cba0d9f8af9.txt"
 GOOGLE_FILE = "google03e4dd0052f0e26e.html"
 BING_FILE = "BingSiteAuth.xml"
@@ -67,7 +71,7 @@ def inspect(changed, version):
         return path, ""
 
     paths = (*PAGES, "/robots.txt", "/sitemap.xml", f"/{GOOGLE_FILE}", f"/{BING_FILE}", f"/{KEY_FILE}")
-    with ThreadPoolExecutor(max_workers=len(paths)) as pool:
+    with ThreadPoolExecutor(max_workers=min(len(paths), 16)) as pool:
         return dict(pool.map(result, paths))
 
 

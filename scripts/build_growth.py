@@ -6,8 +6,9 @@ from datetime import date, datetime, timedelta, timezone
 from html import escape
 import json
 from pathlib import Path
-import re
 from xml.etree import ElementTree as ET
+
+from build_traffic import traffic_pages, verified_score
 
 ORIGIN = "https://suolunpro.github.io"
 PORTAL = "/football/"
@@ -55,12 +56,11 @@ def review(archive, today):
         for match in archive[day]:
             counts["archived"] += 1
             settlement = match.get("settlement") or {}
-            if ((match.get("result_verification") or {}).get("status") != "VERIFIED"
-                    or settlement.get("scope") != "90min_regular_ft"
-                    or not re.fullmatch(r"[0-9]+:[0-9]+", settlement.get("ft") or "")):
+            score = verified_score(match)
+            if score is None:
                 continue
             counts["verified"] += 1
-            home, away = map(int, settlement["ft"].split(":"))
+            home, away = score
             outcomes["主胜" if home > away else "客胜" if away > home else "平局"] += 1
             goals[min(home + away, 7)] += 1
             for _, key, _ in COVERAGE_MODULES:
@@ -93,13 +93,16 @@ def review(archive, today):
 
 
 NAV = (("九十刻度", ""), ("每日赛程", "fixtures/"), ("历史复盘", "review/"),
-       ("模型研究", "research/"))
+       ("模型研究", "research/"), ("免费工具", "tools/"), ("联赛统计", "stats/"),
+       ("研究报告", "reports/"))
 
 INTRO = f"""<div class="hero"><p>{BRAND}（{BRAND_ALTERNATE}）</p><h1>足球赛前分析与赛后复盘</h1>
 <p>{BRAND_DESCRIPTION} 公开门户提供基础赛事赛程、常规时间赛果分布、模型历史覆盖率及复盘方法。</p>
 <a class="button" href="/football/review/">查看历史成绩</a></div>
 <div class="grid"><section><h2>每日赛程</h2><p>按归档日期查看联赛、对阵和北京时间。</p><a href="/football/fixtures/">查看赛程</a></section>
 <section><h2>模型研究</h2><p>了解赛前冻结、赛果核验，以及怎样比较不同模型指标。</p><a href="/football/research/">阅读研究说明</a></section></div>
+<div class="grid"><section><h2>免费足球工具</h2><p>欧赔去水和独立泊松计算。</p><a href="/football/tools/">打开工具中心</a></section>
+<section><h2>足球数据研究</h2><p>使用已核验完赛样本查看联赛表现与每周统计。</p><a href="/football/stats/">查看联赛统计</a> · <a href="/football/reports/">阅读周报</a></section></div>
 <section><h2>如何申请会员开户</h2><p>新用户可联系微信客服提交开户申请，由管理员核实后人工开通。本站暂未开放自助注册。已有会员可通过原有入口登录。</p><a href="/#vip-gate" data-portal-event="member_entry_click">会员登录及开户注册</a>
 <details><summary data-portal-event="admin_contact_click">查看管理员联系方式</summary>
 <p>客服微信 <strong id="portal-wechat">GoodLuck_H3</strong>
@@ -116,7 +119,7 @@ RESEARCH = """<section><h2>九十刻度如何开展足球赛前分析与复盘</
 
 ANALYTICS_NOTICE = """<details id="portal-analytics" class="portal-analytics">
 <summary>隐私与访问统计</summary>
-<p>经你同意，本站仅在公开门户使用 Microsoft Clarity 和统计 Cookie，了解访客数量、浏览量、访问来源、设备及大致地区，并记录会员入口和客服按钮的点击。</p>
+<p>经你同意，本站仅在公开门户使用 Microsoft Clarity 和统计 Cookie，了解访客数量、浏览量、访问来源、设备及大致地区，并记录会员入口、客服按钮、工具使用及报告访问。计算器输入值不用于统计。</p>
 <p>Microsoft 会处理使用数据和经过遮罩的页面交互记录。你可以随时在这里关闭统计。<a href="https://privacy.microsoft.com/zh-cn/privacystatement">Microsoft 隐私声明</a></p>
 <button type="button" id="portal-analytics-allow">允许统计</button>
 <button type="button" id="portal-analytics-deny">关闭统计</button>
@@ -163,7 +166,7 @@ def render(slug, label, description, page_type, body, *, heading=True):
 """
 
 
-def generate(source, output, today):
+def generate(source, output, today, history=Path("football/reports")):
     archive = {
         date.fromisoformat(path.stem): json.loads(path.read_text(encoding="utf-8"))["matches"]
         for path in sorted(source.glob("????-??-??.json"))
@@ -176,6 +179,10 @@ def generate(source, output, today):
         ("review/", "历史模型成绩与足球统计", "查看九十刻度已核验赛果、模型多候选结果覆盖率及进球分布。", "CollectionPage", review(archive, today)),
         ("research/", "足球模型研究与复盘口径", "了解九十刻度的赛前冻结、常规时间赛果核验和历史成绩比较方法。", "WebPage", RESEARCH),
     )
+    new_pages, archived_reports = traffic_pages(archive, today, history, COVERAGE_MODULES, table)
+    report_pages = {page[0].split("/")[1]: page for page in new_pages if page[0].startswith("reports/week-")}
+    pages += tuple(page for page in new_pages if not page[0].startswith("reports/week-"))
+    report_keys = sorted(set(report_pages) | set(archived_reports), reverse=True)
     sitemap = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
     llms = [f"# {BRAND}（{BRAND_ALTERNATE}）", "", f"> {BRAND_DESCRIPTION}", "", "## 公开页面", ""]
     for slug, label, description, page_type, body in pages:
@@ -186,6 +193,14 @@ def generate(source, output, today):
         url = ORIGIN + PORTAL + slug
         ET.SubElement(ET.SubElement(sitemap, "url"), "loc").text = url
         llms.append(f"- [{label}]({url}): {description}")
+    for key in report_keys:
+        folder = output / "football/reports" / key
+        folder.mkdir(parents=True, exist_ok=True)
+        html = render(*report_pages[key]) if key in report_pages else archived_reports[key]
+        (folder / "index.html").write_text(html, encoding="utf-8")
+        url = f"{ORIGIN}{PORTAL}reports/{key}/"
+        ET.SubElement(ET.SubElement(sitemap, "url"), "loc").text = url
+        llms.append(f"- [足球数据周报 · {key[5:]}]({url})")
     ET.indent(sitemap)
     ET.ElementTree(sitemap).write(output / "sitemap.xml", encoding="utf-8", xml_declaration=True)
     (output / "llms.txt").write_text("\n".join(llms) + "\n", encoding="utf-8")
@@ -193,6 +208,9 @@ def generate(source, output, today):
     robots = ["User-agent: *", "Disallow: /data/", ""]
     robots.extend(f"User-agent: {agent}" for agent in ("OAI-SearchBot", "Claude-SearchBot", "PerplexityBot"))
     robots.extend(f"Allow: {PORTAL}{slug}$" for slug, *_ in pages)
+    robots.extend(("Allow: /football/portal.css$", "Allow: /football/calculators.js$",
+                   "Allow: /football/stats.js$"))
+    robots.extend(f"Allow: {PORTAL}reports/{key}/$" for key in report_keys)
     robots.extend(("Allow: /sitemap.xml$", "Allow: /llms.txt$", "Disallow: /", ""))
     robots.extend(f"User-agent: {agent}" for agent in ("GPTBot", "ClaudeBot", "Google-Extended"))
     robots.extend(("Disallow: /", "", f"Sitemap: {ORIGIN}/sitemap.xml", ""))
@@ -204,5 +222,6 @@ if __name__ == "__main__":
     parser.add_argument("--source", type=Path, default=Path("data/engine4/sales"))
     parser.add_argument("--output", type=Path, default=Path("."))
     parser.add_argument("--date", type=date.fromisoformat, default=datetime.now(BEIJING).date())
+    parser.add_argument("--history", type=Path, default=Path("football/reports"))
     args = parser.parse_args()
-    generate(args.source, args.output, args.date)
+    generate(args.source, args.output, args.date, args.history)

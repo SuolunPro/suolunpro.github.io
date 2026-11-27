@@ -1,6 +1,11 @@
 (() => {
-  const allowedPaths = new Set(["/football/", "/football/fixtures/", "/football/review/", "/football/research/"]);
-  if (!allowedPaths.has(location.pathname)) return;
+  const allowedPaths = new Set([
+    "/football/", "/football/fixtures/", "/football/review/", "/football/research/",
+    "/football/tools/", "/football/tools/probability/", "/football/tools/poisson/",
+    "/football/stats/", "/football/reports/",
+  ]);
+  const reportPage = /^\/football\/reports\/week-\d{4}-\d{2}-\d{2}\/$/.test(location.pathname);
+  if (!allowedPaths.has(location.pathname) && !reportPage) return;
 
   const preferenceKey = "90scale.portal.analytics.v1";
   const notice = document.getElementById("portal-analytics");
@@ -37,6 +42,7 @@
     tag.referrerPolicy = "strict-origin";
     document.head.append(tag);
     loaded = true;
+    if (reportPage) window.clarity("event", "research_report_view");
   }
 
   let choice = savedChoice();
@@ -86,6 +92,12 @@
     if (loaded && choice === "allow" && events.has(name)) window.clarity("event", name);
   }
 
+  document.addEventListener("portal-probability-calculated", () => {
+    if (loaded && choice === "allow") window.clarity("event", "probability_calculated");
+  });
+  document.addEventListener("portal-poisson-calculated", () => {
+    if (loaded && choice === "allow") window.clarity("event", "poisson_calculated");
+  });
   document.addEventListener("click", trackClick, true);
   document.addEventListener("auxclick", (event) => {
     if (event.button === 1 && event.target.closest("a")) trackClick(event);
