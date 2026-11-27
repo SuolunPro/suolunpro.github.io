@@ -595,7 +595,7 @@
         ||(report.sale_day==='2026-11-23'&&((no==='001'&&id==='502912337')||(no==='008'&&id==='503111667')))
         ||(report.sale_day==='2026-11-24'&&no==='005')
         ||(report.sale_day==='2026-11-25'&&(no==='006'||no==='009'))
-        ||(report.sale_day==='2026-11-27'&&(no==='001'||no==='004'));
+        ||(report.sale_day==='2026-11-27'&&(no==='001'||no==='004'||no==='009'));
       // Publication-only veto: never show a BLOCKED regular pick as curated.
       // Keep frozen predictions and settlement evidence unchanged.
       const gate=m.prediction?.single_pick_risk_gate;
