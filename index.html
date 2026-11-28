@@ -502,9 +502,7 @@
     const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
     function navigation(){
       const root=$('models');root.replaceChildren();
-      if(active==='大小球研判'&&!radarAdmin())active='胜平负';
       for(const [key,name] of modules){
-        if(key==='大小球研判'&&!radarAdmin())continue;
         const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
 
@@ -1109,7 +1107,6 @@
       }catch(error){if(current())root.replaceChildren(el('div','error','雷达记录加载失败，请刷新重试'));}
     }
     function render(){
-      if(active==='大小球研判'&&!radarAdmin())navigation();
       if(!report)return;
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
