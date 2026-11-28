@@ -1,5 +1,8 @@
 name: Engine4 maintenance (public runner)
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/engine4-maintenance.yml']
   workflow_dispatch:
     inputs:
       task:
@@ -31,10 +34,10 @@ jobs:
         with:
           python-version: '3.12'
       - name: Run engine regression tests
-        if: inputs.task == 'regression-tests'
+        if: github.event_name == 'push' || inputs.task == 'regression-tests'
         run: python -m unittest discover -s engine4/tests -v
       - name: Capture and store private research records
-        if: inputs.task == 'over-under-research'
+        if: github.event_name == 'workflow_dispatch' && inputs.task == 'over-under-research'
         env:
           WRITER: ${{ secrets.ENGINE4_PUBLISH_TOKEN }}
         run: |
