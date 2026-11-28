@@ -520,6 +520,33 @@
       if(probability+1e-10<0.78)return null;
       return {homeSide};
     }
+    function visibleGreenPrediction(match){
+      const original=greenPrediction(match);
+      if(original||!radarAdmin())return original;
+      const prediction=match.prediction;
+      const kickoff=Date.parse(String(match.kickoff||'').replace(' ','T')+'+08:00');
+      if(prediction?.status!=='PREDICTED'||prediction.modules?.['胜平负']?.status==='NOT_ON_SALE'||
+         !(Date.parse(match.predicted_at)<kickoff))return null;
+
+      const sp=match.spf;
+      if(!Array.isArray(sp)||sp.length!==3||!sp.every(value=>Number.isFinite(value)&&value>1)||
+         !(sp[0]<sp[1]&&sp[0]<sp[2]))return null;
+
+      const exchange=match.bifa;
+      const rows=exchange?.index_rows;
+      const transactions=exchange?.transaction_rows;
+      if(exchange?.prematch_verified!==true||!(Date.parse(exchange.captured_at)<kickoff)||
+         !Array.isArray(rows)||rows.length!==3||!String(rows[1]?.team||'').includes('平')||
+         !Array.isArray(transactions)||transactions.length!==3)return null;
+      const shares=rows.map(row=>row?.bfShare);
+      const volumes=transactions.map(row=>row?.bfVolume);
+      if(!shares.every(value=>Number.isFinite(value)&&value>=0)||
+         Math.abs(shares.reduce((sum,value)=>sum+value,0)-100)>=0.1||
+         !volumes.every(value=>Number.isFinite(value)&&value>=0)||!volumes.some(value=>value>0)||
+         !(shares[0]>shares[1]&&shares[0]>shares[2]))return null;
+      return {homeSide:true,marketHomeSupplement:true};
+    }
+
     function greenResult(match,prediction){
       if(!prediction||match.result_verification?.status!=='VERIFIED'||
          match.settlement?.scope!=='90min_regular_ft')return null;
@@ -530,11 +557,11 @@
       return {actual:diff>0?'主胜':diff<0?'客胜':'平局',hit:prediction.homeSide?diff>=0:diff<=0};
     }
     function greenCard(card,match){
-      const prediction=greenPrediction(match);
+      const prediction=visibleGreenPrediction(match);
       const result=greenResult(match,prediction);
       const analysis=el('div','analysis'),grid=el('div','triplet pair');
       const direction=el('div','datum primary');
-      direction.append(el('span','','方向'),el('b','',prediction.homeSide?'主队不败':'客队不败'));
+      direction.append(el('span','',prediction.marketHomeSupplement?'管理员预览 · 市场同向补充':'方向'),el('b','',prediction.homeSide?'主队不败':'客队不败'));
       const recommendation=el('div','datum'+(result?.hit?' hit':''));
       recommendation.append(el('span','','推荐'),el('b','',prediction.homeSide?'胜／平':'负／平'));
       grid.append(direction,recommendation);
@@ -620,10 +647,10 @@
         return;
       }
       if(active==='绿色场次'){
-        const picks=report.matches.map(m=>({m,p:greenPrediction(m)})).filter(x=>x.p);
+        const picks=report.matches.map(m=>({m,p:visibleGreenPrediction(m)})).filter(x=>x.p);
         const settled=picks.map(({m,p})=>greenResult(m,p)).filter(Boolean);
         const hit=settled.filter(r=>r.hit).length;
-        $('hit-rate-label').textContent='当日绿色场次命中率';
+        $('hit-rate-label').textContent=radarAdmin()?'当日绿色场次命中率（含管理员预览）':'当日绿色场次命中率';
         $('hit-rate').textContent=settled.length?(100*hit/settled.length).toFixed(1)+'%':'—';
         $('hit-count').textContent=hit+'/'+settled.length;
         $('pending').textContent=picks.length-settled.length;
@@ -1143,14 +1170,14 @@
     function render(){
       if(!report)return;
       $('fixture-explanation').textContent=active==='绿色场次'
-        ?'已完成冷门评估、未触发风险观察（WATCH）或正式冷门预警，才列为绿色场次'
+        ?(radarAdmin()?'管理员预览含原绿色场次及主胜同向补充。补充场次按胜／平评测。':'已完成冷门评估、未触发风险观察（WATCH）或正式冷门预警，才列为绿色场次')
         :'预测赛前动态更新，停售前锁定最终推荐，赛果核验后自动更新命中率。';
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
       if(active==='双平预警')active='胜平负';
       if(active==='双平预警'){renderRadar();return;}
       const isReviewSelected=isIndependentFeatured;
-      const focus=active==='绿色场次'?report.matches.filter(greenPrediction):active==='单选精选'?report.matches.filter(isPublishedSinglePick):
+      const focus=active==='绿色场次'?report.matches.filter(visibleGreenPrediction):active==='单选精选'?report.matches.filter(isPublishedSinglePick):
         active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return !!match.manual_cold_warning||(warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction))}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
