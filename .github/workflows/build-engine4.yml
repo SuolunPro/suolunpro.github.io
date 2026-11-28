@@ -83,7 +83,9 @@ jobs:
           mkdir -p data/engine4/history
           cp data/engine4/latest.json "data/engine4/history/$(date -u +%Y%m%dT%H%M%SZ).json"
           git add -- data/engine4
-          git -c user.name=engine4-validation -c user.email=actions@users.noreply.github.com commit -qm 'data: publish verified public runner prediction'
+          git config --local user.name engine4-validation
+          git config --local user.email actions@users.noreply.github.com
+          git commit -qm 'data: publish verified public runner prediction'
           export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.https://github.com/.extraheader
           export GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'x-access-token:%s' "$WRITER" | base64 -w0)"
           base=$(git rev-parse HEAD^)
