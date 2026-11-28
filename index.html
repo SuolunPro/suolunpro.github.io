@@ -491,7 +491,7 @@
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
       ['比分','全场比分'],['总进球','泊松进球'],
       ['大小球研判','大小球研判'],
-      ['冷门预警','冷门预警']
+      ['冷门预警','冷门预警'],['绿色场次','绿色场次']
     ];
     let report=null,active='胜平负',selectedDay='';
     const label=value=>value==null?'—':String(value);
@@ -502,9 +502,7 @@
     const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
     function navigation(){
       const root=$('models');root.replaceChildren();
-      if(active==='绿色场次'&&!radarAdmin())active='胜平负';
-      const visibleModules=radarAdmin()?[...modules,['绿色场次','绿色场次']]:modules;
-      for(const [key,name] of visibleModules){
+      for(const [key,name] of modules){
         const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
 
@@ -1162,7 +1160,6 @@
     }
     function render(){
       if(!report)return;
-      if(active==='绿色场次'&&!radarAdmin()){active='胜平负';navigation();}
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
       if(active==='双平预警')active='胜平负';
