@@ -7,6 +7,10 @@ on:
     - cron: '12,22,42,52 10-14 * * *'
   workflow_dispatch:
     inputs:
+      refresh_prediction:
+        type: boolean
+        default: false
+        description: Manually refresh verified open fixtures
       recovery:
         type: boolean
         default: false
@@ -37,8 +41,8 @@ jobs:
         id: calculate
         env:
           ENGINE4_SKIP_RESULT_LOOKUP: '1'
-          MANUAL_REFRESH: ${{ github.event.client_payload.manual || 'false' }}
-          EVENT_NAME: ${{ github.event.client_payload.event || 'schedule' }}
+          MANUAL_REFRESH: ${{ inputs.refresh_prediction || github.event.client_payload.manual || 'false' }}
+          EVENT_NAME: ${{ (inputs.refresh_prediction && 'workflow_dispatch') || github.event.client_payload.event || 'schedule' }}
           HEAD_MESSAGE: ${{ github.event.client_payload.message || '' }}
         run: |
           grep -q '^  relay-public:' .github/workflows/engine4.yml || exit 0
