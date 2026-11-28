@@ -489,7 +489,7 @@
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
       ['比分','全场比分'],['总进球','泊松进球'],
       ['大小球研判','大小球研判'],
-      ['冷门预警','冷门预警'],['绿色场次','绿色场次']
+      ['冷门预警','冷门预警'],['绿色场次','绿色场次'],['高赔挑战','高赔挑战']
     ];
     let report=null,active='胜平负',selectedDay='';
     const label=value=>value==null?'—':String(value);
@@ -500,7 +500,9 @@
     const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
     function navigation(){
       const root=$('models');root.replaceChildren();
+      if(active==='高赔挑战'&&!radarAdmin())active='胜平负';
       for(const [key,name] of modules){
+        if(key==='高赔挑战'&&!radarAdmin())continue;
         const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
 
@@ -525,6 +527,9 @@
       if(original)return original;
       const warning=match.prediction?.modules?.['冷门预警'];
       if(warning?.status!=='NOT_TRIGGERED'||warning.triggered===true||match.manual_cold_warning)return null;
+      return homeMarketConsensus(match)?{homeSide:true,marketHomeSupplement:true}:null;
+    }
+    function homeMarketConsensus(match){
       const prediction=match.prediction;
       const kickoff=Date.parse(String(match.kickoff||'').replace(' ','T')+'+08:00');
       if(prediction?.status!=='PREDICTED'||prediction.modules?.['胜平负']?.status==='NOT_ON_SALE'||
@@ -546,7 +551,7 @@
          Math.abs(shares.reduce((sum,value)=>sum+value,0)-100)>=0.1||
          !volumes.every(value=>Number.isFinite(value)&&value>=0)||!volumes.some(value=>value>0)||
          !(shares[0]>shares[1]&&shares[0]>shares[2]))return null;
-      return {homeSide:true,marketHomeSupplement:true};
+      return true;
     }
 
     function greenResult(match,prediction){
@@ -573,6 +578,50 @@
       if(result)box.append(el('b','','实际结果 '+result.actual+' · '+(result.hit?'评测成功':'评测失败')));
       else box.textContent='等待赛果';
       card.append(box);
+    }
+
+    function highOddsPicks(match){
+      const prediction=match.prediction;
+      const kickoff=Date.parse(String(match.kickoff||'').replace(' ','T')+'+08:00');
+      if(prediction?.status!=='PREDICTED'||!(Date.parse(match.predicted_at)<kickoff))return [];
+      const warning=prediction.modules?.['冷门预警'];
+      const picks=[];
+      if(['WATCH','TRIGGERED'].includes(warning?.status)&&homeMarketConsensus(match)){
+        picks.push({play:'胜平负',label:'胜平负 · 主胜同向',directions:['胜','平'],sp:match.spf.slice(0,2)});
+      }
+      const sp=match.rqspf;
+      if(warning?.status==='TRIGGERED'&&warning.triggered===true&&warning.channels?.includes('A')&&
+         Array.isArray(sp)&&sp.length===3&&sp.every(value=>Number.isFinite(value)&&value>1)&&
+         Number.isFinite(match.handicap)){
+        const side=sp[0]<=sp[2]?0:2;
+        picks.push({play:'让球',label:`让球 · A 通道（主队 ${match.handicap>0?'+':''}${match.handicap} 球）`,
+          directions:[side===0?'让胜':'让负','让平'],sp:[sp[side],sp[1]]});
+      }
+      return picks;
+    }
+    function highOddsResult(match,pick){
+      if(match.result_verification?.status!=='VERIFIED'||match.settlement?.scope!=='90min_regular_ft')return null;
+      const score=match.settlement.ft?.match(/^(\d+)\s*:\s*(\d+)$/);
+      if(!score)return null;
+      const diff=Number(score[1])-Number(score[2])+(pick.play==='让球'?match.handicap:0);
+      const actual=(pick.play==='让球'?'让':'')+(diff>0?'胜':diff<0?'负':'平');
+      const index=pick.directions.indexOf(actual);
+      return {actual,hit:index>=0,highHit:index>=0&&pick.sp[index]>=2.5};
+    }
+    function highOddsCard(card,match){
+      for(const pick of highOddsPicks(match)){
+        const result=highOddsResult(match,pick);
+        const analysis=el('div','analysis'),grid=el('div','triplet pair');
+        for(const [index,direction] of pick.directions.entries()){
+          const datum=el('div','datum'+(result?.actual===direction?' hit':''));
+          datum.append(el('span','',pick.sp[index]>=2.5?'高赔备选':'双选方向'),el('b','',direction+' · SP '+pick.sp[index].toFixed(2)));
+          grid.append(datum);
+        }
+        analysis.append(el('div','v4-note',pick.label),grid);
+        const verdict=el('div','v4-verdict'+(result?(result.hit?' hit':' miss'):''));
+        verdict.textContent=result?`实际结果 ${result.actual} · ${result.highHit?'高赔命中':result.hit?'双选命中':'评测失败'}`:'等待赛果';
+        card.append(analysis,verdict);
+      }
     }
 
     function ouPrediction(match){
@@ -646,6 +695,16 @@
         $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
         $('hit-count').textContent=hit+'/'+total;
         $('pending').textContent=picks.length-total;
+        return;
+      }
+      if(active==='高赔挑战'){
+        const results=report.matches.flatMap(m=>highOddsPicks(m).map(p=>highOddsResult(m,p)));
+        const settled=results.filter(Boolean),hit=settled.filter(r=>r.hit).length;
+        const high=settled.filter(r=>r.highHit).length;
+        $('hit-rate-label').textContent='当日双选命中率';
+        $('hit-rate').textContent=settled.length?(100*hit/settled.length).toFixed(1)+'%':'—';
+        $('hit-count').textContent=`${hit}/${settled.length} · 高赔 ${high}/${settled.length}`;
+        $('pending').textContent=results.length-settled.length;
         return;
       }
       if(active==='绿色场次'){
@@ -1171,15 +1230,17 @@
     }
     function render(){
       if(!report)return;
+      if(active==='高赔挑战'&&!radarAdmin())active='胜平负';
       $('fixture-explanation').textContent=active==='绿色场次'
         ?'绿色场次：是指通过模型冷门评估和市场支持的比赛'
+        :active==='高赔挑战'?'管理员预览。双选任一方向打出即命中，实际打出 SP ≥ 2.50 的方向记为高赔命中。'
         :'预测赛前动态更新，停售前锁定最终推荐，赛果核验后自动更新命中率。';
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
       if(active==='双平预警')active='胜平负';
       if(active==='双平预警'){renderRadar();return;}
       const isReviewSelected=isIndependentFeatured;
-      const focus=active==='绿色场次'?report.matches.filter(visibleGreenPrediction):active==='单选精选'?report.matches.filter(isPublishedSinglePick):
+      const focus=active==='高赔挑战'?report.matches.filter(m=>highOddsPicks(m).length):active==='绿色场次'?report.matches.filter(visibleGreenPrediction):active==='单选精选'?report.matches.filter(isPublishedSinglePick):
         active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return !!match.manual_cold_warning||(warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction))}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
@@ -1214,6 +1275,7 @@
           cards.append(card);continue;
         }
         if(active==='独立研判'){independentReview(card,match);cards.append(card);continue;}
+        if(active==='高赔挑战'){highOddsCard(card,match);cards.append(card);continue;}
         if(active==='绿色场次'){greenCard(card,match);cards.append(card);continue;}
         if(active==='大小球研判'){ouCard(card,match);cards.append(card);continue;}
         const data=match.prediction?.modules?.[active];
