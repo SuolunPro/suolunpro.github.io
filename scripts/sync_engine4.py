@@ -251,6 +251,8 @@ def main(src, dst):
     if not src.is_dir():
         raise SystemExit("Engine snapshot directory missing")
     count = 0
+    instant = datetime.now(timezone.utc)
+    today = instant.astimezone(timezone(timedelta(hours=8))).date().isoformat()
     for path in sorted(src.rglob("*.json")):
         relative = path.relative_to(src)
         # History snapshots are immutable; don't repeatedly copy large run archives.
@@ -309,7 +311,11 @@ def main(src, dst):
                         kept.append(old_match)
                     published["matches"] = kept
                 incoming = merge(incoming, published)
-        public_snapshot(incoming, read(target), datetime.now(timezone.utc))
+        public_snapshot(incoming, read(target), instant)
+        if relative.as_posix() == "latest.json" or (relative.parts[0] == "sales" and path.stem >= today):
+            matches = incoming.get("matches") if isinstance(incoming, dict) else None
+            if isinstance(matches, list):
+                matches.sort(key=lambda row: str(row.get("match_no") or ""))
         target.parent.mkdir(parents=True, exist_ok=True)
         output = json.dumps(incoming, ensure_ascii=False, indent=2) + "\n"
         if not target.exists() or target.read_text(encoding="utf-8") != output:
