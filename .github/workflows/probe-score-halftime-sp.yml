@@ -12,7 +12,7 @@ jobs:
       - name: Verify official and mirror offer samples
         run: |
           python - <<'PY'
-          import concurrent.futures,json,re,urllib.request
+          import concurrent.futures,json,re,urllib.request,urllib.parse
           base='https://webapi.sporttery.cn/gateway/'
           routes={
               'official_existing':base+'jc/football/getMatchCalculatorV1.qry?channel=c&poolCode=had,hhad,crs,ttg,hafu',
@@ -31,7 +31,20 @@ jobs:
                   if name=='mirror':
                       rows=d.get('matches',[]) if isinstance(d,dict) else d
                       fields=sorted({k for m in rows if isinstance(m,dict) for k in m})
-                      return dict(source=name,rows=len(rows),fields=fields)
+                      markets={}
+                      samples=[m for m in rows if str(m.get('matchTypeValue'))=='0' and m.get('id') and str(m.get('state')).lower() in ('upcoming','selling','on_sale')][:2]
+                      for m in samples:
+                          for kind in (0,1):
+                              url='https://qiulaile.vip/api/match/odds?'+urllib.parse.urlencode(dict(matchId=m['id'],home=m['home'],away=m['away'],matchType=kind))
+                              try:
+                                  req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Accept':'application/json'})
+                                  with urllib.request.urlopen(req,timeout=10) as f: payload=json.load(f)
+                                  for row in payload.get('lines',[]):
+                                      market=str(row.get('market'))
+                                      markets[market]=markets.get(market,0)+1
+                              except Exception as e:
+                                  markets['error']=str(e)
+                      return dict(source=name,rows=len(rows),fields=fields,sampled=len(samples),markets=markets)
                   rows=[m for group in d.get('value',{}).get('matchInfoList',[]) for m in group.get('subMatchList',[])]
                   out=dict(source=name,rows=len(rows),score=0,half_full=0,complete_score=0,complete_half_full=0)
                   for m in rows:
