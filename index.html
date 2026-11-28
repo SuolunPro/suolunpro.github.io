@@ -487,11 +487,10 @@
       try{await vipEnter()}catch(error){vipShowGate(error.message==='vip_inactive'?VIP_EXPIRED_MESSAGE:'登录状态已失效，请重新登录。',error.message==='vip_inactive'||!['invalid_code','vip_inactive'].includes(error.message))}
     }
 
-    const showOverUnderPredictions = false;
     const modules=[
       ['胜平负','胜平负'],['让球','全场让球'],['半全场','半全场'],
       ['比分','全场比分'],['总进球','泊松进球'],
-      ...(showOverUnderPredictions ? [['大小球研判','大小球研判']] : []),
+      ['大小球研判','大小球研判'],
       ['冷门预警','冷门预警']
     ];
     let report=null,active='胜平负',selectedDay='';
@@ -506,41 +505,42 @@
       for(const [key,name] of modules){const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
 
-    // O/U 2.5: pure projection of the already-frozen goal probabilities; no new fetch or workflow.
     function ouPrediction(match){
-      if(match.prediction?.status!=='PREDICTED')return null;
-      const goals=match.prediction?.modules?.['总进球'];
-      const p=goals?.probabilities;
-      if(!p)return null;
+      const p=match.prediction?.modules?.['总进球']?.probabilities;
+      if(match.prediction?.status!=='PREDICTED'||!p)return null;
       const keys=['0','1','2','3','4','5','6','7+'];
       if(keys.some(k=>p[k]==null||!Number.isFinite(Number(p[k]))||Number(p[k])<0))return null;
       const sum=keys.reduce((v,k)=>v+Number(p[k]),0);
       if(Math.abs(sum-1)>0.03)return null;
-      const over=keys.slice(3).reduce((v,k)=>v+Number(p[k]),0)/sum;
-      const under=1-over,confidence=Math.max(over,under);
-      const stars=confidence>=0.70?5:confidence>=0.65?4:confidence>=0.60?3:confidence>=0.55?2:1;
-      return {over,under,confidence,stars,direction:over>=under?'大2.5球':'小2.5球',expected:goals.estimated_total_goals};
+      const fewer=keys.slice(0,3).reduce((v,k)=>v+Number(p[k]),0);
+      const more=keys.slice(4).reduce((v,k)=>v+Number(p[k]),0);
+      const atLeast=more>fewer;
+      return {atLeast,direction:atLeast?'至少 3 球（≥3）':'最多 3 球（≤3）'};
     }
-    function ouResult(match){
-      const predicted=ouPrediction(match);
-      if(!predicted||match.result_verification?.status!=='VERIFIED')return null;
-      const ft=match.settlement?.ft;
-      const m=typeof ft==='string'?ft.match(/^(\d+)\s*:\s*(\d+)$/):null;
-      if(!m)return null;
-      const total=Number(m[1])+Number(m[2]);
-      return {total,hit:(predicted.over>=predicted.under)===(total>=3)};
+    function ouResult(match,predicted=ouPrediction(match)){
+      if(!predicted||match.result_verification?.status!=='VERIFIED'||
+         match.settlement?.scope!=='90min_regular_ft')return null;
+      const ft=match.settlement.ft;
+      const score=typeof ft==='string'?ft.match(/^(\d+)\s*:\s*(\d+)$/):null;
+      if(!score)return null;
+      const total=Number(score[1])+Number(score[2]);
+      return {total,hit:predicted.atLeast?total>=3:total<=3};
     }
     function ouCard(card,match){
-      const p=ouPrediction(match);
-      if(!p){card.append(el('div','v4-verdict','本场暂无可用的总进球概率'));return}
-      const levels=['','低','偏低','中等','较高','高'];
-      const heading=el('div','v4-note', '预测：'+p.direction+'｜信心：'+'★'.repeat(p.stars)+'☆'.repeat(5-p.stars)+' '+levels[p.stars]);
-      heading.style.cssText='font-weight:700;font-size:15px;margin:8px 0';
-      card.append(heading);
-      card.append(el('div','v4-note','大球概率：'+(100*p.over).toFixed(1)+'%｜小球概率：'+(100*p.under).toFixed(1)+'%'));
-      if(Number.isFinite(Number(p.expected)))card.append(el('div','v4-note','预计进球：'+Number(p.expected).toFixed(2)+'球'));
-      const result=ouResult(match);
-      const box=el('div','v4-verdict'+(result?(result.hit?' hit':' miss'):''),result?(result.hit?'✓ 命中':'✕ 未中')+'（实际'+result.total+'球）':'等待赛果核验');
+      const prediction=ouPrediction(match);
+      if(!prediction){card.append(el('div','v4-verdict','暂无预测'));return}
+      const result=ouResult(match,prediction);
+      const analysis=el('div','analysis');
+      const grid=el('div','triplet');
+      grid.style.gridTemplateColumns='1fr';
+      const cell=el('div','datum'+(result?.hit?' hit':' primary'));
+      cell.append(el('b','',prediction.direction));
+      grid.append(cell);
+      analysis.append(grid);
+      card.append(analysis);
+      const box=el('div','v4-verdict'+(result?(result.hit?' hit':' miss'):''));
+      if(result)box.append(el('b','','实际结果 '+result.total+' · '+(result.hit?'评测成功':'评测失败')));
+      else box.textContent='等待赛果';
       card.append(box);
     }
     // Pre-kickoff manual publication withdrawal; raw prediction and settlement records remain unchanged.
