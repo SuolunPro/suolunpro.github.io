@@ -585,14 +585,14 @@
       const warning=prediction.modules?.['冷门预警'];
       const picks=[];
       if(['WATCH','TRIGGERED'].includes(warning?.status)&&homeMarketConsensus(match)){
-        picks.push({play:'胜平负',label:'胜平负 · 主胜同向',directions:['胜','平'],sp:match.spf.slice(0,2)});
+        picks.push({play:'胜平负',label:'胜平负',directions:['胜','平'],sp:match.spf.slice(0,2)});
       }
       const sp=match.rqspf;
       if(warning?.status==='TRIGGERED'&&warning.triggered===true&&warning.channels?.includes('A')&&
          Array.isArray(sp)&&sp.length===3&&sp.every(value=>Number.isFinite(value)&&value>1)&&
          Number.isFinite(match.handicap)){
         const side=sp[0]<=sp[2]?0:2;
-        picks.push({play:'让球',label:`让球 · A 通道（主队 ${match.handicap>0?'+':''}${match.handicap} 球）`,
+        picks.push({play:'让球',label:`让球（主队 ${match.handicap>0?'+':''}${match.handicap} 球）`,
           directions:[side===0?'让胜':'让负','让平'],sp:[sp[side],sp[1]]});
       }
       return picks;
@@ -1230,7 +1230,7 @@
       if(!report)return;
       $('fixture-explanation').textContent=active==='绿色场次'
         ?'绿色场次：是指通过模型冷门评估和市场支持的比赛'
-        :active==='高赔挑战'?'双选任一方向打出即命中，实际打出 SP ≥ 2.50 的方向记为高赔命中。'
+        :active==='高赔挑战'?'高赔挑战：提供含高赔选项的双选参考，仅供参考，不保证命中。'
         :'预测赛前动态更新，停售前锁定最终推荐，赛果核验后自动更新命中率。';
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
