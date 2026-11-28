@@ -114,7 +114,8 @@
     .toolbar-top{color:#888;font-size:12px;margin-bottom:9px}
     .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0;background:#eceef1;border-radius:8px;overflow:hidden}
     .metric{min-width:0;padding:14px 3px 12px;border-right:1px solid #dfe1e5;text-align:center;background:transparent}
-    .metric:last-child{border-right:0}
+    .metric:last-child,.metric:nth-child(3){border-right:0}
+    #kelly-channel-stats{grid-column:1/-1;border-top:1px solid #dfe1e5;padding:7px}
     .metric b{display:block;font-size:clamp(18px,4.7vw,24px);font-weight:700;color:#282828;line-height:1.25;white-space:nowrap}
     .metric span{display:block;font-size:clamp(9px,2.5vw,12px);color:#777;margin-top:7px;white-space:nowrap}
 
@@ -258,6 +259,7 @@
           <div class="metric"><b id="hit-rate">—</b><span id="hit-rate-label">当日评测命中率</span></div>
           <div class="metric"><b id="hit-count">—</b><span>命中 / 有效评测</span></div>
           <div class="metric"><b id="pending">—</b><span>未核验赛果</span></div>
+          <div id="kelly-channel-stats" class="metric" hidden></div>
         </div>
       </section>
       <section class="content">
@@ -565,6 +567,8 @@
     }
     function stats(){
       const updateNotice=$('review-update-notice');if(updateNotice)updateNotice.style.display=active==='独立研判'?'block':'none';
+      const kellyStats=$('kelly-channel-stats');
+      kellyStats.hidden=true;
       $('hit-rate-label').textContent=active==='独立研判'?'当天精选场次命中率':'当日评测命中率';
       if(active==='单选精选'){
         const picks=report.matches.filter(isPublishedSinglePick);
@@ -623,13 +627,25 @@
           return !!m.manual_cold_warning||(w?.status==='TRIGGERED'&&w.triggered===true&&['主队不败','主队不胜'].includes(w.direction));
         });
         let hit=0,total=0;
+        const channelStats={K:{hit:0,total:0,pending:0},K2:{hit:0,total:0,pending:0}};
         for(const m of warnings){
-          if(m.result_verification?.status!=='VERIFIED'||!m.settlement)continue;
-          const result=m.settlement.module_results?.['冷门预警'];
+          const warning=m.prediction?.modules?.['冷门预警'];
+          const verified=m.result_verification?.status==='VERIFIED';
+          const result=m.settlement?.module_results?.['冷门预警'];
           const manual=m.manual_cold_warning;
           const direction=manual?.direction||m.prediction?.modules?.['冷门预警']?.direction;
-          const actual=m.settlement.module_results?.['胜平负']?.actual||result?.actual;
-          if(!['胜','平','负'].includes(actual))continue;
+          const actual=m.settlement?.module_results?.['胜平负']?.actual||result?.actual;
+          const settled=verified&&['胜','平','负'].includes(actual);
+          for(const [channel,stat] of Object.entries(channelStats)){
+            if(warning?.triggered!==true||!warning.channels?.includes(channel))continue;
+            if(settled){
+              stat.total++;
+              if(actual!==(channel==='K'?'负':'胜'))stat.hit++;
+            }else{
+              stat.pending++;
+            }
+          }
+          if(!settled)continue;
           if(!['主队不胜','主队不败'].includes(direction))continue;
           total++;
           if(direction==='主队不胜'?actual!=='胜':actual!=='负')hit++;
@@ -638,6 +654,9 @@
         $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
         $('hit-count').textContent=hit+'/'+total;
         $('pending').textContent=warnings.length-total;
+        kellyStats.replaceChildren(...Object.entries(channelStats).map(([channel,stat])=>
+          el('span','',channel+' '+stat.hit+'/'+stat.total+' · '+stat.pending+' 待核验')));
+        kellyStats.hidden=false;
         return;
       }
       const stat=report.metrics?.module_stats?.[active];
@@ -928,7 +947,6 @@
       if(active==='冷门预警'&&match.manual_cold_warning){
         const manual=match.manual_cold_warning;
         analysis.append(el('div','v4-note','🔴 冷门预警：'+manual.direction+'（'+manual.focus+'）'));
-        card.append(analysis);return;
       }
       if(active==='今日优选'){
         const top2=Array.isArray(data.selection)&&data.selection.length>=2?data.selection.slice(0,2):
@@ -943,14 +961,17 @@
         analysis.append(el('div','advice',Array.isArray(data.selection)&&data.selection.length===2?'推荐 · '+selection:top2.length===2?'参考方向 · '+top2.join(' / '):'暂无推荐'));
         
         /* Internal evidence stays in the data feed, hidden from customer view. */
-      }else{
-        const blocks=el('div','v4-risk');
-        for(const [value,title] of [[data.direction,'风险方向'],['正式预警','预警状态']]){
-          const panel=el('div','upset-panel');panel.append(el('div','upset-value',value),el('div','upset-label',title));blocks.append(panel)
+      }else if(active==='冷门预警'){
+        if(!match.manual_cold_warning){
+          const blocks=el('div','v4-risk');
+          for(const [value,title] of [[data.direction,'风险方向'],['正式预警','预警状态']]){
+            const panel=el('div','upset-panel');panel.append(el('div','upset-value',value),el('div','upset-label',title));blocks.append(panel)
+          }
+          analysis.append(blocks);
         }
-        analysis.append(blocks);
-
-
+        const channels=data.triggered===true?data.channels||[]:[];
+        if(channels.includes('K'))analysis.append(el('div','v4-note','K · 凯利浅盘冷门识别 · 主队不败'));
+        if(channels.includes('K2'))analysis.append(el('div','v4-note','K2 · 凯利浅盘冷门识别（主队） · 主队不胜'));
       }
       card.append(analysis)
     }
