@@ -500,9 +500,7 @@
     const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
     function navigation(){
       const root=$('models');root.replaceChildren();
-      if(active==='高赔挑战'&&!radarAdmin())active='胜平负';
       for(const [key,name] of modules){
-        if(key==='高赔挑战'&&!radarAdmin())continue;
         const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
     }
 
@@ -1230,10 +1228,9 @@
     }
     function render(){
       if(!report)return;
-      if(active==='高赔挑战'&&!radarAdmin())active='胜平负';
       $('fixture-explanation').textContent=active==='绿色场次'
         ?'绿色场次：是指通过模型冷门评估和市场支持的比赛'
-        :active==='高赔挑战'?'管理员预览。双选任一方向打出即命中，实际打出 SP ≥ 2.50 的方向记为高赔命中。'
+        :active==='高赔挑战'?'双选任一方向打出即命中，实际打出 SP ≥ 2.50 的方向记为高赔命中。'
         :'预测赛前动态更新，停售前锁定最终推荐，赛果核验后自动更新命中率。';
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
