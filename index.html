@@ -588,14 +588,38 @@
         picks.push({play:'胜平负',label:'胜平负',directions:['胜','平'],sp:match.spf.slice(0,2)});
       }
       const sp=match.rqspf;
-      if(warning?.status==='TRIGGERED'&&warning.triggered===true&&warning.channels?.includes('A')&&
-         Array.isArray(sp)&&sp.length===3&&sp.every(value=>Number.isFinite(value)&&value>1)&&
-         Number.isFinite(match.handicap)){
-        const side=sp[0]<=sp[2]?0:2;
+      if(!Array.isArray(sp)||sp.length!==3||!sp.every(value=>Number.isFinite(value)&&value>1)||
+         !Number.isFinite(match.handicap))return picks;
+      const formalA=warning?.status==='TRIGGERED'&&warning.triggered===true&&warning.channels?.includes('A');
+      let indexes;
+      if(formalA){
+        indexes=[sp[0]<=sp[2]?0:2,1];
+      }else if(!visibleGreenPrediction(match)){
+        const ranked=[0,1,2].sort((left,right)=>sp[left]-sp[right]);
+        const coverage=1-(1/sp[ranked[2]])/sp.reduce((sum,value)=>sum+1/value,0);
+        const pair=ranked.slice(0,2);
+        if(coverage>=0.78&&pair.some(index=>sp[index]>=2.50)&&hasLowestDrawKelly(match)){
+          indexes=pair;
+        }
+      }
+      if(indexes){
+        const labels=['让胜','让平','让负'];
         picks.push({play:'让球',label:`让球（主队 ${match.handicap>0?'+':''}${match.handicap} 球）`,
-          directions:[side===0?'让胜':'让负','让平'],sp:[sp[side],sp[1]]});
+          directions:indexes.map(index=>labels[index]),sp:indexes.map(index=>sp[index])});
       }
       return picks;
+    }
+    function hasLowestDrawKelly(match){
+      const exchange=match.bifa,market=match.market;
+      const predicted=Date.parse(match.predicted_at);
+      if(exchange?.prematch_verified!==true||
+         !(Date.parse(exchange.captured_at)<=predicted&&Date.parse(market?.captured_at)<=predicted))return false;
+      const odds=market.william?.current?.split('/').map(Number);
+      const probabilities=exchange.index_rows?.map(row=>row?.avgProb);
+      if(odds?.length!==3||!odds.every(value=>Number.isFinite(value)&&value>1)||
+         probabilities?.length!==3||!probabilities.every(value=>Number.isFinite(value)&&value>0&&value<100))return false;
+      const kelly=odds.map((value,index)=>value*probabilities[index]);
+      return kelly[1]<Math.min(kelly[0],kelly[2]);
     }
     function highOddsResult(match,pick){
       if(match.result_verification?.status!=='VERIFIED'||match.settlement?.scope!=='90min_regular_ft')return null;
