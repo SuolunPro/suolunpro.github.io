@@ -33,10 +33,10 @@ jobs:
           // keys for retired modules may remain for backwards compatibility.
           const navigation=html.match(/const modules\s*=\s*\[([\s\S]*?)\];/);
           assert(navigation,'production navigation not found');
-          for(const retired of ['今日优选','精选研判','独立研判']){
+          for(const retired of ['今日优选','精选研判','独立研判','单选精选']){
             assert(!navigation[1].includes(retired),'retired module visible in navigation: '+retired);
           }
-          for(const required of ['大小球研判','单选精选']){
+          for(const required of ['大小球研判','绿色场次']){
             assert(navigation[1].includes(required),'missing production navigation module '+required);
           }
           for(const marker of ['vip-gate','vip-code','member-code-members.json','./data/engine4/','重要声明']){
