@@ -532,11 +532,12 @@
     function greenCard(card,match){
       const prediction=greenPrediction(match);
       const result=greenResult(match,prediction);
-      const analysis=el('div','analysis'),grid=el('div','triplet');
-      grid.style.gridTemplateColumns='1fr';
-      const cell=el('div','datum'+(result?.hit?' hit':' primary'));
-      cell.append(el('span','','推荐'),el('b','',prediction.homeSide?'胜／平':'负／平'));
-      grid.append(cell);
+      const analysis=el('div','analysis'),grid=el('div','triplet pair');
+      const direction=el('div','datum primary');
+      direction.append(el('span','','方向'),el('b','',prediction.homeSide?'主队不败':'客队不败'));
+      const recommendation=el('div','datum'+(result?.hit?' hit':''));
+      recommendation.append(el('span','','推荐'),el('b','',prediction.homeSide?'胜／平':'负／平'));
+      grid.append(direction,recommendation);
       analysis.append(grid);
       card.append(analysis);
       const box=el('div','v4-verdict'+(result?(result.hit?' hit':' miss'):''));
