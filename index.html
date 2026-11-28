@@ -1213,7 +1213,7 @@
         if(archived && !radarArchive)radarArchive=await getJson('./assets/double-draw-20261106-21.json');
         if(!current())return;
         const cards=document.createDocumentFragment();let wins=0,settled=0,total=0;
-        for(const m of source.matches){
+        for(const m of matchesByNumber(source.matches)){
           const mod=m.prediction?.modules||{},r=archived?radarArchive.find(x=>x.day===day&&x.id===String(m.source_id)):null;
           // Two independent admission paths: WATCH with handicap Top1 >= 55%, or formal cold-warning channel A.
           // Historical WATCH uses the pre-match archived Top4; live fixtures use current prematch predictions.
@@ -1251,6 +1251,13 @@
         if(!total)cards.append(el('div','empty','当日暂无重点关注赛事'));root.replaceChildren(cards);
       }catch(error){if(current())root.replaceChildren(el('div','error','雷达记录加载失败，请刷新重试'));}
     }
+    function matchesByNumber(matches){
+      const number=match=>{
+        const digits=String(match.match_no??'').trim().match(/\d+$/);
+        return digits?Number(digits[0]):Infinity;
+      };
+      return matches.slice().sort((left,right)=>number(left)-number(right));
+    }
     function render(){
       if(!report)return;
       $('fixture-explanation').textContent=active==='绿色场次'
@@ -1263,7 +1270,7 @@
       if(active==='双平预警'){renderRadar();return;}
       const isReviewSelected=isIndependentFeatured;
       const focus=active==='高赔挑战'?report.matches.filter(m=>highOddsPicks(m).length):active==='绿色场次'?report.matches.filter(visibleGreenPrediction):active==='单选精选'?report.matches.filter(isPublishedSinglePick):
-        active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return !!match.manual_cold_warning||(warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction))}):
+        active==='独立研判'?report.matches:active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return !!match.manual_cold_warning||(warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction))}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
       const root=$('matches');root.replaceChildren();
@@ -1275,7 +1282,7 @@
         cards.append(el('div','intel-summary',`全池 ${focus.length} 场 · 已完成 ${completed} 场 · 最终精选 ${selected} 场 · 其余待复核或未入选`));
       }
       if(!focus.length){cards.append(el('div','empty',active==='单选精选'?'今日暂无单选参考':active==='独立研判'?'当前日期暂无赛事':active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':active==='绿色场次'?'当日暂无绿色场次':'暂无赛事数据'));root.append(cards);return}
-      for(const match of focus){
+      for(const match of matchesByNumber(focus)){
         const card=el('article','card');fixture(card,match);
         if(active==='单选精选'){
           const pick=match.single_pick;
