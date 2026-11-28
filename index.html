@@ -586,6 +586,7 @@
       const picks=[];
       if(['WATCH','TRIGGERED'].includes(warning?.status)&&homeMarketConsensus(match)){
         picks.push({play:'胜平负',label:'胜平负',directions:['胜','平'],sp:match.spf.slice(0,2)});
+        return picks;
       }
       const sp=match.rqspf;
       if(!Array.isArray(sp)||sp.length!==3||!sp.every(value=>Number.isFinite(value)&&value>1)||
