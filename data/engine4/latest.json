@@ -287,9 +287,9 @@
               "7+": 0.024325465078045228
             },
             "top3_probabilities": {
+              "1": 0.1704975715514007,
               "2": 0.23851802364038613,
-              "3": 0.22245027532709713,
-              "1": 0.1704975715514007
+              "3": 0.22245027532709713
             }
           },
           "半全场": {
@@ -398,12 +398,134 @@
           },
           "total_delta": 2.66,
           "market_delta": {
-            "让胜": 0.0,
-            "让平": 0.0,
-            "让负": 0.0
+            "让胜": 0,
+            "让平": 0,
+            "让负": 0
           },
           "market_previous_at": "2026-11-27T18:26:07.882657+00:00"
         }
+      },
+      "settlement": {
+        "ht": "2:1",
+        "ft": "4:1",
+        "verified_at": "2026-11-28T07:07:03.895418+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5803678",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5803678,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": false,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": true,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": null,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "胜",
+              "负"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让负",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": false
+            },
+            "status": "MISS"
+          },
+          "比分": {
+            "actual": "4:1",
+            "picks": [
+              "1:1",
+              "1:0",
+              "2:1",
+              "0:1"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 5,
+            "picks": [
+              2,
+              3,
+              1
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "胜-胜",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "胜",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-28T07:07:03.895418+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -681,9 +803,9 @@
               "7+": 0.015674410410712714
             },
             "top3_probabilities": {
+              "1": 0.19892126362884055,
               "2": 0.2537783188182937,
-              "3": 0.215842301713933,
-              "1": 0.19892126362884055
+              "3": 0.215842301713933
             }
           },
           "半全场": {
@@ -810,11 +932,133 @@
           "total_delta": 1.4,
           "market_delta": {
             "让胜": 3.52,
-            "让平": -0.0,
+            "让平": 0,
             "让负": -3.52
           },
           "market_previous_at": "2026-11-27T18:26:15.550299+00:00"
         }
+      },
+      "settlement": {
+        "ht": "3:1",
+        "ft": "3:1",
+        "verified_at": "2026-11-28T09:07:05.624774+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=5803676",
+        "qiulaile_id": null,
+        "fotmob_match_id": 5803676,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": true,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": true,
+          "半全场Top3": true,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": null,
+          "单选精选": null,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "胜",
+            "picks": [
+              "胜",
+              "负"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让胜",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "3:1",
+            "picks": [
+              "1:1",
+              "1:0",
+              "0:1",
+              "2:1"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 4,
+            "picks": [
+              2,
+              3,
+              1
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "胜-胜",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-平"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top3": true
+            },
+            "status": "HIT"
+          },
+          "今日优选": {
+            "actual": "胜",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "胜",
+            "direction": null,
+            "upset_occurred": null,
+            "hit": null,
+            "status": "NO_FORMAL_TRIGGER"
+          },
+          "单选精选": {
+            "actual": "胜",
+            "direction": null,
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-28T09:07:05.624774+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -849,34 +1093,34 @@
           {
             "team": "中央海岸",
             "bfOdds": 3.9,
-            "bfVolume": 1418.0,
-            "bfProfitLoss": 4873.0,
+            "bfVolume": 1418,
+            "bfProfitLoss": 4873,
             "jcOdds": 3.5,
-            "jcSavedVolume": 55103321.0,
-            "jcProfitLoss": -4641952.0,
-            "savedPopularity": 3315.0,
+            "jcSavedVolume": 55103321,
+            "jcProfitLoss": -4641952,
+            "savedPopularity": 3315,
             "doerPct": 23.75
           },
           {
             "team": "平局",
             "bfOdds": 3.9,
-            "bfVolume": 572.0,
-            "bfProfitLoss": 8172.0,
+            "bfVolume": 572,
+            "bfProfitLoss": 8172,
             "jcOdds": 3.42,
-            "jcSavedVolume": 66377868.0,
-            "jcProfitLoss": -38792637.0,
-            "savedPopularity": 5627.0,
+            "jcSavedVolume": 66377868,
+            "jcProfitLoss": -38792637,
+            "savedPopularity": 5627,
             "doerPct": 40.32
           },
           {
             "team": "奥克兰FC",
             "bfOdds": 2.06,
-            "bfVolume": 8413.0,
-            "bfProfitLoss": -6928.0,
+            "bfVolume": 8413,
+            "bfProfitLoss": -6928,
             "jcOdds": 1.78,
-            "jcSavedVolume": 66738483.0,
-            "jcProfitLoss": 69425172.0,
-            "savedPopularity": 5014.0,
+            "jcSavedVolume": 66738483,
+            "jcProfitLoss": 69425172,
+            "savedPopularity": 5014,
             "doerPct": 35.93
           }
         ],
@@ -888,12 +1132,12 @@
             "bfShare": 13.63,
             "jcSavedShare": 29.28,
             "northShare": 32.95,
-            "bfHotCold": -49.0,
-            "jcHotCold": 8.0,
-            "bfMarketIndex": 22.0,
-            "jcMarketIndex": 36.0,
-            "bfProfitIndex": 47.0,
-            "jcProfitIndex": -2.0
+            "bfHotCold": -49,
+            "jcHotCold": 8,
+            "bfMarketIndex": 22,
+            "jcMarketIndex": 36,
+            "bfProfitIndex": 47,
+            "jcProfitIndex": -2
           },
           {
             "team": "平局",
@@ -902,12 +1146,12 @@
             "bfShare": 5.5,
             "jcSavedShare": 35.27,
             "northShare": 19.8,
-            "bfHotCold": -78.0,
-            "jcHotCold": 38.0,
-            "bfMarketIndex": 9.0,
-            "jcMarketIndex": 42.0,
-            "bfProfitIndex": 79.0,
-            "jcProfitIndex": -21.0
+            "bfHotCold": -78,
+            "jcHotCold": 38,
+            "bfMarketIndex": 9,
+            "jcMarketIndex": 42,
+            "bfProfitIndex": 79,
+            "jcProfitIndex": -21
           },
           {
             "team": "奥克兰FC",
@@ -916,12 +1160,12 @@
             "bfShare": 80.87,
             "jcSavedShare": 35.46,
             "northShare": 47.25,
-            "bfHotCold": 69.0,
-            "jcHotCold": -25.0,
-            "bfMarketIndex": 69.0,
-            "jcMarketIndex": 22.0,
-            "bfProfitIndex": -67.0,
-            "jcProfitIndex": 37.0
+            "bfHotCold": 69,
+            "jcHotCold": -25,
+            "bfMarketIndex": 69,
+            "jcMarketIndex": 22,
+            "bfProfitIndex": -67,
+            "jcProfitIndex": 37
           }
         ],
         "exchange_scale": null,
@@ -1199,9 +1443,9 @@
               "7+": 0.02399993603189421
             },
             "top3_probabilities": {
+              "1": 0.17138160720403842,
               "2": 0.23906454435593522,
-              "3": 0.22231812503298076,
-              "1": 0.17138160720403842
+              "3": 0.22231812503298076
             }
           },
           "半全场": {
@@ -1248,9 +1492,9 @@
             ],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -49.0,
-              -78.0,
-              69.0
+              -49,
+              -78,
+              69
             ],
             "institution_support": [
               26.86,
@@ -1343,7 +1587,7 @@
           "score_handicap_weights": {
             "让胜": 0.2937312688452386,
             "让平": 0.08298196500561544,
-            "让负": 0.0
+            "让负": 0
           },
           "xg_home_lambda": 1.469,
           "xg_away_lambda": 1.198,
@@ -1399,6 +1643,128 @@
           },
           "market_previous_at": "2026-11-27T18:26:23.177836+00:00"
         }
+      },
+      "settlement": {
+        "ht": "2:2",
+        "ft": "2:3",
+        "verified_at": "2026-11-28T10:47:04.425966+00:00",
+        "source_url": "https://www.fotmob.com/api/data/matchDetails?matchId=1000017587",
+        "qiulaile_id": null,
+        "fotmob_match_id": 1000017587,
+        "scope": "90min_regular_ft",
+        "hits": {
+          "胜平负Top1": true,
+          "胜平负Top2": true,
+          "让球Top1": false,
+          "让球Top2": true,
+          "比分Top1": false,
+          "比分Top3": false,
+          "比分Top4": false,
+          "总进球Top1": false,
+          "总进球Top3": false,
+          "半全场Top1": false,
+          "半全场Top3": false,
+          "今日优选Top1": null,
+          "今日优选Top2": null,
+          "冷门预警": false,
+          "单选精选": false,
+          "今日优选": null
+        },
+        "module_results": {
+          "胜平负": {
+            "actual": "负",
+            "picks": [
+              "负",
+              "胜"
+            ],
+            "hits": {
+              "Top1": true,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "让球": {
+            "actual": "让平",
+            "picks": [
+              "让胜",
+              "让平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top2": true
+            },
+            "status": "HIT"
+          },
+          "比分": {
+            "actual": "2:3",
+            "picks": [
+              "1:1",
+              "1:0",
+              "2:1",
+              "0:1"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false,
+              "Top4": false
+            },
+            "status": "MISS"
+          },
+          "总进球": {
+            "actual": 5,
+            "picks": [
+              2,
+              3,
+              1
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "半全场": {
+            "actual": "平-负",
+            "picks": [
+              "胜-胜",
+              "负-负",
+              "平-平"
+            ],
+            "hits": {
+              "Top1": false,
+              "Top3": false
+            },
+            "status": "MISS"
+          },
+          "今日优选": {
+            "actual": "负",
+            "picks": [],
+            "hits": {
+              "Top1": null,
+              "Top2": null
+            },
+            "hit": null,
+            "status": "NO_FORMAL_SELECTION"
+          },
+          "冷门预警": {
+            "actual": "负",
+            "direction": "主队不败",
+            "upset_occurred": false,
+            "hit": false,
+            "status": "MISS"
+          },
+          "单选精选": {
+            "actual": "让平",
+            "direction": "让胜",
+            "hit": false,
+            "status": "MISS"
+          }
+        }
+      },
+      "result_verification": {
+        "status": "VERIFIED",
+        "checked_at": "2026-11-28T10:47:04.425966+00:00",
+        "source": "supabase_independent"
       }
     },
     {
@@ -1433,34 +1799,34 @@
           {
             "team": "贝蒂斯",
             "bfOdds": 1.66,
-            "bfVolume": 384402.0,
-            "bfProfitLoss": -167302.0,
+            "bfVolume": 384402,
+            "bfProfitLoss": -167302,
             "jcOdds": 1.37,
-            "jcSavedVolume": 19110279.0,
-            "jcProfitLoss": 4732765.0,
-            "savedPopularity": 4878.0,
+            "jcSavedVolume": 19110279,
+            "jcProfitLoss": 4732765,
+            "savedPopularity": 4878,
             "doerPct": 65.94
           },
           {
             "team": "平局",
             "bfOdds": 4.5,
-            "bfVolume": 46303.0,
-            "bfProfitLoss": 262442.0,
+            "bfVolume": 46303,
+            "bfProfitLoss": 262442,
             "jcOdds": 4.4,
-            "jcSavedVolume": 11371196.0,
-            "jcProfitLoss": -19119415.0,
-            "savedPopularity": 1844.0,
+            "jcSavedVolume": 11371196,
+            "jcProfitLoss": -19119415,
+            "savedPopularity": 1844,
             "doerPct": 24.93
           },
           {
             "team": "巴列卡诺",
             "bfOdds": 5.7,
-            "bfVolume": 40100.0,
-            "bfProfitLoss": 242235.0,
+            "bfVolume": 40100,
+            "bfProfitLoss": 242235,
             "jcOdds": 5.5,
-            "jcSavedVolume": 432372.0,
-            "jcProfitLoss": 28535801.0,
-            "savedPopularity": 676.0,
+            "jcSavedVolume": 432372,
+            "jcProfitLoss": 28535801,
+            "savedPopularity": 676,
             "doerPct": 9.14
           }
         ],
@@ -1472,12 +1838,12 @@
             "bfShare": 81.65,
             "jcSavedShare": 61.82,
             "northShare": 6.12,
-            "bfHotCold": 38.0,
-            "jcHotCold": 4.0,
-            "bfMarketIndex": 59.0,
-            "jcMarketIndex": 33.0,
-            "bfProfitIndex": -36.0,
-            "jcProfitIndex": 15.0
+            "bfHotCold": 38,
+            "jcHotCold": 4,
+            "bfMarketIndex": 59,
+            "jcMarketIndex": 33,
+            "bfProfitIndex": -36,
+            "jcProfitIndex": 15
           },
           {
             "team": "平局",
@@ -1486,12 +1852,12 @@
             "bfShare": 9.83,
             "jcSavedShare": 36.78,
             "northShare": 11.67,
-            "bfHotCold": -56.0,
-            "jcHotCold": 66.0,
-            "bfMarketIndex": 19.0,
-            "jcMarketIndex": 64.0,
-            "bfProfitIndex": 56.0,
-            "jcProfitIndex": -62.0
+            "bfHotCold": -56,
+            "jcHotCold": 66,
+            "bfMarketIndex": 19,
+            "jcMarketIndex": 64,
+            "bfProfitIndex": 56,
+            "jcProfitIndex": -62
           },
           {
             "team": "巴列卡诺",
@@ -1500,12 +1866,12 @@
             "bfShare": 8.52,
             "jcSavedShare": 1.4,
             "northShare": 82.21,
-            "bfHotCold": -54.0,
-            "jcHotCold": -95.0,
-            "bfMarketIndex": 21.0,
-            "jcMarketIndex": 3.0,
-            "bfProfitIndex": 51.0,
-            "jcProfitIndex": 92.0
+            "bfHotCold": -54,
+            "jcHotCold": -95,
+            "bfMarketIndex": 21,
+            "jcMarketIndex": 3,
+            "bfProfitIndex": 51,
+            "jcProfitIndex": 92
           }
         ],
         "exchange_scale": null,
@@ -1783,8 +2149,8 @@
               "7+": 0.054029752518327534
             },
             "top3_probabilities": {
-              "3": 0.2199384230428334,
               "2": 0.19722660836002812,
+              "3": 0.2199384230428334,
               "4": 0.18394922850216724
             }
           },
@@ -1828,9 +2194,9 @@
             ],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              38.0,
-              -56.0,
-              -54.0
+              38,
+              -56,
+              -54
             ],
             "institution_support": [
               59.37,
@@ -2247,9 +2613,9 @@
               "7+": 0.094295
             },
             "top3_probabilities": {
+              "2": 0.158772,
               "3": 0.203016,
-              "4": 0.194693,
-              "2": 0.158772
+              "4": 0.194693
             }
           },
           "半全场": {
@@ -2658,8 +3024,8 @@
               "7+": 0.04844000565235029
             },
             "top3_probabilities": {
-              "3": 0.22164582557886037,
               "2": 0.20389290542830968,
+              "3": 0.22164582557886037,
               "4": 0.18070836707143786
             }
           },
@@ -2804,7 +3170,7 @@
               "2:2": 0.06766841538162263
             },
             "score_handicap_weights": {
-              "让胜": 0.0,
+              "让胜": 0,
               "让平": 0.08083259051777787,
               "让负": 0.2548242003570059
             },
@@ -2905,34 +3271,34 @@
           {
             "team": "科隆",
             "bfOdds": 2.1,
-            "bfVolume": 208400.0,
-            "bfProfitLoss": -200358.0,
+            "bfVolume": 208400,
+            "bfProfitLoss": -200358,
             "jcOdds": 1.78,
-            "jcSavedVolume": 11571017.0,
-            "jcProfitLoss": 1282865.0,
-            "savedPopularity": 1918.0,
+            "jcSavedVolume": 11571017,
+            "jcProfitLoss": 1282865,
+            "savedPopularity": 1918,
             "doerPct": 53.4
           },
           {
             "team": "平局",
             "bfOdds": 3.9,
-            "bfVolume": 18322.0,
-            "bfProfitLoss": 165826.0,
+            "bfVolume": 18322,
+            "bfProfitLoss": 165826,
             "jcOdds": 3.58,
-            "jcSavedVolume": 8859362.0,
-            "jcProfitLoss": -9837241.0,
-            "savedPopularity": 999.0,
+            "jcSavedVolume": 8859362,
+            "jcProfitLoss": -9837241,
+            "savedPopularity": 999,
             "doerPct": 27.81
           },
           {
             "team": "埃沃斯堡",
             "bfOdds": 3.75,
-            "bfVolume": 10560.0,
-            "bfProfitLoss": 197682.0,
+            "bfVolume": 10560,
+            "bfProfitLoss": 197682,
             "jcOdds": 3.35,
-            "jcSavedVolume": 1448896.0,
-            "jcProfitLoss": 17025473.0,
-            "savedPopularity": 675.0,
+            "jcSavedVolume": 1448896,
+            "jcProfitLoss": 17025473,
+            "savedPopularity": 675,
             "doerPct": 18.79
           }
         ],
@@ -2944,12 +3310,12 @@
             "bfShare": 87.83,
             "jcSavedShare": 52.89,
             "northShare": 89.13,
-            "bfHotCold": 86.0,
-            "jcHotCold": 12.0,
-            "bfMarketIndex": 80.0,
-            "jcMarketIndex": 36.0,
-            "bfProfitIndex": -84.0,
-            "jcProfitIndex": 6.0
+            "bfHotCold": 86,
+            "jcHotCold": 12,
+            "bfMarketIndex": 80,
+            "jcMarketIndex": 36,
+            "bfProfitIndex": -84,
+            "jcProfitIndex": 6
           },
           {
             "team": "平局",
@@ -2958,12 +3324,12 @@
             "bfShare": 7.72,
             "jcSavedShare": 40.49,
             "northShare": 4.94,
-            "bfHotCold": -69.0,
-            "jcHotCold": 58.0,
-            "bfMarketIndex": 13.0,
-            "jcMarketIndex": 55.0,
-            "bfProfitIndex": 70.0,
-            "jcProfitIndex": -45.0
+            "bfHotCold": -69,
+            "jcHotCold": 58,
+            "bfMarketIndex": 13,
+            "jcMarketIndex": 55,
+            "bfProfitIndex": 70,
+            "jcProfitIndex": -45
           },
           {
             "team": "埃沃斯堡",
@@ -2972,12 +3338,12 @@
             "bfShare": 4.45,
             "jcSavedShare": 6.62,
             "northShare": 5.93,
-            "bfHotCold": -84.0,
-            "jcHotCold": -74.0,
-            "bfMarketIndex": 7.0,
-            "jcMarketIndex": 8.0,
-            "bfProfitIndex": 83.0,
-            "jcProfitIndex": 78.0
+            "bfHotCold": -84,
+            "jcHotCold": -74,
+            "bfMarketIndex": 7,
+            "jcMarketIndex": 8,
+            "bfProfitIndex": 83,
+            "jcProfitIndex": 78
           }
         ],
         "exchange_scale": null,
@@ -3204,9 +3570,9 @@
               "7+": 0.021117
             },
             "top3_probabilities": {
+              "1": 0.179746,
               "2": 0.244006,
-              "3": 0.220825,
-              "1": 0.179746
+              "3": 0.220825
             }
           },
           "半全场": {
@@ -3248,9 +3614,9 @@
             ],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              86.0,
-              -69.0,
-              -84.0
+              86,
+              -69,
+              -84
             ],
             "institution_support": [
               47.28,
@@ -3383,34 +3749,34 @@
           {
             "team": "美因茨",
             "bfOdds": 1.51,
-            "bfVolume": 86676.0,
-            "bfProfitLoss": 12409.0,
+            "bfVolume": 86676,
+            "bfProfitLoss": 12409,
             "jcOdds": 1.33,
-            "jcSavedVolume": 63852482.0,
-            "jcProfitLoss": 92814565.0,
-            "savedPopularity": 1869.0,
+            "jcSavedVolume": 63852482,
+            "jcProfitLoss": 92814565,
+            "savedPopularity": 1869,
             "doerPct": 42.89
           },
           {
             "team": "平局",
-            "bfOdds": 5.0,
-            "bfVolume": 45293.0,
-            "bfProfitLoss": -83175.0,
+            "bfOdds": 5,
+            "bfVolume": 45293,
+            "bfProfitLoss": -83175,
             "jcOdds": 4.58,
-            "jcSavedVolume": 61122634.0,
-            "jcProfitLoss": -102203298.0,
-            "savedPopularity": 1234.0,
+            "jcSavedVolume": 61122634,
+            "jcProfitLoss": -102203298,
+            "savedPopularity": 1234,
             "doerPct": 28.32
           },
           {
             "team": "柏林联合",
             "bfOdds": 7.2,
-            "bfVolume": 11321.0,
-            "bfProfitLoss": 61779.0,
+            "bfVolume": 11321,
+            "bfProfitLoss": 61779,
             "jcOdds": 5.9,
-            "jcSavedVolume": 52763250.0,
-            "jcProfitLoss": -133564809.0,
-            "savedPopularity": 1255.0,
+            "jcSavedVolume": 52763250,
+            "jcProfitLoss": -133564809,
+            "savedPopularity": 1255,
             "doerPct": 28.8
           }
         ],
@@ -3422,12 +3788,12 @@
             "bfShare": 60.49,
             "jcSavedShare": 35.92,
             "northShare": 0.17,
-            "bfHotCold": -6.0,
-            "jcHotCold": -44.0,
-            "bfMarketIndex": 30.0,
-            "jcMarketIndex": 13.0,
-            "bfProfitIndex": 9.0,
-            "jcProfitIndex": 52.0
+            "bfHotCold": -6,
+            "jcHotCold": -44,
+            "bfMarketIndex": 30,
+            "jcMarketIndex": 13,
+            "bfProfitIndex": 9,
+            "jcProfitIndex": 52
           },
           {
             "team": "平局",
@@ -3436,12 +3802,12 @@
             "bfShare": 31.61,
             "jcSavedShare": 34.39,
             "northShare": 0.22,
-            "bfHotCold": 58.0,
-            "jcHotCold": 70.0,
-            "bfMarketIndex": 52.0,
-            "jcMarketIndex": 41.0,
-            "bfProfitIndex": -58.0,
-            "jcProfitIndex": -58.0
+            "bfHotCold": 58,
+            "jcHotCold": 70,
+            "bfMarketIndex": 52,
+            "jcMarketIndex": 41,
+            "bfProfitIndex": -58,
+            "jcProfitIndex": -58
           },
           {
             "team": "柏林联合",
@@ -3450,12 +3816,12 @@
             "bfShare": 7.9,
             "jcSavedShare": 29.69,
             "northShare": 99.61,
-            "bfHotCold": -49.0,
-            "jcHotCold": 92.0,
-            "bfMarketIndex": 19.0,
-            "jcMarketIndex": 46.0,
-            "bfProfitIndex": 43.0,
-            "jcProfitIndex": -75.0
+            "bfHotCold": -49,
+            "jcHotCold": 92,
+            "bfMarketIndex": 19,
+            "jcMarketIndex": 46,
+            "bfProfitIndex": 43,
+            "jcProfitIndex": -75
           }
         ],
         "exchange_scale": null,
@@ -3739,9 +4105,9 @@
               "7+": 0.06371320437397288
             },
             "top3_probabilities": {
+              "2": 0.18659091259377375,
               "3": 0.21640949225869457,
-              "4": 0.1882449727400152,
-              "2": 0.18659091259377375
+              "4": 0.1882449727400152
             }
           },
           "半全场": {
@@ -3782,9 +4148,9 @@
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              -6.0,
-              58.0,
-              -49.0
+              -6,
+              58,
+              -49
             ],
             "institution_support": [
               64.41,
@@ -3911,7 +4277,7 @@
           ],
           "delta": {
             "胜": -0.49,
-            "平": 0.0
+            "平": 0
           },
           "total_delta": -0.49
         },
@@ -3927,9 +4293,9 @@
           },
           "total_delta": 20.13,
           "market_delta": {
-            "让胜": 0.0,
-            "让平": 0.0,
-            "让负": 0.0
+            "让胜": 0,
+            "让平": 0,
+            "让负": 0
           },
           "market_previous_at": "2026-11-27T18:26:52.350533+00:00"
         }
@@ -3967,34 +4333,34 @@
           {
             "team": "曼联",
             "bfOdds": 2.44,
-            "bfVolume": 1142041.0,
-            "bfProfitLoss": -938126.0,
+            "bfVolume": 1142041,
+            "bfProfitLoss": -938126,
             "jcOdds": 1.96,
-            "jcSavedVolume": 2880870.0,
-            "jcProfitLoss": -568383.0,
-            "savedPopularity": 2497.0,
+            "jcSavedVolume": 2880870,
+            "jcProfitLoss": -568383,
+            "savedPopularity": 2497,
             "doerPct": 52.55
           },
           {
             "team": "平局",
             "bfOdds": 3.85,
-            "bfVolume": 205489.0,
-            "bfProfitLoss": 1057321.0,
+            "bfVolume": 205489,
+            "bfProfitLoss": 1057321,
             "jcOdds": 3.5,
-            "jcSavedVolume": 962330.0,
-            "jcProfitLoss": 1709967.0,
-            "savedPopularity": 1068.0,
+            "jcSavedVolume": 962330,
+            "jcProfitLoss": 1709967,
+            "savedPopularity": 1068,
             "doerPct": 22.47
           },
           {
             "team": "布伦特",
-            "bfOdds": 3.0,
-            "bfVolume": 500924.0,
-            "bfProfitLoss": 345682.0,
+            "bfOdds": 3,
+            "bfVolume": 500924,
+            "bfProfitLoss": 345682,
             "jcOdds": 2.92,
-            "jcSavedVolume": 1234922.0,
-            "jcProfitLoss": 1472150.0,
-            "savedPopularity": 1187.0,
+            "jcSavedVolume": 1234922,
+            "jcProfitLoss": 1472150,
+            "savedPopularity": 1187,
             "doerPct": 24.98
           }
         ],
@@ -4006,12 +4372,12 @@
             "bfShare": 61.78,
             "jcSavedShare": 56.73,
             "northShare": 49.4,
-            "bfHotCold": 48.0,
-            "jcHotCold": 37.0,
-            "bfMarketIndex": 55.0,
-            "jcMarketIndex": 45.0,
-            "bfProfitIndex": -51.0,
-            "jcProfitIndex": -11.0
+            "bfHotCold": 48,
+            "jcHotCold": 37,
+            "bfMarketIndex": 55,
+            "jcMarketIndex": 45,
+            "bfProfitIndex": -51,
+            "jcProfitIndex": -11
           },
           {
             "team": "平局",
@@ -4020,12 +4386,12 @@
             "bfShare": 11.12,
             "jcSavedShare": 18.95,
             "northShare": 10.32,
-            "bfHotCold": -56.0,
-            "jcHotCold": -26.0,
-            "bfMarketIndex": 16.0,
-            "jcMarketIndex": 27.0,
-            "bfProfitIndex": 57.0,
-            "jcProfitIndex": 34.0
+            "bfHotCold": -56,
+            "jcHotCold": -26,
+            "bfMarketIndex": 16,
+            "jcMarketIndex": 27,
+            "bfProfitIndex": 57,
+            "jcProfitIndex": 34
           },
           {
             "team": "布伦特",
@@ -4034,12 +4400,12 @@
             "bfShare": 27.1,
             "jcSavedShare": 24.32,
             "northShare": 40.28,
-            "bfHotCold": -17.0,
-            "jcHotCold": -27.0,
-            "bfMarketIndex": 30.0,
-            "jcMarketIndex": 29.0,
-            "bfProfitIndex": 19.0,
-            "jcProfitIndex": 29.0
+            "bfHotCold": -17,
+            "jcHotCold": -27,
+            "bfMarketIndex": 30,
+            "jcMarketIndex": 29,
+            "bfProfitIndex": 19,
+            "jcProfitIndex": 29
           }
         ],
         "exchange_scale": null,
@@ -4317,9 +4683,9 @@
               "7+": 0.079995567282647
             },
             "top3_probabilities": {
+              "2": 0.17084586680416808,
               "3": 0.20952998606109383,
-              "4": 0.19272992616095483,
-              "2": 0.17084586680416808
+              "4": 0.19272992616095483
             }
           },
           "半全场": {
@@ -4372,9 +4738,9 @@
             ],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              48.0,
-              -56.0,
-              -17.0
+              48,
+              -56,
+              -17
             ],
             "institution_support": [
               41.71,
@@ -4474,7 +4840,7 @@
               "2:1": 0.06988660196680749
             },
             "score_handicap_weights": {
-              "让胜": 0.0,
+              "让胜": 0,
               "让平": 0.06988660196680749,
               "让负": 0.24099012331170705
             },
@@ -4543,7 +4909,7 @@
             "2:1": 0.06988660196680749
           },
           "score_handicap_weights": {
-            "让胜": 0.0,
+            "让胜": 0,
             "让平": 0.06988660196680749,
             "让负": 0.24099012331170705
           },
@@ -4635,34 +5001,34 @@
           {
             "team": "利兹联",
             "bfOdds": 1.52,
-            "bfVolume": 867982.0,
-            "bfProfitLoss": -274058.0,
+            "bfVolume": 867982,
+            "bfProfitLoss": -274058,
             "jcOdds": 1.31,
-            "jcSavedVolume": 10727998.0,
-            "jcProfitLoss": 6106242.0,
-            "savedPopularity": 3122.0,
+            "jcSavedVolume": 10727998,
+            "jcProfitLoss": 6106242,
+            "savedPopularity": 3122,
             "doerPct": 68.74
           },
           {
             "team": "平局",
             "bfOdds": 4.8,
-            "bfVolume": 105469.0,
-            "bfProfitLoss": 539024.0,
+            "bfVolume": 105469,
+            "bfProfitLoss": 539024,
             "jcOdds": 4.5,
-            "jcSavedVolume": 8727822.0,
-            "jcProfitLoss": -19115280.0,
-            "savedPopularity": 842.0,
+            "jcSavedVolume": 8727822,
+            "jcProfitLoss": -19115280,
+            "savedPopularity": 842,
             "doerPct": 18.54
           },
           {
             "team": "考文垂",
             "bfOdds": 7.4,
-            "bfVolume": 71824.0,
-            "bfProfitLoss": 513777.0,
+            "bfVolume": 71824,
+            "bfProfitLoss": 513777,
             "jcOdds": 6.5,
-            "jcSavedVolume": 704099.0,
-            "jcProfitLoss": 15583276.0,
-            "savedPopularity": 578.0,
+            "jcSavedVolume": 704099,
+            "jcProfitLoss": 15583276,
+            "savedPopularity": 578,
             "doerPct": 12.73
           }
         ],
@@ -4674,12 +5040,12 @@
             "bfShare": 83.04,
             "jcSavedShare": 53.21,
             "northShare": 36.34,
-            "bfHotCold": 29.0,
-            "jcHotCold": -18.0,
-            "bfMarketIndex": 56.0,
-            "jcMarketIndex": 24.0,
-            "bfProfitIndex": -26.0,
-            "jcProfitIndex": 30.0
+            "bfHotCold": 29,
+            "jcHotCold": -18,
+            "bfMarketIndex": 56,
+            "jcMarketIndex": 24,
+            "bfProfitIndex": -26,
+            "jcProfitIndex": 30
           },
           {
             "team": "平局",
@@ -4688,12 +5054,12 @@
             "bfShare": 10.09,
             "jcSavedShare": 43.29,
             "northShare": 35.55,
-            "bfHotCold": -52.0,
-            "jcHotCold": 106.0,
-            "bfMarketIndex": 21.0,
-            "jcMarketIndex": 68.0,
-            "bfProfitIndex": 52.0,
-            "jcProfitIndex": -95.0
+            "bfHotCold": -52,
+            "jcHotCold": 106,
+            "bfMarketIndex": 21,
+            "jcMarketIndex": 68,
+            "bfProfitIndex": 52,
+            "jcProfitIndex": -95
           },
           {
             "team": "考文垂",
@@ -4702,12 +5068,12 @@
             "bfShare": 6.87,
             "jcSavedShare": 3.49,
             "northShare": 28.11,
-            "bfHotCold": -53.0,
-            "jcHotCold": -73.0,
-            "bfMarketIndex": 23.0,
-            "jcMarketIndex": 8.0,
-            "bfProfitIndex": 49.0,
-            "jcProfitIndex": 77.0
+            "bfHotCold": -53,
+            "jcHotCold": -73,
+            "bfMarketIndex": 23,
+            "jcMarketIndex": 8,
+            "bfProfitIndex": 49,
+            "jcProfitIndex": 77
           }
         ],
         "exchange_scale": null,
@@ -4991,9 +5357,9 @@
               "7+": 0.01590475582814599
             },
             "top3_probabilities": {
+              "1": 0.1979948300999993,
               "2": 0.2533556581954776,
-              "3": 0.2161305239038963,
-              "1": 0.1979948300999993
+              "3": 0.2161305239038963
             }
           },
           "半全场": {
@@ -5034,9 +5400,9 @@
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              29.0,
-              -52.0,
-              -53.0
+              29,
+              -52,
+              -53
             ],
             "institution_support": [
               64.31,
@@ -5154,34 +5520,34 @@
           {
             "team": "摩雷伦斯",
             "bfOdds": 2.8,
-            "bfVolume": 6826.0,
-            "bfProfitLoss": 4688.0,
+            "bfVolume": 6826,
+            "bfProfitLoss": 4688,
             "jcOdds": 2.68,
-            "jcSavedVolume": 826776.0,
-            "jcProfitLoss": 18324408.0,
-            "savedPopularity": 514.0,
+            "jcSavedVolume": 826776,
+            "jcProfitLoss": 18324408,
+            "savedPopularity": 514,
             "doerPct": 23.01
           },
           {
             "team": "平局",
             "bfOdds": 3.25,
-            "bfVolume": 8289.0,
-            "bfProfitLoss": -3138.0,
+            "bfVolume": 8289,
+            "bfProfitLoss": -3138,
             "jcOdds": 2.8,
-            "jcSavedVolume": 9350787.0,
-            "jcProfitLoss": -5642036.0,
-            "savedPopularity": 960.0,
+            "jcSavedVolume": 9350787,
+            "jcProfitLoss": -5642036,
+            "savedPopularity": 960,
             "doerPct": 42.97
           },
           {
             "team": "圣克拉拉",
-            "bfOdds": 3.0,
-            "bfVolume": 8686.0,
-            "bfProfitLoss": -2257.0,
+            "bfOdds": 3,
+            "bfVolume": 8686,
+            "bfProfitLoss": -2257,
             "jcOdds": 2.45,
-            "jcSavedVolume": 10362605.0,
-            "jcProfitLoss": -4848214.0,
-            "savedPopularity": 760.0,
+            "jcSavedVolume": 10362605,
+            "jcProfitLoss": -4848214,
+            "savedPopularity": 760,
             "doerPct": 34.02
           }
         ],
@@ -5193,12 +5559,12 @@
             "bfShare": 28.68,
             "jcSavedShare": 4.03,
             "northShare": 33.8,
-            "bfHotCold": -18.0,
-            "jcHotCold": -89.0,
-            "bfMarketIndex": 27.0,
-            "jcMarketIndex": 4.0,
-            "bfProfitIndex": 20.0,
-            "jcProfitIndex": 89.0
+            "bfHotCold": -18,
+            "jcHotCold": -89,
+            "bfMarketIndex": 27,
+            "jcMarketIndex": 4,
+            "bfProfitIndex": 20,
+            "jcProfitIndex": 89
           },
           {
             "team": "平局",
@@ -5207,12 +5573,12 @@
             "bfShare": 34.83,
             "jcSavedShare": 45.52,
             "northShare": 24.73,
-            "bfHotCold": 13.0,
-            "jcHotCold": 49.0,
-            "bfMarketIndex": 37.0,
-            "jcMarketIndex": 49.0,
-            "bfProfitIndex": -13.0,
-            "jcProfitIndex": -27.0
+            "bfHotCold": 13,
+            "jcHotCold": 49,
+            "bfMarketIndex": 37,
+            "jcMarketIndex": 49,
+            "bfProfitIndex": -13,
+            "jcProfitIndex": -27
           },
           {
             "team": "圣克拉拉",
@@ -5221,12 +5587,12 @@
             "bfShare": 36.49,
             "jcSavedShare": 50.45,
             "northShare": 41.47,
-            "bfHotCold": 7.0,
-            "jcHotCold": 46.0,
-            "bfMarketIndex": 36.0,
-            "jcMarketIndex": 47.0,
-            "bfProfitIndex": -9.0,
-            "jcProfitIndex": -24.0
+            "bfHotCold": 7,
+            "jcHotCold": 46,
+            "bfMarketIndex": 36,
+            "jcMarketIndex": 47,
+            "bfProfitIndex": -9,
+            "jcProfitIndex": -24
           }
         ],
         "exchange_scale": null,
@@ -5504,8 +5870,8 @@
               "7+": 0.010269043301916359
             },
             "top3_probabilities": {
-              "2": 0.26362851463762293,
               "1": 0.22508002189811174,
+              "2": 0.26362851463762293,
               "3": 0.20585269524424324
             }
           },
@@ -5554,9 +5920,9 @@
             ],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -18.0,
-              13.0,
-              7.0
+              -18,
+              13,
+              7
             ],
             "institution_support": [
               34.85,
@@ -5674,34 +6040,34 @@
           {
             "team": "都灵",
             "bfOdds": 3.65,
-            "bfVolume": 65202.0,
-            "bfProfitLoss": 407759.0,
+            "bfVolume": 65202,
+            "bfProfitLoss": 407759,
             "jcOdds": 3.62,
-            "jcSavedVolume": 452423.0,
-            "jcProfitLoss": 21250471.0,
-            "savedPopularity": 496.0,
+            "jcSavedVolume": 452423,
+            "jcProfitLoss": 21250471,
+            "savedPopularity": 496,
             "doerPct": 8.01
           },
           {
             "team": "平局",
             "bfOdds": 3.5,
-            "bfVolume": 64738.0,
-            "bfProfitLoss": 419163.0,
+            "bfVolume": 64738,
+            "bfProfitLoss": 419163,
             "jcOdds": 3.55,
-            "jcSavedVolume": 8646753.0,
-            "jcProfitLoss": -7807731.0,
-            "savedPopularity": 1304.0,
+            "jcSavedVolume": 8646753,
+            "jcProfitLoss": -7807731,
+            "savedPopularity": 1304,
             "doerPct": 21.05
           },
           {
             "team": "拉齐奥",
             "bfOdds": 2.26,
-            "bfVolume": 515806.0,
-            "bfProfitLoss": -519976.0,
+            "bfVolume": 515806,
+            "bfProfitLoss": -519976,
             "jcOdds": 1.72,
-            "jcSavedVolume": 13789066.0,
-            "jcProfitLoss": -828952.0,
-            "savedPopularity": 4396.0,
+            "jcSavedVolume": 13789066,
+            "jcProfitLoss": -828952,
+            "savedPopularity": 4396,
             "doerPct": 70.95
           }
         ],
@@ -5713,12 +6079,12 @@
             "bfShare": 10.1,
             "jcSavedShare": 1.98,
             "northShare": 0.18,
-            "bfHotCold": -64.0,
-            "jcHotCold": -93.0,
-            "bfMarketIndex": 15.0,
-            "jcMarketIndex": 3.0,
-            "bfProfitIndex": 63.0,
-            "jcProfitIndex": 93.0
+            "bfHotCold": -64,
+            "jcHotCold": -93,
+            "bfMarketIndex": 15,
+            "jcMarketIndex": 3,
+            "bfProfitIndex": 63,
+            "jcProfitIndex": 93
           },
           {
             "team": "平局",
@@ -5727,12 +6093,12 @@
             "bfShare": 10.03,
             "jcSavedShare": 37.78,
             "northShare": 2.94,
-            "bfHotCold": -64.0,
-            "jcHotCold": 37.0,
-            "bfMarketIndex": 14.0,
-            "jcMarketIndex": 55.0,
-            "bfProfitIndex": 65.0,
-            "jcProfitIndex": -34.0
+            "bfHotCold": -64,
+            "jcHotCold": 37,
+            "bfMarketIndex": 14,
+            "jcMarketIndex": 55,
+            "bfProfitIndex": 65,
+            "jcProfitIndex": -34
           },
           {
             "team": "拉齐奥",
@@ -5741,12 +6107,12 @@
             "bfShare": 79.88,
             "jcSavedShare": 60.25,
             "northShare": 96.88,
-            "bfHotCold": 80.0,
-            "jcHotCold": 35.0,
-            "bfMarketIndex": 72.0,
-            "jcMarketIndex": 42.0,
-            "bfProfitIndex": -81.0,
-            "jcProfitIndex": -4.0
+            "bfHotCold": 80,
+            "jcHotCold": 35,
+            "bfMarketIndex": 72,
+            "jcMarketIndex": 42,
+            "bfProfitIndex": -81,
+            "jcProfitIndex": -4
           }
         ],
         "exchange_scale": null,
@@ -6024,9 +6390,9 @@
               "7+": 0.015715462746180853
             },
             "top3_probabilities": {
+              "1": 0.19875526433414306,
               "2": 0.25370295530982423,
-              "3": 0.21589428838047212,
-              "1": 0.19875526433414306
+              "3": 0.21589428838047212
             }
           },
           "半全场": {
@@ -6070,9 +6436,9 @@
             ],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -64.0,
-              -64.0,
-              80.0
+              -64,
+              -64,
+              80
             ],
             "institution_support": [
               27.73,
@@ -6211,34 +6577,34 @@
           {
             "team": "伊普斯",
             "bfOdds": 3.7,
-            "bfVolume": 73205.0,
-            "bfProfitLoss": 170295.0,
+            "bfVolume": 73205,
+            "bfProfitLoss": 170295,
             "jcOdds": 3.5,
-            "jcSavedVolume": 815850.0,
-            "jcProfitLoss": 17555895.0,
-            "savedPopularity": 514.0,
+            "jcSavedVolume": 815850,
+            "jcProfitLoss": 17555895,
+            "savedPopularity": 514,
             "doerPct": 13.75
           },
           {
             "team": "平局",
             "bfOdds": 3.85,
-            "bfVolume": 61190.0,
-            "bfProfitLoss": 205572.0,
+            "bfVolume": 61190,
+            "bfProfitLoss": 205572,
             "jcOdds": 3.6,
-            "jcSavedVolume": 8839163.0,
-            "jcProfitLoss": -11409617.0,
-            "savedPopularity": 1098.0,
+            "jcSavedVolume": 8839163,
+            "jcProfitLoss": -11409617,
+            "savedPopularity": 1098,
             "doerPct": 29.37
           },
           {
             "team": "维拉",
             "bfOdds": 2.1,
-            "bfVolume": 306758.0,
-            "bfProfitLoss": -203039.0,
+            "bfVolume": 306758,
+            "bfProfitLoss": -203039,
             "jcOdds": 1.74,
-            "jcSavedVolume": 10756357.0,
-            "jcProfitLoss": 1695309.0,
-            "savedPopularity": 2127.0,
+            "jcSavedVolume": 10756357,
+            "jcProfitLoss": 1695309,
+            "savedPopularity": 2127,
             "doerPct": 56.89
           }
         ],
@@ -6248,14 +6614,14 @@
             "avgOdds": 3.41,
             "avgProb": 27.65,
             "bfShare": 16.59,
-            "jcSavedShare": 4.0,
+            "jcSavedShare": 4,
             "northShare": 63.75,
-            "bfHotCold": -40.0,
-            "jcHotCold": -86.0,
-            "bfMarketIndex": 24.0,
-            "jcMarketIndex": 5.0,
-            "bfProfitIndex": 39.0,
-            "jcProfitIndex": 86.0
+            "bfHotCold": -40,
+            "jcHotCold": -86,
+            "bfMarketIndex": 24,
+            "jcMarketIndex": 5,
+            "bfProfitIndex": 39,
+            "jcProfitIndex": 86
           },
           {
             "team": "平局",
@@ -6264,26 +6630,26 @@
             "bfShare": 13.87,
             "jcSavedShare": 43.31,
             "northShare": 12.32,
-            "bfHotCold": -45.0,
-            "jcHotCold": 71.0,
-            "bfMarketIndex": 20.0,
-            "jcMarketIndex": 60.0,
-            "bfProfitIndex": 47.0,
-            "jcProfitIndex": -56.0
+            "bfHotCold": -45,
+            "jcHotCold": 71,
+            "bfMarketIndex": 20,
+            "jcMarketIndex": 60,
+            "bfProfitIndex": 47,
+            "jcProfitIndex": -56
           },
           {
             "team": "维拉",
-            "avgOdds": 2.0,
+            "avgOdds": 2,
             "avgProb": 47.14,
             "bfShare": 69.54,
             "jcSavedShare": 52.7,
             "northShare": 23.93,
-            "bfHotCold": 48.0,
-            "jcHotCold": 12.0,
-            "bfMarketIndex": 56.0,
-            "jcMarketIndex": 35.0,
-            "bfProfitIndex": -46.0,
-            "jcProfitIndex": 8.0
+            "bfHotCold": 48,
+            "jcHotCold": 12,
+            "bfMarketIndex": 56,
+            "jcMarketIndex": 35,
+            "bfProfitIndex": -46,
+            "jcProfitIndex": 8
           }
         ],
         "exchange_scale": null,
@@ -6510,8 +6876,8 @@
               "7+": 0.043653
             },
             "top3_probabilities": {
-              "3": 0.22283,
               "2": 0.209953,
+              "3": 0.22283,
               "4": 0.177373
             }
           },
@@ -6551,9 +6917,9 @@
             "watch": [],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -40.0,
-              -45.0,
-              48.0
+              -40,
+              -45,
+              48
             ],
             "institution_support": [
               27.65,
@@ -6670,34 +7036,34 @@
           {
             "team": "斯图加特",
             "bfOdds": 1.85,
-            "bfVolume": 120487.0,
-            "bfProfitLoss": -44658.0,
+            "bfVolume": 120487,
+            "bfProfitLoss": -44658,
             "jcOdds": 1.6,
-            "jcSavedVolume": 9714955.0,
-            "jcProfitLoss": 3537433.0,
-            "savedPopularity": 1023.0,
+            "jcSavedVolume": 9714955,
+            "jcProfitLoss": 3537433,
+            "savedPopularity": 1023,
             "doerPct": 42.24
           },
           {
             "team": "平局",
             "bfOdds": 4.7,
-            "bfVolume": 27243.0,
-            "bfProfitLoss": 50201.0,
+            "bfVolume": 27243,
+            "bfProfitLoss": 50201,
             "jcOdds": 4.25,
-            "jcSavedVolume": 8547161.0,
-            "jcProfitLoss": -17244073.0,
-            "savedPopularity": 741.0,
+            "jcSavedVolume": 8547161,
+            "jcProfitLoss": -17244073,
+            "savedPopularity": 741,
             "doerPct": 30.59
           },
           {
             "team": "法兰克福",
-            "bfOdds": 4.0,
-            "bfVolume": 30513.0,
-            "bfProfitLoss": 56191.0,
+            "bfOdds": 4,
+            "bfVolume": 30513,
+            "bfProfitLoss": 56191,
             "jcOdds": 3.58,
-            "jcSavedVolume": 819245.0,
-            "jcProfitLoss": 16148464.0,
-            "savedPopularity": 658.0,
+            "jcSavedVolume": 819245,
+            "jcProfitLoss": 16148464,
+            "savedPopularity": 658,
             "doerPct": 27.17
           }
         ],
@@ -6709,12 +7075,12 @@
             "bfShare": 67.6,
             "jcSavedShare": 50.91,
             "northShare": 6.72,
-            "bfHotCold": 28.0,
-            "jcHotCold": -4.0,
-            "bfMarketIndex": 47.0,
-            "jcMarketIndex": 28.0,
-            "bfProfitIndex": -25.0,
-            "jcProfitIndex": 19.0
+            "bfHotCold": 28,
+            "jcHotCold": -4,
+            "bfMarketIndex": 47,
+            "jcMarketIndex": 28,
+            "bfProfitIndex": -25,
+            "jcProfitIndex": 19
           },
           {
             "team": "平局",
@@ -6723,12 +7089,12 @@
             "bfShare": 15.28,
             "jcSavedShare": 44.79,
             "northShare": 11.45,
-            "bfHotCold": -29.0,
-            "jcHotCold": 110.0,
-            "bfMarketIndex": 27.0,
-            "jcMarketIndex": 66.0,
-            "bfProfitIndex": 28.0,
-            "jcProfitIndex": -90.0
+            "bfHotCold": -29,
+            "jcHotCold": 110,
+            "bfMarketIndex": 27,
+            "jcMarketIndex": 66,
+            "bfProfitIndex": 28,
+            "jcProfitIndex": -90
           },
           {
             "team": "法兰克福",
@@ -6737,12 +7103,12 @@
             "bfShare": 17.12,
             "jcSavedShare": 4.29,
             "northShare": 81.83,
-            "bfHotCold": -33.0,
-            "jcHotCold": -84.0,
-            "bfMarketIndex": 26.0,
-            "jcMarketIndex": 5.0,
-            "bfProfitIndex": 32.0,
-            "jcProfitIndex": 85.0
+            "bfHotCold": -33,
+            "jcHotCold": -84,
+            "bfMarketIndex": 26,
+            "jcMarketIndex": 5,
+            "bfProfitIndex": 32,
+            "jcProfitIndex": 85
           }
         ],
         "exchange_scale": null,
@@ -7026,9 +7392,9 @@
               "7+": 0.08303346164274983
             },
             "top3_probabilities": {
+              "2": 0.16815774806990322,
               "3": 0.20817012285679484,
-              "4": 0.1932774457954152,
-              "2": 0.16815774806990322
+              "4": 0.1932774457954152
             }
           },
           "半全场": {
@@ -7069,9 +7435,9 @@
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              28.0,
-              -29.0,
-              -33.0
+              28,
+              -29,
+              -33
             ],
             "institution_support": [
               52.9,
@@ -7101,7 +7467,7 @@
           "home_xgf": 1.808,
           "home_xga": 1.714,
           "away_xgf": 1.712,
-          "away_xga": 2.0,
+          "away_xga": 2,
           "xg_top1": "胜",
           "xg_probabilities": {
             "胜": 0.4296,
@@ -7227,7 +7593,7 @@
       "kickoff": "2026-11-29 01:30",
       "spf": [
         6.6,
-        5.0,
+        5,
         1.27
       ],
       "rqspf": [
@@ -7250,34 +7616,34 @@
           {
             "team": "埃尔切",
             "bfOdds": 7.6,
-            "bfVolume": 28443.0,
-            "bfProfitLoss": 845868.0,
+            "bfVolume": 28443,
+            "bfProfitLoss": 845868,
             "jcOdds": 6.6,
-            "jcSavedVolume": 88009.0,
-            "jcProfitLoss": 26920955.0,
-            "savedPopularity": 590.0,
+            "jcSavedVolume": 88009,
+            "jcProfitLoss": 26920955,
+            "savedPopularity": 590,
             "doerPct": 11.84
           },
           {
             "team": "平局",
             "bfOdds": 5.1,
-            "bfVolume": 47307.0,
-            "bfProfitLoss": 820769.0,
-            "jcOdds": 5.0,
-            "jcSavedVolume": 7955434.0,
-            "jcProfitLoss": -12275356.0,
-            "savedPopularity": 595.0,
+            "bfVolume": 47307,
+            "bfProfitLoss": 820769,
+            "jcOdds": 5,
+            "jcSavedVolume": 7955434,
+            "jcProfitLoss": -12275356,
+            "savedPopularity": 595,
             "doerPct": 11.94
           },
           {
             "team": "马竞",
             "bfOdds": 1.49,
-            "bfVolume": 986285.0,
-            "bfProfitLoss": -407530.0,
+            "bfVolume": 986285,
+            "bfProfitLoss": -407530,
             "jcOdds": 1.27,
-            "jcSavedVolume": 19458371.0,
-            "jcProfitLoss": 2789683.0,
-            "savedPopularity": 3797.0,
+            "jcSavedVolume": 19458371,
+            "jcProfitLoss": 2789683,
+            "savedPopularity": 3797,
             "doerPct": 76.21
           }
         ],
@@ -7289,12 +7655,12 @@
             "bfShare": 2.68,
             "jcSavedShare": 0.32,
             "northShare": 1.59,
-            "bfHotCold": -82.0,
-            "jcHotCold": -100.0,
-            "bfMarketIndex": 11.0,
-            "jcMarketIndex": 1.0,
-            "bfProfitIndex": 80.0,
-            "jcProfitIndex": 98.0
+            "bfHotCold": -82,
+            "jcHotCold": -100,
+            "bfMarketIndex": 11,
+            "jcMarketIndex": 1,
+            "bfProfitIndex": 80,
+            "jcProfitIndex": 98
           },
           {
             "team": "平局",
@@ -7303,12 +7669,12 @@
             "bfShare": 4.45,
             "jcSavedShare": 28.93,
             "northShare": 49.13,
-            "bfHotCold": -78.0,
-            "jcHotCold": 44.0,
-            "bfMarketIndex": 13.0,
-            "jcMarketIndex": 61.0,
-            "bfProfitIndex": 77.0,
-            "jcProfitIndex": -45.0
+            "bfHotCold": -78,
+            "jcHotCold": 44,
+            "bfMarketIndex": 13,
+            "jcMarketIndex": 61,
+            "bfProfitIndex": 77,
+            "jcProfitIndex": -45
           },
           {
             "team": "马竞",
@@ -7317,12 +7683,12 @@
             "bfShare": 92.87,
             "jcSavedShare": 70.75,
             "northShare": 49.28,
-            "bfHotCold": 43.0,
-            "jcHotCold": 9.0,
-            "bfMarketIndex": 76.0,
-            "jcMarketIndex": 38.0,
-            "bfProfitIndex": -38.0,
-            "jcProfitIndex": 10.0
+            "bfHotCold": 43,
+            "jcHotCold": 9,
+            "bfMarketIndex": 76,
+            "jcMarketIndex": 38,
+            "bfProfitIndex": -38,
+            "jcProfitIndex": 10
           }
         ],
         "exchange_scale": null,
@@ -7581,8 +7947,8 @@
               "7+": 0.03531800555376863
             },
             "top3_probabilities": {
-              "3": 0.22399572019526992,
               "2": 0.22139280045280854,
+              "3": 0.22399572019526992,
               "4": 0.1699719318893094
             }
           },
@@ -7626,9 +7992,9 @@
             ],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -82.0,
-              -78.0,
-              43.0
+              -82,
+              -78,
+              43
             ],
             "institution_support": [
               14.71,
@@ -7744,34 +8110,34 @@
           {
             "team": "国际米兰",
             "bfOdds": 1.32,
-            "bfVolume": 352156.0,
-            "bfProfitLoss": -61661.0,
+            "bfVolume": 352156,
+            "bfProfitLoss": -61661,
             "jcOdds": 1.13,
-            "jcSavedVolume": 123926304.0,
-            "jcProfitLoss": 40707445.0,
-            "savedPopularity": 2935.0,
+            "jcSavedVolume": 123926304,
+            "jcProfitLoss": 40707445,
+            "savedPopularity": 2935,
             "doerPct": 75.3
           },
           {
             "team": "平局",
             "bfOdds": 6.4,
-            "bfVolume": 35291.0,
-            "bfProfitLoss": 177323.0,
+            "bfVolume": 35291,
+            "bfProfitLoss": 177323,
             "jcOdds": 6.3,
-            "jcSavedVolume": 56483882.0,
-            "jcProfitLoss": -175104288.0,
-            "savedPopularity": 589.0,
+            "jcSavedVolume": 56483882,
+            "jcProfitLoss": -175104288,
+            "savedPopularity": 589,
             "doerPct": 15.11
           },
           {
             "team": "热那亚",
-            "bfOdds": 12.0,
-            "bfVolume": 15738.0,
-            "bfProfitLoss": 214329.0,
+            "bfOdds": 12,
+            "bfVolume": 15738,
+            "bfProfitLoss": 214329,
             "jcOdds": 10.5,
-            "jcSavedVolume": 333983.0,
-            "jcProfitLoss": 177237348.0,
-            "savedPopularity": 374.0,
+            "jcSavedVolume": 333983,
+            "jcProfitLoss": 177237348,
+            "savedPopularity": 374,
             "doerPct": 9.59
           }
         ],
@@ -7783,12 +8149,12 @@
             "bfShare": 87.34,
             "jcSavedShare": 68.56,
             "northShare": 30.31,
-            "bfHotCold": 19.0,
-            "jcHotCold": -6.0,
-            "bfMarketIndex": 53.0,
-            "jcMarketIndex": 28.0,
-            "bfProfitIndex": -15.0,
-            "jcProfitIndex": 23.0
+            "bfHotCold": 19,
+            "jcHotCold": -6,
+            "bfMarketIndex": 53,
+            "jcMarketIndex": 28,
+            "bfProfitIndex": -15,
+            "jcProfitIndex": 23
           },
           {
             "team": "平局",
@@ -7797,12 +8163,12 @@
             "bfShare": 8.75,
             "jcSavedShare": 31.25,
             "northShare": 33.38,
-            "bfHotCold": -47.0,
-            "jcHotCold": 87.0,
-            "bfMarketIndex": 26.0,
-            "jcMarketIndex": 71.0,
-            "bfProfitIndex": 44.0,
-            "jcProfitIndex": -97.0
+            "bfHotCold": -47,
+            "jcHotCold": 87,
+            "bfMarketIndex": 26,
+            "jcMarketIndex": 71,
+            "bfProfitIndex": 44,
+            "jcProfitIndex": -97
           },
           {
             "team": "热那亚",
@@ -7811,12 +8177,12 @@
             "bfShare": 3.9,
             "jcSavedShare": 0.18,
             "northShare": 36.3,
-            "bfHotCold": -61.0,
-            "jcHotCold": -100.0,
-            "bfMarketIndex": 21.0,
-            "jcMarketIndex": 1.0,
-            "bfProfitIndex": 53.0,
-            "jcProfitIndex": 98.0
+            "bfHotCold": -61,
+            "jcHotCold": -100,
+            "bfMarketIndex": 21,
+            "jcMarketIndex": 1,
+            "bfProfitIndex": 53,
+            "jcProfitIndex": 98
           }
         ],
         "exchange_scale": null,
@@ -8093,8 +8459,8 @@
               "7+": 0.052434
             },
             "top3_probabilities": {
-              "3": 0.220456,
               "2": 0.199087,
+              "3": 0.220456,
               "4": 0.183088
             },
             "team_goals_basis": "prematch_score_model_ratio",
@@ -8144,9 +8510,9 @@
             "watch": [],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              19.0,
-              -47.0,
-              -61.0
+              19,
+              -47,
+              -61
             ],
             "institution_support": [
               73.55,
@@ -8251,35 +8617,35 @@
         "transaction_rows": [
           {
             "team": "勒芒",
-            "bfOdds": 4.0,
-            "bfVolume": 4258.0,
-            "bfProfitLoss": 13438.0,
-            "jcOdds": 4.0,
-            "jcSavedVolume": 51044.0,
-            "jcProfitLoss": 21618673.0,
-            "savedPopularity": 293.0,
+            "bfOdds": 4,
+            "bfVolume": 4258,
+            "bfProfitLoss": 13438,
+            "jcOdds": 4,
+            "jcSavedVolume": 51044,
+            "jcProfitLoss": 21618673,
+            "savedPopularity": 293,
             "doerPct": 7.45
           },
           {
             "team": "平局",
             "bfOdds": 3.5,
-            "bfVolume": 11094.0,
-            "bfProfitLoss": -8359.0,
+            "bfVolume": 11094,
+            "bfProfitLoss": -8359,
             "jcOdds": 3.45,
-            "jcSavedVolume": 9417804.0,
-            "jcProfitLoss": -10668575.0,
-            "savedPopularity": 865.0,
-            "doerPct": 22.0
+            "jcSavedVolume": 9417804,
+            "jcProfitLoss": -10668575,
+            "savedPopularity": 865,
+            "doerPct": 22
           },
           {
             "team": "里尔",
             "bfOdds": 2.1,
-            "bfVolume": 15118.0,
-            "bfProfitLoss": -1278.0,
+            "bfVolume": 15118,
+            "bfProfitLoss": -1278,
             "jcOdds": 1.67,
-            "jcSavedVolume": 12354001.0,
-            "jcProfitLoss": 1191667.0,
-            "savedPopularity": 2773.0,
+            "jcSavedVolume": 12354001,
+            "jcProfitLoss": 1191667,
+            "savedPopularity": 2773,
             "doerPct": 70.54
           }
         ],
@@ -8291,12 +8657,12 @@
             "bfShare": 13.97,
             "jcSavedShare": 0.23,
             "northShare": 29.54,
-            "bfHotCold": -45.0,
-            "jcHotCold": -100.0,
-            "bfMarketIndex": 19.0,
-            "jcMarketIndex": 0.0,
-            "bfProfitIndex": 44.0,
-            "jcProfitIndex": 99.0
+            "bfHotCold": -45,
+            "jcHotCold": -100,
+            "bfMarketIndex": 19,
+            "jcMarketIndex": 0,
+            "bfProfitIndex": 44,
+            "jcProfitIndex": 99
           },
           {
             "team": "平局",
@@ -8305,12 +8671,12 @@
             "bfShare": 36.41,
             "jcSavedShare": 43.16,
             "northShare": 38.69,
-            "bfHotCold": 30.0,
-            "jcHotCold": 53.0,
-            "bfMarketIndex": 44.0,
-            "jcMarketIndex": 61.0,
-            "bfProfitIndex": -27.0,
-            "jcProfitIndex": -49.0
+            "bfHotCold": 30,
+            "jcHotCold": 53,
+            "bfMarketIndex": 44,
+            "jcMarketIndex": 61,
+            "bfProfitIndex": -27,
+            "jcProfitIndex": -49
           },
           {
             "team": "里尔",
@@ -8319,12 +8685,12 @@
             "bfShare": 49.62,
             "jcSavedShare": 56.61,
             "northShare": 31.77,
-            "bfHotCold": 7.0,
-            "jcHotCold": 23.0,
-            "bfMarketIndex": 36.0,
-            "jcMarketIndex": 39.0,
-            "bfProfitIndex": -4.0,
-            "jcProfitIndex": 5.0
+            "bfHotCold": 7,
+            "jcHotCold": 23,
+            "bfMarketIndex": 36,
+            "jcMarketIndex": 39,
+            "bfProfitIndex": -4,
+            "jcProfitIndex": 5
           }
         ],
         "exchange_scale": null,
@@ -8583,9 +8949,9 @@
               "7+": 0.013831492768814901
             },
             "top3_probabilities": {
+              "1": 0.20680422532094547,
               "2": 0.25717140784134596,
-              "3": 0.21320368062583428,
-              "1": 0.20680422532094547
+              "3": 0.21320368062583428
             }
           },
           "半全场": {
@@ -8626,9 +8992,9 @@
             "watch": [],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -45.0,
-              30.0,
-              7.0
+              -45,
+              30,
+              7
             ],
             "institution_support": [
               25.51,
@@ -8992,9 +9358,9 @@
               "7+": 0.06781996089811271
             },
             "top3_probabilities": {
+              "2": 0.18238792040919027,
               "3": 0.21475952283797403,
-              "4": 0.1896575135545693,
-              "2": 0.18238792040919027
+              "4": 0.1896575135545693
             }
           },
           "半全场": {
@@ -9137,7 +9503,7 @@
               "2:2": 0.07089256168670095
             },
             "score_handicap_weights": {
-              "让胜": 0.0,
+              "让胜": 0,
               "让平": 0.08363255716916418,
               "让负": 0.239117144838206
             },
@@ -9497,9 +9863,9 @@
               "7+": 0.0138482582622238
             },
             "top3_probabilities": {
+              "1": 0.20672842033455033,
               "2": 0.2571405136869102,
-              "3": 0.21323061974147364,
-              "1": 0.20672842033455033
+              "3": 0.21323061974147364
             }
           },
           "半全场": {
@@ -9655,34 +10021,34 @@
           {
             "team": "布莱克本",
             "bfOdds": 2.18,
-            "bfVolume": 49444.0,
-            "bfProfitLoss": -31539.0,
+            "bfVolume": 49444,
+            "bfProfitLoss": -31539,
             "jcOdds": 1.78,
-            "jcSavedVolume": 908901.0,
-            "jcProfitLoss": -279664.0,
-            "savedPopularity": 2011.0,
+            "jcSavedVolume": 908901,
+            "jcProfitLoss": -279664,
+            "savedPopularity": 2011,
             "doerPct": 49.51
           },
           {
             "team": "平局",
             "bfOdds": 3.6,
-            "bfVolume": 12780.0,
-            "bfProfitLoss": 30241.0,
+            "bfVolume": 12780,
+            "bfProfitLoss": 30241,
             "jcOdds": 3.2,
-            "jcSavedVolume": 272023.0,
-            "jcProfitLoss": 467706.0,
-            "savedPopularity": 1437.0,
+            "jcSavedVolume": 272023,
+            "jcProfitLoss": 467706,
+            "savedPopularity": 1437,
             "doerPct": 35.38
           },
           {
             "team": "查尔顿",
             "bfOdds": 3.75,
-            "bfVolume": 14025.0,
-            "bfProfitLoss": 23655.0,
+            "bfVolume": 14025,
+            "bfProfitLoss": 23655,
             "jcOdds": 3.78,
-            "jcSavedVolume": 157256.0,
-            "jcProfitLoss": 743752.0,
-            "savedPopularity": 614.0,
+            "jcSavedVolume": 157256,
+            "jcProfitLoss": 743752,
+            "savedPopularity": 614,
             "doerPct": 15.12
           }
         ],
@@ -9694,12 +10060,12 @@
             "bfShare": 64.85,
             "jcSavedShare": 67.92,
             "northShare": 34.91,
-            "bfHotCold": 41.0,
-            "jcHotCold": 48.0,
-            "bfMarketIndex": 52.0,
-            "jcMarketIndex": 52.0,
-            "bfProfitIndex": -41.0,
-            "jcProfitIndex": -21.0
+            "bfHotCold": 41,
+            "jcHotCold": 48,
+            "bfMarketIndex": 52,
+            "jcMarketIndex": 52,
+            "bfProfitIndex": -41,
+            "jcProfitIndex": -21
           },
           {
             "team": "平局",
@@ -9708,12 +10074,12 @@
             "bfShare": 16.76,
             "jcSavedShare": 20.33,
             "northShare": 62.48,
-            "bfHotCold": -39.0,
-            "jcHotCold": -27.0,
-            "bfMarketIndex": 22.0,
-            "jcMarketIndex": 28.0,
-            "bfProfitIndex": 40.0,
-            "jcProfitIndex": 35.0
+            "bfHotCold": -39,
+            "jcHotCold": -27,
+            "bfMarketIndex": 22,
+            "jcMarketIndex": 28,
+            "bfProfitIndex": 40,
+            "jcProfitIndex": 35
           },
           {
             "team": "查尔顿",
@@ -9722,12 +10088,12 @@
             "bfShare": 18.39,
             "jcSavedShare": 11.75,
             "northShare": 2.61,
-            "bfHotCold": -31.0,
-            "jcHotCold": -55.0,
-            "bfMarketIndex": 25.0,
-            "jcMarketIndex": 19.0,
-            "bfProfitIndex": 31.0,
-            "jcProfitIndex": 56.0
+            "bfHotCold": -31,
+            "jcHotCold": -55,
+            "bfMarketIndex": 25,
+            "jcMarketIndex": 19,
+            "bfProfitIndex": 31,
+            "jcProfitIndex": 56
           }
         ],
         "exchange_scale": null,
@@ -9840,7 +10206,7 @@
             {
               "match_id": 5836926,
               "xgf": 1.22,
-              "xga": 1.0
+              "xga": 1
             },
             {
               "match_id": 5836920,
@@ -10005,9 +10371,9 @@
               "7+": 0.02312478914213756
             },
             "top3_probabilities": {
+              "1": 0.17381586695864773,
               "2": 0.24054535080639247,
-              "3": 0.2219285914725545,
-              "1": 0.17381586695864773
+              "3": 0.2219285914725545
             }
           },
           "半全场": {
@@ -10051,9 +10417,9 @@
             ],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              41.0,
-              -39.0,
-              -31.0
+              41,
+              -39,
+              -31
             ],
             "institution_support": [
               46.04,
@@ -10163,8 +10529,8 @@
       "away": "拜仁",
       "kickoff": "2026-11-28 22:30",
       "spf": [
-        8.0,
-        6.0,
+        8,
+        6,
         1.18
       ],
       "rqspf": [
@@ -10187,34 +10553,34 @@
           {
             "team": "汉堡",
             "bfOdds": 9.6,
-            "bfVolume": 71679.0,
-            "bfProfitLoss": 473711.0,
-            "jcOdds": 8.0,
-            "jcSavedVolume": 82073.0,
-            "jcProfitLoss": 9615474.0,
-            "savedPopularity": 549.0,
+            "bfVolume": 71679,
+            "bfProfitLoss": 473711,
+            "jcOdds": 8,
+            "jcSavedVolume": 82073,
+            "jcProfitLoss": 9615474,
+            "savedPopularity": 549,
             "doerPct": 21.2
           },
           {
             "team": "平局",
             "bfOdds": 6.6,
-            "bfVolume": 69449.0,
-            "bfProfitLoss": 703466.0,
-            "jcOdds": 6.0,
-            "jcSavedVolume": 352373.0,
-            "jcProfitLoss": 8157820.0,
-            "savedPopularity": 585.0,
+            "bfVolume": 69449,
+            "bfProfitLoss": 703466,
+            "jcOdds": 6,
+            "jcSavedVolume": 352373,
+            "jcProfitLoss": 8157820,
+            "savedPopularity": 585,
             "doerPct": 22.59
           },
           {
             "team": "拜仁",
             "bfOdds": 1.34,
-            "bfVolume": 1020701.0,
-            "bfProfitLoss": -205910.0,
+            "bfVolume": 1020701,
+            "bfProfitLoss": -205910,
             "jcOdds": 1.18,
-            "jcSavedVolume": 9837612.0,
-            "jcProfitLoss": -1336324.0,
-            "savedPopularity": 1456.0,
+            "jcSavedVolume": 9837612,
+            "jcProfitLoss": -1336324,
+            "savedPopularity": 1456,
             "doerPct": 56.22
           }
         ],
@@ -10226,12 +10592,12 @@
             "bfShare": 6.17,
             "jcSavedShare": 0.8,
             "northShare": 11.57,
-            "bfHotCold": -47.0,
-            "jcHotCold": -91.0,
-            "bfMarketIndex": 27.0,
-            "jcMarketIndex": 5.0,
-            "bfProfitIndex": 41.0,
-            "jcProfitIndex": 94.0
+            "bfHotCold": -47,
+            "jcHotCold": -91,
+            "bfMarketIndex": 27,
+            "jcMarketIndex": 5,
+            "bfProfitIndex": 41,
+            "jcProfitIndex": 94
           },
           {
             "team": "平局",
@@ -10240,12 +10606,12 @@
             "bfShare": 5.98,
             "jcSavedShare": 3.43,
             "northShare": 24.65,
-            "bfHotCold": -62.0,
-            "jcHotCold": -81.0,
-            "bfMarketIndex": 18.0,
-            "jcMarketIndex": 15.0,
-            "bfProfitIndex": 61.0,
-            "jcProfitIndex": 79.0
+            "bfHotCold": -62,
+            "jcHotCold": -81,
+            "bfMarketIndex": 18,
+            "jcMarketIndex": 15,
+            "bfProfitIndex": 61,
+            "jcProfitIndex": 79
           },
           {
             "team": "拜仁",
@@ -10254,12 +10620,12 @@
             "bfShare": 87.85,
             "jcSavedShare": 95.77,
             "northShare": 63.78,
-            "bfHotCold": 21.0,
-            "jcHotCold": 32.0,
-            "bfMarketIndex": 54.0,
-            "jcMarketIndex": 81.0,
-            "bfProfitIndex": -18.0,
-            "jcProfitIndex": -13.0
+            "bfHotCold": 21,
+            "jcHotCold": 32,
+            "bfMarketIndex": 54,
+            "jcMarketIndex": 81,
+            "bfProfitIndex": -18,
+            "jcProfitIndex": -13
           }
         ],
         "exchange_scale": "较大",
@@ -10530,9 +10896,9 @@
               "7+": 0.07153
             },
             "top3_probabilities": {
+              "2": 0.178732,
               "3": 0.213212,
-              "4": 0.190758,
-              "2": 0.178732
+              "4": 0.190758
             },
             "team_goals_basis": "prematch_score_model_ratio",
             "team_goals_type": "market_implied_not_xg",
@@ -10586,9 +10952,9 @@
             ],
             "funding_direction": "客胜",
             "hot_cold_index": [
-              -47.0,
-              -62.0,
-              21.0
+              -47,
+              -62,
+              21
             ],
             "institution_support": [
               11.62,
@@ -10694,34 +11060,34 @@
           {
             "team": "女王巡游",
             "bfOdds": 2.02,
-            "bfVolume": 122604.0,
-            "bfProfitLoss": -91429.0,
+            "bfVolume": 122604,
+            "bfProfitLoss": -91429,
             "jcOdds": 1.85,
-            "jcSavedVolume": 248220.0,
-            "jcProfitLoss": 815099.0,
-            "savedPopularity": 522.0,
+            "jcSavedVolume": 248220,
+            "jcProfitLoss": 815099,
+            "savedPopularity": 522,
             "doerPct": 31.85
           },
           {
             "team": "平局",
             "bfOdds": 3.8,
-            "bfVolume": 17803.0,
-            "bfProfitLoss": 88580.0,
+            "bfVolume": 17803,
+            "bfProfitLoss": 88580,
             "jcOdds": 3.4,
-            "jcSavedVolume": 112251.0,
-            "jcProfitLoss": 892653.0,
-            "savedPopularity": 550.0,
+            "jcSavedVolume": 112251,
+            "jcProfitLoss": 892653,
+            "savedPopularity": 550,
             "doerPct": 33.56
           },
           {
             "team": "谢菲联",
-            "bfOdds": 4.0,
-            "bfVolume": 15824.0,
-            "bfProfitLoss": 92935.0,
+            "bfOdds": 4,
+            "bfVolume": 15824,
+            "bfProfitLoss": 92935,
             "jcOdds": 3.28,
-            "jcSavedVolume": 913835.0,
-            "jcProfitLoss": -1723073.0,
-            "savedPopularity": 567.0,
+            "jcSavedVolume": 913835,
+            "jcProfitLoss": -1723073,
+            "savedPopularity": 567,
             "doerPct": 34.59
           }
         ],
@@ -10733,12 +11099,12 @@
             "bfShare": 78.48,
             "jcSavedShare": 19.48,
             "northShare": 56.31,
-            "bfHotCold": 65.0,
-            "jcHotCold": -60.0,
-            "bfMarketIndex": 65.0,
-            "jcMarketIndex": 12.0,
-            "bfProfitIndex": -59.0,
-            "jcProfitIndex": 64.0
+            "bfHotCold": 65,
+            "jcHotCold": -60,
+            "bfMarketIndex": 65,
+            "jcMarketIndex": 12,
+            "bfProfitIndex": -59,
+            "jcProfitIndex": 64
           },
           {
             "team": "平局",
@@ -10747,12 +11113,12 @@
             "bfShare": 11.4,
             "jcSavedShare": 8.81,
             "northShare": 24.64,
-            "bfHotCold": -57.0,
-            "jcHotCold": -66.0,
-            "bfMarketIndex": 18.0,
-            "jcMarketIndex": 10.0,
-            "bfProfitIndex": 57.0,
-            "jcProfitIndex": 70.0
+            "bfHotCold": -57,
+            "jcHotCold": -66,
+            "bfMarketIndex": 18,
+            "jcMarketIndex": 10,
+            "bfProfitIndex": 57,
+            "jcProfitIndex": 70
           },
           {
             "team": "谢菲联",
@@ -10761,12 +11127,12 @@
             "bfShare": 10.13,
             "jcSavedShare": 71.71,
             "northShare": 19.05,
-            "bfHotCold": -61.0,
-            "jcHotCold": 177.0,
-            "bfMarketIndex": 17.0,
-            "jcMarketIndex": 78.0,
-            "bfProfitIndex": 59.0,
-            "jcProfitIndex": -135.0
+            "bfHotCold": -61,
+            "jcHotCold": 177,
+            "bfMarketIndex": 17,
+            "jcMarketIndex": 78,
+            "bfProfitIndex": 59,
+            "jcProfitIndex": -135
           }
         ],
         "exchange_scale": "适中",
@@ -10878,7 +11244,7 @@
             },
             {
               "match_id": 5836926,
-              "xgf": 1.0,
+              "xgf": 1,
               "xga": 1.22
             },
             {
@@ -11044,8 +11410,8 @@
               "7+": 0.012113634968481723
             },
             "top3_probabilities": {
-              "2": 0.26032429823688263,
               "1": 0.21503409265452159,
+              "2": 0.26032429823688263,
               "3": 0.2101023126641415
             }
           },
@@ -11091,9 +11457,9 @@
             ],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              65.0,
-              -57.0,
-              -61.0
+              65,
+              -57,
+              -61
             ],
             "institution_support": [
               47.52,
@@ -11203,7 +11569,7 @@
               "0:0": 0.08881165015506448
             },
             "score_handicap_weights": {
-              "让胜": 0.0,
+              "让胜": 0,
               "让平": 0.11164424348226627,
               "让负": 0.3221718520279877
             },
@@ -11272,7 +11638,7 @@
             "0:0": 0.08881165015506448
           },
           "score_handicap_weights": {
-            "让胜": 0.0,
+            "让胜": 0,
             "让平": 0.11164424348226627,
             "让负": 0.3221718520279877
           },
@@ -11307,10 +11673,10 @@
             "负"
           ],
           "delta": {
-            "胜": 0.0,
-            "负": 0.0
+            "胜": 0,
+            "负": 0
           },
-          "total_delta": 0.0
+          "total_delta": 0
         },
         "让球": {
           "previous_at": "2026-11-28T03:39:21.785983+00:00",
@@ -11319,14 +11685,14 @@
             "让平"
           ],
           "delta": {
-            "让负": 0.0,
-            "让平": 0.0
+            "让负": 0,
+            "让平": 0
           },
-          "total_delta": 0.0,
+          "total_delta": 0,
           "market_delta": {
-            "让胜": 0.0,
-            "让平": 0.0,
-            "让负": 0.0
+            "让胜": 0,
+            "让平": 0,
+            "让负": 0
           },
           "market_previous_at": "2026-11-28T03:39:21.785983+00:00"
         }
@@ -11364,34 +11730,34 @@
           {
             "team": "罗森博格",
             "bfOdds": 1.89,
-            "bfVolume": 13177.0,
-            "bfProfitLoss": -9585.0,
+            "bfVolume": 13177,
+            "bfProfitLoss": -9585,
             "jcOdds": 1.67,
-            "jcSavedVolume": 1136141.0,
-            "jcProfitLoss": 188682.0,
-            "savedPopularity": 813.0,
+            "jcSavedVolume": 1136141,
+            "jcProfitLoss": 188682,
+            "savedPopularity": 813,
             "doerPct": 55.88
           },
           {
             "team": "平局",
             "bfOdds": 4.8,
-            "bfVolume": 1213.0,
-            "bfProfitLoss": 9498.0,
+            "bfVolume": 1213,
+            "bfProfitLoss": 9498,
             "jcOdds": 4.3,
-            "jcSavedVolume": 61632.0,
-            "jcProfitLoss": 1821019.0,
-            "savedPopularity": 393.0,
+            "jcSavedVolume": 61632,
+            "jcProfitLoss": 1821019,
+            "savedPopularity": 393,
             "doerPct": 27.01
           },
           {
             "team": "莫尔德",
             "bfOdds": 3.8,
-            "bfVolume": 930.0,
-            "bfProfitLoss": 11786.0,
+            "bfVolume": 930,
+            "bfProfitLoss": 11786,
             "jcOdds": 3.25,
-            "jcSavedVolume": 888264.0,
-            "jcProfitLoss": -800821.0,
-            "savedPopularity": 249.0,
+            "jcSavedVolume": 888264,
+            "jcProfitLoss": -800821,
+            "savedPopularity": 249,
             "doerPct": 17.11
           }
         ],
@@ -11403,12 +11769,12 @@
             "bfShare": 86.01,
             "jcSavedShare": 54.46,
             "northShare": 53.06,
-            "bfHotCold": 68.0,
-            "jcHotCold": 5.0,
-            "bfMarketIndex": 73.0,
-            "jcMarketIndex": 38.0,
-            "bfProfitIndex": -63.0,
-            "jcProfitIndex": 9.0
+            "bfHotCold": 68,
+            "jcHotCold": 5,
+            "bfMarketIndex": 73,
+            "jcMarketIndex": 38,
+            "bfProfitIndex": -63,
+            "jcProfitIndex": 9
           },
           {
             "team": "平局",
@@ -11417,12 +11783,12 @@
             "bfShare": 7.92,
             "jcSavedShare": 2.95,
             "northShare": 42.88,
-            "bfHotCold": -63.0,
-            "jcHotCold": -86.0,
-            "bfMarketIndex": 17.0,
-            "jcMarketIndex": 5.0,
-            "bfProfitIndex": 62.0,
-            "jcProfitIndex": 87.0
+            "bfHotCold": -63,
+            "jcHotCold": -86,
+            "bfMarketIndex": 17,
+            "jcMarketIndex": 5,
+            "bfProfitIndex": 62,
+            "jcProfitIndex": 87
           },
           {
             "team": "莫尔德",
@@ -11431,12 +11797,12 @@
             "bfShare": 6.07,
             "jcSavedShare": 42.58,
             "northShare": 4.06,
-            "bfHotCold": -78.0,
-            "jcHotCold": 58.0,
-            "bfMarketIndex": 10.0,
-            "jcMarketIndex": 57.0,
-            "bfProfitIndex": 77.0,
-            "jcProfitIndex": -38.0
+            "bfHotCold": -78,
+            "jcHotCold": 58,
+            "bfMarketIndex": 10,
+            "jcMarketIndex": 57,
+            "bfProfitIndex": 77,
+            "jcProfitIndex": -38
           }
         ],
         "exchange_scale": "较小",
@@ -11714,8 +12080,8 @@
               "7+": 0.1482589356818016
             },
             "top3_probabilities": {
-              "4": 0.19280575910090883,
               "3": 0.17795686605710426,
+              "4": 0.19280575910090883,
               "5": 0.16711492651505327
             }
           },
@@ -11760,9 +12126,9 @@
             ],
             "funding_direction": "主胜",
             "hot_cold_index": [
-              68.0,
-              -63.0,
-              -78.0
+              68,
+              -63,
+              -78
             ],
             "institution_support": [
               51.31,
@@ -11872,7 +12238,7 @@
               "1:2": 0.059669742286688816
             },
             "score_handicap_weights": {
-              "让胜": 0.0,
+              "让胜": 0,
               "让平": 0.07253414145237588,
               "让负": 0.19162028403913337
             },
@@ -11941,7 +12307,7 @@
             "1:2": 0.059669742286688816
           },
           "score_handicap_weights": {
-            "让胜": 0.0,
+            "让胜": 0,
             "让平": 0.07253414145237588,
             "让负": 0.19162028403913337
           },
@@ -11976,10 +12342,10 @@
             "负"
           ],
           "delta": {
-            "胜": 0.0,
-            "负": 0.0
+            "胜": 0,
+            "负": 0
           },
-          "total_delta": 0.0
+          "total_delta": 0
         },
         "让球": {
           "previous_at": "2026-11-28T03:39:53.127653+00:00",
@@ -12005,64 +12371,64 @@
   "generated_at": "2026-11-28T09:35:26.341641+00:00",
   "metrics": {
     "total": 23,
-    "settled": 0,
-    "pending": 23,
-    "top1_hit_rate": null,
+    "settled": 3,
+    "pending": 20,
+    "top1_hit_rate": 1,
     "module_hits": {
       "胜平负Top1": {
-        "hit": 0,
-        "total": 0,
-        "rate": null
+        "hit": 3,
+        "total": 3,
+        "rate": 1
       },
       "胜平负Top2": {
-        "hit": 0,
-        "total": 0,
-        "rate": null
+        "hit": 3,
+        "total": 3,
+        "rate": 1
       },
       "让球Top1": {
-        "hit": 0,
-        "total": 0,
-        "rate": null
+        "hit": 1,
+        "total": 3,
+        "rate": 0.3333
       },
       "让球Top2": {
-        "hit": 0,
-        "total": 0,
-        "rate": null
+        "hit": 2,
+        "total": 3,
+        "rate": 0.6667
       },
       "比分Top1": {
         "hit": 0,
-        "total": 0,
-        "rate": null
+        "total": 3,
+        "rate": 0
       },
       "比分Top3": {
         "hit": 0,
-        "total": 0,
-        "rate": null
+        "total": 3,
+        "rate": 0
       },
       "比分Top4": {
         "hit": 0,
-        "total": 0,
-        "rate": null
+        "total": 3,
+        "rate": 0
       },
       "总进球Top1": {
         "hit": 0,
-        "total": 0,
-        "rate": null
+        "total": 3,
+        "rate": 0
       },
       "总进球Top3": {
         "hit": 0,
-        "total": 0,
-        "rate": null
+        "total": 3,
+        "rate": 0
       },
       "半全场Top1": {
-        "hit": 0,
-        "total": 0,
-        "rate": null
+        "hit": 2,
+        "total": 3,
+        "rate": 0.6667
       },
       "半全场Top3": {
-        "hit": 0,
-        "total": 0,
-        "rate": null
+        "hit": 2,
+        "total": 3,
+        "rate": 0.6667
       },
       "今日优选Top1": {
         "hit": 0,
@@ -12081,128 +12447,128 @@
       },
       "冷门预警": {
         "hit": 0,
-        "total": 0,
-        "rate": null
+        "total": 1,
+        "rate": 0
       },
       "单选精选": {
         "hit": 0,
-        "total": 0,
-        "rate": null
+        "total": 1,
+        "rate": 0
       }
     },
     "module_stats": {
       "胜平负": {
         "predicted": 23,
-        "verified": 0,
-        "pending": 23,
+        "verified": 3,
+        "pending": 20,
         "evaluation": {
-          "hit": 0,
-          "total": 0,
-          "rate": null
+          "hit": 3,
+          "total": 3,
+          "rate": 1
         },
         "rates": {
           "Top1": {
-            "hit": 0,
-            "total": 0,
-            "rate": null
+            "hit": 3,
+            "total": 3,
+            "rate": 1
           },
           "Top2": {
-            "hit": 0,
-            "total": 0,
-            "rate": null
+            "hit": 3,
+            "total": 3,
+            "rate": 1
           }
         }
       },
       "让球": {
         "predicted": 21,
-        "verified": 0,
-        "pending": 21,
+        "verified": 3,
+        "pending": 18,
         "evaluation": {
-          "hit": 0,
-          "total": 0,
-          "rate": null
+          "hit": 2,
+          "total": 3,
+          "rate": 0.6667
         },
         "rates": {
           "Top1": {
-            "hit": 0,
-            "total": 0,
-            "rate": null
+            "hit": 1,
+            "total": 3,
+            "rate": 0.3333
           },
           "Top2": {
-            "hit": 0,
-            "total": 0,
-            "rate": null
+            "hit": 2,
+            "total": 3,
+            "rate": 0.6667
           }
         }
       },
       "比分": {
         "predicted": 23,
-        "verified": 0,
-        "pending": 23,
+        "verified": 3,
+        "pending": 20,
         "evaluation": {
           "hit": 0,
-          "total": 0,
-          "rate": null
+          "total": 3,
+          "rate": 0
         },
         "rates": {
           "Top1": {
             "hit": 0,
-            "total": 0,
-            "rate": null
+            "total": 3,
+            "rate": 0
           },
           "Top3": {
             "hit": 0,
-            "total": 0,
-            "rate": null
+            "total": 3,
+            "rate": 0
           },
           "Top4": {
             "hit": 0,
-            "total": 0,
-            "rate": null
+            "total": 3,
+            "rate": 0
           }
         }
       },
       "总进球": {
         "predicted": 23,
-        "verified": 0,
-        "pending": 23,
+        "verified": 3,
+        "pending": 20,
         "evaluation": {
           "hit": 0,
-          "total": 0,
-          "rate": null
+          "total": 3,
+          "rate": 0
         },
         "rates": {
           "Top1": {
             "hit": 0,
-            "total": 0,
-            "rate": null
+            "total": 3,
+            "rate": 0
           },
           "Top3": {
             "hit": 0,
-            "total": 0,
-            "rate": null
+            "total": 3,
+            "rate": 0
           }
         }
       },
       "半全场": {
         "predicted": 23,
-        "verified": 0,
-        "pending": 23,
+        "verified": 3,
+        "pending": 20,
         "evaluation": {
-          "hit": 0,
-          "total": 0,
-          "rate": null
+          "hit": 2,
+          "total": 3,
+          "rate": 0.6667
         },
         "rates": {
           "Top1": {
-            "hit": 0,
-            "total": 0,
-            "rate": null
+            "hit": 2,
+            "total": 3,
+            "rate": 0.6667
           },
           "Top3": {
-            "hit": 0,
-            "total": 0,
-            "rate": null
+            "hit": 2,
+            "total": 3,
+            "rate": 0.6667
           }
         }
       },
@@ -12235,35 +12601,35 @@
       },
       "冷门预警": {
         "predicted": 5,
-        "verified": 0,
-        "pending": 5,
+        "verified": 1,
+        "pending": 4,
         "evaluation": {
           "hit": 0,
-          "total": 0,
-          "rate": null
+          "total": 1,
+          "rate": 0
         },
         "rates": {
           "": {
             "hit": 0,
-            "total": 0,
-            "rate": null
+            "total": 1,
+            "rate": 0
           }
         }
       },
       "单选精选": {
         "predicted": 5,
-        "verified": 0,
-        "pending": 5,
+        "verified": 1,
+        "pending": 4,
         "evaluation": {
           "hit": 0,
-          "total": 0,
-          "rate": null
+          "total": 1,
+          "rate": 0
         },
         "rates": {
           "": {
             "hit": 0,
-            "total": 0,
-            "rate": null
+            "total": 1,
+            "rate": 0
           }
         }
       }
