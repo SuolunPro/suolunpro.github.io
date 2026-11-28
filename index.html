@@ -1172,7 +1172,7 @@
     function render(){
       if(!report)return;
       $('fixture-explanation').textContent=active==='绿色场次'
-        ?'绿色场次须通过冷门评估。必发与体彩首选均为主胜的补充场次按胜／平评测。'
+        ?'绿色场次：是指通过模型冷门评估和市场支持的比赛'
         :'预测赛前动态更新，停售前锁定最终推荐，赛果核验后自动更新命中率。';
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
