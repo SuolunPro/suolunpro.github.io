@@ -264,7 +264,7 @@
         <div class="section-head"><h2 id="section-title">胜平负赛事</h2><button class="v4-refresh" id="refresh" type="button">刷新</button></div>
         <aside class="v4-model-notice" role="note" style="margin:10px 0 14px;padding:10px 12px;background:#fff8ec;border:1px solid #f1d9b0;border-radius:10px;color:#795726;font-size:12px;line-height:1.6">
           <strong style="display:block;color:#654718;font-size:13px;margin-bottom:3px">📢 赛事说明</strong>
-          <div>预测赛前动态更新，停售前锁定最终推荐，赛果核验后自动更新命中率。</div>
+          <div id="fixture-explanation">预测赛前动态更新，停售前锁定最终推荐，赛果核验后自动更新命中率。</div>
         </aside>
         <div id="review-update-notice" role="status" style="display:none;margin:10px 0 14px;padding:11px 13px;border:1px solid #f1d9b0;border-radius:10px;background:#fff8ec;color:#795726;font-size:13px;line-height:1.6"><strong>⏰ 精选研判更新时间</strong><div>每日北京时间12:30后陆续更新当天精选研判。12:30前显示“待更新”属正常情况；12:30后仍未发布时，请稍后刷新。以页面实际发布内容为准，不保证准点完成。</div></div>
         <div class="cards" id="matches"><div class="empty">正在加载今日赛事…</div></div>
@@ -518,7 +518,7 @@
       const homeSide=home>away;
       const probability=(homeSide?home:away)+draw;
       if(probability+1e-10<0.78)return null;
-      return {homeSide,direction:homeSide?'主队不败':'客队不败'};
+      return {homeSide};
     }
     function greenResult(match,prediction){
       if(!prediction||match.result_verification?.status!=='VERIFIED'||
@@ -532,12 +532,11 @@
     function greenCard(card,match){
       const prediction=greenPrediction(match);
       const result=greenResult(match,prediction);
-      const analysis=el('div','analysis'),grid=el('div','triplet pair');
-      const direction=el('div','datum primary');
-      direction.append(el('span','','双选方向'),el('b','',prediction.direction));
-      const coverage=el('div','datum'+(result?.hit?' hit':''));
-      coverage.append(el('span','','覆盖赛果'),el('b','',prediction.homeSide?'主胜／平局':'平局／客胜'));
-      grid.append(direction,coverage);
+      const analysis=el('div','analysis'),grid=el('div','triplet');
+      grid.style.gridTemplateColumns='1fr';
+      const cell=el('div','datum'+(result?.hit?' hit':' primary'));
+      cell.append(el('span','','推荐'),el('b','',prediction.homeSide?'胜／平':'负／平'));
+      grid.append(cell);
       analysis.append(grid);
       card.append(analysis);
       const box=el('div','v4-verdict'+(result?(result.hit?' hit':' miss'):''));
@@ -1142,6 +1141,9 @@
     }
     function render(){
       if(!report)return;
+      $('fixture-explanation').textContent=active==='绿色场次'
+        ?'主胜概率高于客胜时推荐胜／平，客胜概率高于主胜时推荐负／平。两项概率合计达到 78%，且冷门预警已完成评估、未触发风险观察或正式预警，才列为绿色场次。'
+        :'预测赛前动态更新，停售前锁定最终推荐，赛果核验后自动更新命中率。';
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
       if(active==='双平预警')active='胜平负';
