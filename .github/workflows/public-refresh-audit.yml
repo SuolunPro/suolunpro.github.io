@@ -10,6 +10,7 @@ on:
   repository_dispatch:
     types: [engine4_audit_requested]
   workflow_dispatch:
+  workflow_call:
   push:
     branches: [main]
     paths: ['triggers/engine4-sale-probe.json']
