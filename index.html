@@ -1142,7 +1142,7 @@
     function render(){
       if(!report)return;
       $('fixture-explanation').textContent=active==='绿色场次'
-        ?'主胜概率高于客胜时推荐胜／平，客胜概率高于主胜时推荐负／平。两项概率合计达到 78%，且冷门预警已完成评估、未触发风险观察或正式预警，才列为绿色场次。'
+        ?'主胜概率高于客胜时推荐胜／平，客胜概率高于主胜时推荐负／平。推荐方向达到筛选标准，且冷门预警已完成评估、未触发风险观察或正式预警，才列为绿色场次。'
         :'预测赛前动态更新，停售前锁定最终推荐，赛果核验后自动更新命中率。';
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
