@@ -1,0 +1,52 @@
+name: Engine4 maintenance (public runner)
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Maintenance task
+        type: choice
+        required: true
+        options:
+          - regression-tests
+          - over-under-research
+permissions:
+  contents: read
+concurrency:
+  group: engine4-public-maintenance
+  cancel-in-progress: false
+jobs:
+  maintenance:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: SuolunPro/90scale-engine
+          token: ${{ secrets.ENGINE4_READ_TOKEN }}
+          ref: main
+          persist-credentials: false
+          show-progress: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run engine regression tests
+        if: inputs.task == 'regression-tests'
+        run: python -m unittest discover -s engine4/tests -v
+      - name: Capture and store private research records
+        if: inputs.task == 'over-under-research'
+        env:
+          WRITER: ${{ secrets.ENGINE4_PUBLISH_TOKEN }}
+        run: |
+          python research/over_under.py
+          test -d data/research/over_under/ || exit 0
+          git add -- data/research/over_under/
+          if git diff --cached --quiet; then exit 0; fi
+          git config --local user.name engine4-validation
+          git config --local user.email actions@users.noreply.github.com
+          git commit -qm 'research: capture over-under snapshots on public runner'
+          export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.https://github.com/.extraheader
+          export GIT_CONFIG_VALUE_0="Authorization: Basic $(printf 'x-access-token:%s' "$WRITER" | base64 -w0)"
+          git fetch -q origin main
+          git rebase -q FETCH_HEAD
+          git push -q origin HEAD:main
