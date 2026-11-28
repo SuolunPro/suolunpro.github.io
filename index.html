@@ -502,8 +502,52 @@
     const visibleName=name=>modules.find(([key])=>key===name)?.[1]||name;
     function navigation(){
       const root=$('models');root.replaceChildren();
-      for(const [key,name] of modules){
+      if(active==='绿色场次'&&!radarAdmin())active='胜平负';
+      const visibleModules=radarAdmin()?[...modules,['绿色场次','绿色场次']]:modules;
+      for(const [key,name] of visibleModules){
         const button=el('button','model'+(key===active?' active':''),name);button.type='button';button.setAttribute('aria-current',key===active?'page':'false');button.onclick=()=>{active=key;navigation();render()};root.append(button)}
+    }
+
+    function greenPrediction(match){
+      const prediction=match.prediction;
+      const warning=prediction?.modules?.['冷门预警'];
+      if(prediction?.status!=='PREDICTED'||warning?.status!=='NOT_TRIGGERED'||
+         warning.triggered===true||match.manual_cold_warning)return null;
+      const kickoff=Date.parse(String(match.kickoff||'').replace(' ','T')+'+08:00');
+      if(!(Date.parse(match.predicted_at)<kickoff))return null;
+      const p=prediction.modules['胜平负']?.probabilities;
+      const home=p?.['胜'],draw=p?.['平'],away=p?.['负'];
+      if(![home,draw,away].every(v=>Number.isFinite(v)&&v>=0&&v<=1)||
+         Math.abs(home+draw+away-1)>0.002||home===away)return null;
+      const homeSide=home>away;
+      const probability=(homeSide?home:away)+draw;
+      if(probability+1e-10<0.78)return null;
+      return {homeSide,direction:homeSide?'主队不败':'客队不败'};
+    }
+    function greenResult(match,prediction){
+      if(!prediction||match.result_verification?.status!=='VERIFIED'||
+         match.settlement?.scope!=='90min_regular_ft')return null;
+      const ft=match.settlement.ft;
+      const score=typeof ft==='string'?ft.match(/^(\d+)\s*:\s*(\d+)$/):null;
+      if(!score)return null;
+      const diff=Number(score[1])-Number(score[2]);
+      return {actual:diff>0?'主胜':diff<0?'客胜':'平局',hit:prediction.homeSide?diff>=0:diff<=0};
+    }
+    function greenCard(card,match){
+      const prediction=greenPrediction(match);
+      const result=greenResult(match,prediction);
+      const analysis=el('div','analysis'),grid=el('div','triplet pair');
+      const direction=el('div','datum primary');
+      direction.append(el('span','','双选方向'),el('b','',prediction.direction));
+      const coverage=el('div','datum'+(result?.hit?' hit':''));
+      coverage.append(el('span','','覆盖赛果'),el('b','',prediction.homeSide?'主胜／平局':'平局／客胜'));
+      grid.append(direction,coverage);
+      analysis.append(grid);
+      card.append(analysis);
+      const box=el('div','v4-verdict'+(result?(result.hit?' hit':' miss'):''));
+      if(result)box.append(el('b','','实际结果 '+result.actual+' · '+(result.hit?'评测成功':'评测失败')));
+      else box.textContent='等待赛果';
+      card.append(box);
     }
 
     function ouPrediction(match){
@@ -579,6 +623,16 @@
         $('hit-rate').textContent=total?(100*hit/total).toFixed(1)+'%':'—';
         $('hit-count').textContent=hit+'/'+total;
         $('pending').textContent=picks.length-total;
+        return;
+      }
+      if(active==='绿色场次'){
+        const picks=report.matches.map(m=>({m,p:greenPrediction(m)})).filter(x=>x.p);
+        const settled=picks.map(({m,p})=>greenResult(m,p)).filter(Boolean);
+        const hit=settled.filter(r=>r.hit).length;
+        $('hit-rate-label').textContent='当日绿色场次命中率';
+        $('hit-rate').textContent=settled.length?(100*hit/settled.length).toFixed(1)+'%':'—';
+        $('hit-count').textContent=hit+'/'+settled.length;
+        $('pending').textContent=picks.length-settled.length;
         return;
       }
       if(active==='大小球研判'){
@@ -1108,12 +1162,13 @@
     }
     function render(){
       if(!report)return;
+      if(active==='绿色场次'&&!radarAdmin()){active='胜平负';navigation();}
       stats();$('sale-day').textContent='赛事日期 '+label(report.sale_day);
       $('pool-count').textContent=`所选日期赛事 ${report.matches.length} 场`;
       if(active==='双平预警')active='胜平负';
       if(active==='双平预警'){renderRadar();return;}
       const isReviewSelected=isIndependentFeatured;
-      const focus=active==='单选精选'?report.matches.filter(isPublishedSinglePick):
+      const focus=active==='绿色场次'?report.matches.filter(greenPrediction):active==='单选精选'?report.matches.filter(isPublishedSinglePick):
         active==='独立研判'?report.matches.slice().sort((a,b)=>Number(isReviewSelected(b))-Number(isReviewSelected(a))):active==='冷门预警'?report.matches.filter(match=>{const warning=match.prediction?.modules?.[active];return !!match.manual_cold_warning||(warning?.status==='TRIGGERED'&&warning.triggered===true&&['主队不败','主队不胜'].includes(warning.direction))}):
         active==='今日优选'?report.matches.filter(match=>match.prediction?.modules?.[active]?.status==='SELECTED'):report.matches;
       $('section-title').textContent=`${visibleName(active)}赛事 · ${focus.length}场`;
@@ -1125,7 +1180,7 @@
         const selected=focus.filter(m=>isIndependentFeatured(m)).length;
         cards.append(el('div','intel-summary',`全池 ${focus.length} 场 · 已完成 ${completed} 场 · 最终精选 ${selected} 场 · 其余待复核或未入选`));
       }
-      if(!focus.length){cards.append(el('div','empty',active==='单选精选'?'今日暂无单选参考':active==='独立研判'?'当前日期暂无赛事':active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':'暂无赛事数据'));root.append(cards);return}
+      if(!focus.length){cards.append(el('div','empty',active==='单选精选'?'今日暂无单选参考':active==='独立研判'?'当前日期暂无赛事':active==='今日优选'?'今日暂无优选场次':active==='冷门预警'?'今日暂无正式冷门预警':active==='绿色场次'?'当日暂无绿色场次':'暂无赛事数据'));root.append(cards);return}
       for(const match of focus){
         const card=el('article','card');fixture(card,match);
         if(active==='单选精选'){
@@ -1148,6 +1203,7 @@
           cards.append(card);continue;
         }
         if(active==='独立研判'){independentReview(card,match);cards.append(card);continue;}
+        if(active==='绿色场次'){greenCard(card,match);cards.append(card);continue;}
         if(active==='大小球研判'){ouCard(card,match);cards.append(card);continue;}
         const data=match.prediction?.modules?.[active];
         if(match.prediction?.status!=='PREDICTED'||!data)card.append(el('div','v4-verdict v4-error','暂无预测'));
