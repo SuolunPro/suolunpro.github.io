@@ -11,6 +11,9 @@ on:
         type: boolean
         default: false
         description: Manually refresh verified open fixtures
+      betfair_repair:
+        type: string
+        description: Verified repair request as sale-day:fixture-numbers
       recovery:
         type: boolean
         default: false
@@ -41,12 +44,13 @@ jobs:
         id: calculate
         env:
           ENGINE4_SKIP_RESULT_LOOKUP: '1'
+          ENGINE4_BETFAIR_REPAIR: ${{ inputs.betfair_repair || '' }}
           MANUAL_REFRESH: ${{ inputs.refresh_prediction || github.event.client_payload.manual || 'false' }}
           EVENT_NAME: ${{ (inputs.refresh_prediction && 'workflow_dispatch') || github.event.client_payload.event || 'schedule' }}
           HEAD_MESSAGE: ${{ github.event.client_payload.message || '' }}
         run: |
           grep -q '^  relay-public:' .github/workflows/engine4.yml || exit 0
-          ruby -ryaml - <<'RUBY'
+          ruby -ryaml -rjson - <<'RUBY'
           steps = YAML.load_file('.github/workflows/engine4.yml').fetch('jobs').fetch('update').fetch('steps')
           run = lambda do |prefix|
             hits = steps.select { |s| s.fetch('name', '').start_with?(prefix) }
@@ -56,12 +60,31 @@ jobs:
             abort "Failed: #{prefix}" unless system('bash', '-eo', 'pipefail', '-c', script, out: File::NULL, err: File::NULL)
           end
           run.call('Check code and tests')
-          run.call('Decide whether prediction')
-          unless File.readlines(ENV.fetch('GITHUB_OUTPUT'), chomp: true).include?('predict=true')
+          repair = !ENV.fetch('ENGINE4_BETFAIR_REPAIR').empty?
+          if repair
+            abort 'Betfair repair gate failed' unless system('python', '-m', 'ops.engine4_betfair_repair', 'gate')
+          else
+            run.call('Decide whether prediction')
+          end
+          unless File.readlines(ENV.fetch('GITHUB_OUTPUT'), chomp: true).grep(/^predict=/).last == 'predict=true'
             puts 'NO_LIVE_REFRESH: no fresh forecast verified'
             exit 0
           end
-          ['Refresh Okooo', 'Install browser fallback', 'Recover missing prematch', 'Refresh today and tomorrow', 'Aggregate prematch', 'Audit newly generated', 'Verify published market', 'Enforce prematch market'].each(&run)
+          if repair
+            ENV['ENGINE4_BETFAIR_TARGETS'] = JSON.parse(File.read('/tmp/engine4-repair.json')).join(',')
+          end
+          ['Refresh Okooo', 'Install browser fallback', 'Recover missing prematch'].each(&run)
+          if repair
+            abort 'Betfair repair verification failed' unless system('python', '-m', 'ops.engine4_betfair_repair', 'verify')
+            unless File.readlines(ENV.fetch('GITHUB_OUTPUT'), chomp: true).grep(/^predict=/).last == 'predict=true'
+              puts 'NO_BETFAIR_REPAIR: no verified open fixture recovered'
+              exit 0
+            end
+          end
+          ['Refresh today and tomorrow', 'Aggregate prematch', 'Audit newly generated', 'Verify published market', 'Enforce prematch market'].each(&run)
+          if repair
+            abort 'Betfair repair output failed validation' unless system('python', '-m', 'ops.engine4_betfair_repair', 'result')
+          end
           puts 'LIVE_PREDICTION_VERIFIED'
           RUBY
       - name: Verify frozen predictions and publish snapshot
@@ -121,7 +144,7 @@ jobs:
         run: gh api -X POST "repos/$GITHUB_REPOSITORY/dispatches" -f event_type=engine4_data_updated
   evening:
     needs: predict
-    if: needs.predict.outputs.published == 'true'
+    if: needs.predict.outputs.published == 'true' && !inputs.betfair_repair
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -143,7 +166,7 @@ jobs:
           PY
   compensate:
     needs: predict
-    if: always() && needs.predict.result == 'failure' && inputs.recovery != true
+    if: always() && needs.predict.result == 'failure' && inputs.recovery != true && !inputs.betfair_repair
     runs-on: ubuntu-latest
     permissions:
       actions: write
